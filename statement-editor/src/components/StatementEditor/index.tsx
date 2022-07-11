@@ -18,11 +18,11 @@ import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterpri
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
+import { CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import {
     CurrentModel,
+    DocumentationInfo,
     EditorModel,
-    EmptySymbolInfo,
     LSSuggestions,
     StmtDiagnostic,
     SuggestionItem
@@ -39,7 +39,7 @@ import {
     getPreviousNode,
     getSelectedModelPosition,
     getUpdatedSource,
-    isBindingPattern,
+    isBindingPattern, isDocumentationSupportedModel,
     isOperator,
 } from "../../utils";
 import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manager';
@@ -56,6 +56,7 @@ import { StackElement } from "../../utils/undo-redo";
 import { visitor as CommonParentFindingVisitor } from "../../visitors/common-parent-finding-visitor";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditorWrapper";
+import { ReturnStatementC } from '../Statements/ReturnStatement';
 import { ViewContainer } from "../ViewContainer";
 
 export interface StatementEditorProps extends LowCodeEditorProps {
@@ -90,7 +91,7 @@ export function StatementEditor(props: StatementEditorProps) {
         importStatements,
         experimentalEnabled,
         extraModules,
-        runCommandInBackground
+        runBackgroundTerminalCommand
     } = props;
 
     const {
@@ -110,7 +111,10 @@ export function StatementEditor(props: StatementEditorProps) {
     } = editorManager;
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    const initSymbolInfo: EmptySymbolInfo = {}
+    const initSymbolInfo : DocumentationInfo = {
+        modelPosition: null,
+        documentation: {}
+    }
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
@@ -118,7 +122,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
     const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
-    const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
+    const [documentation, setDocumentation] = useState<DocumentationInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
     const [isPullingModule, setIsPullingModule] = useState(false);
 
@@ -156,7 +160,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (!newConfigurableName) {
+            if (!newConfigurableName || isPullingModule) {
                 const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
 
                 sendDidChange(fileURI, updatedContent, getLangClient).then();
@@ -332,10 +336,29 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (newCurrentModel && STKindChecker.isFunctionCall(newCurrentModel)) {
-            setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
+        if (config.type === CONNECTOR){
+            return setDocumentation(initSymbolInfo);
+        }
+        if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){
+            setDocumentation({
+                modelPosition: newCurrentModel.position,
+                documentation: await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient)
+            });
         } else {
-            setDocumentation(initSymbolInfo);
+            if (newCurrentModel && (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos){
+                const parentModel =
+                    getCurrentModel((newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                        enrichModel(model, targetPosition));
+
+                if (isDocumentationSupportedModel(parentModel) && parentModel.position !== documentation.modelPosition){
+                    setDocumentation({
+                        modelPosition: (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                        documentation: await getSymbolDocumentation(fileURI, targetPosition, parentModel, getLangClient)
+                    });
+                }
+            } else {
+                setDocumentation(initSymbolInfo);
+            }
         }
     };
 
@@ -361,14 +384,14 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules.size && runCommandInBackground) {
+        if (!!moduleList.size && !!extraModules.size && runBackgroundTerminalCommand && !isPullingModule) {
             completeDiagnostic?.forEach((diagnostic) => {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
                     extraModules.forEach((module) => {
                         if (diagnostic.message?.includes(module)) {
                             // Pull module in background
                             setIsPullingModule(true);
-                            runCommandInBackground(`bal pull ${module}`)
+                            runBackgroundTerminalCommand(`bal pull ${module}`)
                                 .then((response) => {
                                     // TODO: handle pull command response
                                 })

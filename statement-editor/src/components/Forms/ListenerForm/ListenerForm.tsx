@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { FormControl } from "@material-ui/core";
 import {
@@ -27,9 +27,8 @@ import {
     TextLabel,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import {
-    ListenerDeclaration, ParenthesizedArgList, STKindChecker
-} from "@wso2-enterprise/syntax-tree";
+import { ListenerDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
@@ -46,7 +45,8 @@ const HTTP_IMPORT = new Set<string>(['ballerina/http']);
 export function ListenerForm(props: FunctionProps) {
     const { model} = props;
 
-    const { targetPosition, isEdit, onChange, applyModifications, onCancel, getLangClient } = useContext(FormEditorContext);
+    const { targetPosition, isEdit, isLastMember, onChange, applyModifications, onCancel, getLangClient } =
+        useContext(FormEditorContext);
 
     const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();
@@ -100,6 +100,7 @@ export function ListenerForm(props: FunctionProps) {
         setListenerName({value, isInteracted: true});
         await listenerParamChange(value, listenerPort.value);
     }
+    const debouncedNameChange = debounce(handleNameChange, 800);
 
     // Functions related to port
     const handlePortFocus = (value: string) => {
@@ -109,13 +110,13 @@ export function ListenerForm(props: FunctionProps) {
         setListenerPort({value, isInteracted: true});
         await listenerParamChange(listenerName.value, value);
     }
+    const debouncedPortChange = debounce(handlePortChange, 800);
 
     const handleOnSave = () => {
         applyModifications([
             createImportStatement('ballerina', 'http', {startColumn: 0, startLine: 0}),
             createListenerDeclartion({listenerPort: listenerPort.value, listenerName: listenerName.value},
-                {...targetPosition, endLine: targetPosition.startLine, startColumn: 0,
-                 endColumn: 0}, false)
+                targetPosition, !isEdit, isLastMember)
         ]);
         onCancel();
     }
@@ -158,8 +159,8 @@ export function ListenerForm(props: FunctionProps) {
                     <FormTextInput
                         label="Listener Name"
                         dataTestId="listener-name"
-                        defaultValue={(listenerName?.isInteracted || isEdit) ? listenerName.value : ""}
-                        onChange={handleNameChange}
+                        defaultValue={listenerName.value}
+                        onChange={debouncedNameChange}
                         customProps={{
                             isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
                                 model?.variableName?.viewState?.diagnosticsInRange[0]?.message)
@@ -169,15 +170,15 @@ export function ListenerForm(props: FunctionProps) {
                             model?.variableName?.viewState?.diagnosticsInRange[0]?.message}
                         onBlur={null}
                         onFocus={handleNameFocus}
-                        placeholder={"name"}
+                        placeholder={"Enter Name"}
                         size="small"
                         disabled={currentComponentSyntaxDiag && currentComponentName !== "Name"}
                     />
                     <FormTextInput
                         label="Listener Port"
                         dataTestId="listener-port"
-                        defaultValue={(listenerPort?.isInteracted || isEdit) ? listenerPort.value : ""}
-                        onChange={handlePortChange}
+                        defaultValue={listenerPort.value}
+                        onChange={debouncedPortChange}
                         customProps={{
                             isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Port") ||
                                 (model?.initializer?.viewState?.
@@ -188,7 +189,7 @@ export function ListenerForm(props: FunctionProps) {
                             viewState?.diagnosticsInRange[0]?.message}
                         onBlur={null}
                         onFocus={handlePortFocus}
-                        placeholder={"9090"}
+                        placeholder={"Enter Port"}
                         size="small"
                         disabled={currentComponentSyntaxDiag && currentComponentName !== "Port"}
                     />
@@ -200,7 +201,7 @@ export function ListenerForm(props: FunctionProps) {
                 saveBtnText="Save"
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={(isEdit || (listenerName.isInteracted === true && listenerPort.isInteracted))
+                validForm={(listenerPort.value !== "")
                     && !(model?.variableName?.viewState?.diagnosticsInRange[0]?.message)
                     && !(parenthesizedArgList?.arguments[0]?.viewState?.
                         diagnosticsInRange[0]?.message)

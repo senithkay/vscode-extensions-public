@@ -267,6 +267,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
             boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
             cursor: "pointer",
+            width: "inherit",
             "&:active": {
                 background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
                 boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
@@ -483,6 +484,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             padding: '0 10px'
         },
         parameterCheckbox: {
+            alignSelf: "center",
             color: '#2FA86C',
             padding: '0 6px 0 0',
             "& .MuiCheckbox-colorSecondary.Mui-checked": {
@@ -495,8 +497,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                     background: "transparent",
                 },
                 "& .MuiIconButton-label": {
-                    position: "relative",
-                    zIndex: 0,
+                    position: "relative"
                 },
                 "& .MuiIconButton-label::after": {
                     content: '""',
@@ -520,6 +521,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         checked: {},
         disabledCheckbox : {
+            alignSelf: "center",
             color: 'rgba(47,168,108,0.5)',
             padding: '0 6px 0 0',
             "&$checked": {
@@ -529,7 +531,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 },
                 "& .MuiIconButton-label": {
                     position: "relative",
-                    zIndex: 0,
                 },
                 "& .MuiIconButton-label::after": {
                     content: '""',
@@ -552,6 +553,10 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             paddingLeft: '0px',
             marginBottom: '7px'
         },
+        docParamSuggestions: {
+            height: '100%',
+            ...stmtEditorPadding
+        },
         returnSeparator : {
             width: '616px',
             opacity: '0.52',
@@ -572,6 +577,10 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         docParamDescriptionText: {
             flex: "inherit",
+            width: '320px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
             ...removePadding
         },
         includedRecordPlusBtn: {
@@ -597,10 +606,13 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             },
             alignItems: 'flex-start',
             overflowX: 'hidden',
+            width: 'fit-content',
             ...removePadding
         },
         docDescription: {
-            whiteSpace: 'pre',
+            maxHeight: '50%',
+            overflowY: 'scroll',
+            whiteSpace: 'break-spaces',
             display: 'block',
             "& .MuiListItem-root": {
                 paddingLeft: '0px',
@@ -609,10 +621,17 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         returnDescription: {
+            maxHeight: '15%',
+            overflowY: 'scroll',
+            whiteSpace: 'break-spaces',
             "& .MuiListItem-root": {
                 paddingLeft: '0px'
             },
             ...removePadding
+        },
+        paramList: {
+            maxHeight: '40%',
+            overflowY: 'scroll',
         },
         includedRecordHeaderList: {
             "& .MuiListItem-root": {
@@ -633,6 +652,8 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 minWidth: 'auto',
                 margin: '0 6px 0 0'
             },
+            alignItems: 'flex-start',
+            width: 'fit-content',
             ...removePadding
         },
         exampleHeader :  {
@@ -646,7 +667,90 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         exampleCode : {
             color: '#1D2028'
-        }
+        },
+        paramTreeList: {
+            display: 'flex',
+            alignItems: 'flex-start'
+        },
+        listItemMultiLine: {
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            minHeight: '32px'
+        },
+        listItemHeader: {
+            display: 'flex',
+            alignItems: 'flex-start',
+            height: '28px'
+        },
+        listItemBody: {
+            marginLeft: '12px',
+            marginBottom: '8px',
+            paddingLeft: '16px',
+            borderLeft: "1px solid #d8d8d8",
+        },
+        listDropdownWrapper: {
+            width: '200px',
+        },
+        listOptionalWrapper: {
+            display: 'flex',
+            alignItems: 'center',
+            height: '32px',
+            marginBottom: '12px'
+        },
+        listOptionalBtn: {
+            textTransform: 'none',
+            minWidth: '32px',
+            color: theme.palette.primary.main
+        },
+        listOptionalHeader :  {
+            fontSize: '13px',
+            color: theme.palette.text.secondary,
+            fontWeight: 500,
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
+        },
+        listSelectDropDown: {
+            height: '24px',
+            borderRadius: 4,
+            background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
+            boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            width: "inherit",
+            "&:active": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5",
+            },
+            "&:focused": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5 !important"
+            },
+            '& .MuiSelect-icon': {
+                marginRight: 11,
+            },
+            "& .MuiSelect-selectMenu": {
+                height: "inherit !important",
+                paddingLeft: 10,
+                "& .TextSpan": {
+                    top: "calc(50% - 8px)",
+                    position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                }
+            },
+            "& .MuiSelect-select.MuiSelect-select": {
+                padding: "0 0 0 10px",
+                minWidth: "100px"
+            },
+            "& .MuiSelect-select.MuiSelect-select:focus": {
+                backgroundColor: "transparent"
+            }
+        },
     }),
 );
 
@@ -781,6 +885,5 @@ export const useStatementEditorStyles = makeStyles(() =>
             },
             ...removePadding
         }
-
     }),
 );

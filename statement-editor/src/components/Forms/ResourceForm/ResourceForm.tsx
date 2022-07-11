@@ -11,13 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Divider, FormControl } from "@material-ui/core";
 import {
     createResource,
     getSource,
+    SettingsIcon,
+    SettingsIconSelected,
     updateResourceSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -25,13 +27,13 @@ import {
     dynamicConnectorStyles as connectorStyles,
     FormHeaderSection,
     FormTextInput, PrimaryButton, SecondaryButton,
-    SelectDropdownWithButton,
-    useStyles as useFormStyles
+    SelectDropdownWithButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     ResourceAccessorDefinition,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
@@ -59,25 +61,20 @@ export function ResourceForm(props: FunctionProps) {
         useContext(FormEditorContext);
 
     const classes = useStyles();
-    const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();
     const intl = useIntl();
 
     const resources = getPathOfResources(model?.relativeResourcePath);
     // States related to component model
     const [functionName, setFunctionName] = useState<string>(model?.functionName?.value);
-    const [path, setPath] = useState<FormEditorField>({
-        value: model ? (resources === "." ? "" : resources) : "", isInteracted: false
-    });
+    const [path, setPath] = useState<string>(model ? (resources === "." ? "" : resources) : "");
     const [isParamInProgress, setIsParamInProgress] = useState(false);
-    const [queryParam, setQueryParam] = useState<FormEditorField>({
-        value: generateQueryParamFromST(model?.functionSignature?.parameters),
-        isInteracted: false
-    });
+    const [queryParam, setQueryParam] = useState<string>(generateQueryParamFromST(model?.functionSignature?.
+        parameters));
     const [isQueryInProgress, setIsQueryInProgress] = useState(false);
-    const [returnType, setReturnType] = useState<FormEditorField>({
-        value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "", isInteracted: false
-    });
+    const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.
+        returnTypeDesc?.type?.source?.trim() : "");
+    const [isAdvanceView, setIsAdvanceView] = useState<boolean>(false);
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -150,58 +147,64 @@ export function ResourceForm(props: FunctionProps) {
         }
     };
 
+    const handleSettingsToggle = () => {
+        setIsAdvanceView(!isAdvanceView);
+    };
+
     const handleMethodChange = async (value: string) => {
         setFunctionName(value);
-        await handleResourceParamChange(value.toLowerCase(), path.value, queryParam.value, "",
+        await handleResourceParamChange(value.toLowerCase(), path, queryParam, "",
             false, false,
-            returnType.value);
+            returnType);
     };
 
     const handlePathChange = async (value: string, avoidValueCommit?: boolean) => {
         if (!avoidValueCommit) {
-            setPath({value, isInteracted: true});
+            setPath(value);
         }
         setCurrentComponentName("Path");
-        await handleResourceParamChange(functionName, value, queryParam.value, "",
-            false, false, returnType.value);
+        await handleResourceParamChange(functionName, value, queryParam, "",
+            false, false, returnType);
     };
+    const debouncedPathChange = debounce(handlePathChange, 800);
 
     const handlePathParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
         if (!avoidValueCommit) {
-            setPath({value, isInteracted: true});
+            setPath(value);
         }
         setCurrentComponentName("PathParam");
-        await handleResourceParamChange(functionName, value, queryParam.value, "", false,
-            false, returnType.value);
+        await handleResourceParamChange(functionName, value, queryParam, "", false,
+            false, returnType);
     };
 
     const handleQueryParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
         if (!avoidValueCommit) {
-            setQueryParam({value, isInteracted: true});
+            setQueryParam(value);
         }
         setCurrentComponentName("QueryParam");
-        await handleResourceParamChange(functionName, path.value, value, "", false,
-            false, returnType.value, -3);
+        await handleResourceParamChange(functionName, path, value, "", false,
+            false, returnType, -3);
     };
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
         setCurrentComponentName("Return");
-        setReturnType({value, isInteracted: true});
-        await handleResourceParamChange(functionName, path.value, queryParam.value, "",
+        setReturnType(value);
+        await handleResourceParamChange(functionName, path, queryParam, "",
             false, false, value, -3);
     }
+    const debouncedReturnTypeChange = debounce(onReturnTypeChange, 800);
 
     const handleOnSave = () => {
         if (isEdit) {
             applyModifications([
-                updateResourceSignature(functionName, path.value ? path.value : ".", queryParam.value,
-                    "", false, false, returnType?.value, targetPosition)
+                updateResourceSignature(functionName, path ? path : ".", queryParam,
+                    "", false, false, returnType, targetPosition)
             ]);
         } else {
             applyModifications([
-                createResource(functionName, path.value ? path.value : ".", queryParam.value, "",
-                    false, false, returnType?.value, targetPosition)
+                createResource(functionName, path ? path : ".", queryParam, "",
+                    false, false, returnType, targetPosition)
             ]);
         }
         onCancel();
@@ -218,20 +221,15 @@ export function ResourceForm(props: FunctionProps) {
     useEffect(() => {
         if (model) {
             if (!isParamInProgress) {
-                setPath({...path, value: (resources === "." ? "" : resources)});
+                setPath(resources === "." ? "" : resources);
             }
             if (!isQueryInProgress) {
-                setQueryParam({
-                    ...queryParam,
-                    value: generateQueryParamFromST(model?.functionSignature?.parameters),
-                });
+                setQueryParam(generateQueryParamFromST(model?.functionSignature?.parameters));
             }
         } else {
-            setPath({...path, value: ""});
+            setPath("");
         }
-        setReturnType({
-            value: model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "", isInteracted: false
-        });
+        setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
         setFunctionName(model?.functionName?.value);
     }, [model]);
 
@@ -250,59 +248,67 @@ export function ResourceForm(props: FunctionProps) {
                     <div className={connectorClasses.formFeilds}>
                         <div className={connectorClasses.resourceMethodPathWrapper}>
                             <div className={connectorClasses.methodTypeContainer}>
-                                <div className={connectorClasses.resourceMethodTitle}>{httpMethodTitle}</div>
                                 <SelectDropdownWithButton
                                     dataTestId="api-method"
                                     defaultValue={functionName ? functionName?.toUpperCase() : ""}
                                     customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
                                     onChange={handleMethodChange}
-                                    label="HTTP Method"
-                                    hideLabel={true}
+                                    label={httpMethodTitle}
                                     disabled={isParamInProgress || isQueryInProgress}
                                 />
                             </div>
                             <div className={connectorClasses.resourcePathWrapper}>
-                                <ConfigPanelSection
-                                    title={pathTitle}
-                                    // tooltipWithExample={{ title, content: pathExample }}
-                                >
-                                    <FormTextInput
-                                        dataTestId="resource-path"
-                                        defaultValue={(path?.isInteracted || isEdit) ? path.value : ""}
-                                        onChange={handlePathChange}
-                                        customProps={{
-                                            isErrored: ((currentComponentSyntaxDiag !== undefined &&
+                                <FormTextInput
+                                    dataTestId="resource-path"
+                                    label={pathTitle}
+                                    defaultValue={path}
+                                    onChange={debouncedPathChange}
+                                    customProps={{
+                                        isErrored: ((currentComponentSyntaxDiag !== undefined &&
                                                 currentComponentName === "Path") || pathNameSemDiagnostics !== "" ||
-                                                pathTypeSemDiagnostics !== "")
-                                        }}
-                                        errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Path"
-                                                && currentComponentSyntaxDiag[0].message) || pathNameSemDiagnostics ||
-                                            pathTypeSemDiagnostics}
-                                        onBlur={null}
-                                        placeholder={"."}
-                                        size="small"
-                                        disabled={(isParamInProgress || (currentComponentSyntaxDiag &&
-                                            currentComponentName !== "Path")) || isQueryInProgress}
-                                    />
-                                </ConfigPanelSection>
+                                            pathTypeSemDiagnostics !== "")
+                                    }}
+                                    errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Path"
+                                            && currentComponentSyntaxDiag[0].message) || pathNameSemDiagnostics ||
+                                        pathTypeSemDiagnostics}
+                                    onBlur={null}
+                                    placeholder={"Enter Path"}
+                                    size="small"
+                                    disabled={(isParamInProgress || (currentComponentSyntaxDiag &&
+                                        currentComponentName !== "Path")) || isQueryInProgress}
+                                />
                             </div>
+                            {!((isParamInProgress || (currentComponentSyntaxDiag && currentComponentName !== "Path"))
+                                || isQueryInProgress) && (
+                                <div className={connectorClasses.advancedToggleWrapper}>
+                                    <div className={classes.contentIconWrapper}>
+                                        {isAdvanceView ? (
+                                            <SettingsIcon onClick={handleSettingsToggle}/>
+                                        ) : (
+                                            <SettingsIconSelected onClick={handleSettingsToggle}/>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className={connectorClasses.resourceParamWrapper}>
-                        <PathEditor
-                            relativeResourcePath={(path?.isInteracted || isEdit) ? path.value : ""}
-                            syntaxDiag={currentComponentSyntaxDiag}
-                            readonly={(!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||
-                                (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== "")) || isQueryInProgress)}
-                            pathNameSemDiag={pathNameSemDiagnostics}
-                            pathTypeSemDiag={pathTypeSemDiagnostics}
-                            onChange={handlePathParamEditorChange}
-                            onChangeInProgress={handleParamChangeInProgress}
-                        />
+                        {isAdvanceView && (
+                            <PathEditor
+                                relativeResourcePath={path}
+                                syntaxDiag={currentComponentSyntaxDiag}
+                                readonly={(!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||
+                                    (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== "")) || isQueryInProgress)}
+                                pathNameSemDiag={pathNameSemDiagnostics}
+                                pathTypeSemDiag={pathTypeSemDiagnostics}
+                                onChange={handlePathParamEditorChange}
+                                onChangeInProgress={handleParamChangeInProgress}
+                            />
+                        )}
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <ConfigPanelSection title={"Query Parameters"}>
+                        <ConfigPanelSection title={"Parameters"}>
                             <QueryParamEditor
-                                queryParamString={queryParam.value}
+                                queryParamString={queryParam}
                                 readonly={(currentComponentSyntaxDiag?.length > 0) || (isParamInProgress)}
                                 syntaxDiag={currentComponentSyntaxDiag}
                                 onChangeInProgress={handleQueryChangeInProgress}
@@ -315,17 +321,17 @@ export function ResourceForm(props: FunctionProps) {
                         <FormTextInput
                             label="Return Type"
                             dataTestId="return-type"
-                            defaultValue={returnType.value}
+                            defaultValue={returnType}
                             customProps={{
                                 optional: true,
-                                isErrored: returnType?.isInteracted && ((currentComponentSyntaxDiag !== undefined &&
+                                isErrored: ((currentComponentSyntaxDiag !== undefined &&
                                     currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
                                     viewState?.diagnosticsInRange?.length > 0)
                             }}
-                            errorMessage={returnType?.isInteracted && ((currentComponentSyntaxDiag &&
+                            errorMessage={((currentComponentSyntaxDiag &&
                                     currentComponentName === "Return" && currentComponentSyntaxDiag[0].message)
                                 || model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message)}
-                            onChange={onReturnTypeChange}
+                            onChange={debouncedReturnTypeChange}
                             placeholder={"Enter Return Type"}
                             size="small"
                             disabled={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
@@ -345,7 +351,8 @@ export function ResourceForm(props: FunctionProps) {
                                     onClick={handleOnSave}
                                     disabled={(currentComponentSyntaxDiag !== undefined) ||
                                         (pathTypeSemDiagnostics !== "") || (pathNameSemDiagnostics !== "") ||
-                                        (queryTypeSemDiagnostics !== "") || (queryNameSemDiagnostics !== "")}
+                                        (queryTypeSemDiagnostics !== "") || (queryNameSemDiagnostics !== "") ||
+                                        (model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)}
                                 />
                             </div>
                         </div>

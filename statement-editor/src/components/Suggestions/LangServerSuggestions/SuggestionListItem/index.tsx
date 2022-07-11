@@ -42,7 +42,7 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                 button={true}
                 key={key}
                 selected={key === selectedListItem}
-                onClick={onClickOnListItem}
+                onMouseDown={onClickOnListItem}
                 className={stmtEditorHelperClasses.suggestionListItem}
                 disableRipple={true}
             >

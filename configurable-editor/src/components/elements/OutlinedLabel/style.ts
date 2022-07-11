@@ -24,9 +24,13 @@ export const useStyles = makeStyles((theme: Theme) =>
         chipRoot: {
             fontSize: theme.spacing(1.3),
             height: "auto",
+            maxWidth: "100%",
+            overflow: "hidden",
             padding: theme.spacing(0.5),
             paddingBottom: theme.spacing(0.25),
             paddingTop: theme.spacing(0.25),
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
         },
         chiplabel: {
             lineHeight: "1.2em",

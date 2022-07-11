@@ -37,6 +37,7 @@ export interface ConfigElementProps {
     schema?: object;
     properties?: ConfigElementProps[];
     label?: string;
+    unionId?: string;
     value?: any;
     description?: string;
     placeholder?: string;
@@ -106,6 +107,7 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
                 label: props.label,
                 name: props.name,
                 required: props.isRequired,
+                shortenedType: props.type,
                 type: props.type,
             };
 

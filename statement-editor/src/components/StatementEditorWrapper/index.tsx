@@ -26,7 +26,7 @@ import {
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
-import { CUSTOM_CONFIG_TYPE } from "../../constants";
+import { CONNECTOR, CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
 import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
@@ -60,7 +60,7 @@ export interface LowCodeEditorProps {
     experimentalEnabled?: boolean;
     isConfigurableStmt?: boolean;
     isModuleVar?: boolean;
-    runCommandInBackground?: (command: string) => Promise<CommandResponse>;
+    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
@@ -91,7 +91,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         isModuleVar,
         isLoading,
         extraModules,
-        runCommandInBackground
+        runBackgroundTerminalCommand
     } = props;
 
     const {
@@ -167,7 +167,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                     if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                         model = partialST;
                     }
-            }
+                }
                 const newEditor: EditorModel = {
                     label,
                     model,
@@ -183,7 +183,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 });
         })();
 
-    }, []);
+    }, [initialSource]);
 
     useEffect(() => {
         if (!!editors.length) {
@@ -192,15 +192,24 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         }
     }, [editors]);
 
+    const checkConnectorInfo = () => {
+        if (config.type === CONNECTOR && formArgs.formArgs.connector?.functions?.length > 0) {
+            return true;
+        }
+        if (config.type === CONNECTOR && !(formArgs.formArgs.connector?.functions)) {
+            return false;
+        }
+        return true;
+    };
+
     return (
         <FormControl data-testid="property-form">
-            {isLoading && (
+            {(isLoading || !editor || !checkConnectorInfo()) && (
                 <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
                     <div className={overlayClasses.loadingWrapper}>Loading...</div>
                 </div>
             )}
-            {!isLoading && editor
-                ? (
+            {!isLoading && editor && checkConnectorInfo() && (
                     <>
                         <StatementEditor
                             editor={editor}
@@ -225,12 +234,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             stSymbolInfo={stSymbolInfo}
                             extraModules={extraModules}
                             experimentalEnabled={experimentalEnabled}
-                            runCommandInBackground={runCommandInBackground}
+                            runBackgroundTerminalCommand={runBackgroundTerminalCommand}
                         />
                     </>
-                )
-                : (
-                    <></>
                 )}
         </FormControl>
     )

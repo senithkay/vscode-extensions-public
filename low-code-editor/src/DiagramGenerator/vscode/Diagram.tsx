@@ -33,7 +33,7 @@ export interface EditorAPI {
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<GetSyntaxTreeResponse>;
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
-    runCommandInBackground?: (command: string) => Promise<CommandResponse>;
+    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
     getLibrariesList: (kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>;
     getLibrariesData: () => Promise<LibrarySearchResponse | undefined>;
@@ -55,7 +55,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
             sendTelemetryEvent, getSentryConfig,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, runCommandInBackground, getLibrariesList, getLibrariesData, getLibraryData, getEnv, ...restProps } = props;
+            runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -77,7 +77,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     resolveMissingDependency={resolveMissingDependency}
                     resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}
                     runCommand={runCommand}
-                    runCommandInBackground={runCommandInBackground}
+                    runBackgroundTerminalCommand={runBackgroundTerminalCommand}
                     sendTelemetryEvent={sendTelemetryEvent}
                     getLibrariesList={getLibrariesList}
                     getLibrariesData={getLibrariesData}

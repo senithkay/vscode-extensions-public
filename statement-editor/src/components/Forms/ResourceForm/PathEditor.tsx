@@ -24,12 +24,11 @@ import {
 
 import { StmtDiagnostic } from "../../../models/definitions";
 
-import { useStyles } from "./styles";
 import { Path, PathSegment } from "./types";
-import { convertPathStringToSegments, generateBallerinaResourcePath, recalculateItemIds } from "./util";
+import {convertPathStringToSegments, generateBallerinaResourcePath, genParamName, recalculateItemIds} from "./util";
 
 const pathParameterOption = "Path Parameter";
-const pathSegmentOption = "Param Segment";
+const pathSegmentOption = "Path Segment";
 
 export interface PathEditorProps {
     relativeResourcePath: string;
@@ -47,7 +46,6 @@ export function PathEditor(props: PathEditorProps) {
     const options = [pathSegmentOption, pathParameterOption];
 
     const connectorClasses = connectorStyles();
-    const classes = useStyles();
 
     const path: Path = convertPathStringToSegments(relativeResourcePath);
 
@@ -135,7 +133,9 @@ export function PathEditor(props: PathEditorProps) {
     };
 
     const addPath = () => {
-        setDraftPath({id: pathState.segments.length, name: "name", isParam: false});
+        setDraftPath({
+            id: pathState.segments.length, name: genParamName("path", paramNames), isParam: false
+        });
         setAddingParam(true);
         onChangeInProgress(true);
     };
@@ -148,6 +148,7 @@ export function PathEditor(props: PathEditorProps) {
         onChange(generateBallerinaResourcePath(path));
     };
 
+    const paramNames: string[] = [];
     const pathComponents: React.ReactElement[] = [];
     pathState.segments.forEach((value, index) => {
         if ((editingSegmentId !== index) && value.name) {
@@ -181,6 +182,7 @@ export function PathEditor(props: PathEditorProps) {
                 />
             )
         }
+        paramNames.push(value.name);
     });
 
     useEffect(() => {

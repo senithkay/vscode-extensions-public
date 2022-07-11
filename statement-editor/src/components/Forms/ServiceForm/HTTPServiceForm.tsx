@@ -32,12 +32,12 @@ import {
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getModuleElementDeclPosition, getUpdatedSource } from "../../../utils";
 import { getPartialSTForModulePart } from "../../../utils/ls-utils";
-import { FormEditorField } from "../Types";
 import { getListenerConfig } from "../Utils/FormUtils";
 
 import { ListenerConfigForm } from "./ListenerConfigFrom";
@@ -89,11 +89,10 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const moduleElementPosition = getModuleElementDeclPosition(syntaxTree);
 
     // States related fields
-    const [basePath, setBsePath] = useState<FormEditorField>({isInteracted: true, value: path});
+    const [basePath, setBsePath] = useState<string>(path);
     const [isListenerInteracted, setIsListenerInteracted] = useState<boolean>(
         !!listenerConfig.listenerPort || !!listenerConfig.listenerName);
-    const [listenerPort, setListenerPort] = useState<FormEditorField>(
-        {isInteracted: false, value: listenerConfig.listenerPort});
+    const [listenerPort, setListenerPort] = useState<string>(listenerConfig.listenerPort);
     const [listenerName, setListenerName] = useState<string>(listenerConfig.listenerName);
     const [shouldAddNewLine, setShouldAddNewLine] = useState<boolean>(false);
     const [createdListerCount, setCreatedListerCount] = useState<number>(0);
@@ -138,16 +137,17 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
 
     const onBasePathChange = async (value: string) => {
-        setBsePath({isInteracted: true, value});
-        await serviceParamChange(value, listenerPort.value, listenerName);
+        setBsePath(value);
+        await serviceParamChange(value, listenerPort, listenerName);
     }
+    const debouncedPortChange = debounce(onBasePathChange, 800);
 
     const onListenerChange = async (port: string, name: string, isInteracted: boolean) => {
         setIsListenerInteracted(isInteracted);
-        setListenerPort({isInteracted: true, value: port});
+        setListenerPort(port);
         setListenerName(name);
         setCurrentComponentName("Listener");
-        await serviceParamChange(basePath.value, port, name);
+        await serviceParamChange(basePath, port, name);
     }
 
     const onListenerConfigSave = (modifications: STModification[]) => {
@@ -160,7 +160,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             })
         }
         setListenerName(listenerMod.config.LISTENER_NAME);
-        setListenerPort({isInteracted: true, value: ""});
+        setListenerPort("");
         setIsListenerInteracted(true);
         setCreatedListerCount(createdListerCount + 1);
         applyModifications(modifications);
@@ -173,8 +173,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 startLine: targetPosition.startLine + (createdListerCount * 2)
             }
             applyModifications([
-                updateServiceDeclartion({serviceBasePath: basePath.value, listenerConfig:
-                            {createNewListener: false, listenerName, listenerPort: listenerPort.value, fromVar: false}}
+                updateServiceDeclartion({serviceBasePath: basePath, listenerConfig:
+                            {createNewListener: false, listenerName, listenerPort, fromVar: false}}
                     , serviceUpdatePosition
                 )
             ]);
@@ -185,8 +185,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             }
             applyModifications([
                 createImportStatement('ballerina', 'http', {startColumn: 0, startLine: 0}),
-                createServiceDeclartion({serviceBasePath: basePath.value, listenerConfig:
-                        {createNewListener: false, listenerName, listenerPort: listenerPort.value, fromVar: false}},
+                createServiceDeclartion({serviceBasePath: basePath, listenerConfig:
+                        {createNewListener: false, listenerName, listenerPort, fromVar: false}},
                     shouldAddNewLine ? {
                     ...serviceInsertPosition, startLine: serviceInsertPosition.startLine + 1, endLine:
                             serviceInsertPosition.endLine + 1} : serviceInsertPosition, isLastMember)
@@ -202,20 +202,19 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                     <FormTextInput
                         label="Path"
                         dataTestId="base-path"
-                        defaultValue={basePath.value}
-                        onChange={onBasePathChange}
+                        defaultValue={basePath}
+                        onChange={debouncedPortChange}
                         customProps={{
                             isErrored: (currentComponentSyntaxDiag !== undefined && currentComponentName === "path") ||
-                                (portSemDiagMsg === undefined /*&& nameSemDiagMsg === undefined*/ && serviceModel?.
+                                (portSemDiagMsg === undefined && serviceModel?.
                                     viewState?.diagnosticsInRange[0]?.message)
                         }}
                         errorMessage={(currentComponentSyntaxDiag && currentComponentName === "path"
                             && currentComponentSyntaxDiag[0].message) ||
-                            portSemDiagMsg === undefined /*&& nameSemDiagMsg === undefined*/ && serviceModel?.viewState?.
-                                diagnosticsInRange[0]?.message}
+                            portSemDiagMsg === undefined && serviceModel?.viewState?.diagnosticsInRange[0]?.message}
                         onBlur={null}
                         onFocus={onBasePathFocus}
-                        placeholder={"/"}
+                        placeholder={"Enter Path"}
                         size="small"
                         disabled={currentComponentSyntaxDiag && currentComponentName !== "path"}
                     />
@@ -243,9 +242,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 saveBtnText={"Save"}
                 onSave={handleOnSave}
                 onCancel={onCancel}
-                validForm={listenerPort.isInteracted && (isEdit || basePath.isInteracted) && (listenerName !== "" ||
-                    (listenerPort && portSemDiagMsg === undefined)) && (currentComponentSyntaxDiag === undefined)
-                    && isListenerInteracted}
+                validForm={(listenerPort !== "" || listenerName !== "") && (listenerPort !== "" ? portSemDiagMsg ===
+                    undefined : true) && (currentComponentSyntaxDiag === undefined) && isListenerInteracted}
             />
         </>
     )

@@ -26,10 +26,10 @@ import {
     wizardStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditor } from "../../FormEditor/FormEditor";
-import { FormEditorField } from "../Types";
 
 interface ListenerConfigFormProps {
     listenerList: string[];
@@ -63,14 +63,17 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         listenerConfig.listenerName);
     const [isInline, setIsInline] = useState<boolean>(!selectedListener);
 
-    const [listenerPort, setListenerPort] = useState<FormEditorField>({isInteracted: isEdit, value:
-        listenerConfig.listenerPort});
+    const [listenerPort, setListenerPort] = useState<string>(listenerConfig.listenerPort);
 
     const handleListenerDefModeChange = (mode: string[]) => {
         if (listenerList.length === 0 && mode.length === 0) {
             setIsAddListenerInProgress(true);
+        } else if (mode.length > 0) {
+            setListenerPort("9090");
+            setSelectedListener("");
+            onChange("9090", "", true);
         } else {
-            setListenerPort({isInteracted: false, value: "9090"});
+            setListenerPort("9090");
             setSelectedListener("");
             onChange("9090", "", false);
         }
@@ -79,9 +82,10 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
 
     const onListenerPortChange = (port: string) => {
         setCurrentComponentName("Listener Port");
-        setListenerPort({isInteracted: true, value: port});
+        setListenerPort(port);
         onChange(port, "", true);
     }
+    const debouncedPortChange = debounce(onListenerPortChange, 800);
 
     const onListenerFormCancel = () => {
         setIsAddListenerInProgress(false);
@@ -121,15 +125,15 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 <FormTextInput
                     label="Port"
                     dataTestId="listener-port"
-                    defaultValue={(listenerPort?.isInteracted) ? listenerPort.value : ""}
-                    onChange={onListenerPortChange}
+                    defaultValue={listenerPort}
+                    onChange={debouncedPortChange}
                     customProps={{
-                        isErrored: listenerPort.isInteracted && (syntaxDiag !== undefined &&
-                            currentComponentName === "Listener Port" || portSemDiagMsg !== undefined)
+                        isErrored: (syntaxDiag !== undefined && currentComponentName === "Listener Port" ||
+                            portSemDiagMsg !== undefined)
                     }}
                     errorMessage={(syntaxDiag && currentComponentName === "Listener Port" && syntaxDiag[0].message) ||
                         portSemDiagMsg}
-                    placeholder={"9090"}
+                    placeholder={"Enter Port"}
                     size="small"
                     disabled={(syntaxDiag && currentComponentName !== "Listener Port") || isDisabled}
                 />

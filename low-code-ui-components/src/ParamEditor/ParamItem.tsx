@@ -13,10 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { CloseRounded } from "@material-ui/icons";
+import { DeleteButton, ParamEditButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { ButtonWithIcon } from "../buttons";
-
+import { ParamIcons } from "./ParamIcon";
 import { useStyles } from './style';
 
 interface ParamItemProps {
@@ -40,19 +39,36 @@ export function ParamItem(props: ParamItemProps) {
         }
     };
 
+    const icon = (<ParamIcons option={param?.option}/>);
+
     return (
         <div className={classes.headerWrapper} data-testid={`${label}-item`}>
             <div className={classes.headerLabel}>
-                <div data-test-id={`${label}-param`} className={readonly ? classes.disabledColor : classes.headerLabelCursor} onClick={handleEdit}>
-                    {label}
+                <div className={classes.iconSection} onClick={handleEdit}>
+                    {icon && (
+                        <div className={classes.iconWrapper}>
+                            {icon}
+                        </div>
+                    )}
+                    <div className={classes.iconTextWrapper}>
+                        {param?.option?.toUpperCase()}
+                    </div>
                 </div>
-                {!readonly && (
-                    <ButtonWithIcon
-                        onClick={handleDelete}
-                        icon={<CloseRounded data-testid={`${label}-close-btn`} fontSize="small"/>}
-                        className={classes.iconBtn}
-                    />
-                )}
+                <div className={classes.contentSection}>
+                    <div data-test-id={`${label}-param`} className={readonly ? classes.disabledHeaderLabel : classes.enabledHeaderLabel} onClick={handleEdit}>
+                        {label}
+                    </div>
+                    {!readonly && (
+                        <>
+                            <div className={classes.contentIconWrapper}>
+                                <ParamEditButton onClick={handleEdit}/>
+                            </div>
+                            <div className={classes.deleteButtonWrapper}>
+                                <DeleteButton onClick={handleDelete}/>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );

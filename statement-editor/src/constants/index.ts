@@ -67,6 +67,7 @@ export const CONFIGURABLE_TYPE_STRING = "string";
 export const CONFIGURABLE_TYPE_BOOLEAN = "boolean";
 export const ADD_CONFIGURABLE_LABEL = "Add Configurable";
 export const DEFAULT_IDENTIFIER = "identifier";
+export const CONNECTOR = "Connector";
 
 export const TYPE_DESC_CONSTRUCTOR = "TYPE_DESCRIPTOR";
 export const EXPR_CONSTRUCTOR = "EXPRESSION";
@@ -79,6 +80,8 @@ export const CONFIGURABLE_VALUE_REQUIRED_TOKEN = "?";
 export const QUERY_INTERMEDIATE_CLAUSES = "Query Intermediate-Clauses";
 export const BINDING_PATTERN = "BINDING_PATTERN"
 export const LET_VAR_DECL = `var varName = EXPRESSION`;
+export const ELSEIF_CLAUSE = `} else if (EXPRESSION) {\n\n}`;
+export const ELSE_CLAUSE = `} else {\n\n}`;
 
 export const BAL_SOURCE = "```ballerina";
 

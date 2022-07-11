@@ -13,6 +13,7 @@
 
 import { ReactNode } from "react";
 
+import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StmtEditorUndoRedoManager } from "../utils/undo-redo";
@@ -44,7 +45,10 @@ export interface SuggestionItem {
     insertText?: string;
     completionKind?: number;
     suggestionType?: number;
+    insertTextFormat?: number;
     prefix?: string;
+    sortText?: string;
+    detail?: string;
 }
 
 export interface SecondLevelSuggestions {
@@ -92,3 +96,8 @@ export interface SymbolIcon {
 
 // tslint:disable-next-line:no-empty-interface
 export interface EmptySymbolInfo {}
+
+export interface DocumentationInfo {
+    modelPosition : NodePosition;
+    documentation : SymbolInfoResponse | EmptySymbolInfo
+}
