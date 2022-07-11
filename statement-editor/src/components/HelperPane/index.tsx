@@ -96,12 +96,12 @@ export function HelperPane(props: HelperPaneProps) {
             !configurableEditor
         ) {
             setSelectedTab(TabElements.parameters);
-        } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
+        } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
             setSelectedTab(TabElements.expressions);
         } else if (configurableEditor && selectedTab === TabElements.parameters) {
             setSelectedTab(TabElements.suggestions);
         }
-    }, [docExpandClicked, currentModel.model])
+    }, [docExpandClicked, currentModel.model]);
 
     useEffect(() => {
         selectedTab === TabElements.parameters ? paramTabHandler(true) : paramTabHandler(false);

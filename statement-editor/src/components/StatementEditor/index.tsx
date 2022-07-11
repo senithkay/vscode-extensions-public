@@ -336,7 +336,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (config.type !== CONNECTOR){
+        if (config.type === CONNECTOR){
             return setDocumentation(initSymbolInfo);
         }
         if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){
