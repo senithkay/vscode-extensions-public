@@ -31,11 +31,16 @@ import { VariableViewProvider } from './variableView';
 import { BAL_NOTEBOOK, CREATE_NOTEBOOK_COMMAND, NOTEBOOK_TYPE, OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, 
     RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND } from './constants';
 import { createFile } from './utils';
+import { NotebookDebuggerController } from './debugger';
+import { clearTerminal } from '../project';
+
+const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
     const variableViewProvider = new VariableViewProvider(ballerinaExtInstance);
-    const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider);
+    const debugController = new NotebookDebuggerController(ballerinaExtInstance);
+    const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider, debugController);
 
     context.subscriptions.push(
         workspace.registerNotebookSerializer(NOTEBOOK_TYPE, new BallerinaNotebookSerializer())
@@ -44,6 +49,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
     context.subscriptions.push(registerCreateNotebook(ballerinaExtInstance));
     context.subscriptions.push(registerFocusToOutline());
+    context.subscriptions.push(registerDebug(debugController));
     context.subscriptions.push(registerVariableView(ballerinaExtInstance));
     context.subscriptions.push(registerRefreshVariableView(notebookController));
     context.subscriptions.push(registerRestartNotebook(ballerinaExtInstance, notebookController));
@@ -112,5 +118,13 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
                 window.showErrorMessage("Unkown error occurred.");
             }
         }
+    });
+}
+
+function registerDebug(debugController: NotebookDebuggerController): Disposable {
+    return commands.registerCommand('ballerina.notebook.debug', () => {
+        commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
+        clearTerminal();
+        debugController.startDebugging();
     });
 }

@@ -385,6 +385,15 @@
                 "enablement": "notebookType == 'ballerina-notebook'"
             },
             {
+                "command": "ballerina.notebook.debug",
+                "title": "Debug Cell",
+                "icon": {
+                    "dark": "./resources/images/icons/debug-inverse.svg",
+                    "light": "./resources/images/icons/debug.svg"
+                },
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.notebook.refreshVariableView",
                 "title": "Refresh",
                 "icon": {
@@ -515,6 +524,14 @@
                     "title": "Outline",
                     "group": "navigation@3",
                     "when": "notebookType == 'ballerina-notebook'"
+                }
+            ],
+            "notebook/cell/execute": [
+                {
+                    "command": "ballerina.notebook.debug",
+                    "title": "Debug",
+                    "group": "navigation@1",
+                    "when": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
                 }
             ],
             "view/item/context": [

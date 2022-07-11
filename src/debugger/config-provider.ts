@@ -21,7 +21,7 @@ import {
     DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration,
     debug, ExtensionContext, window, commands,
     DebugSession,
-    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer
+    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -32,6 +32,7 @@ import { BALLERINA_HOME } from '../core/preferences';
 import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient/node';
+import { getTempDir } from '../notebook/debugger';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -100,12 +101,22 @@ async function getModifiedConfigs(config: DebugConfiguration) {
             log(`Language server failed to respond with the error message, ${error.message}, while debugging.`);
             sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
         });
-    } else if (!activeDoc.fileName.endsWith('.bal')) {
+    } else if (!activeDoc.fileName.endsWith('.bal') || !activeDoc.fileName.endsWith('.balnotebook')) {
         ballerinaExtInstance.showMessageInvalidFile();
         return Promise.reject();
     }
 
     config.script = activeDoc.uri.fsPath;
+    if (activeDoc.fileName.endsWith('.balnotebook')) {
+        let activeTextEditorUri = activeDoc.uri;
+        if (activeTextEditorUri.scheme === 'vscode-notebook-cell') {
+            const uri = `${getTempDir()}/notebook_cell_${activeTextEditorUri.fragment}.bal`;
+            activeTextEditorUri = Uri.parse(uri);
+            config.script = activeTextEditorUri.fsPath;
+        } else {
+            return Promise.reject();
+        }
+    }
 
     let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     if (langClient.initializeResult) {
