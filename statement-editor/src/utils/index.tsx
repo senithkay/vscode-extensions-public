@@ -38,6 +38,7 @@ import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
     BAL_SOURCE,
+    CONNECTOR,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
@@ -537,6 +538,20 @@ export function getModuleIconStyle(label: string): string {
 
 export function isFunctionOrMethodCall(currentModel: STNode): boolean {
     return STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel);
+}
+
+export function isInsideEndpointConfigs(currentModel: STNode, editorConfigType: string): boolean {
+    const paramPosition = (currentModel.viewState as StatementEditorViewState)?.parentFunctionPos;
+    const modelPosition = currentModel.position as NodePosition;
+    return (
+        editorConfigType === CONNECTOR &&
+        paramPosition &&
+        (paramPosition.startLine < modelPosition.startLine ||
+            (paramPosition.startLine === modelPosition.startLine &&
+                paramPosition.startColumn <= modelPosition.startColumn &&
+                paramPosition.endLine > modelPosition.endLine) ||
+            (paramPosition.endLine === modelPosition.endLine && paramPosition.endColumn >= modelPosition.endColumn))
+    );
 }
 
 export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
