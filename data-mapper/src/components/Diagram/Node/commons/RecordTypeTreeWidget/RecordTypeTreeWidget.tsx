@@ -1,10 +1,6 @@
 import * as React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
-import TreeView from '@material-ui/lab/TreeView';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-
 import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
 import { RecordField, RecordTypeDesc, STKindChecker } from '@wso2-enterprise/syntax-tree';
 import { DataMapperPortModel } from '../../../Port';
@@ -17,7 +13,8 @@ const useStyles = makeStyles((theme: Theme) =>
 			maxWidth: 400,
 			color: "white",
 			position: "relative",
-			backgroundColor: "#525564"
+			backgroundColor: " #FFFFFF",
+			padding:"20px"
 		}
 	}),
 );
@@ -57,12 +54,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
 	}
 
 	return (
-		<TreeView
-			className={classes.root}
-			defaultCollapseIcon={<ExpandMoreIcon />}
-			defaultExpandIcon={<ChevronRightIcon />}
-			defaultExpanded={allNodeIds}
-		>
+		<div className={classes.root}>
 			{
 				typeDesc.fields.map((field) => {
 					if (STKindChecker.isRecordField(field)) {
@@ -78,6 +70,6 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
 					}
 				})
 			}
-		</TreeView>
+		</div>
 	);
 }

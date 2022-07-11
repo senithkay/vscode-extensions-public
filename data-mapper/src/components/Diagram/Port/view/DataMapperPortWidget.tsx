@@ -37,7 +37,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		engine={engine}
 		style={{
 			display: "inline",
-			color: active ? "#C25B56" : (hasLinks ? "#96C0CE" : "#FEF6EB")
+			color: active ? "#5567D5" : (hasLinks ? "#5567D5" : "#8D91A3")
 		}}
 	>
 		{active ? <Brightness1/> : (hasLinks ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>)}
