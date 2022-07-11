@@ -268,6 +268,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             getLibrariesData,
                             getLibraryData,
                             getSentryConfig,
+                            getBallerinaVersion,
                             getEnv,                           
                             experimentalEnabled
                         }
@@ -320,6 +321,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'getSentryConfig',
+                        [],
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+            function getBallerinaVersion() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getBallerinaVersion',
                         [],
                         (resp) => {
                             resolve(resp);
