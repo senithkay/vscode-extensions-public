@@ -287,9 +287,9 @@ export function StatementEditor(props: StatementEditorProps) {
                 : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-        const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
+            const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
             if (updatedStatement.trim() === partialST.source.trim()) {
                 sendDidChange(fileURI, updatedContent, getLangClient).then();
                 const diagnostics = await handleDiagnostics(partialST.source);
@@ -310,6 +310,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 setHasSyntaxDiagnostics(false);
             }
         } else if (partialST.syntaxDiagnostics.length){
+            const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
             const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
 
             sendDidChange(fileURI, updatedContent, getLangClient).then();
