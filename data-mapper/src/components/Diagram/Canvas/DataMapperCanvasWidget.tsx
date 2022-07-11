@@ -10,7 +10,7 @@ namespace S {
 		background-image: url('${background}');
 		background-repeat: repeat;
 		display: flex;
-		font-family: 'Gilmer';
+		font-family: 'GilmerRegular';
 		> * {
 			height: 100%;
 			min-height: 100%;

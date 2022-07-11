@@ -23,9 +23,9 @@ const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
-            border: "1px solid #CBCEDB",
+            border: "1px solid #DEE0E7",
             display:"flex",
-
+            minHeight: "24px"
         },
         treeLabelOutPort: {
             float: "right",
@@ -33,7 +33,6 @@ const useStyles = makeStyles((theme: Theme) =>
             marginLeft: "10px",
             width: 'fit-content',
            
-            color: '#0095FF',
             display: "inline-block",
             position: "absolute",
             right:"15px"
@@ -43,7 +42,6 @@ const useStyles = makeStyles((theme: Theme) =>
             marginRight: "5px",
             position: 'relative',
             width: 'fit-content',
-            color: '#0095FF',
         },
         typeLabel: {
             marginLeft: "3px",
@@ -126,7 +124,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
 
     return (
 
-        <div>
+        <>
             <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
@@ -164,6 +162,6 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                         }
                     })
                 }             
-        </div>
+        </>
     );
 }
