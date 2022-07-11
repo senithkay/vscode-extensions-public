@@ -24,7 +24,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { Context } from "../../../Context/diagram";
+import { Context } from "../../../../Context/diagram";
 
 import "./style.scss";
 

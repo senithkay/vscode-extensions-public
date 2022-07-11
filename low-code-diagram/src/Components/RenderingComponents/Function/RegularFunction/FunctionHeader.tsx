@@ -21,10 +21,10 @@ import {
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../Context/diagram";
-import { HeaderActions } from "../../../HeaderActions";
-import { HeaderWrapper } from "../../../HeaderWrapper";
-import { ComponentExpandButton } from "../../ComponentExpandButton";
+import { Context } from "../../../../Context/diagram";
+import { HeaderActions } from "../../../../HeaderActions";
+import { HeaderWrapper } from "../../../../HeaderWrapper";
+import { ComponentExpandButton } from "../../../ComponentExpandButton";
 
 import "./style.scss";
 

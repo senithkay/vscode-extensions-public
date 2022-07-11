@@ -17,10 +17,10 @@ import { ErrorIcon, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edti
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { Context } from "../../../Context/diagram";
-import { HeaderActions } from "../../../HeaderActions";
-import { HeaderWrapper } from "../../../HeaderWrapper";
-import { getDiagnosticInfo } from "../../../Utils";
+import { Context } from "../../../../Context/diagram";
+import { HeaderActions } from "../../../../HeaderActions";
+import { HeaderWrapper } from "../../../../HeaderWrapper";
+import { getDiagnosticInfo } from "../../../../Utils";
 
 import { ResourceOtherParams } from "./ResourceOtherParams";
 import { ResourceQueryParams } from "./ResourceQueryParams";

@@ -42,7 +42,7 @@ export interface DataMapperProps {
 }
 
 export function DataMapperConfigForm(props: DataMapperProps) {
-    const { onCancel } = props;
+    const { onCancel, model } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
@@ -82,6 +82,30 @@ export function DataMapperConfigForm(props: DataMapperProps) {
         }
         getSyntaxTree();
     }, [currentFile.content]);
+
+    // useEffect(() => {
+    //     async function getSyntaxTree() {
+    //         if (model && STKindChecker.isFunctionDefinition(model)) {
+    //             setFunctionST(model);
+    //             return;
+    //         } else {
+    //             const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
+    //             const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
+    //                 documentIdentifier: {
+    //                     uri: `file://${currentFile.path}`
+    //                 }
+    //             });
+    //             if (parseSuccess) {
+    //                 const modPart = syntaxTree as ModulePart;
+    //                 const fns = modPart.members.filter((mem) => STKindChecker.isFunctionDefinition(mem)) as FunctionDefinition[];
+    //                 setFunctionST(fns.find((mem) => mem.functionName.value === "transform"));
+    //                 return;
+    //             }
+    //         }
+    //         setFunctionST(undefined);
+    //     }
+    //     getSyntaxTree();
+    // }, [currentFile.content]);
 
     return (
         <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>
