@@ -18,7 +18,7 @@ import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { TypeProps } from "..";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
-import { isRequiredParam } from "../utils";
+import { isAnyFieldSelected, isRequiredParam } from "../utils";
 
 import * as Types from "./../Types";
 
@@ -32,7 +32,7 @@ export function ParameterBranch(props: ParameterBranchProps) {
     const { parameters, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
-    const [showOptionalParams, setShowOptionalParams] = useState(false);
+    const [showOptionalParams, setShowOptionalParams] = useState(isAnyFieldSelected(parameters));
 
     const requiredParams: JSX.Element[] = [];
     const optionalParams: JSX.Element[] = [];
@@ -42,7 +42,7 @@ export function ParameterBranch(props: ParameterBranchProps) {
         const typeProps: TypeProps = {
             param,
             depth,
-            onChange
+            onChange,
         };
         if (!TypeComponent) {
             TypeComponent = (Types as any).custom;
@@ -69,7 +69,7 @@ export function ParameterBranch(props: ParameterBranchProps) {
                     </Button>
                 </ListItem>
             )}
-            {showOptionalParams && (optionalParams.length > 0) && optionalParams}
+            {showOptionalParams && optionalParams.length > 0 && optionalParams}
         </List>
     );
 }

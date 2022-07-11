@@ -50,6 +50,7 @@ import {
     WHITESPACE_MINUTIAE
 } from "../constants";
 import { EditorModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
+import { visitor as ClearDiagnosticVisitor } from "../visitors/clear-diagnostics-visitor";
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
@@ -173,6 +174,7 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
             startColumn: targetPosition.startColumn,
             startLine: targetPosition.startLine
         }
+        traversNode(model, ClearDiagnosticVisitor);
         diagnostics.map(diagnostic => {
             DiagnosticsMappingVisitor.setDiagnosticsNOffset(diagnostic, offset);
             traversNode(model, DiagnosticsMappingVisitor);
