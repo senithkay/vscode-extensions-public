@@ -147,6 +147,11 @@ export interface JsonToRecordRequest {
 
 export interface JsonToRecordResponse {
     codeBlock: string;
+    diagnostics?: JsonToRecordMapperDiagnostic[];
+}
+
+export interface JsonToRecordMapperDiagnostic {
+    message: string;
 }
 
 interface BallerinaInitializeParams {

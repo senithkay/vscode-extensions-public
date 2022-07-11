@@ -64,9 +64,18 @@ export function activatePasteJsonAsRecord() {
                 ballerinaExtInstance.langClient!.convertJsonToRecord({ jsonString: clipboardText, isClosed: false, isRecordTypeDesc: false, recordName: "" })
                     .then(lSResponse => {
                         const response = lSResponse as JsonToRecordResponse;
-                        if (!response || response.codeBlock === undefined || response.codeBlock === "") {
+                        if (!response) {
+                            window.showErrorMessage(MESSAGES.INVALID_JSON_RESPONSE);
+                            return;
+                        }
+                        if (response.diagnostics === undefined && (response.codeBlock === undefined || response.codeBlock === "")) {
                             window.showErrorMessage(MESSAGES.INVALID_JSON);
                             return;
+                        }
+                        if (response.diagnostics !== undefined) {
+                            for (const diagnostic of response.diagnostics) {
+                                window.showErrorMessage(diagnostic.message);
+                            }
                         }
                         const editor = window.activeTextEditor;
                         editor?.edit(editBuilder => {
