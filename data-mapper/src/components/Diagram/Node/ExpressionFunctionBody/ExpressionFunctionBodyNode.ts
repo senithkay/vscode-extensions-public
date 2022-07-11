@@ -40,38 +40,11 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
         this.createLinks(mappings);
     }
 
-	private genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
-		let foundMappings: FieldAccessToSpecificFied[] = [];
-		let currentFields = [...(parentFields ? parentFields : [])];
-		if (val) {
-			val.fields.forEach((field) => {
-				if (STKindChecker.isSpecificField(field)) {
-					if (STKindChecker.isMappingConstructor(field.valueExpr)) {
-						foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
-					} else if (STKindChecker.isFieldAccess(field.valueExpr)
-						|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
-					} else if (STKindChecker.isBinaryExpression(field.valueExpr)
-						&& ((STKindChecker.isFieldAccess(field.valueExpr.rhsExpr)
-						|| STKindChecker.isSimpleNameReference(field.valueExpr.rhsExpr)))) {
-						// TODO handle other types of expressions here
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr.rhsExpr, field.valueExpr));
-					} else {
-						// TODO handle other types of expressions here
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
-					}
-				}
-			})
-		}
-		return foundMappings;
-	}
-
-    
 	private createLinks(mappings: FieldAccessToSpecificFied[]) {
 		mappings.forEach((mapping) => {
 			const { fields, value, otherVal } = mapping;
 			if (!value) {
-				console.log(mapping);
+				console.log("Unsupported mapping.");
 				return;
 			}
 			const inputNode = this.getInputNodeExpr(value);

@@ -2,12 +2,13 @@ import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-
 import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
 	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
-	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
+	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MappingConstructor, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
 	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc,
-	SimpleNameReference, SingletonTypeDesc, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
+	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
 	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
+import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 
 import { DataMapperPortModel } from '../../Port/model/DataMapperPortModel';
 
@@ -64,5 +65,47 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				});
 			}
 		}
+	}
+
+	protected addPortsForSpecificField(field: SpecificField,
+		type: "IN" | "OUT", parentId: string, parent?: DataMapperPortModel) {
+		const fieldId = `${parentId}.${field.fieldName.value}`;
+		if (STKindChecker.isSpecificField(field)) {
+			const fieldPort = new DataMapperPortModel(field, type, parentId, parent);
+			this.addPort(fieldPort)
+			if (STKindChecker.isMappingConstructor(field.valueExpr)) {
+				field.valueExpr.fields.forEach((subField) => {
+					if (STKindChecker.isSpecificField(subField)) {
+						this.addPortsForSpecificField(subField, type, fieldId, fieldPort);
+					}
+				});
+			}
+		}
+	}
+
+	protected genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
+		let foundMappings: FieldAccessToSpecificFied[] = [];
+		let currentFields = [...(parentFields ? parentFields : [])];
+		if (val) {
+			val.fields.forEach((field) => {
+				if (STKindChecker.isSpecificField(field)) {
+					if (STKindChecker.isMappingConstructor(field.valueExpr)) {
+						foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
+					} else if (STKindChecker.isFieldAccess(field.valueExpr)
+						|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
+						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
+					} else if (STKindChecker.isBinaryExpression(field.valueExpr)
+						&& ((STKindChecker.isFieldAccess(field.valueExpr.rhsExpr)
+						|| STKindChecker.isSimpleNameReference(field.valueExpr.rhsExpr)))) {
+						// TODO handle other types of expressions here
+						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr.rhsExpr, field.valueExpr));
+					} else {
+						// TODO handle other types of expressions here
+						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
+					}
+				}
+			})
+		}
+		return foundMappings;
 	}
 }
