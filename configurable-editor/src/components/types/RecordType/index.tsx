@@ -38,13 +38,13 @@ export interface RecordTypeProps extends ObjectTypeProps {
 
 export const RecordType = (props: RecordTypeProps) => {
     const classes = useStyles();
-    const recordName: string = getRecordName(props.schema[SchemaConstants.NAME]);
-    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props, recordName));
+    const { fullRecordName, shortenedRecordName } = getRecordName(props.schema[SchemaConstants.NAME]);
+    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props, fullRecordName));
     const [expanded, setExpanded] = useState(true);
     const returnElement: ReactElement[] = [];
 
     useEffect(() => {
-        setRecordValue(getObjectElement(props, recordName));
+        setRecordValue(getObjectElement(props, fullRecordName));
     }, [props.unionId]);
 
     useEffect(() => {
@@ -84,7 +84,8 @@ export const RecordType = (props: RecordTypeProps) => {
         label: props.label,
         name: props.name,
         required: props.isRequired,
-        type: recordName ? recordName : ConfigType.MODULE,
+        shortenedType: shortenedRecordName ? shortenedRecordName : ConfigType.MODULE,
+        type: fullRecordName ? fullRecordName : ConfigType.MODULE,
     };
 
     return (
