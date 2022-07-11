@@ -4,7 +4,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { List, Typography } from '@material-ui/core';
 
 import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
-import { QueryExpressionNode } from './QueryExpressionNode';
+import { QueryExpressionNode, QUERY_SOURCE_PORT_PREFIX, QUERY_TARGET_PORT_PREFIX } from './QueryExpressionNode';
 import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
@@ -71,9 +71,14 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 					{node.value.queryPipeline.fromClause.source}
 				</div>
 				<div className={classes.mappingPane}>
-					<RecordTypeTreeWidget engine={engine} typeDesc={node.sourceTypeDesc} id="queryExpr.source" getPort={getSourcePort} />
+					<RecordTypeTreeWidget 
+						engine={engine}	
+						typeDesc={node.sourceTypeDesc} 
+						id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`} 
+						getPort={getSourcePort} 
+					/>
 					{STKindChecker.isMappingConstructor(node.value.selectClause.expression) &&
-						<MappingConstructorWidget engine={engine} value={node.value.selectClause.expression} id="queryExpr.target" getPort={getTargetPort} />
+						<MappingConstructorWidget engine={engine} value={node.value.selectClause.expression} id={QUERY_TARGET_PORT_PREFIX} getPort={getTargetPort} />
 					}
 
 				</div>
