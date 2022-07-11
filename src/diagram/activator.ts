@@ -509,6 +509,13 @@ class DiagramPanel {
 				}
 			},
 			{
+				methodName: "getBallerinaVersion",
+				handler: async (): Promise<string | undefined> => {
+					const balVersion = ballerinaExtInstance.ballerinaVersion.toLowerCase();
+					return Promise.resolve(balVersion);
+				}
+			},
+			{
 				methodName: "getEnv",
 				handler: async (args: any[]): Promise<any> => {
 					const envName = args[0];
