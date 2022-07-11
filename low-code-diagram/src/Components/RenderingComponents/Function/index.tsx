@@ -27,6 +27,7 @@ import { Provider as FunctionProvider } from "../../../Context/Function";
 import { useOverlayRef, useSelectedStatus } from "../../../hooks";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
 import { End } from "../End";
+import { ExprBodiedFuncComponent } from "../ExpressionBodiedFuction";
 import { StartButton } from "../Start";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
@@ -70,19 +71,7 @@ export function Function(props: FunctionProps) {
 
     let component: JSX.Element;
 
-    if (isExpressionFuncBody) {
-        component = (
-            <g>
-                <StartButton model={model} />
-                <WorkerLine viewState={viewState} />
-                <End
-                    model={model.functionBody}
-                    viewState={viewState.end}
-                    isExpressionFunction={true}
-                />
-            </g>
-        );
-    } else {
+    if (!isExpressionFuncBody) {
         const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
         const isStatementsAvailable: boolean = block.statements.length > 0 || !!block.namedWorkerDeclarator;
         const bodyViewState: BlockViewState = block.viewState;
@@ -146,39 +135,47 @@ export function Function(props: FunctionProps) {
     }
 
     return (
-        <div
-            ref={containerRef}
-            className={classNames(
-                {
-                    "function-box":
-                        STKindChecker.isResourceAccessorDefinition(model) ||
-                        STKindChecker.isObjectMethodDefinition(model),
-                    "module-level-function": STKindChecker.isFunctionDefinition(model),
-                    expanded: diagramExpanded,
-                },
-                STKindChecker.isResourceAccessorDefinition(model)
-                    ? model.functionName.value
-                    : ""
-            )}
-            data-function-name={model?.functionName?.value}
-        >
-            {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
-                <ResourceHeader
-                    isExpanded={diagramExpanded}
+        <>
+            {isExpressionFuncBody ? (
+                <ExprBodiedFuncComponent
                     model={model}
-                    onExpandClick={onExpandClick}
                 />
             ) : (
-                <div >
-                    {!isReadOnly && renderButtons()}
-                    <FunctionHeader
-                        isExpanded={diagramExpanded}
-                        model={model}
-                        onExpandClick={onExpandClick}
-                    />
+                <div
+                    ref={containerRef}
+                    className={classNames(
+                        {
+                            "function-box":
+                                STKindChecker.isResourceAccessorDefinition(model) ||
+                                STKindChecker.isObjectMethodDefinition(model),
+                            "module-level-function": STKindChecker.isFunctionDefinition(model),
+                            expanded: diagramExpanded,
+                        },
+                        STKindChecker.isResourceAccessorDefinition(model)
+                            ? model.functionName.value
+                            : ""
+                    )}
+                    data-function-name={model?.functionName?.value}
+                >
+                    {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
+                        <ResourceHeader
+                            isExpanded={diagramExpanded}
+                            model={model}
+                            onExpandClick={onExpandClick}
+                        />
+                    ) : (
+                        <div >
+                            {!isReadOnly && renderButtons()}
+                            <FunctionHeader
+                                isExpanded={diagramExpanded}
+                                model={model}
+                                onExpandClick={onExpandClick}
+                            />
+                        </div>
+                    ))}
+                    {(diagramExpanded || hideHeader) && functionBody}
                 </div>
-            ))}
-            {(diagramExpanded || hideHeader) && functionBody}
-        </div>
+            )}
+        </>
     );
 }
