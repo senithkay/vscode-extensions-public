@@ -53,6 +53,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         labelCont: {
             marginTop: theme.spacing(0.5),
+            width: "90%",
         },
         labelTag: {
             display: "flex",

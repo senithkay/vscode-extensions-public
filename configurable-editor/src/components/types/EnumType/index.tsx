@@ -60,6 +60,7 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
         label: props.label,
         name: props.name,
         required: props.isRequired,
+        shortenedType: props.type,
         type: props.type,
     };
 
