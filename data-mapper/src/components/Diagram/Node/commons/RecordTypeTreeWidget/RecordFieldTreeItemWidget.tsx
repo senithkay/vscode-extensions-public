@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import TreeItem from '@material-ui/lab/TreeItem';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
@@ -26,19 +25,19 @@ const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#FFFFFF",
             border: "1px solid #CBCEDB",
             display:"flex",
-            // justifyContent: "space-between"
 
         },
         treeLabelOutPort: {
             float: "right",
-            marginRight: "5px",
+            marginRight: "10px",
+            marginLeft: "10px",
             width: 'fit-content',
            
             fontFamily: "monospace",
             color: '#0095FF',
             display: "inline-block",
             position: "absolute",
-            right:"0px"
+            right:"15px"
         },
         treeLabelInPort: {
             float: "left",
@@ -57,6 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
+            marginRight: "24px"
         },
         valueLable: {
             verticalAlign: "middle",
@@ -64,14 +64,13 @@ const useStyles = makeStyles((theme: Theme) =>
             color: "#222228",
             fontFamily: "GilmerMedium, Gilmer Medium",
             fontSize: "13px",
-            // minWidth: "100px",
             backgroundColor: "#FFFFFF",
         },
         
             group:{
                 marginLeft: "0px",
                 paddingLeft: "0px",
-                // borderLeft: "1px dashed black",
+                paddingBottom: "5px"
             },
         content : {
             borderTopRightRadius: theme.spacing(2),
@@ -91,7 +90,7 @@ export interface RecordFieldTreeItemWidgetProps {
 }
 
 export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
-    const { parentId, field, getPort, engine, treeDepth =0 } = props;
+    const { parentId, field, getPort, engine, treeDepth = 0 } = props;
     const classes = useStyles();
     
     const fieldId = `${parentId}.${field.fieldName.value}`;
@@ -105,15 +104,13 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         ? getFieldTypeName(field)
         : "record";
 
-    const value=" ".repeat(treeDepth) + field.fieldName.value + ":";
-    const indentation  = (treeDepth + (expandable ? 0 : 1) ) * 25
+    const indentation  = expandable ?  0 : (treeDepth + 1) * 24
 
     const label = (
         <span style={{ marginRight: "auto"}} >
-            
-           
             <span className={classes.valueLable} style={{marginLeft: indentation}}>
-                { field.fieldName.value + ":"}
+                { field.fieldName.value}
+                {typeName && ":"}
             </span>
             {typeName &&
                 <span className={classes.typeLabel}>
@@ -125,42 +122,35 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     );
 
     const handleExpand = () => {
-        setExpanded(!expanded)
+        //TODO Enable expand collapse functionality
+        // setExpanded(!expanded)
     }
 
     return (
 
-        <div style={{paddingBottom: "5px"}}>
+        <div style={{paddingBottom: treeDepth == 0 ? "5px" : "0px" }}>
             <div className={classes.treeLabel}>
-            <span className={classes.treeLabelInPort}>
-                {portIn &&
-                    <DataMapperPortWidget engine={engine} port={portIn} />
+                <span className={classes.treeLabelInPort}>
+                    {portIn &&
+                        <DataMapperPortWidget engine={engine} port={portIn} />
+                    }
+                </span>
+                {expandable &&
+                    (expanded ? (
+                        <ExpandMoreIcon style={{color:"black", marginLeft: treeDepth * 24}} onClick={handleExpand}/>
+                    ):
+                    (
+                        <ChevronRightIcon style={{color:"black", marginLeft: treeDepth * 24}} onClick={handleExpand}/>
+                    ))
                 }
-            </span>
-
-            {expandable &&
-            
-                (expanded ? (
-                    <ChevronRightIcon style={{color:"black"}} onClick={handleExpand}/>
-                ):
-                (
-                    <ExpandMoreIcon style={{color:"black"}} onClick={handleExpand}/>
-                ))
-            }
-            <span className={classes.treeLabelOutPort}>
-                {portOut &&
-                    <DataMapperPortWidget engine={engine} port={portOut} />
-                }
-            </span>
-            <span> {label}</span>
-            
-
+                <span className={classes.treeLabelOutPort}>
+                    {portOut &&
+                        <DataMapperPortWidget engine={engine} port={portOut} />
+                    }
+                </span>
+                <span> {label}</span>
             </div>
-             
-            {/* <TreeItem nodeId={fieldId} label={label} classes={{group: classes.group, content: classes.content}} > */}
-               
                 {STKindChecker.isRecordField(field) && STKindChecker.isRecordTypeDesc(field.typeName) && expanded &&
-                //  <div className={classes.treeLabel} >
                     field.typeName.fields.map((field) => {
                         if (STKindChecker.isRecordField(field)) {
                             return <RecordFieldTreeItemWidget
@@ -175,10 +165,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             return <></>;
                         }
                     })
-                    
-                }
-               
-            {/* </TreeItem> */}
+                }             
         </div>
     );
 }
