@@ -147,6 +147,12 @@ export const wizardStyles = makeStyles((theme: Theme) =>
                 margin: '0 !important',
             },
         },
+        dataMapperWizardFormControl: {
+            width: "100vw",
+            "& .MuiFormControl-marginNormal": {
+                margin: '0 !important',
+            },
+        },
         ".MuiFormControl-root": {
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',

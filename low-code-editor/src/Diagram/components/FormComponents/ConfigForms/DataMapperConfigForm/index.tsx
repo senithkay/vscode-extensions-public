@@ -84,7 +84,7 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     }, [currentFile.content]);
 
     return (
-        <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>
+        <FormControl data-testid="record-form" className={overlayClasses.dataMapperWizardFormControl}>
             <FormHeaderSection
                 formTitle={"lowcode.develop.configForms.DataMapper.title"}
                 defaultMessage={"Data Mapper"}
