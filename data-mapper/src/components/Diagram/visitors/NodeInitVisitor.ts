@@ -1,8 +1,15 @@
 import { BinaryExpression, ExpressionFunctionBody, FunctionDefinition, QueryExpression, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+
 import { langClientPromise } from "../../../stories/utils";
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDefinitionForTypeDesc } from "../../../utils/st-utils";
-import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
+import {
+    AddInputTypeNode,
+    AddOutputTypeNode,
+    ExpressionFunctionBodyNode,
+    QueryExpressionNode,
+    RequiredParamNode
+} from "../Node";
 import { BinaryExpressionNode } from "../Node/BinaryExpression/BinaryExpressionNode";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 
@@ -17,31 +24,47 @@ export class NodeInitVisitor implements Visitor {
     ) {}
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode){
-        // create output node
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
-        
-        this.outputNode = new ExpressionFunctionBodyNode(
-            this.context,
-            node.functionBody as ExpressionFunctionBody, 
-            typeDesc
-        );
+        const hasOutputTypeDescDefined = STKindChecker.isSimpleNameReference(typeDesc) && !typeDesc.name.isMissing;
+
+        // create output node
+        if (hasOutputTypeDescDefined) {
+            this.outputNode = new ExpressionFunctionBodyNode(
+                this.context,
+                node.functionBody as ExpressionFunctionBody,
+                typeDesc
+            );
+        } else {
+            this.outputNode = new AddOutputTypeNode(
+                this.context
+            );
+        }
+
         this.outputNode.setPosition(1000, 100);
 
         // create input nodes
         const params = node.functionSignature.parameters;
-        for (let i = 0; i < params.length; i++) {
-            const param = params[i];
-            if (STKindChecker.isRequiredParam(param)) {
-                const paramNode = new RequiredParamNode(
-                    this.context,
-                    param,
-                    param.typeName
-                );
-                paramNode.setPosition(100, 100 + i * 400); // 400 is an arbitary value, need to calculate exact heigt;
-                this.inputNodes.push(paramNode);
-            } else {
-                // TODO for other param types
+        if (!!params.length) {
+            for (let i = 0; i < params.length; i++) {
+                const param = params[i];
+                if (STKindChecker.isRequiredParam(param)) {
+                    const paramNode = new RequiredParamNode(
+                        this.context,
+                        param,
+                        param.typeName
+                    );
+                    paramNode.setPosition(100, 100 + i * 400); // 400 is an arbitary value, need to calculate exact heigt;
+                    this.inputNodes.push(paramNode);
+                } else {
+                    // TODO for other param types
+                }
             }
+        } else {
+            const addInputTypeNode = new AddInputTypeNode(
+                this.context
+            );
+            addInputTypeNode.setPosition(1000, 100 * 100);
+            this.inputNodes.push(addInputTypeNode);
         }
     }
 
@@ -56,7 +79,7 @@ export class NodeInitVisitor implements Visitor {
         queryNode.setPosition(425, 250);
         this.intermediateNodes.push(queryNode);
     };
-    
+
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
 
     };
@@ -69,7 +92,7 @@ export class NodeInitVisitor implements Visitor {
     }
 
 
-    
+
     getNodes() {
         const nodes = [...this.inputNodes];
         if (this.outputNode) {

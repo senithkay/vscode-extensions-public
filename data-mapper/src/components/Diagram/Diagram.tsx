@@ -1,20 +1,34 @@
-import createEngine, { DefaultDiagramState, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
+
+import { CanvasWidget } from '@projectstorm/react-canvas-core';
+import createEngine, { DefaultDiagramState, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import "reflect-metadata";
 import {container} from "tsyringe";
 
-import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
-import { CanvasWidget } from '@projectstorm/react-canvas-core';
-import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
-import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { useDMStore } from '../../store/store';
-import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
-import * as Nodes from "./Node";
-import * as Ports from "./Port";
-import * as Links from "./Link";
-import * as Labels from "./Label";
 
+import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
+import * as Labels from "./Label";
+import * as Links from "./Link";
+import { DataMapperLinkModel } from './Link/model/DataMapperLink';
+import { DefaultState as LinkState } from './LinkState/DefaultState';
+import * as Nodes from "./Node";
+import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
+import * as Ports from "./Port";
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -33,7 +47,7 @@ function initDiagramEngine() {
 	const diContext = container.resolve(DataMapperDIContext);
 	const engine = createEngine();
 
-	diContext.nodeFactories.forEach((nf)=> 
+	diContext.nodeFactories.forEach((nf) =>
 		engine.getNodeFactories().registerFactory(nf));
 	diContext.portFactories.forEach((pf) =>
 		engine.getPortFactories().registerFactory(pf));
@@ -54,7 +68,7 @@ function initDiagramEngine() {
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const { nodes } = props;
-	
+
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
 	const [model, setModel] = React.useState(new DiagramModel());
 
@@ -76,13 +90,15 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
         genModel();
 	}, [nodes]);
 
-	return <>
-		{engine && engine.getModel() &&
-			<DataMapperCanvasWidget>
-				<CanvasWidget engine={engine} />
-			</DataMapperCanvasWidget>
-		}
-	</>;
+	return (
+		<>
+			{engine && engine.getModel() && (
+				<DataMapperCanvasWidget>
+					<CanvasWidget engine={engine} />
+				</DataMapperCanvasWidget>
+			)}
+		</>
+	);
 
 
 };
