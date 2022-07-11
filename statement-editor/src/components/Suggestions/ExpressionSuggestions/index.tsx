@@ -60,6 +60,7 @@ export function ExpressionSuggestions() {
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
         updateModel(text, currentModel.model.position)
         inputEditorCtx.onInputChange('');
+        inputEditorCtx.onSuggestionSelection(text);
     }
 
     useEffect(() => {

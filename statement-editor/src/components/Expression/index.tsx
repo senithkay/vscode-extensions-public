@@ -14,10 +14,10 @@
 import React, { useContext } from "react";
 import { useIntl } from "react-intl";
 
-import { TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
+import SyntaxErrorWarning from "../../assets/icons/SyntaxErrorWarning";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getExpressionTypeComponent, isPositionsEquals } from "../../utils";
 import { useStatementRendererStyles } from "../styles";
@@ -69,20 +69,16 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         }
     }
 
+    const isIdenticalNode = isPositionsEquals(model.position, model.parent.position);
 
     const styleClassNames = cn(statementRendererClasses.expressionElement,
         isSelected && !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,
-        isSelected && hasSyntaxDiagnostics && statementRendererClasses.syntaxErrorElementSelected,
+        isSelected && hasSyntaxDiagnostics && !isIdenticalNode && statementRendererClasses.syntaxErrorElementSelected,
         {
             "hovered": !isSelected && isHovered && !hasSyntaxDiagnostics,
         },
         classNames
     )
-
-    const syntaxErrorMessage = intl.formatMessage({
-        id: "statement.editor.syntaxError.warning",
-        defaultMessage: "Fix the error first"
-    });
 
     return (
         <>
@@ -93,13 +89,13 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
                 onClick={onMouseClick}
                 data-testid={model.kind}
             >
+                {isSelected && hasSyntaxDiagnostics && !isIdenticalNode && (
+                    <span className={statementRendererClasses.syntaxErrorTooltip}>
+                        <SyntaxErrorWarning />
+                    </span>
+                )}
                 {component}
                 {children}
-            </span>
-            <span className={statementRendererClasses.syntaxErrorTooltip}>
-                {isSelected && hasSyntaxDiagnostics && (
-                    <TooltipIcon title={syntaxErrorMessage} placement='top-end' arrow={true} />
-                )}
             </span>
         </>
     );

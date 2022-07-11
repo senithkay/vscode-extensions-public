@@ -186,7 +186,7 @@ export default function Toolbar(props: ToolbarProps) {
                 <StatementEditorHint content={"Add configurable"} >
                     <IconButton
                         onClick={onClickOnConfigurable}
-                        disabled={!configurable}
+                        disabled={!configurable || hasSyntaxDiagnostics}
                         className={statementEditorClasses.toolbarIcons}
                     >
                         <ToolbarConfigurableIcon/>
