@@ -36,6 +36,7 @@ import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showChoreoSigninMessage, Values } from "../forecaster";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
+import { DefinitionParams, Location, LocationLink } from 'vscode-languageserver-protocol';
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -387,6 +388,9 @@ export class ExtendedLangClient extends LanguageClient {
     didChange(params: DidChangeParams): void {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification("textDocument/didChange", params);
+    }
+    async definition(params: DefinitionParams): Promise<Location | Location[] | LocationLink[]> {
+        return this.sendRequest<Location | Location[] | LocationLink[]>("textDocument/definition", params);
     }
     async getResourcesWithEndpoints(params: PerformanceAnalyzerRequest, skipLogin?: boolean): Promise<PerformanceAnalyzerResponse[] | NOT_SUPPORTED_TYPE> {
         if (!skipLogin && (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
