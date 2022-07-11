@@ -543,7 +543,8 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, experimentalEnabled);
+					diagramElement!.startColumn!, experimentalEnabled, this.webviewPanel,
+					ballerinaExtension.extension.extensionUri);
 			} else {
 				callUpdateDiagramMethod();
 			}
