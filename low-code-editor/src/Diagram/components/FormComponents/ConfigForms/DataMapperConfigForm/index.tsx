@@ -42,7 +42,7 @@ export interface DataMapperProps {
 }
 
 export function DataMapperConfigForm(props: DataMapperProps) {
-    const { model, onCancel } = props;
+    const { onCancel } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
@@ -55,7 +55,6 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                 modifyDiagram
             },
             ls: {
-                getExpressionEditorLangClient,
                 getDiagramEditorLangClient
             }
         }
@@ -64,26 +63,6 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     const overlayClasses = wizardStyles();
 
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
-
-    // useEffect(() => {
-    //     async function getFunctionST() {
-    //         // const partialST = await langClient.getSTForSingleStatement({codeSnippet: ""});
-    //         const partialST = await getPartialSTForModuleMembers({codeSnippet: `function transform(InputMessage input) returns TransformedMessage => {};`}, getExpressionEditorLangClient);
-    //         setFunctionST(partialST as FunctionDefinition);
-    //         // const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
-    //
-    //         // const defReply = await langClient.definition({
-    //         //     position: {
-    //         //         line: 0,
-    //         //         character: 0
-    //         //     },
-    //         //     textDocument: {
-    //         //         uri: filePath
-    //         //     }
-    //         // });
-    //     }
-    //     getFunctionST();
-    // }, []);
 
     useEffect(() => {
         async function getSyntaxTree() {
@@ -103,11 +82,6 @@ export function DataMapperConfigForm(props: DataMapperProps) {
         }
         getSyntaxTree();
     }, [currentFile.content]);
-
-    const updateFileContentOverride = (fPath: string, newContent: string) => {
-        return Promise.resolve(true);
-    }
-
 
     return (
         <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>

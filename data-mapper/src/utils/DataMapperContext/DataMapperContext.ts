@@ -40,12 +40,4 @@ export class DataMapperContext implements IDataMapperContext {
         }
         this._functionST = st;
     }
-
-    // public getLangClient(): Promise<BalleriaLanguageClient> {
-    //     return this._langClientPromise();
-    // }
-    //
-    // public getLangClient() {
-    //     return this._langClientPromise;
-    // }
 }
