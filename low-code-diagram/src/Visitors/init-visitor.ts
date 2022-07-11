@@ -559,14 +559,16 @@ export class InitVisitor implements Visitor {
             })
             parent = service;
         } else if (STKindChecker.isFunctionDefinition(parent)) {
-            const body = parent.functionBody as FunctionBodyBlock;
-            const filteredStatements = body.statements.filter(statement => {
-                if (statement.kind !== "XmlNamespaceDeclaration") {
-                    return statement;
-                }
-            })
-            body.statements = filteredStatements;
-            parent.functionBody = body;
+            const body = parent.functionBody;
+            if (STKindChecker.isFunctionBodyBlock(body)) {
+                const filteredStatements = body.statements.filter(statement => {
+                    if (statement.kind !== "XmlNamespaceDeclaration") {
+                        return statement;
+                    }
+                })
+                body.statements = filteredStatements;
+                parent.functionBody = body;
+            }
         }
         return parent;
     }

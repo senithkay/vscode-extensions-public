@@ -24,8 +24,9 @@ import { Box, Card, CardContent, Collapse } from "@material-ui/core";
 import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
 import ExpandMore from "../../elements/ExpandMore";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-import { ConfigType } from "../../model";
+import { ConfigType, SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
+import { getRecordName } from "../../utils";
 import { ObjectTypeProps } from "../ObjectType";
 
 /**
@@ -37,13 +38,14 @@ export interface RecordTypeProps extends ObjectTypeProps {
 
 export const RecordType = (props: RecordTypeProps) => {
     const classes = useStyles();
-    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props));
+    const { fullRecordName, shortenedRecordName } = getRecordName(props.schema[SchemaConstants.NAME]);
+    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props, fullRecordName));
     const [expanded, setExpanded] = useState(true);
     const returnElement: ReactElement[] = [];
 
     useEffect(() => {
-        setRecordValue(getObjectElement(props));
-    }, [props.properties]);
+        setRecordValue(getObjectElement(props, fullRecordName));
+    }, [props.unionId]);
 
     useEffect(() => {
         setExpanded(props.isRequired);
@@ -64,6 +66,7 @@ export const RecordType = (props: RecordTypeProps) => {
         const property = recordValue.properties[key];
         const configElementProps: ConfigElementProps = {
             ...property,
+            isRequired: props.isRequired ? property.isRequired : false,
             setConfigElement: handleValueChange,
         };
 
@@ -81,7 +84,8 @@ export const RecordType = (props: RecordTypeProps) => {
         label: props.label,
         name: props.name,
         required: props.isRequired,
-        type: ConfigType.RECORD,
+        shortenedType: shortenedRecordName ? shortenedRecordName : ConfigType.MODULE,
+        type: fullRecordName ? fullRecordName : ConfigType.MODULE,
     };
 
     return (
@@ -123,7 +127,7 @@ function updateRecordValue(recordObject: ConfigElementProps, id: string, value: 
     return recordObject;
 }
 
-function getObjectElement(configObject: ConfigElementProps): ConfigElementProps {
+function getObjectElement(configObject: ConfigElementProps, recordName: string): ConfigElementProps {
     const nestedProperties: ConfigElementProps[] = getNestedElements(configObject.properties);
     return {
         description: configObject.description,
@@ -132,7 +136,7 @@ function getObjectElement(configObject: ConfigElementProps): ConfigElementProps 
         name: configObject.name,
         properties: nestedProperties,
         schema: configObject.schema,
-        type: configObject.type,
+        type: recordName ? configObject.type : ConfigType.MODULE,
     };
 }
 
