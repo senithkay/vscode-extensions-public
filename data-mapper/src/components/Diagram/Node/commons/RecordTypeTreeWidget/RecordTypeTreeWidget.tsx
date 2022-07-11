@@ -29,7 +29,6 @@ export interface RecordTypeTreeWidgetProps {
     getPort: (portId: string) => DataMapperPortModel;
 }
 
-
 export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
 	const { engine, typeDesc, id, getPort } = props;
 	const classes = useStyles();

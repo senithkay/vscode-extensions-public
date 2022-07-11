@@ -44,13 +44,34 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             , "OUT"
         );
         this.addPort(this.outPort);
-
+        this.initSourcePorts();
+        this.initTargetPorts();
     }
 
-    async getSourceType() {
+    private initSourcePorts() {
+        this.sourceTypeDesc.fields.forEach((field) => {
+            if (STKindChecker.isRecordField(field)) {
+                this.addPorts(field, "OUT", "queryExpr.source");
+            }
+        });
+    }
+
+    private initTargetPorts() {
+        const selectClause = this.value.selectClause;
+        if (STKindChecker.isMappingConstructor(selectClause.expression)) {
+            selectClause.expression.fields.forEach((field)  => {
+                if (STKindChecker.isSpecificField(field)) {
+                    this.addPortsForSpecificField(field, "IN", "queryExpr.target");
+                }
+            });
+        }
+    }
+
+    private async getSourceType() {
         const sourceFieldAccess = this.value.queryPipeline.fromClause.expression;
         if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
             const fieldNames = getFieldNames(sourceFieldAccess);
+            const fieldId = fieldNames.reduce((pV, cV) => `${pV}.${cV}` , "");
             const param = getParamForName(fieldNames[0], this.context.functionST);
             const paramNode = this.getModel().getNodes().find((node) => 
                 node instanceof RequiredParamNode
@@ -67,8 +88,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
                     sourceTypeDesc = fieldType.memberTypeDesc;
                 }
-                this.sourcePort = paramNode.getPort(md5(JSON.stringify(field.position) + "OUT")) as DataMapperPortModel;
-                console.log(this.sourcePort);
+                this.sourcePort = paramNode.getPort(fieldId + ".OUT") as DataMapperPortModel;
               } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
                 nextRecTypeDesc = field.typeName; // TODO Handle other cases
               }
@@ -77,10 +97,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         }
     }
 
-    async getTargetType() {
+    private async getTargetType() {
         // TODO get target type from specific field instead of select clause
         const selectClause = this.value.selectClause;
-        // console.log(selectClause)
     }
 
     initLinks(): void {
@@ -95,7 +114,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 						this.sourcePort.fireEvent({}, "link-selected");
 						this.inPort.fireEvent({}, "link-selected");
 					} else {
-						this.sourcePort.fireEvent({}, "link-unselected");
+
+                        this.sourcePort.fireEvent({}, "link-unselected");
 						this.inPort.fireEvent({}, "link-unselected");
 					}
 				},

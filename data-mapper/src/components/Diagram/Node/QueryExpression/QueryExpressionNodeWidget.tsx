@@ -5,8 +5,10 @@ import { List, Typography } from '@material-ui/core';
 
 import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
 import { QueryExpressionNode } from './QueryExpressionNode';
-import { SourceNodeWidget } from './SourceNodeWidget';
-import { DataMapperPortWidget } from '../../Port';
+import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
+import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
+import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
+import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
@@ -48,6 +50,14 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 		const classes = this.props.classes;
 		const engine = this.props.engine;
 
+		const getSourcePort = (portId: string) => {
+			return node.getPort(portId) as DataMapperPortModel;
+		}
+
+		const getTargetPort = (portId: string) => {
+			return node.getPort(portId) as DataMapperPortModel;
+		}
+
 		return (
 			<div
 				className={classes.root}
@@ -61,8 +71,11 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 					{node.value.queryPipeline.fromClause.source}
 				</div>
 				<div className={classes.mappingPane}>
-					<SourceNodeWidget typeDesc={node.sourceTypeDesc} />
-					<SourceNodeWidget typeDesc={node.sourceTypeDesc} />
+					<RecordTypeTreeWidget engine={engine} typeDesc={node.sourceTypeDesc} id="queryExpr.source" getPort={getSourcePort} />
+					{STKindChecker.isMappingConstructor(node.value.selectClause.expression) &&
+						<MappingConstructorWidget engine={engine} value={node.value.selectClause.expression} id="queryExpr.target" getPort={getTargetPort} />
+					}
+
 				</div>
 			</div>
 		);

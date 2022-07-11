@@ -4,7 +4,7 @@ import {
 	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
 	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
 	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc,
-	SimpleNameReference, SingletonTypeDesc, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
+	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
 	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
@@ -60,6 +60,22 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				field.typeName.fields.forEach((subField) => {
 					if (STKindChecker.isRecordField(subField)) {
 						this.addPorts(subField, type, fieldId, fieldPort);
+					}
+				});
+			}
+		}
+	}
+
+	protected addPortsForSpecificField(field: SpecificField,
+		type: "IN" | "OUT", parentId: string, parent?: DataMapperPortModel) {
+		const fieldId = `${parentId}.${field.fieldName.value}`;
+		if (STKindChecker.isSpecificField(field)) {
+			const fieldPort = new DataMapperPortModel(field, type, parentId, parent);
+			this.addPort(fieldPort)
+			if (STKindChecker.isMappingConstructor(field.valueExpr)) {
+				field.valueExpr.fields.forEach((subField) => {
+					if (STKindChecker.isSpecificField(subField)) {
+						this.addPortsForSpecificField(subField, type, fieldId, fieldPort);
 					}
 				});
 			}

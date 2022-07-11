@@ -6,7 +6,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
-import { MappingConstructor, RecordField, RecordTypeDesc, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { MappingConstructor, RecordField, RecordTypeDesc, SpecificField, STKindChecker } from '@wso2-enterprise/syntax-tree';
 import { DataMapperPortModel } from '../../../Port';
 import { SpecificFieldWidget } from './SpecificFieldWidget';
 
@@ -32,15 +32,15 @@ export interface MappingConstructorWidgetProps {
 
 
 export function MappingConstructorWidget(props: MappingConstructorWidgetProps) {
-	const { engine, typeDesc, id, getPort } = props;
+	const { engine, typeDesc, id, getPort, value } = props;
 	const classes = useStyles();
 
-	const getNodeIds = (field: RecordField, parentId: string) => {
+	const getNodeIds = (field: SpecificField, parentId: string) => {
 		const currentNodeId = parentId + "." + field.fieldName.value;
 		const nodeIds = [currentNodeId];
-		if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-			field.typeName.fields.forEach((subField) => {
-				if (STKindChecker.isRecordField(subField)) {
+		if (STKindChecker.isMappingConstructor(field.valueExpr)) {
+			field.valueExpr.fields.forEach((subField) => {
+				if (STKindChecker.isSpecificField(subField)) {
 					nodeIds.push(...getNodeIds(subField, currentNodeId));
 				}
 			});
@@ -50,12 +50,12 @@ export function MappingConstructorWidget(props: MappingConstructorWidgetProps) {
 
 	const allNodeIds: string[] = [];
 
-	if (STKindChecker.isRecordTypeDesc(typeDesc)) {
-		typeDesc.fields.forEach((field) => {
-			if (STKindChecker.isRecordField(field)) {
+	if (STKindChecker.isMappingConstructor(value)) {
+		value.fields.forEach((field) => {
+			if(STKindChecker.isSpecificField(field)) {
 				allNodeIds.push(...getNodeIds(field, id));
 			}
-		});
+		})
 	}
 
 	return (
@@ -66,8 +66,8 @@ export function MappingConstructorWidget(props: MappingConstructorWidgetProps) {
 			defaultExpanded={allNodeIds}
 		>
 			{
-				typeDesc.fields.map((field) => {
-					if (STKindChecker.isRecordField(field)) {
+				value.fields.map((field) => {
+					if (STKindChecker.isSpecificField(field)) {
 						return <SpecificFieldWidget
 							engine={engine}
 							field={field}
