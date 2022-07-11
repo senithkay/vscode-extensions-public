@@ -13,6 +13,7 @@
 import React, { useContext, useEffect } from "react";
 
 import { List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
+import { SymbolDocumentation } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -47,16 +48,17 @@ export function ParameterSuggestions() {
 
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
-            const paramsInModel: STNode[] = isDocumentationSupportedModel(currentModel.model) ?
-                getCurrentModelParams(currentModel.model) :
-                getCurrentModelParams(
-                    getParentFunctionModel((currentModel.model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
-                        statementModel));
+            const model = isDocumentationSupportedModel(currentModel.model) ? currentModel.model :
+                getParentFunctionModel((currentModel.model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                statementModel);
+            const paramsInModel: STNode[] = getCurrentModelParams(model);
+            let paramDocumentation : SymbolDocumentation  = documentation.documentation;
             // TODO: Remove this check once the methodCall param filter is added to the LS
-            if (STKindChecker.isMethodCall(currentModel.model)) {
-                updateParamListFordMethodCallDoc(paramsInModel, documentation.documentation);
+            if (STKindChecker.isMethodCall(model)) {
+                paramDocumentation = updateParamListFordMethodCallDoc(paramsInModel, paramDocumentation);
             }
-            setParamDoc(updateParamDocWithParamPositions(paramsInModel, documentation.documentation));
+            paramDocumentation = updateParamDocWithParamPositions(paramsInModel, paramDocumentation);
+            setParamDoc(paramDocumentation);
         }
     }, [currentModel.model, documentation]);
 
