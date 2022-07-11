@@ -49,7 +49,7 @@ import {
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
+import { EditorModel, MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
 import { visitor as ClearDiagnosticVisitor } from "../visitors/clear-diagnostics-visitor";
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
@@ -554,6 +554,14 @@ export function isInsideEndpointConfigs(currentModel: STNode, editorConfigType: 
                 paramPosition.endLine > modelPosition.endLine) ||
             (paramPosition.endLine === modelPosition.endLine && paramPosition.endColumn >= modelPosition.endColumn))
     );
+}
+
+export function isConfigurableEditor(editors: EditorModel[], activeEditorId: number): boolean {
+    if (editors?.length > activeEditorId) {
+        const activeEditor = editors[activeEditorId];
+        return activeEditor.isConfigurableStmt ?? false;
+    }
+    return false;
 }
 
 export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
