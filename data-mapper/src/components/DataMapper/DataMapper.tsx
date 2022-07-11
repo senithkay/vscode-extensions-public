@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 
 import DataMapperDiagram from "../Diagram/Diagram";
 
-import { ExpressionFunctionBody, FunctionDefinition, STKindChecker, traversNode, traversNodeAsync, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
-import { getTypeDefinitionForTypeDesc } from "../../utils/st-utils";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
-import { ExpressionFunctionBodyNode, RequiredParamNode } from "../Diagram/Node";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
+
+import "../../assets/fonts/Gilmer/gilmer.css";
+
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;

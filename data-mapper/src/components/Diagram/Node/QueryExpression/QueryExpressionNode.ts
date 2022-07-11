@@ -84,7 +84,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             this.sourceBindingPattern = bindingPattern;
             if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
                 const fieldNames = getFieldNames(sourceFieldAccess);
-                const fieldId = fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "");
+                const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
                 const param = getParamForName(fieldNames[0], this.context.functionST);
                 const paramNode = this.getModel().getNodes().find((node) =>
                     node instanceof RequiredParamNode

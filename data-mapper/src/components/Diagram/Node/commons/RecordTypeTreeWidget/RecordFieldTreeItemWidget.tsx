@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             padding: "5px",
             color: "#222228",
-            fontFamily: "GilmerMedium, Gilmer Medium",
+            fontFamily: "GilmerMedium",
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
@@ -33,7 +33,6 @@ const useStyles = makeStyles((theme: Theme) =>
             marginLeft: "10px",
             width: 'fit-content',
            
-            fontFamily: "monospace",
             color: '#0095FF',
             display: "inline-block",
             position: "absolute",
@@ -44,7 +43,6 @@ const useStyles = makeStyles((theme: Theme) =>
             marginRight: "5px",
             position: 'relative',
             width: 'fit-content',
-            fontFamily: "monospace",
             color: '#0095FF',
         },
         typeLabel: {
@@ -52,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             padding: "5px",
             color: "#222228",
-            fontFamily: "GilmerRegular, Gilmer Regular",
+            fontFamily: "GilmerRegular",
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
@@ -62,7 +60,7 @@ const useStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             padding: "5px",
             color: "#222228",
-            fontFamily: "GilmerMedium, Gilmer Medium",
+            fontFamily: "GilmerMedium",
             fontSize: "13px",
             backgroundColor: "#FFFFFF",
         },
@@ -128,7 +126,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
 
     return (
 
-        <div style={{paddingBottom: treeDepth == 0 ? "5px" : "0px" }}>
+        <div>
             <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
