@@ -21,6 +21,7 @@ import {
     getCurrentModelParams,
     getDocDescription,
     getParentFunctionModel,
+    isConfigurableEditor,
     isDescriptionWithExample,
     isDocumentationSupportedModel,
     updateParamDocWithParamPositions,
@@ -45,6 +46,10 @@ export function ParameterSuggestions() {
         },
         documentation: {
             documentation
+        },
+        editorCtx: {
+            editors,
+            activeEditorId
         }
     } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -53,6 +58,7 @@ export function ParameterSuggestions() {
 
     const connectorInfo = (connector as BallerinaConnectorInfo);
     const connectorInit = connectorInfo?.functions.find(func => func.name === "init");
+    const isConfigurable = isConfigurableEditor(editors, activeEditorId);
 
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
@@ -95,7 +101,7 @@ export function ParameterSuggestions() {
 
     return (
         <>
-            {!connectorInfo &&
+            {(!connectorInfo || isConfigurable) &&
                 (documentation === null ? (
                     <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                         <p>Please upgrade to the latest Ballerina version</p>
@@ -137,7 +143,7 @@ export function ParameterSuggestions() {
                         )}
                     </>
                 ))}
-            {connectorInfo && connectorInit && (
+            {connectorInfo && connectorInit && !isConfigurable && (
                 <List className={stmtEditorHelperClasses.docParamSuggestions}>
                     {connectorInit.parameters && (<ParameterTree parameters={connectorInit.parameters} />)}
                     {connectorInfo.documentation && (

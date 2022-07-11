@@ -69,11 +69,6 @@ export function HelperPane(props: HelperPaneProps) {
     };
 
     const keyboardNavigationManager = new KeyboardNavigationManager();
-    const helperTabs = [TabElements.suggestions, TabElements.expressions, TabElements.libraries];
-    const configurableEditor = isConfigurableEditor(editors, activeEditorId);
-    if (!configurableEditor) {
-        helperTabs.push(TabElements.parameters);
-    }
 
     React.useEffect(() => {
 
@@ -93,13 +88,11 @@ export function HelperPane(props: HelperPaneProps) {
         if (
             currentModel.model &&
             (isFunctionOrMethodCall(currentModel.model) || isInsideEndpointConfigs(currentModel.model, config.type)) &&
-            !configurableEditor
+            !isConfigurableEditor(editors, activeEditorId)
         ) {
             setSelectedTab(TabElements.parameters);
         } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
             setSelectedTab(TabElements.expressions);
-        } else if (configurableEditor && selectedTab === TabElements.parameters) {
-            setSelectedTab(TabElements.suggestions);
         }
     }, [docExpandClicked, currentModel.model]);
 
@@ -112,7 +105,7 @@ export function HelperPane(props: HelperPaneProps) {
             <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                 <div className={stmtEditorHelperClasses.tabPanelWrapper} data-testid="tab-panel-wrapper">
                     <TabPanel
-                        values={helperTabs}
+                        values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
                         defaultValue={TabElements.suggestions}
                         onSelection={onTabElementSelection}
                         selectedTab={selectedTab}
@@ -133,7 +126,7 @@ export function HelperPane(props: HelperPaneProps) {
                 {selectedTab === TabElements.suggestions && <LSSuggestions />}
                 {selectedTab === TabElements.expressions && <ExpressionSuggestions />}
                 {selectedTab === TabElements.libraries && <LibraryBrowser libraryType={libraryType} />}
-                {selectedTab === TabElements.parameters && !configurableEditor && <ParameterSuggestions />}
+                {selectedTab === TabElements.parameters && <ParameterSuggestions />}
             </div>
         </>
     );
