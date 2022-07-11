@@ -11,7 +11,7 @@
     "scripts": {
         "prebuild2": "npm run lint",
         "build": "npm run storybook:setup && tsc --pretty && npm run copy:assets",
-        "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/",
+        "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json lib/",
         "watch": "tsc --pretty --watch",
         "clean": "rimraf build/",
         "clean:nm": "rimraf node_modules",
