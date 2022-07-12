@@ -31,13 +31,14 @@ import { getDefaultParams, getFormFieldReturnType } from "../util";
 
 interface EndpointFormProps {
     connector: BallerinaConnectorInfo;
+    isModuleType?: boolean;
 }
 
 export function EndpointForm(props: FormGeneratorProps) {
     const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
-    const { connector } = formArgs as EndpointFormProps;
+    const { connector, isModuleType } = formArgs as EndpointFormProps;
 
     const {
         props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled },
@@ -119,6 +120,7 @@ export function EndpointForm(props: FormGeneratorProps) {
                     isLoading,
                     experimentalEnabled,
                     runBackgroundTerminalCommand,
+                    isModuleVar: isModuleType ?? false
                 })}
             {isLoading && (
                 <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
