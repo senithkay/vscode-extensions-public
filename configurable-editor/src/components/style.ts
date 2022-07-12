@@ -35,6 +35,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#3f51b5",
             fontSize: theme.spacing(1.4),
         },
+        docIcon: {
+            marginLeft: theme.spacing(4.375),
+        },
         formGroup: {
             marginBottom: theme.spacing(1),
         },
@@ -45,6 +48,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: theme.spacing(1),
         },
         innerBoxHead: {
+            alignItems: "center",
             display: "flex",
             marginBottom: theme.spacing(1),
         },

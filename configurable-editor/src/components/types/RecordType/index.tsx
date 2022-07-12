@@ -17,18 +17,19 @@
  *
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useContext, useEffect, useState } from "react";
 
-import { Box, Card, CardContent, Collapse } from "@material-ui/core";
+import { Box, Card, CardContent, Collapse, IconButton, Tooltip } from "@material-ui/core";
 
+import { DocIcon } from "../../../assets";
 import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
+import { docLink } from "../../ConfigForm";
 import ExpandMore from "../../elements/ExpandMore";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { ConfigType, SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
 import { getRecordName } from "../../utils";
 import { ObjectTypeProps } from "../ObjectType";
-
 /**
  * A high level config property which can contain nested objects.
  */
@@ -88,12 +89,21 @@ export const RecordType = (props: RecordTypeProps) => {
         type: fullRecordName ? fullRecordName : ConfigType.MODULE,
     };
 
+    const openTriggerDocs = () => {
+        window.open(docLink);
+    };
+
+    const docIconButton = (
+        props.name === "config" ? <IconButton onClick={openTriggerDocs}><img src={DocIcon} /></IconButton> : null);
     return (
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
                 <CardContent className={classes.cardContent}>
                     <Box className={classes.innerBoxHead}>
                         <FieldLabel {...fieldLabelProps} />
+                        <Tooltip title={"View Documentation"}>
+                            <Box className={classes.docIcon}>{docIconButton}</Box>
+                        </Tooltip>
                         <ExpandMore
                             expand={expanded}
                             onClick={handleExpandClick}
