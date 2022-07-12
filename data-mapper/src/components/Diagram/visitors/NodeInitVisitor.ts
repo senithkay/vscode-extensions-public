@@ -63,7 +63,7 @@ export class NodeInitVisitor implements Visitor {
             const addInputTypeNode = new AddInputTypeNode(
                 this.context
             );
-            addInputTypeNode.setPosition(1000, 100 * 100);
+            addInputTypeNode.setPosition(100, 100);
             this.inputNodes.push(addInputTypeNode);
         }
     }

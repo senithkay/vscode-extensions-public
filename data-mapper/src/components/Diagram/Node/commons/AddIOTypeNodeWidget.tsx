@@ -13,14 +13,26 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { Button } from '@material-ui/core';
-import {createStyles, makeStyles, Theme, withStyles, WithStyles} from "@material-ui/core/styles";
+import { Button, Typography } from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
-import { AddOutputTypeNode } from "../AddOutputType/AddOutputTypeNode";
+import { AddOutputTypeNode } from "../AddOutputType";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
+		contentWrapper: {
+			minHeight: '600px',
+			minWidth: '344px',
+			borderRadius: '8px',
+			backgroundColor: '#FFFFFF',
+			boxShadow: '0 2px 40px 0 rgba(102,103,133,0.15)',
+			padding: '20px'
+		},
+		title: {
+			display: "flex",
+			paddingBottom: '20px'
+		},
 		addTypeButton: {
 			verticalAlign: "middle",
 			padding: "5px",
@@ -39,16 +51,18 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface AddOutputTypeNodeWidgetProps {
 	node: AddOutputTypeNode;
 	engine: DiagramEngine;
+	title: string;
 }
 
 export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
-	const { node, engine } = props;
+	const { node, engine, title } = props;
 	const classes = useStyles();
 
 	return (
-		<div>
+		<div className={classes.contentWrapper}>
+			<Typography className={classes.title}>{title}</Typography>
 			<Button className={classes.addTypeButton}>
-				Add output type
+				Add {title.toLowerCase()} type
 			</Button>
 		</div>
 	);
