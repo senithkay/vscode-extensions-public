@@ -19,15 +19,22 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 
-import { ConfigOverlayFormStatus, STModification, SAVE_STATEMENT, LowcodeEvent, EndConfig, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { getAllVariables } from "../../../../utils/mixins";
+import {
+    ConfigOverlayFormStatus,
+    STModification,
+    SAVE_STATEMENT,
+    LowcodeEvent,
+    EndConfig,
+    RespondConfig,
+    genVariableName,
+    getAllVariables
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     createPropertyStatement,
     createReturnStatement,
     updatePropertyStatement,
     updateReturnStatement
 } from "../../../../utils/modification-util";
-import { genVariableName } from "../../../Portals/utils";
 
 import { EndOverlayForm } from "./EndOverlayForm";
 

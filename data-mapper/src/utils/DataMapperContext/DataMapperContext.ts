@@ -1,11 +1,19 @@
-import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
+import {
+    DiagramEditorLangClientInterface,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
     filePath: string;
-    getLangClient: () => Promise<BalleriaLanguageClient>;
-    updateFileContent: (filePath: string, fileContent: string) => Promise<boolean>;
+    getLangClient: () => Promise<DiagramEditorLangClientInterface>;
+    currentFile?: {
+        content: string,
+        path: string,
+        size: number
+    };
+    applyModifications: (modifications: STModification[]) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -13,10 +21,14 @@ export class DataMapperContext implements IDataMapperContext {
     constructor(
         public filePath: string,
         private _functionST: FunctionDefinition,
-        private _langClientPromise: Promise<BalleriaLanguageClient>,
-        private _updateFileContet: (filePath: string, fileContent: string) => Promise<boolean>
-        ) {
-    }
+        public getLangClient: () => Promise<DiagramEditorLangClientInterface>,
+        public currentFile: {
+            content: string,
+            path: string,
+            size: number
+        },
+        public applyModifications: (modifications: STModification[]) => void
+    ){}
 
     public get functionST(): FunctionDefinition {
         return this._functionST;
@@ -27,13 +39,5 @@ export class DataMapperContext implements IDataMapperContext {
             throw new Error("Invalid value set as FunctionST.");
         }
         this._functionST = st;
-    }
-    
-    public getLangClient(): Promise<BalleriaLanguageClient> {
-        return this._langClientPromise;
-    }
-
-    public updateFileContent(filePath: string, fileContent: string): Promise<boolean> {
-        return this._updateFileContet(filePath, fileContent);
     }
 }

@@ -30,6 +30,7 @@ export interface PlusOptionsProps {
 }
 
 export enum PlusMenuCategories {
+    MODULE_INIT,
     CONSTRUCT,
     ENTRY_POINT
 }
@@ -45,16 +46,17 @@ export const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Main', type: 'FunctionDefinition', category: PlusMenuCategories.ENTRY_POINT },
     { name: 'Service', type: 'ServiceDeclaration', category: PlusMenuCategories.ENTRY_POINT },
     { name: 'Trigger', type: 'TriggerList', category: PlusMenuCategories.ENTRY_POINT },
-    { name: 'Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.MODULE_INIT },
     { name: 'Record', type: 'RecordEditor', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Function', type: 'FunctionDefinition', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Connector', type: 'ModuleConnectorDecl', category: PlusMenuCategories.CONSTRUCT },
+    { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Connector', type: 'ModuleConnectorDecl', category: PlusMenuCategories.MODULE_INIT },
     { name: 'Listener', type: 'ListenerDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Enum', type: 'EnumDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Class', type: 'ClassDefinition', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Other', type: 'Custom', category: PlusMenuCategories.CONSTRUCT }
+    { name: 'Other', type: 'Custom', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Data Mapper', type: 'DataMapper', category: PlusMenuCategories.CONSTRUCT }
 ];
 
 export const classMemberEntries: PlusMenuEntry[] = [
@@ -116,7 +118,8 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     configOverlayFormStatus={{
                         formType: selectedOption.type,
                         formName: selectedOption.name,
-                        isLoading: false
+                        isLoading: false,
+                        isLastMember: isLastMember
                     }}
                     onCancel={handleOnClose}
                     onSave={handleOnSave}

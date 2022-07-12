@@ -13,7 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
+import { Box, FormControl } from '@material-ui/core';
 import {
+    CommandResponse,
     ExpressionEditorLangClientInterface,
     LibraryDataResponse,
     LibraryDocResponse,
@@ -26,11 +28,11 @@ import * as monaco from "monaco-editor";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
-import { getUpdatedSource } from "../../utils";
 import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { StatementEditor } from "../StatementEditor";
+import { useStatementEditorStyles } from '../styles';
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
@@ -57,20 +59,19 @@ export interface LowCodeEditorProps {
     importStatements?: string[];
     experimentalEnabled?: boolean;
     isConfigurableStmt?: boolean;
+    isModuleVar?: boolean;
+    runCommandInBackground?: (command: string) => Promise<CommandResponse>;
 }
 
-export interface FormHandlingProps extends LowCodeEditorProps {
-    handleStatementEditorChange?: (partialModel: STNode) => void;
-    onStmtEditorModelChange?: (partialModel: STNode) => void;
-    handleStmtEditorToggle?: () => void;
-}
-
-export interface StatementEditorWrapperProps extends FormHandlingProps {
+export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
+    isLoading?: boolean;
+    extraModules?: Set<string>;
 }
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
+    const overlayClasses = useStatementEditorStyles();
     const {
         label,
         initialSource,
@@ -78,7 +79,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         config,
         onCancel,
         onWizardClose,
-        onStmtEditorModelChange,
         getLangClient,
         applyModifications,
         library,
@@ -87,13 +87,16 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         stSymbolInfo,
         importStatements,
         experimentalEnabled,
-        handleStmtEditorToggle,
-        isConfigurableStmt
+        isConfigurableStmt,
+        isModuleVar,
+        isLoading,
+        extraModules,
+        runCommandInBackground
     } = props;
 
     const {
-        formArgs : {
-            targetPosition : targetPosition
+        formArgs: {
+            targetPosition: targetPosition
         }
     } = formArgs;
 
@@ -157,27 +160,28 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 if (initialSource) {
                     await sendDidOpen(fileURI, currentFile.content, getLangClient);
 
-                    const partialST = isConfigurableStmt
+                    const partialST = (isConfigurableStmt || isModuleVar)
                         ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
                         : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, getLangClient);
 
                     if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                         model = partialST;
                     }
-                }
+            }
                 const newEditor: EditorModel = {
                     label,
                     model,
                     source: initialSource,
                     position: targetPosition,
                     isConfigurableStmt,
+                    isModuleVar,
                     undoRedoManager: new StmtEditorUndoRedoManager()
                 };
 
                 setEditors((prevEditors: EditorModel[]) => {
                     return [...prevEditors, newEditor];
                 });
-            })();
+        })();
 
     }, []);
 
@@ -189,38 +193,45 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     }, [editors]);
 
     return (
-        editor
-            ? (
-                <>
-                    <StatementEditor
-                        editor={editor}
-                        editorManager={{
-                            switchEditor,
-                            updateEditor,
-                            dropLastEditor,
-                            addConfigurable,
-                            activeEditorId,
-                            editors
-                        }}
-                        onWizardClose={onWizardClose}
-                        onCancel={onCancel}
-                        onStmtEditorModelChange={onStmtEditorModelChange}
-                        config={config}
-                        formArgs={formArgs}
-                        getLangClient={getLangClient}
-                        applyModifications={applyModifications}
-                        currentFile={currentFile}
-                        library={library}
-                        importStatements={importStatements}
-                        syntaxTree={syntaxTree}
-                        stSymbolInfo={stSymbolInfo}
-                        experimentalEnabled={experimentalEnabled}
-                        handleStmtEditorToggle={handleStmtEditorToggle}
-                    />
-                </>
-            )
-            : (
-                <></>
-            )
+        <FormControl data-testid="property-form">
+            {isLoading && (
+                <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
+                    <div className={overlayClasses.loadingWrapper}>Loading...</div>
+                </div>
+            )}
+            {!isLoading && editor
+                ? (
+                    <>
+                        <StatementEditor
+                            editor={editor}
+                            editorManager={{
+                                switchEditor,
+                                updateEditor,
+                                dropLastEditor,
+                                addConfigurable,
+                                activeEditorId,
+                                editors
+                            }}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                            config={config}
+                            formArgs={formArgs}
+                            getLangClient={getLangClient}
+                            applyModifications={applyModifications}
+                            currentFile={currentFile}
+                            library={library}
+                            importStatements={importStatements}
+                            syntaxTree={syntaxTree}
+                            stSymbolInfo={stSymbolInfo}
+                            extraModules={extraModules}
+                            experimentalEnabled={experimentalEnabled}
+                            runCommandInBackground={runCommandInBackground}
+                        />
+                    </>
+                )
+                : (
+                    <></>
+                )}
+        </FormControl>
     )
 }

@@ -14,9 +14,6 @@
 import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, MappingConstructor, ModuleVarDecl, SimpleNameReference, SpecificField, STKindChecker, TypedBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { getAllModuleVariables } from "../../../../../utils/mixins";
-import { genVariableName } from "../../../../Portals/utils";
-
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
 export interface ConfigurableFormState {

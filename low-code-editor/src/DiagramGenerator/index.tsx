@@ -16,7 +16,7 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CommandResponse, ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 import Mousetrap from 'mousetrap';
@@ -58,6 +58,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
+    const runCommandInBackground: (command: string) => Promise<CommandResponse> = props.runCommandInBackground;
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => Promise<boolean> = props.showMessage;
     const getLibrariesList: (kind?: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
@@ -396,7 +397,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     getLibrariesList,
                                     getLibrariesData,
                                     getLibraryData
-                                }
+                                },
+                                runCommandInBackground
                             }}
                         />
                     </DiagramGenErrorBoundary>

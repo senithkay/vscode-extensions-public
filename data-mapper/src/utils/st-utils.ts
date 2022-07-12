@@ -1,11 +1,14 @@
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { Location } from 'vscode-languageserver-protocol';
+
+import {langClientPromise} from "../stories/utils";
+
 import { DataMapperContext, IDataMapperContext } from "./DataMapperContext/DataMapperContext";
 
 
 export async function getTypeDefinitionForTypeDesc(typeDesc: STNode,
-    context: IDataMapperContext): Promise<TypeDefinition> {
+                                                   context: IDataMapperContext): Promise<TypeDefinition> {
 
     if (typeDesc && STKindChecker.isSimpleNameReference(typeDesc)) {
         const { position } = typeDesc;

@@ -1,26 +1,33 @@
 import React, { useEffect, useState } from "react";
 
-import DataMapperDiagram from "../Diagram/Diagram";
-
+import {
+    DiagramEditorLangClientInterface,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
-import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
-import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
-import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
-import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
-
+import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
+import DataMapperDiagram from "../Diagram/Diagram";
+import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
+import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
-    langClientPromise: Promise<BalleriaLanguageClient>;
+    langClientPromise?: () => Promise<DiagramEditorLangClientInterface>;
+    getLangClient?: () => Promise<DiagramEditorLangClientInterface>;
     filePath: string;
-    updateFileContent: (filePath: string, content: string) => Promise<boolean>;
+    currentFile?: {
+        content: string,
+        path: string,
+        size: number
+    };
+    applyModifications: (modifications: STModification[]) => void;
 }
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, filePath, updateFileContent } = props;
+    const { fnST, langClientPromise, filePath, currentFile, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     useEffect(() => {
@@ -29,7 +36,8 @@ function DataMapperC(props: DataMapperProps) {
                 filePath,
                 fnST,
                 langClientPromise,
-                updateFileContent
+                currentFile,
+                applyModifications
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context);
@@ -39,12 +47,13 @@ function DataMapperC(props: DataMapperProps) {
         generateNodes();
     }, [fnST, filePath]);
 
-    return <>
-        {<DataMapperDiagram
-            nodes={nodes}
-        />
-        }
-    </>
+    return (
+        <>
+            <DataMapperDiagram
+                nodes={nodes}
+            />
+        </>
+    )
 }
 
 export const DataMapper = React.memo(DataMapperC);

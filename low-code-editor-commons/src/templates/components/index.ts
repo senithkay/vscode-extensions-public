@@ -1,6 +1,7 @@
 export default {
     CHECKED_PAYLOAD_FUNCTION_INVOCATION: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ RESPONSE }}}.{{{ PAYLOAD }}}();',
-    DECLARATION: '{{{ TYPE }}} {{{ VARIABLE }}} = new ({{{ PARAMS }}});',
+    DECLARATION: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{CHECK}}} new ({{{ PARAMS }}});',
+    DECLARATION_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check new ({{{ PARAMS }}});',
     FOREACH_STATEMENT_CONDITION: '{{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}}',
     FOREACH_STATEMENT: `
 foreach {{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}} {
@@ -94,7 +95,7 @@ listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 {{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {
 
 }`,
-    FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`,
+    FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}}({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`,
     SERVICE_WITH_LISTENER_DECLARATION_UPDATE: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
@@ -155,5 +156,17 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     worker {{{NAME}}} returns {{{RETURN_TYPE}}} {
 
     }
+    `,
+    ASYNC_SEND_STATEMENT: `
+    {{{EXPRESSION}}} -> {{{TARGET_WORKER}}};
+    `,
+    ASYNC_RECEIVE_STATEMENT: `
+    error|{{{TYPE}}} {{{VAR_NAME}}} = <- {{{SENDER_WORKER}}};
+    `,
+    WAIT_STATEMENT: `
+    {{{TYPE}}} {{{VAR_NAME}}} = wait {{{WORKER_NAME}}};
+    `,
+    FLUSH_STATEMENT: `
+    error? {{{VAR_NAME}}} = flush {{{WORKER_NAME}}};
     `
 }

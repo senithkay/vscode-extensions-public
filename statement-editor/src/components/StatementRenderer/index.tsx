@@ -21,12 +21,11 @@ export interface StatementRendererProps {
 
 export function StatementRenderer(props: StatementRendererProps) {
     const { model } = props;
-
     const component = getStatementTypeComponent(model);
 
     return (
-       <span>
+        <span>
             {component}
-       </span>
+        </span>
     );
 }

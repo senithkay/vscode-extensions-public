@@ -12,6 +12,7 @@
  */
 import {
     BinaryExpression,
+    ConstDeclaration,
     FieldAccess,
     FunctionCall,
     IndexedExpression,
@@ -438,6 +439,12 @@ class ExpressionDeletingVisitor implements Visitor {
                     });
                 }
             }
+        }
+    }
+
+    public beginVisitConstDeclaration(node: ConstDeclaration) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node?.typeDescriptor?.position)){
+            this.setProperties('', node?.typeDescriptor?.position);
         }
     }
 

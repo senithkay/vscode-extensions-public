@@ -4,7 +4,6 @@ import { Record } from "./record";
 import { Class } from "./class";
 import { Other } from "./other";
 import { Service } from "./service";
-import { Connector } from "./connector";
 
 export class Canvas {
 
@@ -35,10 +34,6 @@ export class Canvas {
 
     private static getRecordComponentELement(recordName: string) {
         return cy.get(`#canvas .member-container .record-comp[data-record-name="${recordName}"]`)
-    }
-
-    private static getConnectorComponentELement(connectorName: string) {
-        return cy.get(`#canvas .member-container .module-variable-container[data-var-name="${connectorName}"]`)
     }
 
     private static getFnMemberContainer(fnName: string) {
@@ -114,11 +109,6 @@ export class Canvas {
 
     static getClass(className: string) {
         return new Class(this.getClassMemberContainer(className));
-    }
-
-    static getConnector(connectorName: string) {
-        const element = this.getConnectorComponentELement(connectorName);
-        return new Connector(element)
     }
 
     static getOtherComponent() {

@@ -16,9 +16,11 @@ import {
     CompletionResponse,
     getDiagnosticMessage,
     getFilteredDiagnostics,
-    LinePosition, ParameterInfo,
+    LinePosition,
+    ParameterInfo,
     STModification,
-    STSymbolInfo, SymbolDocumentation
+    STSymbolInfo,
+    SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FunctionCall,
@@ -31,30 +33,33 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
+import * as formComponents from '../components/Forms/Form';
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
     BAL_SOURCE,
     CUSTOM_CONFIG_TYPE,
-    END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
+    END_OF_LINE_MINUTIAE,
+    EXPR_CONSTRUCTOR,
+    IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
-import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
+import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor"
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { ExpressionGroup, expressions } from "./expressions";
+import { ExpressionGroup } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
@@ -105,6 +110,16 @@ export function getStatementTypeComponent(
     return (
         <StatementTypeComponent
             model={model}
+        />
+    );
+}
+
+export function getFormComponent(type: string, model: STNode, completions: SuggestionItem[]): ReactNode {
+    const FormComponent = (formComponents as any)[type];
+    return (
+        <FormComponent
+            model={model}
+            completions={completions}
         />
     );
 }
@@ -177,6 +192,14 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
+export function isDiagnosticInRange(diagPosition: NodePosition, nodePosition: NodePosition): boolean {
+    return diagPosition?.startLine >= nodePosition?.startLine &&
+        diagPosition?.startColumn >= nodePosition?.startColumn &&
+        diagPosition?.endLine <= nodePosition?.endLine &&
+        (((diagPosition?.startLine === nodePosition?.startLine) && (diagPosition?.endLine === nodePosition?.
+            endLine)) ? (diagPosition?.endColumn <= nodePosition?.endColumn) : true);
+}
+
 export function isNodeInRange(nodePosition: NodePosition, parentPosition: NodePosition): boolean {
     return nodePosition?.startLine >= parentPosition?.startLine &&
         (nodePosition?.startLine === parentPosition?.startLine ? nodePosition?.startColumn >= parentPosition?.startColumn : true) &&
@@ -193,7 +216,7 @@ export function isBindingPattern(modelType: number): boolean {
 }
 
 export function isDescriptionWithExample(doc : string): boolean {
-    return doc.includes(BAL_SOURCE);
+    return doc?.includes(BAL_SOURCE);
 }
 
 export function getDocDescription(doc: string) : string[] {
@@ -215,7 +238,8 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 
     getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))) {
+            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
+                || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {
@@ -226,12 +250,17 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
     return stmtDiagnostics;
 }
 
-export function getUpdatedSource(statement: string, currentFileContent: string,
-                                 targetPosition: NodePosition, moduleList?: Set<string>): string {
+export function isPlaceHolderExists (statement: string) : boolean {
+    return PLACEHOLDER_DIAGNOSTICS.some(placeHolder => (statement ? statement : "").includes(placeHolder))
+}
 
-    const updatedStatement = statement.trim().endsWith(';') ? statement : statement + ';';
+export function getUpdatedSource(statement: string, currentFileContent: string,
+                                 targetPosition: NodePosition, moduleList?: Set<string>,
+                                 skipSemiColon?: boolean): string {
+
+    const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
-    if (moduleList && !!moduleList.size) {
+    if (moduleList?.size > 0) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 
@@ -319,12 +348,6 @@ export function getClassNameForToken(model: STNode): string {
     }
 
     return className;
-}
-
-export function getStringForMinutiae(minutiae: Minutiae[]): string {
-    return minutiae.map((element) => {
-        return element.minutiae;
-    }).join('');
 }
 
 export function getSuggestionIconStyle(suggestionType: number): string {
@@ -511,6 +534,12 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
                 targetPos.startColumn + currentModel.functionName.identifier.position.endColumn - 1 :
                 targetPos.startColumn + currentModel.functionName.name.position.endColumn - 1
 
+        }
+        return  position;
+    } else if (STKindChecker.isImplicitNewExpression(currentModel)){
+        position = {
+            line : targetPos.startLine + currentModel.position.startLine,
+            offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
         }
         return  position;
     }

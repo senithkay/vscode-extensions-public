@@ -52,14 +52,14 @@ export function PlusOptionRenderer(props: PlusOptionRendererProps) {
     );
 
     return (
-        <ClickAwayListener
-            mouseEvent="onMouseDown"
-            touchEvent="onTouchStart"
-            onClickAway={onClose}
-        >
+        // <ClickAwayListener
+        //     mouseEvent="onMouseDown"
+        //     touchEvent="onTouchStart"
+        //     onClickAway={onClose}
+        // >
             <div className={'dropdown'}>
                 {showCategorized ? categorizedMenu : simpleMenu()}
             </div>
-        </ClickAwayListener>
+        // </ClickAwayListener>
     )
 }

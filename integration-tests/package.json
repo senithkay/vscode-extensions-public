@@ -5,7 +5,7 @@
     "scripts": {
         "build": "echo 'not imlemented'",
         "test": "npm-run-all --parallel start-servers test-cypress",
-        "test-cypress": "bal build bal-project && cypress run --browser chrome && node tools/kill-servers.js",
+        "test-cypress": "cypress run --browser chrome && node tools/kill-servers.js",
         "start-servers": "npm-run-all --parallel start-ls start-vscode-mock",
         "start-ls": "npx start-ws-lang-server",
         "start-vscode-mock": "node tools/vscode-mock-server.js",
