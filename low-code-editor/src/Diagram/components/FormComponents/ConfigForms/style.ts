@@ -142,7 +142,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             },
         },
         wizardFormControlExtended: {
-            width: 700,
+            width: 600,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
@@ -519,6 +519,11 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             border: '1px solid #dee0e7',
             margin: '1rem 0 0.25rem',
             justifyContent: 'space-between',
+        },
+        recordFormWrapper: {
+            width: '100%',
+            flexDirection: "row",
+            padding: '15px 0',
         },
         triggerDropDownList: {
             margin: '1rem 0 0.25rem',

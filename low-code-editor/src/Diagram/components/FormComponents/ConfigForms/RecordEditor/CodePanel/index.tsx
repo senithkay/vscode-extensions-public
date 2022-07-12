@@ -85,13 +85,13 @@ export function CodePanel() {
     };
 
     return (
-        <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>
+        <FormControl data-testid="record-form" className={overlayClasses.wizardFormControl}>
             <FormHeaderSection
                 formTitle={"lowcode.develop.configForms.recordEditor.codePanel.title"}
                 defaultMessage={"Record Configuration"}
                 onCancel={state.onCancel}
             />
-            <div className={overlayClasses.formWrapper}>
+            <div className={overlayClasses.recordFormWrapper}>
                 <div className={recordClasses.recordFieldWrapper}>
                     <RecordField recordModel={state.recordModel} />
                 </div>
