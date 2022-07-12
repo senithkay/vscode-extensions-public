@@ -95,26 +95,27 @@ export function EndpointForm(props: FormGeneratorProps) {
 
     // HACK
     formArgs.targetPosition = targetPosition;
-    formArgs.isEditForm = model ? true : false;
 
-    const stmtEditorComponent = StatementEditorWrapper({
-        label: formTitle,
-        initialSource,
-        formArgs: { formArgs },
-        config: { type: "Connector" },
-        onWizardClose: onSave,
-        onCancel,
-        currentFile,
-        getLangClient: getExpressionEditorLangClient,
-        applyModifications: modifyDiagram,
-        library,
-        syntaxTree,
-        stSymbolInfo,
-        extraModules: imports,
-        isLoading,
-        experimentalEnabled,
-        runBackgroundTerminalCommand,
-    });
-
-    return stmtEditorComponent;
+    return (
+        !isLoading &&
+        initialSource !== "EXPRESSION" &&
+        StatementEditorWrapper({
+            label: formTitle,
+            initialSource,
+            formArgs: { formArgs },
+            config: { type: "Connector" },
+            onWizardClose: onSave,
+            onCancel,
+            currentFile,
+            getLangClient: getExpressionEditorLangClient,
+            applyModifications: modifyDiagram,
+            library,
+            syntaxTree,
+            stSymbolInfo,
+            extraModules: imports,
+            isLoading,
+            experimentalEnabled,
+            runBackgroundTerminalCommand,
+        })
+    );
 }
