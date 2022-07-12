@@ -8,6 +8,7 @@ const { argv } = require('process');
 const BASE_DIR = path.resolve(__dirname, "..");
 
 const LOW_CODE_DIR = path.join(BASE_DIR, 'low-code-editor');
+const DATA_MAPPER_DIR = path.join(BASE_DIR, 'data-mapper');
 const MONACO_DIR = path.join(BASE_DIR, 'node_modules', 'monaco-editor');
 
 
@@ -99,16 +100,26 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
                 },
                 {
                     test: /\.css$/,
-                    include: [MONACO_DIR],
+                    include: [MONACO_DIR, DATA_MAPPER_DIR],
                     use: ['style-loader', 'css-loader'],
                 },
                 {
                     test: /\.(woff|woff2|ttf|otf|eot)$/,
-                    include: [LOW_CODE_DIR, MONACO_DIR],
+                    include: [LOW_CODE_DIR, MONACO_DIR, DATA_MAPPER_DIR],
                     type: 'asset/inline'
                 },
                 {
                     test: /\.svg/,
+                    use: {
+                        loader: 'svg-url-loader',
+                        options: {
+    
+                        }
+                    }
+                },
+                {
+                    test: /\.svg/,
+                    include: DATA_MAPPER_DIR,
                     use: {
                         loader: 'svg-url-loader',
                         options: {

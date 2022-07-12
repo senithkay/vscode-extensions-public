@@ -11,9 +11,9 @@
     "scripts": {
         "prebuild2": "npm run lint",
         "build": "npm run storybook:setup && tsc --pretty && npm run copy:assets",
-        "copy:assets":  "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Gilmer/*.*\" build/",
+        "copy:assets":  "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Gilmer/*.*\" lib/",
         "watch": "tsc --pretty --watch",
-        "clean": "rimraf build/",
+        "clean": "rimraf lib/",
         "clean:nm": "rimraf node_modules",
         "lint": "tslint --project .",
         "lint:fix": "tslint --fix --project .",
