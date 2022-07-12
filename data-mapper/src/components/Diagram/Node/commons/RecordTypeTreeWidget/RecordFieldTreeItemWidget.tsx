@@ -10,7 +10,6 @@ import { RecordField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { DataMapperPortWidget } from "../../../Port/view/DataMapperPortWidget";
 import { DataMapperPortModel } from "../../../Port/model/DataMapperPortModel";
 import { getFieldTypeName } from "../../../utils";
-import { integer } from "vscode-languageserver-types";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -62,12 +61,11 @@ const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             backgroundColor: "#FFFFFF",
         },
-        
-            group:{
-                marginLeft: "0px",
-                paddingLeft: "0px",
-                paddingBottom: "5px"
-            },
+        group:{
+            marginLeft: "0px",
+            paddingLeft: "0px",
+            paddingBottom: "5px"
+        },  
         content : {
             borderTopRightRadius: theme.spacing(2),
             borderBottomRightRadius: theme.spacing(2),
@@ -82,7 +80,7 @@ export interface RecordFieldTreeItemWidgetProps {
     field: RecordField;
     engine: DiagramEngine;
     getPort: (portId: string) => DataMapperPortModel;
-    treeDepth?: integer;
+    treeDepth?: number;
 }
 
 export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
@@ -100,7 +98,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         ? getFieldTypeName(field)
         : "record";
 
-    const indentation  = expandable ?  0 : (treeDepth + 1) * 24
+    const indentation  = expandable ?  0 : (treeDepth + 1) * 24;
 
     const label = (
         <span style={{ marginRight: "auto"}} >

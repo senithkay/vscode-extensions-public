@@ -16,7 +16,7 @@ namespace S {
 		user-select: none;
 		pointer-events: auto;
 		cursor: pointer;
-		color: '#DEE0E7';
+		color: #5567D5;
 	`;
 }
 
@@ -38,6 +38,15 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		<S.Label>
 			{editable && 
 				<input
+
+					size={str.length}
+					spellCheck={false}
+					style={{
+						padding: "5px",
+						fontFamily: "monospace",
+						zIndex: 1000,
+						border: "1px solid #5567D5"
+					}}
 					autoFocus
 					value={str}
 					onChange={(event) => {

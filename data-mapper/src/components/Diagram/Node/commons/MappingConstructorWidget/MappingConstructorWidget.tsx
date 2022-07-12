@@ -17,7 +17,8 @@ const useStyles = makeStyles((theme: Theme) =>
 			maxWidth: 400,
 			color: "white",
 			position: "relative",
-			backgroundColor: "#525564"
+			backgroundColor: " #FFFFFF",
+			padding:"20px"
 		}
 	}),
 );
@@ -59,12 +60,7 @@ export function MappingConstructorWidget(props: MappingConstructorWidgetProps) {
 	}
 
 	return (
-		<TreeView
-			className={classes.root}
-			defaultCollapseIcon={<ExpandMoreIcon />}
-			defaultExpandIcon={<ChevronRightIcon />}
-			defaultExpanded={allNodeIds}
-		>
+		<div className={classes.root}>
 			{
 				value.fields.map((field) => {
 					if (STKindChecker.isSpecificField(field)) {
@@ -80,6 +76,6 @@ export function MappingConstructorWidget(props: MappingConstructorWidgetProps) {
 					}
 				})
 			}
-		</TreeView>
+		</div>
 	);
 }
