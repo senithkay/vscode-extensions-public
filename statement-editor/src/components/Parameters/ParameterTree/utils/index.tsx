@@ -475,7 +475,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
 }
 
 export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificField[], formFields: FormField[]) {
-    specificFields.forEach((specificField) => {
+    specificFields?.forEach((specificField) => {
         if (specificField.kind !== "CommaToken") {
             formFields.forEach((formField) => {
                 if (getFieldName(formField.name) === specificField.fieldName.value) {
