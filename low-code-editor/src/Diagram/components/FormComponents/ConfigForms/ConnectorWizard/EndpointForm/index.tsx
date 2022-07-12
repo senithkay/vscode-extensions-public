@@ -11,9 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { useIntl } from "react-intl";
 
+import { Box } from "@material-ui/core";
 import {
     BallerinaConnectorInfo,
     genVariableName,
@@ -22,6 +23,7 @@ import {
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from "../../../../../../Contexts/Diagram";
+import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
 import { createCheckObjectDeclaration, createObjectDeclaration, getInitialSource } from "../../../../../utils";
 import { getFormattedModuleName } from "../../../../Portals/utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
@@ -29,13 +31,14 @@ import { getDefaultParams, getFormFieldReturnType } from "../util";
 
 interface EndpointFormProps {
     connector: BallerinaConnectorInfo;
+    isModuleType?: boolean;
 }
 
 export function EndpointForm(props: FormGeneratorProps) {
     const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
-    const { connector } = formArgs as EndpointFormProps;
+    const { connector, isModuleType } = formArgs as EndpointFormProps;
 
     const {
         props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled },
@@ -95,26 +98,35 @@ export function EndpointForm(props: FormGeneratorProps) {
 
     // HACK
     formArgs.targetPosition = targetPosition;
-    formArgs.isEditForm = model ? true : false;
 
-    const stmtEditorComponent = StatementEditorWrapper({
-        label: formTitle,
-        initialSource,
-        formArgs: { formArgs },
-        config: { type: "Connector" },
-        onWizardClose: onSave,
-        onCancel,
-        currentFile,
-        getLangClient: getExpressionEditorLangClient,
-        applyModifications: modifyDiagram,
-        library,
-        syntaxTree,
-        stSymbolInfo,
-        extraModules: imports,
-        isLoading,
-        experimentalEnabled,
-        runBackgroundTerminalCommand,
-    });
-
-    return stmtEditorComponent;
+    return (
+        <>
+            {!isLoading &&
+                initialSource !== "EXPRESSION" &&
+                StatementEditorWrapper({
+                    label: formTitle,
+                    initialSource,
+                    formArgs: { formArgs },
+                    config: { type: "Connector" },
+                    onWizardClose: onSave,
+                    onCancel,
+                    currentFile,
+                    getLangClient: getExpressionEditorLangClient,
+                    applyModifications: modifyDiagram,
+                    library,
+                    syntaxTree,
+                    stSymbolInfo,
+                    extraModules: imports,
+                    isLoading,
+                    experimentalEnabled,
+                    runBackgroundTerminalCommand,
+                    isModuleVar: isModuleType ?? false
+                })}
+            {isLoading && (
+                <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                    <TextPreLoader position="absolute" text="Loading..." />
+                </Box>
+            )}
+        </>
+    );
 }

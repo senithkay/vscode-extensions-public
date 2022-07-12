@@ -20,7 +20,7 @@ import {
     STD_LIBS_IDENTIFIER
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { isFunctionOrMethodCall, isInsideEndpointConfigs } from "../../utils";
+import { isConfigurableEditor, isFunctionOrMethodCall, isInsideEndpointConfigs } from "../../utils";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
@@ -53,6 +53,10 @@ export function HelperPane(props: HelperPaneProps) {
         modelCtx: {
             currentModel
         },
+        editorCtx: {
+            editors,
+            activeEditorId
+        },
         config
     } = useContext(StatementEditorContext);
 
@@ -83,7 +87,8 @@ export function HelperPane(props: HelperPaneProps) {
     useEffect(() => {
         if (
             currentModel.model &&
-            (isFunctionOrMethodCall(currentModel.model) || isInsideEndpointConfigs(currentModel.model, config.type))
+            (isFunctionOrMethodCall(currentModel.model) || isInsideEndpointConfigs(currentModel.model, config.type)) &&
+            !isConfigurableEditor(editors, activeEditorId)
         ) {
             setSelectedTab(TabElements.parameters);
         } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
@@ -99,7 +104,6 @@ export function HelperPane(props: HelperPaneProps) {
         <>
             <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                 <div className={stmtEditorHelperClasses.tabPanelWrapper} data-testid="tab-panel-wrapper">
-
                     <TabPanel
                         values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
                         defaultValue={TabElements.suggestions}

@@ -10,22 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export class InputEditor {
-    static getInputEditor() {
-        return cy.get(`[data-testid="input-editor"]`);
+import {STNode, Visitor} from "@wso2-enterprise/syntax-tree";
+
+
+class ClearDiagnosticVisitor implements Visitor {
+
+    public beginVisitSTNode(node: STNode, parent?: STNode) {
+        if (node && node.viewState) {
+            node.viewState.diagnosticsInPosition = []
+        }
     }
 
-    static typeInput(text: string, parseSpecialCharSequences: boolean = true) {
-        this.getInputEditor()
-            .focus()
-            .clear()
-            .type(text, { parseSpecialCharSequences: parseSpecialCharSequences });
-
-        cy.wait(3000);
-
-        this.getInputEditor()
-            .type('{enter}');
-        
-        return this;
-    }
 }
+
+export const visitor = new ClearDiagnosticVisitor();

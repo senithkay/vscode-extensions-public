@@ -42,7 +42,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         },
     } = useContext(Context);
 
-    const { wizardType, connectorInfo, model, targetPosition, functionNode, onSave, onClose } = props;
+    const { wizardType, connectorInfo, model, targetPosition, functionNode, isModuleType, onSave, onClose } = props;
 
     const [isLoading, setIsLoading] = useState(false);
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>(connectorInfo);
@@ -143,6 +143,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                         formType: "EndpointForm",
                         formArgs: {
                             connector: selectedConnector?.package ? selectedConnector : connectorInfo,
+                            isModuleType
                         },
                         isLoading,
                     }}

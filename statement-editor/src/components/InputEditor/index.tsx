@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
@@ -46,6 +46,7 @@ export function InputEditor(props: InputEditorProps) {
             updateModel,
             handleChange,
             hasSyntaxDiagnostics,
+            updateSyntaxDiagnostics,
             currentModel
         },
         targetPosition,
@@ -104,8 +105,14 @@ export function InputEditor(props: InputEditorProps) {
     }, [userInput]);
 
     useEffect(() => {
+        const suggestion = inputEditorCtx.suggestionInput
         if (hasSyntaxDiagnostics) {
             setIsEditing(false);
+            if (currentModel.model === model && suggestion) {
+                setUserInput(suggestion);
+            }
+        } else {
+            setUserInput(originalValue)
         }
     }, [hasSyntaxDiagnostics]);
 
@@ -144,6 +151,7 @@ export function InputEditor(props: InputEditorProps) {
         }
         setUserInput(input);
         inputEditorCtx.onInputChange(input);
+        inputEditorCtx.onSuggestionSelection('');
         debouncedContentChange(newValue, true);
     }
 
@@ -160,10 +168,21 @@ export function InputEditor(props: InputEditorProps) {
     const handleEditEnd = () => {
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            // Replace empty interpolation with placeholder value
-            const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
-            originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
-            updateModel(codeSnippet, model ? model.position : targetPosition);
+            // Check syntax diagnostics
+            let isIncorrectSyntax = false;
+            const semicolonRegex = new RegExp('(;)(?=(?:[^"]|"[^"]*")*$)');
+            if (userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
+                isIncorrectSyntax = semicolonRegex.test(userInput);
+            }
+            if (isIncorrectSyntax) {
+                updateSyntaxDiagnostics(true);
+            } else {
+                setUserInput(userInput);
+                // Replace empty interpolation with placeholder value
+                const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+                originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
+                updateModel(codeSnippet, model ? model.position : targetPosition);
+            }
         }
         setIsEditing(false);
     }

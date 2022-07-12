@@ -28,10 +28,6 @@ export default function CustomType(props: TypeProps) {
         param.selected || requiredParam || param.value !== undefined
     );
 
-    useEffect(() => {
-        param.selected = paramSelected;
-    }, [paramSelected]);
-
     const toggleParamCheck = () => {
         if (!requiredParam) {
             param.selected = !paramSelected;
@@ -66,7 +62,7 @@ export default function CustomType(props: TypeProps) {
                     />
                     {param.documentation && (
                         <ListItemText
-                            className={stmtEditorHelperClasses.docParamDescriptionText}
+                            className={stmtEditorHelperClasses.paramTreeDescriptionText}
                             primary={" : " + param.documentation}
                         />
                     )}

@@ -160,11 +160,13 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     });
 
     const typeLabel: string = props.schema[SchemaConstants.ITEMS][SchemaConstants.NAME];
+    const { fullRecordName, shortenedRecordName } = getRecordName(typeLabel);
     const fieldLabelProps: FieldLabelProps = {
         description: props.description,
         name: props.name,
         required: props.isRequired,
-        type: (typeLabel ? getRecordName(typeLabel) : "map") + " [ ]",
+        shortenedType: (shortenedRecordName ? shortenedRecordName : "map") + " [ ]",
+        type: (fullRecordName ? fullRecordName : "map") + " [ ]",
     };
 
     return (

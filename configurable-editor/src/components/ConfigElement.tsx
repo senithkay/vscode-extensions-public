@@ -107,6 +107,7 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
                 label: props.label,
                 name: props.name,
                 required: props.isRequired,
+                shortenedType: props.type,
                 type: props.type,
             };
 

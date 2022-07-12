@@ -11,16 +11,16 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { ListItemText, ListSubheader } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
-import { useStmtEditorHelperPanelStyles } from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { ParameterBranch } from "./ParameterBranch";
 import { getDefaultParams, mapEndpointToFormField } from "./utils";
@@ -38,19 +38,21 @@ export interface ParameterTreeProps {
 export function ParameterTree(props: ParameterTreeProps) {
     const { parameters } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const overlayClasses = useStatementEditorStyles();
     const {
         modelCtx: {
             currentModel: { model },
             statementModel,
             updateModel,
         },
-        formCtx: {
-            formArgs: {
-                isEditForm
-            }
-        },
     } = useContext(StatementEditorContext);
-    const formFieldUpdated = useRef(false);
+    const [updatingParams, setUpdatingParams] = useState(true);
+
+    useEffect(() => {
+        setUpdatingParams(true);
+        mapEndpointToFormField(statementModel, parameters);
+        setUpdatingParams(false);
+    }, [statementModel]);
 
     const handleOnChange = () => {
         const modelParams = getDefaultParams(parameters);
@@ -70,11 +72,6 @@ export function ParameterTree(props: ParameterTreeProps) {
         updateModel(content, updatingPosition);
     };
 
-    if (isEditForm && parameters && !formFieldUpdated.current){
-        mapEndpointToFormField(model, parameters);
-        formFieldUpdated.current = true;
-    }
-
     return (
         <>
             {!!parameters?.length && (
@@ -83,9 +80,18 @@ export function ParameterTree(props: ParameterTreeProps) {
                         Configure Parameters
                         <ListItemText secondary={"Select parameters from the list given below"} />
                     </ListSubheader>
-                    <div className={stmtEditorHelperClasses.paramList}>
-                        <ParameterBranch parameters={parameters} depth={1} onChange={handleOnChange} />
-                    </div>
+                    {updatingParams && (
+                        <div className={stmtEditorHelperClasses.paramList}>
+                            <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
+                                <div className={overlayClasses.loadingWrapper}>Loading Parameters...</div>
+                            </div>
+                        </div>
+                    )}
+                    {!updatingParams && (
+                        <div className={stmtEditorHelperClasses.paramList}>
+                            <ParameterBranch parameters={parameters} depth={1} onChange={handleOnChange} />
+                        </div>
+                    )}
                 </>
             )}
         </>

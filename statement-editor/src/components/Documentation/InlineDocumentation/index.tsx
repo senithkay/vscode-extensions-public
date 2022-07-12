@@ -27,7 +27,9 @@ export interface InlineDocumentationProps {
 export function InlineDocumentation(props: InlineDocumentationProps) {
     const { documentationHandler } = props;
     const {
-        documentation
+        documentation: {
+            documentation
+        },
     } = useContext(StatementEditorContext);
     const statementEditorClasses = useStatementEditorStyles();
 
