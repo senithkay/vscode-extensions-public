@@ -110,6 +110,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
                 draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly);
                 break;
+            case PrimitiveBalType.Enum:
             case PrimitiveBalType.Union:
                 const selectedMember = getSelectedUnionMember(parameter);
                 const selectedMemberParams = getDefaultParams([selectedMember], depth + 1, true);
