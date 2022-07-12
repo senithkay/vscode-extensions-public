@@ -24,6 +24,7 @@ export enum PrimitiveBalType {
     String = "string",
     Record = "record",
     Union = "union",
+    Enum = "enum",
     Int = "int",
     Float = "float",
     Boolean = "boolean",
