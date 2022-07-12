@@ -106,6 +106,15 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             langClient.didChange(args[0]);
         }
     }, {
+        methodName: 'definition',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.definition(args[0]).then(result => {
+                consoleLog(start, 'definition');
+                return Promise.resolve(result);
+            });
+        }
+    }, {
         methodName: 'getConnectors',
         handler: (args: any[]) => {
             const start = new Date().getTime();
