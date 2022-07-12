@@ -30,7 +30,6 @@ import SimpleType, { SimpleTypeProps } from "./types/SimpleType";
 import UnionType, { UnionTypeProps } from "./types/UnionType";
 
 export interface ConfigElementProps {
-    env?: string;
     id: string;
     name: string;
     isRequired: boolean;
