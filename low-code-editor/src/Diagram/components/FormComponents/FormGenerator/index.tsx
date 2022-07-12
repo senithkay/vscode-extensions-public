@@ -72,8 +72,8 @@ export function FormGenerator(props: FormGeneratorProps) {
       {(formType === "ClassDefinition") ? (
         <UnsupportedConfirmButtons onConfirm={handleConfirm} onCancel={onCancel} />
       ) : (
-        <Panel onClose={onCancel}>
-          <div className="form-generator">{getForm(formType, args)}</div>
+        <Panel onClose={onCancel} formType={formType}>
+          <div className="form-generator" style={{height: "100%"}}>{getForm(formType, args)}</div>
         </Panel>
       )}
     </div>

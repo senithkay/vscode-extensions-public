@@ -29,6 +29,10 @@
         animation: panel-slide-in-keyframe 0.5s forwards;
         overflow-x: hidden;
     }
+
+    &.datamapper-wrapper{
+        width: 100vw;
+    }
     
     @-webkit-keyframes panel-slide-in-keyframe {
         100% { right: 0; }
@@ -67,6 +71,11 @@
 
     .panel-form-wrapper {
         max-width: fit-content;
+    }
+
+    .datamapper-form-wrapper {
+        width: 100%;
+        height: 100%;
     }
 
     .close-btn-wrap {
