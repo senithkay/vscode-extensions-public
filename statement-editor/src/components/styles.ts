@@ -251,7 +251,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         libraryTypeSelector: {
             height: '48px',
-            width: '45%',
+            marginLeft: '80px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end'
@@ -558,7 +558,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...stmtEditorPadding
         },
         returnSeparator : {
-            width: '616px',
+            width: '516px',
             opacity: '0.52',
             backgroundColor: "#DCDEE4",
             display: 'block',
@@ -759,7 +759,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         mainStatementWrapper: {
             display: 'flex',
             height: 'auto',
-            width: 700,
+            width: 600,
             flexDirection: 'column',
         },
         stmtEditorInnerWrapper: {
@@ -824,7 +824,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            padding: '10px 25px',
+            padding: '10px 25px 0 25px',
             borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {
