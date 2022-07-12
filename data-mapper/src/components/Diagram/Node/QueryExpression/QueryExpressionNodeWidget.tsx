@@ -14,17 +14,16 @@ const styles = (theme: Theme) => createStyles({
 	root: {
 		width: '100%',
 		minWidth: 400,
-		backgroundColor: "#525564",
-		padding: "25px",
+		backgroundColor: "#fff",
+		padding: "5px",
 		display: "flex", 
 		flexDirection: "column",
-		gap: "20px",
-		color: theme.palette.text.primary
+		gap: "5px",
+		color: "#74828F"
 	},
 	fromClause: {
-		backgroundColor: "#74828F",
-		color: "white",
-		padding: "10px"
+		padding: "5px",
+		fontFamily: "monospace"
 	},
 	mappingPane: {
 		display: "flex", 
@@ -35,7 +34,6 @@ const styles = (theme: Theme) => createStyles({
 		display: "flex", 
 		flexDirection: "row",
 		justifyContent: "space-between",
-		color: "white"
 	}
 });
 
@@ -64,11 +62,10 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 			>
 				<div className={classes.header}>
 					<DataMapperPortWidget engine={engine} port={node.inPort} />
-					<div>Query Expression</div>
+					<div className={classes.fromClause}>
+						Query: {node.value.queryPipeline.fromClause.expression.source}
+					</div>
 					<DataMapperPortWidget engine={engine} port={node.outPort} />
-				</div>
-				<div className={classes.fromClause}>
-					{node.value.queryPipeline.fromClause.source}
 				</div>
 				<div className={classes.mappingPane}>
 					<RecordTypeTreeWidget 

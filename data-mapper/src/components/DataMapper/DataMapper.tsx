@@ -6,6 +6,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
 
+import "../../assets/fonts/Gilmer/gilmer.css";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";

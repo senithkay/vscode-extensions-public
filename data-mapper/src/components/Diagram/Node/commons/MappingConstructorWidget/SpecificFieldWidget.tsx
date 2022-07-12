@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import TreeItem from '@material-ui/lab/TreeItem';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 // tslint:disable-next-line: no-implicit-dependencies
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { RecordField, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
+
 
 import { DataMapperPortWidget } from "../../../Port/view/DataMapperPortWidget";
 import { DataMapperPortModel } from "../../../Port/model/DataMapperPortModel";
@@ -16,20 +18,59 @@ const useStyles = makeStyles((theme: Theme) =>
         treeLabel: {
             verticalAlign: "middle",
             padding: "5px",
+            color: "#222228",
+            fontFamily: "GilmerMedium",
+            fontSize: "13px",
             minWidth: "100px",
-            backgroundColor: "#74828F"
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #DEE0E7",
+            display:"flex",
+            minHeight: "24px"
         },
         treeLabelOutPort: {
-            float: "right"
+            float: "right",
+            marginRight: "10px",
+            marginLeft: "10px",
+            width: 'fit-content',
+           
+            display: "inline-block",
+            position: "absolute",
+            right:"15px"
         },
         treeLabelInPort: {
             float: "left",
-            marginRight: "25px"
+            marginRight: "5px",
+            position: 'relative',
+            width: 'fit-content',
         },
         typeLabel: {
             marginLeft: "3px",
-            backgroundColor: "green",
-            padding: "2px 5px 2px 5px"
+            verticalAlign: "middle",
+            padding: "5px",
+            color: "#222228",
+            fontFamily: "GilmerRegular",
+            fontSize: "13px",
+            minWidth: "100px",
+            backgroundColor: "#FFFFFF",
+            marginRight: "24px"
+        },
+        valueLable: {
+            verticalAlign: "middle",
+            padding: "5px",
+            color: "#222228",
+            fontFamily: "GilmerMedium",
+            fontSize: "13px",
+            backgroundColor: "#FFFFFF",
+        },
+        group:{
+            marginLeft: "0px",
+            paddingLeft: "0px",
+            paddingBottom: "5px"
+        },
+        content : {
+            borderTopRightRadius: theme.spacing(2),
+            borderBottomRightRadius: theme.spacing(2),
+            paddingRight: theme.spacing(1),
         }
     }),
 );
@@ -39,61 +80,84 @@ export interface SpecificFieldWidgetProps {
     field: SpecificField;
     engine: DiagramEngine;
     getPort: (portId: string) => DataMapperPortModel;
+    treeDepth?: number;
 }
 
 export function SpecificFieldWidget(props: SpecificFieldWidgetProps) {
-    const { parentId, field, getPort, engine } = props;
+    const { parentId, field, getPort, engine, treeDepth = 0 } = props;
     const classes = useStyles();
     
     const fieldId = `${parentId}.${field.fieldName.value}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
 
+    const  expandable = STKindChecker.isMappingConstructor(field.valueExpr) && field.valueExpr.fields.length > 0;
+    const [expanded , setExpanded] = useState<Boolean>(true)
+
     const typeName = STKindChecker.isRecordField(field)
         ? getFieldTypeName(field)
         : "record";
 
+    const indentation  = expandable ?  0 : (treeDepth + 1) * 16;
+
     const label = (
-        <div className={classes.treeLabel}>
-            <span className={classes.treeLabelInPort}>
-                {portIn &&
-                    <DataMapperPortWidget engine={engine} port={portIn} />
-                }
-            </span>
-            <span>
-                {field.fieldName.value}
+        <span style={{ marginRight: "auto"}} >
+            <span className={classes.valueLable} style={{marginLeft: indentation}}>
+                { field.fieldName.value}
+                {typeName && ":"}
             </span>
             {typeName &&
                 <span className={classes.typeLabel}>
                     {typeName}
                 </span>
             }
-            <span className={classes.treeLabelOutPort}>
-                {portOut &&
-                    <DataMapperPortWidget engine={engine} port={portOut} />
-                }
-            </span>
-        </div>
+            
+        </span>
     );
+
+    const handleExpand = () => {
+        //TODO Enable expand collapse functionality
+        // setExpanded(!expanded)
+    }
+    
     return (
         <>
-            <TreeItem nodeId={fieldId} label={label}>
-                {STKindChecker.isSpecificField(field) && STKindChecker.isMappingConstructor(field.valueExpr) &&
-                    field.valueExpr.fields.map((field) => {
-                        if (STKindChecker.isSpecificField(field)) {
-                            return <SpecificFieldWidget
-                                engine={engine}
-                                field={field}
-                                getPort={getPort}
-                                parentId={fieldId}
-                            />;
-                        } else {
-                            // TODO handle fields with default values and included records
-                            return <></>;
-                        }
-                    })
+            <div className={classes.treeLabel}>
+                <span className={classes.treeLabelInPort}>
+                    {portIn &&
+                        <DataMapperPortWidget engine={engine} port={portIn} />
+                    }
+                </span>
+                {expandable &&
+                    (expanded ? (
+                        <ExpandMoreIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                    ):
+                    (
+                        <ChevronRightIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                    ))
                 }
-            </TreeItem>
+                <span className={classes.treeLabelOutPort}>
+                    {portOut &&
+                        <DataMapperPortWidget engine={engine} port={portOut} />
+                    }
+                </span>
+                <span> {label}</span>
+            </div>
+            {STKindChecker.isSpecificField(field) && STKindChecker.isMappingConstructor(field.valueExpr) &&
+                field.valueExpr.fields.map((field) => {
+                    if (STKindChecker.isSpecificField(field)) {
+                        return <SpecificFieldWidget
+                            engine={engine}
+                            field={field}
+                            getPort={getPort}
+                            parentId={fieldId}
+                        />;
+                    } else {
+                        // TODO handle fields with default values and included records
+                        return <></>;
+                    }
+                })
+            }
         </>
     );
 }

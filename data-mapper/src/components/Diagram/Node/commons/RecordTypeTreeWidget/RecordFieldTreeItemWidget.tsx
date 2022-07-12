@@ -10,7 +10,6 @@ import { RecordField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { DataMapperPortWidget } from "../../../Port/view/DataMapperPortWidget";
 import { DataMapperPortModel } from "../../../Port/model/DataMapperPortModel";
 import { getFieldTypeName } from "../../../utils";
-import { integer } from "vscode-languageserver-types";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -19,13 +18,13 @@ const useStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             padding: "5px",
             color: "#222228",
-            fontFamily: "GilmerMedium, Gilmer Medium",
+            fontFamily: "GilmerMedium",
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
-            border: "1px solid #CBCEDB",
+            border: "1px solid #DEE0E7",
             display:"flex",
-
+            minHeight: "24px"
         },
         treeLabelOutPort: {
             float: "right",
@@ -33,8 +32,6 @@ const useStyles = makeStyles((theme: Theme) =>
             marginLeft: "10px",
             width: 'fit-content',
            
-            fontFamily: "monospace",
-            color: '#0095FF',
             display: "inline-block",
             position: "absolute",
             right:"15px"
@@ -44,15 +41,13 @@ const useStyles = makeStyles((theme: Theme) =>
             marginRight: "5px",
             position: 'relative',
             width: 'fit-content',
-            fontFamily: "monospace",
-            color: '#0095FF',
         },
         typeLabel: {
             marginLeft: "3px",
             verticalAlign: "middle",
             padding: "5px",
             color: "#222228",
-            fontFamily: "GilmerRegular, Gilmer Regular",
+            fontFamily: "GilmerRegular",
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
@@ -62,16 +57,15 @@ const useStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             padding: "5px",
             color: "#222228",
-            fontFamily: "GilmerMedium, Gilmer Medium",
+            fontFamily: "GilmerMedium",
             fontSize: "13px",
             backgroundColor: "#FFFFFF",
         },
-        
-            group:{
-                marginLeft: "0px",
-                paddingLeft: "0px",
-                paddingBottom: "5px"
-            },
+        group:{
+            marginLeft: "0px",
+            paddingLeft: "0px",
+            paddingBottom: "5px"
+        },  
         content : {
             borderTopRightRadius: theme.spacing(2),
             borderBottomRightRadius: theme.spacing(2),
@@ -86,7 +80,7 @@ export interface RecordFieldTreeItemWidgetProps {
     field: RecordField;
     engine: DiagramEngine;
     getPort: (portId: string) => DataMapperPortModel;
-    treeDepth?: integer;
+    treeDepth?: number;
 }
 
 export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
@@ -104,7 +98,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         ? getFieldTypeName(field)
         : "record";
 
-    const indentation  = expandable ?  0 : (treeDepth + 1) * 24
+    const indentation  = expandable ?  0 : (treeDepth + 1) * 16;
 
     const label = (
         <span style={{ marginRight: "auto"}} >
@@ -128,7 +122,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
 
     return (
 
-        <div style={{paddingBottom: treeDepth == 0 ? "5px" : "0px" }}>
+        <>
             <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
@@ -137,10 +131,10 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                 </span>
                 {expandable &&
                     (expanded ? (
-                        <ExpandMoreIcon style={{color:"black", marginLeft: treeDepth * 24}} onClick={handleExpand}/>
+                        <ExpandMoreIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                     ):
                     (
-                        <ChevronRightIcon style={{color:"black", marginLeft: treeDepth * 24}} onClick={handleExpand}/>
+                        <ChevronRightIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                     ))
                 }
                 <span className={classes.treeLabelOutPort}>
@@ -166,6 +160,6 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                         }
                     })
                 }             
-        </div>
+        </>
     );
 }

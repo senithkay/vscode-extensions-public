@@ -57,7 +57,8 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			lm.addLabel(new ExpressionLabelModel({
 				value: otherVal?.source || value.source,
 				valueNode: otherVal || value,
-				context: this.context
+				context: this.context,
+				link: lm
 			}));
 			lm.setTargetPort(outPort);
 			lm.setSourcePort(inPort);

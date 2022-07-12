@@ -3,17 +3,20 @@ import { LabelModel } from '@projectstorm/react-diagrams';
 import { STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
+import { DataMapperLinkModel } from '../Link';
 
 export interface ExpressionLabelOptions extends BaseModelOptions {
 	value?: string;
 	valueNode?: STNode;
 	context?: IDataMapperContext;
+	link?: DataMapperLinkModel;
 }
 
 export class ExpressionLabelModel extends LabelModel {
 	value: string;
 	valueNode: STNode;
 	context: IDataMapperContext;
+	link?: DataMapperLinkModel;
 
 	constructor(options: ExpressionLabelOptions = {}) {
 		super({
@@ -23,6 +26,7 @@ export class ExpressionLabelModel extends LabelModel {
 		this.value = options.value || '';
 		this.valueNode = options.valueNode;
 		this.context = options.context;
+		this.link = options.link;
 		this.updateSource = this.updateSource.bind(this);
 	}
 
