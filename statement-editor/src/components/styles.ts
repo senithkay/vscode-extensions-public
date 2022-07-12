@@ -577,10 +577,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         docParamDescriptionText: {
             flex: "inherit",
-            width: '320px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
             ...removePadding
         },
         includedRecordPlusBtn: {
@@ -671,6 +667,14 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         paramTreeList: {
             display: 'flex',
             alignItems: 'flex-start'
+        },
+        paramTreeDescriptionText: {
+            flex: "inherit",
+            width: '320px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            ...removePadding
         },
         listItemMultiLine: {
             display: 'flex',
