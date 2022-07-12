@@ -87,8 +87,8 @@ export function HelperPane(props: HelperPaneProps) {
     useEffect(() => {
         if (
             currentModel.model &&
-            (isFunctionOrMethodCall(currentModel.model) || (isInsideEndpointConfigs(currentModel.model, config.type) &&
-                !isConfigurableEditor(editors, activeEditorId)))
+            (isFunctionOrMethodCall(currentModel.model) || isInsideEndpointConfigs(currentModel.model, config.type)) &&
+            !isConfigurableEditor(editors, activeEditorId)
         ) {
             setSelectedTab(TabElements.parameters);
         } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
