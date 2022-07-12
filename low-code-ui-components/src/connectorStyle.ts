@@ -23,7 +23,7 @@ export const connectorStyles = makeStyles((theme: Theme) =>
             },
         },
         wizardFormControlExtended: {
-            width: 500,
+            width: 600,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },

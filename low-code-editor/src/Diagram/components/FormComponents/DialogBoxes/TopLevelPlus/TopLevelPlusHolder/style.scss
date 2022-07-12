@@ -1,6 +1,6 @@
 .plus-holder {
     .holder-wrapper {
-        width: 396px;
+        width: 300px;
         background-color: #fff;
         display: flex;
         flex-direction: column;
@@ -24,7 +24,7 @@
                 justify-content: space-between;
 
                 hr.MuiDivider-root {
-                    width: 350px;
+                    width: 250px;
                     height: 1px;
                     margin: 0.25rem 0;
                 }
@@ -94,7 +94,8 @@
                 }
 
                 .sub-option {
-                    width: 163px;
+                    width: 260px;
+                    height: 40px;
                     padding: 4px;
                     display: flex;
                     flex-direction: row;

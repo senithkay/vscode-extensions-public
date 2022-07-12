@@ -11,7 +11,7 @@
 }
 
 .holder-wrapper-large {
-    width: 396px;
+    width: 300px;
     border-radius: 12px;
     background-color: #fff;
     display: flex;
@@ -137,7 +137,6 @@
     .element-option-holder {
         display: flex;
         flex-direction: column;
-        margin: 1rem 0 0;
 
         .element-option-holder {
             margin-bottom: 1rem;
@@ -251,7 +250,7 @@
             }
 
             .sub-option {
-                width: 170px;
+                width: 260px;
                 padding: 3px;
                 display: flex;
                 flex-direction: row;
