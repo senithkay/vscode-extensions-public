@@ -20,6 +20,7 @@ import {
     ModuleProperty
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { InputEditorContext } from '../../../store/input-editor-context';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getModuleIconStyle } from "../../../utils";
 import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
@@ -35,6 +36,7 @@ interface ModuleElementProps {
 export function ModuleElement(props: ModuleElementProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { moduleProperty, key, isFunction, label } = props;
+    const inputEditorCtx = useContext(InputEditorContext);
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
     const [clickedModuleElement, setClickedModuleElement] = useState('');
     const { className, color } = getModuleIconStyle(label);
@@ -79,6 +81,7 @@ export function ModuleElement(props: ModuleElementProps) {
             }
         }
         setClickedModuleElement('');
+        inputEditorCtx.onSuggestionSelection(content);
         updateModuleList(getFQModuleName(moduleOrgName, moduleId));
         updateModel(content, currentModel.model ? currentModel.model.position : targetPosition);
     }

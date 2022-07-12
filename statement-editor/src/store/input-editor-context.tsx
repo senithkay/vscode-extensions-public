@@ -15,26 +15,37 @@ import React, { useState } from 'react';
 
 export interface InputEditorCtx {
     userInput: string,
-    onInputChange: (value: string) => void
+    suggestionInput: string,
+    onInputChange: (value: string) => void,
+    onSuggestionSelection: (value: string) => void
 }
 
 export const InputEditorContext = React.createContext<InputEditorCtx>({
     userInput: "",
-    onInputChange: (value: string) => {}
+    suggestionInput: "",
+    onInputChange: (value: string) => {},
+    onSuggestionSelection: (value: string) => {}
 });
 
 export const InputEditorContextProvider: React.FC = (props) => {
     const [userInput, setUserInput] = useState("");
+    const [suggestionInput, setSuggestionInput] = useState("");
 
     const onInputChange = (value: string) => {
         setUserInput(value);
+    };
+
+    const onSuggestionSelection = (value: string) => {
+        setSuggestionInput(value);
     };
 
     return (
         <InputEditorContext.Provider
             value={{
                 userInput,
-                onInputChange
+                onInputChange,
+                suggestionInput,
+                onSuggestionSelection
             }}
         >
             {props.children}

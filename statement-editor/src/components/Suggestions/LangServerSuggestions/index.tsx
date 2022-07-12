@@ -107,6 +107,7 @@ export function LSSuggestions() {
             : targetPosition;
         updateModel(value, nodePosition);
         inputEditorCtx.onInputChange('');
+        inputEditorCtx.onSuggestionSelection(value);
     }
 
     const searchSuggestions = (e: any) => {
