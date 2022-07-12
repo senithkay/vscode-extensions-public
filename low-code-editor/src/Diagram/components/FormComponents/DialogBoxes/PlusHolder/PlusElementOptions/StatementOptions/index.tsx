@@ -451,7 +451,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     };
     const actionStatement: StatementComponent = {
         name: "action",
-        category: "communications",
+        category: "actors",
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.actionStatement.title}
