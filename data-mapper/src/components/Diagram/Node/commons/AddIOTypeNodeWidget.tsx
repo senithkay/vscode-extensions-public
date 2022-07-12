@@ -74,7 +74,6 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 
 	const handleImportFormSave = (recordName: string, recordString: string) => {
 		setIsImportFormVisible(false);
-		const paramTargetPos = context.functionST.functionSignature.openParenToken.position;
 		const modifications = [
 			{
 				type: "INSERT",
@@ -88,6 +87,7 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 			}
 		];
 		context.applyModifications(modifications);
+		// TODO: Update the parameters and the return type in the draft function
 	}
 
 	return (
