@@ -114,7 +114,7 @@ export function ParameterSuggestions() {
                                 {paramDoc && <ParameterList paramDocumentation={paramDoc}/>}
                                 {documentation.documentation.description && (
                                     <>
-                                        {documentation.documentation.parameters?.length > 0 && (
+                                        {paramDoc?.parameters?.length > 0 && (
                                             <hr className={stmtEditorHelperClasses.returnSeparator}/>
                                         )}
                                         <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
