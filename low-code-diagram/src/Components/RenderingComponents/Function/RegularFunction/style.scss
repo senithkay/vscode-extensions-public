@@ -203,6 +203,11 @@
     }
 }
 
+.dotted-background {
+    background-image: url('../assets/PatternBg.svg');
+    background-repeat: repeat;
+}
+
 .module-level-function {
     display: flex;
     flex-direction: column;

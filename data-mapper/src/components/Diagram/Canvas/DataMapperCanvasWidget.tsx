@@ -32,7 +32,7 @@ export class DataMapperCanvasWidget extends React.Component {
 		return (
 			<>
 				<Global styles={S.Expand} />
-				<S.Container>
+				<S.Container className='dotted-background'>
 					{this.props.children}
 				</S.Container>
 			</>
