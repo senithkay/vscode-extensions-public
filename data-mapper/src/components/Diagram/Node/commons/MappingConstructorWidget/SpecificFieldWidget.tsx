@@ -98,7 +98,7 @@ export function SpecificFieldWidget(props: SpecificFieldWidgetProps) {
         ? getFieldTypeName(field)
         : "record";
 
-    const indentation  = expandable ?  0 : (treeDepth + 1) * 24;
+    const indentation  = expandable ?  0 : (treeDepth + 1) * 16;
 
     const label = (
         <span style={{ marginRight: "auto"}} >
@@ -130,10 +130,10 @@ export function SpecificFieldWidget(props: SpecificFieldWidgetProps) {
                 </span>
                 {expandable &&
                     (expanded ? (
-                        <ExpandMoreIcon style={{color:"black", marginLeft: treeDepth * 24}} onClick={handleExpand}/>
+                        <ExpandMoreIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                     ):
                     (
-                        <ChevronRightIcon style={{color:"black", marginLeft: treeDepth * 24}} onClick={handleExpand}/>
+                        <ChevronRightIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                     ))
                 }
                 <span className={classes.treeLabelOutPort}>

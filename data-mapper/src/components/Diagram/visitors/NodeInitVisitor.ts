@@ -53,7 +53,7 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         const queryNode = new QueryExpressionNode(this.context, node, parent);
-        queryNode.setPosition(425, 250);
+        queryNode.setPosition(440, 300);
         this.intermediateNodes.push(queryNode);
     };
     
