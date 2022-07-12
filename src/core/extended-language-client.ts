@@ -85,6 +85,14 @@ enum EXTENDED_APIS_ORG {
     BALLERINA_TO_OPENAPI = 'openAPILSExtension'
 }
 
+export enum DIAGNOSTIC_SEVERITY {
+    INTERNAL = "INTERNAL",
+    HINT = "HINT",
+    INFO = "INFO",
+    WARNING = "WARNING",
+    ERROR = "ERROR"
+}
+
 export interface ExtendedClientCapabilities extends ClientCapabilities {
     experimental: { introspection: boolean, showTextDocument: boolean };
 }
@@ -152,6 +160,7 @@ export interface JsonToRecordResponse {
 
 export interface JsonToRecordMapperDiagnostic {
     message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
 }
 
 interface BallerinaInitializeParams {

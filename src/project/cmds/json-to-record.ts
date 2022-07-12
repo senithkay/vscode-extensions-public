@@ -21,7 +21,7 @@ import {
     sendTelemetryEvent, sendTelemetryException, TM_EVENT_PASTE_AS_RECORD, CMP_JSON_TO_RECORD,
 } from "../../telemetry";
 import { commands, window, env } from "vscode";
-import { ballerinaExtInstance, JsonToRecordResponse } from "../../core";
+import { ballerinaExtInstance, JsonToRecordResponse, DIAGNOSTIC_SEVERITY } from "../../core";
 import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
 
 const MSG_NOT_SUPPORT = "Paste JSON as a Ballerina record feature is not supported";
@@ -68,13 +68,20 @@ export function activatePasteJsonAsRecord() {
                             window.showErrorMessage(MESSAGES.INVALID_JSON_RESPONSE);
                             return;
                         }
+                        // Check undefined diagnostics for when older SDK is used which does not send diagnostics in response.
                         if (response.diagnostics === undefined && (response.codeBlock === undefined || response.codeBlock === "")) {
                             window.showErrorMessage(MESSAGES.INVALID_JSON);
                             return;
                         }
                         if (response.diagnostics !== undefined) {
                             for (const diagnostic of response.diagnostics) {
-                                window.showErrorMessage(diagnostic.message);
+                                if (diagnostic.severity === undefined || diagnostic.severity === DIAGNOSTIC_SEVERITY.ERROR) {
+                                    window.showErrorMessage(diagnostic.message);
+                                } else if (diagnostic.severity === DIAGNOSTIC_SEVERITY.WARNING) {
+                                    window.showWarningMessage(diagnostic.message);
+                                } else {
+                                    window.showInformationMessage(diagnostic.message);
+                                }
                             }
                         }
                         const editor = window.activeTextEditor;
