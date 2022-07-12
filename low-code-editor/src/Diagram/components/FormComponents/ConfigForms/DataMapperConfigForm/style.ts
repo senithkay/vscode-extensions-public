@@ -15,8 +15,8 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 export const dataMapperStyles = makeStyles((theme: Theme) =>
     createStyles({
         dataMapperContainer: {
-            height: "100vh",
-            width: "100vw"
+            height: "100%",
+            width: "100%"
         }
     }),
 );

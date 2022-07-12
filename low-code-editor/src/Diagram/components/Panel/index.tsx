@@ -46,7 +46,7 @@ export function Panel(props: PanelProps) {
         <div onClick={onDivClick} >
             <DiagramOverlayContainer>
                 <div className={classnames("panel", isVisible ? 'panel-slide-in' : 'panel-slide-out', formType === "DataMapper" ? 'datamapper-wrapper' : '')}>
-                    <div className="panel-form-wrapper">
+                    <div className={formType === "DataMapper" ?  "datamapper-form-wrapper" : "panel-form-wrapper"}>
                         {children}
                     </div>
                 </div>
