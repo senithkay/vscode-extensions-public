@@ -11,15 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useState } from 'react';
 
-import { Button, Typography } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { Typography } from '@material-ui/core';
+import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { default as AddIcon } from  "@material-ui/icons/Add";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { AddOutputTypeNode } from "../AddOutputType";
 
-const useStyles = makeStyles((theme: Theme) =>
+import { RecordFromJson } from "./RecordFromJson";
+
+const useStyles = makeStyles(() =>
 	createStyles({
 		contentWrapper: {
 			minHeight: '600px',
@@ -33,17 +37,16 @@ const useStyles = makeStyles((theme: Theme) =>
 			display: "flex",
 			paddingBottom: '20px'
 		},
-		addTypeButton: {
-			verticalAlign: "middle",
-			padding: "5px",
-			color: "#222228",
-			fontFamily: "GilmerMedium, Gilmer Medium",
-			fontSize: "13px",
-			minWidth: "100px",
-			backgroundColor: "#FFFFFF",
-			border: "1px solid #CBCEDB",
+		addButton: {
+			margin: `10px 10px 10px 5px`,
+			color: "#5567D5",
+			fontSize: 12,
 			display: "flex",
-			textTransform: "none"
+			alignItems: "center",
+			cursor: "pointer",
+			"& .MuiSvgIcon-root": {
+				height: '18px !important',
+			}
 		}
 	})
 );
@@ -52,18 +55,55 @@ export interface AddOutputTypeNodeWidgetProps {
 	node: AddOutputTypeNode;
 	engine: DiagramEngine;
 	title: string;
+	context: IDataMapperContext;
 }
 
 export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
-	const { node, engine, title } = props;
+	const { node, engine, title, context } = props;
 	const classes = useStyles();
+
+	const [isImportFormVisible, setIsImportFormVisible] = useState(false);
+
+	const handleImportClicked = () => {
+		setIsImportFormVisible(true);
+	}
+
+	const handleImportFormClose = () => {
+		setIsImportFormVisible(false);
+	}
+
+	const handleImportFormSave = (recordName: string, recordString: string) => {
+		setIsImportFormVisible(false);
+		const paramTargetPos = context.functionST.functionSignature.openParenToken.position;
+		const modifications = [
+			{
+				type: "INSERT",
+				config: {
+					"STATEMENT": recordString,
+				},
+				endColumn: 0,
+				endLine: 0,
+				startColumn: 0,
+				startLine: 0
+			}
+		];
+		context.applyModifications(modifications);
+	}
 
 	return (
 		<div className={classes.contentWrapper}>
 			<Typography className={classes.title}>{title}</Typography>
-			<Button className={classes.addTypeButton}>
-				Add {title.toLowerCase()} type
-			</Button>
+			<div className={classes.addButton} onClick={handleImportClicked}>
+				<AddIcon/>
+				<p>Import From JSON</p>
+			</div>
+			<div className={classes.addButton}>
+				<AddIcon/>
+				<p>Select From Existing</p>
+			</div>
+			{isImportFormVisible && (
+				<RecordFromJson onCancel={handleImportFormClose} onSave={handleImportFormSave} context={context} />
+			)}
 		</div>
 	);
 }
