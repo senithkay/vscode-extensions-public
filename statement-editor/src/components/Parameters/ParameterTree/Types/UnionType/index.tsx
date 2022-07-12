@@ -96,7 +96,7 @@ export default function UnionType(props: TypeProps) {
                     </div>
                     {param.documentation && (
                         <ListItemText
-                            className={stmtEditorHelperClasses.docParamDescriptionText}
+                            className={stmtEditorHelperClasses.paramTreeDescriptionText}
                             primary={" : " + param.documentation}
                         />
                     )}
