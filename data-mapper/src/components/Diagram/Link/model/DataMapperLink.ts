@@ -1,11 +1,12 @@
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { BezierCurve } from "@projectstorm/geometry";
+import { FieldAccess, SimpleNameReference } from "@wso2-enterprise/syntax-tree";
 
 
 export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
-	constructor() {
+	constructor(public value: SimpleNameReference|FieldAccess = undefined) {
 		super({
 			type: LINK_TYPE_ID,
 			width: 1,

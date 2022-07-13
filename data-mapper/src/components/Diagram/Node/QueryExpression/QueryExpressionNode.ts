@@ -128,7 +128,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const sourcePortId = `${QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
                     const targetPort = this.getPort(targetPortId);
                     const sourcePort = this.getPort(sourcePortId);
-                    const link = new DataMapperLinkModel();
+                    const link = new DataMapperLinkModel(value);
                     link.setSourcePort(sourcePort);
                     link.setTargetPort(targetPort);
                     link.registerListener({
