@@ -22,7 +22,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
         const recordTypeDesc = this.typeDef.typeDescriptor as RecordTypeDesc;
 		recordTypeDesc.fields.forEach((subField) => {
 			if (STKindChecker.isRecordField(subField)) {
-				this.addPorts(subField, "OUT", this.value.paramName.value);
+				this.addPorts(subField, "OUT", this.value.paramName.value, this.value.paramName.value);
 			}
 		});
     }

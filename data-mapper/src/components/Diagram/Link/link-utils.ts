@@ -18,10 +18,9 @@ export function generateQueryExpression(srcExpr: string, srcType: RecordTypeDesc
     
     const srcFields = srcType.fields.filter((field) => STKindChecker.isRecordField(field)) as RecordField[];
     
-    return `
-        from var item in ${srcExpr}
+    return `from var item in ${srcExpr}
         select {
-            ${srcFields.map((field, index) => `${field.fieldName.value}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t': '\n'}`).join("")}
+            ${srcFields.map((field, index) => `${field.fieldName.value}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t': ''}`).join("")}
         }
     `
 }

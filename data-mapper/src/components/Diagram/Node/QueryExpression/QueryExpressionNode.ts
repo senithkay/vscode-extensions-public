@@ -60,7 +60,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             const parentId = `${QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
             this.sourceTypeDesc.fields.forEach((field) => {
                 if (STKindChecker.isRecordField(field)) {
-                    this.addPorts(field, "OUT", parentId);
+                    this.addPorts(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
                 }
             });
         }
