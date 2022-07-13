@@ -11,12 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { Typography } from '@material-ui/core';
+import { MenuItem, Select, Typography } from '@material-ui/core';
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { default as AddIcon } from  "@material-ui/icons/Add";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { AddOutputTypeNode } from "../AddOutputType";
@@ -47,6 +48,55 @@ const useStyles = makeStyles(() =>
 			"& .MuiSvgIcon-root": {
 				height: '18px !important',
 			}
+		},
+		selectDropDown: {
+			height: '32px',
+			borderRadius: 4,
+			background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
+			boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
+			cursor: "pointer",
+			"&:active": {
+				background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+				boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+				border: "1px solid #5567d5",
+			},
+			"&:focused": {
+				background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+				boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+				border: "1px solid #5567d5 !important"
+			},
+			'& .MuiSelect-icon': {
+				marginRight: 11,
+			},
+			"& .MuiSelect-selectMenu": {
+				height: "inherit !important",
+				paddingLeft: 10,
+				"& .TextSpan": {
+					top: "calc(50% - 8px)",
+					position: "absolute",
+					maxWidth: "156px",
+					whiteSpace: "nowrap",
+					overflow: "hidden",
+					textOverflow: "ellipsis",
+				}
+			},
+			"& .MuiSelect-select.MuiSelect-select": {
+				padding: "0 0 0 10px",
+				minWidth: "100px"
+			},
+			"& .MuiSelect-select.MuiSelect-select:focus": {
+				backgroundColor: "transparent"
+			}
+		},
+		dropdownStyle: {
+			boxSizing: "border-box",
+			width: "auto",
+			border: "1px solid #DEE0E7",
+			borderRadius: "5px",
+			boxShadow: "0 5px 10px -3px rgba(50,50,77,0.1)",
+			color: "#222228",
+			marginTop: '0.25rem',
+			marginLeft: '4px'
 		}
 	})
 );
@@ -58,22 +108,44 @@ export interface AddOutputTypeNodeWidgetProps {
 	context: IDataMapperContext;
 }
 
+enum TypeAddingMechanism {
+	Import,
+	Select
+}
+
 export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 	const { node, engine, title, context } = props;
 	const classes = useStyles();
 
-	const [isImportFormVisible, setIsImportFormVisible] = useState(false);
+	const [typeAddingMechanism, setTypeAddingMechanism] = useState<TypeAddingMechanism>(undefined);
+	const [selection, setSelection] = React.useState('');
+	const [menuItems, setMenuItems] = React.useState<React.ReactNode[]>();
 
 	const handleImportClicked = () => {
-		setIsImportFormVisible(true);
+		setTypeAddingMechanism(TypeAddingMechanism.Import);
 	}
 
 	const handleImportFormClose = () => {
-		setIsImportFormVisible(false);
+		setTypeAddingMechanism(undefined);
+	}
+
+	const handleSelectClicked = () => {
+		const records: React.ReactNode[] = [];
+		const recordTypeDescMap = context.stSymbolInfo.recordTypeDescriptions;
+		for (const st of recordTypeDescMap.values()) {
+			const recordName = (st as RecordTypeDesc)?.typeData.typeSymbol.name;
+			records.push(
+				<MenuItem key={recordName} value={recordName}>
+					<span className="TextSpan">{recordName}</span>
+				</MenuItem>
+			);
+		}
+		setTypeAddingMechanism(TypeAddingMechanism.Select);
+		setMenuItems([...records]);
 	}
 
 	const handleImportFormSave = (recordName: string, recordString: string) => {
-		setIsImportFormVisible(false);
+		setTypeAddingMechanism(undefined);
 		const modifications = [
 			{
 				type: "INSERT",
@@ -90,6 +162,51 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 		// TODO: Update the parameters and the return type in the draft function
 	}
 
+	const handleSelection = (event: React.ChangeEvent<{ value: string }>) => {
+		setSelection(event.target.value);
+		setTypeAddingMechanism(undefined);
+	}
+
+	useEffect(() => {
+		if (selection !== '') {
+			if (title === 'Input') {
+				(async () => {
+					const position = context.functionST.functionSignature.openParenToken.position;
+					const modifications = [
+						{
+							type: "INSERT",
+							config: {
+								"STATEMENT": `${selection} input`,
+							},
+							endColumn: position.endColumn,
+							endLine: position.endLine,
+							startColumn: position.endColumn,
+							startLine: position.endLine
+						}
+					];
+					context.applyModifications(modifications);
+				})();
+			} else {
+				(async () => {
+					const position = context.functionST.functionSignature.returnTypeDesc.returnsKeyword.position;
+					const modifications = [
+						{
+							type: "INSERT",
+							config: {
+								"STATEMENT": ` ${selection}`,
+							},
+							endColumn: position.endColumn,
+							endLine: position.endLine,
+							startColumn: position.endColumn,
+							startLine: position.endLine
+						}
+					];
+					context.applyModifications(modifications);
+				})();
+			}
+		}
+	}, [selection]);
+
 	return (
 		<div className={classes.contentWrapper}>
 			<Typography className={classes.title}>{title}</Typography>
@@ -97,12 +214,30 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 				<AddIcon/>
 				<p>Import From JSON</p>
 			</div>
-			<div className={classes.addButton}>
+			<div className={classes.addButton} onClick={handleSelectClicked}>
 				<AddIcon/>
 				<p>Select From Existing</p>
 			</div>
-			{isImportFormVisible && (
+			{typeAddingMechanism === TypeAddingMechanism.Import && (
 				<RecordFromJson onCancel={handleImportFormClose} onSave={handleImportFormSave} context={context} />
+			)}
+			{typeAddingMechanism === TypeAddingMechanism.Select  && (
+				<Select
+					value={selection}
+					onChange={handleSelection}
+					className={classes.selectDropDown}
+					inputProps={{ 'aria-label': 'Without label' }}
+					MenuProps={{
+						getContentAnchorEl: null,
+						classes: { paper: classes.dropdownStyle },
+						anchorOrigin: {
+							vertical: "bottom",
+							horizontal: "left",
+						}
+					}}
+				>
+					{menuItems}
+				</Select>
 			)}
 		</div>
 	);

@@ -43,13 +43,14 @@ export interface DataMapperProps {
 }
 
 export function DataMapperConfigForm(props: DataMapperProps) {
-    const { onCancel, model } = props;
+    const { targetPosition, onCancel, model } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
     const {
         props: {
-            currentFile
+            currentFile,
+            stSymbolInfo
         },
         api: {
             code: {
@@ -67,9 +68,9 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
 
     useEffect(() => {
-        if (model) {
+        if (model || !!functionST) {
             handleFunctionST().then();
-        } else {
+        } else if (!functionST) {
             createFunctionST().then();
         }
     }, [currentFile.content]);
@@ -91,14 +92,40 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     }
 
     const createFunctionST = async () => {
-        const defaultFunction = `function transform() returns  => {};`
-        const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
-        const stPromise = await langClient.getSTForModuleMembers({ codeSnippet: defaultFunction});
-        if (stPromise) {
-            const fnST = stPromise.syntaxTree as FunctionDefinition;
-            setFunctionST(fnST);
+        const draftFunction = `function transform() returns  => {};`
+        // const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
+        const langClientD: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
+        const modifications = [
+            {
+                type: "INSERT",
+                config: {
+                    "STATEMENT": draftFunction,
+                },
+                endColumn: targetPosition.endColumn,
+                endLine: targetPosition.endLine,
+                startColumn: targetPosition.endColumn,
+                startLine: targetPosition.endLine
+            }
+        ];
+        const { parseSuccess, source, syntaxTree: newST } = await langClientD.stModify({
+            astModifications: modifications,
+            documentIdentifier: {
+                uri: `file://${currentFile.path}`
+            }
+        });
+
+        if (parseSuccess) {
+            const modPart = newST as ModulePart;
+            const fns = modPart.members.filter((mem) => STKindChecker.isFunctionDefinition(mem)) as FunctionDefinition[];
+            setFunctionST(fns.find((mem) => mem.functionName.value === "transform"));
             return;
         }
+        // const stPromise = await langClient.getSTForModuleMembers({ codeSnippet: draftFunction});
+        // if (stPromise) {
+        //     const fnST = stPromise.syntaxTree as FunctionDefinition;
+        //     setFunctionST(fnST);
+        //     return;
+        // }
         setFunctionST(undefined);
     }
 
@@ -140,6 +167,7 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                     getLangClient={getDiagramEditorLangClient}
                     filePath={currentFile.path}
                     currentFile={currentFile}
+                    stSymbolInfo={stSymbolInfo}
                     applyModifications={modifyDiagram}
                 />
             </div>
