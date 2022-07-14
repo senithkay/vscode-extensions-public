@@ -28,7 +28,7 @@ const useStyles = makeStyles(() =>
 	createStyles({
 		contentWrapper: {
 			minHeight: '600px',
-			minWidth: '344px',
+			minWidth: '300px',
 			borderRadius: '8px',
 			backgroundColor: '#FFFFFF',
 			boxShadow: '0 2px 40px 0 rgba(102,103,133,0.15)',
