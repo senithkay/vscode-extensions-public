@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
-import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -66,13 +66,11 @@ export default function Toolbar(props: ToolbarProps) {
     const { inlineDocumentHandler } = props;
     const [docEnabled, setDocEnabled] = React.useState(false);
 
-    // const keyboardNavigationManager = new KeyboardNavigationManager()
     React.useEffect(() => {
         const client = KeyboardNavigationManager.getClient();
         client.bindNewKey(['command+z', 'ctrl+z'], undo);
         client.bindNewKey(['command+shift+z', 'ctrl+y'], redo);
         client.bindNewKey(['del'], onDelFunction);
-        // keyboardNavigationManager.bindNewKey(client, ['del'], onDelFunction)
 
         return () => {
             client.resetMouseTrapInstance()

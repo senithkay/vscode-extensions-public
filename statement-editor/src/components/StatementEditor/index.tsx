@@ -452,21 +452,19 @@ export function StatementEditor(props: StatementEditorProps) {
         setModel({...enrichModel(editedModel, targetPosition, diagnostics)});
     }
 
-    // const keyboardNavigationManager = new KeyboardNavigationManager()
-
     React.useEffect(() => {
 
-        /*const client = keyboardNavigationManager.getClient();
+        const client = KeyboardNavigationManager.getClient();
 
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+left', 'command+left'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['tab'], nextModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['shift+tab'], previousModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['enter'], enterKeyHandler);
+        client.bindNewKey(['ctrl+left', 'command+left'], parentModelHandler);
+        client.bindNewKey(['ctrl+right', 'command+right'], parentModelHandler);
+        client.bindNewKey(['tab'], nextModelHandler);
+        client.bindNewKey(['shift+tab'], previousModelHandler);
+        client.bindNewKey(['enter'], enterKeyHandler);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
-        }*/
+            client.resetMouseTrapInstance();
+        }
     }, [currentModel.model]);
 
 
