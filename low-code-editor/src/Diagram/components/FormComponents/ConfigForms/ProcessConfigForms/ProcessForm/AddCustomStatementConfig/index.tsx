@@ -15,14 +15,14 @@ import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { FormControl } from "@material-ui/core";
-import { ProcessConfig, CustomExpressionConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CustomExpressionConfig, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { isStatementEditorSupported } from "../../../../Utils";
-import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 interface LogConfigProps {
     config: ProcessConfig;
