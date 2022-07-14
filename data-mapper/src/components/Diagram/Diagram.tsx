@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import createEngine, { DefaultDiagramState, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import "reflect-metadata";
 import {container} from "tsyringe";
@@ -21,7 +20,7 @@ import {container} from "tsyringe";
 import { useDMStore } from '../../store/store';
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
 
-import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
+import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import * as Labels from "./Label";
 import * as Links from "./Link";
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
@@ -29,6 +28,7 @@ import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import * as Ports from "./Port";
+import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -93,9 +93,9 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	return (
 		<>
 			{engine && engine.getModel() && (
-				<DataMapperCanvasWidget>
-					<CanvasWidget engine={engine} />
-				</DataMapperCanvasWidget>
+				<DataMapperCanvasContainerWidget>
+					<DataMapperCanvasWidget engine={engine} />
+				</DataMapperCanvasContainerWidget>
 			)}
 		</>
 	);

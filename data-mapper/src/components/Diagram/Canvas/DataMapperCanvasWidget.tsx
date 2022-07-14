@@ -1,41 +1,112 @@
 import * as React from 'react';
 import styled from '@emotion/styled';
-import { css, Global } from '@emotion/react';
+import { CanvasEngine, TransformLayerWidget, SmartLayerWidget } from '@projectstorm/react-canvas-core'
 
-const background = require("./../../../assets/PatternBg.svg") as string;
+export interface DiagramProps {
+	engine: CanvasEngine;
+	className?: string;
+}
 
 namespace S {
-	export const Container = styled.div`
-		height: 100%;
-		background-image: url('${background}');
-		background-repeat: repeat;
-		display: flex;
-		font-family: 'GilmerRegular';
-		> * {
-			height: 100%;
-			min-height: 100%;
-			width: 100%;
-		}
-	`;
-
-	export const Expand = css`
-		html,
-		body,
-		#root {
-			height: 100%;
-		}
+	export const Canvas = styled.div`
+		position: relative;
+		cursor: move;
+		overflow: hidden;
 	`;
 }
 
-export class DataMapperCanvasWidget extends React.Component {
+export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
+	ref: React.RefObject<HTMLDivElement>;
+	keyUp: any;
+	keyDown: any;
+	canvasListener: any;
+
+	constructor(props: DiagramProps) {
+		super(props);
+
+		this.ref = React.createRef();
+		this.state = {
+			action: null,
+			diagramEngineListener: null
+		};
+	}
+
+	componentWillUnmount() {
+		this.props.engine.deregisterListener(this.canvasListener);
+		this.props.engine.setCanvas(null);
+
+		document.removeEventListener('keyup', this.keyUp);
+		document.removeEventListener('keydown', this.keyDown);
+	}
+
+	registerCanvas() {
+		this.props.engine.setCanvas(this.ref.current);
+		this.props.engine.iterateListeners((list) => {
+			list.rendered && list.rendered();
+		});
+	}
+
+	componentDidUpdate() {
+		this.registerCanvas();
+	}
+
+	componentDidMount() {
+		this.canvasListener = this.props.engine.registerListener({
+			repaintCanvas: () => {
+				this.forceUpdate();
+			}
+		});
+
+		this.keyDown = (event: any) => {
+			this.props.engine.getActionEventBus().fireAction({ event });
+		};
+		this.keyUp = (event: any) => {
+			this.props.engine.getActionEventBus().fireAction({ event });
+		};
+
+		document.addEventListener('keyup', this.keyUp);
+		document.addEventListener('keydown', this.keyDown);
+		this.registerCanvas();
+	}
+
 	render() {
+		const engine = this.props.engine;
+		const model = engine.getModel();
+
 		return (
-			<>
-				<Global styles={S.Expand} />
-				<S.Container className='dotted-background'>
-					{this.props.children}
-				</S.Container>
-			</>
+			<S.Canvas
+				className={this.props.className}
+				ref={this.ref}
+				onWheel={(event) => {
+					this.props.engine.getActionEventBus().fireAction({ event });
+				}}
+				onMouseDown={(event) => {
+					this.props.engine.getActionEventBus().fireAction({ event });
+				}}
+				onMouseUp={(event) => {
+					this.props.engine.getActionEventBus().fireAction({ event });
+				}}
+				onMouseMove={(event) => {
+					this.props.engine.getActionEventBus().fireAction({ event });
+				}}
+				onTouchStart={(event) => {
+					this.props.engine.getActionEventBus().fireAction({ event });
+				}}
+				onTouchEnd={(event) => {
+					this.props.engine.getActionEventBus().fireAction({ event });
+				}}
+				onTouchMove={(event) => {
+					this.props.engine.getActionEventBus().fireAction({ event });
+				}}
+			>
+				{model.getLayers().map((layer) => {
+					return (
+						<TransformLayerWidget layer={layer} key={layer.getID()}>
+							<SmartLayerWidget layer={layer} engine={this.props.engine} key={layer.getID()} />
+						</TransformLayerWidget>
+					);
+				})}
+			</S.Canvas>
 		);
 	}
 }
