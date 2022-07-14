@@ -278,7 +278,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                     monaco.editor.setModelMarkers(
                         monacoRef.current.editor.getModel(),
                         "expression editor",
-                        diagnostics.map((diagnostic: any) => ({
+                        diagnostics?.map((diagnostic: any) => ({
                             startLineNumber: 1,
                             startColumn: diagnostic.range.start.character, // - snippetTargetPosition + 2,
                             endLineNumber: 1,

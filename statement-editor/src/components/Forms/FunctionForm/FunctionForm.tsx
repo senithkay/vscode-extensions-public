@@ -18,9 +18,7 @@ import { default as AddIcon } from "@material-ui/icons/Add";
 import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createFunctionSignature,
-    ExpressionEditorLangClientInterface,
     getSource,
-    STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -28,19 +26,15 @@ import {
     dynamicConnectorStyles as connectorStyles,
     FormActionButtons,
     FormHeaderSection,
-    FormTextInput,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     DefaultableParam,
     FunctionDefinition,
     IncludedRecordParam,
-    NodePosition,
     RequiredParam,
     RestParam,
-    STKindChecker,
-    STNode
-} from "@wso2-enterprise/syntax-tree";
+    STKindChecker} from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { CurrentModel, StmtDiagnostic, SuggestionItem } from "../../../models/definitions";
@@ -48,7 +42,6 @@ import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from '../../InputEditor/constants';
-import { CompletionEditor } from '../components/CompletionEditor/completionEditor';
 import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 import { recalculateItemIds } from "../Utils/FormUtils";
 
