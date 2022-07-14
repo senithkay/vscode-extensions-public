@@ -17,6 +17,7 @@ import createEngine, { DefaultDiagramState, DiagramEngine, DiagramModel } from '
 import "reflect-metadata";
 import {container} from "tsyringe";
 
+import { useDMStore } from '../../store/store';
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
@@ -71,6 +72,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
 	const [model, setModel] = React.useState(new DiagramModel());
 
+	const fnST = useDMStore((state) => state.functionST);
 
 	React.useEffect(() => {
 		async function genModel() {
@@ -81,7 +83,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				node.setModel(model);
 				await node.initPorts();
 				await node.initLinks();
-				engine.repaintCanvas();
 			}
 			engine.setModel(model);
 			setModel(model);

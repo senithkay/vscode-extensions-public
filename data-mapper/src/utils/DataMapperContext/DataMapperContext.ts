@@ -2,7 +2,7 @@ import {
     DiagramEditorLangClientInterface,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
@@ -14,8 +14,6 @@ export interface IDataMapperContext {
         size: number
     };
     applyModifications: (modifications: STModification[]) => void;
-    seletedST: STNode;
-    setSelectedST: (st: STNode) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -29,9 +27,7 @@ export class DataMapperContext implements IDataMapperContext {
             path: string,
             size: number
         },
-        public applyModifications: (modifications: STModification[]) => void,
-        public seletedST: STNode,
-        public setSelectedST: (st: STNode) => void
+        public applyModifications: (modifications: STModification[]) => void
     ){}
 
     public get functionST(): FunctionDefinition {

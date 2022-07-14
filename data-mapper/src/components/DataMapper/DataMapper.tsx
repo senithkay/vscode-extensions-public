@@ -4,7 +4,7 @@ import {
     DiagramEditorLangClientInterface,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
@@ -29,7 +29,6 @@ function DataMapperC(props: DataMapperProps) {
 
     const { fnST, langClientPromise, filePath, currentFile, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
-    const [selectedST, setSelectedST] = useState<STNode>(fnST);
 
     useEffect(() => {
         async function generateNodes() {
@@ -38,17 +37,15 @@ function DataMapperC(props: DataMapperProps) {
                 fnST,
                 langClientPromise,
                 currentFile,
-                applyModifications,
-                selectedST,
-                setSelectedST
+                applyModifications
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context);
-            traversNode(selectedST, nodeInitVisitor);
+            traversNode(fnST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
         }
         generateNodes();
-    }, [selectedST, fnST, filePath]);
+    }, [fnST, filePath]);
 
     return (
         <>

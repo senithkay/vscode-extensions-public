@@ -1,4 +1,4 @@
-import { CaptureBindingPattern, QueryExpression, RecordField, RecordTypeDesc, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -8,9 +8,7 @@ import { getFieldNames, getParamForName } from "../../utils";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
-import equal from "deep-equal";
 import { ExpressionLabelModel } from "../../Label";
-import { getTypeDefinitionForTypeDesc } from "../../../../utils/st-utils";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -30,8 +28,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
 	public sourceBindingPattern: CaptureBindingPattern;
 
-    public isFullScreen: boolean;
-
     constructor(
         public context: IDataMapperContext,
         public value: QueryExpression,
@@ -40,24 +36,21 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             context,
             QUERY_EXPR_NODE_TYPE
         );
-        this.isFullScreen = equal(value, context.seletedST);
     }
 
     async initPorts() {
         await this.getSourceType();
         await this.getTargetType();
-        if (!this.isFullScreen) {
-            this.inPort = new IntermediatePortModel(
-                md5(JSON.stringify(this.value.position) + "IN")
-                , "IN"
-            );
-            this.addPort(this.inPort);
-            this.outPort = new IntermediatePortModel(
-                md5(JSON.stringify(this.value.position) + "OUT")
-                , "OUT"
-            );
-            this.addPort(this.outPort);
-        }
+        this.inPort = new IntermediatePortModel(
+            md5(JSON.stringify(this.value.position) + "IN")
+            , "IN"
+        );
+        this.addPort(this.inPort);
+        this.outPort = new IntermediatePortModel(
+            md5(JSON.stringify(this.value.position) + "OUT")
+            , "OUT"
+        );
+        this.addPort(this.outPort);
         this.initSourcePorts();
         this.initTargetPorts();
     }
@@ -93,10 +86,11 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
                 const fieldNames = getFieldNames(sourceFieldAccess);
                 const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
-                const param = getParamForName(fieldNames[0], this.context.functionST) as RequiredParam;
-                const paramTypeDef = await getTypeDefinitionForTypeDesc(param.typeName, this.context);
-                
-                const paramTypeDesc = paramTypeDef.typeDescriptor as RecordTypeDesc;
+                const param = getParamForName(fieldNames[0], this.context.functionST);
+                const paramNode = this.getModel().getNodes().find((node) =>
+                    node instanceof RequiredParamNode
+                    && node.value.paramName.value === fieldNames[0]) as RequiredParamNode;
+                const paramTypeDesc = paramNode.typeDef.typeDescriptor as RecordTypeDesc;
                 let nextRecTypeDesc = paramTypeDesc;
                 let sourceTypeDesc: RecordTypeDesc;
                 for (let i = 1; i < fieldNames.length; i++) {
@@ -108,12 +102,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
                             sourceTypeDesc = fieldType.memberTypeDesc;
                         }
-                        if (!this.isFullScreen) {
-                            const paramNode = this.getModel().getNodes().find((node) =>
-                                node instanceof RequiredParamNode
-                                && node.value.paramName.value === fieldNames[0]) as RequiredParamNode;
-                            this.sourcePort = paramNode.getPort(fieldId + ".OUT") as DataMapperPortModel;
-                        }
+                        this.sourcePort = paramNode.getPort(fieldId + ".OUT") as DataMapperPortModel;
                     } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
                         nextRecTypeDesc = field.typeName; // TODO Handle other cases
                     }
@@ -129,9 +118,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
-        if (!this.isFullScreen) {
-            this.initQueryLinks();
-        }
+        this.initQueryLinks();
         if (STKindChecker.isMappingConstructor(this.value.selectClause.expression)) {
             const mappings = this.genMappings(this.value.selectClause.expression);
             mappings.forEach((mapping) => {
