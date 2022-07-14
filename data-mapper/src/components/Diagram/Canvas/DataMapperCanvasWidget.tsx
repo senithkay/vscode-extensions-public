@@ -72,6 +72,10 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 	render() {
 		const engine = this.props.engine;
 		const model = engine.getModel();
+        const layers = model.getLayers();
+        const svgLayers = layers.filter((layer) => layer.getOptions().isSvg);
+        const nonSVGLayers = layers.filter((layer) => !layer.getOptions().isSvg);
+        const reArrangedLayers = [...nonSVGLayers, ...svgLayers];
 
 		return (
 			<S.Canvas
@@ -99,7 +103,7 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 					this.props.engine.getActionEventBus().fireAction({ event });
 				}}
 			>
-				{model.getLayers().map((layer) => {
+				{reArrangedLayers.map((layer) => {
 					return (
 						<TransformLayerWidget layer={layer} key={layer.getID()}>
 							<SmartLayerWidget layer={layer} engine={this.props.engine} key={layer.getID()} />
