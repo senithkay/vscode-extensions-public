@@ -65,7 +65,6 @@ export class NodeInitVisitor implements Visitor {
             );
             addInputTypeNode.setPosition(100, 100);
             this.inputNodes.push(addInputTypeNode);
-            console.log({"yethukku":this.outputNode.getPosition()})
         }
     }
 
