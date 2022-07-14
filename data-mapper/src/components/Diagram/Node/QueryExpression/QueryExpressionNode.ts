@@ -8,6 +8,7 @@ import { getFieldNames, getParamForName } from "../../utils";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
+import { ExpressionLabelModel } from "../../Label";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -131,6 +132,12 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const link = new DataMapperLinkModel(value);
                     link.setSourcePort(sourcePort);
                     link.setTargetPort(targetPort);
+                    link.addLabel(new ExpressionLabelModel({
+                        value: otherVal?.source || value.source,
+                        valueNode: otherVal || value,
+                        context: this.context,
+                        link: link
+                    }));
                     link.registerListener({
                         selectionChanged(event) {
                             if (event.isSelected) {
