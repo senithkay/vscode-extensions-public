@@ -93,17 +93,23 @@ export const RecordType = (props: RecordTypeProps) => {
         window.open(docLink);
     };
 
-    const docIconButton = (
-        props.name === "config" ? <IconButton onClick={openTriggerDocs}><img src={DocIcon} /></IconButton> : null);
+    const triggerDocIconButton = (
+        props.name === SchemaConstants.CONFIG ? (
+            <Tooltip title={"View Documentation"}>
+                <Box className={classes.docIcon}>
+                    <IconButton onClick={openTriggerDocs}><img src={DocIcon} /></IconButton>
+                </Box>
+            </Tooltip>
+        ) : null
+    );
+
     return (
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
                 <CardContent className={classes.cardContent}>
                     <Box className={classes.innerBoxHead}>
                         <FieldLabel {...fieldLabelProps} />
-                        <Tooltip title={"View Documentation"}>
-                            <Box className={classes.docIcon}>{docIconButton}</Box>
-                        </Tooltip>
+                        {docLink && triggerDocIconButton}
                         <ExpandMore
                             expand={expanded}
                             onClick={handleExpandClick}
