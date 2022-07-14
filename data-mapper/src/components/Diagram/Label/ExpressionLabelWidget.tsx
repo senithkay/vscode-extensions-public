@@ -2,8 +2,11 @@ import * as React from 'react';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import styled from '@emotion/styled';
-import EditIcon from '@material-ui/icons/Edit';
+import Button from '@material-ui/core/Button'
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
+import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
+import { DataMapperPortModel } from '../Port';
+import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 
 export interface FlowAliasLabelWidgetProps {
@@ -18,6 +21,13 @@ namespace S {
 		cursor: pointer;
 		color: #5567D5;
 	`;
+
+	export const ActionsContainer = styled.div`
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
+	`;
 }
 
 // now we can render all what we want in the label
@@ -25,14 +35,48 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const [str, setStr] = React.useState(props.model.value);
 	const [editable, setEditable] = React.useState(false);
 	const [linkSelected, setLinkSelected] = React.useState(false);
+	const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
 
+	const onClickConvertToQuery = () => {
+		if (canUseQueryExpr) {
+			const link = props.model.link;
+			const sourcePort = link.getSourcePort() as DataMapperPortModel;
+			const targetPort = link.getTargetPort() as DataMapperPortModel;
+			
+			if (STKindChecker.isRecordField(sourcePort.field)) {
+				const fieldType = sourcePort.field.typeName;
+				if (STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
+					const querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, undefined);
+					console.log(querySrc);
+					if (link.value) {
+						const position = link.value.position as NodePosition;
+						const applyModification = props.model.context.applyModifications;
+						applyModification([{
+							type: "INSERT",
+							config: {
+								"STATEMENT": querySrc,
+							},
+							endColumn: position.endColumn,
+							endLine: position.endLine,
+							startColumn: position.startColumn,
+							startLine: position.startLine
+						}]);
+					}
+				}
+			}
+
+		}
+	};
+	
 	React.useEffect(() => {
-		props.model.link.registerListener({
+		const link = props.model.link;
+		link.registerListener({
 			selectionChanged(event) {
 				setLinkSelected(event.isSelected);
 			},
-		})
-	});
+		});
+		setCanUseQueryExpr(canConvertLinkToQueryExpr(link));
+	}, [props.model]);
 
 	return (
 		<S.Label>
@@ -69,7 +113,10 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 					onBlur={() => setEditable(false)}
 				/>
 			}
-			{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}
+			<S.ActionsContainer>
+				<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}</div>
+				<div>{!editable && linkSelected && canUseQueryExpr && <Button onClick={onClickConvertToQuery}>make Query</Button>}</div>
+			</S.ActionsContainer>
 		</S.Label>
 	);
 };

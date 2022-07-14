@@ -14,6 +14,7 @@ export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMappe
 		public field: RecordField|SpecificField,
 		public portType: "IN" | "OUT",
 		public parentId: string,
+		public parentFieldAccess?: string,
 		public parentModel?: DataMapperPortModel) {
 		super({
 			type: PORT_TYPE_ID,

@@ -8,6 +8,7 @@ import { getFieldNames, getParamForName } from "../../utils";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
+import { ExpressionLabelModel } from "../../Label";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -60,7 +61,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             const parentId = `${QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
             this.sourceTypeDesc.fields.forEach((field) => {
                 if (STKindChecker.isRecordField(field)) {
-                    this.addPorts(field, "OUT", parentId);
+                    this.addPorts(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
                 }
             });
         }
@@ -128,9 +129,15 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const sourcePortId = `${QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
                     const targetPort = this.getPort(targetPortId);
                     const sourcePort = this.getPort(sourcePortId);
-                    const link = new DataMapperLinkModel();
+                    const link = new DataMapperLinkModel(value);
                     link.setSourcePort(sourcePort);
                     link.setTargetPort(targetPort);
+                    link.addLabel(new ExpressionLabelModel({
+                        value: otherVal?.source || value.source,
+                        valueNode: otherVal || value,
+                        context: this.context,
+                        link: link
+                    }));
                     link.registerListener({
                         selectionChanged(event) {
                             if (event.isSelected) {
