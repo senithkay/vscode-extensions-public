@@ -92,8 +92,8 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     }
 
     const createFunctionST = async () => {
-        const functionName = 'transformNew';
-        const draftFunction = `function ${functionName}() returns  => {};`
+        const functionName = 'transform';
+        const draftFunction = `function ${functionName}() returns XChoreoLCReturnType => {};`
         const langClientD: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
         const modifications = [
             {
@@ -101,10 +101,10 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                 config: {
                     "STATEMENT": draftFunction,
                 },
-                endColumn: targetPosition.endColumn,
-                endLine: targetPosition.endLine,
-                startColumn: targetPosition.endColumn,
-                startLine: targetPosition.endLine
+                endColumn: targetPosition.startColumn,
+                endLine: targetPosition.startLine,
+                startColumn: targetPosition.startColumn,
+                startLine: targetPosition.startLine
             }
         ];
         const { parseSuccess, syntaxTree: newST } = await langClientD.stModify({

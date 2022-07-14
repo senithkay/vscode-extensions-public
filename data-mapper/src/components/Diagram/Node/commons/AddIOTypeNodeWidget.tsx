@@ -188,17 +188,17 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 				})();
 			} else {
 				(async () => {
-					const position = context.functionST.functionSignature.returnTypeDesc.returnsKeyword.position;
+					const position = context.functionST.functionSignature.returnTypeDesc.type.position;
 					const modifications = [
 						{
 							type: "INSERT",
 							config: {
-								"STATEMENT": ` ${selection}`,
+								"STATEMENT": selection,
 							},
 							endColumn: position.endColumn,
 							endLine: position.endLine,
-							startColumn: position.endColumn,
-							startLine: position.endLine
+							startColumn: position.startColumn,
+							startLine: position.startLine
 						}
 					];
 					context.applyModifications(modifications);

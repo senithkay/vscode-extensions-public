@@ -13,6 +13,8 @@ import {
 import { BinaryExpressionNode } from "../Node/BinaryExpression/BinaryExpressionNode";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 
+const draftFunctionName = 'XChoreoLCReturnType';
+
 export class NodeInitVisitor implements Visitor {
 
     private inputNodes: DataMapperNodeModel[] = [];
@@ -26,17 +28,20 @@ export class NodeInitVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode){
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
         const hasOutputTypeDescDefined = STKindChecker.isSimpleNameReference(typeDesc) && !typeDesc.name.isMissing;
+        const hasDraftOutputTypeDescDefined = STKindChecker.isSimpleNameReference(typeDesc)
+            && STKindChecker.isIdentifierToken(typeDesc.name)
+            && typeDesc.name.value === draftFunctionName;
 
         // create output node
-        if (hasOutputTypeDescDefined) {
+        if (!hasOutputTypeDescDefined || hasDraftOutputTypeDescDefined) {
+            this.outputNode = new AddOutputTypeNode(
+                this.context
+            );
+        } else {
             this.outputNode = new ExpressionFunctionBodyNode(
                 this.context,
                 node.functionBody as ExpressionFunctionBody,
                 typeDesc
-            );
-        } else {
-            this.outputNode = new AddOutputTypeNode(
-                this.context
             );
         }
 
