@@ -287,7 +287,11 @@ export function StatementEditor(props: StatementEditorProps) {
                 : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-        if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+        const isAllowedCustomSyntaxIssue = config.type === CUSTOM_CONFIG_TYPE 
+            && partialST.syntaxDiagnostics.length && partialST.syntaxDiagnostics[0].message === "missing semicolon token" 
+            && stmtDiagnostics.length === 0;
+
+        if (!partialST.syntaxDiagnostics.length || isAllowedCustomSyntaxIssue) {
             const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(partialST.source);
@@ -313,7 +317,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             handleDiagnostics(updatedStatement).then();
-            setHasSyntaxDiagnostics(true);
+            !(config.type === CUSTOM_CONFIG_TYPE) && setHasSyntaxDiagnostics(true);
         }
     }
 
