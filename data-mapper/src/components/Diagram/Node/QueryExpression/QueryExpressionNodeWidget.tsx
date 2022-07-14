@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 
 import { List, Typography } from '@material-ui/core';
 
@@ -23,7 +25,8 @@ const styles = (theme: Theme) => createStyles({
 	},
 	fromClause: {
 		padding: "5px",
-		fontFamily: "monospace"
+		fontFamily: "monospace",
+		display: "flex"
 	},
 	mappingPane: {
 		display: "flex", 
@@ -48,6 +51,16 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 		const classes = this.props.classes;
 		const engine = this.props.engine;
 
+		const isFullScreen = node.isFullScreen;
+
+		const goFullScreen = () => {
+			node.context.setSelectedST(node.value);
+		}
+
+		const exitFullScreen = () => {
+			node.context.setSelectedST(node.context.functionST);
+		}
+
 		const getSourcePort = (portId: string) => {
 			return node.getPort(portId) as DataMapperPortModel;
 		}
@@ -59,13 +72,22 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 		return (
 			<div
 				className={classes.root}
+				style={{
+					minWidth: isFullScreen ? 1000 : 400,
+					background: isFullScreen ? "none" : "#fff"
+				}}
 			>
 				<div className={classes.header}>
-					<DataMapperPortWidget engine={engine} port={node.inPort} />
+					{node.inPort && <DataMapperPortWidget engine={engine} port={node.inPort} />}
 					<div className={classes.fromClause}>
-						Query: {node.value.queryPipeline.fromClause.expression.source}
+						<span style={{ marginTop: "3px", backgroundColor: "#fff" }}>
+							Query: {node.value.queryPipeline.fromClause.expression.source}
+						</span>
+							{!isFullScreen && <FullscreenIcon onClick={goFullScreen} style={{ cursor: "pointer" }} />}
+							{isFullScreen && <FullscreenExitIcon onClick={exitFullScreen} style={{ cursor: "pointer" }} />}
 					</div>
-					<DataMapperPortWidget engine={engine} port={node.outPort} />
+
+					{node.outPort && <DataMapperPortWidget engine={engine} port={node.outPort} />}
 				</div>
 				<div className={classes.mappingPane}>
 					<RecordTypeTreeWidget 
