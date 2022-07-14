@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { KeyboardNavigationManager, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -42,7 +42,6 @@ import {
     isBindingPattern, isDocumentationSupportedModel,
     isOperator,
 } from "../../utils";
-import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manager';
 import {
     getCompletions,
     getDiagnostics,
@@ -453,11 +452,11 @@ export function StatementEditor(props: StatementEditorProps) {
         setModel({...enrichModel(editedModel, targetPosition, diagnostics)});
     }
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
+    // const keyboardNavigationManager = new KeyboardNavigationManager()
 
     React.useEffect(() => {
 
-        const client = keyboardNavigationManager.getClient();
+        /*const client = keyboardNavigationManager.getClient();
 
         keyboardNavigationManager.bindNewKey(client, ['ctrl+left', 'command+left'], parentModelHandler);
         keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
@@ -467,7 +466,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
         return () => {
             keyboardNavigationManager.resetMouseTrapInstance(client)
-        }
+        }*/
     }, [currentModel.model]);
 
 
