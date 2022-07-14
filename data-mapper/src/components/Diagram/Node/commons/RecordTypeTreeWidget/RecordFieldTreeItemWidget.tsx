@@ -24,22 +24,17 @@ const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#FFFFFF",
             border: "1px solid #DEE0E7",
             display:"flex",
-            minHeight: "24px"
+            minHeight: "24px",
+            boxShadow: '0 2px 40px 0 rgba(102,103,133,0.15)',
         },
         treeLabelOutPort: {
             float: "right",
-            marginRight: "10px",
-            marginLeft: "10px",
             width: 'fit-content',
-           
-            display: "inline-block",
-            position: "absolute",
-            right:"15px"
+            marginLeft: "auto",
         },
         treeLabelInPort: {
             float: "left",
             marginRight: "5px",
-            position: 'relative',
             width: 'fit-content',
         },
         typeLabel: {
@@ -98,7 +93,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         ? getFieldTypeName(field)
         : "record";
 
-    const indentation  = expandable ?  0 : (treeDepth + 1) * 16;
+    const indentation  = expandable ?  0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
         <span style={{ marginRight: "auto"}} >
@@ -137,12 +132,13 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                         <ChevronRightIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                     ))
                 }
+                            
+                <span> {label}</span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} />
                     }
-                </span>
-                <span> {label}</span>
+                </span>    
             </div>
                 {STKindChecker.isRecordField(field) && STKindChecker.isRecordTypeDesc(field.typeName) && expanded &&
                     field.typeName.fields.map((field) => {

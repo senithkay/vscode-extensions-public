@@ -25,22 +25,17 @@ const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#FFFFFF",
             border: "1px solid #DEE0E7",
             display:"flex",
-            minHeight: "24px"
+            minHeight: "24px",
+            boxShadow: '0 2px 40px 0 rgba(102,103,133,0.15)',
         },
         treeLabelOutPort: {
             float: "right",
-            marginRight: "10px",
-            marginLeft: "10px",
             width: 'fit-content',
-           
-            display: "inline-block",
-            position: "absolute",
-            right:"15px"
+            marginLeft: "auto",
         },
         treeLabelInPort: {
             float: "left",
             marginRight: "5px",
-            position: 'relative',
             width: 'fit-content',
         },
         typeLabel: {
@@ -98,7 +93,7 @@ export function SpecificFieldWidget(props: SpecificFieldWidgetProps) {
         ? getFieldTypeName(field)
         : "record";
 
-    const indentation  = expandable ?  0 : (treeDepth + 1) * 16;
+    const indentation  = expandable ?  0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
         <span style={{ marginRight: "auto"}} >
@@ -136,12 +131,12 @@ export function SpecificFieldWidget(props: SpecificFieldWidgetProps) {
                         <ChevronRightIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                     ))
                 }
+                <span> {label}</span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} />
                     }
                 </span>
-                <span> {label}</span>
             </div>
             {STKindChecker.isSpecificField(field) && STKindChecker.isMappingConstructor(field.valueExpr) &&
                 field.valueExpr.fields.map((field) => {
