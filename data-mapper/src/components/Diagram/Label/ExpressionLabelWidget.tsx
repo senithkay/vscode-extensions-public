@@ -3,7 +3,10 @@ import * as React from 'react';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import styled from '@emotion/styled';
 import Button from '@material-ui/core/Button'
+import { Tooltip } from '@material-ui/core';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
+import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
 import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
 import { DataMapperPortModel } from '../Port';
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
@@ -67,6 +70,10 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 		}
 	};
+
+	const onClickDelete= () => {
+		//TODO implement the delete link logic
+	};
 	
 	React.useEffect(() => {
 		const link = props.model.link;
@@ -114,8 +121,18 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 				/>
 			}
 			<S.ActionsContainer>
-				<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}</div>
-				<div>{!editable && linkSelected && canUseQueryExpr && <Button onClick={onClickConvertToQuery}>make Query</Button>}</div>
+				<span style={{display: "flex", alignItems: "center"}}>
+					<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}</div>
+					<div>{!editable && linkSelected && canUseQueryExpr && 
+							(
+						        <Tooltip title={"Make Query"} placement="top" arrow={true}>
+									<QueryBuilderOutlinedIcon onClick={onClickConvertToQuery} />
+								</Tooltip>
+							)}
+					</div>
+					<div>{!editable && linkSelected && <DeleteIcon onClick={() => onClickDelete()} />}</div>
+
+				</span>
 			</S.ActionsContainer>
 		</S.Label>
 	);

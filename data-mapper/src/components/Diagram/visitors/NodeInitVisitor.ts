@@ -65,6 +65,7 @@ export class NodeInitVisitor implements Visitor {
             );
             addInputTypeNode.setPosition(100, 100);
             this.inputNodes.push(addInputTypeNode);
+            console.log({"yethukku":this.outputNode.getPosition()})
         }
     }
 
@@ -76,7 +77,7 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         const queryNode = new QueryExpressionNode(this.context, node, parent);
-        queryNode.setPosition(440, 300);
+        queryNode.setPosition(440,1200);
         this.intermediateNodes.push(queryNode);
     };
 
