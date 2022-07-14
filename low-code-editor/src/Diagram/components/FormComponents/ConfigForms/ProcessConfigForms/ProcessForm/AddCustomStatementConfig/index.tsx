@@ -73,7 +73,14 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
         {
             label: formTitle,
             initialSource: defaultExpression ? defaultExpression : "STATEMENT",
-            formArgs: { formArgs },
+            formArgs: {
+                formArgs: {
+                    targetPosition: {
+                        startLine: config.targetPosition.startLine,
+                        startColumn: config.targetPosition.startColumn
+                    }
+                }
+            },
             config,
             onWizardClose,
             onCancel,
