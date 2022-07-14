@@ -79,7 +79,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         ? cssFiles.map(cssFile =>
             '<link rel="stylesheet" type="text/css" href="' + cssFile + '" />').join('\n')
         : '';
-    let codicons;
+    let codicons = '';
     if (webViewPanel && extensionUri) {
         const codiconsUri = webViewPanel.webview.asWebviewUri(
             Uri.joinPath(extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
