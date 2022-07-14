@@ -30,11 +30,15 @@ export default function InclusionType(props: TypeProps) {
         param.selected || (requiredParam && !isAllIncludedParamDefaultable)
     );
 
-
     const toggleParamCheck = () => {
         param.selected = !paramSelected;
         param.inclusionType.selected = !paramSelected;
         setParamSelected(!paramSelected);
+        onChange();
+    };
+
+    const handleOnChange = () => {
+        param.selected = param.inclusionType.selected;
         onChange();
     };
 
@@ -65,7 +69,7 @@ export default function InclusionType(props: TypeProps) {
                     )}
                     {param.documentation && (
                         <ListItemText
-                            className={stmtEditorHelperClasses.docParamDescriptionText}
+                            className={stmtEditorHelperClasses.paramTreeDescriptionText}
                             primary={" : " + param.documentation}
                         />
                     )}
@@ -75,7 +79,7 @@ export default function InclusionType(props: TypeProps) {
                         <ParameterBranch
                             parameters={param.inclusionType.fields}
                             depth={depth + 1}
-                            onChange={onChange}
+                            onChange={handleOnChange}
                         />
                     </div>
                 )}

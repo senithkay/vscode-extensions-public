@@ -30,6 +30,7 @@ export interface SuggestionListItemProps {
 export function SuggestionListItem(props: SuggestionListItemProps) {
     const { key, suggestion, selectedListItem, onClickLSSuggestion } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const { className, color } = getSuggestionIconStyle(suggestion.completionKind);
 
     const onClickOnListItem = () => {
         onClickLSSuggestion(suggestion);
@@ -46,8 +47,8 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                 disableRipple={true}
             >
                 <ListItemIcon
-                    className={getSuggestionIconStyle(suggestion.completionKind)}
-                    style={{ minWidth: '22px', textAlign: 'left' }}
+                    className={className}
+                    style={{ minWidth: '22px', textAlign: 'left', color }}
                 />
                 <ListItemText
                     data-testid="suggestion-value"

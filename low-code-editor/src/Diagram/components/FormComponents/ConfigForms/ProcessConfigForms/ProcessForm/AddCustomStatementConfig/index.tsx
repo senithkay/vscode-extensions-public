@@ -11,7 +11,6 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
 import { useIntl } from "react-intl";
 
@@ -115,7 +114,14 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                     {
                         label: formTitle,
                         initialSource: defaultExpression ? defaultExpression : "STATEMENT",
-                        formArgs: { formArgs },
+                        formArgs: {
+                            formArgs: {
+                                targetPosition: {
+                                    startLine: config.targetPosition.startLine,
+                                    startColumn: config.targetPosition.startColumn
+                                }
+                            }
+                        },
                         config,
                         onWizardClose,
                         onCancel,

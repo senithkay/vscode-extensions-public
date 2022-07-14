@@ -49,7 +49,14 @@ import {
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
+import {
+   EditorModel, MinutiaeJSX,
+    RemainingContent,
+    StmtDiagnostic,
+    StmtOffset,
+    SuggestionItem,
+    SymbolIcon
+} from '../models/definitions';
 import { visitor as ClearDiagnosticVisitor } from "../visitors/clear-diagnostics-visitor";
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
@@ -363,38 +370,50 @@ export function getClassNameForToken(model: STNode): string {
     return className;
 }
 
-export function getSuggestionIconStyle(suggestionType: number): string {
+export function getSuggestionIconStyle(suggestionType: number): SymbolIcon {
     let suggestionIconStyle: string;
+    let suggestionIconColor: string;
     switch (suggestionType) {
         case 3:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIconColor = "#652d90";
             break;
         case 5:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-field"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-field";
+            suggestionIconColor = "#007acc";
             break;
         case 6:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
         case 11:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
             break;
         case 14:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword";
+            suggestionIconColor = "#616161";
             break;
         case 20:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum-member"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum-member";
+            suggestionIconColor = "#007acc";
             break;
         case 22:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIconColor = "#616161";
             break;
         case 25:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-type-parameter"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-type-parameter";
+            suggestionIconColor = "#616161";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
     }
-    return suggestionIconStyle;
+    return {
+        className: suggestionIconStyle,
+        color: suggestionIconColor
+    };
 }
 
 export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
@@ -504,38 +523,50 @@ export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STS
     return undefined;
 }
 
-export function getModuleIconStyle(label: string): string {
+export function getModuleIconStyle(label: string): SymbolIcon {
     let suggestionIconStyle: string;
+    let suggestionIconColor: string;
     switch (label) {
         case "Functions":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIconColor = "#652d90";
             break;
         case "Classes":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIconColor = "#007acc";
             break;
         case "Constants":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
         case "Errors":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event";
+            suggestionIconColor = "#d67e00";
             break;
         case "Enums":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum";
+            suggestionIconColor = "#d67e00";
             break;
         case "Records":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIconColor = "#616161";
             break;
         case "Types":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
             break;
         case "Listeners":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIconColor = "#007acc";
             break;
     }
-    return suggestionIconStyle;
+    return {
+        className: suggestionIconStyle,
+        color: suggestionIconColor
+    };
 }
 
 export function isFunctionOrMethodCall(currentModel: STNode): boolean {
@@ -554,6 +585,14 @@ export function isInsideEndpointConfigs(currentModel: STNode, editorConfigType: 
                 paramPosition.endLine > modelPosition.endLine) ||
             (paramPosition.endLine === modelPosition.endLine && paramPosition.endColumn >= modelPosition.endColumn))
     );
+}
+
+export function isConfigurableEditor(editors: EditorModel[], activeEditorId: number): boolean {
+    if (editors?.length > activeEditorId) {
+        const activeEditor = editors[activeEditorId];
+        return activeEditor.isConfigurableStmt ?? false;
+    }
+    return false;
 }
 
 export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{

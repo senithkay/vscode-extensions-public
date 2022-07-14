@@ -13,15 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import {
-    BallerinaConnectorInfo,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, ConnectorWizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
-import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
-import { FormGenerator } from "../../FormGenerator";
+import { ConnectorWizard } from "../ConnectorWizard";
 
 interface AddModuleFromProps {
     model?: STNode;
@@ -32,50 +27,25 @@ interface AddModuleFromProps {
 }
 
 export function AddModuleFrom(props: AddModuleFromProps) {
-    const formClasses = useFormStyles();
-    const {
-        api: {
-            code: { modifyDiagram },
-        },
-    } = useDiagramContext();
-    const { model, targetPosition, onCancel, onSave, formType } = props;
+    const { model, targetPosition, onCancel, onSave } = props;
     const [connector, setConnector] = useState<BallerinaConnectorInfo>();
-
-    const onSelectConnector = (balConnector: BallerinaConnectorInfo) => {
-        setConnector(balConnector);
-    };
-
-    const onCancelConnector = () => {
-        setConnector(undefined);
-    };
 
     return (
         <>
-            {!connector && (
-                <FormGenerator
-                    onCancel={onCancel}
-                    onSave={onSave}
-                    configOverlayFormStatus={{
-                        formType: "ConnectorList",
-                        formArgs: {
-                            onSelect: onSelectConnector,
-                            onCancel,
-                        },
-                        isLoading: true,
-                    }}
-                />
-            )}
-            {connector && (
-                <ConnectorConfigWizard
-                    connectorInfo={connector}
-                    position={{ x: 0, y: 0 }}
-                    targetPosition={targetPosition}
-                    model={model}
-                    onClose={onCancelConnector}
-                    onSave={onSave}
-                    isModuleEndpoint={true}
-                />
-            )}
+            <ConnectorWizard
+                wizardType={ConnectorWizardType.ENDPOINT}
+                diagramPosition={{ x: 0, y: 0 }}
+                targetPosition={
+                    model
+                        ? targetPosition
+                        : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
+                }
+                connectorInfo={connector}
+                model={model}
+                onClose={onCancel}
+                onSave={onSave}
+                isModuleType={true}
+            />
         </>
     );
 }
