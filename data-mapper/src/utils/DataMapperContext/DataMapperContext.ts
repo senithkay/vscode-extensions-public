@@ -1,6 +1,7 @@
 import {
     DiagramEditorLangClientInterface,
-    STModification
+    STModification,
+    STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -13,6 +14,7 @@ export interface IDataMapperContext {
         path: string,
         size: number
     };
+    stSymbolInfo: STSymbolInfo;
     applyModifications: (modifications: STModification[]) => void;
 }
 
@@ -27,6 +29,7 @@ export class DataMapperContext implements IDataMapperContext {
             path: string,
             size: number
         },
+        public stSymbolInfo: STSymbolInfo,
         public applyModifications: (modifications: STModification[]) => void
     ){}
 

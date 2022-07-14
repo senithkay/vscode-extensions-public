@@ -48,9 +48,9 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 				return;
 			}
 			const inputNode = this.getInputNodeExpr(value);
-			let inPort: DataMapperPortModel; 
+			let inPort: DataMapperPortModel;
 			if (inputNode) {
-				inPort = this.getInputPortsForExpr(inputNode, value);	
+				inPort = this.getInputPortsForExpr(inputNode, value);
 			}
 			const outPort = this.getOutputPortForField(fields);
 			const lm = new DataMapperLinkModel(value);

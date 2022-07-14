@@ -11,39 +11,53 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useEffect } from 'react';
 
-import { Button, Typography } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import {
+	Accordion,
+	AccordionDetails,
+	AccordionSummary,
+	List,
+	Typography
+} from '@material-ui/core';
+import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { default as AddIcon } from  "@material-ui/icons/Add";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
 
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { AddOutputTypeNode } from "../AddOutputType";
 
-const useStyles = makeStyles((theme: Theme) =>
+import { RecordFromJson } from "./RecordFromJson";
+import { RecordItem } from "./RecordItem";
+
+const useStyles = makeStyles(() =>
 	createStyles({
 		contentWrapper: {
 			minHeight: '600px',
-			minWidth: '344px',
+			maxWidth: '300px',
 			borderRadius: '8px',
 			backgroundColor: '#FFFFFF',
 			boxShadow: '0 2px 40px 0 rgba(102,103,133,0.15)',
-			padding: '20px'
+			padding: '20px',
+			margin: '10px'
 		},
 		title: {
 			display: "flex",
-			paddingBottom: '20px'
+			paddingBottom: '20px',
+			fontSize: '14px'
 		},
-		addTypeButton: {
-			verticalAlign: "middle",
-			padding: "5px",
-			color: "#222228",
-			fontFamily: "GilmerMedium, Gilmer Medium",
-			fontSize: "13px",
-			minWidth: "100px",
-			backgroundColor: "#FFFFFF",
-			border: "1px solid #CBCEDB",
-			display: "flex",
-			textTransform: "none"
+		recordList: {
+			display: 'grid',
+			gridTemplateColumns: '100%',
+		},
+		label: {
+			fontSize: '13px'
+		},
+		summary: {
+			maxWidth: '300px',
+			color: "#5567D5",
 		}
 	})
 );
@@ -52,18 +66,123 @@ export interface AddOutputTypeNodeWidgetProps {
 	node: AddOutputTypeNode;
 	engine: DiagramEngine;
 	title: string;
+	context: IDataMapperContext;
 }
 
 export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
-	const { node, engine, title } = props;
+	const { title, context } = props;
 	const classes = useStyles();
+
+	const [selection, setSelection] = React.useState('');
+	const [menuItems, setMenuItems] = React.useState<React.ReactNode[]>();
+
+	const handleSelectClicked = () => {
+		const records: React.ReactNode[] = [];
+		const recordTypeDescMap = context.stSymbolInfo.recordTypeDescriptions;
+		for (const st of recordTypeDescMap.values()) {
+			const recordName = (st as RecordTypeDesc)?.typeData.typeSymbol.name;
+			records.push(
+				<RecordItem recordName={recordName} onClickRecordItem={handleSelection} />
+			);
+		}
+		setMenuItems([...records]);
+	}
+
+	const handleImportFormSave = (recordName: string, recordString: string) => {
+		const modifications = [
+			{
+				type: "INSERT",
+				config: {
+					"STATEMENT": recordString,
+				},
+				endColumn: 0,
+				endLine: 0,
+				startColumn: 0,
+				startLine: 0
+			}
+		];
+		context.applyModifications(modifications);
+		// TODO: Update the parameters and the return type in the draft function
+	}
+
+	const handleSelection = (recordName: string) => {
+		setSelection(recordName);
+	}
+
+	useEffect(() => {
+		if (selection !== '') {
+			if (title === 'Input') {
+				(async () => {
+					const position = context.functionST.functionSignature.openParenToken.position;
+					const modifications = [
+						{
+							type: "INSERT",
+							config: {
+								"STATEMENT": `${selection} input`,
+							},
+							endColumn: position.endColumn,
+							endLine: position.endLine,
+							startColumn: position.endColumn,
+							startLine: position.endLine
+						}
+					];
+					context.applyModifications(modifications);
+				})();
+			} else {
+				(async () => {
+					const position = context.functionST.functionSignature.returnTypeDesc.type.position;
+					const modifications = [
+						{
+							type: "INSERT",
+							config: {
+								"STATEMENT": selection,
+							},
+							endColumn: position.endColumn,
+							endLine: position.endLine,
+							startColumn: position.startColumn,
+							startLine: position.startLine
+						}
+					];
+					context.applyModifications(modifications);
+				})();
+			}
+		}
+	}, [selection]);
 
 	return (
 		<div className={classes.contentWrapper}>
 			<Typography className={classes.title}>{title}</Typography>
-			<Button className={classes.addTypeButton}>
-				Add {title.toLowerCase()} type
-			</Button>
+			<Accordion disabled={true}>
+				<AccordionSummary
+					expandIcon={<ExpandMoreIcon />}
+					aria-controls="panel1a-content"
+					id="panel1a-header"
+					className={classes.summary}
+				>
+					<AddIcon/>
+					<Typography className={classes.label}>Import From JSON</Typography>
+				</AccordionSummary>
+				<AccordionDetails>
+					<RecordFromJson onSave={handleImportFormSave} context={context} />
+				</AccordionDetails>
+			</Accordion>
+			<Accordion>
+				<AccordionSummary
+					expandIcon={<ExpandMoreIcon />}
+					aria-controls="panel3a-content"
+					id="panel3a-header"
+					onClick={handleSelectClicked}
+					className={classes.summary}
+				>
+					<AddIcon/>
+					<Typography className={classes.label}>Select From Existing</Typography>
+				</AccordionSummary>
+				<AccordionDetails>
+					<List className={classes.recordList}>
+						{menuItems}
+					</List>
+				</AccordionDetails>
+			</Accordion>
 		</div>
 	);
 }

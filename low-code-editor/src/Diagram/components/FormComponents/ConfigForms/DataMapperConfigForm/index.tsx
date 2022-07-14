@@ -19,8 +19,7 @@ import {
 } from "@wso2-enterprise/ballerina-data-mapper";
 import {
     ConfigOverlayFormStatus,
-    DiagramEditorLangClientInterface,
-    ExpressionEditorLangClientInterface
+    DiagramEditorLangClientInterface
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
@@ -30,7 +29,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import {wizardStyles} from "../style";
+import { wizardStyles } from "../style";
 
 import { dataMapperStyles } from "./style";
 
@@ -43,21 +42,21 @@ export interface DataMapperProps {
 }
 
 export function DataMapperConfigForm(props: DataMapperProps) {
-    const { onCancel, model } = props;
+    const { targetPosition, onCancel, model } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
     const {
         props: {
-            currentFile
+            currentFile,
+            stSymbolInfo
         },
         api: {
             code: {
                 modifyDiagram
             },
             ls: {
-                getDiagramEditorLangClient,
-                getExpressionEditorLangClient
+                getDiagramEditorLangClient
             }
         }
     } = useContext(Context);
@@ -67,14 +66,16 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
 
     useEffect(() => {
-        if (model) {
-            handleFunctionST().then();
+        if (model && STKindChecker.isFunctionDefinition(model)) {
+            handleFunctionST(model.functionName.value).then();
+        } else if (!!functionST) {
+            handleFunctionST(functionST.functionName.value).then();
         } else {
             createFunctionST().then();
         }
     }, [currentFile.content]);
 
-    const handleFunctionST = async () => {
+    const handleFunctionST = async (funcName: string) => {
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
         const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
             documentIdentifier: {
@@ -84,47 +85,42 @@ export function DataMapperConfigForm(props: DataMapperProps) {
         if (parseSuccess) {
             const modPart = syntaxTree as ModulePart;
             const fns = modPart.members.filter((mem) => STKindChecker.isFunctionDefinition(mem)) as FunctionDefinition[];
-            setFunctionST(fns.find((mem) => mem.functionName.value === "transform"));
+            setFunctionST(fns.find((mem) => mem.functionName.value === funcName));
             return;
         }
         setFunctionST(undefined);
     }
 
     const createFunctionST = async () => {
-        const defaultFunction = `function transform() returns  => {};`
-        const langClient: ExpressionEditorLangClientInterface = await getExpressionEditorLangClient();
-        const stPromise = await langClient.getSTForModuleMembers({ codeSnippet: defaultFunction});
-        if (stPromise) {
-            const fnST = stPromise.syntaxTree as FunctionDefinition;
-            setFunctionST(fnST);
+        const functionName = 'transform';
+        const draftFunction = `function ${functionName}() returns XChoreoLCReturnType => {};`
+        const langClientD: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
+        const modifications = [
+            {
+                type: "INSERT",
+                config: {
+                    "STATEMENT": draftFunction,
+                },
+                endColumn: targetPosition.startColumn,
+                endLine: targetPosition.startLine,
+                startColumn: targetPosition.startColumn,
+                startLine: targetPosition.startLine
+            }
+        ];
+        const { parseSuccess, syntaxTree: newST } = await langClientD.stModify({
+            astModifications: modifications,
+            documentIdentifier: {
+                uri: `file://${currentFile.path}`
+            }
+        });
+        if (parseSuccess) {
+            const modPart = newST as ModulePart;
+            const fns = modPart.members.filter((mem) => STKindChecker.isFunctionDefinition(mem)) as FunctionDefinition[];
+            setFunctionST(fns.find((mem) => mem.functionName.value === functionName));
             return;
         }
         setFunctionST(undefined);
     }
-
-    // useEffect(() => {
-    //     async function getSyntaxTree() {
-    //         if (model && STKindChecker.isFunctionDefinition(model)) {
-    //             setFunctionST(model);
-    //             return;
-    //         } else {
-    //             const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
-    //             const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
-    //                 documentIdentifier: {
-    //                     uri: `file://${currentFile.path}`
-    //                 }
-    //             });
-    //             if (parseSuccess) {
-    //                 const modPart = syntaxTree as ModulePart;
-    //                 const fns = modPart.members.filter((mem) => STKindChecker.isFunctionDefinition(mem)) as FunctionDefinition[];
-    //                 setFunctionST(fns.find((mem) => mem.functionName.value === "transform"));
-    //                 return;
-    //             }
-    //         }
-    //         setFunctionST(undefined);
-    //     }
-    //     getSyntaxTree();
-    // }, [currentFile.content]);
 
     return (
         <FormControl data-testid="record-form" className={overlayClasses.dataMapperWizardFormControl}>
@@ -140,6 +136,7 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                     getLangClient={getDiagramEditorLangClient}
                     filePath={currentFile.path}
                     currentFile={currentFile}
+                    stSymbolInfo={stSymbolInfo}
                     applyModifications={modifyDiagram}
                 />
             </div>
