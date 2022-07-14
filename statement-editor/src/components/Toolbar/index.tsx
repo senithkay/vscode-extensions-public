@@ -69,11 +69,11 @@ export default function Toolbar(props: ToolbarProps) {
     React.useEffect(() => {
         const client = KeyboardNavigationManager.getClient();
         client.bindNewKey(['command+z', 'ctrl+z'], undo);
-        client.bindNewKey(['command+shift+z', 'ctrl+y'], redo);
+        client.bindNewKey(['command+shift+z', 'ctrl+shift+z'], redo);
         client.bindNewKey(['del'], onDelFunction);
 
         return () => {
-            client.resetMouseTrapInstance()
+            client.resetMouseTrapInstance();
         }
     }, [currentModel]);
 
