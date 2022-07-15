@@ -202,7 +202,14 @@ export function addDbExtraStatements(
 
 export function isStatementEditorSupported(version: string): boolean {
     const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
-    const versionStr = version.match(versionRegex);
-    const splittedVersions = versionStr[0]?.split(".");
-    return (parseInt(splittedVersions[1], 10) > 0 || parseInt(splittedVersions[2], 10) >= 5);
+    try {
+        const versionStr = version.match(versionRegex);
+        const semVer = versionStr[0]?.split(".");
+        const major = semVer ? parseInt(semVer[1], 10) : 0;
+        const patch = semVer ? parseInt(semVer[2], 10) : 0;
+        return major > 0 || (major === 0 && patch >= 5);
+    } catch (error) {
+        // Older version than GA will have different format
+        return false;
+    }
 }
