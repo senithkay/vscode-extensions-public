@@ -305,6 +305,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                 }
                 if (depth > 2 && (formField.typeName.trim() === "error" || formField.isErrorType)) {
                     response.hasReturn = true;
+                    response.hasError = true;
                     response.returnType = "error";
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
