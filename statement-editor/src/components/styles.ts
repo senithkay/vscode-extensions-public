@@ -116,6 +116,19 @@ export const useStatementRendererStyles = makeStyles(() =>
             },
             ...statementFontStyles
         },
+        inputEditorEditingState: {
+            minWidth: '20px',
+            letterSpacing: 0,
+            position: 'relative',
+            border: "2px solid rgba(229,232,255,0.5)",
+            borderRadius: '5px',
+            backgroundColor: "#FFFFFF",
+            boxShadow: "inset 0 0 0 1px #A6B3FF, inset 0 1px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)",
+            '&:focus': {
+                outline: 'none'
+            },
+            ...statementFontStyles
+        },
         expressionElement: {
             position: 'relative',
             width: 'fit-content',
