@@ -395,7 +395,7 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules.size && runBackgroundTerminalCommand && !isPullingModule) {
+        if (!!moduleList.size && !!extraModules?.size && runBackgroundTerminalCommand && !isPullingModule) {
             completeDiagnostic?.forEach((diagnostic) => {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
                     extraModules.forEach((module) => {
