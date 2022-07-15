@@ -64,6 +64,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
     const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
     const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
+    const getBalVersion: () => Promise<string | undefined> = props.getBallerinaVersion;
     const getEnv: (name: string) => Promise<any> = props.getEnv;
 
     const defaultZoomStatus = {
@@ -81,6 +82,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [performanceData, setPerformanceData] = React.useState(undefined);
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
+    const [balVersion, setBalVersion] = React.useState("");
     const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
@@ -128,6 +130,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             return false;
         });
         (async () => {
+            const version: string = await getBalVersion();
+            setBalVersion(version);
             const sentryConfig: SentryConfig = await getSentryConfig();
             if (sentryConfig) {
                 init(sentryConfig);
@@ -271,6 +275,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             importStatements={getImportStatements(syntaxTree)}
                             experimentalEnabled={experimentalEnabled}
                             lowCodeResourcesVersion={lowCodeResourcesVersion}
+                            ballerinaVersion={balVersion}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
