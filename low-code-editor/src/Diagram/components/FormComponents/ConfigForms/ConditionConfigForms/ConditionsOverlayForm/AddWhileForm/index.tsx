@@ -173,7 +173,7 @@ export function AddWhileForm(props: WhileProps) {
                         experimentalEnabled
                     }
                 )
-            ): (
+            ) : (
                 <FormControl data-testid="while-form" className={classes.wizardFormControl}>
                     <FormHeaderSection
                         onCancel={onCancel}
