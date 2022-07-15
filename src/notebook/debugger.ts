@@ -17,22 +17,23 @@
  *
  */
 
-import { debug, DebugConfiguration, NotebookCell, Uri, window, workspace, WorkspaceFolder } from "vscode";
+import { debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell, ProviderResult, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import fileUriToPath from "file-uri-to-path";
 import { mkdtempSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
-import { join } from "path";
+import { basename, join } from "path";
 import { BallerinaExtension, LANGUAGE } from "../core";
-import { DEBUG_CONFIG, DEBUG_REQUEST } from "../debugger";
+import { DEBUG_REQUEST } from "../debugger";
+import { DebugProtocol } from "vscode-debugprotocol";
 
 let tmpDirectory: string;
+let pathToCell: Map<string, NotebookCell> = new Map();
 
 export class NotebookDebuggerController {
-    private pathToCell: Map<string, NotebookCell> = new Map();
 
-    constructor(private extensionInstance: BallerinaExtension) {}
+    constructor(private extensionInstance: BallerinaExtension) { }
 
-    async startDebugging() : Promise<boolean> {
+    async startDebugging(): Promise<boolean> {
         let activeTextEditorUri = window.activeTextEditor!.document.uri;
         if (activeTextEditorUri.scheme === 'vscode-notebook-cell') {
             const uri = `${getTempDir()}/notebook_cell_${activeTextEditorUri.fragment}.bal`;
@@ -46,38 +47,13 @@ export class NotebookDebuggerController {
     }
 
     async constructDebugConfig(uri: Uri): Promise<DebugConfiguration> {
-        let programArgs = [];
-        let commandOptions = [];
-        let env = {};
-        const debugConfigs: DebugConfiguration[] = workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
-        if (debugConfigs.length > 0) {
-            let debugConfig: DebugConfiguration | undefined;
-            for (let i = 0; i < debugConfigs.length; i++) {
-                if ((debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
-                    debugConfig = debugConfigs[i];
-                    break;
-                }
-            }
-            if (debugConfig) {
-                if (debugConfig.programArgs) {
-                    programArgs = debugConfig.programArgs;
-                }
-                if (debugConfig.commandOptions) {
-                    commandOptions = debugConfig.commandOptions;
-                }
-                if (debugConfig.env) {
-                    env = debugConfig.env;
-                }
-            }
-        }
         const debugConfig: DebugConfiguration = {
             type: LANGUAGE.BALLERINA,
             name: "Ballerina Notebook Debug",
             request: DEBUG_REQUEST.LAUNCH,
             script: fileUriToPath(uri.toString()),
             networkLogs: false,
-            debugServer: '10001',
-            debuggeePort: '5010',
+            debugServer: 4711,
             'ballerina.home': this.extensionInstance.getBallerinaHome(),
             'ballerina.command': this.extensionInstance.getBallerinaCmd(),
             debugTests: false,
@@ -87,21 +63,42 @@ export class NotebookDebuggerController {
         };
         return debugConfig;
     }
+}
 
-    dumpCell(cell: NotebookCell): string | undefined {
-        try {
-            const cellPath = `${getTempDir()}/notebook_cell_${cell.document.uri.fragment}.bal`;
-            this.pathToCell.set(cellPath, cell);
-
-            let data = cell.document.getText();
-            data += `\n//@ sourceURL=${cellPath}`;
-            writeFileSync(cellPath, data);
-
-            return cellPath;
-        } catch (e) {
+export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory {
+    createDebugAdapterTracker(session: DebugSession): ProviderResult<DebugAdapterTracker> {
+        return {
+            onWillReceiveMessage: (message: DebugProtocol.ProtocolMessage) => {
+                // VS Code -> Debug Adapter
+                visitSources(message, source => {
+                    if (source?.name?.endsWith(".balnotebook") && source?.path?.startsWith("vscode-notebook-cell")) {
+                        const cellPath = `${getTempDir()}/notebook_cell_${source.path.split(".balnotebook#")[1]}.bal`;
+                        if (cellPath) {
+                            source.path = cellPath;
+                        }
+                    }
+                });
+            },
+            onDidSendMessage: (message: DebugProtocol.ProtocolMessage) => {
+                // Debug Adapter -> VS Code
+                visitSources(message, source => {
+                    if (source?.path) {
+                        let cell = getCellForCellPath(source.path);
+                        if (cell) {
+                            source.path = cell.document.uri.toString();
+                            source.name = basename(cell.document.uri.fsPath);
+                            // append cell index to name
+                            const cellIndex = cell.index;
+                            if (cellIndex >= 0) {
+                                source.name += `, Cell ${cellIndex + 1}`;
+                            }
+                        }
+                    }
+                });
+            }
         }
-        return undefined;
     }
+
 }
 
 export function getTempDir(): string {
@@ -109,4 +106,101 @@ export function getTempDir(): string {
         tmpDirectory = mkdtempSync(join(tmpdir(), 'ballerina-notebook-'));
     }
     return tmpDirectory;
+}
+
+export function dumpCell(cell: NotebookCell): string | undefined {
+    try {
+        const cellPath = `${getTempDir()}/notebook_cell_${cell.document.uri.fragment}.bal`;
+        pathToCell.set(cellPath, cell);
+
+        let data = "public function main() {" + cell.document.getText();
+        data += `\n}\n//@ sourceURL=${cellPath}`;
+        writeFileSync(cellPath, data);
+
+        return cellPath;
+    } catch (e) { }
+    return undefined;
+}
+
+export function getCellForCellPath(path: string): NotebookCell | undefined {
+    return pathToCell.get(path.replaceAll("file://", ""));
+}
+
+export function getCellContent(cellPath: string): string {
+    return "public function main() {" + pathToCell.get(cellPath)?.document.getText()
+        + `\n}\n//@ sourceURL=${cellPath}` ?? "";
+}
+
+function visitSources(msg: DebugProtocol.ProtocolMessage, visitor: (source: DebugProtocol.Source) => void): void {
+
+    const visit = (source: DebugProtocol.Source | undefined) => {
+        if (source) {
+            visitor(source);
+        }
+    }
+    
+    switch (msg.type) {
+        case 'event':
+            const event = <DebugProtocol.Event>msg;
+            switch (event.event) {
+                case 'output':
+                    visit((<DebugProtocol.OutputEvent>event).body.source);
+                    break;
+                case 'loadedSource':
+                    visit((<DebugProtocol.LoadedSourceEvent>event).body.source);
+                    break;
+                case 'breakpoint':
+                    visit((<DebugProtocol.BreakpointEvent>event).body.breakpoint.source);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case 'request':
+            const request = <DebugProtocol.Request>msg;
+            switch (request.command) {
+                case 'setBreakpoints':
+                    visit((<DebugProtocol.SetBreakpointsArguments>request.arguments).source);
+                    break;
+                case 'breakpointLocations':
+                    visit((<DebugProtocol.BreakpointLocationsArguments>request.arguments).source);
+                    break;
+                case 'source':
+                    visit((<DebugProtocol.SourceArguments>request.arguments).source);
+                    break;
+                case 'gotoTargets':
+                    visit((<DebugProtocol.GotoTargetsArguments>request.arguments).source);
+                    break;
+                case 'launchVSCode':
+                    //request.arguments.args.forEach(arg => fixSourcePath(arg));
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case 'response':
+            const response = <DebugProtocol.Response>msg;
+            if (response.success && response.body) {
+                switch (response.command) {
+                    case 'stackTrace':
+                        (<DebugProtocol.StackTraceResponse>response).body.stackFrames.forEach(frame => visit(frame.source));
+                        break;
+                    case 'loadedSources':
+                        (<DebugProtocol.LoadedSourcesResponse>response).body.sources.forEach(source => visit(source));
+                        break;
+                    case 'scopes':
+                        (<DebugProtocol.ScopesResponse>response).body.scopes.forEach(scope => visit(scope.source));
+                        break;
+                    case 'setFunctionBreakpoints':
+                        (<DebugProtocol.SetFunctionBreakpointsResponse>response).body.breakpoints.forEach(bp => visit(bp.source));
+                        break;
+                    case 'setBreakpoints':
+                        (<DebugProtocol.SetBreakpointsResponse>response).body.breakpoints.forEach(bp => visit(bp.source));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+    }
 }

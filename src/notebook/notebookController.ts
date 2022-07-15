@@ -26,7 +26,7 @@ import { VariableViewProvider } from './variableView';
 import { CMP_NOTEBOOK, sendTelemetryEvent, sendTelemetryException, TM_EVENT_RUN_NOTEBOOK, TM_EVENT_RUN_NOTEBOOK_BAL_CMD, 
     TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET } from '../telemetry';
 import { isWindows } from '../utils';
-import { NotebookDebuggerController } from './debugger';
+import { dumpCell } from './debugger';
 
 /**
  * Notebook controller to provide functionality of code execution.
@@ -40,7 +40,6 @@ export class BallerinaNotebookController {
     private ballerinaExtension: BallerinaExtension;
     private variableView: VariableViewProvider;
     private metaInfoHandler: MetoInfoHandler;
-    private debugController: NotebookDebuggerController;
     private readonly controller: NotebookController;
     private executionOrder = 0;
 
@@ -50,10 +49,9 @@ export class BallerinaNotebookController {
      * @param extensionInstance Ballerina extension instance
      * @param variableViewProvider Provider for variable view
      */
-    constructor(extensionInstance: BallerinaExtension, variableViewProvider: VariableViewProvider, notebookDebugController: NotebookDebuggerController) {
+    constructor(extensionInstance: BallerinaExtension, variableViewProvider: VariableViewProvider) {
         this.ballerinaExtension = extensionInstance;
         this.variableView = variableViewProvider;
-        this.debugController = notebookDebugController;
         this.metaInfoHandler = new MetoInfoHandler();
 
         this.controller = notebooks.createNotebookController(
@@ -163,7 +161,7 @@ export class BallerinaNotebookController {
 
             // code snippets
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET, CMP_NOTEBOOK);
-            this.debugController.dumpCell(cell);
+            dumpCell(cell);
             let response = await langClient.getBalShellResult({
                 source: cellContent
             });

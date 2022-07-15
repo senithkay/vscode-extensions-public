@@ -83,29 +83,6 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 
     const activeDoc = window.activeTextEditor.document;
 
-    if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
-        await ballerinaExtInstance.langClient.getBallerinaProject({
-            documentIdentifier: {
-                uri: activeDoc.uri.toString()
-            }
-        }).then((response) => {
-            const project = response as BallerinaProject;
-            if (project.kind === undefined) {
-                return Promise.reject();
-            }
-            if (!project.kind || (config.request === 'launch' && project.kind === 'BALA_PROJECT')) {
-                ballerinaExtInstance.showMessageInvalidProject();
-                return Promise.reject();
-            }
-        }, error => {
-            log(`Language server failed to respond with the error message, ${error.message}, while debugging.`);
-            sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
-        });
-    } else if (!activeDoc.fileName.endsWith('.bal') || !activeDoc.fileName.endsWith('.balnotebook')) {
-        ballerinaExtInstance.showMessageInvalidFile();
-        return Promise.reject();
-    }
-
     config.script = activeDoc.uri.fsPath;
     if (activeDoc.fileName.endsWith('.balnotebook')) {
         let activeTextEditorUri = activeDoc.uri;
@@ -118,13 +95,38 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         }
     }
 
-    let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-    if (langClient.initializeResult) {
-        const { experimental } = langClient.initializeResult!.capabilities;
-        if (experimental && experimental.introspection && experimental.introspection.port > 0) {
-            config.networkLogsPort = experimental.introspection.port;
-            if (config.networkLogs === undefined) {
-                config.networkLogs = false;
+    if (activeDoc.uri.scheme !== 'vscode-notebook-cell') {
+        if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
+            await ballerinaExtInstance.langClient.getBallerinaProject({
+                documentIdentifier: {
+                    uri: activeDoc.uri.toString()
+                }
+            }).then((response) => {
+                const project = response as BallerinaProject;
+                if (project.kind === undefined) {
+                    return Promise.reject();
+                }
+                if (!project.kind || (config.request === 'launch' && project.kind === 'BALA_PROJECT')) {
+                    ballerinaExtInstance.showMessageInvalidProject();
+                    return Promise.reject();
+                }
+            }, error => {
+                log(`Language server failed to respond with the error message, ${error.message}, while debugging.`);
+                sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
+            });
+        } else if (!activeDoc.fileName.endsWith('.bal')) {
+            ballerinaExtInstance.showMessageInvalidFile();
+            return Promise.reject();
+        }
+    
+        let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+        if (langClient.initializeResult) {
+            const { experimental } = langClient.initializeResult!.capabilities;
+            if (experimental && experimental.introspection && experimental.introspection.port > 0) {
+                config.networkLogsPort = experimental.introspection.port;
+                if (config.networkLogs === undefined) {
+                    config.networkLogs = false;
+                }
             }
         }
     }

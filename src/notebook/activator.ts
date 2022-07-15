@@ -17,7 +17,7 @@
  *
  */
 
-import { workspace, ExtensionContext, commands, Disposable, window, Uri } from 'vscode';
+import { workspace, ExtensionContext, commands, Disposable, window, Uri, debug } from 'vscode';
 import * as fs from 'fs';
 import { sep } from 'path';
 import { BallerinaExtension, ExtendedLangClient } from '../core';
@@ -31,7 +31,7 @@ import { VariableViewProvider } from './variableView';
 import { BAL_NOTEBOOK, CREATE_NOTEBOOK_COMMAND, NOTEBOOK_TYPE, OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, 
     RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND } from './constants';
 import { createFile } from './utils';
-import { NotebookDebuggerController } from './debugger';
+import { BallerinaDebugAdapterTrackerFactory, NotebookDebuggerController } from './debugger';
 import { clearTerminal } from '../project';
 
 const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
@@ -40,7 +40,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
     const variableViewProvider = new VariableViewProvider(ballerinaExtInstance);
     const debugController = new NotebookDebuggerController(ballerinaExtInstance);
-    const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider, debugController);
+    const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider);
 
     context.subscriptions.push(
         workspace.registerNotebookSerializer(NOTEBOOK_TYPE, new BallerinaNotebookSerializer())
@@ -50,6 +50,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(registerCreateNotebook(ballerinaExtInstance));
     context.subscriptions.push(registerFocusToOutline());
     context.subscriptions.push(registerDebug(debugController));
+    const factory = new BallerinaDebugAdapterTrackerFactory();
+    context.subscriptions.push(debug.registerDebugAdapterTrackerFactory('ballerina', factory));
     context.subscriptions.push(registerVariableView(ballerinaExtInstance));
     context.subscriptions.push(registerRefreshVariableView(notebookController));
     context.subscriptions.push(registerRestartNotebook(ballerinaExtInstance, notebookController));
