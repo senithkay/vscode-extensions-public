@@ -26,6 +26,7 @@ import ExpandMore from "./elements/ExpandMore";
 import {
     ConfigSchema,
     ConfigType,
+    SchemaConstants,
 } from "./model";
 import { useStyles } from "./style";
 import {
@@ -43,7 +44,31 @@ export interface ConfigFormProps {
     onClickDefaultButton: () => void;
     onClickPrimaryButton: (configProperties: ConfigElementProps) => void;
     isLowCode?: boolean;
+    env?: string;
 }
+
+const BALLERINA_CENTRAL_PROD = "https://lib.ballerina.io";
+const BALLERINA_CENTRAL_STAGE = "https://staging-lib.ballerina.io";
+const BALLERINA_CENTRAL_DEV = "https://dev-lib.ballerina.io";
+
+const SENTRY_DEV = "V2_DEV";
+const SENTRY_STAGE = "V2_STAGE";
+
+export let docLink = "";
+
+export const generateDocURL = (env: string, configSchema: ConfigSchema) => {
+    const packageConfig = getPackageConfig(configSchema);
+    const propertiesObj: object = packageConfig[SchemaConstants.PROPERTIES];
+    const requiredProperties: string[] = packageConfig[SchemaConstants.REQUIRED];
+    const propertyType: string = packageConfig[SchemaConstants.TYPE];
+
+    if (requiredProperties[0] === SchemaConstants.CONFIG && propertyType === ConfigType.OBJECT) {
+        const moduleName = propertiesObj[SchemaConstants.CONFIG][SchemaConstants.NAME].split(":")[0];
+
+        docLink = env === SENTRY_DEV ? `${BALLERINA_CENTRAL_DEV}/${moduleName}/latest` : env === SENTRY_STAGE ?
+        `${BALLERINA_CENTRAL_STAGE}/${moduleName}/latest` : `${BALLERINA_CENTRAL_PROD}/${moduleName}/latest`;
+    }
+};
 
 export const ConfigForm = (props: ConfigFormProps) => {
     const classes = useStyles();
@@ -58,17 +83,17 @@ export const ConfigForm = (props: ConfigFormProps) => {
     const {
         configSchema,
         existingConfigs,
+        env,
         defaultButtonText,
         primaryButtonText,
         onClickDefaultButton,
         onClickPrimaryButton,
     } = props;
-
     // The config property object retrieved from the config schema.
     const configElements: ConfigElementProps = getConfigProperties(
         getPackageConfig(configSchema),
     );
-
+    generateDocURL(env, configSchema);
     // Set the existing config values to the config property obtained.
     setExistingValues(configElements, existingConfigs, getMetaData(configSchema));
 
