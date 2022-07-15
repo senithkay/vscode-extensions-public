@@ -10,22 +10,24 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export class InputEditor {
-    static getInputEditor() {
-        return cy.get(`[data-testid="input-editor"]`);
-    }
+import React from "react";
 
-    static typeInput(text: string, parseSpecialCharSequences: boolean = true) {
-        this.getInputEditor()
-            .focus()
-            .clear()
-            .type(text, { parseSpecialCharSequences: parseSpecialCharSequences });
+import { MapTypeDesc, TypeParameter } from "@wso2-enterprise/syntax-tree";
 
-        cy.wait(3000);
+import { ExpressionComponent } from "../../../Expression";
+import { TokenComponent } from "../../../Token";
 
-        this.getInputEditor()
-            .type('{enter}');
-        
-        return this;
-    }
+interface MapTypeDescProps {
+    model: MapTypeDesc;
+}
+
+export function MapTypeDescComponent(props: MapTypeDescProps) {
+    const { model } = props;
+
+    return (
+        <>
+            <TokenComponent model={model.mapKeywordToken} />
+            <ExpressionComponent model={model.mapTypeParamsNode} />
+        </>
+    );
 }
