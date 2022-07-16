@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme: Theme) =>
             height: '83vh',
             overflowY: 'scroll',
         },
+        actionSubtitle: {
+            color: theme.palette.text.hint
+        },
         searchBox: {
             position: 'relative',
             height: '32px',

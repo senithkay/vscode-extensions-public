@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, Input, InputAdornment, List, ListItem, Typography } from "@material-ui/core";
@@ -19,7 +19,6 @@ import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edti
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import SearchIcon from "../../../../../../assets/icons/SearchIcon";
-import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../../style";
@@ -34,18 +33,9 @@ export function ActionList(props: FormGeneratorProps) {
     const classes = useStyles();
     const formClasses = useFormStyles();
 
-    const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
+    const { onCancel, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
     const { actions, onSelect } = formArgs as ActionListProps;
-
-    const {
-        props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled },
-        api: {
-            ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
-            library,
-        },
-    } = useContext(Context);
 
     const [keyword, setKeyword] = useState("");
     const [filteredActions, setFilteredActions] = useState<FunctionDefinitionInfo[]>([]);
@@ -82,7 +72,14 @@ export function ActionList(props: FormGeneratorProps) {
                 button={true}
                 onClick={handleOnSelect}
             >
-                <Typography variant="h4">{name}</Typography>
+                <Box flex={true} flexDirection="column">
+                    <Typography variant="h4">{name}</Typography>
+                    {action.documentation && (
+                        <Typography variant="caption" className={classes.actionSubtitle}>
+                            {action.documentation}
+                        </Typography>
+                    )}
+                </Box>
             </ListItem>
         );
     });
@@ -103,7 +100,7 @@ export function ActionList(props: FormGeneratorProps) {
                     <div className={classes.container}>
                         {isLoading && (
                             <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                                <TextPreLoader position="absolute" text="Fetching Actions..." />
+                                <TextPreLoader position="absolute" text="Fetching actions..." />
                             </Box>
                         )}
                         {!isLoading && (
