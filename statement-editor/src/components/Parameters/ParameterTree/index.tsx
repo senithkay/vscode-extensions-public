@@ -17,13 +17,14 @@ import { ListItemText, ListSubheader } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { ACTION, CONNECTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { ParameterBranch } from "./ParameterBranch";
-import { getDefaultParams, mapEndpointToFormField } from "./utils";
+import { getDefaultParams, mapActionToFormField, mapEndpointToFormField } from "./utils";
 
 export interface TypeProps {
     param: FormField;
@@ -45,12 +46,17 @@ export function ParameterTree(props: ParameterTreeProps) {
             statementModel,
             updateModel,
         },
+        config
     } = useContext(StatementEditorContext);
     const [updatingParams, setUpdatingParams] = useState(true);
 
     useEffect(() => {
         setUpdatingParams(true);
-        mapEndpointToFormField(statementModel, parameters);
+        if (config.type === CONNECTOR){
+            mapEndpointToFormField(statementModel, parameters);
+        }else if (config.type === ACTION){
+            mapActionToFormField(statementModel, parameters);
+        }
         setUpdatingParams(false);
     }, [statementModel]);
 
@@ -61,7 +67,7 @@ export function ParameterTree(props: ParameterTreeProps) {
         let updatingPosition: NodePosition;
         if (model.viewState?.parentFunctionPos) {
             const parentFunctionModel = getParentFunctionModel(
-                (model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                (model.viewState as StatementEditorViewState).parentFunctionPos,
                 statementModel
             );
             updatingPosition = getParamUpdateModelPosition(parentFunctionModel);
@@ -74,7 +80,7 @@ export function ParameterTree(props: ParameterTreeProps) {
 
     return (
         <>
-            {!!parameters?.length && (
+            {parameters?.length > 0 && (
                 <>
                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                         Configure Parameters

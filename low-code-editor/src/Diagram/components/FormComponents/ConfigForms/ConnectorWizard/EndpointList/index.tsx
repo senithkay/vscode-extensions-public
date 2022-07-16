@@ -160,7 +160,7 @@ export function EndpointList(props: FormGeneratorProps) {
                     <div className={classes.container}>
                         {isLoading && (
                             <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                                <TextPreLoader position="absolute" text="Fetching Endpoints..." />
+                                <TextPreLoader position="absolute" text="Fetching endpoints..." />
                             </Box>
                         )}
                         {!isLoading && !isEndpointExists && (
