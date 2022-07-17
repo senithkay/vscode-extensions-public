@@ -45,15 +45,28 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
 
     const { wizardType, connectorInfo, model, targetPosition, functionNode, isModuleType, onSave, onClose } = props;
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [fetchingMetadata, setFetchingMetadata] = useState(false);
+    const [retrievingAction, setRetrievingAction] = useState(false);
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>(connectorInfo);
     const [selectedEndpoint, setSelectedEndpoint] = useState<string>();
     const [selectedAction, setSelectedAction] = useState<FunctionDefinitionInfo>();
     const [wizardStep, setWizardStep] = useState<string>(getInitialWizardStep());
 
+    const isLoading = fetchingMetadata || retrievingAction;
+
+    useEffect(() => {
+        setWizardStep(getInitialWizardStep());
+    }, [wizardType]);
+
+    useEffect(() => {
+        (async () => {
+            await retrieveMissingInfo();
+        })();
+    }, [wizardStep]);
+
     useEffect(() => {
         retrieveMissingInfo();
-    }, [wizardStep, wizardType, model, connectorInfo]);
+    }, [connectorInfo]);
 
     function getInitialWizardStep() {
         if (wizardType === ConnectorWizardType.ENDPOINT) {
@@ -64,34 +77,42 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     }
 
     async function retrieveMissingInfo() {
-        if (model && connectorInfo && !isLoading) {
-            if (wizardStep === WizardStep.ENDPOINT_FORM && (!selectedConnector || !hasFunctions(selectedConnector))) {
+        if (model && connectorInfo) {
+            if (
+                wizardStep === WizardStep.ENDPOINT_FORM &&
+                (!selectedConnector || !hasFunctions(selectedConnector)) &&
+                !fetchingMetadata
+            ) {
                 await retrieveUsedConnector(connectorInfo);
-            } else if (wizardStep === WizardStep.ACTION_FROM && !selectedAction) {
+            } else if (wizardStep === WizardStep.ACTION_FROM && !selectedAction && !retrievingAction) {
                 await retrieveUsedAction(model, connectorInfo);
             }
         }
     }
 
     async function retrieveUsedConnector(connector: BallerinaConnectorInfo) {
-        setIsLoading(true);
+        if (hasFunctions(connector)) {
+            return;
+        }
+        setFetchingMetadata(true);
         const metadata = await fetchMetadata(connector);
         if (!metadata) {
             // TODO: Handle error properly
             setWizardStep(WizardStep.EMPTY);
         }
-        setIsLoading(false);
+        setFetchingMetadata(false);
     }
 
     async function retrieveUsedAction(actionModel: STNode, connector?: BallerinaConnectorInfo) {
         let methodName = "";
         let methods = connector.functions;
 
-        setIsLoading(true);
+        setRetrievingAction(true);
         if (!hasFunctions(connector)) {
             const metadata = await fetchMetadata(connector);
             methods = metadata ? metadata.functions : undefined;
         }
+
         if (
             STKindChecker.isLocalVarDecl(actionModel) &&
             STKindChecker.isCheckAction(actionModel.initializer) &&
@@ -109,13 +130,13 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
             const usedMethod = methods.find((func) => func.name === methodName);
             if (usedMethod) {
                 setSelectedAction(usedMethod);
-                setIsLoading(false);
+                setRetrievingAction(false);
                 return;
             }
         }
         // TODO: Handle error properly
         setWizardStep(WizardStep.EMPTY);
-        setIsLoading(false);
+        setRetrievingAction(false);
     }
 
     async function fetchMetadata(connector: BallerinaConnectorInfo): Promise<BallerinaConnectorInfo> {
@@ -132,21 +153,21 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     }
 
     async function handleSelectConnector(connector: BallerinaConnectorInfo, node: LocalVarDecl) {
-        setIsLoading(true);
+        setFetchingMetadata(true);
         setSelectedConnector(connector);
         setWizardStep(WizardStep.ENDPOINT_FORM);
         await fetchMetadata(connector);
-        setIsLoading(false);
+        setFetchingMetadata(false);
     }
 
     async function handleSelectEndpoint(connector: BallerinaConnectorInfo, endpointName: string) {
         setSelectedEndpoint(endpointName);
         setWizardStep(WizardStep.ACTION_LIST);
         if (!hasFunctions(connectorInfo)) {
-            setIsLoading(true);
+            setFetchingMetadata(true);
             await fetchMetadata(connector);
         }
-        setIsLoading(false);
+        setFetchingMetadata(false);
     }
 
     function closeEndpointForm() {
