@@ -43,3 +43,7 @@ export async function createFile(uri: Uri, content: string){
     await workspace.fs.writeFile(uri, new TextEncoder().encode(content));
     return;
 }
+
+export function getSmallerMax(array: number[], goal: number) {
+    return array.sort((a, b) => a - b).reverse().find(value => value <= goal);
+}

@@ -32,7 +32,7 @@ import { BALLERINA_HOME } from '../core/preferences';
 import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient/node';
-import { getTempDir } from '../notebook/debugger';
+import { getTempFile } from '../notebook/debugger';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -87,8 +87,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     if (activeDoc.fileName.endsWith('.balnotebook')) {
         let activeTextEditorUri = activeDoc.uri;
         if (activeTextEditorUri.scheme === 'vscode-notebook-cell') {
-            const uri = `${getTempDir()}/notebook_cell_${activeTextEditorUri.fragment}.bal`;
-            activeTextEditorUri = Uri.parse(uri);
+            activeTextEditorUri = Uri.parse(getTempFile());
             config.script = activeTextEditorUri.fsPath;
         } else {
             return Promise.reject();

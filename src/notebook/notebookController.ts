@@ -26,7 +26,6 @@ import { VariableViewProvider } from './variableView';
 import { CMP_NOTEBOOK, sendTelemetryEvent, sendTelemetryException, TM_EVENT_RUN_NOTEBOOK, TM_EVENT_RUN_NOTEBOOK_BAL_CMD, 
     TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET } from '../telemetry';
 import { isWindows } from '../utils';
-import { dumpCell } from './debugger';
 
 /**
  * Notebook controller to provide functionality of code execution.
@@ -161,7 +160,6 @@ export class BallerinaNotebookController {
 
             // code snippets
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET, CMP_NOTEBOOK);
-            dumpCell(cell);
             let response = await langClient.getBalShellResult({
                 source: cellContent
             });
