@@ -90,14 +90,29 @@ export function TopLevelPlusHolder(props: TopLevelPlusHolderProps) {
             <div className="holder-wrapper">
                 <div className="element-options">
                     <div className="element-option-holder" >
+                        <div className='options-title'>
+                            <div className='options-title-label'>
+                                Entry points
+                            </div>
+                        </div>
                         <div className='options-wrapper'>
                             {entryPoints}
                         </div>
                         {entryPoints.length > 0 && constructs.length > 0 && <Divider />}
+                        <div className='options-title'>
+                            <div className='options-title-label'>
+                                Constructs
+                            </div>
+                        </div>
                         <div className='options-wrapper'>
                             {constructs}
                         </div>
                         {moduleInit.length > 0 && constructs.length > 0 && entryPoints.length > 0 && <Divider />}
+                        <div className='options-title'>
+                            <div className='options-title-label'>
+                                Module level variables
+                            </div>
+                        </div>
                         <div className='options-wrapper'>
                             {moduleInit}
                         </div>
