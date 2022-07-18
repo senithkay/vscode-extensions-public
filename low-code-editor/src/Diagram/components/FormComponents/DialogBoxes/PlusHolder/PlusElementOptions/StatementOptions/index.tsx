@@ -353,6 +353,7 @@ export function StatementOptions(props: StatementOptionsProps) {
                 placement="right"
                 arrow={true}
                 interactive={true}
+                disabled={!hasWorkerDecl}
             >
                 <div
                     className={cn("sub-option", { enabled: hasWorkerDecl })}
@@ -591,7 +592,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(foreachStm);
     statements.push(whileStmt);
     statements.push(returnStm);
-    statements.push(respondStm);
+    // statements.push(respondStm);
     statements.push(workerBlock);
     statements.push(sendStmt);
     statements.push(receiveStmt);
