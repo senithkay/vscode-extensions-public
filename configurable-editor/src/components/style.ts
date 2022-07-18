@@ -64,6 +64,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         mainLabel: {
             display: "flex",
+            flexWrap: "wrap",
             marginBottom: theme.spacing(0.5),
         },
         mainLabelText: {
