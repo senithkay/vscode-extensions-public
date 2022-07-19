@@ -40,6 +40,7 @@ import "../../style.scss";
 import While from "../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
 import { HttpLogo, PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { isStatementEditorSupported } from "../../../../Utils";
 
 export const PROCESS_TYPES = [""];
 
@@ -63,7 +64,9 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { api: { insights: { onEvent } } } = useContext(Context);
+    const { api: { insights: { onEvent } }, props: { ballerinaVersion } } = useContext(Context);
+
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
     const intl = useIntl();
     const { onSelect, viewState, isCallerAvailable, isResource, hasWorkerDecl } = props;
 
@@ -584,15 +587,17 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(whileStmt);
     statements.push(returnStm);
     statements.push(respondStm);
-    statements.push(sendStmt);
-    statements.push(receiveStmt);
-    statements.push(waitStmt);
-    statements.push(flushStmt);
+    if (statementEditorSupported) {
+        statements.push(sendStmt);
+        statements.push(receiveStmt);
+        statements.push(waitStmt);
+        statements.push(flushStmt);
+    }
     // statements.push(datamappingStatement);
     statements.push(customStatement);
     statements.push(httpConnector);
 
-    if (viewState.allowWorker) {
+    if (viewState.allowWorker && statementEditorSupported) {
         statements.push(workerBlock);
     }
 
