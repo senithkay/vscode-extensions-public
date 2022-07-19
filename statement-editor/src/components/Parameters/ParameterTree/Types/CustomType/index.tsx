@@ -25,7 +25,7 @@ export default function CustomType(props: TypeProps) {
     const requiredParam = isRequiredParam(param);
 
     const [paramSelected, setParamSelected] = useState<boolean>(
-        param.selected || requiredParam || param.value !== undefined
+        param.selected || requiredParam
     );
 
     const toggleParamCheck = () => {

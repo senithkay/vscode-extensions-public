@@ -101,8 +101,12 @@ export function EndpointForm(props: FormGeneratorProps) {
 
     return (
         <>
+            {isLoading && (
+                <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                    <TextPreLoader position="absolute" text="Loading connector..." />
+                </Box>
+            )}
             {!isLoading &&
-                initialSource !== "EXPRESSION" &&
                 StatementEditorWrapper({
                     label: formTitle,
                     initialSource,
@@ -117,16 +121,10 @@ export function EndpointForm(props: FormGeneratorProps) {
                     syntaxTree,
                     stSymbolInfo,
                     extraModules: imports,
-                    isLoading,
                     experimentalEnabled,
                     runBackgroundTerminalCommand,
-                    isModuleVar: isModuleType ?? false
+                    isModuleVar: isModuleType ?? false,
                 })}
-            {isLoading && (
-                <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                    <TextPreLoader position="absolute" text="Loading..." />
-                </Box>
-            )}
         </>
     );
 }

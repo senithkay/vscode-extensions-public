@@ -16,7 +16,7 @@ import React, { ReactNode, useContext } from "react";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { CONNECTOR, CUSTOM_CONFIG_TYPE } from "../../../constants";
+import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
@@ -50,6 +50,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
     if (!currentModel.model) {
         if (
             config.type === CONNECTOR &&
+            model &&
             STKindChecker.isCheckExpression(model.initializer) &&
             STKindChecker.isImplicitNewExpression(model.initializer.expression)
         ) {
@@ -57,6 +58,17 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                 changeCurrentModel(model.initializer.expression.parenthesizedArgList.arguments[0]);
             } else {
                 changeCurrentModel(model.initializer.expression.parenthesizedArgList);
+            }
+        } else if (
+            config.type === ACTION &&
+            model &&
+            STKindChecker.isCheckAction(model.initializer) &&
+            STKindChecker.isRemoteMethodCallAction(model.initializer.expression)
+        ) {
+            if (model.initializer.expression.arguments?.length > 0) {
+                changeCurrentModel(model.initializer.expression.arguments[0]);
+            } else {
+                changeCurrentModel(model.initializer.expression);
             }
         } else if (model.initializer) {
             changeCurrentModel(model.initializer);

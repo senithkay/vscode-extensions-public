@@ -20,7 +20,7 @@ import {
     STD_LIBS_IDENTIFIER
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { isConfigurableEditor, isFunctionOrMethodCall, isInsideEndpointConfigs } from "../../utils";
+import { isConfigurableEditor, isFunctionOrMethodCall, isInsideConnectorParams } from "../../utils";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
@@ -87,7 +87,7 @@ export function HelperPane(props: HelperPaneProps) {
     useEffect(() => {
         if (
             currentModel.model &&
-            (isFunctionOrMethodCall(currentModel.model) || isInsideEndpointConfigs(currentModel.model, config.type)) &&
+            (isFunctionOrMethodCall(currentModel.model) || isInsideConnectorParams(currentModel.model, config.type)) &&
             !isConfigurableEditor(editors, activeEditorId)
         ) {
             setSelectedTab(TabElements.parameters);

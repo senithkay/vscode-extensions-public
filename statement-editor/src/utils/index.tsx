@@ -37,6 +37,7 @@ import * as formComponents from '../components/Forms/Form';
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
+    ACTION,
     BAL_SOURCE,
     CONNECTOR,
     CUSTOM_CONFIG_TYPE,
@@ -573,11 +574,11 @@ export function isFunctionOrMethodCall(currentModel: STNode): boolean {
     return STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel);
 }
 
-export function isInsideEndpointConfigs(currentModel: STNode, editorConfigType: string): boolean {
+export function isInsideConnectorParams(currentModel: STNode, editorConfigType: string): boolean {
     const paramPosition = (currentModel.viewState as StatementEditorViewState)?.parentFunctionPos;
     const modelPosition = currentModel.position as NodePosition;
     return (
-        editorConfigType === CONNECTOR &&
+        (editorConfigType === CONNECTOR || editorConfigType === ACTION)  &&
         paramPosition &&
         (paramPosition.startLine < modelPosition.startLine ||
             (paramPosition.startLine === modelPosition.startLine &&
@@ -829,20 +830,24 @@ function getModelParamSourceList(currentModel: STNode): string[] {
 
 export function getParamUpdateModelPosition(model: STNode) {
     let position : NodePosition;
-    if (STKindChecker.isFunctionCall(model) || STKindChecker.isMethodCall(model)) {
+    if (
+        STKindChecker.isFunctionCall(model) ||
+        STKindChecker.isMethodCall(model) ||
+        STKindChecker.isRemoteMethodCallAction(model)
+    ) {
         position = {
             startLine: model.openParenToken.position.startLine,
             startColumn: model.openParenToken.position.startColumn,
             endLine: model.closeParenToken.position.endLine,
             endColumn: model.closeParenToken.position.endColumn,
-        }
-    } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)){
+        };
+    } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)) {
         position = {
             startLine: model.parenthesizedArgList.openParenToken.position.startLine,
             startColumn: model.parenthesizedArgList.openParenToken.position.startColumn,
             endLine: model.parenthesizedArgList.closeParenToken.position.endLine,
             endColumn: model.parenthesizedArgList.closeParenToken.position.endColumn,
-        }
+        };
     } else if (STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
         position = {
             startLine: model.expression.parenthesizedArgList.openParenToken.position.startLine,

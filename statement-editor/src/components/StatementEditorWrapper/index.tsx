@@ -66,7 +66,6 @@ export interface LowCodeEditorProps {
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
-    isLoading?: boolean;
     extraModules?: Set<string>;
 }
 
@@ -89,7 +88,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         experimentalEnabled,
         isConfigurableStmt,
         isModuleVar,
-        isLoading,
         extraModules,
         runBackgroundTerminalCommand
     } = props;
@@ -204,12 +202,12 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
     return (
         <FormControl data-testid="property-form">
-            {(isLoading || !editor || !checkConnectorInfo()) && (
+            {(!editor || !checkConnectorInfo()) && (
                 <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
-                    <div className={overlayClasses.loadingWrapper}>Loading...</div>
+                    <div className={overlayClasses.loadingWrapper}>Loading statement editor...</div>
                 </div>
             )}
-            {!isLoading && editor && checkConnectorInfo() && (
+            {editor && checkConnectorInfo() && (
                     <>
                         <StatementEditor
                             editor={editor}
