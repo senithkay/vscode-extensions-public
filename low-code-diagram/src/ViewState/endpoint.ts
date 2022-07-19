@@ -25,6 +25,7 @@ export class EndpointViewState extends ViewState {
     public client: SimpleBBox = new SimpleBBox();
     public iconId: string = "default";
     public typeName: string;
+    public expandConnectorHeight?: number = 0;
 
     constructor() {
         super();

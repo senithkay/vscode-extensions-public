@@ -39,6 +39,8 @@ export class BlockViewState extends ViewState {
     public functionNodeSource?: string = undefined;
     public parentBlock?: any = undefined;
     public expandOffSet?: number = 0;
+    public expandConnectorHeight?: number = 0;
+
 
     constructor() {
         super();

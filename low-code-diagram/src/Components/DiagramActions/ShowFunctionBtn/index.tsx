@@ -74,24 +74,24 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
   }, [syntaxTree]);
 
 
-  useEffect(() => {
-    if (isDiagramFunctionExpanded) {
-      fetchDefinition();
-    } else if (isDiagramFunctionExpanded !== undefined){
-      nodeViewState.functionNodeExpanded = false;
-      diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
-      setConfirmDialogActive(false);
-    }
-  }, [isDiagramFunctionExpanded]);
+  // useEffect(() => {
+  //   if (isDiagramFunctionExpanded) {
+  //     fetchDefinition();
+  //   } else if (isDiagramFunctionExpanded !== undefined){
+  //     nodeViewState.functionNodeExpanded = false;
+  //     diagramRedraw(recalculateSizingAndPositioning(initializeViewState(syntaxTree)));
+  //     setConfirmDialogActive(false);
+  //   }
+  // }, [isDiagramFunctionExpanded]);
 
   const fetchDefinition = async () => {
     if (isConfirmDialogActive) {
       nodeViewState.functionNodeExpanded = false;
-      diagramRedraw(recalculateSizingAndPositioning(syntaxTree));
       setConfirmDialogActive(false);
+      diagramRedraw(recalculateSizingAndPositioning(initializeViewState(syntaxTree)));
     } else {
       try {
-        if (!nodeViewState.functionNode) {
+        // if (!nodeViewState.functionNode) {
           const range: any = {
             start: {
               line: functionName.position?.startLine,
@@ -103,12 +103,13 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
             },
           };
           const funDef = await getFunctionDef(range, model.viewState.functionNodeFilePath);
-          const offsetValue = model.viewState.bBox.cx;
+          // const offsetValue = model.viewState.bBox.cx;
+          const offsetValue = model.viewState.bBox.cy;
           const sizedBlock = initializeViewState(funDef.syntaxTree, model.viewState.parentBlock.viewState.connectors, offsetValue) as FunctionDefinition;
           sizedBlock.viewState.functionNodeFilePath = funDef.defFilePath;
           sizedBlock.viewState.functionNodeSource = sizedBlock.source;
           nodeViewState.functionNode = sizedBlock as FunctionDefinition;
-        }
+        // }
         if (nodeViewState.functionNode.viewState.functionNodeSource !== model.viewState.functionNodeSource) {
           nodeViewState.functionNodeExpanded = true;
           setConfirmDialogActive(true);

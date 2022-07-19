@@ -266,7 +266,7 @@ export class PositioningVisitor implements Visitor {
             this.plusHolderHeight = 0;
         }
 
-        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy, !!parent);
+        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy, !!parent, bodyViewState.bBox);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);

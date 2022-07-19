@@ -1358,7 +1358,7 @@ export class SizingVisitor implements Visitor {
         if (viewState.functionNode && viewState.functionNodeExpanded) {
             recalculateSizingAndPositioning(viewState.functionNode, null, this.allEndpoints);
             viewState.bBox.h += viewState.functionNode.viewState.bBox.h;
-            viewState.bBox.rw += viewState.functionNode.viewState.bBox.w;
+            viewState.bBox.rw += viewState.functionNode.viewState.bBox.rw;
             viewState.bBox.w = viewState.bBox.rw + viewState.bBox.lw;
         }
     }
