@@ -20,11 +20,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "35%"
         },
         paramDataTypeWrapper: {
-            width: '32%',
+            width: '34%',
             marginLeft: 5
         },
         paramNameWrapper: {
             width: '32%',
+            marginLeft: 10
+        },
+        headerNameWrapper: {
+            width: '34%',
             marginLeft: 10
         },
         headerWrapper: {
@@ -116,6 +120,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             padding: 0
         },
         btnContainer: {
+            marginTop: theme.spacing(2.5),
             display: "flex",
             justifyContent: "flex-end"
         },

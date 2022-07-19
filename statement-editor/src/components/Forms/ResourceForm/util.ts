@@ -18,22 +18,13 @@ import {
     Payload,
     QueryParam,
     QueryParamCollection,
-    Resource,
     ReturnType,
     ReturnTypeCollection,
 } from "./types";
 
+export const headerParameterOption = "Header";
 export const queryParameterOption = "Query";
-export const payloadParameterOption = "Payload";
-export const requestParameterOption = "Request";
-export const callerParameterOption = "Caller";
-export const allOptions = [queryParameterOption, payloadParameterOption, requestParameterOption, callerParameterOption];
-export const optionsWithoutCaller = [queryParameterOption, payloadParameterOption, requestParameterOption];
-export const optionsWithoutRequest = [queryParameterOption, payloadParameterOption, callerParameterOption];
-export const optionsWithoutPayload = [queryParameterOption, requestParameterOption, callerParameterOption];
-export const queryNPayloadOption = [queryParameterOption, payloadParameterOption];
-export const queryNRequest = [queryParameterOption, requestParameterOption];
-export const queryNCaller = [queryParameterOption, callerParameterOption];
+export const paramOptions = [queryParameterOption, headerParameterOption];
 
 export const payloadTypes: string[] = ["json", "xml", "byte[]", "string"];
 export const queryParamTypes: string[] = ["string", "int"];
@@ -75,51 +66,13 @@ export function getBallerinaPayloadType(payload: Payload, addComma?: boolean): s
         && payload.name !== "" ? ("@http:Payload " + payload.type + " " + payload.name + (addComma ? ", " : "")) : "";
 }
 
-export function getEnabledQueryParams(queryParamString: string): string[] {
-    const payloadAvailable = queryParamString?.includes("@http:Payload");
-    const requestAvailable = queryParamString?.includes("http:Request");
-    const callerAvailable = queryParamString?.includes("http:Caller");
-
-    let paramOptions: string[];
-    if (!payloadAvailable && !requestAvailable && !callerAvailable) {
-        paramOptions = allOptions;
-    } else if (!payloadAvailable && !requestAvailable && callerAvailable){
-        paramOptions = optionsWithoutCaller;
-    } else if (!payloadAvailable && requestAvailable && !callerAvailable) {
-        paramOptions = optionsWithoutRequest;
-    } else if (payloadAvailable && !requestAvailable && !callerAvailable) {
-        paramOptions = optionsWithoutPayload;
-    } else if (!payloadAvailable && requestAvailable && callerAvailable) {
-        paramOptions = queryNPayloadOption;
-    } else if (payloadAvailable && requestAvailable && !callerAvailable) {
-        paramOptions = queryNCaller;
-    } else if (payloadAvailable && !requestAvailable && callerAvailable) {
-        paramOptions = queryNRequest;
-    } else {
-        paramOptions = [queryParameterOption];
-    }
-    return paramOptions;
-}
-
-export function getQueryParamOptionType(type: string): string {
-    if (type.includes("@http:Payload")) {
-        return payloadParameterOption;
-    } else if (type.includes("http:Request")) {
-        return requestParameterOption;
-    } else if (type.includes("http:Caller")) {
-        return callerParameterOption;
-    } else {
-        return queryParameterOption;
-    }
-}
-
-export function convertQueryParamStringToSegments(queryParamsString: string): QueryParamCollection {
+export function getQueryParamCollection(queryParamString: string): QueryParamCollection {
     const queryParamCollection: QueryParamCollection = {
         queryParams: []
     };
 
-    if (queryParamsString && queryParamsString !== "") {
-        const queryParamSplited: string[] = queryParamsString.split("&");
+    if (queryParamString && queryParamString !== "") {
+        const queryParamSplited: string[] = queryParamString.trim().split(",");
         queryParamSplited.forEach((value, index) => {
             const queryParam: QueryParam = {
                 id: index,
@@ -127,63 +80,51 @@ export function convertQueryParamStringToSegments(queryParamsString: string): Qu
                 type: "",
                 option: ""
             };
-            if (value.includes("=")) {
-                const splitedParam: string[] = value.split("=");
-                if (splitedParam.length === 2 && splitedParam[1].startsWith("'[") && splitedParam[1].endsWith("']")) {
-                    const formattedQueryParam = splitedParam[1].replace("'[", "").replace("']", "");
-                    const splitedNameAndType: string[] = formattedQueryParam.split(" ");
-                    queryParam.id = index;
-                    if (splitedNameAndType[0].includes("@http:Payload")) {
-                        queryParam.name = splitedNameAndType[2];
-                        queryParam.type = `${splitedNameAndType[0]} ${splitedNameAndType[1]}`;
-                        queryParam.option = payloadParameterOption;
-                        queryParamCollection.queryParams.push(queryParam);
-                    } else {
-                        queryParam.name = splitedNameAndType[1];
-                        queryParam.type = splitedNameAndType[0];
-                        queryParam.option = getQueryParamOptionType(splitedNameAndType[0]);
-                        queryParamCollection.queryParams.push(queryParam);
-                    }
-                } else if (splitedParam.length === 2 && splitedParam[1].startsWith("{") && splitedParam[1].endsWith("}")) {
-                    const formattedQueryParam = splitedParam[1].replace("{", "").replace("}", "");
-                    queryParam.id = index;
-                    queryParam.name = formattedQueryParam;
-                    queryParam.type = "string";
-                    queryParamCollection.queryParams.push(queryParam);
+            const paramSplit: string[] = value.trim().split(/\s+/);
+            // if (paramSplit.length === 4) {
+            //     queryParam.option = headerParameterOption;
+            //     queryParam.type = `${paramSplit[0]} ${paramSplit[1]}`;
+            //     queryParam.name = paramSplit[2];
+            //     queryParam.mappedName = paramSplit[3];
+            // } else if (paramSplit.length === 3) {
+            //     queryParam.option = headerParameterOption;
+            //     queryParam.type = `${paramSplit[0]} ${paramSplit[1]}`;
+            //     queryParam.name = paramSplit[2];
+            // } else {
+            //     queryParam.type = paramSplit[0];
+            //     queryParam.name = paramSplit[1];
+            //     queryParam.option = queryParameterOption;
+            // }
+            if (paramSplit.length === 4) {
+                // Header with default value
+                queryParam.option = headerParameterOption;
+                queryParam.type = paramSplit[1];
+                const nameSplit = paramSplit[2].split(":");
+                queryParam.name = nameSplit[0];
+                queryParam.mappedName = nameSplit[1];
+                queryParam.defaultValue = paramSplit[3];
+            } else if (paramSplit.length === 3) {
+                if (paramSplit[0] === "http:Header") {
+                    // Headers without default value
+                    queryParam.option = headerParameterOption;
+                    queryParam.type = paramSplit[1];
+                    const nameSplit = paramSplit[2].split(":");
+                    queryParam.name = nameSplit[0];
+                    queryParam.mappedName = nameSplit[1];
+                } else {
+                    // Query Param with default value
+                    queryParam.option = queryParameterOption;
+                    queryParam.type = paramSplit[0];
+                    queryParam.name = paramSplit[1];
+                    queryParam.defaultValue = paramSplit[2];
                 }
-            }
-        });
-    }
-
-    return queryParamCollection;
-}
-
-export function getQueryParamCollection(queryParamsString: string): QueryParamCollection {
-    const queryParamCollection: QueryParamCollection = {
-        queryParams: []
-    };
-
-    if (queryParamsString && queryParamsString !== "") {
-        const queryParamSplited: string[] = queryParamsString.trim().split(",");
-        queryParamSplited.forEach((value, index) => {
-            const queryParam: QueryParam = {
-                id: index,
-                name: "",
-                type: "",
-                option: ""
-            };
-            const paramSplit: string[] = value.trim().split(" ");
-            if (paramSplit[0].includes("@http:Payload")) {
-                queryParam.name = paramSplit[2];
-                queryParam.type = `${paramSplit[0]} ${paramSplit[1]}`;
-                queryParam.option = payloadParameterOption;
-                queryParamCollection.queryParams.push(queryParam);
             } else {
-                queryParam.name = paramSplit[1];
+                // Query Param without default value
+                queryParam.option = queryParameterOption;
                 queryParam.type = paramSplit[0];
-                queryParam.option = getQueryParamOptionType(paramSplit[0]);
-                queryParamCollection.queryParams.push(queryParam);
+                queryParam.name = paramSplit[1];
             }
+            queryParamCollection.queryParams.push(queryParam);
         });
     }
 
@@ -192,7 +133,7 @@ export function getQueryParamCollection(queryParamsString: string): QueryParamCo
 
 /**
  *
- * @param path path will be like `/name/[string name]/id/[int id]`
+ * @param pathString path will be like `/name/[string name]/id/[int id]`
  * @returns Path
  */
 export function convertPathStringToSegments(pathString: string): Path {
@@ -301,24 +242,49 @@ export function generateQueryParamFromST(params: STNode[]): string {
 
         const filteredParams: STNode[] = [];
         params.forEach((value) => {
-            if (!STKindChecker.isCommaToken(value)) {
+            if (!STKindChecker.isCommaToken(value) && !value.source.includes("@http:Payload") &&
+                !value.source.includes("http:Request") && !value.source.includes("http:Caller") &&
+                !value.source.includes("http:Headers")) {
                 filteredParams.push(value);
             }
         });
 
         filteredParams.forEach((value, index, array) => {
             const queryParamSource = value.source.trim();
-            const splitedQueryParam = queryParamSource.split(" ");
+            const splitedQueryParam = queryParamSource.split(/\s+/);
             let type: string = splitedQueryParam[0];
             let name: string = queryParamSource.substr(type.length + 1, queryParamSource.length - 1);
-            if (value.source.includes("@http:Payload")) {
-                type = `${splitedQueryParam[0].trim()} ${splitedQueryParam[1].trim()}`;
-                name = splitedQueryParam[2].trim();
+            let defaultValue: string;
+            let mappedName: string;
+            if (value.source.includes("@http:Header")) {
+                if (STKindChecker.isRequiredParam(value)) {
+                    type = `${value.annotations[0]?.annotReference?.source?.trim()} ${value.typeName.source.trim()}`;
+                    name = value.paramName?.value;
+                    if (value.annotations[0]?.annotValue) {
+                        mappedName = STKindChecker.isSpecificField(value.annotations[0]?.annotValue.fields[0]) ?
+                            value.annotations[0]?.annotValue.fields[0].valueExpr?.source?.trim() : null;
+                    }
+                }
+            }
+            if (STKindChecker.isDefaultableParam(value)) {
+                defaultValue = value.expression?.source?.trim();
+                if (value.source.includes("@http:Header")) {
+                    name = value.paramName?.value;
+                    type = `${value.annotations[0]?.annotReference?.source?.trim()} ${value.typeName.source.trim()}`;
+                }
             }
             if (index === (array.length - 1)) {
-                queryParamString += `${type} ${name}`;
+                queryParamString += mappedName ? `${type} ${name}:${mappedName}` : `${type} ${name}`;
+                if (defaultValue) {
+                    queryParamString += ` ${defaultValue}`;
+                }
             } else {
-                queryParamString += `${type} ${name}, `;
+                if (defaultValue) {
+                    queryParamString += mappedName ? `${type} ${name}:${mappedName} ${defaultValue}, ` :
+                        `${type} ${name} ${defaultValue}, `;
+                } else {
+                    queryParamString += mappedName ? `${type} ${name}:${mappedName}, ` : `${type} ${name}, `;
+                }
             }
         });
     }
@@ -377,9 +343,21 @@ export function generateQueryStringFromQueryCollection(params: QueryParamCollect
     if (params && params.queryParams && params.queryParams.length > 0) {
         params.queryParams.forEach((value, index, array) => {
             if (index === (array.length - 1)) {
-                queryParamString += `${value.type} ${value.name}`;
+                if (value.option === headerParameterOption) {
+                    queryParamString += `@http:Header${value.mappedName ? ` {name: "${value.mappedName}"}` : ""}${
+                        value.type} ${value.name}${value.defaultValue ? ` = "${value.defaultValue}"` : ""}`;
+                } else {
+                    queryParamString += `${value.type} ${value.name}${value.defaultValue ? ` = "${
+                        value.defaultValue}"` : ""}`;
+                }
             } else {
-                queryParamString += `${value.type} ${value.name}, `;
+                if (value.option === headerParameterOption) {
+                    queryParamString += `@http:Header${value.mappedName ? ` {name: "${value.mappedName}"}` : ""}
+                     ${value.type} ${value.name}${value.defaultValue ? ` = "${value.defaultValue}", ` : ", "}`;
+                } else {
+                    queryParamString += `${value.type} ${value.name}${value.defaultValue ? ` = "${
+                        value.defaultValue}", ` : ", "}`;
+                }
             }
         });
     }
@@ -502,23 +480,6 @@ export function noErrorTypeAvailable(returnTypeCollection: ReturnTypeCollection)
     });
 
     return isErrorTypeAvailable;
-}
-
-export function extractPathData(text: string): Resource {
-    const resource: Resource = {
-        id: 0,
-        method: "GET",
-        path: ""
-    };
-    const splittedPath: string[] = text.split("?");
-    const path: Path = convertPathStringToSegments(splittedPath[0]);
-    if (splittedPath.length > 1) {
-        const queryParams: QueryParamCollection = convertQueryParamStringToSegments(splittedPath[1]);
-        resource.queryParams = generateQueryParamFromQueryCollection(queryParams);
-    }
-    resource.id = 0;
-    resource.path = generateBallerinaResourcePath(path);
-    return resource;
 }
 
 export function genParamName(defaultName: string, variables: string[]): string {

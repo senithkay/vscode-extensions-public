@@ -39,10 +39,9 @@ import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
-import { FormEditorField } from "../Types";
 
 import { PathEditor } from "./PathEditor";
-import { QueryParamEditor } from "./QueryParamEditor";
+import { ResourceParamEditor } from "./ResourceParamEditor";
 import { useStyles } from "./styles";
 import {
     generateQueryParamFromST,
@@ -307,8 +306,8 @@ export function ResourceForm(props: FunctionProps) {
                         )}
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <ConfigPanelSection title={"Parameters"}>
-                            <QueryParamEditor
-                                queryParamString={queryParam}
+                            <ResourceParamEditor
+                                resourceParamString={queryParam}
                                 readonly={(currentComponentSyntaxDiag?.length > 0) || (isParamInProgress)}
                                 syntaxDiag={currentComponentSyntaxDiag}
                                 onChangeInProgress={handleQueryChangeInProgress}

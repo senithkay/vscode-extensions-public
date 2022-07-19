@@ -29,6 +29,8 @@ export interface QueryParam {
     type: string;
     name: string;
     option: string;
+    mappedName?: string;
+    defaultValue?: string;
 }
 
 export interface ReturnType {

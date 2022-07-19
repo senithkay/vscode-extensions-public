@@ -27,12 +27,15 @@ export interface Param {
     dataType?: string;
     name: string;
 }
+export const headerParameterOption = "Header";
 
 export interface ParamProps {
     param: Param;
     syntaxDiag?: string;
     typeDiagnostics?: string;
     nameDiagnostics?: string;
+    alternativeName?: string;
+    headerName?: string;
     isEdit?: boolean;
     isTypeReadOnly?: boolean;
     dataTypeReqOptions: string[];
@@ -46,8 +49,8 @@ export interface ParamProps {
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, isEdit, isTypeReadOnly, optionList, enabledOptions,
-            dataTypeReqOptions, option = "", onChange, onAdd, onUpdate, onCancel } = props;
+    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, alternativeName, headerName, isTypeReadOnly,
+            optionList, enabledOptions, dataTypeReqOptions, option = "", onChange, onAdd, onUpdate, onCancel } = props;
     const { id, name, dataType } = param;
 
     const classes = useStyles();
@@ -55,6 +58,7 @@ export function ParamEditor(props: ParamProps) {
     const [paramDataType, setParamDataType] = useState<string>(dataType);
     const [paramName, setParamName] = useState<string>(name);
     const [selectedOption, setSelectedOption] = useState<string>(option);
+    const [isHeaderConfigInProgress, setIsHeaderConfigInProgress] = useState<boolean>(!!headerName);
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
 
@@ -70,6 +74,17 @@ export function ParamEditor(props: ParamProps) {
         }
     };
     const debouncedNameChange = debounce(handleNameChange, 800);
+
+    const handleHeaderNameChange = (value: string) => {
+        setParamName(value);
+        setCurrentComponentName("Name");
+        if (optionList) {
+            onChange({id, name: value, dataType: paramDataType}, selectedOption);
+        } else {
+            onChange({id, name: value, dataType: paramDataType});
+        }
+    };
+    const debouncedHandleHeaderNameChange = debounce(handleHeaderNameChange, 800);
 
     const handleTypeChange = (value: string) => {
         setParamDataType(value);
@@ -103,6 +118,10 @@ export function ParamEditor(props: ParamProps) {
         }
     };
 
+    const handleShowHeaderName = () => {
+        setIsHeaderConfigInProgress(true);
+    };
+
     useEffect(() => {
         setParamDataType(dataType);
     }, [dataType]);
@@ -117,19 +136,19 @@ export function ParamEditor(props: ParamProps) {
 
     return (
         <div className={classes.paramContainer}>
+            {optionList && (
+                <div className={classes.paramTypeWrapper}>
+                    <ParamDropDown
+                        dataTestId="param-type-selector"
+                        defaultValue={selectedOption}
+                        placeholder={"Select Type"}
+                        customProps={{ values: optionList, enabledValues: enabledOptions }}
+                        onChange={handleOnSelect}
+                        label="Param Type"
+                    />
+                </div>
+            )}
             <div className={classes.paramContent}>
-                {optionList && (
-                    <div className={classes.paramTypeWrapper}>
-                        <ParamDropDown
-                            dataTestId="param-type-selector"
-                            defaultValue={selectedOption}
-                            placeholder={"Select Type"}
-                            customProps={{ values: optionList, enabledValues: enabledOptions }}
-                            onChange={handleOnSelect}
-                            label="Param Type"
-                        />
-                    </div>
-                )}
                 {isTypeVisible && (
                     <div className={classes.paramDataTypeWrapper}>
                         <FormTextInput
@@ -153,7 +172,7 @@ export function ParamEditor(props: ParamProps) {
                 )}
                 <div className={classes.paramNameWrapper}>
                     <FormTextInput
-                        label="Name"
+                        label={alternativeName ? alternativeName : "Name"}
                         dataTestId="param-name"
                         defaultValue={paramName}
                         onChange={debouncedNameChange}
@@ -169,7 +188,49 @@ export function ParamEditor(props: ParamProps) {
                         disabled={syntaxDiag && currentComponentName !== "Name"}
                     />
                 </div>
-            </div>
+                <div className={classes.paramNameWrapper}>
+                    <FormTextInput
+                        label="Value"
+                        dataTestId="default-value"
+                        defaultValue={headerName}
+                        onChange={debouncedHandleHeaderNameChange}
+                        customProps={{
+                            isErrored: ((syntaxDiag !== "" && currentComponentName === "DefaultValue") ||
+                                (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
+                            optional: true
+                        }}
+                        errorMessage={((currentComponentName === "Name" && (syntaxDiag) ? syntaxDiag : "")
+                            || nameDiagnostics)}
+                        onBlur={null}
+                        placeholder={"Enter Value"}
+                        size="small"
+                        disabled={syntaxDiag && currentComponentName !== "DefaultValue"}
+                    />
+                </div>
+            </div><div className={classes.headerNameWrapper}>
+            {(selectedOption === headerParameterOption && isHeaderConfigInProgress) && (
+                <FormTextInput
+                    label="Header Name"
+                    dataTestId="header-name"
+                    defaultValue={headerName}
+                    onChange={debouncedHandleHeaderNameChange}
+                    customProps={{
+                        isErrored: ((syntaxDiag !== "" && currentComponentName === "HeaderName") ||
+                            (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
+                        optional: true
+                    }}
+                    errorMessage={((currentComponentName === "HeaderName" && (syntaxDiag) ? syntaxDiag : "")
+                        || nameDiagnostics)}
+                    onBlur={null}
+                    placeholder={"Enter Header Name"}
+                    size="small"
+                    disabled={syntaxDiag && currentComponentName !== "HeaderName"}
+                />
+            )}
+            {(selectedOption === headerParameterOption && !isHeaderConfigInProgress) && (
+                <div onClick={handleShowHeaderName}>If identifier not equal header name</div>
+            )}
+        </div>
             <div className={classes.btnContainer}>
                 <SecondaryButton
                     text="Cancel"
