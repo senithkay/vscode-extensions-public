@@ -199,3 +199,14 @@ export function addDbExtraStatements(
         modifications.push(addCloseStatement);
     }
 }
+
+export function isStatementEditorSupported(version: string): boolean {
+    const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
+    const versionStr = version.match(versionRegex);
+    const splittedVersions = versionStr[0]?.split(".");
+    if (parseInt(splittedVersions[1], 10) === 1) {
+        return parseInt(splittedVersions[2], 10) >= 1;
+    } else {
+        return parseInt(splittedVersions[1], 10) > 1;
+    }
+}

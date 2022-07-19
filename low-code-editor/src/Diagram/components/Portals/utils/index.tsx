@@ -1117,3 +1117,25 @@ export function getManualConnectionTypeFromFormFields(formFields: FormField[]): 
     const selectedType = (formFields[0]?.fields[0]?.selectedDataType) ? ((formFields[0]?.fields[0]?.selectedDataType)) : (formFields[0].selectedDataType)
     return selectedType
 }
+
+function convertToCamelCase(variableName: string): string {
+    return variableName
+        .replace(/\s(.)/g, (a) => {
+            return a.toUpperCase();
+        })
+        .replace(/\s/g, '')
+        .replace(/^(.)/, (b) => {
+            return b.toLowerCase();
+        });
+}
+
+export function genVariableName(defaultName: string, variables: string[]): string {
+    const baseName: string = convertToCamelCase(defaultName);
+    let varName: string = baseName.includes('.') ? baseName.split('.').pop() : baseName;
+    let index = 0;
+    while (variables.includes(varName)) {
+        index++;
+        varName = baseName + index;
+    }
+    return varName;
+}

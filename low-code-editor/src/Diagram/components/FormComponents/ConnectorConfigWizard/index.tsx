@@ -88,7 +88,8 @@ export function ConnectorConfigWizard(props: any) {
         isAction,
         isEdit,
         specialConnectorName,
-        functionNode
+        functionNode,
+        isLoading
     } = props;
 
     const initWizardState: ConfigWizardState = {
@@ -115,7 +116,7 @@ export function ConnectorConfigWizard(props: any) {
     }, []);
 
     React.useEffect(() => {
-        if (wizardState.isLoading) {
+        if (wizardState.isLoading && connectorInfo) {
             (async () => {
                 let connector = connectorInfo;
                 if (specialConnectorName) {
@@ -155,7 +156,7 @@ export function ConnectorConfigWizard(props: any) {
             })();
             toggleDiagramOverlay();
         }
-    }, [wizardState]);
+    }, [wizardState, connectorInfo]);
 
     const handleClose = () => {
         onClose();
@@ -192,7 +193,7 @@ export function ConnectorConfigWizard(props: any) {
                             onClose: handleClose,
                             onSave: handleSave,
                         },
-                        isLoading: true,
+                        isLoading: isLoading || wizardState.isLoading,
                     }}
                 />
             ) : null}

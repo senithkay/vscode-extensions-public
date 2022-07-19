@@ -39,6 +39,7 @@ export interface EditorAPI {
     getLibrariesData: () => Promise<LibrarySearchResponse | undefined>;
     getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>;
     getSentryConfig: () => Promise<SentryConfig | undefined>;
+    getBallerinaVersion: () => Promise<string | undefined>;
     getEnv: (name: string) => Promise<any>;
 }
 
@@ -53,7 +54,7 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
-            sendTelemetryEvent, getSentryConfig,
+            sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
             runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
@@ -83,6 +84,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     getLibrariesData={getLibrariesData}
                     getLibraryData={getLibraryData}
                     getSentryConfig={getSentryConfig}
+                    getBallerinaVersion={getBallerinaVersion}
                     getEnv={getEnv}
                     panX="-30"
                     panY="0"

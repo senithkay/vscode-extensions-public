@@ -15,6 +15,7 @@ import {
     FunctionCall,
     ImplicitNewExpression,
     MethodCall,
+    RemoteMethodCallAction,
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
@@ -42,6 +43,10 @@ class ParentFunctionSetupVisitor implements Visitor {
     }
 
     public beginVisitImplicitNewExpression(node: ImplicitNewExpression) {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+
+    public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction): void {
         (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
     }
 }

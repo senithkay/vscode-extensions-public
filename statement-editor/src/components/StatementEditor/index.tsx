@@ -18,7 +18,7 @@ import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterpri
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
+import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import {
     CurrentModel,
     DocumentationInfo,
@@ -339,7 +339,9 @@ export function StatementEditor(props: StatementEditorProps) {
     const handleDiagnostics = async (statement: string): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-        pullUnresolvedModules(diag);
+        if (config.type === CONNECTOR){
+            pullUnresolvedModules(diag);
+        }
         removeUnusedModules(diag);
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
@@ -347,7 +349,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (config.type === CONNECTOR){
+        if (config.type === CONNECTOR || config.type === ACTION){
             return setDocumentation(initSymbolInfo);
         }
         if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){
@@ -395,7 +397,7 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules.size && runBackgroundTerminalCommand && !isPullingModule) {
+        if (!!moduleList.size && !!extraModules?.size && runBackgroundTerminalCommand && !isPullingModule) {
             completeDiagnostic?.forEach((diagnostic) => {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
                     extraModules.forEach((module) => {
