@@ -11,3 +11,4 @@
  * associated services.
  */
 export { default as DeleteButtonSvg } from "./images/trash.svg";
+export { default as DocIcon } from "./images/doc.svg";

@@ -25,6 +25,7 @@ export class InputEditor {
 
         this.getInputEditor()
             .type('{enter}');
+        
         return this;
     }
 }

@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -36,7 +37,6 @@ import {
     isConfigAllowedTypeDesc,
     isNodeDeletable
 } from "../../utils";
-import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorToolbarStyles } from "../styles";
 
@@ -66,15 +66,14 @@ export default function Toolbar(props: ToolbarProps) {
     const { inlineDocumentHandler } = props;
     const [docEnabled, setDocEnabled] = React.useState(false);
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
     React.useEffect(() => {
-        const client = keyboardNavigationManager.getClient();
-        keyboardNavigationManager.bindNewKey(client, ['command+z', 'ctrl+z'], undo);
-        keyboardNavigationManager.bindNewKey(client, ['command+shift+z', 'ctrl+shift+z'], redo)
-        keyboardNavigationManager.bindNewKey(client, ['del'], onDelFunction)
+        const client = KeyboardNavigationManager.getClient();
+        client.bindNewKey(['command+z', 'ctrl+z'], undo);
+        client.bindNewKey(['command+shift+z', 'ctrl+shift+z'], redo);
+        client.bindNewKey(['del'], onDelFunction);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
+            client.resetMouseTrapInstance();
         }
     }, [currentModel]);
 
@@ -186,7 +185,7 @@ export default function Toolbar(props: ToolbarProps) {
                 <StatementEditorHint content={"Add configurable"} >
                     <IconButton
                         onClick={onClickOnConfigurable}
-                        disabled={!configurable}
+                        disabled={!configurable || hasSyntaxDiagnostics}
                         className={statementEditorClasses.toolbarIcons}
                     >
                         <ToolbarConfigurableIcon/>

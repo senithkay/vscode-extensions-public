@@ -16,10 +16,25 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, FunctionDef, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, Range, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConditionConfig,
+    Connector,
+    DiagramDiagnostic,
+    DIAGRAM_MODIFIED,
+    FunctionDef,
+    getImportStatements,
+    KeyboardNavigationManager,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibraryKind,
+    LibrarySearchResponse,
+    LowcodeEvent,
+    SentryConfig,
+    STModification,
+    STSymbolInfo,
+    WizardType
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
-import Mousetrap from 'mousetrap';
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
@@ -118,14 +133,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, [lastUpdatedAt]);
 
     React.useEffect(() => {
-        Mousetrap.bind(['command+z', 'ctrl+z'], () => {
-            undo();
-            return false;
-        });
-        Mousetrap.bind(['command+shift+z', 'ctrl+y'], () => {
-            redo();
-            return false;
-        });
         (async () => {
             const sentryConfig: SentryConfig = await getSentryConfig();
             if (sentryConfig) {
@@ -138,6 +145,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         setSelectedPosition(startColumn === 0 && startLine === 0 && syntaxTree ?
             getDefaultSelectedPosition(syntaxTree as ModulePart)
             : { startLine, startColumn });
+
+        const client = KeyboardNavigationManager.getClient();
+        client.bindNewKey(['command+z', 'ctrl+z'], undo);
+        client.bindNewKey(['command+shift+z', 'ctrl+y'], redo);
+
+        return () => {
+            client.resetMouseTrapInstance();
+        }
     }, [syntaxTree]);
 
     function zoomIn() {

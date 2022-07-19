@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { KeyboardNavigationManager, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -42,7 +42,6 @@ import {
     isBindingPattern, isDocumentationSupportedModel,
     isOperator,
 } from "../../utils";
-import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manager';
 import {
     getCompletions,
     getDiagnostics,
@@ -126,7 +125,10 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
-        if (undoItem) {
+        if (hasSyntaxDiagnostics) {
+            const currentSource = (currentModel.model?.value) ? currentModel.model.value : currentModel.model.source;
+            handleChange(currentSource).then();
+        } else if (undoItem) {
             const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
@@ -260,6 +262,10 @@ export function StatementEditor(props: StatementEditorProps) {
         handleCompletions(newValue).then();
     }
 
+    const updateSyntaxDiagnostics = (hasSyntaxIssues: boolean) => {
+        setHasSyntaxDiagnostics(hasSyntaxIssues);
+    }
+
     const updateModel = async (codeSnippet: string, position: NodePosition, stmtModel?: STNode) => {
         const existingModel = stmtModel || model;
         let partialST: STNode;
@@ -280,11 +286,10 @@ export function StatementEditor(props: StatementEditorProps) {
                 : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-        const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
-        sendDidChange(fileURI, updatedContent, getLangClient).then();
-        const diagnostics = await handleDiagnostics(partialST.source);
-
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+            const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
             const oldModel : StackElement = {
@@ -302,6 +307,11 @@ export function StatementEditor(props: StatementEditorProps) {
             setHasSyntaxDiagnostics(false);
 
         } else if (partialST.syntaxDiagnostics.length){
+            const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
+            const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
+
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            handleDiagnostics(updatedStatement).then();
             setHasSyntaxDiagnostics(true);
         }
     }
@@ -442,20 +452,18 @@ export function StatementEditor(props: StatementEditorProps) {
         setModel({...enrichModel(editedModel, targetPosition, diagnostics)});
     }
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
-
     React.useEffect(() => {
 
-        const client = keyboardNavigationManager.getClient();
+        const client = KeyboardNavigationManager.getClient();
 
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+left', 'command+left'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['tab'], nextModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['shift+tab'], previousModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['enter'], enterKeyHandler);
+        client.bindNewKey(['ctrl+left', 'command+left'], parentModelHandler);
+        client.bindNewKey(['ctrl+right', 'command+right'], parentModelHandler);
+        client.bindNewKey(['tab'], nextModelHandler);
+        client.bindNewKey(['shift+tab'], previousModelHandler);
+        client.bindNewKey(['enter'], enterKeyHandler);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
+            client.resetMouseTrapInstance();
         }
     }, [currentModel.model]);
 
@@ -475,7 +483,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     undo={undo}
                     redo={redo}
                     hasRedo={undoRedoManager.hasRedo()}
-                    hasUndo={undoRedoManager.hasUndo()}
+                    hasUndo={undoRedoManager.hasUndo() || hasSyntaxDiagnostics}
                     diagnostics={stmtDiagnostics}
                     lsSuggestions={lsSuggestionsList}
                     editorManager={editorManager}
@@ -497,6 +505,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     restArg={restArg}
                     hasRestArg={isRestArg}
                     hasSyntaxDiagnostics={hasSyntaxDiagnostics}
+                    updateSyntaxDiagnostics={updateSyntaxDiagnostics}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

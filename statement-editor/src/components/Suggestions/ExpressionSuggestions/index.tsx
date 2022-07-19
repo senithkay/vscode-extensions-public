@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { FormControl, Input, InputAdornment, List, ListItem, ListItemText, Typography } from "@material-ui/core";
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
@@ -32,7 +33,6 @@ import {
     EXPR_PLACEHOLDER,
     SELECTED_EXPRESSION
 } from "../../../utils/expressions";
-import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { ModelType } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -60,6 +60,7 @@ export function ExpressionSuggestions() {
             : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
         updateModel(text, currentModel.model.position)
         inputEditorCtx.onInputChange('');
+        inputEditorCtx.onSuggestionSelection(text);
     }
 
     useEffect(() => {
@@ -93,20 +94,18 @@ export function ExpressionSuggestions() {
         }
     }
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
-
     React.useEffect(() => {
 
-        const client = keyboardNavigationManager.getClient()
+        const client = KeyboardNavigationManager.getClient();
 
-        keyboardNavigationManager.bindNewKey(client, ['right'], changeSelected, 1);
-        keyboardNavigationManager.bindNewKey(client, ['left'], changeSelected, -1);
-        keyboardNavigationManager.bindNewKey(client, ['up'], changeSelected, -2);
-        keyboardNavigationManager.bindNewKey(client, ['down'], changeSelected, 2);
-        keyboardNavigationManager.bindNewKey(client, ['enter'], onClickExpressionSuggestion, filteredExpressions[selectedGroup].expressions[selectedListItem]);
+        client.bindNewKey(['right'], changeSelected, 1);
+        client.bindNewKey(['left'], changeSelected, -1);
+        client.bindNewKey(['up'], changeSelected, -2);
+        client.bindNewKey(['down'], changeSelected, 2);
+        client.bindNewKey(['enter'], onClickExpressionSuggestion, filteredExpressions[selectedGroup].expressions[selectedListItem]);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
+            client.resetMouseTrapInstance();
         }
     }, [selectedListItem]);
 

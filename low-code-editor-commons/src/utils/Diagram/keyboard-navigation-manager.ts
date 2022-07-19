@@ -18,24 +18,29 @@ export class KeyboardNavigationManager {
     undoStack: Map<string, string[]>;
     redoStack: Map<string, string[]>;
     trap: Mousetrap.MousetrapInstance;
+    static instance : KeyboardNavigationManager;
 
-    constructor() {
+    private constructor() {
         this.undoStack = new Map();
         this.redoStack = new Map();
+        this.trap = new Mousetrap();
     }
 
-    public getClient() {
-        return new Mousetrap();
+    public static getClient() {
+        if (!this.instance){
+            this.instance = new KeyboardNavigationManager();
+        }
+        return this.instance;
     }
 
-    public bindNewKey(trap: Mousetrap.MousetrapInstance, key: string | string[], callbackFunction: (args: any) => void, args?: any) {
-        trap.bind(key, () => {
+    public bindNewKey(key: string | string[], callbackFunction: (args: any) => void, args?: any) {
+        this.trap.bind(key, () => {
             callbackFunction(args);
             return false;
         });
     }
 
-    public resetMouseTrapInstance(trap: Mousetrap.MousetrapInstance) {
-        trap.reset()
+    public resetMouseTrapInstance() {
+        this.trap.reset()
     }
 }
