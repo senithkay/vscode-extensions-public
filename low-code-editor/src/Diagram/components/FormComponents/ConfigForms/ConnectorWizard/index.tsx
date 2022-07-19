@@ -22,7 +22,9 @@ import {
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
+import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
 import { FormGenerator } from "../../FormGenerator";
+import { isStatementEditorSupported } from "../../Utils";
 
 import { fetchConnectorInfo } from "./util";
 
@@ -36,13 +38,23 @@ enum WizardStep {
 
 export function ConnectorWizard(props: ConnectorWizardProps) {
     const {
-        props: { langServerURL, currentFile },
+        props: { langServerURL, currentFile, ballerinaVersion },
         api: {
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
 
-    const { wizardType, connectorInfo, model, targetPosition, functionNode, isModuleType, onSave, onClose } = props;
+    const {
+        wizardType,
+        connectorInfo,
+        model,
+        targetPosition,
+        functionNode,
+        diagramPosition,
+        isModuleType,
+        onSave,
+        onClose,
+    } = props;
 
     const [isLoading, setIsLoading] = useState(false);
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>(connectorInfo);
@@ -50,14 +62,12 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     const [selectedAction, setSelectedAction] = useState<FunctionDefinitionInfo>();
     const [wizardStep, setWizardStep] = useState<string>(getInitialWizardStep());
 
+    const showNewForms = isStatementEditorSupported(ballerinaVersion);
+
     function getInitialWizardStep() {
         if (wizardType === ConnectorWizardType.ENDPOINT) {
             if (model) {
-                if (
-                    !isLoading &&
-                    connectorInfo &&
-                    (!selectedConnector || selectedConnector.functions?.length === 0)
-                ) {
+                if (!isLoading && connectorInfo && (!selectedConnector || selectedConnector.functions?.length === 0)) {
                     setIsLoading(true);
                     fetchMetadata(connectorInfo);
                 }
@@ -135,22 +145,41 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     }}
                 />
             )}
-            {wizardStep === WizardStep.ENDPOINT_FORM && (selectedConnector?.package || connectorInfo?.package) && (
-                <FormGenerator
-                    onCancel={closeEndpointForm}
-                    onSave={saveEndpointForm}
-                    configOverlayFormStatus={{
-                        formType: "EndpointForm",
-                        formArgs: {
-                            connector: selectedConnector?.package ? selectedConnector : connectorInfo,
-                            isModuleType
-                        },
-                        isLoading,
-                    }}
-                    targetPosition={targetPosition}
-                    model={model}
-                />
-            )}
+            {wizardStep === WizardStep.ENDPOINT_FORM &&
+                (selectedConnector?.package || connectorInfo?.package) &&
+                showNewForms && (
+                    <FormGenerator
+                        onCancel={closeEndpointForm}
+                        onSave={saveEndpointForm}
+                        configOverlayFormStatus={{
+                            formType: "EndpointForm",
+                            formArgs: {
+                                connector: selectedConnector?.package ? selectedConnector : connectorInfo,
+                            },
+                            isLoading,
+                        }}
+                        targetPosition={targetPosition}
+                        model={model}
+                    />
+                )}
+            {wizardStep === WizardStep.ENDPOINT_FORM &&
+                (selectedConnector?.package || connectorInfo?.package) &&
+                !showNewForms && (
+                    // TODO: Remove this when cleaning old forms
+                    <ConnectorConfigWizard
+                        position={diagramPosition}
+                        connectorInfo={selectedConnector?.package ? selectedConnector : connectorInfo}
+                        targetPosition={targetPosition}
+                        model={model}
+                        onClose={closeEndpointForm}
+                        onSave={saveEndpointForm}
+                        isModuleEndpoint={isModuleType ?? false}
+                        isAction={false}
+                        isEdit={model ? true : false}
+                        functionNode={functionNode}
+                        isLoading={true}
+                    />
+                )}
             {wizardStep === WizardStep.ENDPOINT_LIST && (
                 <FormGenerator
                     onCancel={onClose}
@@ -167,7 +196,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     model={model}
                 />
             )}
-            {wizardStep === WizardStep.ACTION_LIST && (
+            {wizardStep === WizardStep.ACTION_LIST && showNewForms && (
                 <FormGenerator
                     onCancel={onClose}
                     configOverlayFormStatus={{
@@ -178,6 +207,23 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                         },
                         isLoading,
                     }}
+                />
+            )}
+            {wizardStep === WizardStep.ACTION_LIST && !showNewForms && (
+                // TODO: Remove this when cleaning old forms
+                <ConnectorConfigWizard
+                    position={diagramPosition}
+                    connectorInfo={selectedConnector?.package ? selectedConnector : connectorInfo}
+                    endpointName={selectedEndpoint}
+                    targetPosition={targetPosition}
+                    model={model}
+                    onClose={closeEndpointForm}
+                    onSave={saveEndpointForm}
+                    isModuleEndpoint={isModuleType ?? false}
+                    isAction={true}
+                    isEdit={model ? true : false}
+                    functionNode={functionNode}
+                    isLoading={true}
                 />
             )}
             {wizardStep === WizardStep.ACTION_FROM && (
