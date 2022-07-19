@@ -200,8 +200,6 @@ export class InitVisitor implements Visitor {
     }
 
     public endVisitCallStatement(node: CallStatement, parent?: STNode) {
-        node.viewState = new StatementViewState();
-
         if (isSTActionInvocation(node) && node.expression) {
             const stmtViewState = node.viewState as StatementViewState;
             const expressionViewState = node.expression.viewState as StatementViewState;
@@ -278,7 +276,6 @@ export class InitVisitor implements Visitor {
             {
                 node.viewState.expandOffSet = this.offsetValue;
                 parentEp.isExpandedPoint = true;
-                parentEp.visibleEndpoint.viewState.lifeLine.h += node.viewState.bBox.h;
                 this.allEndpoints.set(key, parentEp);
             }
         })
@@ -385,6 +382,10 @@ export class InitVisitor implements Visitor {
     }
 
     private initStatement(node: STNode, parent?: STNode) {
+        if (node.viewState.functionNode && node.viewState.functionNodeExpanded) { 
+            return;
+        }
+
         node.viewState = new StatementViewState();
         const stmtViewState: StatementViewState = node.viewState;
         // todo: In here we need to catch only the action invocations.
