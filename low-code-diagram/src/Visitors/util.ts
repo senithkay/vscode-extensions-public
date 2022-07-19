@@ -101,10 +101,10 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
                     mainEp.lifeLine.h = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2) + mainEp.expandConnectorHeight - mainEp.lifeLine.cy;
                 }
             }
-            
+
             updateActionTriggerCx(mainEp.lifeLine.cx, value.actions, value.isExpandedPoint);
         } else {
-            //When isExpanded is true
+            // When isExpanded is true
             value.visibleEndpoint.viewState.expandConnectorHeight = getHigestHeight(value.actions);
         }
     });

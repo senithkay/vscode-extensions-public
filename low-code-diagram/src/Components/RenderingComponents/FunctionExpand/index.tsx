@@ -121,12 +121,13 @@ export function FunctionExpand(props: FunctionProps) {
   const arrowWidth = 220;
 
   return (
-    <svg 
-    x={0}
-    y={xyProps.y + 25}
-    // y={xyProps.y - expandViewX / 2} 
-    // x={expandViewX} 
-    className="expand-expression">
+    <svg
+      x={0}
+      y={xyProps.y + 25}
+      // y={xyProps.y - expandViewX / 2}
+      // x={expandViewX}
+      className="expand-expression"
+    >
       {/* <g className={arrowClasses}>
         <ControlFlowArrow
           isDotted={false}
@@ -147,17 +148,17 @@ export function FunctionExpand(props: FunctionProps) {
         x={model.viewState.bBox.cx + expandViewX / 2 + arrowSpaceX}
         y={model.viewState.bBox.cy - (arrowSpaceX + arrowSpaceY)}
       > */}
-       <rect
-          y="20"
-          x="40"
-          width={blockWidth}
-          height={blockHeight - 40}
-          rx="30"
-          strokeDasharray={"0.3em"}
-          strokeWidth={1}
-          fill={"rgba(240,241,251,0.5)"}
-          stroke={"#5567D5"}
-        />
+      <rect
+        y="20"
+        x="40"
+        width={blockWidth}
+        height={blockHeight - 40}
+        rx="30"
+        strokeDasharray={"0.3em"}
+        strokeWidth={1}
+        fill={"rgba(240,241,251,0.5)"}
+        stroke={"#5567D5"}
+      />
         {component}
       {/* </svg> */}
     </svg>

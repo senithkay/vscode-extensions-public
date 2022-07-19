@@ -10,13 +10,13 @@ import { IfElse } from "../Components/RenderingComponents/IfElse";
 import { DataProcessor } from "../Components/RenderingComponents/Processor";
 import { Respond } from "../Components/RenderingComponents/Respond";
 import { Statement } from "../Components/RenderingComponents/Statement";
+import { Endpoint } from "../Types/type";
 import { BlockViewState, FunctionViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { InitVisitor } from "../Visitors/init-visitor";
 import { PositioningVisitor } from "../Visitors/positioning-visitor";
 import { SizingVisitor } from "../Visitors/sizing-visitor";
 import { isSTActionInvocation } from "../Visitors/util";
-import { Endpoint } from "../Types/type";
 
 export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
     traversNode(st, new InitVisitor());

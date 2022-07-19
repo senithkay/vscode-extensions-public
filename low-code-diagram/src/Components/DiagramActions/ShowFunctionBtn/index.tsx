@@ -92,24 +92,24 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
     } else {
       try {
         // if (!nodeViewState.functionNode) {
-          const range: any = {
-            start: {
-              line: functionName.position?.startLine,
-              character: functionName.position?.startColumn,
-            },
-            end: {
-              line: functionName.position?.endLine,
-              character: functionName.position?.endColumn,
-            },
-          };
-          const funDef = await getFunctionDef(range, model.viewState.functionNodeFilePath);
-          // const offsetValue = model.viewState.bBox.cx;
-          const offsetValue = model.viewState.bBox.cy;
-          const sizedBlock = initializeViewState(funDef.syntaxTree, model.viewState.parentBlock.viewState.connectors, offsetValue) as FunctionDefinition;
-          sizedBlock.viewState.functionNodeFilePath = funDef.defFilePath;
-          sizedBlock.viewState.functionNodeSource = sizedBlock.source;
-          nodeViewState.functionNode = sizedBlock as FunctionDefinition;
-        // }
+        const range: any = {
+          start: {
+            line: functionName.position?.startLine,
+            character: functionName.position?.startColumn,
+          },
+          end: {
+            line: functionName.position?.endLine,
+            character: functionName.position?.endColumn,
+          },
+        };
+        const funDef = await getFunctionDef(range, model.viewState.functionNodeFilePath);
+        // const offsetValue = model.viewState.bBox.cx;
+        const offsetValue = model.viewState.bBox.cy;
+        const sizedBlock = initializeViewState(funDef.syntaxTree, model.viewState.parentBlock.viewState.connectors, offsetValue) as FunctionDefinition;
+        sizedBlock.viewState.functionNodeFilePath = funDef.defFilePath;
+        sizedBlock.viewState.functionNodeSource = sizedBlock.source;
+        nodeViewState.functionNode = sizedBlock as FunctionDefinition;
+      // }
         if (nodeViewState.functionNode.viewState.functionNodeSource !== model.viewState.functionNodeSource) {
           nodeViewState.functionNodeExpanded = true;
           setConfirmDialogActive(true);

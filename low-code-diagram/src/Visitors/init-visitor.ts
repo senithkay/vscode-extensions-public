@@ -64,7 +64,7 @@ export class InitVisitor implements Visitor {
     private parentConnectors: Map<string, Endpoint>;
     private offsetValue: number;
 
-    constructor(parentConnectors: Map<string, Endpoint> = undefined, offsetValue: number = 0) {
+    constructor(parentConnectors?: Map<string, Endpoint>, offsetValue: number = 0) {
         this.parentConnectors = parentConnectors;
         this.offsetValue = offsetValue;
     }
@@ -270,9 +270,9 @@ export class InitVisitor implements Visitor {
     private mapParentEndpointsWithCurrentEndpoints(node: FunctionBodyBlock) {
         this.parentConnectors?.forEach((parentEp: Endpoint, key: string) => {
             // TODO: Check all the conditions to map the correct endpoint
-            const currentVp = this.allEndpoints?.get(key); 
-            if (currentVp && parentEp.actions.length > 0 && parentEp.visibleEndpoint.moduleName === currentVp.visibleEndpoint.moduleName 
-                && parentEp.visibleEndpoint.orgName === currentVp.visibleEndpoint.orgName )
+            const currentVp = this.allEndpoints?.get(key);
+            if (currentVp && parentEp.actions.length > 0 && parentEp.visibleEndpoint.moduleName === currentVp.visibleEndpoint.moduleName
+                && parentEp.visibleEndpoint.orgName === currentVp.visibleEndpoint.orgName)
             {
                 node.viewState.expandOffSet = this.offsetValue;
                 parentEp.isExpandedPoint = true;
@@ -382,7 +382,7 @@ export class InitVisitor implements Visitor {
     }
 
     private initStatement(node: STNode, parent?: STNode) {
-        if (node.viewState.functionNode && node.viewState.functionNodeExpanded) { 
+        if (node.viewState.functionNode && node.viewState.functionNodeExpanded) {
             return;
         }
 

@@ -120,7 +120,7 @@ export class SizingVisitor implements Visitor {
 
     private parentConnectors: Map<string, Endpoint> = new Map<string, Endpoint>();
 
-    constructor(experimentalEnabled: boolean = false, parentConnectors: Map<string, Endpoint> = undefined) {
+    constructor(experimentalEnabled: boolean = false, parentConnectors?: Map<string, Endpoint>) {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
@@ -132,7 +132,7 @@ export class SizingVisitor implements Visitor {
         let size = 0;
         this.allEndpoints.forEach((value: Endpoint, key: string) => {
             const found = this.parentConnectors?.get(key);
-            if(!found) {
+            if (!found) {
                 size++;
             }
         })
