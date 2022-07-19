@@ -44,7 +44,6 @@ export function ActionStatementC(props: ReturnStatementProps) {
             } else {
                 changeCurrentModel(model.expression.expression);
             }
-            changeCurrentModel(model.expression.expression);
         } else {
             changeCurrentModel(model.expression);
         }
