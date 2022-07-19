@@ -105,7 +105,6 @@ export function ActionForm(props: FormGeneratorProps) {
                 </Box>
             )}
             {!isLoading &&
-                initialSource !== "EXPRESSION" &&
                 StatementEditorWrapper({
                     label: formTitle,
                     initialSource,

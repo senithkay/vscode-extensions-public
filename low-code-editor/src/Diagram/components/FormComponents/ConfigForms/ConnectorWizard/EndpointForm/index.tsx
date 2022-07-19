@@ -107,7 +107,6 @@ export function EndpointForm(props: FormGeneratorProps) {
                 </Box>
             )}
             {!isLoading &&
-                initialSource !== "EXPRESSION" &&
                 StatementEditorWrapper({
                     label: formTitle,
                     initialSource,

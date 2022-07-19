@@ -526,7 +526,7 @@ export function createCheckedRemoteServiceCall(type: string, variable: string, c
 }
 
 export function createActionStatement(callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
-    const checkedRemoteServiceCall: STModification = {
+    const actionStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
         endLine: targetPosition.startLine,
@@ -539,11 +539,11 @@ export function createActionStatement(callerName: string, functionName: string, 
         }
     };
 
-    return checkedRemoteServiceCall;
+    return actionStatement;
 }
 
 export function createCheckActionStatement(callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
-    const checkedRemoteServiceCall: STModification = {
+    const checkActionStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
         endLine: targetPosition.startLine,
@@ -556,7 +556,7 @@ export function createCheckActionStatement(callerName: string, functionName: str
         }
     };
 
-    return checkedRemoteServiceCall;
+    return checkActionStatement;
 }
 
 export function updateCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {

@@ -537,16 +537,12 @@ export function mapActionToFormField(model: STNode, formFields: FormField[]) {
                     formField.value = positionalArg.expression.source;
                 }
                 nextValueIndex++;
-            } else if (formField.typeName === "handle") {
-                formField.value = positionalArg.expression?.source;
-                nextValueIndex++;
-            } else if (formField.typeName === "object") {
-                formField.value = positionalArg.expression?.source;
-                nextValueIndex++;
-            } else if (formField.typeName.includes("array")) {
-                formField.value = positionalArg.expression?.source;
-                nextValueIndex++;
-            } else if (formField.typeName === "collection") {
+            } else if (
+                formField.typeName === "handle" ||
+                formField.typeName === "object" ||
+                formField.typeName === "collection" ||
+                formField.typeName.includes("array")
+            ) {
                 formField.value = positionalArg.expression?.source;
                 nextValueIndex++;
             } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
