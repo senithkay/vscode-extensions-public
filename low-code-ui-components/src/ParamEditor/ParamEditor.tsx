@@ -24,8 +24,10 @@ import { useStyles } from "./style";
 
 export interface Param {
     id: number;
-    dataType?: string;
     name: string;
+    dataType?: string;
+    defaultValue?: string;
+    headerName?: string;
 }
 export const headerParameterOption = "Header";
 
@@ -51,12 +53,14 @@ export interface ParamProps {
 export function ParamEditor(props: ParamProps) {
     const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, alternativeName, headerName, isTypeReadOnly,
             optionList, enabledOptions, dataTypeReqOptions, option = "", onChange, onAdd, onUpdate, onCancel } = props;
-    const { id, name, dataType } = param;
+    const { id, name, dataType, headerName: hName, defaultValue } = param;
 
     const classes = useStyles();
 
     const [paramDataType, setParamDataType] = useState<string>(dataType);
     const [paramName, setParamName] = useState<string>(name);
+    const [paramHeaderName, setParamHeaderName] = useState<string>(paramName);
+    const [paramDefaultValue, setParamDefaultValue] = useState<string>(defaultValue);
     const [selectedOption, setSelectedOption] = useState<string>(option);
     const [isHeaderConfigInProgress, setIsHeaderConfigInProgress] = useState<boolean>(!!headerName);
     // States related to syntax diagnostics
@@ -68,34 +72,52 @@ export function ParamEditor(props: ParamProps) {
         setParamName(value);
         setCurrentComponentName("Name");
         if (optionList) {
-            onChange({id, name: value, dataType: paramDataType}, selectedOption);
+            onChange({id, name: value, dataType: paramDataType, headerName: paramHeaderName,
+                      defaultValue: paramDefaultValue}, selectedOption);
         } else {
-            onChange({id, name: value, dataType: paramDataType});
+            onChange({id, name: value, dataType: paramDataType, headerName: paramHeaderName,
+                      defaultValue: paramDefaultValue});
         }
     };
     const debouncedNameChange = debounce(handleNameChange, 800);
 
     const handleHeaderNameChange = (value: string) => {
-        setParamName(value);
-        setCurrentComponentName("Name");
+        setParamHeaderName(value);
+        setCurrentComponentName("HeaderName");
         if (optionList) {
-            onChange({id, name: value, dataType: paramDataType}, selectedOption);
+            onChange({id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
+                paramDefaultValue}, selectedOption);
         } else {
-            onChange({id, name: value, dataType: paramDataType});
+            onChange({id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
+                paramDefaultValue});
         }
     };
-    const debouncedHandleHeaderNameChange = debounce(handleHeaderNameChange, 800);
+    const debouncedHeaderNameChange = debounce(handleHeaderNameChange, 800);
 
     const handleTypeChange = (value: string) => {
         setParamDataType(value);
         setCurrentComponentName("Type");
         if (optionList) {
-            onChange({id, name: paramName, dataType: value}, selectedOption);
+            onChange({id, name: paramName, dataType: value, headerName: paramHeaderName,
+                      defaultValue: paramDefaultValue}, selectedOption);
         } else {
-            onChange({id, name: paramName, dataType: value});
+            onChange({id, name: paramName, dataType: value, headerName: paramHeaderName, defaultValue:
+                paramDefaultValue});
         }
     };
     const debouncedTypeChange = debounce(handleTypeChange, 800);
+
+    const handleDefaultValueChange = (value: string) => {
+        setParamDefaultValue(value);
+        setCurrentComponentName("HeaderName");
+        if (optionList) {
+            onChange({id, name: paramName, dataType: paramDataType, headerName, defaultValue: value},
+                selectedOption);
+        } else {
+            onChange({id, name: paramName, dataType: paramDataType, headerName, defaultValue: value});
+        }
+    };
+    const debouncedDefaultValeChange = debounce(handleDefaultValueChange, 800);
 
     const handleOnSelect = (value: string) => {
         setSelectedOption(value);
@@ -105,15 +127,19 @@ export function ParamEditor(props: ParamProps) {
     const handleAddParam = () => {
         if (onUpdate) {
             if (optionList) {
-                onUpdate({id, name: paramName, dataType: paramDataType}, selectedOption);
+                onUpdate({id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
+                          defaultValue: paramDefaultValue}, selectedOption);
             } else {
-                onUpdate({id, name: paramName, dataType: paramDataType});
+                onUpdate({id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
+                          defaultValue: paramDefaultValue});
             }
         } else {
             if (optionList) {
-                onAdd({id, name: paramName, dataType: paramDataType}, selectedOption);
+                onAdd({id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
+                    paramDefaultValue}, selectedOption);
             } else {
-                onAdd({id, name: paramName, dataType: paramDataType});
+                onAdd({id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
+                    paramDefaultValue});
             }
         }
     };
@@ -133,6 +159,14 @@ export function ParamEditor(props: ParamProps) {
     useEffect(() => {
         setSelectedOption(option);
     }, [option]);
+
+    useEffect(() => {
+        setParamHeaderName(hName);
+    }, [hName]);
+
+    useEffect(() => {
+        setParamDefaultValue(defaultValue);
+    }, [defaultValue]);
 
     return (
         <div className={classes.paramContainer}>
@@ -192,8 +226,8 @@ export function ParamEditor(props: ParamProps) {
                     <FormTextInput
                         label="Value"
                         dataTestId="default-value"
-                        defaultValue={headerName}
-                        onChange={debouncedHandleHeaderNameChange}
+                        defaultValue={paramDefaultValue}
+                        onChange={debouncedDefaultValeChange}
                         customProps={{
                             isErrored: ((syntaxDiag !== "" && currentComponentName === "DefaultValue") ||
                                 (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
@@ -212,8 +246,8 @@ export function ParamEditor(props: ParamProps) {
                 <FormTextInput
                     label="Header Name"
                     dataTestId="header-name"
-                    defaultValue={headerName}
-                    onChange={debouncedHandleHeaderNameChange}
+                    defaultValue={paramHeaderName}
+                    onChange={debouncedHeaderNameChange}
                     customProps={{
                         isErrored: ((syntaxDiag !== "" && currentComponentName === "HeaderName") ||
                             (nameDiagnostics !== "" && nameDiagnostics !== undefined)),

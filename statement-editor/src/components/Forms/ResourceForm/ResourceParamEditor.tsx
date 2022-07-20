@@ -28,7 +28,8 @@ import { QueryParam, QueryParamCollection } from "./types";
 import {
     generateQueryStringFromQueryCollection,
     genParamName,
-    getQueryParamCollection, headerParameterOption, paramOptions,
+    getQueryParamCollection, headerParameterOption,
+    paramOptions,
     queryParameterOption,
     recalculateItemIds,
 } from "./util";
@@ -69,10 +70,10 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
         onChangeInProgress(false);
         onChange(generateQueryStringFromQueryCollection(queryParamState));
     };
-    const onParamUpdate = (param : {id: number, name: string, dataType?: string, defaultValue?: string},
+    const onParamUpdate = (param : {id: number, name: string, dataType?: string, defaultValue?: string,
+                                    headerName?: string},
                            option: string) => {
         const { id, name, dataType, defaultValue } = param;
-        // const type = (option === headerParameterOption) ? `@http:Header ${dataType}` : dataType;
         const clonePath = { ...queryParamState }
         const foundPath = queryParamState.queryParams.find(qParam => qParam.id === id);
         if (foundPath) {
@@ -88,7 +89,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
 
     const onEdit = (param : {id: number, name: string, headerName?: string, defaultValue?: string, dataType?: string,
                              option?: string}) => {
-        const { id, option } = param;
+        const { id } = param;
         const foundPath = queryParamState.queryParams.find(qParam => qParam.id === id);
         if (foundPath) {
             setEditingSegmentId(id);
@@ -115,41 +116,40 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
         onChange(generateQueryStringFromQueryCollection(queryParamState));
     };
 
-    const onParamChange = (param : {id: number, name: string, dataType: string, headerName: string,
-                                    defaultValue?: string},
+    const onParamChange = (param: { id: number, name: string, dataType: string, defaultValue?: string,
+                                    headerName: string },
                            option?: string, optionChanged?: boolean) => {
         const { id, name, dataType, headerName, defaultValue } = param;
         const foundParam = queryParamState.queryParams.find(qParam => qParam.id === id);
         if (foundParam) {
-            // When we have are editing an existing param
+            // When we are editing an existing param
             let newParam;
-            // if (optionChanged) {
-            //     newParam = (option === headerParameterOption) ? {id, name, type: `@http:Header string`, option} :
-            //         {id, name, type: `string`, option};
-            // } else {
-            //     newParam = (option === headerParameterOption) ?
-            //         {id, name, type: `@http:Header ${dataType}`, option} : {id, name, type: dataType, option};
-            // }
-            newParam = optionChanged ? {id, name, type: `string`, option} :
-                {id, name, type: dataType, option, defaultValue};
+            if (optionChanged) {
+                newParam = (option === headerParameterOption) ? {
+                    id, name, type: `string?`, option, mappedName: headerName, defaultValue
+                } : {
+                    id, name, type: `string`, option, mappedName: headerName, defaultValue
+                };
+            } else {
+                newParam = {id, name, type: dataType, option, defaultValue};
+            }
             setEditingSegmentId(id);
             setDraftParam(newParam);
             const clonedParamState: QueryParamCollection = { queryParams : [...queryParamState.queryParams] };
             clonedParamState.queryParams[id] = newParam;
             onChange(generateQueryStringFromQueryCollection(clonedParamState), true);
         } else {
-            // When we have are editing a new param
-            const newParam = {id, name, type: dataType, option, defaultValue};
-            // if (optionChanged) {
-            //     if (option === headerParameterOption) {
-            //         newParam = {id, name, type: `@http:Payload json`, option};
-            //     } else {
-            //         newParam = {id, name, type: `string`, option};
-            //     }
-            // } else {
-            //     newParam = (option === payloadParameterOption) ?
-            //         {id, name, type: `@http:Payload ${dataType}`, option} : {id, name, type: dataType, option};
-            // }
+            // When we are editing a new param
+            let newParam;
+            if (optionChanged) {
+                newParam = (option === headerParameterOption) ? {
+                    id, name, type: `string?`, option, mappedName: headerName, defaultValue
+                } : {
+                    id, name, type: `string`, option, mappedName: headerName, defaultValue
+                };
+            } else {
+                newParam = {id, name, type: dataType, option, defaultValue};
+            }
             setDraftParam(newParam);
             const newParams = [...queryParamState.queryParams, newParam];
             const clonedParamState: QueryParamCollection = {queryParams: newParams};
@@ -193,29 +193,36 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
         } else if (editingSegmentId === index) {
             let type;
             let name;
+            let defaultValue;
+            let headerName;
             if (draftParam) {
-                if (draftParam.type.includes("@http:Payload")) {
-                    const typeSplit = draftParam.type.split(" ");
-                    type = typeSplit[1].trim();
-                } else {
-                    type = draftParam.type;
-                }
+                // if (draftParam.type.includes("@http:Payload")) {
+                //     const typeSplit = draftParam.type.split(" ");
+                //     type = typeSplit[1].trim();
+                // } else {
+                type = draftParam.type;
+
+                // }
                 name = draftParam.name;
+                defaultValue = draftParam.defaultValue;
+                headerName = draftParam.mappedName;
             } else {
-                if (value.type.includes("@http:Payload")) {
-                    const typeSplit = value.type.split(" ");
-                    type = typeSplit[1].trim();
-                } else {
-                    type = value.type;
-                }
+                // if (value.type.includes("@http:Payload")) {
+                //     const typeSplit = value.type.split(" ");
+                //     type = typeSplit[1].trim();
+                // } else {
+                type = value.type;
+                // }
                 name = value.name;
+                defaultValue = value.defaultValue;
+                headerName = value.mappedName;
             }
             pathComponents.push(
                 <ParamEditor
                     syntaxDiag={syntaxDiag ? syntaxDiag[0].message : ""}
                     nameDiagnostics={nameSemDiag}
                     typeDiagnostics={typeSemDiag}
-                    param={{id: value.id, name, dataType: type}}
+                    param={{id: value.id, name, dataType: type, defaultValue, headerName}}
                     isEdit={true}
                     optionList={paramOptions}
                     enabledOptions={paramOptions}
