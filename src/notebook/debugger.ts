@@ -17,7 +17,8 @@
  *
  */
 
-import { debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell, NotebookCellKind, NotebookDocument, NotebookRange, ProviderResult, Uri, window, workspace, WorkspaceFolder } from "vscode";
+import { debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell, 
+    NotebookCellKind, NotebookDocument, NotebookRange, ProviderResult, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import fileUriToPath from "file-uri-to-path";
 import { mkdtempSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
@@ -30,7 +31,8 @@ import { getSmallerMax } from "./utils";
 
 let tmpDirectory: string;
 let tmpFile: string;
-let debugCellInfoHandler: DebugCellInfoHandler;
+let debugCellInfoHandler: DebugCellInfoHandler | undefined = undefined;
+let runningNotebookDebug = false;
 
 export class NotebookDebuggerController {
 
@@ -52,6 +54,7 @@ export class NotebookDebuggerController {
         }
         const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(activeTextEditorUri);
         const debugConfig: DebugConfiguration = await this.constructDebugConfig(activeTextEditorUri);
+        runningNotebookDebug = true;
         return debug.startDebugging(workspaceFolder, debugConfig);
     }
 
@@ -62,7 +65,8 @@ export class NotebookDebuggerController {
             request: DEBUG_REQUEST.LAUNCH,
             script: fileUriToPath(uri.toString()),
             networkLogs: false,
-            debugServer: 4711,
+            debugServer: '10001',
+            debuggeePort: '5010',
             'ballerina.home': this.extensionInstance.getBallerinaHome(),
             'ballerina.command': this.extensionInstance.getBallerinaCmd(),
             debugTests: false,
@@ -84,7 +88,7 @@ export class NotebookDebuggerController {
                 contentToWrite += sourceIndex === cell.index
                     ? "public function main() {" + cell.document.getText() + "\n}"
                     : cell.document.getText() + "\n";
-                debugCellInfoHandler.addLineToCell(nextLineToWrite, cell);
+                debugCellInfoHandler?.addLineToCell(nextLineToWrite, cell);
                 nextLineToWrite += cell.document.lineCount;
             }
         });
@@ -93,102 +97,152 @@ export class NotebookDebuggerController {
 }
 
 export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory {
-    createDebugAdapterTracker(session: DebugSession): ProviderResult<DebugAdapterTracker> {
-        return {
 
-            onWillReceiveMessage: (message: DebugProtocol.ProtocolMessage) => {
-                // VS Code -> Debug Adapter
-                this.visitSources(message, (source, breakpoints) => {
-                    if (source?.path?.startsWith("vscode-notebook-cell")) {
-                        breakpoints && breakpoints.forEach(breakpoint => {
-                            breakpoint.line += debugCellInfoHandler.getCellStartLine(source.path!);
-                        });
-                        source.path = tmpFile;
+    private eventHandlers = [
+        {
+            event: "output",
+            handle: (_event: DebugProtocol.Event) => {
+                // const outputEvent = <DebugProtocol.OutputEvent>event;
+            }
+        },
+        {
+            event: "breakpoint",
+            handle: (event: DebugProtocol.Event) => {
+                const breakpointEvent = <DebugProtocol.BreakpointEvent>event;
+                const breakpoint = breakpointEvent.body.breakpoint;
+                const cellInfo = runningNotebookDebug && debugCellInfoHandler?.getCellForLine(breakpoint.line!);
+                if (cellInfo && cellInfo.cell) {
+                    breakpoint.source!.path = cellInfo.cell.document.uri.toString();
+                    breakpoint.source!.name = basename(cellInfo.cell.document.uri.fsPath);
+                    const cellIndex = cellInfo.cell.index;
+                    if (cellIndex >= 0) {
+                        breakpoint.source!.name += `, Cell ${cellIndex + 1}`;
+                    }
+                    breakpoint.line! -= cellInfo.line;
+                }
+            }
+        },
+        {
+            event: "exited",
+            handle: (_event: DebugProtocol.Event) => {
+                debugCellInfoHandler = undefined;
+                runningNotebookDebug = false;
+            }
+        },
+    ];
+
+    private requestHandlers = [
+        {
+            command: "setBreakpoints",
+            handle: (request: DebugProtocol.Request) => {
+                const setBreakpointsArguments = <DebugProtocol.SetBreakpointsArguments>request.arguments;
+                const source = setBreakpointsArguments.source;
+                const breakpoints = setBreakpointsArguments.breakpoints;
+                if (source?.path?.startsWith("vscode-notebook-cell")) {
+                    breakpoints && breakpoints.forEach(breakpoint => {
+                        breakpoint.line += debugCellInfoHandler?.getCellStartLine(source.path!)!;
+                    });
+                    source.path = tmpFile;
+                }
+            }
+        },
+        {
+            command: "source",
+            handle: (request: DebugProtocol.Request) => {
+                const sourceArguments = <DebugProtocol.SourceArguments>request.arguments;
+                const source = sourceArguments.source;
+                if (source?.path?.startsWith("vscode-notebook-cell")) {
+                    source.path = tmpFile;
+                }
+            }
+        },
+        {
+            command: "terminate",
+            handle: (_event: DebugProtocol.Event) => {
+                debugCellInfoHandler = undefined;
+                runningNotebookDebug = false;
+            }
+        },
+    ];
+
+    private responseHandlers = [
+        {
+            command: "setBreakpoints",
+            handle: (response: DebugProtocol.Response) => {
+                const setBreakpointsResponse = <DebugProtocol.SetBreakpointsResponse>response;
+                const breakpoints = setBreakpointsResponse.body.breakpoints;
+                breakpoints.forEach(breakpoint => {
+                    if (!breakpoint.source?.name?.endsWith(BAL_NOTEBOOK)) {
+                        return;
+                    }
+                    const cellInfo = runningNotebookDebug && debugCellInfoHandler?.getCellForLine(breakpoint.line!);
+                    if (cellInfo && cellInfo.cell) {
+                        breakpoint.source!.path = cellInfo.cell.document.uri.toString();
+                        breakpoint.source!.name = basename(cellInfo.cell.document.uri.fsPath);
+                        const cellIndex = cellInfo.cell.index;
+                        if (cellIndex >= 0) {
+                            breakpoint.source!.name += `, Cell ${cellIndex + 1}`;
+                        }
+                        breakpoint.line! -= cellInfo.line;
                     }
                 });
-            },
-
-            onDidSendMessage: (message: DebugProtocol.ProtocolMessage) => {
-                // Debug Adapter -> VS Code
-                this.visitSources(message, (source, breakpoints) => {
-                    breakpoints && breakpoints.forEach(breakpoint => {
-                        const {cell, line} = debugCellInfoHandler.getCellForLine(breakpoint.line!);
-                        if (cell) {
-                            source.path = cell.document.uri.toString();
-                            source.name = basename(cell.document.uri.fsPath);
-                            // append cell index to name
-                            const cellIndex = cell.index;
-                            if (cellIndex >= 0) {
-                                source.name += `, Cell ${cellIndex + 1}`;
-                            }
-                            breakpoint.line -= line;
+            }
+        },
+        {
+            command: "stackTrace",
+            handle: (response: DebugProtocol.Response) => {
+                const stackTraceResponse = <DebugProtocol.StackTraceResponse>response;
+                const stackFrames = stackTraceResponse.body.stackFrames;
+                stackFrames.forEach(stackFrame => {
+                    const cellInfo = runningNotebookDebug && debugCellInfoHandler?.getCellForLine(stackFrame.line);
+                    if (cellInfo && cellInfo.cell) {
+                        stackFrame.source!.path = cellInfo.cell.document.uri.toString();
+                        stackFrame.source!.name = basename(cellInfo.cell.document.uri.fsPath);
+                        const cellIndex = cellInfo.cell.index;
+                        if (cellIndex >= 0) {
+                            stackFrame.source!.name += `, Cell ${cellIndex + 1}`;
                         }
-                    });
+                        stackFrame.line! -= cellInfo.line;
+                    }
                 });
+            }
+        },
+    ];
+
+    createDebugAdapterTracker(_session: DebugSession): ProviderResult<DebugAdapterTracker> {
+        return {
+            // VS Code -> Debug Adapter
+            onWillReceiveMessage: (message: DebugProtocol.ProtocolMessage) => {
+                this.visitSources(message);
+            },
+            // Debug Adapter -> VS Code
+            onDidSendMessage: (message: DebugProtocol.ProtocolMessage) => {
+                this.visitSources(message);
             }
         }
     }
 
-    visitSources(msg: DebugProtocol.ProtocolMessage, visitor: (source: DebugProtocol.Source, breakPoints?: DebugProtocol.SourceBreakpoint[] | DebugProtocol.Breakpoint[]) => void): void {
-
-        const visit = (source: DebugProtocol.Source | undefined, breakPoints?: DebugProtocol.SourceBreakpoint[] | DebugProtocol.Breakpoint[]) => {
-            if (source) {
-                breakPoints ? visitor(source, breakPoints) : visitor(source);
-            }
-        }
-
+    private visitSources(msg: DebugProtocol.ProtocolMessage): void {
+        let handler: any = undefined;
         switch (msg.type) {
             case 'event':
                 const event = <DebugProtocol.Event>msg;
-                switch (event.event) {
-                    case 'output':
-                        visit((<DebugProtocol.OutputEvent>event).body.source);
-                        break;
-                    case 'breakpoint':
-                        const breakpointEvent = <DebugProtocol.BreakpointEvent>event;
-                        visit(breakpointEvent.body.breakpoint.source, [breakpointEvent.body.breakpoint]);
-                        break;
-                    default:
-                        break;
-                }
+                handler = this.eventHandlers.find(eventHandler => eventHandler.event === event.event);
+                handler && handler.handle(event);
                 break;
             case 'request':
                 const request = <DebugProtocol.Request>msg;
-                switch (request.command) {
-                    case 'setBreakpoints':
-                        const setBreakpointsArguments = (<DebugProtocol.SetBreakpointsArguments>request.arguments)
-                        visit(setBreakpointsArguments.source, setBreakpointsArguments.breakpoints);
-                        break;
-                    case 'breakpointLocations':
-                        visit((<DebugProtocol.BreakpointLocationsArguments>request.arguments).source);
-                        break;
-                    case 'source':
-                        visit((<DebugProtocol.SourceArguments>request.arguments).source);
-                        break;
-                    case 'gotoTargets':
-                        visit((<DebugProtocol.GotoTargetsArguments>request.arguments).source);
-                        break;
-                    default:
-                        break;
-                }
+                handler = this.requestHandlers.find(requestHandler => requestHandler.command === request.command);
+                handler && handler.handle(request);
                 break;
             case 'response':
                 const response = <DebugProtocol.Response>msg;
-                if (response.success && response.body) {
-                    switch (response.command) {
-                        case 'stackTrace':
-                            (<DebugProtocol.StackTraceResponse>response).body.stackFrames.forEach(frame => visit(frame.source));//frame.line
-                            break;
-                        case 'setFunctionBreakpoints':
-                            (<DebugProtocol.SetFunctionBreakpointsResponse>response).body.breakpoints.forEach(bp => visit(bp.source));
-                            break;
-                        case 'setBreakpoints':
-                            (<DebugProtocol.SetBreakpointsResponse>response).body.breakpoints.forEach(bp => visit(bp.source, [bp]));
-                            break;
-                        default:
-                            break;
-                    }
+                if (response.success) {
+                    handler = this.responseHandlers.find(respHandler => respHandler.command === response.command);
+                    handler && handler.handle(response);
                 }
+                break;
+            default:
                 break;
         }
     }
