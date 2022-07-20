@@ -146,6 +146,12 @@ export const useStatementRendererStyles = makeStyles(() =>
             '&.hovered': {
                 backgroundColor: '#e5ebf1',
             },
+            '&:focus-within': {
+                backgroundColor: 'transparent'
+            },
+            '&.hovered:focus-within:': {
+                backgroundColor: 'transparent',
+            },
             ...hoverColor2
         },
         syntaxErrorElementSelected: {
@@ -158,6 +164,11 @@ export const useStatementRendererStyles = makeStyles(() =>
                 backgroundColor: '#FCEDED',
                 boxShadow: '0 1px 4px 0 rgba(0,0,0,0.11)',
                 color: '#FE523C',
+            },
+            '&:focus-within': {
+                backgroundColor: 'transparent',
+                boxShadow: 'none',
+                border: 'none'
             }
         },
         addNewExpressionButton: {
