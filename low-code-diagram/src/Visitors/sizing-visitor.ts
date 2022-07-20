@@ -416,7 +416,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.getConnectorSize() * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.getConnectorSize() * (DefaultConfig.connectorEPWidth)) + (!!this.parentConnectors ? 0 : DefaultConfig.epGap);
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -1358,8 +1358,11 @@ export class SizingVisitor implements Visitor {
         if (viewState.functionNode && viewState.functionNodeExpanded) {
             recalculateSizingAndPositioning(viewState.functionNode, null, this.allEndpoints);
             viewState.bBox.h += viewState.functionNode.viewState.bBox.h;
-            viewState.bBox.rw += viewState.functionNode.viewState.bBox.rw;
-            viewState.bBox.w = viewState.bBox.rw + viewState.bBox.lw;
+            if (viewState.functionNode.viewState.bBox.rw > viewState.bBox.rw) {
+                viewState.bBox.rw = viewState.functionNode.viewState.bBox.rw;
+                // viewState.bBox.w = viewState.bBox.rw + viewState.bBox.lw;
+            }
+            // viewState.bBox.rw += viewState.functionNode.viewState.bBox.rw;
         }
     }
 

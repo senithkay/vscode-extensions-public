@@ -30,6 +30,8 @@ import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
 import "./style.scss";
+import { PROCESS_SVG_HEIGHT } from "../Processor/ProcessSVG";
+import { DefaultConfig } from "../../../Visitors";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -123,7 +125,7 @@ export function FunctionExpand(props: FunctionProps) {
   return (
     <svg
       x={0}
-      y={xyProps.y + 25}
+      y={xyProps.y + (PROCESS_SVG_HEIGHT / 4) * 3 - DefaultConfig.dotGap}
       // y={xyProps.y - expandViewX / 2}
       // x={expandViewX}
       className="expand-expression"
@@ -149,14 +151,14 @@ export function FunctionExpand(props: FunctionProps) {
         y={model.viewState.bBox.cy - (arrowSpaceX + arrowSpaceY)}
       > */}
       <rect
-        y="20"
+        y={PROCESS_SVG_HEIGHT / 2}
         x="40"
         width={blockWidth}
-        height={blockHeight - 40}
+        height={blockHeight - DefaultConfig.dotGap * 2}
         rx="30"
         strokeDasharray={"0.3em"}
         strokeWidth={1}
-        fill={"rgba(240,241,251,0.5)"}
+        fill={"none"}
         stroke={"#5567D5"}
       />
         {component}

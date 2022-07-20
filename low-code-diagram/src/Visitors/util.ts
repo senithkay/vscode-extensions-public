@@ -98,7 +98,7 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
                 mainEp.lifeLine.h += mainEp.lifeLine.cy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2));
                 mainEp.lifeLine.cy = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2);
                 if (mainEp.expandConnectorHeight > mainEp.lifeLine.h) {
-                    mainEp.lifeLine.h = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2) + mainEp.expandConnectorHeight - mainEp.lifeLine.cy;
+                    mainEp.lifeLine.h = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2) + mainEp.expandConnectorHeight - (mainEp.lifeLine.cy + 10);
                 }
             }
 
@@ -111,13 +111,17 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
 }
 
 export function getHigestHeight(actions: StatementViewState[]) {
-    let triggerHeight = 0;
+    let maxOffSet = 0;
+    let maxActionCY = 0;
     actions.forEach((action) => {
-        if (action.expandOffSet > 0 && action.action.trigger.cy > triggerHeight) {
-            triggerHeight = action.expandOffSet + action.action.trigger.cy
+        if (action.expandOffSet > maxOffSet) {
+            maxOffSet = action.expandOffSet;
+        }
+        if (action.action.trigger.cy > maxActionCY) {
+            maxActionCY = action.action.trigger.cy;
         }
     });
-    return triggerHeight;
+    return maxOffSet + maxActionCY;
 }
 
 export function updateActionTriggerCx(connectorCX: number, actions: StatementViewState[], isExpanded: boolean) {

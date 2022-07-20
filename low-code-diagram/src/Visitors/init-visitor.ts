@@ -71,7 +71,7 @@ export class InitVisitor implements Visitor {
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         if (!node.viewState) {
-            node.viewState = new ViewState();
+            node.viewState = new StatementViewState();
         }
         this.initStatement(node, this.removeXMLNameSpaces(parent));
     }
@@ -241,8 +241,13 @@ export class InitVisitor implements Visitor {
         }
     }
 
+    public beginVisitTypeCastExpression(node: TypeCastExpression) {
+        if (!node.viewState) {
+            node.viewState = new StatementViewState();
+        }
+    }
+
     public endVisitTypeCastExpression(node: TypeCastExpression, parent?: STNode) {
-        node.viewState = new StatementViewState();
         if (isSTActionInvocation(node) && node.expression) {
             if (STKindChecker.isRemoteMethodCallAction(node.expression)) {
                 const remoteCall = node.expression;
@@ -382,11 +387,9 @@ export class InitVisitor implements Visitor {
     }
 
     private initStatement(node: STNode, parent?: STNode) {
-        if (node.viewState.functionNode && node.viewState.functionNodeExpanded) {
-            return;
+        if (!node.viewState) {
+            node.viewState = new StatementViewState();
         }
-
-        node.viewState = new StatementViewState();
         const stmtViewState: StatementViewState = node.viewState;
         // todo: In here we need to catch only the action invocations.
         if (isSTActionInvocation(node) && !haveBlockStatement(node)) {
