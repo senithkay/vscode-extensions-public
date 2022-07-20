@@ -62,7 +62,10 @@ export const generateDocURL = (env: string, configSchema: ConfigSchema) => {
     const requiredProperties: string[] = packageConfig[SchemaConstants.REQUIRED];
     const propertyType: string = packageConfig[SchemaConstants.TYPE];
 
-    if (requiredProperties[0] === SchemaConstants.CONFIG && propertyType === ConfigType.OBJECT) {
+    if (requiredProperties
+        && requiredProperties.includes(SchemaConstants.CONFIG)
+        && propertyType === ConfigType.OBJECT
+    ) {
         const moduleName = propertiesObj[SchemaConstants.CONFIG][SchemaConstants.NAME].split(":")[0];
 
         docLink = env === SENTRY_DEV ? `${BALLERINA_CENTRAL_DEV}/${moduleName}/latest` : env === SENTRY_STAGE ?
