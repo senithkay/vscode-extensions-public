@@ -71,7 +71,6 @@ export function InputEditor(props: InputEditorProps) {
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);
-    const [isSelectingText, setIsSelectingText] = useState(false);
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
@@ -117,12 +116,6 @@ export function InputEditor(props: InputEditorProps) {
         }
     }, [hasSyntaxDiagnostics]);
 
-    useEffect(() => {
-        if (isEditing === false) {
-            setIsSelectingText(false);
-        }
-    }, [isEditing]);
-
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {
             handleEditEnd();
@@ -166,10 +159,8 @@ export function InputEditor(props: InputEditorProps) {
 
     const handleDoubleClick = () => {
         if (!notEditable && !hasSyntaxDiagnostics) {
-            setIsSelectingText(true);
             setIsEditing(true);
         } else if (!notEditable && hasSyntaxDiagnostics && (currentModel.model === model)) {
-            setIsSelectingText(true);
             setIsEditing(true);
         }
     };
@@ -209,7 +200,6 @@ export function InputEditor(props: InputEditorProps) {
                     autoFocus={true}
                     style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
                     spellCheck="false"
-                    onFocus={isSelectingText && (event => {event.target.select(); })}
                 />
             </ClickAwayListener>
         ) : (
