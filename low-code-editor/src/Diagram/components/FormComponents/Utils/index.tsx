@@ -201,6 +201,9 @@ export function addDbExtraStatements(
 }
 
 export function isStatementEditorSupported(version: string): boolean {
+    if (!version) {
+        return false;
+    }
     const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
     const versionStr = version.match(versionRegex);
     const splittedVersions = versionStr[0]?.split(".");
