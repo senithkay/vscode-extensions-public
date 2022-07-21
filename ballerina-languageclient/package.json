@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-languageclient",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Ballerina Language Server Client",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
