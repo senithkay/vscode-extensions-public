@@ -32,7 +32,7 @@ import {
     getInitialSource,
 } from "../../../../../utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
-import { getDefaultParams, getFormFieldReturnType } from "../util";
+import { getDefaultParams, getFormFieldReturnType, getReturnTypeImports } from "../util";
 
 interface ActionFormProps {
     action: FunctionDefinitionInfo;
@@ -60,14 +60,16 @@ export function ActionForm(props: FormGeneratorProps) {
     });
 
     let initialSource = "EXPRESSION";
+    let imports = new Set<string>();
 
     if (model && model.source) {
-        // Update existing endpoint
+        // Update existing action
         initialSource = model.source;
     } else {
-        // Adding new endpoint
+        // Adding new action
         const defaultParameters = getDefaultParams(action.parameters);
         const returnType = getFormFieldReturnType(action.returnType);
+        imports = getReturnTypeImports(returnType);
 
         initialSource = getInitialSource(
             returnType.hasReturn
@@ -118,6 +120,7 @@ export function ActionForm(props: FormGeneratorProps) {
                     library,
                     syntaxTree,
                     stSymbolInfo,
+                    extraModules: imports,
                     experimentalEnabled,
                 })}
         </>

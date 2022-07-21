@@ -30,7 +30,7 @@ import CheckBoxGroup from "../../../FormFieldComponents/CheckBox";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { TextLabel } from "../../../FormFieldComponents/TextField/TextLabel";
 import { ExpressionInjectablesProps } from "../../../FormGenerator";
-import { checkDBConnector } from "../../../Utils";
+import { isDependOnDriver } from "../../../Utils";
 import { wizardStyles } from "../../style";
 
 interface CreateConnectorFormProps {
@@ -220,7 +220,7 @@ export function CreateConnectorForm(props: CreateConnectorFormProps) {
                                 onValidate={onValidate}
                                 expressionInjectables={expressionInjectables}
                                 editPosition={targetPosition}
-                                expandOptionals={checkDBConnector(connector.moduleName)}
+                                expandOptionals={isDependOnDriver(connector.moduleName)}
                             />
                         </div>
                     </div>
