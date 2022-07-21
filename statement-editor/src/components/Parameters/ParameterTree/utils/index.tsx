@@ -125,10 +125,21 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 const inclusionParams = getDefaultParams([parameter.inclusionType], depth + 1, true);
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
+            case "object":
+                const typeInfo = parameter.typeInfo;
+                if (typeInfo && typeInfo.orgName === 'ballerina' && typeInfo.moduleName === 'sql'
+                    && typeInfo.name === 'ParameterizedQuery') {
+                    draftParameter = getFieldValuePair(parameter, '``', depth);
+                }
+                break;
             default:
                 if (!parameter.name) {
                     // Handle Enum type
                     draftParameter = getFieldValuePair(parameter, `"${parameter.typeName}"`, depth, true);
+                }
+                if (parameter.name === "rowType"){
+                    // Handle custom return type
+                    draftParameter = getFieldValuePair(parameter, EXPR_PLACEHOLDER, depth);
                 }
                 break;
         }
@@ -485,6 +496,12 @@ export function mapActionToFormField(model: STNode, formFields: FormField[]) {
         STKindChecker.isRemoteMethodCallAction(model.initializer.expression)
     ) {
         expression = model.initializer.expression;
+    } else if (
+        model &&
+        STKindChecker.isLocalVarDecl(model) &&
+        STKindChecker.isRemoteMethodCallAction(model.initializer)
+    ) {
+        expression = model.initializer;
     } else if (
         model &&
         STKindChecker.isActionStatement(model) &&

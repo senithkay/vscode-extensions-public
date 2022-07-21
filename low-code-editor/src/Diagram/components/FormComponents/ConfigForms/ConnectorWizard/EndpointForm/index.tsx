@@ -27,7 +27,7 @@ import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
 import { createCheckObjectDeclaration, createObjectDeclaration, getInitialSource } from "../../../../../utils";
 import { getFormattedModuleName } from "../../../../Portals/utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
-import { getDefaultParams, getFormFieldReturnType } from "../util";
+import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "../util";
 
 interface EndpointFormProps {
     connector: BallerinaConnectorInfo;
@@ -55,7 +55,7 @@ export function EndpointForm(props: FormGeneratorProps) {
         defaultMessage: "Endpoint",
     });
 
-    const imports = new Set<string>([`${connector.package.organization}/${connector.moduleName}`]);
+    const imports = getConnectorImports(syntaxTree, connector.package.organization, connector.moduleName);
     const moduleName = getFormattedModuleName(connector.moduleName);
     let initialSource = "EXPRESSION";
 

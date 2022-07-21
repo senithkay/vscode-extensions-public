@@ -133,6 +133,11 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         ) {
             methodName = actionModel.initializer.expression.methodName.name.value;
         } else if (
+            STKindChecker.isLocalVarDecl(actionModel) &&
+            STKindChecker.isRemoteMethodCallAction(actionModel.initializer)
+        ) {
+            methodName = actionModel.initializer.methodName.name.value;
+        } else if (
             STKindChecker.isActionStatement(actionModel) &&
             STKindChecker.isCheckAction(actionModel.expression) &&
             STKindChecker.isRemoteMethodCallAction(actionModel.expression.expression)

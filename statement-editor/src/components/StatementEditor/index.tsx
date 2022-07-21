@@ -340,7 +340,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
         if (config.type === CONNECTOR){
-            pullUnresolvedModules(diag);
+            await pullUnresolvedModules(diag);
         }
         removeUnusedModules(diag);
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
@@ -396,25 +396,23 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
+    const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
         if (!!moduleList.size && !!extraModules?.size && runBackgroundTerminalCommand && !isPullingModule) {
-            completeDiagnostic?.forEach((diagnostic) => {
+            const extraModulesArr = Array.from(extraModules);
+            for (const diagnostic of completeDiagnostic) {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
-                    extraModules.forEach((module) => {
-                        if (diagnostic.message?.includes(module)) {
-                            // Pull module in background
+                    for (const module of extraModulesArr) {
+                        if (diagnostic.message?.includes(module) && !isPullingModule) {
                             setIsPullingModule(true);
-                            runBackgroundTerminalCommand(`bal pull ${module}`)
-                                .then((response) => {
-                                    // TODO: handle pull command response
-                                })
-                                .finally(() => {
-                                    setIsPullingModule(false);
-                                });
+                            const response = await runBackgroundTerminalCommand(
+                                `bal pull ${module.replace(" as _", "")}`
+                            );
+                            // TODO: Handle response
                         }
-                    });
+                    }
                 }
-            });
+            }
+            setIsPullingModule(false);
         }
     };
 
