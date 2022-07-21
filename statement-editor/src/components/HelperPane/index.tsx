@@ -13,6 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import {
     ALL_LIBS_IDENTIFIER,
     DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
@@ -20,8 +22,7 @@ import {
     STD_LIBS_IDENTIFIER
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { isConfigurableEditor, isFunctionOrMethodCall, isInsideEndpointConfigs } from "../../utils";
-import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
+import { isConfigurableEditor, isFunctionOrMethodCall, isInsideConnectorParams } from "../../utils";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
@@ -68,26 +69,24 @@ export function HelperPane(props: HelperPaneProps) {
         setLibraryType(value);
     };
 
-    const keyboardNavigationManager = new KeyboardNavigationManager();
-
     React.useEffect(() => {
 
-        const client = keyboardNavigationManager.getClient()
+        const client = KeyboardNavigationManager.getClient();
 
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+s', 'command+shift+s'], setSelectedTab, TabElements.suggestions)
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+e', 'command+shift+e'], setSelectedTab, TabElements.expressions)
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries)
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+shift+d', 'command+shift+d'], setSelectedTab, TabElements.parameters)
+        client.bindNewKey(['ctrl+shift+s', 'command+shift+s'], setSelectedTab, TabElements.suggestions);
+        client.bindNewKey(['ctrl+shift+e', 'command+shift+e'], setSelectedTab, TabElements.expressions);
+        client.bindNewKey(['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries);
+        client.bindNewKey(['ctrl+shift+d', 'command+shift+d'], setSelectedTab, TabElements.parameters);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client);
+            client.resetMouseTrapInstance();
         }
     }, []);
 
     useEffect(() => {
         if (
             currentModel.model &&
-            (isFunctionOrMethodCall(currentModel.model) || isInsideEndpointConfigs(currentModel.model, config.type)) &&
+            (isFunctionOrMethodCall(currentModel.model) || isInsideConnectorParams(currentModel.model, config.type)) &&
             !isConfigurableEditor(editors, activeEditorId)
         ) {
             setSelectedTab(TabElements.parameters);

@@ -13,10 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { Box } from "@material-ui/core";
 import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../Contexts/Diagram";
+import { TextPreLoader } from "../../../../PreLoader/TextPreLoader";
 import { Panel } from "../../Panel";
 import { UnsupportedConfirmButtons } from "../DialogBoxes/UnsupportedConfirmButtons";
 import { getForm } from "../Utils";
@@ -52,7 +54,7 @@ export function FormGenerator(props: FormGeneratorProps) {
   } = useDiagramContext();
   const [injectables, setInjectables] = useState<InjectableItem[]>([]);
   const { onCancel, configOverlayFormStatus, targetPosition, ...restProps } = props;
-  const { isLastMember, formType } = configOverlayFormStatus;
+  const { isLoading, isLastMember, formType } = configOverlayFormStatus;
   const expressionInjectables: ExpressionInjectablesProps = {
     list: injectables,
     setInjectables,
@@ -69,13 +71,20 @@ export function FormGenerator(props: FormGeneratorProps) {
 
   return (
     <div>
-      {(formType === "ClassDefinition") ? (
-        <UnsupportedConfirmButtons onConfirm={handleConfirm} onCancel={onCancel} />
-      ) : (
-        <Panel onClose={onCancel}>
-          <div className="form-generator">{getForm(formType, args)}</div>
-        </Panel>
-      )}
+        {formType === "ClassDefinition" ? (
+            <UnsupportedConfirmButtons onConfirm={handleConfirm} onCancel={onCancel} />
+        ) : (
+            <Panel onClose={onCancel}>
+                <>
+                    {isLoading && (
+                        <Box display="flex" justifyContent="center" alignItems="center" height="80vh" width="700px">
+                            <TextPreLoader position="absolute" text="Loading..." />
+                        </Box>
+                    )}
+                    {!isLoading && <div className="form-generator">{getForm(formType, args)}</div>}
+                </>
+            </Panel>
+        )}
     </div>
-  );
+);
 }

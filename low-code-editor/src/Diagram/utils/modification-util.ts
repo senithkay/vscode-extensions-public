@@ -525,6 +525,40 @@ export function createCheckedRemoteServiceCall(type: string, variable: string, c
     return checkedRemoteServiceCall;
 }
 
+export function createActionStatement(callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
+    const actionStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "ACTION_STATEMENT",
+        config: {
+            "CALLER": callerName,
+            "FUNCTION": functionName,
+            "PARAMS": params.join()
+        }
+    };
+
+    return actionStatement;
+}
+
+export function createCheckActionStatement(callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
+    const checkActionStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "ACTION_STATEMENT_CHECK",
+        config: {
+            "CALLER": callerName,
+            "FUNCTION": functionName,
+            "PARAMS": params.join()
+        }
+    };
+
+    return checkActionStatement;
+}
+
 export function updateCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
     const checkedRemoteServiceCall: STModification = {
         startLine: targetPosition.startLine,

@@ -13,12 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { KeyboardNavigationManager, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
+import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import {
     CurrentModel,
     DocumentationInfo,
@@ -42,7 +42,6 @@ import {
     isBindingPattern, isDocumentationSupportedModel,
     isOperator,
 } from "../../utils";
-import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manager';
 import {
     getCompletions,
     getDiagnostics,
@@ -339,7 +338,9 @@ export function StatementEditor(props: StatementEditorProps) {
     const handleDiagnostics = async (statement: string): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-        pullUnresolvedModules(diag);
+        if (config.type === CONNECTOR){
+            await pullUnresolvedModules(diag);
+        }
         removeUnusedModules(diag);
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
@@ -347,7 +348,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (config.type === CONNECTOR){
+        if (config.type === CONNECTOR || config.type === ACTION){
             return setDocumentation(initSymbolInfo);
         }
         if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){
@@ -394,25 +395,23 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
+    const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
         if (!!moduleList.size && !!extraModules?.size && runBackgroundTerminalCommand && !isPullingModule) {
-            completeDiagnostic?.forEach((diagnostic) => {
+            const extraModulesArr = Array.from(extraModules);
+            for (const diagnostic of completeDiagnostic) {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
-                    extraModules.forEach((module) => {
-                        if (diagnostic.message?.includes(module)) {
-                            // Pull module in background
+                    for (const module of extraModulesArr) {
+                        if (diagnostic.message?.includes(module) && !isPullingModule) {
                             setIsPullingModule(true);
-                            runBackgroundTerminalCommand(`bal pull ${module}`)
-                                .then((response) => {
-                                    // TODO: handle pull command response
-                                })
-                                .finally(() => {
-                                    setIsPullingModule(false);
-                                });
+                            const response = await runBackgroundTerminalCommand(
+                                `bal pull ${module.replace(" as _", "")}`
+                            );
+                            // TODO: Handle response
                         }
-                    });
+                    }
                 }
-            });
+            }
+            setIsPullingModule(false);
         }
     };
 
@@ -474,20 +473,18 @@ export function StatementEditor(props: StatementEditorProps) {
         setModel({ ...enrichModel(editedModel, targetPosition, diagnostics) });
     }
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
-
     React.useEffect(() => {
 
-        const client = keyboardNavigationManager.getClient();
+        const client = KeyboardNavigationManager.getClient();
 
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+left', 'command+left'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['tab'], nextModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['shift+tab'], previousModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['enter'], enterKeyHandler);
+        client.bindNewKey(['ctrl+left', 'command+left'], parentModelHandler);
+        client.bindNewKey(['ctrl+right', 'command+right'], parentModelHandler);
+        client.bindNewKey(['tab'], nextModelHandler);
+        client.bindNewKey(['shift+tab'], previousModelHandler);
+        client.bindNewKey(['enter'], enterKeyHandler);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
+            client.resetMouseTrapInstance();
         }
     }, [currentModel.model]);
 

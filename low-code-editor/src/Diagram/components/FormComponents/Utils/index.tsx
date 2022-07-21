@@ -58,6 +58,10 @@ export function isAllDefaultableFields(recordFields: FormField[]): boolean {
     return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
 }
 
+export function isAnyFieldSelected(recordFields: FormField[]): boolean {
+    return recordFields?.some((field) => field.selected || (field.fields && isAnyFieldSelected(field.fields)));
+}
+
 export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, model: FormField | FormField[], isRoot: boolean): boolean {
     let result = true;
     let canModelIgnore = false;
@@ -145,7 +149,7 @@ export function addReturnTypeImports(modifications: STModification[], returnType
     }
 }
 
-export function checkDBConnector(connectorModule: string): boolean {
+export function isDependOnDriver(connectorModule: string): boolean {
     const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect"]
     if (dbConnectors.includes(connectorModule)) {
         return true;
@@ -165,7 +169,7 @@ export function addDbExtraImport(modifications: STModification[], syntaxTree: ST
                 importCounts = importCounts + 1;
             }
         });
-        if (importCounts === 0 && checkDBConnector(moduleName)) {
+        if (importCounts === 0 && isDependOnDriver(moduleName)) {
             const addDriverImport: STModification = createImportStatement(orgName, `${moduleName}.driver as _`, {
                 startColumn: 0,
                 startLine: 0,
@@ -201,6 +205,9 @@ export function addDbExtraStatements(
 }
 
 export function isStatementEditorSupported(version: string): boolean {
+    if (!version) {
+        return false;
+    }
     const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
     const versionStr = version.match(versionRegex);
     const splittedVersions = versionStr[0]?.split(".");

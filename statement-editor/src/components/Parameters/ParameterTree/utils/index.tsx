@@ -22,9 +22,11 @@ import {
     ImplicitNewExpression,
     ListConstructor,
     MappingConstructor,
+    NamedArg,
     NumericLiteral,
     ParenthesizedArgList,
     PositionalArg,
+    RemoteMethodCallAction,
     SpecificField,
     STKindChecker,
     STNode,
@@ -123,10 +125,21 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 const inclusionParams = getDefaultParams([parameter.inclusionType], depth + 1, true);
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
+            case "object":
+                const typeInfo = parameter.typeInfo;
+                if (typeInfo && typeInfo.orgName === 'ballerina' && typeInfo.moduleName === 'sql'
+                    && typeInfo.name === 'ParameterizedQuery') {
+                    draftParameter = getFieldValuePair(parameter, '``', depth);
+                }
+                break;
             default:
                 if (!parameter.name) {
                     // Handle Enum type
                     draftParameter = getFieldValuePair(parameter, `"${parameter.typeName}"`, depth, true);
+                }
+                if (parameter.name === "rowType"){
+                    // Handle custom return type
+                    draftParameter = getFieldValuePair(parameter, EXPR_PLACEHOLDER, depth);
                 }
                 break;
         }
@@ -396,7 +409,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
         if (parenthesizedArgs.arguments === undefined || formFields.length <= nextValueIndex) {
             break;
         }
-        const positionalArg: PositionalArg = arg as PositionalArg;
+        const positionalArg = arg as PositionalArg;
         let formField = formFields[nextValueIndex];
         if (STKindChecker.isNamedArg(positionalArg)) {
             const argName = positionalArg.argumentName.name.value;
@@ -474,6 +487,111 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
     return formFields;
 }
 
+export function mapActionToFormField(model: STNode, formFields: FormField[]) {
+    let expression: RemoteMethodCallAction;
+    if (
+        model &&
+        STKindChecker.isLocalVarDecl(model) &&
+        STKindChecker.isCheckAction(model.initializer) &&
+        STKindChecker.isRemoteMethodCallAction(model.initializer.expression)
+    ) {
+        expression = model.initializer.expression;
+    } else if (
+        model &&
+        STKindChecker.isLocalVarDecl(model) &&
+        STKindChecker.isRemoteMethodCallAction(model.initializer)
+    ) {
+        expression = model.initializer;
+    } else if (
+        model &&
+        STKindChecker.isActionStatement(model) &&
+        STKindChecker.isCheckAction(model.expression) &&
+        STKindChecker.isRemoteMethodCallAction(model.expression.expression)
+    ) {
+        expression = model.expression.expression;
+    } else if (model && STKindChecker.isRemoteMethodCallAction(model)) {
+        expression = model;
+    } else {
+        return;
+    }
+
+    const methodArgs = expression.arguments.filter((arg) => arg.kind !== "CommaToken");
+    let nextValueIndex = 0;
+    for (const formField of formFields) {
+        if (methodArgs === undefined || methodArgs.length <= nextValueIndex) {
+            break;
+        }
+        if (STKindChecker.isNamedArg(methodArgs[nextValueIndex])) {
+            const namedArg: NamedArg = methodArgs[nextValueIndex] as NamedArg;
+            const fieldForNamedArg = formFields.find((field) => field.name === namedArg.argumentName.name.value);
+            if (fieldForNamedArg) {
+                fieldForNamedArg.value = namedArg.expression.source;
+                fieldForNamedArg.selected = checkFormFieldValue(fieldForNamedArg);
+            }
+            nextValueIndex++;
+        } else {
+            const positionalArg: PositionalArg = methodArgs[nextValueIndex] as PositionalArg;
+            if (
+                formField.typeName === "string" ||
+                formField.typeName === "int" ||
+                formField.typeName === "boolean" ||
+                formField.typeName === "float" ||
+                formField.typeName === "decimal" ||
+                formField.typeName === "httpRequest"
+            ) {
+                if (
+                    STKindChecker.isStringLiteral(positionalArg.expression) ||
+                    STKindChecker.isNumericLiteral(positionalArg.expression) ||
+                    STKindChecker.isBooleanLiteral(positionalArg.expression)
+                ) {
+                    if (formField.isRestParam) {
+                        formField.value = getRestParamFieldValue(methodArgs as PositionalArg[], nextValueIndex);
+                    } else {
+                        const literalExpression = positionalArg.expression;
+                        formField.value = literalExpression.literalToken.value;
+                    }
+                } else {
+                    formField.value = positionalArg.expression.source;
+                }
+                nextValueIndex++;
+            } else if (
+                formField.typeName === "handle" ||
+                formField.typeName === "object" ||
+                formField.typeName === "collection" ||
+                formField.typeName.includes("array")
+            ) {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
+                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
+                if (mappingConstructor) {
+                    mapRecordLiteralToRecordTypeFormField(
+                        mappingConstructor.fields as SpecificField[],
+                        formField.fields
+                    );
+                    nextValueIndex++;
+                }
+            } else if (
+                formField.typeName === "record" &&
+                STKindChecker.isSimpleNameReference(positionalArg.expression)
+            ) {
+                formField.value = positionalArg.expression.name.value;
+                nextValueIndex++;
+            } else if (formField.typeName === "union") {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.typeName === "enum") {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.typeName === "json") {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            }
+            formField.selected = checkFormFieldValue(formField);
+        }
+    }
+}
+
 export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificField[], formFields: FormField[]) {
     specificFields?.forEach((specificField) => {
         if (specificField.kind !== "CommaToken") {
@@ -485,6 +603,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                         STKindChecker.isBooleanLiteral(specificField.valueExpr)
                             ? (formField.value = specificField.valueExpr.literalToken.value)
                             : (formField.value = specificField.valueExpr.source);
+                    formField.selected = checkFormFieldValue(formField);
 
                     if (specificField.valueExpr.kind === "MappingConstructor") {
                         const mappingField = specificField.valueExpr as MappingConstructor;
@@ -530,10 +649,19 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     }
                     formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
-                formField.selected = formField.selected || checkFormFieldValue(formField);
             });
         }
     });
+}
+
+export function getRestParamFieldValue(remoteMethodCallArguments: PositionalArg[], currentFieldIndex: number) {
+    const varArgValues: string[] = [];
+    for (let i = currentFieldIndex; i < remoteMethodCallArguments.length; i++) {
+        const varArgs: PositionalArg = remoteMethodCallArguments[i] as PositionalArg;
+        const literalExpression: any = varArgs.expression;
+        varArgValues.push(literalExpression.literalToken.value);
+    }
+    return varArgValues.join(",");
 }
 
 export function getFieldName(fieldName: string): string {
