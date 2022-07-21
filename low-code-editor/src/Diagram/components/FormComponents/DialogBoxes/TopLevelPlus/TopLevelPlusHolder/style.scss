@@ -126,6 +126,21 @@
                         background: #f7f8fb;
                         border-radius: 5px;
                         cursor: pointer;
+
+                        .icon-wrapper {
+                            .svg-sub-menu-plus-option-icon {
+                                // fill: #5567D5;
+                                fill: #5567D5;
+    
+                                &.secondary {
+                                    fill: #5567D5;
+                                }
+                            }
+                        }
+
+                        .text-label {
+                            color: #5567D5;
+                        }
                     }
 
                     &.enabled {
