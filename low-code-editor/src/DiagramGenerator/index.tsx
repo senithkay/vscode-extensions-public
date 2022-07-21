@@ -93,7 +93,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
     const [isModulePullInProgress, setModulePullInProgress] = React.useState<boolean>(false);
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
-    const [performanceData, setPerformanceData] = React.useState(undefined);
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
@@ -285,7 +284,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 size: 1,
                                 type: "File"
                             }}
-                            performanceData={performanceData}
                             importStatements={getImportStatements(syntaxTree)}
                             experimentalEnabled={experimentalEnabled}
                             lowCodeResourcesVersion={lowCodeResourcesVersion}
@@ -350,7 +348,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                                 }
                                                             ],
                                                         })
-                                                        const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri }})
+                                                        const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri } })
                                                         vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient, experimentalEnabled, showMessage);
                                                         setSyntaxTree(vistedSyntaxTree);
                                                     }
@@ -430,8 +428,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         const currentTime: number = Date.now();
         const langClient = await langClientPromise;
         if (currentTime - lastPerfUpdate > debounceTime) {
-            const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo);
-            setPerformanceData(perfData);
+            await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo);
             lastPerfUpdate = currentTime;
         }
     }

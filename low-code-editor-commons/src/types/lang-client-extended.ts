@@ -302,21 +302,9 @@ export interface PerformanceAnalyzerGraphResponse {
     graphData: GraphPoint[];
 }
 
-export interface PerformanceAnalyzerRealtimeResponse {
-    message: string;
-    type: any;
-    concurrency: Values;
-    latency: Values;
-    tps: Values;
-}
-
-export interface Values {
-    min?: number;
-    max: number;
-}
-
 export interface PerformanceAnalyzerEndpointsRequest {
     documentIdentifier: DocumentIdentifier;
+    isWorkerSupported: boolean;
 }
 
 export interface GraphPoint {

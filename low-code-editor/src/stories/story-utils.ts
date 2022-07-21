@@ -2,10 +2,11 @@ import { createElement } from "react";
 import { render } from "react-dom";
 
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
-import { ANALYZE_TYPE, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ANALYZE_TYPE, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, PerformanceAnalyzerGraphResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Uri } from "monaco-editor";
 
 import { DiagramGeneratorProps } from "../DiagramGenerator";
+import { PerformanceAnalyzerRealtimeResponse, Values } from "../DiagramGenerator/performanceUtil";
 
 import balDist from "./data/baldist.json";
 import { StandaloneDiagramApp } from "./StandaloneDiagramApp";
@@ -80,8 +81,8 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
 
 
 export function renderStandaloneMockedEditor(container: string) {
-    const element = createElement(StandaloneDiagramApp);
-    render(element, document.getElementById(container));
+  const element = createElement(StandaloneDiagramApp);
+  render(element, document.getElementById(container));
 }
 
 export function getProjectRoot() {
@@ -105,13 +106,13 @@ export async function getLibrariesData(): Promise<LibrarySearchResponse> {
 
 export async function getLibraryData(orgName: string, moduleName: string, version: string): Promise<LibraryDataResponse> {
   return fetch(MOCK_SERVER_URL + `/lib/data`,
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        method: "POST",
-        body: JSON.stringify({ orgName, moduleName, version })
+    {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: "POST",
+      body: JSON.stringify({ orgName, moduleName, version })
     })
     .then(response => {
       return response.json()
@@ -122,10 +123,18 @@ export function generatePerfData(data: any, analyzeType: ANALYZE_TYPE): Promise<
   if (analyzeType === ANALYZE_TYPE.REALTIME) {
     if (data.resourcePos.start.line === 20) {
       return Promise.resolve({
-        concurrency: { max: 50, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 }, message: undefined, type: undefined });
+        concurrency: { max: 50, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 },
+        connectorLatencies: new Map<string, Values>([["0", { max: 1, min: 1 }], ["1", { max: 1, min: 1 }]]),
+        positions: new Map<string, string>([["0", "value1"], ["1", "value2"]]),
+        message: undefined, type: undefined
+      });
     }
     return Promise.resolve({
-      concurrency: { max: 1, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 }, message: undefined, type: undefined });
+      concurrency: { max: 1, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 },
+      connectorLatencies: new Map<string, Values>([["0", { max: 1, min: 1 }], ["1", { max: 1, min: 1 }]]),
+      positions: new Map<string, string>([["0", "value1"], ["1", "value2"]]),
+      message: undefined, type: undefined
+    });
 
   } else {
     return Promise.resolve({

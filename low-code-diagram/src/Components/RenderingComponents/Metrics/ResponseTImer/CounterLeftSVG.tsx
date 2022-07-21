@@ -13,13 +13,13 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-export const COUNTERLEFT_SVG_WIDTH = 76;
+export const COUNTERLEFT_SVG_WIDTH = 125;
 export const COUNTERLEFT_SVG_HEIGHT = 31;
 
 export function CounterLeftSVG(props: { x: number, y: number, text: string }) {
     const { text, ...xyProps } = props;
 
-    const maxTextWidth = text.length >= 10;
+    const maxTextWidth = text.length >= 20;
     return (
         <svg {...xyProps} width={COUNTERLEFT_SVG_WIDTH} height={COUNTERLEFT_SVG_HEIGHT}>
             <defs>
@@ -50,7 +50,7 @@ export function CounterLeftSVG(props: { x: number, y: number, text: string }) {
                 </filter>
             </defs>
             <g id="CounterLeft" transform="translate(3 2)">
-                <g transform="matrix(1, 0, 0, 1, -3, -2)" filter="url(#CounterLeftFilter)">
+                <g transform="matrix(1.8, 0, 0, 1, -10, -2)" filter="url(#CounterLeftFilter)">
                     <path
                         id="CounterLeftRectangle"
                         d="M0,4A4,4,0,0,0-4,0H-61.949a4,4,0,0,0-4,4V8.7c0,2.252-4.051,3.8-4.051,3.8s4.051,1.611,4.051,
@@ -61,7 +61,7 @@ export function CounterLeftSVG(props: { x: number, y: number, text: string }) {
                 </g>
             </g>
 
-            <g id="CounterLeft" transform="translate(3 2)">
+            <g id="CounterLeft" transform="translate(25 2)">
                 <text
                     className="metrics-text"
                     id="CounterLeftText"

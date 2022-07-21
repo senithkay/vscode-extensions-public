@@ -617,25 +617,13 @@ export interface PerformanceAnalyzerGraphResponse {
     graphData: GraphPoint[];
 }
 
-export interface PerformanceAnalyzerRealtimeResponse {
-    message: string;
-    type: any;
-    concurrency: Values;
-    latency: Values;
-    tps: Values;
-}
-
-export interface Values {
-    min?: number;
-    max: number;
-}
-
 export interface DocumentIdentifier {
     uri: string;
 }
 
 export interface PerformanceAnalyzerRequest {
     documentIdentifier: DocumentIdentifier;
+    isWorkerSupported: boolean;
 }
 
 export interface PerformanceAnalyzerGraphResponse {

@@ -1,7 +1,7 @@
 import { monaco } from "react-monaco-editor";
 
 import { initVisitor, PositioningVisitor, SizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { DiagramDiagnostic, DiagramEditorLangClientInterface, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerRealtimeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramDiagnostic, DiagramEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { cleanLocalSymbols, cleanModuleLevelSymbols } from "../Diagram/visitors/symbol-finder-visitor";

@@ -17,19 +17,23 @@
  *
  */
 
-import { ANALYZE_TYPE, GraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { GraphPoint, TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+
+export interface ConnectorLatency {
+    name: string;
+    latency: string;
+}
 
 // TODO: find out what kind of invocations analyse here. is it only action invocations.
 export function mergeAnalysisDetails(
     stNode: STNode,
-    serviceData: GraphPoint,
-    analysisData: SequenceGraphPointValue[],
-    cUnit: string,
+    serviceData: TopBarData,
+    connectorLatencies: ConnectorLatency[],
     currentResourcePos: NodePosition,
     isClear = false
 ) {
-    const analysisMerger = new AnalysisDetailMerger(serviceData, analysisData, cUnit, currentResourcePos);
+    const analysisMerger = new AnalysisDetailMerger(serviceData, connectorLatencies, currentResourcePos);
     if (!stNode) {
         return;
     }
@@ -43,20 +47,18 @@ export function mergeAnalysisDetails(
 
 export class AnalysisDetailMerger implements Visitor {
     anaylisisDetailMap: { [key: string]: RemoteMethodCallAction } = {};
-    serviceData: GraphPoint;
-    analysisData: SequenceGraphPointValue[];
-    cUnit: string;
+    serviceData: TopBarData;
+    connectorLatencies: ConnectorLatency[];
     currentResourcePos: NodePosition;
-    constructor(serviceData: GraphPoint, analysisData: SequenceGraphPointValue[], cUnit: string,
+    constructor(serviceData: TopBarData, connectorLatencies: ConnectorLatency[],
                 currentResourcePos: NodePosition) {
         this.serviceData = serviceData;
-        this.analysisData = analysisData;
-        this.cUnit = cUnit;
+        this.connectorLatencies = connectorLatencies;
         this.currentResourcePos = currentResourcePos;
     }
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
         const { position: { startLine, startColumn, endLine, endColumn } } = node;
-        const key = `${this.cUnit}/${startLine}:${startColumn},${endLine}:${endColumn}`;
+        const key = `(${startLine}:${startColumn},${endLine}:${endColumn})`;
         (node as any).performance = {};
         this.anaylisisDetailMap[key] = node;
     }
@@ -66,7 +68,7 @@ export class AnalysisDetailMerger implements Visitor {
             node.position.startColumn === this.currentResourcePos.startColumn) {
             node.performance = {
                 concurrency: this.serviceData.concurrency, latency: this.serviceData.latency,
-                tps: this.serviceData.tps, analyzeType: ANALYZE_TYPE.ADVANCED
+                tps: this.serviceData.tps, analyzeType: this.serviceData.analyzeType
             };
         } else {
             delete node.performance;
@@ -74,13 +76,13 @@ export class AnalysisDetailMerger implements Visitor {
     }
 
     public merge() {
-        this.analysisData.forEach(data => {
+        this.connectorLatencies.forEach(data => {
 
             const invocation = this.anaylisisDetailMap[Object.keys(this.anaylisisDetailMap).find((key) => (
                 key === data.name)
             )] as any;
             if (invocation) {
-                invocation.performance.latency = data.latency.toFixed(2);
+                invocation.performance.latency = data.latency;
             }
         });
     }
