@@ -48,6 +48,8 @@ import {
     getPathOfResources,
     SERVICE_METHODS
 } from "./util";
+import CheckBoxGroup
+    from "@wso2-enterprise/ballerina-low-code-editor/build/Diagram/components/FormComponents/FormFieldComponents/CheckBox";
 
 export interface FunctionProps {
     model: ResourceAccessorDefinition;
@@ -314,6 +316,11 @@ export function ResourceForm(props: FunctionProps) {
                                 nameSemDiag={queryNameSemDiagnostics}
                                 typeSemDiag={queryTypeSemDiagnostics}
                                 onChange={handleQueryParamEditorChange}
+                            />
+                            <CheckBoxGroup
+                                values={["Define Inline"]}
+                                defaultValues={true ? [] : ['Define Inline']}
+                                onChange={null}
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />

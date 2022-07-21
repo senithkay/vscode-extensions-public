@@ -104,7 +104,6 @@ export function getQueryParamCollection(queryParamString: string): QueryParamCol
                 // Header with default value
                 queryParam.option = headerParameterOption;
                 queryParam.type = paramSplit[1];
-                // const nameSplit = paramSplit[2].split(":");
                 queryParam.name = paramSplit[2];
                 queryParam.mappedName = mappedName.replace("{", "")
                     .replace("}", "").split(":")[1].trim();
