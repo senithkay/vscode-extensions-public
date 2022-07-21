@@ -29,6 +29,10 @@ import {
     CustomStatementIcon,
     ConnectorIcon,
     ActionIcon,
+    AsyncSend,
+    AsyncReceive,
+    AsyncWait,
+    Flush,
 } from "../../../../../../../assets/icons";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
@@ -36,6 +40,7 @@ import "../../style.scss";
 import While from "../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
 import { HttpLogo, PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { isStatementEditorSupported } from "../../../../Utils";
 
 export const PROCESS_TYPES = [""];
 
@@ -44,6 +49,7 @@ export interface StatementOptionsProps {
     viewState: PlusViewState;
     isResource?: boolean;
     isCallerAvailable?: boolean;
+    hasWorkerDecl?: boolean;
 }
 
 export interface StatementComponent {
@@ -58,21 +64,41 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { api: { insights: { onEvent } } } = useContext(Context);
+    const { api: { insights: { onEvent } }, props: { ballerinaVersion } } = useContext(Context);
+
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
     const intl = useIntl();
-    const { onSelect, viewState, isCallerAvailable, isResource } = props;
+    const { onSelect, viewState, isCallerAvailable, isResource, hasWorkerDecl } = props;
 
     const plusHolderStatementTooltipMessages = {
-        logStatement: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title",
-                defaultMessage: "A log statement logs an event with an information statement, an error that occurs in a service, or an integration. If the event has not yet occurred, you can view the logs from the 'Run & Test' console . If the event has occurred, you can view the logs from the Observability page."
-            })
-        },
         worker: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.worker.tooltip.title",
                 defaultMessage: "A worker allows to execute code in parallel with function's default worker and other named workers."
+            })
+        },
+        send: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.send.tooltip.title",
+                defaultMessage: "A send allows to send data from one worker to another."
+            })
+        },
+        receive: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.receive.tooltip.title",
+                defaultMessage: "A receive allows to receive data from other workers."
+            })
+        },
+        wait: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.wait.tooltip.title",
+                defaultMessage: "A wait allows worker to wait for another worker and get the return value of it."
+            })
+        },
+        flush: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.flush.tooltip.title",
+                defaultMessage: "A flush allows the worker to wait until all the send messages are consumed by the target workers."
             })
         },
         variableStatement: {
@@ -162,29 +188,9 @@ export function StatementOptions(props: StatementOptionsProps) {
         onSelectStatement(type)
     }
 
-    const logStm: StatementComponent = {
-        name: "log",
-        category: 'process',
-        component:
-            (
-                <Tooltip
-                    title={plusHolderStatementTooltipMessages.logStatement.title}
-                    placement="left"
-                    arrow={true}
-                    interactive={true}
-                >
-                    <div className="sub-option enabled" data-testid="addLog" onClick={onSelectStatement.bind(undefined, "Log")}>
-                        <div className="icon-wrapper">
-                            <LogIcon />
-                        </div>
-                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.log.title" defaultMessage="Log" /></div>
-                    </div>
-                </Tooltip>
-            )
-    }
     const workerBlock: StatementComponent = {
         name: "worker",
-        category: 'process',
+        category: 'concurrency',
         component:
             (
                 <Tooltip
@@ -192,8 +198,13 @@ export function StatementOptions(props: StatementOptionsProps) {
                     placement="left"
                     arrow={true}
                     interactive={true}
+                    disabled={!viewState.allowWorker}
                 >
-                    <div className="sub-option enabled" data-testid="addLog" onClick={onSelectStatement.bind(undefined, "Worker")}>
+                    <div
+                        className={cn("sub-option", { enabled: viewState.allowWorker })}
+                        data-testid="addWorker"
+                        onClick={viewState.allowWorker ? onSelectStatement.bind(undefined, "Worker") : null}
+                    >
                         <div className="icon-wrapper">
                             <LogIcon />
                         </div>
@@ -204,7 +215,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const propertyStm: StatementComponent = {
         name: "variable",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.variableStatement.title}
@@ -223,7 +234,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const assignmentStm: StatementComponent = {
         name: "assignment",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.assignmentStatement.title}
@@ -249,9 +260,125 @@ export function StatementOptions(props: StatementOptionsProps) {
             </Tooltip>
         )
     }
+    const sendStmt: StatementComponent = {
+        name: "send",
+        category: 'concurrency',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.send.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+                disabled={!hasWorkerDecl}
+            >
+                <div
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
+                    data-testid="addSend"
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "AsyncSend") : null}
+                >
+                    <div className="icon-wrapper">
+                        <AsyncSend />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.send.title"
+                            defaultMessage="Send"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        )
+    }
+    const receiveStmt: StatementComponent = {
+        name: "receive",
+        category: 'concurrency',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.receive.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+                disabled={!hasWorkerDecl}
+            >
+                <div
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
+                    data-testid="addReceive"
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "ReceiveStatement") : null}
+                >
+                    <div className="icon-wrapper">
+                        <AsyncReceive />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.receive.title"
+                            defaultMessage="Receive"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        )
+    }
+    const waitStmt: StatementComponent = {
+        name: "wait",
+        category: 'concurrency',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.wait.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+                disabled={!hasWorkerDecl}
+            >
+                <div
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
+                    data-testid="addWait"
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "WaitStatement") : null}
+                >
+                    <div className="icon-wrapper">
+                        <AsyncWait />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.wait.title"
+                            defaultMessage="Wait"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        )
+    }
+    const flushStmt: StatementComponent = {
+        name: "flush",
+        category: 'concurrency',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.flush.title}
+                placement="right"
+                arrow={true}
+                interactive={true}
+                disabled={!hasWorkerDecl}
+            >
+                <div
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
+                    data-testid="addFlush"
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "FlushStatement") : null}
+                >
+                    <div className="icon-wrapper">
+                        <Flush />
+                    </div>
+                    <div className="text-label">
+                        <FormattedMessage
+                            id="lowcode.develop.plusHolder.plusElements.statements.flush.title"
+                            defaultMessage="Flush"
+                        />
+                    </div>
+                </div>
+            </Tooltip>
+        )
+    }
     const ifStm: StatementComponent = {
         name: "if",
-        category: 'condition',
+        category: 'controlflows',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.ifStatement.title}
@@ -270,7 +397,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const foreachStm: StatementComponent = {
         name: "foreach",
-        category: 'condition',
+        category: 'controlflows',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.foreachStatement.title}
@@ -289,7 +416,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const whileStmt: StatementComponent = {
         name: "while",
-        category: 'condition',
+        category: 'controlflows',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.whileStatement.title}
@@ -308,7 +435,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const connectorStatement: StatementComponent = {
         name: "connector",
-        category: "connector",
+        category: "actors",
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.connectorStatement.title}
@@ -336,7 +463,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     };
     const actionStatement: StatementComponent = {
         name: "action",
-        category: "connector",
+        category: "actors",
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.actionStatement.title}
@@ -388,7 +515,7 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     const returnStm: StatementComponent = {
         name: "return",
-        category: 'stop',
+        category: 'communications',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.returnStatement.title}
@@ -412,7 +539,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     }
     const respondStm: StatementComponent = {
         name: "respond",
-        category: 'stop',
+        category: 'communications',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.respondStatement.title}
@@ -437,7 +564,7 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     const customStatement: StatementComponent = {
         name: "customStatement",
-        category: 'process',
+        category: 'generics',
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.customStatement.title}
@@ -462,21 +589,23 @@ export function StatementOptions(props: StatementOptionsProps) {
     const statements: StatementComponent[] = [];
     statements.push(connectorStatement);
     statements.push(actionStatement);
-    statements.push(logStm);
     statements.push(propertyStm);
     statements.push(assignmentStm);
     statements.push(ifStm);
     statements.push(foreachStm);
     statements.push(whileStmt);
     statements.push(returnStm);
-    statements.push(respondStm);
+    // statements.push(respondStm);
+    if (statementEditorSupported) {
+        statements.push(workerBlock);
+        statements.push(sendStmt);
+        statements.push(receiveStmt);
+        statements.push(waitStmt);
+        statements.push(flushStmt);
+    }
     // statements.push(datamappingStatement);
     statements.push(customStatement);
     statements.push(httpConnector);
-
-    if (viewState.allowWorker) {
-        statements.push(workerBlock);
-    }
 
     const initStatements: Statements = {
         statement: statements,
@@ -484,33 +613,48 @@ export function StatementOptions(props: StatementOptionsProps) {
     };
     const [selectedCompName, setSelectedCompName] = useState("");
 
-    const connectorComp: ReactNode[] = [];
-    const processComp: ReactNode[] = [];
-    const conditionComp: ReactNode[] = [];
-    const stopComp: ReactNode[] = [];
+    const actorElements: ReactNode[] = [];
+    const genericElements: ReactNode[] = [];
+    const concurrencyElements: ReactNode[] = [];
+    const controlFlowElements: ReactNode[] = [];
+    const communicationElements: ReactNode[] = [];
+
     if (selectedCompName !== "") {
         const stmts: StatementComponent[] = initStatements.statement.filter(el => el.name.toLowerCase().includes(selectedCompName.toLowerCase()));
         stmts.forEach((stmt) => {
-            if (stmt.category === "connector") {
-                connectorComp.push(stmt.component);
-            } else if (stmt.category === "process") {
-                processComp.push(stmt.component);
-            } else if (stmt.category === "condition") {
-                conditionComp.push(stmt.component);
-            } else if (stmt.category === "stop") {
-                stopComp.push(stmt.component);
+            switch (stmt.category) {
+                case "actors":
+                    actorElements.push(stmt.component);
+                    break;
+                case "generics":
+                    genericElements.push(stmt.component);
+                    break;
+                case "controlflows":
+                    controlFlowElements.push(stmt.component);
+                    break;
+                case "communications":
+                    communicationElements.push(stmt.component);
+                    break;
             }
         });
     } else {
         initStatements.statement.forEach((stmt) => {
-            if (stmt.category === "connector") {
-                connectorComp.push(stmt.component);
-            } else if (stmt.category === "process") {
-                processComp.push(stmt.component);
-            } else if (stmt.category === "condition") {
-                conditionComp.push(stmt.component);
-            } else if (stmt.category === "stop") {
-                stopComp.push(stmt.component);
+            switch (stmt.category) {
+                case "actors":
+                    actorElements.push(stmt.component);
+                    break;
+                case "generics":
+                    genericElements.push(stmt.component);
+                    break;
+                case "controlflows":
+                    controlFlowElements.push(stmt.component);
+                    break;
+                case "communications":
+                    communicationElements.push(stmt.component);
+                    break;
+                case "concurrency":
+                    concurrencyElements.push(stmt.component);
+                    break;
             }
         });
     }
@@ -519,13 +663,15 @@ export function StatementOptions(props: StatementOptionsProps) {
         <>
             <div className="element-option-holder" >
                 <div className="options-wrapper">
-                    {connectorComp}
-                    {(processComp.length > 0 ? <Divider className="options-divider" /> : null)}
-                    {processComp}
-                    {(conditionComp.length > 0 ? <Divider className="options-divider" /> : null)}
-                    {conditionComp}
-                    {(stopComp.length > 0 ? <Divider className="options-divider" /> : null)}
-                    {stopComp}
+                    {actorElements}
+                    {(controlFlowElements.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {controlFlowElements}
+                    {(genericElements.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {genericElements}
+                    {(concurrencyElements.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {concurrencyElements}
+                    {(communicationElements.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {communicationElements}
                 </div>
             </div>
         </>

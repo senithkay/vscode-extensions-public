@@ -237,6 +237,18 @@ const range: ExpressionGroup = {
     ],
     relatedModelType: ModelType.EXPRESSION
 }
+//     6.26 Range expression
+const concurrency: ExpressionGroup = {
+    name: "Concurrency",
+    expressions: [
+        {
+            name: "Wait for a worker's return",
+            template: `wait ${EXPR_PLACEHOLDER}`,
+            example: "wait Ex"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
 //     6.27 Relational expression
 const relational: ExpressionGroup = {
     name: "Relational",
@@ -525,6 +537,18 @@ const typeDescriptors : ExpressionGroup = {
     relatedModelType: ModelType.TYPE_DESCRIPTOR
 }
 
+const remoteMethodCall: ExpressionGroup = {
+    name: "Remote Method Call",
+    expressions: [
+        {
+            name: "Remote Method Call",
+            template: `${SELECTED_EXPRESSION}->${EXPR_PLACEHOLDER}()`,
+            example: "Es->m()"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+
 const operatorSymbols : ExpressionGroup = {
     name: "Operators",
     expressions: [
@@ -635,6 +659,7 @@ export const expressions: ExpressionGroup[] = [
     conditional,
     checking,
     trap,
+    concurrency,
     query,
     typeTest,
     typeofEx,
@@ -647,6 +672,7 @@ export const expressions: ExpressionGroup[] = [
     typeDescriptors,
     operatorSymbols,
     queryIntermediateClauses,
+    remoteMethodCall,
     orderKey,
     orderDirectionKeywords
 ];

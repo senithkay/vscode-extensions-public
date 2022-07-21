@@ -10,12 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { FormControl, Link } from "@material-ui/core";
 import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { FunctionDefinition, NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Section } from "../../../../../../components/ConfigPanel";
@@ -26,6 +28,7 @@ import { DiagramOverlayPosition } from "../../../../Portals/Overlay";
 import { useStyles as useFormStyles } from "../../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { SwitchToggle } from "../../../FormFieldComponents/SwitchToggle";
+import { isStatementEditorSupported } from "../../../Utils";
 import { VariableNameInput, VariableNameInputProps } from "../../Components/VariableNameInput";
 import { VariableTypeInput } from "../../Components/VariableTypeInput";
 import { useStyles } from "../styles";
@@ -84,11 +87,14 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             },
             code: {
                 modifyDiagram
-            }
+            },
+            ls: { getExpressionEditorLangClient }
         },
         props: {
             isMutationProgress: isFileSaving,
             isLoadingSuccess: isFileSaved,
+            currentFile,
+            ballerinaVersion
         }
     } = useContext(Context);
 
@@ -109,6 +115,15 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         endLine: 0,
         endColumn: 0,
     } : targetPosition;
+
+    // Form editor related data
+    const position = model ? ({
+        startLine: model.functionName.position.startLine,
+        startColumn: model.functionName.position.startColumn,
+        endLine: model.functionSignature.position.endLine,
+        endColumn: model.functionSignature.position.endColumn
+    }) : targetPosition;
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
     const [resource, setResource] = useState<Resource>(defaultConfig);
     const [toggleMainAdvancedMenu, setToggleMainAdvancedMenu] = useState(false);
@@ -676,8 +691,26 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
     );
 
     return (
-        <FormControl data-testid="resource-form" className={formClasses.wizardFormControlExtended}>
-            {resource && resourceUI}
-        </FormControl>
+        <>
+            {statementEditorSupported ? (
+                <FormEditor
+                    initialSource={model ? model.source : undefined}
+                    initialModel={model}
+                    isLastMember={false}
+                    targetPosition={position}
+                    onCancel={onCancel}
+                    type={"Resource"}
+                    currentFile={currentFile}
+                    getLangClient={getExpressionEditorLangClient}
+                    applyModifications={modifyDiagram}
+                    topLevelComponent={true} // todo: Remove this
+                />
+            ) : (
+                <FormControl data-testid="resource-form" className={formClasses.wizardFormControlExtended}>
+                    {resource && resourceUI}
+                </FormControl>
+            )}
+        </>
     );
 }
+

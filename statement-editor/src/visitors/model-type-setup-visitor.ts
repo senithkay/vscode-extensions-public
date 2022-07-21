@@ -12,6 +12,7 @@
  */
 import {
     BinaryExpression,
+    ConstDeclaration,
     FieldAccess,
     ImplicitAnonymousFunctionExpression,
     IntersectionTypeDesc,
@@ -149,6 +150,12 @@ class ModelTypeSetupVisitor implements Visitor {
     public beginVisitOrderKey(node: OrderKey) {
         if (node?.orderDirection){
             (node.orderDirection.viewState as StatementEditorViewState).modelType = ModelType.ORDER_DIRECTION_KEYWORDS;
+        }
+    }
+
+    public beginVisitConstDeclaration(node: ConstDeclaration) {
+        if (node?.typeDescriptor) {
+            (node.typeDescriptor.viewState as StatementEditorViewState).modelType = ModelType.TYPE_DESCRIPTOR;
         }
     }
 

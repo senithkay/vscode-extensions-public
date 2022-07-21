@@ -232,6 +232,15 @@ export const useStatementRendererStyles = makeStyles(() =>
                 display: "none"
             }
         },
+        errorHighlight: {
+            backgroundImage: `linear-gradient(45deg, transparent 65%, red 80%, transparent 90%),
+                linear-gradient(135deg, transparent 5%, red 15%, transparent 25%),
+                linear-gradient(135deg, transparent 45%, red 55%, transparent 65%),
+                linear-gradient(45deg, transparent 25%, red 35%, transparent 50%)`,
+            backgroundRepeat: "repeat-x",
+            backgroundSize: "8px 2px",
+            backgroundPosition: "0 95%"
+        },
         syntaxErrorTooltip : {
             position: 'absolute',
             top: '-60px',
@@ -266,7 +275,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         libraryTypeSelector: {
             height: '48px',
-            width: '45%',
+            marginLeft: '80px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end'
@@ -282,6 +291,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
             boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
             cursor: "pointer",
+            width: "inherit",
             "&:active": {
                 background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
                 boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
@@ -572,7 +582,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...stmtEditorPadding
         },
         returnSeparator : {
-            width: '616px',
+            width: '516px',
             opacity: '0.52',
             backgroundColor: "#DCDEE4",
             display: 'block',
@@ -640,7 +650,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         paramList: {
-            maxHeight: '30%',
+            maxHeight: '40%',
             overflowY: 'scroll',
         },
         includedRecordHeaderList: {
@@ -677,7 +687,98 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         exampleCode : {
             color: '#1D2028'
-        }
+        },
+        paramTreeList: {
+            display: 'flex',
+            alignItems: 'flex-start'
+        },
+        paramTreeDescriptionText: {
+            flex: "inherit",
+            width: '320px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            ...removePadding
+        },
+        listItemMultiLine: {
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            minHeight: '32px'
+        },
+        listItemHeader: {
+            display: 'flex',
+            alignItems: 'flex-start',
+            height: '28px'
+        },
+        listItemBody: {
+            marginLeft: '12px',
+            marginBottom: '8px',
+            paddingLeft: '16px',
+            borderLeft: "1px solid #d8d8d8",
+        },
+        listDropdownWrapper: {
+            width: '200px',
+        },
+        listOptionalWrapper: {
+            display: 'flex',
+            alignItems: 'center',
+            height: '32px',
+            marginBottom: '12px'
+        },
+        listOptionalBtn: {
+            textTransform: 'none',
+            minWidth: '32px',
+            color: theme.palette.primary.main
+        },
+        listOptionalHeader :  {
+            fontSize: '13px',
+            color: theme.palette.text.secondary,
+            fontWeight: 500,
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
+        },
+        listSelectDropDown: {
+            height: '24px',
+            borderRadius: 4,
+            background: "linear-gradient(180deg, #FFFFFF 0%, #F7F7F9 100%)",
+            boxShadow: "inset 0 0 0 1px #DEE0E7, 0 1px 2px -1px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            width: "inherit",
+            "&:active": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5",
+            },
+            "&:focused": {
+                background: "linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%)",
+                boxShadow: "inset 0 0 0 1px #a6b3ff, 0 1px 1px 0 rgba(0, 0, 0, 0.06)",
+                border: "1px solid #5567d5 !important"
+            },
+            '& .MuiSelect-icon': {
+                marginRight: 11,
+            },
+            "& .MuiSelect-selectMenu": {
+                height: "inherit !important",
+                paddingLeft: 10,
+                "& .TextSpan": {
+                    top: "calc(50% - 8px)",
+                    position: "absolute",
+                    maxWidth: "156px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                }
+            },
+            "& .MuiSelect-select.MuiSelect-select": {
+                padding: "0 0 0 10px",
+                minWidth: "100px"
+            },
+            "& .MuiSelect-select.MuiSelect-select:focus": {
+                backgroundColor: "transparent"
+            }
+        },
     }),
 );
 
@@ -686,7 +787,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         mainStatementWrapper: {
             display: 'flex',
             height: 'auto',
-            width: 700,
+            width: 600,
             flexDirection: 'column',
         },
         stmtEditorInnerWrapper: {
@@ -708,6 +809,21 @@ export const useStatementEditorStyles = makeStyles(() =>
             overflowY: 'hidden',
             display: 'flex',
             flexDirection: 'column'
+        },
+        loadingWrapper: {
+            height: 'calc(100vh - 110px)',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            },
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center'
         },
         suggestionsSection: {
             display: 'flex',
@@ -736,13 +852,13 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            padding: '10px 20px',
+            padding: '10px 25px 0 25px',
             borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {
             display: 'flex',
             justifyContent: 'flex-end',
-            width: '50%'
+            width: '100%'
         },
         stmtEditorToggle: {
             width: '50%'
@@ -797,6 +913,5 @@ export const useStatementEditorStyles = makeStyles(() =>
             },
             ...removePadding
         }
-
     }),
 );

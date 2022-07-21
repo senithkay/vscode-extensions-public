@@ -18,13 +18,14 @@ import { FormControl, Typography } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import { FormElementProps, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { createPropertyStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { createPropertyStatement, getInitialSource } from "../../../../../../utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
+import { isStatementEditorSupported } from "../../../../Utils";
 
 interface AddAssignmentConfigProps {
     config: ProcessConfig;
@@ -41,6 +42,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
 
     const {
         props: {
+            ballerinaVersion,
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
@@ -65,6 +67,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         varExpression = config.model.expression?.source;
         variableName = config.model?.varRef?.source?.trim();
     }
+
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
     const [varName, setVarName] = useState(variableName);
     const [validName, setValidName] = useState(false);
@@ -174,73 +178,62 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
         </div>
     );
 
-    const handleStatementEditorChange = (partialModel: AssignmentStatement) => {
-        setVarName(partialModel.varRef.source.trim());
-        setVariableExpression(partialModel.expression.source.trim());
-    }
-
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
-        {
-            label: formTitle,
-            initialSource,
-            formArgs: { formArgs },
-            config,
-            onWizardClose,
-            handleStatementEditorChange,
-            onCancel,
-            currentFile,
-            getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram,
-            library,
-            syntaxTree,
-            stSymbolInfo,
-            importStatements,
-            experimentalEnabled
-        }
-    );
-
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="property-form" className={classes.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Assignment"}
-                />
-                <div className={classes.formContentWrapper}>
-                    <div className={classes.formNameWrapper}>
-                        {nameExpressionEditor}
-                    </div>
-                    <div className={classes.formEqualWrapper}>
-                        {
-                            <div className={classes.formEqualContainer}>
-                                <div className={classes.equalContainer}>
-                                    <Typography variant='body2' className={classes.equalCode}>=</Typography>
+    return (
+        <>
+            {statementEditorSupported ? (
+                StatementEditorWrapper(
+                    {
+                        label: formTitle,
+                        initialSource,
+                        formArgs: { formArgs },
+                        config,
+                        onWizardClose,
+                        onCancel,
+                        currentFile,
+                        getLangClient: getExpressionEditorLangClient,
+                        applyModifications: modifyDiagram,
+                        library,
+                        syntaxTree,
+                        stSymbolInfo,
+                        importStatements,
+                        experimentalEnabled
+                    }
+                )
+            ) : (
+                <FormControl data-testid="property-form" className={classes.wizardFormControl}>
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={formTitle}
+                        defaultMessage={"Assignment"}
+                    />
+                    <div className={classes.formContentWrapper}>
+                        <div className={classes.formNameWrapper}>
+                            {nameExpressionEditor}
+                        </div>
+                        <div className={classes.formEqualWrapper}>
+                            {
+                                <div className={classes.formEqualContainer}>
+                                    <div className={classes.equalContainer}>
+                                        <Typography variant='body2' className={classes.equalCode}>=</Typography>
+                                    </div>
+                                    <div className={classes.valueContainer}>
+                                        {expressionEditor}
+                                    </div>
                                 </div>
-                                <div className={classes.valueContainer}>
-                                    {expressionEditor}
-                                </div>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText={cancelVariableButtonText}
-                    cancelBtn={true}
-                    saveBtnText={saveVariableButtonText}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={validForm}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={handleSave}
-                    onCancel={onCancel}
-                />
-            </FormControl >
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+                    <FormActionButtons
+                        cancelBtnText={cancelVariableButtonText}
+                        cancelBtn={true}
+                        saveBtnText={saveVariableButtonText}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={validForm}
+                        onSave={handleSave}
+                        onCancel={onCancel}
+                    />
+                </FormControl >
+            )}
+        </>
+    )
 }

@@ -37,7 +37,7 @@ export interface ControlFlow {
   executionTime?: number;
 }
 
-export interface SyntaxDiagnostics {
+export interface Diagnostic {
   diagnosticInfo: DiagnosticInfo;
   message: string;
 }
@@ -67,7 +67,8 @@ export interface STNode {
   source: string;
   configurablePosition?: NodePosition;
   controlFlow?: ControlFlow;
-  syntaxDiagnostics: SyntaxDiagnostics[];
+  syntaxDiagnostics: Diagnostic[];
+  diagnostics?: Diagnostic[];
   performance?: PerfData;
   leadingMinutiae: Minutiae[];
   trailingMinutiae: Minutiae[];

@@ -77,12 +77,12 @@ export const TopLevelPlus = (props: PlusProps) => {
     // TODO:Check the rendering issue in this tooltip
     useEffect(() => {
         if (!isDocumentEmpty && showTooltip) {
-            setTooltip(showTooltip(<TopLevelPlusIcon />, "Add Construct"));
+            setTooltip(showTooltip(<TopLevelPlusIcon selected={isPlusClicked}/>, "Add Construct"));
         }
         return () => {
             setTooltip(undefined);
         };
-    }, [isDocumentEmpty]);
+    }, [isDocumentEmpty, isPlusClicked]);
 
     return (
         <div className="plus-container" ref={containerElement} target-line={targetPosition.startLine}>
@@ -91,7 +91,7 @@ export const TopLevelPlus = (props: PlusProps) => {
                     !isDocumentEmpty && tooltip ?
                         tooltip
                         :
-                            <TopLevelPlusIcon />
+                            <TopLevelPlusIcon selected={isPlusClicked}/>
                 }
             </div>
             {

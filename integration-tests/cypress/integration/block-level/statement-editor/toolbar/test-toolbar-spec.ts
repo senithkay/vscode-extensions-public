@@ -12,7 +12,6 @@
  */
 import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
 import { Canvas } from "../../../../utils/components/canvas";
-import { VariableFormBlockLevel } from "../../../../utils/forms/variable-form-block-level";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../../utils/components/statement-editor/editor-pane";
 import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
@@ -20,6 +19,7 @@ import { Toolbar } from "../../../../utils/components/statement-editor/toolbar";
 import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
 import { SourceCode } from "../../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
+import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
@@ -34,53 +34,49 @@ describe('Test statement editor toolbar functionality', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("Variable");
+            .clickDefaultWorkerPlusBtn(2);
 
-        VariableFormBlockLevel
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
-            .shouldBeVisible()
+            .shouldBeVisible();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var')
+            .doubleClickExpressionContent('var');
 
         InputEditor
-            .typeInput("int")
+            .typeInput("int");
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int")
+            .validateNewExpression("TypedBindingPattern", "int")
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent('<add-expression>')
+            .doubleClickExpressionContent('<add-expression>');
 
         InputEditor
-            .typeInput("var1")
+            .typeInput("var1");
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .clickExpressionContent('var1')
+            .clickExpressionContent('var1');
 
         Toolbar
-            .clickDeleteButton()
+            .clickDeleteButton();
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`)
+            .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput("456")
+            .typeInput("456");
 
         EditorPane
-            .validateNewExpression("NumericLiteral","456")
-            .validateEmptyDiagnostics()
+            .validateNewExpression("NumericLiteral", "456")
+            .validateEmptyDiagnostics();
 
         StatementEditor
-            .save()
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "toolbar-functionality.expected.bal");
@@ -93,56 +89,52 @@ describe('Test statement editor toolbar functionality', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2)
-            .getBlockLevelPlusWidget()
-            .clickOption("Variable");
+            .clickDefaultWorkerPlusBtn(2);
 
-        VariableFormBlockLevel
-            .shouldBeVisible()
-            .toggleStatementEditor()
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
-            .shouldBeVisible()
+            .shouldBeVisible();
 
         EditorPane
             .getStatementRenderer()
             .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var')
+            .doubleClickExpressionContent('var');
 
         InputEditor
-            .typeInput("int")
+            .typeInput("int");
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int")
+            .validateNewExpression("TypedBindingPattern", "int")
             .getExpression("TypedBindingPattern")
-            .clickExpressionContent('int')
+            .clickExpressionContent('int');
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('float')
+            .clickLsTypeSuggestion('float');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","float")
+            .validateNewExpression("TypedBindingPattern", "float");
 
         Toolbar
-            .clickUndoButton()
+            .clickUndoButton();
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern","int")
+            .validateNewExpression("TypedBindingPattern", "int");
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent('<add-expression>')
+            .doubleClickExpressionContent('<add-expression>');
 
         InputEditor
-            .typeInput("456")
+            .typeInput("456");
 
         EditorPane
             .validateNewExpression("NumericLiteral", "456")
-            .validateEmptyDiagnostics()
+            .validateEmptyDiagnostics();
 
         StatementEditor
-            .save()
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "toolbar-functionality.expected.bal");

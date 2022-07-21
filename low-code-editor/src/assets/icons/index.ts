@@ -29,6 +29,10 @@ export { default as SalesforceIcon } from "./Salesforce";
 export { default as WebhookIcon } from "./Webhook";
 export { default as CustomStatementIcon } from "./CustomStatement";
 export { default as FilterIcon } from "./Filter";
+export { default as AsyncSend } from './AsyncSend';
+export { default as AsyncReceive } from './AsyncReceive';
+export { default as AsyncWait } from './AsyncWait';
+export { default as Flush } from './Flush';
 
 // Module level icons
 export { default as ServiceIcon } from './ServiceIcon';
@@ -58,5 +62,5 @@ export { default as ResourceAccessorDefinition } from './ResourceIcon';
 export { default as Custom } from "./Custom";
 export { default as ErrorIcon } from "./Error";
 export { default as TriggerList } from "./ListenerIcon";
-export { default as WarningIcon} from "./Warning";
-export { default as ErrorCopyIcon} from "./ErrorCopyIcon";
+export { default as WarningIcon } from "./Warning";
+export { default as ErrorCopyIcon } from "./ErrorCopyIcon";

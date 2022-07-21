@@ -49,6 +49,11 @@ export function genInterfacesFileCode(modelInfo: any) {
             message: string;
         }
 
+        export interface Diagnostic {
+            diagnosticInfo: DiagnosticInfo;
+            message: string;
+        }
+
         export interface DiagnosticInfo {
             code: string;
             severity: string;

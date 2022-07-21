@@ -16,7 +16,7 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { ConditionConfig,
+import { CommandResponse, ConditionConfig,
     Connector,
     DiagramDiagnostic,
     DIAGRAM_MODIFIED,
@@ -72,11 +72,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const defaultPanX = panX ? Number(panX) : 0;
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
+    const runBackgroundTerminalCommand: (command: string) => Promise<CommandResponse> = props.runBackgroundTerminalCommand;
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => Promise<boolean> = props.showMessage;
     const getLibrariesList: (kind?: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
     const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
     const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
+    const getBalVersion: () => Promise<string | undefined> = props.getBallerinaVersion;
     const getEnv: (name: string) => Promise<any> = props.getEnv;
 
     const defaultZoomStatus = {
@@ -94,6 +96,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [performanceData, setPerformanceData] = React.useState(undefined);
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
+    const [balVersion, setBalVersion] = React.useState("");
     const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
@@ -133,6 +136,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
 
     React.useEffect(() => {
         (async () => {
+            const version: string = await getBalVersion();
+            setBalVersion(version);
             const sentryConfig: SentryConfig = await getSentryConfig();
             if (sentryConfig) {
                 init(sentryConfig);
@@ -284,6 +289,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             importStatements={getImportStatements(syntaxTree)}
                             experimentalEnabled={experimentalEnabled}
                             lowCodeResourcesVersion={lowCodeResourcesVersion}
+                            ballerinaVersion={balVersion}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
@@ -410,7 +416,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     getLibrariesList,
                                     getLibrariesData,
                                     getLibraryData
-                                }
+                                },
+                                runBackgroundTerminalCommand
                             }}
                         />
                     </DiagramGenErrorBoundary>

@@ -15,6 +15,7 @@ import React, { ReactNode, useContext, useEffect, useMemo, useState } from "reac
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
+import { genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { AddIcon } from "../../../../../../assets/icons";
@@ -22,8 +23,6 @@ import DeleteButton from "../../../../../../assets/icons/DeleteButton";
 import EditButton from "../../../../../../assets/icons/EditButton";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { Context, FormState } from "../../../../../../Contexts/EnumEditor";
-import { getAllVariables } from "../../../../../utils/mixins";
-import { genVariableName } from "../../../../Portals/utils";
 import { keywords } from "../../../../Portals/utils/constants";
 import { VariableNameInput } from "../../Components/VariableNameInput";
 import { FieldEditor } from "../FieldEditor";
