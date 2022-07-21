@@ -62,7 +62,7 @@ export function ParamEditor(props: ParamProps) {
     const [paramHeaderName, setParamHeaderName] = useState<string>(paramName);
     const [paramDefaultValue, setParamDefaultValue] = useState<string>(defaultValue);
     const [selectedOption, setSelectedOption] = useState<string>(option);
-    const [isHeaderConfigInProgress, setIsHeaderConfigInProgress] = useState<boolean>(!!headerName);
+    const [isHeaderConfigInProgress, setIsHeaderConfigInProgress] = useState<boolean>(!!hName);
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
 
@@ -109,7 +109,7 @@ export function ParamEditor(props: ParamProps) {
 
     const handleDefaultValueChange = (value: string) => {
         setParamDefaultValue(value);
-        setCurrentComponentName("HeaderName");
+        setCurrentComponentName("DefaultValue");
         if (optionList) {
             onChange({id, name: paramName, dataType: paramDataType, headerName, defaultValue: value},
                 selectedOption);
@@ -233,7 +233,7 @@ export function ParamEditor(props: ParamProps) {
                                 (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
                             optional: true
                         }}
-                        errorMessage={((currentComponentName === "Name" && (syntaxDiag) ? syntaxDiag : "")
+                        errorMessage={((currentComponentName === "DefaultValue" && (syntaxDiag) ? syntaxDiag : "")
                             || nameDiagnostics)}
                         onBlur={null}
                         placeholder={"Enter Value"}

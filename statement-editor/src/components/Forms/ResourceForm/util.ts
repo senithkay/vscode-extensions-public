@@ -72,7 +72,7 @@ export function getQueryParamCollection(queryParamString: string): QueryParamCol
     };
 
     if (queryParamString && queryParamString !== "") {
-        const queryParamSplited: string[] = queryParamString.trim().replace(/{[a-zA-Z]+\s*:\s*"[a-zA-Z0-9]+"}/, "").split(",");
+        const queryParamSplited: string[] = queryParamString.trim().split(",");
         queryParamSplited.forEach((value, index) => {
             const matchedMappedName = value.trim().match(/{[a-zA-Z]+\s*:\s*"[a-zA-Z0-9]+"}/);
             const mappedName = matchedMappedName ? value.trim().match(/{[a-zA-Z]+\s*:\s*"[a-zA-Z0-9]+"}/)[0]
