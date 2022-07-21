@@ -782,7 +782,8 @@ suite("Language Server Tests", function () {
         langClient.getResourcesWithEndpoints({
             documentIdentifier: {
                 uri
-            }
+            },
+            isWorkerSupported: false
         }, true).then(async (epResponse) => {
             const response = epResponse as PerformanceAnalyzerResponse[];
             expect(response).to.lengthOf(1);

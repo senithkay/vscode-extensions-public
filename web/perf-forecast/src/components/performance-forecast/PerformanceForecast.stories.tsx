@@ -1,7 +1,8 @@
 
 import { Meta } from '@storybook/react';
+import React from 'react';
 
-import { PerformanceForcast }  from './PerformanceForcast';
+import { PerformanceForecast }  from './PerformanceForecast';
 
 const data = [
   {
@@ -37,8 +38,8 @@ const data = [
 ];
 
 export default {
-  component: PerformanceForcast,
-  title: 'Components/PerformanceForcast',
+  component: PerformanceForecast,
+  title: 'Components/PerformanceForecast',
 } as Meta;
 
-export const Primary: React.VFC<{}> = () => <PerformanceForcast data={data}></PerformanceForcast>;
+export const Primary: React.VFC<{}> = () => <PerformanceForecast name={"test"} data={data}></PerformanceForecast>;

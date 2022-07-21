@@ -29,14 +29,13 @@ import {
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
 	NOT_SUPPORTED,
-	PerformanceAnalyzerGraphResponse,
-	PerformanceAnalyzerRealtimeResponse
+	PerformanceAnalyzerGraphResponse
 } from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, getMessageObject } from '../telemetry';
-import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PFSession } from '../forecaster';
+import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerRealtimeResponse, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { Module } from '../tree-view';
 import { sep } from "path";

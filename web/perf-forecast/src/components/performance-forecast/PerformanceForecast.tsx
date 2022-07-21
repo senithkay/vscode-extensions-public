@@ -20,6 +20,7 @@
 import React from 'react';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart } from 'recharts';
 import "./graph-styles.css";
+import { DataGrid } from '@mui/x-data-grid';
 
 export interface DataPoint {
     concurrency: number,
@@ -28,7 +29,7 @@ export interface DataPoint {
     tps: number
 }
 
-export interface PerformanceForcastProps {
+export interface PerformanceForecastProps {
     name: String,
     data: DataPoint[]
 }
@@ -37,13 +38,58 @@ interface vscode {
     postMessage(message: any): void;
 }
 
+const columns = [
+    {
+        field: "A/I",
+        maxWidth: 50,
+        flex: 1
+    },
+    {
+        field: "Title",
+        flex: 1
+    },
+    {
+        field: "Completed",
+        flex: 1
+    }
+];
+
+function createData(number: any, item: any, qty: any, price: any) {
+    return { id: number, "Title": item, "A/I": qty, "Completed": price };
+}
+
+const rows = [
+    createData(1, "Apple", 5, 3),
+    createData(2, "Orange", 2, 2),
+    createData(3, "Grapes", 3, 1),
+    createData(4, "Tomato", 2, 1.6),
+    createData(5, "Mango", 1.5, 4)
+];
+
+
 declare const vscode: vscode;
 let currentConcurrency = 1;
 let hoverConcurrency = 1;
-export const PerformanceForcast = ({ name, data }: PerformanceForcastProps) => {
+export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) => {
+
     return (
         <div className="performance-forcast">
             <h1 className="center">Performance Graph - {name}</h1>
+
+            <div>
+
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    hideFooter={true}
+                    onRowClick={(param: any, event: any, detail: any) => {console.log(param);
+                    }}
+                    disableExtendRowFullWidth={true}
+                    autoHeight={true}
+                />
+
+            </div>
+
             <div className="diagram">
                 <div className="y-label">
 

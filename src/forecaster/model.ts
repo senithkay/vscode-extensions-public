@@ -143,3 +143,13 @@ export interface PerfContext {
     advancedData: PerformanceAnalyzerGraphResponse | undefined;
     file: string | undefined;
 }
+
+export interface PerformanceAnalyzerRealtimeResponse {
+    message: string;
+    type: any;
+    positions: Map<string, string>;
+    concurrency: Values;
+    latency: Values;
+    tps: Values;
+    connectorLatencies: Map<string, Values>;
+}

@@ -17,11 +17,11 @@
  *
  */
 
-import { ANALYZETYPE, DataLabel, GraphData, PerfContext, PerformanceGraphRequest } from "./model";
+import { ANALYZETYPE, DataLabel, GraphData, PerfContext, PerformanceAnalyzerRealtimeResponse, PerformanceGraphRequest } from "./model";
 import { commands, ExtensionContext, languages, Range as VRange, Uri, ViewColumn, window } from "vscode";
 import {
     BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse, PerformanceAnalyzerResponse, WEBVIEW_TYPE
+    PerformanceAnalyzerResponse, WEBVIEW_TYPE
 } from "../core";
 import { CODELENSE_TYPE, ExecutorCodeLensProvider } from "./codelens-provider";
 import { debug } from "../utils";
@@ -34,7 +34,7 @@ import { CMP_PERF_ANALYZER, sendTelemetryEvent, sendTelemetryException, TM_EVENT
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
     `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/3.0` :
-    "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/3.0";
+    "https://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/4.0";
 
 const SUCCESS = "Success";
 const maxRetries = 3;
@@ -115,7 +115,8 @@ export async function createPerformanceGraphAndCodeLenses(uri: string | undefine
     await langClient.getResourcesWithEndpoints({
         documentIdentifier: {
             uri
-        }
+        },
+        isWorkerSupported: true
     }).then(async (epResponse) => {
         const response = epResponse as PerformanceAnalyzerResponse[];
         for (var resource of response) {
