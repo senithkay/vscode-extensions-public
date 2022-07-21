@@ -190,7 +190,7 @@ export function StatementOptions(props: StatementOptionsProps) {
 
     const workerBlock: StatementComponent = {
         name: "worker",
-        category: 'actors',
+        category: 'concurrency',
         component:
             (
                 <Tooltip
@@ -198,8 +198,13 @@ export function StatementOptions(props: StatementOptionsProps) {
                     placement="left"
                     arrow={true}
                     interactive={true}
+                    disabled={!viewState.allowWorker}
                 >
-                    <div className="sub-option enabled" data-testid="addLog" onClick={onSelectStatement.bind(undefined, "Worker")}>
+                    <div
+                        className={cn("sub-option", { enabled: viewState.allowWorker })}
+                        data-testid="addWorker"
+                        onClick={viewState.allowWorker ? onSelectStatement.bind(undefined, "Worker") : null}
+                    >
                         <div className="icon-wrapper">
                             <LogIcon />
                         </div>
@@ -264,11 +269,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 placement="right"
                 arrow={true}
                 interactive={true}
+                disabled={!hasWorkerDecl}
             >
                 <div
-                    className="sub-option enabled"
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
                     data-testid="addSend"
-                    onClick={onSelectStatement.bind(undefined, "AsyncSend")}
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "AsyncSend") : null}
                 >
                     <div className="icon-wrapper">
                         <AsyncSend />
@@ -292,11 +298,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 placement="right"
                 arrow={true}
                 interactive={true}
+                disabled={!hasWorkerDecl}
             >
                 <div
-                    className="sub-option enabled"
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
                     data-testid="addReceive"
-                    onClick={onSelectStatement.bind(undefined, "ReceiveStatement")}
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "ReceiveStatement") : null}
                 >
                     <div className="icon-wrapper">
                         <AsyncReceive />
@@ -320,11 +327,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 placement="right"
                 arrow={true}
                 interactive={true}
+                disabled={!hasWorkerDecl}
             >
                 <div
-                    className="sub-option enabled"
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
                     data-testid="addWait"
-                    onClick={onSelectStatement.bind(undefined, "WaitStatement")}
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "WaitStatement") : null}
                 >
                     <div className="icon-wrapper">
                         <AsyncWait />
@@ -348,11 +356,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 placement="right"
                 arrow={true}
                 interactive={true}
+                disabled={!hasWorkerDecl}
             >
                 <div
-                    className="sub-option enabled"
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
                     data-testid="addFlush"
-                    onClick={onSelectStatement.bind(undefined, "FlushStatement")}
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "FlushStatement") : null}
                 >
                     <div className="icon-wrapper">
                         <Flush />
@@ -586,8 +595,9 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(foreachStm);
     statements.push(whileStmt);
     statements.push(returnStm);
-    statements.push(respondStm);
+    // statements.push(respondStm);
     if (statementEditorSupported) {
+        statements.push(workerBlock);
         statements.push(sendStmt);
         statements.push(receiveStmt);
         statements.push(waitStmt);
@@ -596,10 +606,6 @@ export function StatementOptions(props: StatementOptionsProps) {
     // statements.push(datamappingStatement);
     statements.push(customStatement);
     statements.push(httpConnector);
-
-    if (viewState.allowWorker && statementEditorSupported) {
-        statements.push(workerBlock);
-    }
 
     const initStatements: Statements = {
         statement: statements,
@@ -653,13 +659,6 @@ export function StatementOptions(props: StatementOptionsProps) {
         });
     }
 
-    const concurrencyComp = (
-        <>
-            {(concurrencyElements.length > 0 ? <Divider className="options-divider" /> : null)}
-            {concurrencyElements}
-        </>
-    )
-
     return (
         <>
             <div className="element-option-holder" >
@@ -669,7 +668,8 @@ export function StatementOptions(props: StatementOptionsProps) {
                     {controlFlowElements}
                     {(genericElements.length > 0 ? <Divider className="options-divider" /> : null)}
                     {genericElements}
-                    {hasWorkerDecl && concurrencyComp}
+                    {(concurrencyElements.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {concurrencyElements}
                     {(communicationElements.length > 0 ? <Divider className="options-divider" /> : null)}
                     {communicationElements}
                 </div>
