@@ -1,14 +1,27 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
+
+import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-
-import { List, Typography } from '@material-ui/core';
-
-import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
-import { QueryExpressionNode, QUERY_SOURCE_PORT_PREFIX, QUERY_TARGET_PORT_PREFIX } from './QueryExpressionNode';
-import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
-import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
-import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
 import { STKindChecker } from '@wso2-enterprise/syntax-tree';
+
+import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
+import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
+import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
+
+import { QueryExpressionNode, QUERY_SOURCE_PORT_PREFIX, QUERY_TARGET_PORT_PREFIX } from './QueryExpressionNode';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
@@ -16,7 +29,7 @@ const styles = (theme: Theme) => createStyles({
 		minWidth: 400,
 		backgroundColor: "#fff",
 		padding: "5px",
-		display: "flex", 
+		display: "flex",
 		flexDirection: "column",
 		gap: "5px",
 		color: "#74828F"
@@ -26,12 +39,12 @@ const styles = (theme: Theme) => createStyles({
 		fontFamily: "monospace"
 	},
 	mappingPane: {
-		display: "flex", 
+		display: "flex",
 		flexDirection: "row",
 		justifyContent: "space-between"
 	},
 	header: {
-		display: "flex", 
+		display: "flex",
 		flexDirection: "row",
 		justifyContent: "space-between",
 	}
@@ -68,11 +81,11 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 					<DataMapperPortWidget engine={engine} port={node.outPort} />
 				</div>
 				<div className={classes.mappingPane}>
-					<RecordTypeTreeWidget 
-						engine={engine}	
-						typeDesc={node.sourceTypeDesc} 
-						id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`} 
-						getPort={getSourcePort} 
+					<RecordTypeTreeWidget
+						engine={engine}
+						typeDesc={node.sourceTypeDesc}
+						id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`}
+						getPort={getSourcePort}
 					/>
 					{STKindChecker.isMappingConstructor(node.value.selectClause.expression) &&
 						<MappingConstructorWidget engine={engine} value={node.value.selectClause.expression} id={QUERY_TARGET_PORT_PREFIX} getPort={getTargetPort} />
