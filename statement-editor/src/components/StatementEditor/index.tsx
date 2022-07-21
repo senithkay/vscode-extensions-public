@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { KeyboardNavigationManager, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -42,7 +42,6 @@ import {
     isBindingPattern, isDocumentationSupportedModel,
     isOperator,
 } from "../../utils";
-import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manager';
 import {
     getCompletions,
     getDiagnostics,
@@ -476,20 +475,18 @@ export function StatementEditor(props: StatementEditorProps) {
         setModel({ ...enrichModel(editedModel, targetPosition, diagnostics) });
     }
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
-
     React.useEffect(() => {
 
-        const client = keyboardNavigationManager.getClient();
+        const client = KeyboardNavigationManager.getClient();
 
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+left', 'command+left'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['tab'], nextModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['shift+tab'], previousModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['enter'], enterKeyHandler);
+        client.bindNewKey(['ctrl+left', 'command+left'], parentModelHandler);
+        client.bindNewKey(['ctrl+right', 'command+right'], parentModelHandler);
+        client.bindNewKey(['tab'], nextModelHandler);
+        client.bindNewKey(['shift+tab'], previousModelHandler);
+        client.bindNewKey(['enter'], enterKeyHandler);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
+            client.resetMouseTrapInstance();
         }
     }, [currentModel.model]);
 

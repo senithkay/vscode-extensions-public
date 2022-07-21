@@ -193,7 +193,7 @@ export function InputEditor(props: InputEditorProps) {
                 <input
                     data-testid="input-editor"
                     value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
-                    className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
+                    className={statementRendererClasses.inputEditorEditingState + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
                     size={userInput.length}

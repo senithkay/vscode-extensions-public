@@ -3,3 +3,4 @@ export * from "./Diagram/template-utils";
 export * from "./Diagram/import-util";
 export * from "./Diagram/identifier-util";
 export * from "./Portal/index";
+export * from "./Diagram/keyboard-navigation-manager";
