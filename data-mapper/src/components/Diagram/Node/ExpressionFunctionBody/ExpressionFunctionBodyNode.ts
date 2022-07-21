@@ -1,11 +1,13 @@
-import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDefinitionForTypeDesc } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortModel } from "../../Port";
+import { RecordTypeDescriptors } from "../../utils/record-type-descriptors";
 import { getFieldNames } from "../../utils";
+import { RecordTRypeFindingVisitor } from "../../visitors/RecordTypeFindingVisitor";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
  
@@ -28,6 +30,15 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     async initPorts() {
 		this.typeDef = await getTypeDefinitionForTypeDesc(this.typeDesc, this.context);
 		const recordTypeDesc = this.typeDef.typeDescriptor as RecordTypeDesc;
+
+		const visitor = new RecordTRypeFindingVisitor(this.context);
+        traversNode(recordTypeDesc, visitor)
+
+		const simpleNameReferneceNodes = visitor.getSimpleNameReferneceNodes()
+
+		const recordTypeDescriptors = RecordTypeDescriptors.getClient();
+		await recordTypeDescriptors.retrieveTypeDescriptors(simpleNameReferneceNodes,this.context)
+
 		recordTypeDesc.fields.forEach((subField) => {
 			if (STKindChecker.isRecordField(subField)) {
 				this.addPorts(subField, "IN", "exprFunctionBody");
@@ -92,6 +103,11 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 				} else if (STKindChecker.isRecordTypeDesc(recFieldTemp.typeName)){
 					nextTypeNode = recFieldTemp.typeName
 				}
+				else if (STKindChecker.isSimpleNameReference(recFieldTemp.typeName) ){
+					const recordTypeDescriptors = RecordTypeDescriptors.getClient();
+					const typeDef = recordTypeDescriptors.gettypeDescriptor(recFieldTemp.typeName.name.value)
+					nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
+				}
 			}
 		}
 		if (recField) {
@@ -121,6 +137,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 							return port;
 						} else if (STKindChecker.isRecordTypeDesc(recField.typeName)) {
 							nextTypeNode = recField.typeName;
+						} else if (STKindChecker.isSimpleNameReference(recField.typeName) ){
+							const recordTypeDescriptors = RecordTypeDescriptors.getClient();
+							const typeDef = recordTypeDescriptors.gettypeDescriptor(recField.typeName.name.value)
+							nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
 						}
 					}
 				}

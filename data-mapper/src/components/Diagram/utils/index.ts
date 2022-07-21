@@ -1,10 +1,10 @@
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { DataMapperLinkModel } from "./Link/model/DataMapperLink";
-import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "./Node";
-import { DataMapperNodeModel } from "./Node/commons/DataMapperNode";
-import { DataMapperPortModel } from "./Port/model/DataMapperPortModel";
+import { DataMapperLinkModel } from "../Link/model/DataMapperLink";
+import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
+import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { DataMapperPortModel } from "../Port/model/DataMapperPortModel";
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];

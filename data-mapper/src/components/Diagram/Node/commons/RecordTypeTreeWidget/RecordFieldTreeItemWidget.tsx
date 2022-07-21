@@ -5,11 +5,12 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 // tslint:disable-next-line: no-implicit-dependencies
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { RecordField, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { RecordField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperPortWidget } from "../../../Port/view/DataMapperPortWidget";
 import { DataMapperPortModel } from "../../../Port/model/DataMapperPortModel";
 import { getFieldTypeName } from "../../../utils";
+import { RecordTypeDescriptors } from "../../../utils/record-type-descriptors";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -85,15 +86,26 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const fieldId = `${parentId}.${field.fieldName.value}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
+    let fields: STNode[];
 
-    const  expandable = (STKindChecker.isRecordField(field) && STKindChecker.isRecordTypeDesc(field.typeName) && field.typeName.fields.length > 0) 
+    if (STKindChecker.isRecordField(field) && STKindChecker.isRecordTypeDesc(field.typeName)){
+        fields = field.typeName.fields
+    }
+    else if (STKindChecker.isSimpleNameReference(field.typeName)) {
+        const recordTypeDescriptors = RecordTypeDescriptors.getClient();
+		const typeDef = recordTypeDescriptors.gettypeDescriptor(field.typeName.name.value)
+        if (!!typeDef && STKindChecker.isRecordTypeDesc(typeDef.typeDescriptor)){
+            fields = typeDef.typeDescriptor.fields
+        }
+    }
+
     const [expanded , setExpanded] = useState<Boolean>(true)
 
     const typeName = STKindChecker.isRecordField(field)
         ? getFieldTypeName(field)
         : "record";
 
-    const indentation  = expandable ?  0 : ((treeDepth + 1) * 16) + 8;
+    const indentation  = !!fields ?  0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
         <span style={{ marginRight: "auto"}} >
@@ -110,6 +122,10 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         </span>
     );
 
+    if ((STKindChecker.isRecordField(field) && STKindChecker.isSimpleNameReference(field.typeName) )){
+        console.log({"tpedesclog":field})
+    }
+
     const handleExpand = () => {
         //TODO Enable expand collapse functionality
         // setExpanded(!expanded)
@@ -124,7 +140,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                         <DataMapperPortWidget engine={engine} port={portIn} />
                     }
                 </span>
-                {expandable &&
+                {!!fields &&
                     (expanded ? (
                         <ExpandMoreIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                     ):
@@ -140,8 +156,8 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                     }
                 </span>    
             </div>
-                {STKindChecker.isRecordField(field) && STKindChecker.isRecordTypeDesc(field.typeName) && expanded &&
-                    field.typeName.fields.map((field) => {
+                {!!fields &&
+                    fields.map((field) => {
                         if (STKindChecker.isRecordField(field)) {
                             return <RecordFieldTreeItemWidget
                                 engine={engine}
@@ -155,7 +171,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             return <></>;
                         }
                     })
-                }             
+                }
         </>
     );
 }
