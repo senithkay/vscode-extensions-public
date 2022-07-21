@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/ballerina-statement-editor",
-    "version": "1.1.9",
+    "version": "1.1.10",
     "description": "Ballerina Statement Editor",
     "files": [
         "lib"

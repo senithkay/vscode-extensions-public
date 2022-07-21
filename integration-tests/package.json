@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/ballerina-low-code-integration-tests",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Ballerina Low Code Integration Tests",
     "scripts": {
         "build": "echo 'not imlemented'",
