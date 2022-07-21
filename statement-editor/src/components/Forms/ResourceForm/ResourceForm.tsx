@@ -234,7 +234,7 @@ export function ResourceForm(props: FunctionProps) {
     }, [model]);
 
     return (
-        <FormControl data-testid="resource-form" className={connectorClasses.wizardFormControl}>
+        <FormControl data-testid="resource-form" className={connectorClasses.wizardFormControlExtended}>
             <div
                 key={"resource"}
                 className={classes.resourceWrapper}

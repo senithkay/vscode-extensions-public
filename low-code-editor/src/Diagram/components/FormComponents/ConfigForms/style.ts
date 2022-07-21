@@ -136,7 +136,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             marginTop: "0.75rem"
         },
         wizardFormControl: {
-            width: 300,
+            width: 312,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
