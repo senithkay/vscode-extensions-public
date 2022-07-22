@@ -86,7 +86,6 @@ export const StatementEditorContext = React.createContext({
     syntaxTree: null,
     stSymbolInfo: null,
     importStatements: [],
-    handleStmtEditorToggle: () => undefined,
     onWizardClose: () => undefined,
     onCancel: () => undefined,
     experimentalEnabled: false
@@ -113,7 +112,6 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     documentation?: DocumentationInfo,
     restArg?: (restCheckClicked: boolean) => void,
     hasRestArg?: boolean,
-    handleStmtEditorToggle: () => void,
     editorManager: {
         switchEditor?: (index: number) => void,
         updateEditor?: (index: number, newContent: EditorModel) => void,

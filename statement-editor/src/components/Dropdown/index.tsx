@@ -21,10 +21,11 @@ interface SelectDropdownProps {
     values: string[]
     defaultValue: string
     onSelection: (value: string) => void
+    className?: string
 }
 
 export default function SelectDropdown(props: SelectDropdownProps) {
-    const { values, defaultValue, onSelection } = props;
+    const { values, defaultValue, onSelection, className } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const [state, setState] = React.useState(defaultValue);
 
@@ -52,7 +53,7 @@ export default function SelectDropdown(props: SelectDropdownProps) {
         <Select
             value={state}
             onChange={handleChange}
-            className={stmtEditorHelperClasses.selectDropDownSe}
+            className={className || stmtEditorHelperClasses.selectDropDownSe}
             inputProps={{ 'aria-label': 'Without label' }}
             MenuProps={{
                 getContentAnchorEl: null,

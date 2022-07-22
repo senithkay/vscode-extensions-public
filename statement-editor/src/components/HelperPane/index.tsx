@@ -22,7 +22,7 @@ import {
     STD_LIBS_IDENTIFIER
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { isFunctionOrMethodCall } from "../../utils";
+import { isConfigurableEditor, isFunctionOrMethodCall, isInsideConnectorParams } from "../../utils";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
@@ -53,7 +53,12 @@ export function HelperPane(props: HelperPaneProps) {
     const {
         modelCtx: {
             currentModel
-        }
+        },
+        editorCtx: {
+            editors,
+            activeEditorId
+        },
+        config
     } = useContext(StatementEditorContext);
 
     const onTabElementSelection = async (value: TabElements) => {
@@ -79,12 +84,16 @@ export function HelperPane(props: HelperPaneProps) {
     }, []);
 
     useEffect(() => {
-        if (currentModel.model && isFunctionOrMethodCall(currentModel.model)){
+        if (
+            currentModel.model &&
+            (isFunctionOrMethodCall(currentModel.model) || isInsideConnectorParams(currentModel.model, config.type)) &&
+            !isConfigurableEditor(editors, activeEditorId)
+        ) {
             setSelectedTab(TabElements.parameters);
-        } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
+        } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
             setSelectedTab(TabElements.expressions);
         }
-    }, [docExpandClicked, currentModel.model])
+    }, [docExpandClicked, currentModel.model]);
 
     useEffect(() => {
         selectedTab === TabElements.parameters ? paramTabHandler(true) : paramTabHandler(false);
@@ -94,7 +103,6 @@ export function HelperPane(props: HelperPaneProps) {
         <>
             <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                 <div className={stmtEditorHelperClasses.tabPanelWrapper} data-testid="tab-panel-wrapper">
-
                     <TabPanel
                         values={[TabElements.suggestions, TabElements.expressions, TabElements.libraries, TabElements.parameters]}
                         defaultValue={TabElements.suggestions}

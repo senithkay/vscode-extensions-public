@@ -14,6 +14,7 @@
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
+import { DiagramDiagnostic } from "./config-spec";
 import { BallerinaConnectorInfo, Connector } from "./lang-client-extended";
 
 export interface DiagramCoordinates {
@@ -121,23 +122,21 @@ export interface DiagramOverlayPosition {
     y: number
 };
 
-export interface ConnectorConfigWizardProps {
-    position: DiagramOverlayPosition;
-    connectorInfo: BallerinaConnectorInfo;
-    targetPosition: NodePosition;
-    // This prop is used to load connectors from statement menu
-    specialConnectorName?: string;
-    endpointName?: string;
-    model?: STNode;
-    onClose: () => void;
-    onSave: () => void;
-    selectedConnector?: LocalVarDecl;
-    isModuleEndpoint?: boolean;
-    isAction?: boolean;
-    isEdit?: boolean;
-    functionNode?: STNode;
+export enum ConnectorWizardType {
+    ENDPOINT = "endpoint",
+    ACTION = "action",
 }
-
+export interface ConnectorWizardProps {
+    wizardType: ConnectorWizardType;
+    diagramPosition: DiagramOverlayPosition;
+    connectorInfo?: BallerinaConnectorInfo;
+    model?: STNode;
+    targetPosition: NodePosition;
+    functionNode?: STNode;
+    isModuleType?: boolean;
+    onSave: () => void;
+    onClose: () => void;
+}
 export interface Margin {
     top?: number;
     bottom?: number;
@@ -161,4 +160,5 @@ export interface PlusWidgetProps {
     overlayId?: string;
     overlayNode? : HTMLDivElement;
     offset?: any;
+    hasWorkerDecl?: boolean;
 }

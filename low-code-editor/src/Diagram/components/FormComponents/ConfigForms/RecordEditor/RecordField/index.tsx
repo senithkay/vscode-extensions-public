@@ -15,12 +15,11 @@ import React, { ReactNode, useContext, useEffect, useMemo, useState } from "reac
 import { useIntl } from "react-intl";
 
 import { Typography } from "@material-ui/core";
+import { genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { AddIcon } from "../../../../../../assets/icons";
 import { Context as DiagramContext } from "../../../../../../Contexts/Diagram";
 import { Context, FormState } from "../../../../../../Contexts/RecordEditor";
-import { getAllVariables } from "../../../../../utils";
-import { genVariableName } from "../../../../Portals/utils";
 import { keywords } from "../../../../Portals/utils/constants";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { FormGenerator } from "../../../FormGenerator";

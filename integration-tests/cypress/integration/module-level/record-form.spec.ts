@@ -25,8 +25,7 @@ describe('Record', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     })
 
-
-    it.skip('Add and Edit Record', () => {
+    it('Add and Edit Record', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -36,9 +35,14 @@ describe('Record', () => {
         RecordForm
             .shouldBeVisible()
             .typeRecordName('Person')
+            .clickWhiteSpace()
+            .haveRecordName("Person")
             .addNewField('string', 'firstName')
+            .clickWhiteSpace()
             .addNewField('string', 'lastName')
-            //.addNewField('string', 'address', '"none"') // Need to fix this
+            .clickWhiteSpace()
+            .addNewField('string', 'address', '"none"')
+            .clickWhiteSpace()
             .addNewField('int', 'test')
             .save();
 
@@ -77,7 +81,7 @@ describe('Record', () => {
             getCurrentSpecFolder() + "record-form.expected.bal");
     });
 
-    it.skip('Add and Delete Record', () => {
+    it('Add and Delete Record', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -87,6 +91,8 @@ describe('Record', () => {
         RecordForm
             .shouldBeVisible()
             .typeRecordName('Person')
+            .clickWhiteSpace()
+            .haveRecordName("Person")
             .addNewField('string', 'firstName')
             .addNewField('string', 'lastName')
             .addNewField('string', 'address', '"none"')
@@ -125,23 +131,24 @@ describe('Record', () => {
     });
 
 
-    // Todo: Fix once the import from JSON is fixed
-    // it('Add from Json', () => {
-    //     Canvas
-    //         .welcomeMessageShouldBeVisible()
-    //         .clickTopLevelPlusButton();
+    it('Add from Json', () => {
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
 
-    //     TopLevelPlusWidget.clickOption('Record');
+        TopLevelPlusWidget.clickOption('Record');
 
-    //     RecordForm
-    //         .shouldBeVisible()
-    //         .typeRecordName('Person')
-    //         .importFromJson(`
-    //             {
-    //                 "firstName": "",
-    //                 "lastName": ""
-    //             }
-    //         `)
-    //         .save();
-    // });
+        RecordForm
+            .shouldBeVisible()
+            .typeRecordName('Person')
+            .clickWhiteSpace()
+            .haveRecordName("Person")
+            .importFromJson(`
+                {
+                    "firstName": "",
+                    "lastName": ""
+                }
+            `)
+            .save();
+    });
 });

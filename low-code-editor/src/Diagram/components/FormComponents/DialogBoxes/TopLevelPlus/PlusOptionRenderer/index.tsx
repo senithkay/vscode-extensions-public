@@ -13,6 +13,7 @@
 import React from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { PlusMenuEntry } from "../PlusOptionsSelector";
@@ -52,14 +53,21 @@ export function PlusOptionRenderer(props: PlusOptionRendererProps) {
     );
 
     return (
-        <ClickAwayListener
-            mouseEvent="onMouseDown"
-            touchEvent="onTouchStart"
-            onClickAway={onClose}
-        >
+        // <ClickAwayListener
+        //     mouseEvent="onMouseDown"
+        //     touchEvent="onTouchStart"
+        //     onClickAway={onClose}
+        // >
+        <>
+            <FormHeaderSection
+                onCancel={onClose}
+                formTitle={"lowcode.develop.configForms.plusholder.title"}
+                defaultMessage={"Add Constructs"}
+            />
             <div className={'dropdown'}>
                 {showCategorized ? categorizedMenu : simpleMenu()}
             </div>
-        </ClickAwayListener>
+        </>
+        // </ClickAwayListener>
     )
 }

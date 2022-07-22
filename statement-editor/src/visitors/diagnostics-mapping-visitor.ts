@@ -19,7 +19,7 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { StmtOffset } from "../models/definitions";
-import { isPositionsEquals } from "../utils";
+import { isDiagnosticInRange, isPositionsEquals } from "../utils";
 import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
 class DiagnosticsMappingVisitor implements Visitor {
@@ -53,13 +53,47 @@ class DiagnosticsMappingVisitor implements Visitor {
             endColumn: node?.position?.endColumn + (!isWithinBlockStatement ? this.offset.startColumn : 0)
         }
         if (isPositionsEquals(diagPosition, nodePosition)) {
-            node?.syntaxDiagnostics?.push({
-                diagnosticInfo: {
+            // TODO: Remove this If block as all nodes coming through here
+            // doesn't contain "syntaxDiagnostics" property as it is something
+            // we pushed from backend.
+            if (node && node.syntaxDiagnostics) {
+                node?.syntaxDiagnostics?.push({
+                    diagnosticInfo: {
+                        code: this.diagnostic.code.toString(),
+                        severity: this.diagnostic.severity.toString()
+                    },
+                    message: this.diagnostic.message
+                });
+            }
+
+            // Statement Editor viewState will hold the diagnostics for
+            // each node which matched with the position.
+            // To use when highlighting an error
+            if (node && node.viewState && this.diagnostic.severity === 1) {
+                node?.viewState?.diagnosticsInPosition.push({
+                    diagnosticInfo: {
+                        code: this.diagnostic.code.toString(),
+                        severity: this.diagnostic.severity.toString()
+                    },
+                    message: this.diagnostic.message
+                });
+            }
+        }
+        if (isDiagnosticInRange(diagPosition, nodePosition)) {
+            // Statement Editor viewState will hold the diagnostics for
+            // each node which matched to above condition.
+            if (node && node.viewState && this.diagnostic.severity === 1) {
+                node?.viewState?.diagnosticsInRange.push({
                     code: this.diagnostic.code.toString(),
-                    severity: this.diagnostic.severity.toString()
-                },
-                message: this.diagnostic.message
-            });
+                    severity: this.diagnostic.severity.toString(),
+                    range: this.diagnostic.range,
+                    message: this.diagnostic.message,
+                    diagnosticInfo: {
+                        code: this.diagnostic.code.toString(),
+                        severity: this.diagnostic.severity.toString(),
+                    }
+                });
+            }
         }
     }
 

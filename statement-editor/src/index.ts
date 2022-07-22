@@ -10,4 +10,5 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export {useStatementEditor} from "./hooks";
+export {FormEditor} from "./components/FormEditor/FormEditor";
+export {StatementEditorWrapper} from "./components/StatementEditorWrapper";

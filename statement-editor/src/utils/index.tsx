@@ -16,9 +16,11 @@ import {
     CompletionResponse,
     getDiagnosticMessage,
     getFilteredDiagnostics,
-    LinePosition, ParameterInfo,
+    LinePosition,
+    ParameterInfo,
     STModification,
-    STSymbolInfo, SymbolDocumentation
+    STSymbolInfo,
+    SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FunctionCall,
@@ -31,32 +33,45 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
+import * as formComponents from '../components/Forms/Form';
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
+    ACTION,
     BAL_SOURCE,
+    CONNECTOR,
     CUSTOM_CONFIG_TYPE,
-    END_OF_LINE_MINUTIAE, EXPR_CONSTRUCTOR,
+    END_OF_LINE_MINUTIAE,
+    EXPR_CONSTRUCTOR,
+    IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset } from '../models/definitions';
+import {
+   EditorModel, MinutiaeJSX,
+    RemainingContent,
+    StmtDiagnostic,
+    StmtOffset,
+    SuggestionItem,
+    SymbolIcon
+} from '../models/definitions';
+import { visitor as ClearDiagnosticVisitor } from "../visitors/clear-diagnostics-visitor";
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
 import { visitor as ModelFindingVisitor } from "../visitors/model-finding-visitor";
 import { visitor as ModelTypeSetupVisitor } from "../visitors/model-type-setup-visitor";
 import { visitor as MultilineConstructsConfigSetupVisitor } from "../visitors/multiline-constructs-config-setup-visitor";
-import {nextNodeSetupVisitor} from "../visitors/next-node--setup-visitor"
+import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor";
 import { parentFunctionSetupVisitor } from "../visitors/parent-function-setup-visitor";
 import { visitor as ParentModelFindingVisitor } from "../visitors/parent-model-finding-visitor";
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { ExpressionGroup, expressions } from "./expressions";
+import { ExpressionGroup } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
@@ -66,7 +81,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
     const modifications: STModification[] = [];
     let source = model.source;
 
-    if (configType === CUSTOM_CONFIG_TYPE && source.trim().slice(-1) !== ';') {
+    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model) && source.trim().slice(-1) !== ';') {
         source += ';';
     }
     modifications.push(getStatementModification(source, targetPosition));
@@ -107,6 +122,16 @@ export function getStatementTypeComponent(
     return (
         <StatementTypeComponent
             model={model}
+        />
+    );
+}
+
+export function getFormComponent(type: string, model: STNode, completions: SuggestionItem[]): ReactNode {
+    const FormComponent = (formComponents as any)[type];
+    return (
+        <FormComponent
+            model={model}
+            completions={completions}
         />
     );
 }
@@ -157,6 +182,7 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
             startColumn: targetPosition.startColumn,
             startLine: targetPosition.startLine
         }
+        traversNode(model, ClearDiagnosticVisitor);
         diagnostics.map(diagnostic => {
             DiagnosticsMappingVisitor.setDiagnosticsNOffset(diagnostic, offset);
             traversNode(model, DiagnosticsMappingVisitor);
@@ -187,6 +213,14 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
+export function isDiagnosticInRange(diagPosition: NodePosition, nodePosition: NodePosition): boolean {
+    return diagPosition?.startLine >= nodePosition?.startLine &&
+        diagPosition?.startColumn >= nodePosition?.startColumn &&
+        diagPosition?.endLine <= nodePosition?.endLine &&
+        (((diagPosition?.startLine === nodePosition?.startLine) && (diagPosition?.endLine === nodePosition?.
+            endLine)) ? (diagPosition?.endColumn <= nodePosition?.endColumn) : true);
+}
+
 export function isNodeInRange(nodePosition: NodePosition, parentPosition: NodePosition): boolean {
     return nodePosition?.startLine >= parentPosition?.startLine &&
         (nodePosition?.startLine === parentPosition?.startLine ? nodePosition?.startColumn >= parentPosition?.startColumn : true) &&
@@ -203,7 +237,7 @@ export function isBindingPattern(modelType: number): boolean {
 }
 
 export function isDescriptionWithExample(doc : string): boolean {
-    return doc.includes(BAL_SOURCE);
+    return doc?.includes(BAL_SOURCE);
 }
 
 export function getDocDescription(doc: string) : string[] {
@@ -225,7 +259,8 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
 
     getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
             let isPlaceHolderDiag = false;
-            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))) {
+            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
+                || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
                 isPlaceHolderDiag = true;
             }
             if (!!message) {
@@ -236,12 +271,17 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
     return stmtDiagnostics;
 }
 
-export function getUpdatedSource(statement: string, currentFileContent: string,
-                                 targetPosition: NodePosition, moduleList?: Set<string>): string {
+export function isPlaceHolderExists (statement: string) : boolean {
+    return PLACEHOLDER_DIAGNOSTICS.some(placeHolder => (statement ? statement : "").includes(placeHolder))
+}
 
-    const updatedStatement = statement.trim().endsWith(';') ? statement : statement + ';';
+export function getUpdatedSource(statement: string, currentFileContent: string,
+                                 targetPosition: NodePosition, moduleList?: Set<string>,
+                                 skipSemiColon?: boolean): string {
+
+    const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
-    if (moduleList && !!moduleList.size) {
+    if (moduleList?.size > 0) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
 
@@ -331,44 +371,50 @@ export function getClassNameForToken(model: STNode): string {
     return className;
 }
 
-export function getStringForMinutiae(minutiae: Minutiae[]): string {
-    return minutiae.map((element) => {
-        return element.minutiae;
-    }).join('');
-}
-
-export function getSuggestionIconStyle(suggestionType: number): string {
+export function getSuggestionIconStyle(suggestionType: number): SymbolIcon {
     let suggestionIconStyle: string;
+    let suggestionIconColor: string;
     switch (suggestionType) {
         case 3:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIconColor = "#652d90";
             break;
         case 5:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-field"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-field";
+            suggestionIconColor = "#007acc";
             break;
         case 6:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
         case 11:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
             break;
         case 14:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword";
+            suggestionIconColor = "#616161";
             break;
         case 20:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum-member"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum-member";
+            suggestionIconColor = "#007acc";
             break;
         case 22:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIconColor = "#616161";
             break;
         case 25:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-type-parameter"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-type-parameter";
+            suggestionIconColor = "#616161";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
     }
-    return suggestionIconStyle;
+    return {
+        className: suggestionIconStyle,
+        color: suggestionIconColor
+    };
 }
 
 export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
@@ -478,42 +524,76 @@ export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STS
     return undefined;
 }
 
-export function getModuleIconStyle(label: string): string {
+export function getModuleIconStyle(label: string): SymbolIcon {
     let suggestionIconStyle: string;
+    let suggestionIconColor: string;
     switch (label) {
         case "Functions":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIconColor = "#652d90";
             break;
         case "Classes":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIconColor = "#007acc";
             break;
         case "Constants":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
         case "Errors":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event";
+            suggestionIconColor = "#d67e00";
             break;
         case "Enums":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum";
+            suggestionIconColor = "#d67e00";
             break;
         case "Records":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIconColor = "#616161";
             break;
         case "Types":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
             break;
         case "Listeners":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIconColor = "#007acc";
             break;
     }
-    return suggestionIconStyle;
+    return {
+        className: suggestionIconStyle,
+        color: suggestionIconColor
+    };
 }
 
 export function isFunctionOrMethodCall(currentModel: STNode): boolean {
     return STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel);
+}
+
+export function isInsideConnectorParams(currentModel: STNode, editorConfigType: string): boolean {
+    const paramPosition = (currentModel.viewState as StatementEditorViewState)?.parentFunctionPos;
+    const modelPosition = currentModel.position as NodePosition;
+    return (
+        (editorConfigType === CONNECTOR || editorConfigType === ACTION)  &&
+        paramPosition &&
+        (paramPosition.startLine < modelPosition.startLine ||
+            (paramPosition.startLine === modelPosition.startLine &&
+                paramPosition.startColumn <= modelPosition.startColumn &&
+                paramPosition.endLine > modelPosition.endLine) ||
+            (paramPosition.endLine === modelPosition.endLine && paramPosition.endColumn >= modelPosition.endColumn))
+    );
+}
+
+export function isConfigurableEditor(editors: EditorModel[], activeEditorId: number): boolean {
+    if (editors?.length > activeEditorId) {
+        const activeEditor = editors[activeEditorId];
+        return activeEditor.isConfigurableStmt ?? false;
+    }
+    return false;
 }
 
 export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
@@ -528,6 +608,18 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
         }
         return  position;
     } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
+        position = {
+            line : targetPos.startLine + currentModel.position.startLine,
+            offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
+        }
+        return  position;
+    } else if (STKindChecker.isMethodCall(currentModel)) {
+        position = {
+            line: targetPos.startLine + currentModel.methodName.position.startLine,
+            offset: targetPos.startColumn + currentModel.methodName.position.startColumn
+        }
+        return position;
+    } else if (STKindChecker.isImplicitNewExpression(currentModel)){
         position = {
             line : targetPos.startLine + currentModel.position.startLine,
             offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
@@ -738,22 +830,46 @@ function getModelParamSourceList(currentModel: STNode): string[] {
 
 export function getParamUpdateModelPosition(model: STNode) {
     let position : NodePosition;
-    if (STKindChecker.isFunctionCall(model) || STKindChecker.isMethodCall(model)) {
+    if (
+        STKindChecker.isFunctionCall(model) ||
+        STKindChecker.isMethodCall(model) ||
+        STKindChecker.isRemoteMethodCallAction(model)
+    ) {
         position = {
             startLine: model.openParenToken.position.startLine,
             startColumn: model.openParenToken.position.startColumn,
             endLine: model.closeParenToken.position.endLine,
             endColumn: model.closeParenToken.position.endColumn,
-        }
-    } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)){
+        };
+    } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)) {
         position = {
             startLine: model.parenthesizedArgList.openParenToken.position.startLine,
             startColumn: model.parenthesizedArgList.openParenToken.position.startColumn,
             endLine: model.parenthesizedArgList.closeParenToken.position.endLine,
             endColumn: model.parenthesizedArgList.closeParenToken.position.endColumn,
-        }
+        };
+    } else if (STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
+        position = {
+            startLine: model.expression.parenthesizedArgList.openParenToken.position.startLine,
+            startColumn: model.expression.parenthesizedArgList.openParenToken.position.startColumn,
+            endLine: model.expression.parenthesizedArgList.closeParenToken.position.endLine,
+            endColumn: model.expression.parenthesizedArgList.closeParenToken.position.endColumn,
+        };
     }
     return position;
+}
+
+export function isEndsWithoutSemicolon(completeModel: STNode): boolean {
+    return STKindChecker.isForeachStatement(completeModel)
+        || STKindChecker.isIfElseStatement(completeModel)
+        || STKindChecker.isWhileStatement(completeModel)
+        || STKindChecker.isDoStatement(completeModel)
+        || STKindChecker.isMatchStatement(completeModel)
+        || STKindChecker.isNamedWorkerDeclaration(completeModel)
+        || STKindChecker.isTransactionStatement(completeModel)
+        || STKindChecker.isForkStatement(completeModel)
+        || STKindChecker.isLockStatement(completeModel)
+        || STKindChecker.isBlockStatement(completeModel)
 }
 
 export function getParamHighlight(currentModel : STNode, param: ParameterInfo){

@@ -63,7 +63,7 @@ export function FunctionHeader(props: FunctionHeaderProps) {
                             .filter((param) => !STKindChecker.isCommaToken(param))
                             .map((param: RequiredParam, i) => (
                                 <span key={i} className={"param"}>
-                                    ({param.source})
+                                    {param.source}
                                 </span>
                             ))}
                     </p>
