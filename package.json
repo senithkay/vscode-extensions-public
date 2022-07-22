@@ -128,6 +128,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Enable experimental features."
+                },
+                "ballerina.enableNotebookDebug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable notebook debug mode."
                 }
             }
         },
@@ -387,11 +392,8 @@
             {
                 "command": "ballerina.notebook.debug",
                 "title": "Debug Cell",
-                "icon": {
-                    "dark": "./resources/images/icons/debug-inverse.svg",
-                    "light": "./resources/images/icons/debug.svg"
-                },
-                "category": "Ballerina"
+                "category": "Ballerina",
+                "enablement": "isNotebookDebugModeEnabled"
             },
             {
                 "command": "ballerina.notebook.refreshVariableView",
@@ -531,7 +533,7 @@
                     "command": "ballerina.notebook.debug",
                     "title": "Debug",
                     "group": "navigation@1",
-                    "when": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
+                    "when": "notebookType == 'ballerina-notebook' && isNotebookDebugModeEnabled && isWorkspaceTrusted"
                 }
             ],
             "view/item/context": [

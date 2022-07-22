@@ -39,3 +39,4 @@ export const OPEN_OUTLINE_VIEW_COMMAND = "ballerina.notebook.openOutlineView";
 export const OPEN_VARIABLE_VIEW_COMMAND = "ballerina.notebook.openVariableView";
 export const UPDATE_VARIABLE_VIEW_COMMAND = "ballerina.notebook.refreshVariableView";
 export const CREATE_NOTEBOOK_COMMAND = "ballerina.notebook.createNotebook";
+export const DEBUG_NOTEBOOK_COMMAND = "ballerina.notebook.debug";

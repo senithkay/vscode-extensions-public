@@ -36,7 +36,7 @@ import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
-    ENABLE_CONFIGURABLE_EDITOR, ENABLE_EXPERIMENTAL_FEATURES
+    ENABLE_CONFIGURABLE_EDITOR, ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -301,7 +301,8 @@ export class BallerinaExtension {
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
                 params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) || params.affectsConfiguration(ENABLE_DEBUG_LOG)
                 || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG) ||
-                params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES)) {
+                params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES) || 
+                params.affectsConfiguration(ENABLE_NOTEBOOK_DEBUG)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -576,6 +577,10 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_EXPERIMENTAL_FEATURES);
     }
 
+    public enabledNotebookDebugMode(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_NOTEBOOK_DEBUG);
+    }
+
     public async updatePerformanceForecastSetting(status: boolean) {
         await workspace.getConfiguration().update(ENABLE_PERFORMANCE_FORECAST, status);
     }
@@ -639,6 +644,10 @@ export class BallerinaExtension {
 
     public setNotebookVariableViewEnabled(value: boolean) {
         commands.executeCommand('setContext', 'isNotebookVariableViewEnabled', value);
+    }
+
+    public setNotebookDebugModeEnabled(value: boolean) {
+        commands.executeCommand('setContext', 'isNotebookDebugModeEnabled', value);
     }
 }
 

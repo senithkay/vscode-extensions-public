@@ -28,7 +28,7 @@ import { BallerinaNotebookSerializer } from "./notebookSerializer";
 import { BallerinaNotebookController } from "./notebookController";
 import { registerLanguageProviders } from './languageProvider';
 import { VariableViewProvider } from './variableView';
-import { BAL_NOTEBOOK, CREATE_NOTEBOOK_COMMAND, NOTEBOOK_TYPE, OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, 
+import { BAL_NOTEBOOK, CREATE_NOTEBOOK_COMMAND, DEBUG_NOTEBOOK_COMMAND, NOTEBOOK_TYPE, OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, 
     RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND } from './constants';
 import { createFile } from './utils';
 import { BallerinaDebugAdapterTrackerFactory, NotebookDebuggerController } from './debugger';
@@ -39,7 +39,6 @@ const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
     const variableViewProvider = new VariableViewProvider(ballerinaExtInstance);
-    const debugController = new NotebookDebuggerController(ballerinaExtInstance);
     const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider);
 
     context.subscriptions.push(
@@ -49,15 +48,18 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
     context.subscriptions.push(registerCreateNotebook(ballerinaExtInstance));
     context.subscriptions.push(registerFocusToOutline());
-    context.subscriptions.push(registerDebug(debugController));
-    const factory = new BallerinaDebugAdapterTrackerFactory();
-    context.subscriptions.push(debug.registerDebugAdapterTrackerFactory('ballerina', factory));
     context.subscriptions.push(registerVariableView(ballerinaExtInstance));
     context.subscriptions.push(registerRefreshVariableView(notebookController));
     context.subscriptions.push(registerRestartNotebook(ballerinaExtInstance, notebookController));
 	context.subscriptions.push(
 		window.registerWebviewViewProvider(VariableViewProvider.viewType, variableViewProvider)
     );
+    if (ballerinaExtInstance.enabledNotebookDebugMode()) {
+        ballerinaExtInstance.setNotebookDebugModeEnabled(true);
+        context.subscriptions.push(registerDebug(new NotebookDebuggerController(ballerinaExtInstance)));
+        const factory = new BallerinaDebugAdapterTrackerFactory();
+        context.subscriptions.push(debug.registerDebugAdapterTrackerFactory('ballerina', factory));
+    }
 }
 
 function registerFocusToOutline(): Disposable {
@@ -124,7 +126,7 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
 }
 
 function registerDebug(debugController: NotebookDebuggerController): Disposable {
-    return commands.registerCommand('ballerina.notebook.debug', () => {
+    return commands.registerCommand(DEBUG_NOTEBOOK_COMMAND, () => {
         commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
         clearTerminal();
         debugController.startDebugging();

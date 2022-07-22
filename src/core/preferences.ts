@@ -28,3 +28,4 @@ export const ENABLE_DEBUG_LOG = "ballerina.debugLog";
 export const ENABLE_BALLERINA_LS_DEBUG = "ballerina.enableLanguageServerDebug";
 export const ENABLE_CONFIGURABLE_EDITOR = "ballerina.enableConfigurableEditor";
 export const ENABLE_EXPERIMENTAL_FEATURES = "ballerina.experimental";
+export const ENABLE_NOTEBOOK_DEBUG = "ballerina.enableNotebookDebug";

@@ -42,13 +42,13 @@ export class NotebookDebuggerController {
         let activeTextEditorUri = window.activeTextEditor!.document.uri;
         if (activeTextEditorUri.scheme === 'vscode-notebook-cell') {
             const balnotebook = workspace.notebookDocuments.find(nb => nb.uri.fsPath === activeTextEditorUri.fsPath);
-            const sourceIndex = parseInt(activeTextEditorUri.fragment.replace("ch", ""));
-            // const filename = activeTextEditorUri.fsPath;
-            // tmpFile = `${filename.substring(0, filename.length - BAL_NOTEBOOK.length)}.bal`;
-            const filename = basename(activeTextEditorUri.fsPath);
-            tmpFile = `${getTempDir()}/${filename.substring(0, filename.length - BAL_NOTEBOOK.length)}.bal`;
-            balnotebook && this.dumpNotebookCell(sourceIndex, balnotebook);
-            activeTextEditorUri = Uri.parse(tmpFile);
+            if (balnotebook) {
+                const sourceIndex = parseInt(activeTextEditorUri.fragment.replace("ch", ""));
+                const filename = basename(activeTextEditorUri.fsPath);
+                tmpFile = `${getTempDir()}/${filename.substring(0, filename.length - BAL_NOTEBOOK.length)}_notebook.bal`;
+                this.dumpNotebookCell(sourceIndex, balnotebook);
+                activeTextEditorUri = Uri.parse(tmpFile);
+            }
         } else {
             return Promise.reject();
         }
@@ -241,8 +241,6 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
                     handler = this.responseHandlers.find(respHandler => respHandler.command === response.command);
                     handler && handler.handle(response);
                 }
-                break;
-            default:
                 break;
         }
     }
