@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "3.0.2-snapshot",
+    "version": "3.0.2",
     "publisher": "wso2",
     "repository": {
         "type": "git",
@@ -616,7 +616,7 @@
         "update-version": "node ./scripts/update-version.js",
         "test-compile": "tsc -p ./",
         "test": "npm run test-compile && node ./out/test/runTest.js",
-        "ui-test-setup": "npx extest get-vscode && npx extest get-chromedriver && npx extest install-vsix -f $(ls *.vsix)",
+        "ui-test-setup": "npx extest get-vscode -c 1.68.0 && npx extest get-chromedriver -c 1.68.0 && npx extest install-vsix -f $(ls *.vsix)",
 		"ui-test": "npm run test-compile && npx extest run-tests 'out/ui-test/*.test.js' --mocha_config ui-test/.mocharc.js -o ui-test/settings.json",
 		"test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package --yarn",
@@ -638,7 +638,8 @@
         "vscode-debugprotocol": "^1.44.0",
         "vscode-extension-telemetry": "^0.1.7",
         "vscode-languageclient": "^7.0.0",
-        "vscode-test": "^1.5.1"
+        "vscode-test": "^1.5.1",
+        "vscode-languageserver-protocol": "^3.16.0"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.18.8",
@@ -648,6 +649,7 @@
         "@types/tcp-port-used": "^1.0.0",
         "@types/vscode": "^1.67.0",
         "@types/vscode-notebook-renderer": "^1.60.0",
+        "@vscode/codicons": "0.0.20",
         "axios": "^0.22.0",
         "chai": "^4.3.4",
         "cross-env": "^7.0.3",

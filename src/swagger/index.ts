@@ -26,8 +26,10 @@ import { log } from "../utils";
 import path from "path";
 
 let langClient: ExtendedLangClient;
+let codeServerContext;
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    codeServerContext = ballerinaExtInstance.getCodeServerContext();
     commands.registerCommand(PALETTE_COMMANDS.SWAGGER_VIEW, async (...args: any[]) => {
         const editor = window.activeTextEditor;
 
@@ -73,7 +75,7 @@ async function createSwaggerView(documentFilePath: string, serviceName: any) {
             return;
         }
         showMessage("Please make sure the project is already running to use the try out feature", MESSAGE_TYPE.INFO, true);
-        showSwaggerView(langClient, response.content, file, serviceName);
+        showSwaggerView(langClient, response.content, file, serviceName, codeServerContext);
     }).catch((err) => {
         log(err);
     });
