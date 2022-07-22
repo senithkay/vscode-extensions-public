@@ -13,10 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
+import { IconButton } from "@material-ui/core";
 import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import ExpandIcon from "../../../../assets/icons/ExpandIcon";
 import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
 import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
@@ -47,6 +49,23 @@ const styles = (theme: Theme) => createStyles({
 		display: "flex",
 		flexDirection: "row",
 		justifyContent: "space-between",
+	},
+	icons: {
+		padding: '8px',
+		'&:hover': {
+			backgroundColor: '#F0F1FB',
+		}
+	},
+	expandIcon: {
+		height: '15px',
+		width: '15px',
+		marginTop: '-7px'
+	},
+	buttonWrapper: {
+		border: '1px solid #e6e7ec',
+		borderRadius: '8px',
+		position: "absolute",
+		right: "35px"
 	}
 });
 
@@ -69,6 +88,13 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 			return node.getPort(portId) as DataMapperPortModel;
 		}
 
+		const onClickOnExpand = () => {
+			node.context.changeSelection({
+				...node.context.selection,
+				selectedST: node.value
+			})
+		}
+
 		return (
 			<div
 				className={classes.root}
@@ -77,6 +103,16 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 					<DataMapperPortWidget engine={engine} port={node.inPort} />
 					<div className={classes.fromClause}>
 						Query: {node.value.queryPipeline.fromClause.expression.source}
+					</div>
+					<div className={classes.buttonWrapper}>
+						<IconButton
+							onClick={onClickOnExpand}
+							className={classes.icons}
+						>
+							<div className={classes.expandIcon}>
+								<ExpandIcon/>
+							</div>
+						</IconButton>
 					</div>
 					<DataMapperPortWidget engine={engine} port={node.outPort} />
 				</div>

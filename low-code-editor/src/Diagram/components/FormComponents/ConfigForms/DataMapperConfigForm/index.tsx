@@ -122,24 +122,26 @@ export function DataMapperConfigForm(props: DataMapperProps) {
         setFunctionST(undefined);
     }
 
-    return (
-        <FormControl data-testid="record-form" className={overlayClasses.dataMapperWizardFormControl}>
-            <FormHeaderSection
-                formTitle={"lowcode.develop.configForms.DataMapper.title"}
-                defaultMessage={"Data Mapper"}
-                onCancel={onCancel}
-            />
-            <div className={dataMapperClasses.dataMapperContainer}>
-                <DataMapper
-                    fnST={functionST}
-                    langClientPromise={getDiagramEditorLangClient}
-                    getLangClient={getDiagramEditorLangClient}
-                    filePath={currentFile.path}
-                    currentFile={currentFile}
-                    stSymbolInfo={stSymbolInfo}
-                    applyModifications={modifyDiagram}
-                />
-            </div>
-        </FormControl>
+    return (!functionST ? <>Loading...</>
+            : (
+                <FormControl data-testid="record-form" className={overlayClasses.dataMapperWizardFormControl}>
+                    <FormHeaderSection
+                        formTitle={"lowcode.develop.configForms.DataMapper.title"}
+                        defaultMessage={"Data Mapper"}
+                        onCancel={onCancel}
+                    />
+                    <div className={dataMapperClasses.dataMapperContainer}>
+                        <DataMapper
+                            fnST={functionST}
+                            langClientPromise={getDiagramEditorLangClient}
+                            getLangClient={getDiagramEditorLangClient}
+                            filePath={currentFile.path}
+                            currentFile={currentFile}
+                            stSymbolInfo={stSymbolInfo}
+                            applyModifications={modifyDiagram}
+                        />
+                    </div>
+                </FormControl>
+            )
     );
 }

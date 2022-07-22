@@ -1,15 +1,16 @@
 import * as React from 'react';
 
-import { ExpressionLabelModel } from './ExpressionLabelModel';
 import styled from '@emotion/styled';
-import Button from '@material-ui/core/Button'
 import { Tooltip } from '@material-ui/core';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
+import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+
 import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
 import { DataMapperPortModel } from '../Port';
-import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+
+import { ExpressionLabelModel } from './ExpressionLabelModel';
 
 
 export interface FlowAliasLabelWidgetProps {
@@ -45,11 +46,23 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			const link = props.model.link;
 			const sourcePort = link.getSourcePort() as DataMapperPortModel;
 			const targetPort = link.getTargetPort() as DataMapperPortModel;
-			
+
 			if (STKindChecker.isRecordField(sourcePort.field)) {
 				const fieldType = sourcePort.field.typeName;
 				if (STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
-					const querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, undefined);
+					let querySrc = "";
+					if (STKindChecker.isRecordField(targetPort.field)) {
+						const targetType = targetPort.field.typeName;
+						if (STKindChecker.isArrayTypeDesc(targetType) && STKindChecker.isRecordTypeDesc(targetType.memberTypeDesc)) {
+							props.model.context.changeSelection({
+								...props.model.context.selection,
+								inST: fieldType.memberTypeDesc,
+								outST: targetType.memberTypeDesc
+							});
+							querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, targetType.memberTypeDesc);
+						}
+					}
+					// const querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, targetType.memberTypeDesc);
 					console.log(querySrc);
 					if (link.value) {
 						const position = link.value.position as NodePosition;
@@ -71,10 +84,10 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		}
 	};
 
-	const onClickDelete= () => {
-		//TODO implement the delete link logic
+	const onClickDelete = () => {
+		// TODO implement the delete link logic
 	};
-	
+
 	React.useEffect(() => {
 		const link = props.model.link;
 		link.registerListener({
@@ -87,7 +100,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 	return (
 		<S.Label>
-			{editable && 
+			{editable &&
 				<input
 
 					size={str.length}
@@ -98,7 +111,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 						zIndex: 1000,
 						border: "1px solid #5567D5"
 					}}
-					autoFocus
+					autoFocus={true}
 					value={str}
 					onChange={(event) => {
 						const newVal = event.target.value;
@@ -109,10 +122,10 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 						props.model.value = newVal;
 					}}
 					onKeyUp={(evt) => {
-							if(evt.key === "Escape") {
+							if (evt.key === "Escape") {
 								setEditable(false);
 							}
-							if(evt.key === "Enter") {
+							if (evt.key === "Enter") {
 								props.model.updateSource();
 							}
 						}
@@ -123,7 +136,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			<S.ActionsContainer>
 				<span style={{display: "flex", alignItems: "center"}}>
 					<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}</div>
-					<div>{!editable && linkSelected && canUseQueryExpr && 
+					<div>{!editable && linkSelected && canUseQueryExpr &&
 							(
 						        <Tooltip title={"Make Query"} placement="top" arrow={true}>
 									<QueryBuilderOutlinedIcon onClick={onClickConvertToQuery} />

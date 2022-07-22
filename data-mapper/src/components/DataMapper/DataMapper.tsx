@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useReducer, useState} from "react";
 
 import {
     DiagramEditorLangClientInterface,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
+import {
+    FunctionDefinition, STKindChecker,
+    STNode,
+    traversNode,
+} from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
@@ -27,28 +31,63 @@ export interface DataMapperProps {
     applyModifications: (modifications: STModification[]) => void;
 }
 
+enum ViewOption {
+    EXPAND,
+    COLLAPSE
+}
+
+export interface SelectionState {
+    selectedST: STNode;
+    inST?: STNode;
+    outST?: STNode;
+    prevST?: STNode[];
+}
+
+const selectionReducer = (state: SelectionState, action: {type: ViewOption, payload: SelectionState }) => {
+    if (action.type === ViewOption.EXPAND) {
+        const previousST = !!state?.prevST ? [...state.prevST] : [state.selectedST];
+        return { selectedST: action.payload.selectedST, prevST: previousST };
+    }
+    if (action.type === ViewOption.COLLAPSE) {
+        const prevSelection = state.prevST.pop();
+        return { selectedST: prevSelection, prevST: [...state.prevST] };
+    }
+    return { selectedST: action.payload.selectedST };
+};
+
 function DataMapperC(props: DataMapperProps) {
 
     const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
+
+    const [selection, dispatchSelection] = useReducer(selectionReducer, {
+        selectedST: fnST
+    });
+
+    const handleSelectedST = (s: SelectionState) => {
+        dispatchSelection({type: ViewOption.EXPAND, payload: s});
+    }
 
     useEffect(() => {
         async function generateNodes() {
             const context = new DataMapperContext(
                 filePath,
                 fnST,
+                selection,
                 langClientPromise,
                 currentFile,
                 stSymbolInfo,
+                handleSelectedST,
                 applyModifications
             );
 
-            const nodeInitVisitor = new NodeInitVisitor(context);
-            traversNode(fnST, nodeInitVisitor);
+            const nodeInitVisitor = new NodeInitVisitor(context, selection);
+            const st = STKindChecker.isFunctionDefinition(selection.selectedST) ? fnST : selection.selectedST;
+            traversNode(st, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
         }
         generateNodes();
-    }, [fnST, filePath]);
+    }, [selection.selectedST, fnST, filePath]);
 
     return (
         <>
