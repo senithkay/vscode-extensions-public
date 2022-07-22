@@ -91,7 +91,7 @@ export interface ChoreoSession {
     tokenExpirationTime?: number;
 }
 
-interface CodeServerContext {
+export interface CodeServerContext {
     codeServerEnv: boolean;
     manageChoreoRedirectUri?: string;
     statusBarItem?: gitStatusBarItem;

@@ -198,6 +198,15 @@ function getLangClient() {
                 });
             })
         },
+        definition: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('definition', [params], (resp) => {
+                    consoleLog(start, 'definition');
+                    resolve(resp);
+                });
+            })
+        },
         syntaxTreeModify: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
