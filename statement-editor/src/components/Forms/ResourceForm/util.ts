@@ -10,14 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FunctionSignature, NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import {
+    CommaToken, DefaultableParam,
+    FunctionSignature, IncludedRecordParam,
+    NodePosition, RequiredParam, RestParam,
+    ReturnTypeDescriptor,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 
 import {
+    AdvancedParams,
     Path,
     PathSegment,
     Payload,
     QueryParam,
-    QueryParamCollection,
+    QueryParamCollection, ResourceDiagnostics,
     ReturnType,
     ReturnTypeCollection,
 } from "./types";
@@ -45,22 +53,6 @@ export const SERVICE_METHODS = [HTTP_GET, HTTP_PUT, HTTP_DELETE, HTTP_POST, HTTP
 export const getPathOfResources = (resources: any[] = []) =>
     resources?.map((path: any) => path?.value || path?.source).join('');
 
-export function convertPayloadStringToPayload(payloadString: string): Payload {
-    const payload: Payload = {
-        type: "",
-        name: ""
-    }
-    if (payloadString && payloadString !== "") {
-        const payloadSplitted = payloadString.split("@http:Payload");
-        if (payloadSplitted.length > 1) {
-            const typeNameSplited = payloadSplitted[payloadSplitted.length - 1].trim().split(" ");
-            payload.type = typeNameSplited[0];
-            payload.name = typeNameSplited[1];
-        }
-    }
-    return payload;
-}
-
 export function getBallerinaPayloadType(payload: Payload, addComma?: boolean): string {
     return payload.type && payload.name && payload.type !== ""
         && payload.name !== "" ? ("@http:Payload " + payload.type + " " + payload.name + (addComma ? ", " : "")) : "";
@@ -86,20 +78,6 @@ export function getQueryParamCollection(queryParamString: string): QueryParamCol
                 option: "",
                 defaultValue: equalsTokenSplit[1] ? equalsTokenSplit[1] : undefined
             };
-            // if (paramSplit.length === 4) {
-            //     queryParam.option = headerParameterOption;
-            //     queryParam.type = `${paramSplit[0]} ${paramSplit[1]}`;
-            //     queryParam.name = paramSplit[2];
-            //     queryParam.mappedName = paramSplit[3];
-            // } else if (paramSplit.length === 3) {
-            //     queryParam.option = headerParameterOption;
-            //     queryParam.type = `${paramSplit[0]} ${paramSplit[1]}`;
-            //     queryParam.name = paramSplit[2];
-            // } else {
-            //     queryParam.type = paramSplit[0];
-            //     queryParam.name = paramSplit[1];
-            //     queryParam.option = queryParameterOption;
-            // }
             if (mappedName) {
                 // Header with default value
                 queryParam.option = headerParameterOption;
@@ -285,6 +263,165 @@ export function generateQueryParamFromST(params: STNode[]): string {
         });
     }
     return queryParamString;
+}
+
+export function getParamDiagnostics(params: (CommaToken | DefaultableParam | IncludedRecordParam |
+    RequiredParam | RestParam)[]): ResourceDiagnostics {
+    let queryNameSemDiagnostic: string = "";
+    let queryTypeSemDiagnostic: string = "";
+    let payloadNameSemDiagnostic: string = "";
+    let payloadTypeSemDiagnostic: string = "";
+    let callerNameSemDiagnostics: string = "";
+    let requestNameSemDiagnostics: string = "";
+    let headersNameSemDiagnostics: string = "";
+    if (params && params.length > 0) {
+        params.forEach((value) => {
+            if (!STKindChecker.isCommaToken(value) && !value.source?.includes("@http:Payload") &&
+                !value.source?.includes("http:Request") && !value.source?.includes("http:Caller") &&
+                !value.source?.includes("http:Headers")) {
+                if (value.viewState?.diagnosticsInRange?.length > 0 && STKindChecker.isRequiredParam(value) ||
+                    STKindChecker.isDefaultableParam(value)) {
+                    queryNameSemDiagnostic = value?.paramName?.viewState?.diagnosticsInRange && value?.paramName?.
+                        viewState?.diagnosticsInRange[0]?.message;
+                    queryTypeSemDiagnostic = value?.typeName?.viewState?.diagnosticsInRange && value?.
+                        typeName?.viewState?.diagnosticsInRange[0]?.message;
+                }
+            } else if (value.source?.includes("@http:Payload")) {
+                if (value.viewState?.diagnosticsInRange?.length > 0 && STKindChecker.isRequiredParam(value) ||
+                    STKindChecker.isDefaultableParam(value)) {
+                    payloadNameSemDiagnostic = value?.paramName?.viewState?.diagnosticsInRange && value?.paramName?.
+                        viewState?.diagnosticsInRange[0]?.message;
+                    payloadTypeSemDiagnostic = value?.typeName?.viewState?.diagnosticsInRange && value?.
+                        typeName?.viewState?.diagnosticsInRange[0]?.message;
+                }
+            } else if (value.source?.includes("@http:Caller")) {
+                if (value.viewState?.diagnosticsInRange?.length > 0 && STKindChecker.isRequiredParam(value) ||
+                    STKindChecker.isDefaultableParam(value)) {
+                    callerNameSemDiagnostics = value?.paramName?.viewState?.diagnosticsInRange && value?.paramName?.
+                        viewState?.diagnosticsInRange[0]?.message;
+                }
+            } else if (value.source?.includes("@http:Request")) {
+                if (value.viewState?.diagnosticsInRange?.length > 0 && STKindChecker.isRequiredParam(value) ||
+                    STKindChecker.isDefaultableParam(value)) {
+                    requestNameSemDiagnostics = value?.paramName?.viewState?.diagnosticsInRange && value?.paramName?.
+                        viewState?.diagnosticsInRange[0]?.message;
+                }
+            } else if (value.source?.includes("http:Headers")) {
+                if (value.viewState?.diagnosticsInRange?.length > 0 && STKindChecker.isRequiredParam(value) ||
+                    STKindChecker.isDefaultableParam(value)) {
+                    headersNameSemDiagnostics = value?.paramName?.viewState?.diagnosticsInRange && value?.paramName?.
+                        viewState?.diagnosticsInRange[0]?.message;
+                }
+            }
+        });
+        return {
+            callerNameSemDiagnostics, headersNameSemDiagnostics, queryNameSemDiagnostic, queryTypeSemDiagnostic,
+            requestNameSemDiagnostics, payloadTypeSemDiagnostic, payloadNameSemDiagnostic
+        }
+    }
+}
+
+export function generatePayloadParamFromST(params: STNode[]): AdvancedParams {
+    let payload: Payload;
+    let requestParamName;
+    let callerParamName;
+    let headerParamName;
+    if (params && params.length > 0) {
+        params.forEach((value) => {
+            if (value?.source?.trim().includes("@http:Payload")) {
+                payload = {
+                    type: "",
+                    name: "",
+                    defaultValue: ""
+                }
+                if (STKindChecker.isRequiredParam(value)) {
+                    payload.type = value.typeName.source.trim();
+                    payload.name = value.paramName.value;
+                } else if (STKindChecker.isDefaultableParam(value)) {
+                    payload.type = value.typeName.source.trim();
+                    payload.name = value.paramName.value;
+                    payload.defaultValue = value.expression.value;
+                }
+            } else if (value?.source?.trim().includes("http:Request")) {
+                if (STKindChecker.isRequiredParam(value)) {
+                    requestParamName = value.paramName.value;
+                } else if (STKindChecker.isDefaultableParam(value)) {
+                    requestParamName = value.paramName.value;
+                }
+            } else if (value?.source?.trim().includes("http:Caller")) {
+                if (STKindChecker.isRequiredParam(value)) {
+                    callerParamName = value.paramName.value;
+                } else if (STKindChecker.isDefaultableParam(value)) {
+                    callerParamName = value.paramName.value;
+                }
+            } else if (value?.source?.trim().includes("http:Headers")) {
+                if (STKindChecker.isRequiredParam(value)) {
+                    headerParamName = value.paramName.value;
+                } else if (STKindChecker.isDefaultableParam(value)) {
+                    headerParamName = value.paramName.value;
+                }
+            }
+        });
+    }
+    return {
+        payload,
+        requestParamName,
+        callerParamName,
+        headerParamName
+    };
+}
+
+export function getPayloadString(payload: Payload): string {
+    if (payload) {
+        if (payload.defaultValue) {
+            return `@http:Payload ${payload.type} ${payload.name} = ${payload.defaultValue}`;
+        } else {
+            return `@http:Payload ${payload.type} ${payload.name}`;
+        }
+    } else {
+        return null;
+    }
+}
+
+export function generateParamString(queryParamString: string, payloadString: string,
+                                    advancedParamString: string): string {
+    let paramString = "";
+    if (advancedParamString && !payloadString && !queryParamString) {
+        paramString = advancedParamString;
+    } else if (advancedParamString && payloadString && !queryParamString) {
+        paramString = `${advancedParamString}, ${payloadString}`;
+    } else if (advancedParamString && !payloadString && queryParamString) {
+        paramString = `${advancedParamString}, ${queryParamString}`;
+    } else if (advancedParamString && payloadString && queryParamString) {
+        paramString = `${advancedParamString}, ${payloadString}, ${queryParamString}`;
+    } else if (!advancedParamString && payloadString && queryParamString) {
+        paramString = `${payloadString}, ${queryParamString}`;
+    } else if (!advancedParamString && payloadString && !queryParamString) {
+        paramString = `${payloadString}`;
+    } else if (!advancedParamString && !payloadString && queryParamString) {
+        paramString = `${queryParamString}`;
+    }
+    return paramString;
+}
+
+export function generateAdvancedParamString(requestName: string, callerName: string, headersName: string): string {
+    let paramString = "";
+    if (headersName && !callerName && !requestName) {
+        paramString += `http:Headers ${headersName}`;
+    } else if (headersName && callerName && !requestName) {
+        paramString += `http:Headers ${headersName}, http:Caller ${callerName}`;
+    } else if (headersName && !callerName && requestName) {
+        paramString += `http:Headers ${headersName}, http:Request ${requestName}`;
+    } else if (headersName && callerName && requestName) {
+        paramString += `http:Headers ${headersName}, http:Caller ${callerName}, http:Request ${requestName}`;
+    } else if (!headersName && callerName && requestName) {
+        paramString += `http:Caller ${callerName}, http:Request ${requestName}`;
+    } else if (!headersName && callerName && !requestName) {
+        paramString += `http:Caller ${callerName}`;
+    } else if (!headersName && !callerName && requestName) {
+        paramString += `http:Request ${requestName}`;
+    }
+    return paramString;
 }
 
 export function extractPayloadFromST(params: STNode[]): string {

@@ -325,6 +325,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: 12,
             marginBottom: 12,
             marginLeft: 17
+        },
+        payloadContent: {
+            display: "flex",
+            flexDirection: "row"
+        },
+        advancedItem: {
+            display: "flex",
+            flexDirection: "column",
+            width: "33%"
         }
     })
 );

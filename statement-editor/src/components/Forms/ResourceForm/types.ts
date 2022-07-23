@@ -66,6 +66,24 @@ export interface Resource {
 export interface Payload {
     type: string;
     name: string;
+    defaultValue?: string;
+}
+
+export interface AdvancedParams {
+    payload?: Payload;
+    requestParamName?: string;
+    callerParamName?: string;
+    headerParamName?: string;
+}
+
+export interface ResourceDiagnostics {
+    queryNameSemDiagnostic?: string;
+    queryTypeSemDiagnostic?: string;
+    payloadNameSemDiagnostic?: string;
+    payloadTypeSemDiagnostic?: string;
+    callerNameSemDiagnostics?: string;
+    requestNameSemDiagnostics?: string;
+    headersNameSemDiagnostics?: string;
 }
 
 export interface Advanced {
