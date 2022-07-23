@@ -40,19 +40,21 @@ export interface ParamProps {
     headerName?: string;
     isEdit?: boolean;
     isTypeReadOnly?: boolean;
-    dataTypeReqOptions: string[];
+    dataTypeReqOptions?: string[];
     enabledOptions?: string[];
     optionList?: string[];
     option?: string;
+    hideButtons?: boolean;
     onAdd?: (param: Param, selectedOption?: string) => void;
     onUpdate?: (param: Param, selectedOption?: string) => void;
     onChange: (param: Param, selectedOption?: string, optionChanged?: boolean) => void;
-    onCancel: () => void;
+    onCancel?: () => void;
 }
 
 export function ParamEditor(props: ParamProps) {
     const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, alternativeName, headerName, isTypeReadOnly,
-            optionList, enabledOptions, dataTypeReqOptions, option = "", onChange, onAdd, onUpdate, onCancel } = props;
+            hideButtons, optionList, enabledOptions, dataTypeReqOptions, option = "", onChange, onAdd, onUpdate,
+            onCancel } = props;
     const { id, name, dataType, headerName: hName, defaultValue } = param;
 
     const classes = useStyles();
@@ -66,7 +68,7 @@ export function ParamEditor(props: ParamProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
 
-    const isTypeVisible = dataTypeReqOptions.includes(selectedOption);
+    const isTypeVisible = dataTypeReqOptions ? dataTypeReqOptions.includes(selectedOption) : true;
 
     const handleNameChange = (value: string) => {
         setParamName(value);
@@ -265,24 +267,26 @@ export function ParamEditor(props: ParamProps) {
                 <div onClick={handleShowHeaderName}>If identifier not equal header name</div>
             )}
         </div>
-            <div className={classes.btnContainer}>
-                <SecondaryButton
-                    text="Cancel"
-                    fullWidth={false}
-                    onClick={onCancel}
-                    className={classes.actionBtn}
-                />
-                <PrimaryButton
-                    dataTestId={"path-segment-add-btn"}
-                    text={onUpdate ? "Update" : " Add"}
-                    disabled={(syntaxDiag !== "") || (typeDiagnostics !== "") || (nameDiagnostics !== "")
-                        || !(paramName !== "") || !(paramDataType !== "" || isTypeReadOnly || !isTypeVisible)
-                    }
-                    fullWidth={false}
-                    onClick={handleAddParam}
-                    className={classes.actionBtn}
-                />
-            </div>
+            {!hideButtons && (
+                <div className={classes.btnContainer}>
+                    <SecondaryButton
+                        text="Cancel"
+                        fullWidth={false}
+                        onClick={onCancel}
+                        className={classes.actionBtn}
+                    />
+                    <PrimaryButton
+                        dataTestId={"path-segment-add-btn"}
+                        text={onUpdate ? "Update" : " Add"}
+                        disabled={(syntaxDiag !== "") || (typeDiagnostics !== "") || (nameDiagnostics !== "")
+                            || !(paramName !== "") || !(paramDataType !== "" || isTypeReadOnly || !isTypeVisible)
+                        }
+                        fullWidth={false}
+                        onClick={handleAddParam}
+                        className={classes.actionBtn}
+                    />
+                </div>
+            )}
         </div>
     );
 }
