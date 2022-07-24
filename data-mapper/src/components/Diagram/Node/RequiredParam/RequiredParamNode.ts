@@ -20,7 +20,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-		this.typeDef = await getTypeDefinitionForTypeDesc(this.typeDesc, this.context);
+        this.typeDef = await getTypeDefinitionForTypeDesc(this.typeDesc, this.context);
         const recordTypeDesc = this.typeDef.typeDescriptor as RecordTypeDesc;
 
 		const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
