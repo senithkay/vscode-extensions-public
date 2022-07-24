@@ -10,31 +10,36 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { RecordTypeDesc, STNode, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDefinitionForTypeDesc } from "../../../utils/st-utils";
+import { RecordTypeFindingVisitor } from "../visitors/RecordTypeFindingVisitor";
 
-export class RecordTypeDescriptors {
+export class RecordTypeDescriptorStore {
    
     recordTypeDescriptors: Map<string, TypeDefinition>
-    static instance : RecordTypeDescriptors;
+    static instance : RecordTypeDescriptorStore;
 
     private constructor() {
         this.recordTypeDescriptors = new Map();
     }
 
-    public static getClient() {
+    public static getInstance() {
         if (!this.instance){
-            this.instance = new RecordTypeDescriptors();
+            this.instance = new RecordTypeDescriptorStore();
         }
         return this.instance;
     }
 
-    public async retrieveTypeDescriptors( nodes: STNode[], context: IDataMapperContext){
+    public async retrieveTypeDescriptors( recordTypeDesc: RecordTypeDesc, context: IDataMapperContext){
+        const visitor = new RecordTypeFindingVisitor(context);
+        traversNode(recordTypeDesc, visitor)
 
-        for (var i = 0 ; i < nodes.length; i++){
-			const typeDef =  await getTypeDefinitionForTypeDesc(nodes[i], context)
+	    const simpleNameReferneceNodes = visitor.getSimpleNameReferenceNodes()
+
+        for (var i = 0 ; i < simpleNameReferneceNodes.length; i++){
+			const typeDef =  await getTypeDefinitionForTypeDesc(simpleNameReferneceNodes[i], context)
 			if (!(typeDef.typeName.value in this.recordTypeDescriptors)){
                 this.recordTypeDescriptors.set(typeDef.typeName.value, typeDef)
             }

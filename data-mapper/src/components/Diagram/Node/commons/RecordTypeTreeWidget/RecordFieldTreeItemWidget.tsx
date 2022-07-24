@@ -10,7 +10,7 @@ import { RecordField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree
 import { DataMapperPortWidget } from "../../../Port/view/DataMapperPortWidget";
 import { DataMapperPortModel } from "../../../Port/model/DataMapperPortModel";
 import { getFieldTypeName } from "../../../utils";
-import { RecordTypeDescriptors } from "../../../utils/record-type-descriptors";
+import { RecordTypeDescriptorStore } from "../../../utils/record-type-descriptor-store";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -92,7 +92,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         fields = field.typeName.fields
     }
     else if (STKindChecker.isSimpleNameReference(field.typeName)) {
-        const recordTypeDescriptors = RecordTypeDescriptors.getClient();
+        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
 		const typeDef = recordTypeDescriptors.gettypeDescriptor(field.typeName.name.value)
         if (!!typeDef && STKindChecker.isRecordTypeDesc(typeDef.typeDescriptor)){
             fields = typeDef.typeDescriptor.fields
@@ -140,7 +140,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                         <DataMapperPortWidget engine={engine} port={portIn} />
                     }
                 </span>
-                {!!fields &&
+                {fields &&
                     (expanded ? (
                         <ExpandMoreIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                     ):
@@ -156,7 +156,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                     }
                 </span>    
             </div>
-                {!!fields &&
+                {fields &&
                     fields.map((field) => {
                         if (STKindChecker.isRecordField(field)) {
                             return <RecordFieldTreeItemWidget

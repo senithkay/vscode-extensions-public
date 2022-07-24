@@ -21,7 +21,7 @@ import {
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 
 
-export class RecordTRypeFindingVisitor implements Visitor {
+export class RecordTypeFindingVisitor implements Visitor {
     private simpleNameReferneceNodes: SimpleNameReference[];
     
     constructor(
@@ -36,7 +36,7 @@ export class RecordTRypeFindingVisitor implements Visitor {
         }
     }
 
-    public getSimpleNameReferneceNodes(){
+    public getSimpleNameReferenceNodes(){
         return this.simpleNameReferneceNodes
     }
 

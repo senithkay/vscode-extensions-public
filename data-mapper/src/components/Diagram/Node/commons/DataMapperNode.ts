@@ -11,7 +11,7 @@ import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapp
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 
 import { DataMapperPortModel } from '../../Port/model/DataMapperPortModel';
-import { RecordTypeDescriptors } from '../../utils/record-type-descriptors';
+import { RecordTypeDescriptorStore } from '../../utils/record-type-descriptor-store';
 
 export interface DataMapperNodeModelGenerics {
 	PORT: DataMapperPortModel;
@@ -67,7 +67,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				});
 			}
 			if (STKindChecker.isSimpleNameReference(field.typeName)) {
-				const recordTypeDescriptors = RecordTypeDescriptors.getClient();
+				const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
 				const typeDef = recordTypeDescriptors.gettypeDescriptor(field.typeName.name.value)
 				if (!!typeDef?.typeDescriptor && STKindChecker.isRecordTypeDesc(typeDef?.typeDescriptor)){
 					typeDef?.typeDescriptor?.fields.forEach((subField : any) => {
