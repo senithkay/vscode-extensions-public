@@ -88,7 +88,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	protected genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
 		let foundMappings: FieldAccessToSpecificFied[] = [];
-		let currentFields = [...(parentFields ? parentFields : [])];
+		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
 			val.fields.forEach((field) => {
 				if (STKindChecker.isSpecificField(field)) {
@@ -104,7 +104,9 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr.rhsExpr, field.valueExpr));
 					} else {
 						// TODO handle other types of expressions here
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
+						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , undefined));
+						// TODO: Use below
+						// foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
 					}
 				}
 			})

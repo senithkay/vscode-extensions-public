@@ -37,7 +37,7 @@ export class SelectClauseFactory extends AbstractReactFactory<SelectClauseNode, 
             <RecordTypeTreeWidget
                 engine={this.engine}
                 id="selectClauseBody"
-                typeDesc={event.model.typeDef.typeDescriptor as RecordTypeDesc}
+                typeDesc={event.model.typeDesc}
                 getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
             />
         );

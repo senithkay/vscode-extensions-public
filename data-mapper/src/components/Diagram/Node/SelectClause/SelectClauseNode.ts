@@ -26,14 +26,12 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { getTypeDefinitionForTypeDesc } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortModel } from "../../Port";
 import { getFieldNames } from "../../utils";
-import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
-import { QUERY_TARGET_PORT_PREFIX } from "../QueryExpression";
+import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
 
 export const SELECT_CLAUSE_NODE_TYPE = "datamapper-node-select-clause";
@@ -45,7 +43,7 @@ export class SelectClauseNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
         public value: SelectClause,
-        public typeDesc: TypeDescriptor) {
+        public typeDesc: RecordTypeDesc) {
         super(
             context,
             SELECT_CLAUSE_NODE_TYPE
@@ -53,17 +51,16 @@ export class SelectClauseNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        if (STKindChecker.isMappingConstructor(this.value.expression)) {
-            this.value.expression.fields.forEach((field) => {
-                if (STKindChecker.isSpecificField(field)) {
-                    // this.addPorts(field, "IN", "selectClause");
-                    this.addPortsForSpecificField(field, "IN", QUERY_TARGET_PORT_PREFIX);
-                }
-            });
-        }
-        this.typeDef = await getTypeDefinitionForTypeDesc(this.typeDesc, this.context);
-        const recordTypeDesc = this.typeDef.typeDescriptor as RecordTypeDesc;
-        recordTypeDesc.fields.forEach((subField) => {
+        // if (STKindChecker.isMappingConstructor(this.value.expression)) {
+        //     this.value.expression.fields.forEach((field) => {
+        //         if (STKindChecker.isSpecificField(field)) {
+        //             // this.addPorts(field, "IN", "selectClause");
+        //             this.addPortsForSpecificField(field, "IN", QUERY_TARGET_PORT_PREFIX);
+        //         }
+        //     });
+        // }
+
+        this.typeDesc.fields.forEach((subField) => {
             if (STKindChecker.isRecordField(subField)) {
                 this.addPorts(subField, "IN", "selectClauseBody");
             }
@@ -72,7 +69,12 @@ export class SelectClauseNode extends DataMapperNodeModel {
 
     async initLinks() {
         const mappings = this.genMappings(this.value.expression as MappingConstructor);
-        this.createLinks(mappings);
+        const hasMapping = mappings.some((entry) => {
+            return !!entry.otherVal;
+        });
+        if (hasMapping) {
+            this.createLinks(mappings);
+        }
     }
 
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
@@ -114,9 +116,9 @@ export class SelectClauseNode extends DataMapperNodeModel {
     }
 
     private getOutputPortForField(fields: SpecificField[]) {
-        let nextTypeNode = this.typeDef.typeDescriptor as RecordTypeDesc;
+        let nextTypeNode = this.typeDesc;
         let recField: RecordField;
-        let portIdBuffer = "exprFunctionBody";
+        let portIdBuffer = "selectClauseBody";
         for (let i = 0; i < fields.length; i++) {
             const specificField = fields[i];
             portIdBuffer += `.${specificField.fieldName.value}`
@@ -139,12 +141,11 @@ export class SelectClauseNode extends DataMapperNodeModel {
 
     // Improve to return multiple ports for complex expressions
     private getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess | SimpleNameReference) {
-        const typeDesc = node.typeDef.typeDescriptor;
         let portIdBuffer = node.value.paramName.value;
-        if (STKindChecker.isRecordTypeDesc(typeDesc)) {
+        if (STKindChecker.isRecordTypeDesc(this.typeDesc)) {
             if (STKindChecker.isFieldAccess(expr)) {
                 const fieldNames = getFieldNames(expr);
-                let nextTypeNode: RecordTypeDesc = typeDesc;
+                let nextTypeNode: RecordTypeDesc = this.typeDesc;
                 for (let i = 1; i < fieldNames.length; i++) { // Note i = 1 as we omit param name
                     const fieldName = fieldNames[i];
                     portIdBuffer += `.${fieldName}`;
