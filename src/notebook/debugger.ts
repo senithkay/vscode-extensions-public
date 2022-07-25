@@ -148,7 +148,17 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
                     breakpoints.forEach(breakpoint => {
                         breakpoint.line += debugCellInfoHandler?.getCellStartLine(source.path!)!;
                     });
+                    // not including breakpoints in other notebooks
+                    if (source.name && source.name.endsWith(BAL_NOTEBOOK) && debugCellInfoHandler &&
+                        source.name !== basename(debugCellInfoHandler.getDebugRanCell().document.uri.fsPath)) {
+                        breakpoints.length = 0;
+                    }
+                    // make sure all breakpoints in current notebook are added in every request
                     breakpointList.forEach(breakpoint => {
+                        if (debugCellInfoHandler &&
+                            basename(breakpoint.location.uri.fsPath) !== basename(debugCellInfoHandler.getDebugRanCell().document.uri.fsPath)) {
+                            return;
+                        }
                         let line = breakpoint.location.range.end.line + 1;
                         line += debugCellInfoHandler?.getCellStartLine(breakpoint.location.uri.toString())!;
                         const newBreakPoint = { line };
@@ -273,7 +283,9 @@ class DebugCellInfoHandler {
 
     getCellForLine(lineNumber: number) {
         const line = getSmallerMax(Array.from(this.lineToCell.keys()), lineNumber);
-        return line ? { line, cell: this.lineToCell.get(line)! } : { line: lineNumber, cell: this.currentCell };
+        return (typeof line === 'undefined' || line === null)
+            ? { line: lineNumber, cell: this.currentCell }
+            : { line, cell: this.lineToCell.get(line)! };
     }
 
     getCellStartLine(path: string) {
