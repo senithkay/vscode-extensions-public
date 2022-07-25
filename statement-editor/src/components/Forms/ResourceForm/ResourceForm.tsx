@@ -84,6 +84,7 @@ export function ResourceForm(props: FunctionProps) {
         returnTypeDesc?.type?.source?.trim() : "");
     const [isAdvanceView, setIsAdvanceView] = useState<boolean>(false);
     const [advancedParams, setAdvancedParams] = useState<AdvancedParams>(genAdvancedParams);
+    const [isEdited, setIsEdited] = useState<boolean>(false);
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -130,6 +131,7 @@ export function ResourceForm(props: FunctionProps) {
     const handleResourceParamChange = async (resMethod: string, pathStr: string, queryParamStr: string,
                                              payloadStr: string, caller: boolean, request: boolean,
                                              returnStr: string, diagColumnOffset: number = -4) => {
+        setIsEdited(true);
         const pathString = pathStr ? pathStr : ".";
         const paramString = generateParamString(queryParamStr, payloadStr, "");
         const codeSnippet = getSource(updateResourceSignature(resMethod, pathString, paramString, "",
@@ -206,12 +208,12 @@ export function ResourceForm(props: FunctionProps) {
     const handlePayloadSelect = async (text: string[]) => {
         if (text) {
             if (text.length > 0) {
-                await handleResourceParamChange(functionName, path, queryParam, getPayloadString({
-                        name: "payload", type: "json"
-                }), false, false, returnType);
+                await handleResourceParamChange(functionName, path, generateParamString(queryParam,
+                    getPayloadString({name: "payload", type: "json"}), advancedString), "",
+                    false, false, returnType);
             } else {
-                await handleResourceParamChange(functionName, path, queryParam, "", false,
-                    false, returnType)
+                await handleResourceParamChange(functionName, path, generateParamString(queryParam, "",
+                    advancedString), "", false, false, returnType)
             }
         }
     };
@@ -231,16 +233,19 @@ export function ResourceForm(props: FunctionProps) {
     };
 
     const handleOnSave = () => {
-        if (isEdit) {
-            applyModifications([
-                updateResourceSignature(functionName, path ? path : ".", queryParam,
-                    "", false, false, returnType, targetPosition)
-            ]);
-        } else {
-            applyModifications([
-                createResource(functionName, path ? path : ".", queryParam, "",
-                    false, false, returnType, targetPosition)
-            ]);
+        if (isEdited) {
+            if (isEdit) {
+                applyModifications([
+                    updateResourceSignature(functionName, path ? path : ".", generateParamString(queryParam,
+                            payloadString, advancedString), "", false, false, returnType,
+                        targetPosition)
+                ]);
+            } else {
+                applyModifications([
+                    createResource(functionName, path ? path : ".", generateParamString(queryParam, payloadString,
+                        advancedString), "", false, false, returnType, targetPosition)
+                ]);
+            }
         }
         onCancel();
     }
@@ -356,6 +361,7 @@ export function ResourceForm(props: FunctionProps) {
                             <CheckBoxGroup
                                 values={["Add Payload"]}
                                 defaultValues={!payloadString ? [] : ['Add Payload']}
+                                withMargins={false}
                                 onChange={handlePayloadSelect}
                             />
                             {payloadString && (

@@ -36,7 +36,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
 
     const onParamChange = (param: { id: number, name: string, dataType: string, defaultValue?: string }) => {
         const {name, dataType, defaultValue} = param;
-        onChange(`@http:Payload ${dataType} ${name}${defaultValue ? ` = ${defaultValue}}` : ""}` ,
+        onChange(`@http:Payload ${dataType} ${name}${defaultValue ? ` = ${defaultValue}` : ""}` ,
             {type: dataType, name, defaultValue});
     };
 
