@@ -17,8 +17,10 @@
  *
  */
 
-import { debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell, 
-    NotebookCellKind, NotebookDocument, NotebookRange, ProviderResult, Uri, window, workspace, WorkspaceFolder } from "vscode";
+import {
+    debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell,
+    NotebookCellKind, NotebookDocument, NotebookRange, ProviderResult, SourceBreakpoint, Uri, window, workspace, WorkspaceFolder
+} from "vscode";
 import fileUriToPath from "file-uri-to-path";
 import { mkdtempSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
@@ -33,6 +35,7 @@ let tmpDirectory: string;
 let tmpFile: string;
 let debugCellInfoHandler: DebugCellInfoHandler | undefined = undefined;
 let runningNotebookDebug = false;
+let breakpointList: SourceBreakpoint[] = [];
 
 export class NotebookDebuggerController {
 
@@ -55,6 +58,17 @@ export class NotebookDebuggerController {
         const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(activeTextEditorUri);
         const debugConfig: DebugConfiguration = await this.constructDebugConfig(activeTextEditorUri);
         runningNotebookDebug = true;
+        debug.onDidTerminateDebugSession(() => runningNotebookDebug = false);
+        debug.onDidChangeBreakpoints((breakpointChangeEvent) => {
+            for (const addedBP of breakpointChangeEvent.added) {
+                if (addedBP instanceof SourceBreakpoint && !breakpointList.includes(addedBP)) {
+                    breakpointList.push(addedBP)
+                };
+            }
+            for (const removedBP of breakpointChangeEvent.removed) {
+                breakpointList = breakpointList.filter(bp => bp.id !== removedBP.id);
+            }
+        });
         return debug.startDebugging(workspaceFolder, debugConfig);
     }
 
@@ -82,7 +96,6 @@ export class NotebookDebuggerController {
         const cells = balnotebook.getCells(new NotebookRange(0, sourceIndex + 1));
         let contentToWrite = "";
         let nextLineToWrite = 0;
-        // TODO: create content according to meta info
         cells.forEach(cell => {
             if (cell.kind === NotebookCellKind.Code && cell.executionSummary?.success) {
                 contentToWrite += sourceIndex === cell.index
@@ -122,13 +135,6 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
                 }
             }
         },
-        {
-            event: "exited",
-            handle: (_event: DebugProtocol.Event) => {
-                debugCellInfoHandler = undefined;
-                runningNotebookDebug = false;
-            }
-        },
     ];
 
     private requestHandlers = [
@@ -137,10 +143,16 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
             handle: (request: DebugProtocol.Request) => {
                 const setBreakpointsArguments = <DebugProtocol.SetBreakpointsArguments>request.arguments;
                 const source = setBreakpointsArguments.source;
-                const breakpoints = setBreakpointsArguments.breakpoints;
+                const breakpoints = setBreakpointsArguments.breakpoints ?? [];
                 if (source?.path?.startsWith("vscode-notebook-cell")) {
-                    breakpoints && breakpoints.forEach(breakpoint => {
+                    breakpoints.forEach(breakpoint => {
                         breakpoint.line += debugCellInfoHandler?.getCellStartLine(source.path!)!;
+                    });
+                    breakpointList.forEach(breakpoint => {
+                        let line = breakpoint.location.range.end.line + 1;
+                        line += debugCellInfoHandler?.getCellStartLine(breakpoint.location.uri.toString())!;
+                        const newBreakPoint = { line };
+                        (breakpoints.findIndex(bp => bp.line === line) === -1) && breakpoints.push(newBreakPoint);
                     });
                     source.path = tmpFile;
                 }
@@ -154,13 +166,6 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
                 if (source?.path?.startsWith("vscode-notebook-cell")) {
                     source.path = tmpFile;
                 }
-            }
-        },
-        {
-            command: "terminate",
-            handle: (_event: DebugProtocol.Event) => {
-                debugCellInfoHandler = undefined;
-                runningNotebookDebug = false;
             }
         },
     ];
@@ -218,6 +223,11 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
             // Debug Adapter -> VS Code
             onDidSendMessage: (message: DebugProtocol.ProtocolMessage) => {
                 this.visitSources(message);
+            },
+            onExit: (_code: number | undefined, _signal: string | undefined) => {
+                runningNotebookDebug = false;
+                breakpointList = [];
+                debugCellInfoHandler = undefined;
             }
         }
     }
