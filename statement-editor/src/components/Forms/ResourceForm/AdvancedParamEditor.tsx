@@ -16,13 +16,11 @@ import React, { useEffect, useState } from 'react';
 
 import {
     CheckBoxGroup,
-    FormTextInput, ParamEditor,
+    FormTextInput
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import debounce from "lodash.debounce";
 
 import { useStyles } from "./styles";
-import { Payload } from "./types";
-import {generatePayloadParamFromST, generateQueryParamFromST} from "./util";
 
 export interface PayloadEditorProps {
     requestName: string;
@@ -38,7 +36,7 @@ export interface PayloadEditorProps {
 
 export function AdvancedParamEditor(props: PayloadEditorProps) {
     const { requestName, callerName, headersName, headersSemDiag, requestSemDiag, callerSemDiag, readonly,
-            syntaxDiag = null, onChange } = props;
+            syntaxDiag, onChange } = props;
 
     const classes = useStyles();
     const [isMore, setIsMore] = useState<boolean>((requestName !== undefined) || (headersName !== undefined)
@@ -61,7 +59,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                 onChange("request", headersName, callerName);
             } else {
                 setIsRequestSelected(false);
-                onChange("", callerName, callerName);
+                onChange("", headersName, callerName);
             }
         }
     }
@@ -91,20 +89,29 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         setCurrentComponentName("ReqName");
         onChange(text, headersName, callerName);
     }
+    const debouncedRequestChange = debounce(handleRequestChange, 800);
     const handleHeadersChange = (text: string) => {
         setCurrentComponentName("HeadersName");
         onChange(requestName, text, callerName);
     }
+    const debouncedHeadersChange = debounce(handleHeadersChange, 800);
     const handleCallerChange = (text: string) => {
         setCurrentComponentName("CallerName");
         onChange(requestName, headersName, text);
+    }
+    const debouncedCallerChange = debounce(handleCallerChange, 800);
+    const resetCurrentComponent = (text: string) => {
+        setCurrentComponentName("");
     }
 
     useEffect(() => {
         setIsRequestSelected(requestName !== undefined);
         setIsHeadersSelected(headersName !== undefined);
         setIsCallerSelected(callerName !== undefined);
-        setIsMore((requestName !== undefined) || (headersName !== undefined) || (callerName !== undefined));
+        if (requestName !== undefined || (headersName !== undefined) || (callerName !== undefined)) {
+            // Setting more option if we have values in advanced params
+            setIsMore(true);
+        }
     }, [callerName, headersName, requestName]);
 
     return (
@@ -120,23 +127,24 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                             defaultValues={!isRequestSelected ? [] : ['Add Request']}
                             onChange={handleRequestSelect}
                         />
-                        <FormTextInput
-                            label="Request Name"
-                            dataTestId="request-name"
-                            defaultValue={requestName}
-                            onChange={handleRequestChange}
-                            onBlur={null}
-                            customProps={{
-                                isErrored: (syntaxDiag !== "" && currentComponentName === "ReqName")
-                                    || (requestSemDiag !== "" && requestSemDiag !== undefined),
-                                readonly
-                            }}
-                            errorMessage={((currentComponentName === "ReqName" && syntaxDiag ? syntaxDiag : "")
-                                || requestSemDiag)}
-                            placeholder={"Enter Name"}
-                            size="small"
-                            disabled={syntaxDiag && currentComponentName !== "ReqName"}
-                        />
+                        {isRequestSelected && (
+                            <FormTextInput
+                                label="Request Name"
+                                dataTestId="request-name"
+                                defaultValue={requestName}
+                                onChange={debouncedRequestChange}
+                                onBlur={resetCurrentComponent}
+                                customProps={{
+                                    isErrored: (syntaxDiag !== "" && currentComponentName === "ReqName")
+                                        || (requestSemDiag !== "" && requestSemDiag !== undefined)
+                                }}
+                                errorMessage={((currentComponentName === "ReqName" && syntaxDiag ? syntaxDiag : "")
+                                    || requestSemDiag)}
+                                placeholder={"Enter Name"}
+                                size="small"
+                                disabled={(syntaxDiag && currentComponentName !== "ReqName") || readonly}
+                            />
+                        )}
                     </div>
                     <div className={classes.advancedItem}>
                         <CheckBoxGroup
@@ -144,23 +152,24 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                             defaultValues={!isCallerSelected ? [] : ['Add Caller']}
                             onChange={handleCallerSelect}
                         />
-                        <FormTextInput
-                            label="Caller Name"
-                            dataTestId="caller-name"
-                            defaultValue={callerName}
-                            onChange={handleCallerChange}
-                            onBlur={null}
-                            customProps={{
-                                isErrored: (syntaxDiag !== "" && currentComponentName === "CallerName")
-                                    || (callerSemDiag !== "" && callerSemDiag !== undefined),
-                                readonly
-                            }}
-                            errorMessage={((currentComponentName === "CallerName" && syntaxDiag ? syntaxDiag : "")
-                                || callerSemDiag)}
-                            placeholder={"Enter Name"}
-                            size="small"
-                            disabled={syntaxDiag && currentComponentName !== "CallerName"}
-                        />
+                        {isCallerSelected && (
+                            <FormTextInput
+                                label="Caller Name"
+                                dataTestId="caller-name"
+                                defaultValue={callerName}
+                                onChange={debouncedCallerChange}
+                                onBlur={resetCurrentComponent}
+                                customProps={{
+                                    isErrored: (syntaxDiag !== "" && currentComponentName === "CallerName")
+                                        || (callerSemDiag !== "" && callerSemDiag !== undefined)
+                                }}
+                                errorMessage={((currentComponentName === "CallerName" && syntaxDiag ? syntaxDiag : "")
+                                    || callerSemDiag)}
+                                placeholder={"Enter Name"}
+                                size="small"
+                                disabled={(syntaxDiag && currentComponentName !== "CallerName") || readonly}
+                            />
+                        )}
                     </div>
                     <div className={classes.advancedItem}>
                         <CheckBoxGroup
@@ -168,23 +177,24 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                             defaultValues={!isHeadersSelected ? [] : ['Get all Headers']}
                             onChange={handleHeadersSelect}
                         />
-                        <FormTextInput
-                            label="Headers Name"
-                            dataTestId="headers-name"
-                            defaultValue={headersName}
-                            onChange={handleHeadersChange}
-                            onBlur={null}
-                            customProps={{
-                                isErrored: (syntaxDiag !== "" && currentComponentName === "HeadersName")
-                                    || (headersSemDiag !== "" && headersSemDiag !== undefined),
-                                readonly
-                            }}
-                            errorMessage={((currentComponentName === "HeadersName" && syntaxDiag ? syntaxDiag : "")
-                                || headersSemDiag)}
-                            placeholder={"Enter Name"}
-                            size="small"
-                            disabled={syntaxDiag && currentComponentName !== "HeadersName"}
-                        />
+                        {isHeadersSelected && (
+                            <FormTextInput
+                                label="Headers Name"
+                                dataTestId="headers-name"
+                                defaultValue={headersName}
+                                onChange={debouncedHeadersChange}
+                                onBlur={resetCurrentComponent}
+                                customProps={{
+                                    isErrored: (syntaxDiag !== "" && currentComponentName === "HeadersName")
+                                        || (headersSemDiag !== "" && headersSemDiag !== undefined)
+                                }}
+                                errorMessage={((currentComponentName === "HeadersName" && syntaxDiag ? syntaxDiag : "")
+                                    || headersSemDiag)}
+                                placeholder={"Enter Name"}
+                                size="small"
+                                disabled={(syntaxDiag && currentComponentName !== "HeadersName") || readonly}
+                            />
+                        )}
                     </div>
                 </div>
             )}

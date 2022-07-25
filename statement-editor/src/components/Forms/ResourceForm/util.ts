@@ -281,10 +281,16 @@ export function getParamDiagnostics(params: (CommaToken | DefaultableParam | Inc
                 !value.source?.includes("http:Headers")) {
                 if (value.viewState?.diagnosticsInRange?.length > 0 && STKindChecker.isRequiredParam(value) ||
                     STKindChecker.isDefaultableParam(value)) {
-                    queryNameSemDiagnostic = value?.paramName?.viewState?.diagnosticsInRange && value?.paramName?.
-                        viewState?.diagnosticsInRange[0]?.message;
-                    queryTypeSemDiagnostic = value?.typeName?.viewState?.diagnosticsInRange && value?.
-                        typeName?.viewState?.diagnosticsInRange[0]?.message;
+                    if (value?.paramName?.viewState?.diagnosticsInRange && value?.paramName?.
+                        viewState?.diagnosticsInRange[0]?.message) {
+                        queryNameSemDiagnostic = value?.paramName?.viewState?.diagnosticsInRange && value?.paramName?.
+                            viewState?.diagnosticsInRange[0]?.message;
+                    }
+                    if (value?.typeName?.viewState?.diagnosticsInRange && value?.
+                        typeName?.viewState?.diagnosticsInRange[0]?.message) {
+                        queryTypeSemDiagnostic = value?.typeName?.viewState?.diagnosticsInRange && value?.
+                            typeName?.viewState?.diagnosticsInRange[0]?.message;
+                    }
                 }
             } else if (value.source?.includes("@http:Payload")) {
                 if (value.viewState?.diagnosticsInRange?.length > 0 && STKindChecker.isRequiredParam(value) ||
