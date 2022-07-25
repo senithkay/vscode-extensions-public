@@ -341,7 +341,9 @@ export function StatementEditor(props: StatementEditorProps) {
         if (config.type === CONNECTOR){
             await pullUnresolvedModules(diag);
         }
-        removeUnusedModules(diag);
+        if (config.type !== CONNECTOR && config.type !== ACTION){
+            removeUnusedModules(diag);
+        }
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
         return diag;
@@ -396,8 +398,8 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules?.size && runBackgroundTerminalCommand && !isPullingModule) {
-            const extraModulesArr = Array.from(extraModules);
+        if (!!moduleList.size && !!moduleList?.size && runBackgroundTerminalCommand && !isPullingModule) {
+            const extraModulesArr = Array.from(moduleList);
             for (const diagnostic of completeDiagnostic) {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
                     for (const module of extraModulesArr) {
