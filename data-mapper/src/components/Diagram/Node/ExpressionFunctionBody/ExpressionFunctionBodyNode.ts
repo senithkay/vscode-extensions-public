@@ -1,10 +1,11 @@
-import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDefinitionForTypeDesc } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortModel } from "../../Port";
+import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { getFieldNames } from "../../utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
@@ -28,6 +29,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     async initPorts() {
 		this.typeDef = await getTypeDefinitionForTypeDesc(this.typeDesc, this.context);
 		const recordTypeDesc = this.typeDef.typeDescriptor as RecordTypeDesc;
+
+		const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+		await recordTypeDescriptors.retrieveTypeDescriptors(recordTypeDesc, this.context)
+
 		recordTypeDesc.fields.forEach((subField) => {
 			if (STKindChecker.isRecordField(subField)) {
 				this.addPorts(subField, "IN", "exprFunctionBody");
@@ -92,6 +97,11 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 				} else if (STKindChecker.isRecordTypeDesc(recFieldTemp.typeName)){
 					nextTypeNode = recFieldTemp.typeName
 				}
+				else if (STKindChecker.isSimpleNameReference(recFieldTemp.typeName) ){
+					const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+					const typeDef = recordTypeDescriptors.gettypeDescriptor(recFieldTemp.typeName.name.value)
+					nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
+				}
 			}
 		}
 		if (recField) {
@@ -121,6 +131,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 							return port;
 						} else if (STKindChecker.isRecordTypeDesc(recField.typeName)) {
 							nextTypeNode = recField.typeName;
+						} else if (STKindChecker.isSimpleNameReference(recField.typeName) ){
+							const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+							const typeDef = recordTypeDescriptors.gettypeDescriptor(recField.typeName.name.value)
+							nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
 						}
 					}
 				}
