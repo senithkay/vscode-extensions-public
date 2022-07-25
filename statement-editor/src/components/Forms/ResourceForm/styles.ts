@@ -326,14 +326,25 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: 12,
             marginLeft: 17
         },
-        payloadContent: {
+        advancedParamContent: {
             display: "flex",
-            flexDirection: "row"
+            flexDirection: "row",
+            marginTop: 5,
+            borderRadius: 5,
+            border: '1px solid #dee0e7',
+            padding: '5px',
+            justifyContent: 'space-between'
         },
         advancedItem: {
             display: "flex",
             flexDirection: "column",
-            width: "33%"
+            width: "32%"
+        },
+        listOptionalBtn: {
+            textTransform: 'none',
+            minWidth: '32px',
+            margin: `10px 0px -5px -10px`,
+            color: theme.palette.primary.main
         }
     })
 );

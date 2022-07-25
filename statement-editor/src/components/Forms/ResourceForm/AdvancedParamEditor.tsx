@@ -14,6 +14,7 @@
 
 import React, { useEffect, useState } from 'react';
 
+import { Button } from "@material-ui/core";
 import {
     CheckBoxGroup,
     FormTextInput
@@ -116,15 +117,16 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
 
     return (
         <div>
-            <div onClick={handleMoreSelect}>
-                {isMore ? "Less" : "More"}
-            </div>
+            <Button className={classes.listOptionalBtn} onClick={handleMoreSelect}>
+                {isMore ? "Hide" : "Show"}
+            </Button>
             {isMore && (
-                <div className={classes.payloadContent}>
+                <div className={classes.advancedParamContent}>
                     <div className={classes.advancedItem}>
                         <CheckBoxGroup
                             values={["Add Request"]}
                             defaultValues={!isRequestSelected ? [] : ['Add Request']}
+                            withMargins={false}
                             onChange={handleRequestSelect}
                         />
                         {isRequestSelected && (
@@ -150,6 +152,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                         <CheckBoxGroup
                             values={["Add Caller"]}
                             defaultValues={!isCallerSelected ? [] : ['Add Caller']}
+                            withMargins={false}
                             onChange={handleCallerSelect}
                         />
                         {isCallerSelected && (
@@ -175,6 +178,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                         <CheckBoxGroup
                             values={["Get all Headers"]}
                             defaultValues={!isHeadersSelected ? [] : ['Get all Headers']}
+                            withMargins={false}
                             onChange={handleHeadersSelect}
                         />
                         {isHeadersSelected && (

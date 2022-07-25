@@ -49,6 +49,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
                 nameDiagnostics={nameSemDiag}
                 typeDiagnostics={typeSemDiag}
                 hideButtons={true}
+                disabled={readonly}
             />
         </div>
     );
