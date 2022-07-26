@@ -33,13 +33,13 @@ export function translateCompletionItemKind(kind: MonacoCompletionItemKind) {
 export function filterCompletions(completions: CompletionResponse[]): CompletionResponse[] {
     const labelsUsedInShell = [
         "__last__", "__java_recall(handle context_id, handle name)", "__memorize(string name, any|error value)",
-        "main()", "init()", "__run()", "__recall_any_error(string name)", "__recall_any(string name)", 
-        "__java_memorize(handle context_id, handle name, any|error value)", "__stmts()", 
+        "main()", "init()", "__run()", "__recall_any_error(string name)", "__recall_any(string name)",
+        "__java_memorize(handle context_id, handle name, any|error value)", "__stmts()",
     ];
     return completions.filter(item => !labelsUsedInShell.includes(item.label));
 }
 
-export async function createFile(uri: Uri, content: string){
+export async function createFile(uri: Uri, content: string) {
     await workspace.fs.writeFile(uri, new TextEncoder().encode(content));
     return;
 }

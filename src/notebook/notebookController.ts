@@ -18,14 +18,18 @@
  */
 
 import { spawn } from 'child_process';
-import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
-    NotebookDocument, NotebookDocumentContentChange, notebooks, window, workspace } from 'vscode';
-import { BallerinaExtension, ExtendedLangClient, NotebookCellMetaInfo, NoteBookCellOutputResponse } from '../core';
+import {
+    NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController,
+    NotebookDocument, NotebookDocumentContentChange, notebooks, window, workspace
+} from 'vscode';
+import { BallerinaExtension, ExtendedLangClient, NotebookCellMetaInfo, NoteBookCellOutputResponse, NOT_SUPPORTED } from '../core';
+import {
+    CMP_NOTEBOOK, sendTelemetryEvent, sendTelemetryException, TM_EVENT_RUN_NOTEBOOK, TM_EVENT_RUN_NOTEBOOK_BAL_CMD,
+    TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET
+} from '../telemetry';
+import { isWindows } from '../utils';
 import { CUSTOM_DESIGNED_MIME_TYPES, NOTEBOOK_TYPE } from './constants';
 import { VariableViewProvider } from './variableView';
-import { CMP_NOTEBOOK, sendTelemetryEvent, sendTelemetryException, TM_EVENT_RUN_NOTEBOOK, TM_EVENT_RUN_NOTEBOOK_BAL_CMD, 
-    TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET } from '../telemetry';
-import { isWindows } from '../utils';
 
 /**
  * Notebook controller to provide functionality of code execution.
@@ -65,7 +69,7 @@ export class BallerinaNotebookController {
         // handle deletetions of cells
         workspace.onDidChangeNotebookDocument(listner => {
             listner.contentChanges.forEach((change: NotebookDocumentContentChange) => {
-                change.removedCells.forEach( async (cell: NotebookCell) => {
+                change.removedCells.forEach(async (cell: NotebookCell) => {
                     let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
                     failedVars.length && window.showInformationMessage(this.getFailedToDeleteErrorMsg(failedVars));
                     this.updateVariableView();
@@ -93,12 +97,12 @@ export class BallerinaNotebookController {
         sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK, CMP_NOTEBOOK);
         let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
         const cellContent = cell.document.getText().trim();
-        
+
         const execution = this.controller.createNotebookCellExecution(cell);
         execution.executionOrder = ++this.executionOrder;
         execution.start(Date.now());
         execution.clearOutput();
-        
+
         // appends string output to the current execution cell output
         const appendTextToOutput = (data: any) => {
             execution.appendOutput([new NotebookCellOutput([
@@ -107,7 +111,7 @@ export class BallerinaNotebookController {
         };
 
         //append text to the output when failed to remove a value from memory
-        const appendFailedToDeleteErrorMsg = (failedVars: string[]) => 
+        const appendFailedToDeleteErrorMsg = (failedVars: string[]) =>
             failedVars.length && appendTextToOutput(this.getFailedToDeleteErrorMsg(failedVars));
 
         // handle request to cancel the running execution 
@@ -115,7 +119,7 @@ export class BallerinaNotebookController {
             appendTextToOutput('Execution Interrupted.');
             execution.end(false, Date.now());
         });
-        
+
         // if cell content is empty no need for an code execution
         // But if the cell contained executed code with definitions
         // remove them from the shell invokermemory
@@ -163,8 +167,17 @@ export class BallerinaNotebookController {
             let response = await langClient.getBalShellResult({
                 source: cellContent
             });
+            if (response === NOT_SUPPORTED) {
+                window.showInformationMessage(
+                    `Notebook Code execution not supported in ballerina version ${this.ballerinaExtension.ballerinaVersion}\n
+                    Use Ballerina 2201.2.0 (Swan Lake Update 2) or newer`
+                );
+                appendTextToOutput("Incompatible ballerina version.")
+                execution.end(false, Date.now());
+                return;
+            }
             let output = response as NoteBookCellOutputResponse;
-            
+
             // log console output first
             // since console output will be logged until an exception happens so it comes first
             output.consoleOut && appendTextToOutput(output.consoleOut);
@@ -244,13 +257,15 @@ export class BallerinaNotebookController {
         if (!langClient) {
             return [];
         }
+
+        await langClient.onReady();
         let failedVars: string[] = [];
         for (const varToDelete of varsToDelete) {
-            if (!(await langClient.deleteDeclarations({varToDelete: varToDelete}))) {
-                failedVars.push(varToDelete);
-            } else {
-                this.metaInfoHandler.clearVarFromMap(varToDelete);
+            const deleted = await langClient.deleteDeclarations({ varToDelete: varToDelete });
+            if (deleted === NOT_SUPPORTED) {
+                return [];
             }
+            deleted ? this.metaInfoHandler.clearVarFromMap(varToDelete) : failedVars.push(varToDelete);
         }
         return failedVars;
     }
@@ -272,7 +287,7 @@ export class BallerinaNotebookController {
     }
 
     dispose(): void {
-		this.controller.dispose();
+        this.controller.dispose();
         this.variableView.dispose();
         this.metaInfoHandler.reset();
     }
@@ -306,7 +321,7 @@ class MetoInfoHandler {
 
     constructor() {
         this.cellInfoList = [];
-        this.varToCellMap = new Map<string,NotebookCell>();
+        this.varToCellMap = new Map<string, NotebookCell>();
     }
 
     /**

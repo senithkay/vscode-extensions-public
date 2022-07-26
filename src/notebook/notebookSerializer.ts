@@ -18,8 +18,10 @@
  */
 
 import { TextDecoder, TextEncoder } from 'util';
-import { CancellationToken, NotebookCellData, NotebookCellExecutionSummary, NotebookCellKind, 
-    NotebookCellOutput, NotebookCellOutputItem, NotebookData, NotebookSerializer } from 'vscode';
+import {
+    CancellationToken, NotebookCellData, NotebookCellExecutionSummary, NotebookCellKind,
+    NotebookCellOutput, NotebookCellOutputItem, NotebookData, NotebookSerializer
+} from 'vscode';
 import { ballerinaExtInstance } from "../core";
 import { CMP_NOTEBOOK, sendTelemetryEvent, TM_EVENT_CLOSE_NOTEBOOK, TM_EVENT_OPEN_NOTEBOOK } from "../telemetry";
 
@@ -32,7 +34,7 @@ interface RawNotebookCell {
     kind: NotebookCellKind;
     outputs: RawCellOutput[][];
     executionSummary?: NotebookCellExecutionSummary;
-    metadata?: {[key: string]: any};
+    metadata?: { [key: string]: any };
 }
 
 interface RawCellOutput {
@@ -88,9 +90,9 @@ export class BallerinaNotebookSerializer implements NotebookSerializer {
     // Helper function to get standard notebook cell outputs for raw cell output
     getCellOutputs(rawCellOutputs: RawCellOutput[][]): NotebookCellOutput[] {
         let cellOutputs: NotebookCellOutput[] = [];
-        for(let output of rawCellOutputs) {
+        for (let output of rawCellOutputs) {
             let cellOutputItems: NotebookCellOutputItem[] = [];
-            for (let item of output){
+            for (let item of output) {
                 let data = new TextEncoder().encode(item.value);
                 cellOutputItems.push(new NotebookCellOutputItem(data, item.mime));
             }
@@ -102,7 +104,7 @@ export class BallerinaNotebookSerializer implements NotebookSerializer {
     }
 
     // Helper function to get raw cell outputs for standard notebook cell output
-    getRawCellOutputs(cellOutputs: NotebookCellOutput[]|undefined): RawCellOutput[][] {
+    getRawCellOutputs(cellOutputs: NotebookCellOutput[] | undefined): RawCellOutput[][] {
         let rawCellOutputs: RawCellOutput[][] = [];
         for (const output of cellOutputs ?? []) {
             let rawCellOutputItems: RawCellOutput[] = [];

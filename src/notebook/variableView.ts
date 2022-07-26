@@ -29,8 +29,8 @@ export class VariableViewProvider implements WebviewViewProvider {
 	public static readonly viewType = 'ballerinaViewVariables';
 	private ballerinaExtension: BallerinaExtension;
 
-    constructor(extensionInstance: BallerinaExtension) {
-        this.ballerinaExtension = extensionInstance; 
+	constructor(extensionInstance: BallerinaExtension) {
+		this.ballerinaExtension = extensionInstance;
 	}
 
 	public resolveWebviewView(webviewView: WebviewView, _context: WebviewViewResolveContext,
@@ -76,12 +76,12 @@ export class VariableViewProvider implements WebviewViewProvider {
 		return getLibraryWebViewContent(webViewOptions);
 	}
 
-    public updateVariables() {
+	public updateVariables() {
 		sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_UPDATE_VARIABLE_VIEW, CMP_NOTEBOOK);
 		if (webviewRPCHandler) {
-			webviewRPCHandler.invokeRemoteMethod("updateVariableValues", undefined, () => {});
+			webviewRPCHandler.invokeRemoteMethod("updateVariableValues", undefined, () => { });
 		}
-    }
+	}
 
 	public dispose() {
 		this.ballerinaExtension.setNotebookVariableViewEnabled(false);
