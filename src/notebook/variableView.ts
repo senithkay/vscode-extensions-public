@@ -82,4 +82,8 @@ export class VariableViewProvider implements WebviewViewProvider {
 			webviewRPCHandler.invokeRemoteMethod("updateVariableValues", undefined, () => {});
 		}
     }
+
+	public dispose() {
+		this.ballerinaExtension.setNotebookVariableViewEnabled(false);
+	}
 }

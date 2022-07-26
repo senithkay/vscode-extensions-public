@@ -272,7 +272,9 @@ export class BallerinaNotebookController {
     }
 
     dispose(): void {
-        throw new Error('Method not implemented.');
+		this.controller.dispose();
+        this.variableView.dispose();
+        this.metaInfoHandler.reset();
     }
 }
 
