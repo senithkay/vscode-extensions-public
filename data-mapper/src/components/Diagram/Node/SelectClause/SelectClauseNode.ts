@@ -12,15 +12,9 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import {
-    ExpressionFunctionBody,
-    FieldAccess,
+    FromClause,
     MappingConstructor,
-    RecordField,
-    RecordTypeDesc,
-    RequiredParam,
     SelectClause,
-    SimpleNameReference,
-    SpecificField,
     STKindChecker,
     TypeDefinition
 } from "@wso2-enterprise/syntax-tree";
@@ -28,11 +22,10 @@ import {
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortModel } from "../../Port";
-import { getFieldNames } from "../../utils";
+import { getFieldNames, isPositionsEquals } from "../../utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { RequiredParamNode } from "../RequiredParam";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, QueryExprSourceNode } from "../QueryExprSourceNode";
 
 export const SELECT_CLAUSE_NODE_TYPE = "datamapper-node-select-clause";
 export const EXPANDED_EXPR_TARGET_PORT_PREFIX = "expandedQueryExpr.target";
@@ -63,131 +56,72 @@ export class SelectClauseNode extends DataMapperNodeModel {
     async initLinks() {
         const mappings = this.genMappings(this.value.expression as MappingConstructor);
         const hasMapping = mappings.some((entry) => {
-            return !!entry.otherVal;
+            return !!entry.value;
         });
         if (hasMapping) {
-            // this.createLinks(mappings);
+            this.createLinks();
         }
     }
 
-    // private createLinks(mappings: FieldAccessToSpecificFied[]) {
-    //     mappings.forEach((mapping) => {
-    //         const {fields, value, otherVal} = mapping;
-    //         if (!value) {
-    //             // tslint:disable-next-line:no-console
-    //             console.log("Unsupported mapping.");
-    //             return;
-    //         }
-    //         const inputNode = this.getInputNodeExpr(value);
-    //         let inPort: DataMapperPortModel;
-    //         if (inputNode) {
-    //             inPort = this.getInputPortsForExpr(inputNode, value);
-    //         }
-    //         const outPort = this.getOutputPortForField(fields);
-    //         const lm = new DataMapperLinkModel(value);
-    //         lm.addLabel(new ExpressionLabelModel({
-    //             value: otherVal?.source || value.source,
-    //             valueNode: otherVal || value,
-    //             context: this.context,
-    //             link: lm
-    //         }));
-    //         lm.setTargetPort(outPort);
-    //         lm.setSourcePort(inPort);
-    //         lm.registerListener({
-    //             selectionChanged(event) {
-    //                 if (event.isSelected) {
-    //                     inPort.fireEvent({}, "link-selected");
-    //                     outPort.fireEvent({}, "link-selected");
-    //                 } else {
-    //                     inPort.fireEvent({}, "link-unselected");
-    //                     outPort.fireEvent({}, "link-unselected");
-    //                 }
-    //             },
-    //         })
-    //         this.getModel().addAll(lm);
-    //     });
-    // }
-    //
-    // private getOutputPortForField(fields: SpecificField[]) {
-    //     let nextTypeNode = this.typeDesc;
-    //     let recField: RecordField;
-    //     let portIdBuffer = "selectClauseBody";
-    //     for (let i = 0; i < fields.length; i++) {
-    //         const specificField = fields[i];
-    //         portIdBuffer += `.${specificField.fieldName.value}`
-    //         const recFieldTemp = nextTypeNode.fields.find(
-    //             (recF) => STKindChecker.isRecordField(recF) && recF.fieldName.value === specificField.fieldName.value);
-    //         if (recFieldTemp) {
-    //             if (i === fields.length - 1) {
-    //                 recField = recFieldTemp as RecordField;
-    //             } else if (STKindChecker.isRecordTypeDesc(recFieldTemp.typeName)) {
-    //                 nextTypeNode = recFieldTemp.typeName
-    //             }
-    //         }
-    //     }
-    //     if (recField) {
-    //         const portId = portIdBuffer + ".IN";
-    //         const outPort = this.getPort(portId);
-    //         return outPort;
-    //     }
-    // }
-    //
-    // // Improve to return multiple ports for complex expressions
-    // private getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess | SimpleNameReference) {
-    //     let portIdBuffer = node.value.paramName.value;
-    //     if (STKindChecker.isRecordTypeDesc(this.typeDesc)) {
-    //         if (STKindChecker.isFieldAccess(expr)) {
-    //             const fieldNames = getFieldNames(expr);
-    //             let nextTypeNode: RecordTypeDesc = this.typeDesc;
-    //             for (let i = 1; i < fieldNames.length; i++) { // Note i = 1 as we omit param name
-    //                 const fieldName = fieldNames[i];
-    //                 portIdBuffer += `.${fieldName}`;
-    //                 const recField = nextTypeNode.fields.find(
-    //                     (field) => STKindChecker.isRecordField(field) && field.fieldName.value === fieldName);
-    //                 if (recField) {
-    //                     if (i === fieldNames.length - 1) {
-    //                         const portId = portIdBuffer + ".OUT";
-    //                         const port = (node.getPort(portId) as DataMapperPortModel);
-    //                         return port;
-    //                     } else if (STKindChecker.isRecordTypeDesc(recField.typeName)) {
-    //                         nextTypeNode = recField.typeName;
-    //                     }
-    //                 }
-    //             }
-    //         } else {
-    //             // handle this when direct mapping parameters is enabled
-    //         }
-    //     }
-    // }
-    //
-    // private getInputNodeExpr(expr: FieldAccess | SimpleNameReference) {
-    //     const nameRef = STKindChecker.isSimpleNameReference(expr) ? expr : undefined;
-    //     if (!nameRef && STKindChecker.isFieldAccess(expr)) {
-    //         let valueExpr = expr.expression;
-    //         while (valueExpr && STKindChecker.isFieldAccess(valueExpr)) {
-    //             valueExpr = valueExpr.expression;
-    //         }
-    //         if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-    //             const paramNode = this.context.functionST.functionSignature.parameters
-    //                 .find((param) =>
-    //                     STKindChecker.isRequiredParam(param)
-    //                     && param.paramName?.value === (valueExpr as SimpleNameReference).name.value
-    //                 ) as RequiredParam;
-    //             return this.findNodeByValueNode(paramNode);
-    //         }
-    //     }
-    // }
-    //
-    // private findNodeByValueNode(value: ExpressionFunctionBody | RequiredParam): RequiredParamNode {
-    //     let foundNode: RequiredParamNode;
-    //     this.getModel().getNodes().find((node) => {
-    //         if (STKindChecker.isRequiredParam(value)
-    //             && node instanceof RequiredParamNode
-    //             && STKindChecker.isRequiredParam(node.value)
-    //             && value.paramName.value === node.value.paramName.value) {
-    //             foundNode = node;
-    //         }
-    //     });
-    //     return foundNode;
-    // }
+    private createLinks() {
+        if (STKindChecker.isMappingConstructor(this.value.expression)) {
+            const mappings = this.genMappings(this.value.expression);
+            mappings.forEach((mapping) => {
+                const { fields, value, otherVal } = mapping;
+                const targetPortId = `${EXPANDED_EXPR_TARGET_PORT_PREFIX}${fields.reduce((pV, cV) => `${pV}.${cV.fieldName.value}`, "")}.IN`;
+                if (value && STKindChecker.isFieldAccess(value)) {
+                    const fieldNames = getFieldNames(value);
+                    const sourcePortId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
+                    const targetPort = this.getPort(targetPortId);
+                    const sourceNode = this.getInputNodeExpr();
+                    let sourcePort: DataMapperPortModel;
+                    if (sourceNode) {
+                        sourcePort = sourceNode.getPort(sourcePortId) as DataMapperPortModel;
+                    }
+                    const link = new DataMapperLinkModel(value);
+                    link.setSourcePort(sourcePort);
+                    link.setTargetPort(targetPort);
+                    link.addLabel(new ExpressionLabelModel({
+                        value: otherVal?.source || value.source,
+                        valueNode: otherVal || value,
+                        context: this.context,
+                        link
+                    }));
+                    link.registerListener({
+                        selectionChanged(event) {
+                            if (event.isSelected) {
+                                sourcePort.fireEvent({}, "link-selected");
+                                targetPort.fireEvent({}, "link-selected");
+                            } else {
+                                sourcePort.fireEvent({}, "link-unselected");
+                                targetPort.fireEvent({}, "link-unselected");
+                            }
+                        },
+                    })
+                    this.getModel().addAll(link);
+                } else {
+                    // handle simple name ref case for direct variable mapping
+                }
+            });
+        }
+    }
+
+    private getInputNodeExpr() {
+        let fromClause;
+        if (STKindChecker.isQueryExpression(this.context.selection.selectedST)) {
+            fromClause = this.context.selection.selectedST.queryPipeline.fromClause;
+        }
+        return this.findNodeByValueNode(fromClause);
+    }
+
+    private findNodeByValueNode(value: FromClause): QueryExprSourceNode {
+        let foundNode: QueryExprSourceNode;
+        this.getModel().getNodes().find((node) => {
+            if (node instanceof QueryExprSourceNode
+                && isPositionsEquals(value.position, node.value.position)) {
+                foundNode = node;
+            }
+        });
+        return foundNode;
+    }
 }

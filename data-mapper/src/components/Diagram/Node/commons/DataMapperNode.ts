@@ -104,9 +104,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr.rhsExpr, field.valueExpr));
 					} else {
 						// TODO handle other types of expressions here
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , undefined));
-						// TODO: Use below
-						// foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
+						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
 					}
 				}
 			})
