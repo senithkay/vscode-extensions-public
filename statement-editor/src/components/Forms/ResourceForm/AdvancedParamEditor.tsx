@@ -57,7 +57,11 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
     const [addingHeaderParam, setAddingHeaderParam] = useState<boolean>(false);
     const [headerParamEditInProgress, setHeaderParamEditInProgress] = useState<boolean>(false);
 
+    // States related to syntax diagnostics
+    const [currentComponentName, setCurrentComponentName] = useState<string>("");
+
     const addRequestParam = () => {
+        setCurrentComponentName("Request");
         setAddingRequestParam(true);
         setRequestPramName("request");
         onChange("request", headersParamName, callerParamName, true);
@@ -67,6 +71,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         onChange("", headersParamName, callerParamName);
     };
     const onRequestEdit = () => {
+        setCurrentComponentName("Request");
         setAddingRequestParam(true);
         setRequestParamEditInProgress(true);
         onChangeInProgress(true);
@@ -81,6 +86,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
     const onRequestCancelAddParam = () => {
         setAddingRequestParam(false);
         onChangeInProgress(false);
+        setRequestParamEditInProgress(false);
         setRequestPramName(requestName);
         onChange(requestName, headersParamName, callerParamName);
     };
@@ -95,6 +101,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
     };
 
     const addCallerParam = () => {
+        setCurrentComponentName("Caller");
         setAddingCallerParam(true);
         setCallerParamName("caller");
         onChange(requestName, headersParamName, "caller", true);
@@ -104,6 +111,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         onChange(requestParamName, headersParamName, "");
     };
     const onCallerEdit = () => {
+        setCurrentComponentName("Caller");
         setAddingCallerParam(true);
         setCallerParamEditInProgress(true);
         onChangeInProgress(true);
@@ -112,19 +120,23 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         const { name } = param;
         setAddingCallerParam(false);
         setCallerParamEditInProgress(false);
+        setCurrentComponentName("");
         onChange(requestParamName, headersParamName, name);
         onChangeInProgress(false);
     };
     const onCallerCancelAddParam = () => {
         setAddingCallerParam(false);
         onChangeInProgress(false);
+        setCallerParamEditInProgress(false);
         setCallerParamName(callerName);
+        setCurrentComponentName("");
         onChange(requestParamName, headersParamName, callerName);
     };
     const onCallerSave = (param : {id: number, name: string}) => {
         const { name } = param;
         setAddingCallerParam(false);
         onChange(requestParamName, headersParamName, name);
+        setCurrentComponentName("");
         onChangeInProgress(false);
     };
     const onCallerParamChange = (param : {id: number, name: string}) => {
@@ -132,6 +144,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
     };
 
     const addHeaderParam = () => {
+        setCurrentComponentName("Header");
         setAddingHeaderParam(true);
         setHeadersParamName("header");
         onChange(requestName, "header", callerParamName, true);
@@ -141,6 +154,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         onChange(requestParamName, "", callerParamName);
     };
     const onHeaderEdit = () => {
+        setCurrentComponentName("Header");
         setAddingHeaderParam(true);
         setHeaderParamEditInProgress(true);
         onChangeInProgress(true);
@@ -149,12 +163,15 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         const { name } = param;
         setAddingHeaderParam(false);
         setHeaderParamEditInProgress(false);
+        setCurrentComponentName("");
         onChange(requestParamName, name, callerParamName);
         onChangeInProgress(false);
     };
     const onHeaderCancelAddParam = () => {
         setAddingHeaderParam(false);
         onChangeInProgress(false);
+        setHeaderParamEditInProgress(false);
+        setCurrentComponentName("");
         setHeadersParamName(headersName);
         onChange(requestParamName, headersName, callerParamName);
     };
@@ -162,6 +179,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         const { name } = param;
         setAddingHeaderParam(false);
         onChange(requestParamName, name, callerParamName);
+        setCurrentComponentName("");
         onChangeInProgress(false);
     };
     const onHeaderParamChange = (param : {id: number, name: string}) => {
@@ -200,7 +218,8 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                                 className={connectorClasses.addParameterBtn}
                                 startIcon={<AddIcon/>}
                                 color="primary"
-                                disabled={(syntaxDiag !== "") || readonly}
+                                disabled={(syntaxDiag !== "") || readonly || addingHeaderParam ||
+                                    headerParamEditInProgress || addingCallerParam || callerParamEditInProgress}
                             >
                                 Add Request
                             </Button>
@@ -215,7 +234,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                             onAdd={!requestParamEditInProgress ? onRequestSave : null}
                             onCancel={onRequestCancelAddParam}
                             nameDiagnostics={requestSemDiag}
-                            disabled={readonly}
+                            disabled={(syntaxDiag !== "" && currentComponentName === "Request") || readonly ||
+                                addingHeaderParam || headerParamEditInProgress || addingCallerParam ||
+                                callerParamEditInProgress}
                             hideDefaultValue={true}
                             dataTypeReqOptions={[]}
                         />
@@ -225,7 +246,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                             param={{
                                 id: 0, name: requestParamName, option: "Request"
                             }}
-                            readonly={readonly}
+                            readonly={(syntaxDiag !== "" && currentComponentName === "Request") || readonly ||
+                                addingHeaderParam || headerParamEditInProgress || addingCallerParam ||
+                                callerParamEditInProgress}
                             onDelete={onRequestDelete}
                             onEditClick={onRequestEdit}
                         />
@@ -238,7 +261,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                                 className={connectorClasses.addParameterBtn}
                                 startIcon={<AddIcon/>}
                                 color="primary"
-                                disabled={(syntaxDiag !== "") || readonly}
+                                disabled={(syntaxDiag !== "" && currentComponentName === "Caller") || readonly ||
+                                    addingHeaderParam || headerParamEditInProgress || addingRequestParam ||
+                                    requestParamEditInProgress}
                             >
                                 Add Caller
                             </Button>
@@ -253,7 +278,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                             onAdd={!callerParamEditInProgress ? onCallerSave : null}
                             onCancel={onCallerCancelAddParam}
                             nameDiagnostics={callerSemDiag}
-                            disabled={readonly}
+                            disabled={(syntaxDiag !== "" && currentComponentName === "Caller") || readonly ||
+                                addingHeaderParam || headerParamEditInProgress || addingRequestParam ||
+                                requestParamEditInProgress}
                             hideDefaultValue={true}
                             dataTypeReqOptions={[]}
                         />
@@ -263,7 +290,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                             param={{
                                 id: 0, name: callerParamName, option: "Caller"
                             }}
-                            readonly={readonly}
+                            readonly={(syntaxDiag !== "" && currentComponentName === "Caller") || readonly ||
+                                addingHeaderParam || headerParamEditInProgress || addingRequestParam ||
+                                requestParamEditInProgress}
                             onDelete={onCallerDelete}
                             onEditClick={onCallerEdit}
                         />
@@ -276,7 +305,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                                 className={connectorClasses.addParameterBtn}
                                 startIcon={<AddIcon/>}
                                 color="primary"
-                                disabled={(syntaxDiag !== "") || readonly}
+                                disabled={(syntaxDiag !== "" && currentComponentName === "Header") || readonly ||
+                                    addingCallerParam || callerParamEditInProgress || addingRequestParam ||
+                                    requestParamEditInProgress}
                             >
                                 Get all Headers
                             </Button>
@@ -291,7 +322,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                             onAdd={!headerParamEditInProgress ? onHeaderSave : null}
                             onCancel={onHeaderCancelAddParam}
                             nameDiagnostics={headersSemDiag}
-                            disabled={readonly}
+                            disabled={(syntaxDiag !== "" && currentComponentName === "Header") || readonly ||
+                                addingCallerParam || callerParamEditInProgress || addingRequestParam ||
+                                requestParamEditInProgress}
                             hideDefaultValue={true}
                             dataTypeReqOptions={[]}
                         />
@@ -301,7 +334,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                             param={{
                                 id: 0, name: headersParamName, option: "Header"
                             }}
-                            readonly={readonly}
+                            readonly={(syntaxDiag !== "" && currentComponentName === "Header") || readonly ||
+                                addingCallerParam || callerParamEditInProgress || addingRequestParam ||
+                                requestParamEditInProgress}
                             onDelete={onHeaderDelete}
                             onEditClick={onHeaderEdit}
                         />

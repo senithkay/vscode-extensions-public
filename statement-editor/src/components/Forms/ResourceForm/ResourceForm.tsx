@@ -337,23 +337,23 @@ export function ResourceForm(props: FunctionProps) {
                                     placeholder={"Enter Path"}
                                     size="small"
                                     disabled={(isParamInProgress || (currentComponentSyntaxDiag &&
-                                        currentComponentName !== "Path")) || isQueryInProgress}
+                                        currentComponentName !== "Path")) || isQueryInProgress || isPayloadInProgress
+                                        || isAdvancedInProgress}
                                 />
                             </div>
-                            {!((isParamInProgress || (currentComponentSyntaxDiag && currentComponentName !== "Path"))
-                                || isQueryInProgress) && (
-                                <div className={connectorClasses.advancedToggleWrapper}>
-                                    <div className={classes.plusIconWrapper}>
-                                        <Button
-                                            data-test-id="request-add-button"
-                                            onClick={handlePathAddClick}
-                                            startIcon={<AddIcon/>}
-                                            color="primary"
-                                            // disabled={(syntaxDiag !== "") || readonly}
-                                        />
-                                    </div>
+                            <div className={connectorClasses.advancedToggleWrapper}>
+                                <div className={classes.plusIconWrapper}>
+                                    <Button
+                                        data-test-id="request-add-button"
+                                        onClick={handlePathAddClick}
+                                        startIcon={<AddIcon/>}
+                                        color="primary"
+                                        disabled={(isParamInProgress || (currentComponentSyntaxDiag &&
+                                                currentComponentName !== "Path")) || isQueryInProgress
+                                            || isPayloadInProgress || isAdvancedInProgress}
+                                    />
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                     <div className={connectorClasses.resourceParamWrapper}>
@@ -374,7 +374,8 @@ export function ResourceForm(props: FunctionProps) {
                         <ConfigPanelSection title={"Parameters"}>
                             <ResourceParamEditor
                                 resourceParamString={queryParam}
-                                readonly={(currentComponentSyntaxDiag?.length > 0) || (isParamInProgress)}
+                                readonly={(currentComponentSyntaxDiag?.length > 0) || (isParamInProgress) ||
+                                    isAdvancedInProgress || isPayloadInProgress}
                                 syntaxDiag={currentComponentSyntaxDiag}
                                 onChangeInProgress={handleQueryChangeInProgress}
                                 nameSemDiag={paramDiagnostics?.queryNameSemDiagnostic}
@@ -388,8 +389,8 @@ export function ResourceForm(props: FunctionProps) {
                                 nameSemDiag={paramDiagnostics?.payloadNameSemDiagnostic}
                                 syntaxDiag={currentComponentSyntaxDiag ?
                                     currentComponentSyntaxDiag[0].message : ""}
-                                readonly={isParamInProgress || isQueryInProgress || ((currentComponentSyntaxDiag?.
-                                    length > 0) && currentComponentName !== "Payload")}
+                                readonly={isParamInProgress || isAdvancedInProgress || isQueryInProgress ||
+                                    ((currentComponentSyntaxDiag?.length > 0) && currentComponentName !== "Payload")}
                                 onChangeInProgress={handlePayloadChangeInProgress}
                             />
                             <AdvancedParamEditor
@@ -401,8 +402,8 @@ export function ResourceForm(props: FunctionProps) {
                                 requestSemDiag={paramDiagnostics?.requestNameSemDiagnostics}
                                 syntaxDiag={currentComponentSyntaxDiag ? currentComponentSyntaxDiag[0].message : ""}
                                 onChange={handleAdvancedParamChange}
-                                readonly={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
-                                    && currentComponentName !== "Advanced")}
+                                readonly={isParamInProgress || isPayloadInProgress || isQueryInProgress ||
+                                    (currentComponentSyntaxDiag && currentComponentName !== "Advanced")}
                                 onChangeInProgress={handleAdvancedChangeInProgress}
                             />
                         </ConfigPanelSection>
@@ -423,8 +424,9 @@ export function ResourceForm(props: FunctionProps) {
                             onChange={debouncedReturnTypeChange}
                             placeholder={"Enter Return Type"}
                             size="small"
-                            disabled={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
-                                && currentComponentName !== "Return")}
+                            disabled={isParamInProgress || isQueryInProgress || isPayloadInProgress ||
+                                isAdvancedInProgress ||
+                                (currentComponentSyntaxDiag && currentComponentName !== "Return")}
                         />
                         <div className={classes.serviceFooterWrapper}>
                             <SecondaryButton
