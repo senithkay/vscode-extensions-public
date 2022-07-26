@@ -16,7 +16,7 @@ import React from 'react';
 import { IconButton } from "@material-ui/core";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 
-import ExpandIcon from "../../../../assets/icons/ExpandIcon";
+import CollapseIcon from "../../../../assets/icons/CollapseIcon";
 import { ViewOption } from "../../../DataMapper/DataMapper";
 
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
@@ -48,10 +48,11 @@ const useStyles = makeStyles(() =>
 				backgroundColor: '#F0F1FB',
 			}
 		},
-		expandIcon: {
+		collapseIcon: {
 			height: '15px',
 			width: '15px',
-			marginTop: '-7px'
+			marginTop: '-7px',
+			marginLeft: '-7px'
 		},
 		buttonWrapper: {
 			border: '1px solid #e6e7ec',
@@ -76,7 +77,7 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
 	}
 
 	return (
-		// <div className={classes.root}>
+		<div className={classes.root}>
 			<div className={classes.header}>
 				<div className={classes.fromClause}>
 					{title}
@@ -86,12 +87,12 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
 						onClick={onClickOnCollapse}
 						className={classes.icons}
 					>
-						<div className={classes.expandIcon}>
-							<ExpandIcon/>
+						<div className={classes.collapseIcon}>
+							<CollapseIcon/>
 						</div>
 					</IconButton>
 				</div>
 			</div>
-		// </div>
+		</div>
 	);
 }

@@ -110,7 +110,7 @@ export class NodeInitVisitor implements Visitor {
             this.inputNodes.push(recordNode);
 
             const queryNode = new ExpandedMappingHeaderNode(this.context, node);
-            queryNode.setPosition(550, 10);
+            queryNode.setPosition(385, 10);
             this.intermediateNodes.push(queryNode);
         } else {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
