@@ -14,16 +14,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
-import { Divider, FormControl } from "@material-ui/core";
+import { Button, Divider, FormControl } from "@material-ui/core";
+import { default as AddIcon } from "@material-ui/icons/Add";
 import {
-    createResource,
+    createResource, genVariableName,
     getSource,
-    SettingsIcon,
-    SettingsIconSelected,
     updateResourceSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    CheckBoxGroup,
     ConfigPanelSection,
     dynamicConnectorStyles as connectorStyles,
     FormHeaderSection,
@@ -42,12 +40,12 @@ import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 
 import { AdvancedParamEditor } from "./AdvancedParamEditor";
-import { PathEditor } from "./PathEditor";
 import { PayloadEditor } from "./PayloadEditor";
 import { ResourceParamEditor } from "./ResourceParamEditor";
 import { useStyles } from "./styles";
-import { AdvancedParams, Payload } from "./types";
+import {AdvancedParams, Path, PathSegment, Payload} from "./types";
 import {
+    convertPathStringToSegments,
     generateAdvancedParamString,
     generateParamString,
     generatePayloadParamFromST,
@@ -82,8 +80,9 @@ export function ResourceForm(props: FunctionProps) {
     const [isQueryInProgress, setIsQueryInProgress] = useState(false);
     const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.
         returnTypeDesc?.type?.source?.trim() : "");
-    const [isAdvanceView, setIsAdvanceView] = useState<boolean>(false);
+    // const [isAdvanceView, setIsAdvanceView] = useState<boolean>(false);
     const [isPayloadInProgress, setIsPayloadInProgress] = useState(false);
+    const [isAdvancedInProgress, setIsAdvancedInProgress] = useState(false);
     const [advancedParams, setAdvancedParams] = useState<AdvancedParams>(genAdvancedParams);
     const [isEdited, setIsEdited] = useState<boolean>(false);
 
@@ -129,6 +128,14 @@ export function ResourceForm(props: FunctionProps) {
     const advancedString = generateAdvancedParamString(advancedParams.requestParamName,
         advancedParams.callerParamName, advancedParams.headerParamName);
 
+    const pathSegments: Path = convertPathStringToSegments(path);
+    const segmentNames: string[] = [];
+    pathSegments?.segments?.forEach((s: PathSegment) => {
+        if (s.isParam) {
+            segmentNames.push(s.name);
+        }
+    });
+
     const handleResourceParamChange = async (resMethod: string, pathStr: string, queryParamStr: string,
                                              payloadStr: string, caller: boolean, request: boolean,
                                              returnStr: string, diagColumnOffset: number = -4) => {
@@ -157,8 +164,13 @@ export function ResourceForm(props: FunctionProps) {
         }
     };
 
-    const handleSettingsToggle = () => {
-        setIsAdvanceView(!isAdvanceView);
+    const handlePathAddClick = async () => {
+        const pathParamName = genVariableName("name", segmentNames);
+        setCurrentComponentName("Path");
+        const genPath = (path?.length > 0) ? `/[string ${pathParamName}]` : `[string ${pathParamName}]`;
+        const newPath = path + genPath;
+        await handleResourceParamChange(functionName, newPath, generateParamString(queryParam, payloadString,
+            advancedString), "", false, false, returnType);
     };
 
     const handleMethodChange = async (value: string) => {
@@ -218,10 +230,13 @@ export function ResourceForm(props: FunctionProps) {
             "", undefined, undefined, returnType);
     };
 
-    const handleAdvancedParamChange = async (requestName: string, headerName: string, callerName: string) => {
+    const handleAdvancedParamChange = async (requestName: string, headerName: string, callerName: string,
+                                             avoidValueCommit?: boolean) => {
         setCurrentComponentName("Advanced");
-        setAdvancedParams({requestParamName: requestName, headerParamName: headerName,
-                           callerParamName: callerName, payload: advancedParams.payload});
+        if (!avoidValueCommit) {
+            setAdvancedParams({requestParamName: requestName, headerParamName: headerName,
+                               callerParamName: callerName, payload: advancedParams.payload});
+        }
         await handleResourceParamChange(functionName, path, generateParamString(queryParam, payloadString,
                 generateAdvancedParamString(requestName, callerName, headerName)),
             "", undefined, undefined, returnType);
@@ -257,6 +272,10 @@ export function ResourceForm(props: FunctionProps) {
         setIsPayloadInProgress(isInProgress);
     };
 
+    const handleAdvancedChangeInProgress = (isInProgress: boolean) => {
+        setIsAdvancedInProgress(isInProgress);
+    };
+
     useEffect(() => {
         if (model) {
             if (!isParamInProgress) {
@@ -266,7 +285,7 @@ export function ResourceForm(props: FunctionProps) {
                 setQueryParam(generateQueryParamFromST(model?.functionSignature?.parameters));
             }
             const defaultAdvancedParams = generatePayloadParamFromST(model?.functionSignature?.parameters);
-            if (!isPayloadInProgress) {
+            if (!isPayloadInProgress && !isAdvancedInProgress) {
                 setAdvancedParams(defaultAdvancedParams);
             }
         } else {
@@ -324,30 +343,33 @@ export function ResourceForm(props: FunctionProps) {
                             {!((isParamInProgress || (currentComponentSyntaxDiag && currentComponentName !== "Path"))
                                 || isQueryInProgress) && (
                                 <div className={connectorClasses.advancedToggleWrapper}>
-                                    <div className={classes.contentIconWrapper}>
-                                        {isAdvanceView ? (
-                                            <SettingsIcon onClick={handleSettingsToggle}/>
-                                        ) : (
-                                            <SettingsIconSelected onClick={handleSettingsToggle}/>
-                                        )}
+                                    <div className={classes.plusIconWrapper}>
+                                        <Button
+                                            data-test-id="request-add-button"
+                                            onClick={handlePathAddClick}
+                                            startIcon={<AddIcon/>}
+                                            color="primary"
+                                            // disabled={(syntaxDiag !== "") || readonly}
+                                        />
                                     </div>
                                 </div>
                             )}
                         </div>
                     </div>
                     <div className={connectorClasses.resourceParamWrapper}>
-                        {isAdvanceView && (
-                            <PathEditor
-                                relativeResourcePath={path}
-                                syntaxDiag={currentComponentSyntaxDiag}
-                                readonly={(!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||
-                                    (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== "")) || isQueryInProgress)}
-                                pathNameSemDiag={pathNameSemDiagnostics}
-                                pathTypeSemDiag={pathTypeSemDiagnostics}
-                                onChange={handlePathParamEditorChange}
-                                onChangeInProgress={handleParamChangeInProgress}
-                            />
-                        )}
+                        {/* FIXME: Check and remove if dont need the path editor */}
+                        {/*{isAdvanceView && (*/}
+                        {/*    <PathEditor*/}
+                        {/*        relativeResourcePath={path}*/}
+                        {/*        syntaxDiag={currentComponentSyntaxDiag}*/}
+                        {/*        readonly={(!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||*/}
+                        {/*            (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== "")) || isQueryInProgress)}*/}
+                        {/*        pathNameSemDiag={pathNameSemDiagnostics}*/}
+                        {/*        pathTypeSemDiag={pathTypeSemDiagnostics}*/}
+                        {/*        onChange={handlePathParamEditorChange}*/}
+                        {/*        onChangeInProgress={handleParamChangeInProgress}*/}
+                        {/*    />*/}
+                        {/*)}*/}
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <ConfigPanelSection title={"Parameters"}>
                             <ResourceParamEditor
@@ -381,6 +403,7 @@ export function ResourceForm(props: FunctionProps) {
                                 onChange={handleAdvancedParamChange}
                                 readonly={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
                                     && currentComponentName !== "Advanced")}
+                                onChangeInProgress={handleAdvancedChangeInProgress}
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />

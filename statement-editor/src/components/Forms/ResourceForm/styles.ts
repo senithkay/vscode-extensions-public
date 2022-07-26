@@ -11,6 +11,7 @@
  * associated services.
  */
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import {theme} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -326,9 +327,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: 12,
             marginLeft: 17
         },
+        plusIconWrapper: {
+            height: 16,
+            width: 16,
+            marginTop: 5
+        },
         advancedParamContent: {
             display: "flex",
-            flexDirection: "row",
             marginTop: 5,
             borderRadius: 5,
             border: '1px solid #dee0e7',
@@ -340,11 +345,23 @@ export const useStyles = makeStyles((theme: Theme) =>
             flexDirection: "column",
             width: "32%"
         },
-        listOptionalBtn: {
+        advancedParamBtn: {
             textTransform: 'none',
             minWidth: '32px',
-            margin: `10px 0px -5px -10px`,
             color: theme.palette.primary.main
+        },
+        advancedParamWrapper: {
+            display: 'flex',
+            alignItems: 'center',
+            height: '32px',
+            marginTop: '5px'
+        },
+        advancedParamHeader :  {
+            fontSize: '13px',
+            fontWeight: 500,
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
         }
     })
 );

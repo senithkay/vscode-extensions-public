@@ -262,7 +262,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                         color="primary"
                         disabled={(syntaxDiag !== null) || readonly}
                     >
-                        Add parameter
+                        Add Parameter
                     </Button>
                 </div>
             )}

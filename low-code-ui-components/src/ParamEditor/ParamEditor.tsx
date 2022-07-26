@@ -45,6 +45,7 @@ export interface ParamProps {
     optionList?: string[];
     option?: string;
     hideButtons?: boolean;
+    hideDefaultValue?: boolean;
     disabled?: boolean;
     onAdd?: (param: Param, selectedOption?: string) => void;
     onUpdate?: (param: Param, selectedOption?: string) => void;
@@ -54,8 +55,8 @@ export interface ParamProps {
 
 export function ParamEditor(props: ParamProps) {
     const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, alternativeName, headerName, isTypeReadOnly,
-            hideButtons, disabled, optionList, enabledOptions, dataTypeReqOptions, option = "", onChange, onAdd,
-            onUpdate, onCancel } = props;
+            hideDefaultValue, hideButtons, disabled, optionList, enabledOptions, dataTypeReqOptions, option = "",
+            onChange, onAdd, onUpdate, onCancel } = props;
     const { id, name, dataType, headerName: hName, defaultValue } = param;
 
     const classes = useStyles();
@@ -225,25 +226,27 @@ export function ParamEditor(props: ParamProps) {
                         disabled={(syntaxDiag && currentComponentName !== "Name") || disabled}
                     />
                 </div>
-                <div className={classes.paramNameWrapper}>
-                    <FormTextInput
-                        label="Default Value"
-                        dataTestId="default-value"
-                        defaultValue={paramDefaultValue}
-                        onChange={debouncedDefaultValeChange}
-                        customProps={{
-                            isErrored: ((syntaxDiag !== "" && currentComponentName === "DefaultValue") ||
-                                (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
-                            optional: true
-                        }}
-                        errorMessage={((currentComponentName === "DefaultValue" && (syntaxDiag) ? syntaxDiag : "")
-                            || nameDiagnostics)}
-                        onBlur={null}
-                        placeholder={"Enter Default Value"}
-                        size="small"
-                        disabled={(syntaxDiag && currentComponentName !== "DefaultValue") || disabled}
-                    />
-                </div>
+                {!hideDefaultValue && (
+                    <div className={classes.paramNameWrapper}>
+                        <FormTextInput
+                            label="Default Value"
+                            dataTestId="default-value"
+                            defaultValue={paramDefaultValue}
+                            onChange={debouncedDefaultValeChange}
+                            customProps={{
+                                isErrored: ((syntaxDiag !== "" && currentComponentName === "DefaultValue") ||
+                                    (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
+                                optional: true
+                            }}
+                            errorMessage={((currentComponentName === "DefaultValue" && (syntaxDiag) ? syntaxDiag : "")
+                                || nameDiagnostics)}
+                            onBlur={null}
+                            placeholder={"Enter Default Value"}
+                            size="small"
+                            disabled={(syntaxDiag && currentComponentName !== "DefaultValue") || disabled}
+                        />
+                    </div>
+                )}
             </div><div className={classes.headerNameWrapper}>
             {(selectedOption === headerParameterOption && isHeaderConfigInProgress) && (
                 <FormTextInput
@@ -279,7 +282,7 @@ export function ParamEditor(props: ParamProps) {
                     <PrimaryButton
                         dataTestId={"path-segment-add-btn"}
                         text={onUpdate ? "Update" : " Add"}
-                        disabled={(syntaxDiag !== "") || (typeDiagnostics !== "") || (nameDiagnostics !== "")
+                        disabled={(!!syntaxDiag) || (!!typeDiagnostics) || (!!nameDiagnostics)
                             || !(paramName !== "") || !(paramDataType !== "" || isTypeReadOnly || !isTypeVisible)
                         }
                         fullWidth={false}

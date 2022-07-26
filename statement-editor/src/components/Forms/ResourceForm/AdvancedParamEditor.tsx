@@ -15,11 +15,12 @@
 import React, { useEffect, useState } from 'react';
 
 import { Button } from "@material-ui/core";
+import { default as AddIcon } from "@material-ui/icons/Add";
 import {
-    CheckBoxGroup,
-    FormTextInput
+    dynamicConnectorStyles as connectorStyles,
+    ParamEditor,
+    ParamItem
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import debounce from "lodash.debounce";
 
 import { useStyles } from "./styles";
 
@@ -32,83 +33,149 @@ export interface PayloadEditorProps {
     headersSemDiag?: string;
     syntaxDiag?: string;
     readonly?: boolean;
-    onChange: (requestName: string, headerName: string, callerName: string) => void
+    onChange: (requestName: string, headerName: string, callerName: string, avoidValueCommit?: boolean) => void;
+    onChangeInProgress?: (isInProgress: boolean) => void;
 }
 
 export function AdvancedParamEditor(props: PayloadEditorProps) {
     const { requestName, callerName, headersName, headersSemDiag, requestSemDiag, callerSemDiag, readonly,
-            syntaxDiag, onChange } = props;
+            syntaxDiag, onChange, onChangeInProgress } = props;
 
     const classes = useStyles();
+    const connectorClasses = connectorStyles();
+
     const [isMore, setIsMore] = useState<boolean>((requestName !== undefined) || (headersName !== undefined)
         || (callerName !== undefined));
-    const [isRequestSelected, setIsRequestSelected] = useState<boolean>(requestName !== undefined);
-    const [isCallerSelected, setIsCallerSelected] = useState<boolean>(callerName !== undefined);
-    const [isHeadersSelected, setIsHeadersSelected] = useState<boolean>(headersName !== undefined);
+    const [requestParamName, setRequestPramName] = useState<string>(requestName);
+    const [callerParamName, setCallerParamName] = useState<string>(callerName);
+    const [headersParamName, setHeadersParamName] = useState<string>(headersName);
 
-    // States related to syntax diagnostics
-    const [currentComponentName, setCurrentComponentName] = useState<string>("");
+    const [addingRequestParam, setAddingRequestParam] = useState<boolean>(false);
+    const [requestParamEditInProgress, setRequestParamEditInProgress] = useState<boolean>(false);
+    const [addingCallerParam, setAddingCallerParam] = useState<boolean>(false);
+    const [callerParamEditInProgress, setCallerParamEditInProgress] = useState<boolean>(false);
+    const [addingHeaderParam, setAddingHeaderParam] = useState<boolean>(false);
+    const [headerParamEditInProgress, setHeaderParamEditInProgress] = useState<boolean>(false);
+
+    const addRequestParam = () => {
+        setAddingRequestParam(true);
+        setRequestPramName("request");
+        onChange("request", headersParamName, callerParamName, true);
+        onChangeInProgress(true);
+    };
+    const onRequestDelete = () => {
+        onChange("", headersParamName, callerParamName);
+    };
+    const onRequestEdit = () => {
+        setAddingRequestParam(true);
+        setRequestParamEditInProgress(true);
+        onChangeInProgress(true);
+    };
+    const onRequestUpdate = (param : {id: number, name: string}) => {
+        const { name } = param;
+        setAddingRequestParam(false);
+        setRequestParamEditInProgress(false);
+        onChange(name, headersParamName, callerParamName);
+        onChangeInProgress(false);
+    };
+    const onRequestCancelAddParam = () => {
+        setAddingRequestParam(false);
+        onChangeInProgress(false);
+        setRequestPramName(requestName);
+        onChange(requestName, headersParamName, callerParamName);
+    };
+    const onRequestSave = (param : {id: number, name: string}) => {
+        const { name } = param;
+        setAddingRequestParam(false);
+        onChange(name, headersParamName, callerParamName);
+        onChangeInProgress(false);
+    };
+    const onRequestParamChange = (param : {id: number, name: string}) => {
+        onChange(param.name, headersParamName, callerParamName, true);
+    };
+
+    const addCallerParam = () => {
+        setAddingCallerParam(true);
+        setCallerParamName("caller");
+        onChange(requestName, headersParamName, "caller", true);
+        onChangeInProgress(true);
+    };
+    const onCallerDelete = () => {
+        onChange(requestParamName, headersParamName, "");
+    };
+    const onCallerEdit = () => {
+        setAddingCallerParam(true);
+        setCallerParamEditInProgress(true);
+        onChangeInProgress(true);
+    };
+    const onCallerUpdate = (param : {id: number, name: string}) => {
+        const { name } = param;
+        setAddingCallerParam(false);
+        setCallerParamEditInProgress(false);
+        onChange(requestParamName, headersParamName, name);
+        onChangeInProgress(false);
+    };
+    const onCallerCancelAddParam = () => {
+        setAddingCallerParam(false);
+        onChangeInProgress(false);
+        setCallerParamName(callerName);
+        onChange(requestParamName, headersParamName, callerName);
+    };
+    const onCallerSave = (param : {id: number, name: string}) => {
+        const { name } = param;
+        setAddingCallerParam(false);
+        onChange(requestParamName, headersParamName, name);
+        onChangeInProgress(false);
+    };
+    const onCallerParamChange = (param : {id: number, name: string}) => {
+        onChange(requestParamName, headersParamName, param.name, true);
+    };
+
+    const addHeaderParam = () => {
+        setAddingHeaderParam(true);
+        setHeadersParamName("header");
+        onChange(requestName, "header", callerParamName, true);
+        onChangeInProgress(true);
+    };
+    const onHeaderDelete = () => {
+        onChange(requestParamName, "", callerParamName);
+    };
+    const onHeaderEdit = () => {
+        setAddingHeaderParam(true);
+        setHeaderParamEditInProgress(true);
+        onChangeInProgress(true);
+    };
+    const onHeaderUpdate = (param : {id: number, name: string}) => {
+        const { name } = param;
+        setAddingHeaderParam(false);
+        setHeaderParamEditInProgress(false);
+        onChange(requestParamName, name, callerParamName);
+        onChangeInProgress(false);
+    };
+    const onHeaderCancelAddParam = () => {
+        setAddingHeaderParam(false);
+        onChangeInProgress(false);
+        setHeadersParamName(headersName);
+        onChange(requestParamName, headersName, callerParamName);
+    };
+    const onHeaderSave = (param : {id: number, name: string}) => {
+        const { name } = param;
+        setAddingHeaderParam(false);
+        onChange(requestParamName, name, callerParamName);
+        onChangeInProgress(false);
+    };
+    const onHeaderParamChange = (param : {id: number, name: string}) => {
+        onChange(requestParamName, param.name, headersParamName, true);
+    };
 
     const handleMoreSelect = () => {
         setIsMore(!isMore);
     };
-    const handleRequestSelect = (text: string[]) => {
-        setCurrentComponentName("ReqName");
-        if (text) {
-            if (text.length > 0) {
-                setIsRequestSelected(true);
-                onChange("request", headersName, callerName);
-            } else {
-                setIsRequestSelected(false);
-                onChange("", headersName, callerName);
-            }
-        }
-    }
-    const handleCallerSelect = (text: string[]) => {
-        setCurrentComponentName("CallerName");
-        if (text) {
-            if (text.length > 0) {
-                setIsCallerSelected(true);
-                onChange(requestName, headersName, "caller");
-            } else {
-                setIsCallerSelected(false);
-                onChange(requestName, headersName, "");
-            }
-        }
-    }
-    const handleHeadersSelect = async (text: string[]) => {
-        setCurrentComponentName("HeadersName");
-        if (text.length > 0) {
-            setIsHeadersSelected(true);
-            onChange(requestName, "headers", callerName);
-        } else {
-            setIsHeadersSelected(false);
-            onChange(requestName, "", callerName);
-        }
-    }
-    const handleRequestChange = (text: string) => {
-        setCurrentComponentName("ReqName");
-        onChange(text, headersName, callerName);
-    }
-    const debouncedRequestChange = debounce(handleRequestChange, 800);
-    const handleHeadersChange = (text: string) => {
-        setCurrentComponentName("HeadersName");
-        onChange(requestName, text, callerName);
-    }
-    const debouncedHeadersChange = debounce(handleHeadersChange, 800);
-    const handleCallerChange = (text: string) => {
-        setCurrentComponentName("CallerName");
-        onChange(requestName, headersName, text);
-    }
-    const debouncedCallerChange = debounce(handleCallerChange, 800);
-    const resetCurrentComponent = (text: string) => {
-        setCurrentComponentName("");
-    }
 
     useEffect(() => {
-        setIsRequestSelected(requestName !== undefined);
-        setIsHeadersSelected(headersName !== undefined);
-        setIsCallerSelected(callerName !== undefined);
+        setRequestPramName(requestName);
+        setHeadersParamName(headersName);
+        setCallerParamName(callerName);
         if (requestName !== undefined || (headersName !== undefined) || (callerName !== undefined)) {
             // Setting more option if we have values in advanced params
             setIsMore(true);
@@ -117,90 +184,129 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
 
     return (
         <div>
-            <Button className={classes.listOptionalBtn} onClick={handleMoreSelect}>
-                {isMore ? "Hide" : "Show"}
-            </Button>
+            <div className={classes.advancedParamWrapper}>
+                <div className={classes.advancedParamHeader}>Advanced Params </div>
+                <Button className={classes.advancedParamBtn} onClick={handleMoreSelect}>
+                    {isMore ? "Hide" : "Show"}
+                </Button>
+            </div>
             {isMore && (
-                <div className={classes.advancedParamContent}>
-                    <div className={classes.advancedItem}>
-                        <CheckBoxGroup
-                            values={["Add Request"]}
-                            defaultValues={!isRequestSelected ? [] : ['Add Request']}
-                            withMargins={false}
-                            onChange={handleRequestSelect}
+                <>
+                    {!requestParamName && (
+                        <div>
+                            <Button
+                                data-test-id="request-add-button"
+                                onClick={addRequestParam}
+                                className={connectorClasses.addParameterBtn}
+                                startIcon={<AddIcon/>}
+                                color="primary"
+                                disabled={(syntaxDiag !== "") || readonly}
+                            >
+                                Add Request
+                            </Button>
+                        </div>
+                    )}
+                    {addingRequestParam && requestParamName && (
+                        <ParamEditor
+                            param={{id: 0, name: requestParamName}}
+                            syntaxDiag={syntaxDiag}
+                            onChange={onRequestParamChange}
+                            onUpdate={requestParamEditInProgress ? onRequestUpdate : null}
+                            onAdd={!requestParamEditInProgress ? onRequestSave : null}
+                            onCancel={onRequestCancelAddParam}
+                            nameDiagnostics={requestSemDiag}
+                            disabled={readonly}
+                            hideDefaultValue={true}
+                            dataTypeReqOptions={[]}
                         />
-                        {isRequestSelected && (
-                            <FormTextInput
-                                label="Request Name"
-                                dataTestId="request-name"
-                                defaultValue={requestName}
-                                onChange={debouncedRequestChange}
-                                onBlur={resetCurrentComponent}
-                                customProps={{
-                                    isErrored: (syntaxDiag !== "" && currentComponentName === "ReqName")
-                                        || (requestSemDiag !== "" && requestSemDiag !== undefined)
-                                }}
-                                errorMessage={((currentComponentName === "ReqName" && syntaxDiag ? syntaxDiag : "")
-                                    || requestSemDiag)}
-                                placeholder={"Enter Name"}
-                                size="small"
-                                disabled={(syntaxDiag && currentComponentName !== "ReqName") || readonly}
-                            />
-                        )}
-                    </div>
-                    <div className={classes.advancedItem}>
-                        <CheckBoxGroup
-                            values={["Add Caller"]}
-                            defaultValues={!isCallerSelected ? [] : ['Add Caller']}
-                            withMargins={false}
-                            onChange={handleCallerSelect}
+                    )}
+                    {!addingRequestParam && requestParamName && (
+                        <ParamItem
+                            param={{
+                                id: 0, name: requestParamName, option: "Request"
+                            }}
+                            readonly={readonly}
+                            onDelete={onRequestDelete}
+                            onEditClick={onRequestEdit}
                         />
-                        {isCallerSelected && (
-                            <FormTextInput
-                                label="Caller Name"
-                                dataTestId="caller-name"
-                                defaultValue={callerName}
-                                onChange={debouncedCallerChange}
-                                onBlur={resetCurrentComponent}
-                                customProps={{
-                                    isErrored: (syntaxDiag !== "" && currentComponentName === "CallerName")
-                                        || (callerSemDiag !== "" && callerSemDiag !== undefined)
-                                }}
-                                errorMessage={((currentComponentName === "CallerName" && syntaxDiag ? syntaxDiag : "")
-                                    || callerSemDiag)}
-                                placeholder={"Enter Name"}
-                                size="small"
-                                disabled={(syntaxDiag && currentComponentName !== "CallerName") || readonly}
-                            />
-                        )}
-                    </div>
-                    <div className={classes.advancedItem}>
-                        <CheckBoxGroup
-                            values={["Get all Headers"]}
-                            defaultValues={!isHeadersSelected ? [] : ['Get all Headers']}
-                            withMargins={false}
-                            onChange={handleHeadersSelect}
+                    )}
+                    {!callerParamName && (
+                        <div>
+                            <Button
+                                data-test-id="caller-add-button"
+                                onClick={addCallerParam}
+                                className={connectorClasses.addParameterBtn}
+                                startIcon={<AddIcon/>}
+                                color="primary"
+                                disabled={(syntaxDiag !== "") || readonly}
+                            >
+                                Add Caller
+                            </Button>
+                        </div>
+                    )}
+                    {addingCallerParam && callerParamName && (
+                        <ParamEditor
+                            param={{id: 0, name: callerParamName}}
+                            syntaxDiag={syntaxDiag}
+                            onChange={onCallerParamChange}
+                            onUpdate={callerParamEditInProgress ? onCallerUpdate : null}
+                            onAdd={!callerParamEditInProgress ? onCallerSave : null}
+                            onCancel={onCallerCancelAddParam}
+                            nameDiagnostics={callerSemDiag}
+                            disabled={readonly}
+                            hideDefaultValue={true}
+                            dataTypeReqOptions={[]}
                         />
-                        {isHeadersSelected && (
-                            <FormTextInput
-                                label="Headers Name"
-                                dataTestId="headers-name"
-                                defaultValue={headersName}
-                                onChange={debouncedHeadersChange}
-                                onBlur={resetCurrentComponent}
-                                customProps={{
-                                    isErrored: (syntaxDiag !== "" && currentComponentName === "HeadersName")
-                                        || (headersSemDiag !== "" && headersSemDiag !== undefined)
-                                }}
-                                errorMessage={((currentComponentName === "HeadersName" && syntaxDiag ? syntaxDiag : "")
-                                    || headersSemDiag)}
-                                placeholder={"Enter Name"}
-                                size="small"
-                                disabled={(syntaxDiag && currentComponentName !== "HeadersName") || readonly}
-                            />
-                        )}
-                    </div>
-                </div>
+                    )}
+                    {!addingCallerParam && callerParamName && (
+                        <ParamItem
+                            param={{
+                                id: 0, name: callerParamName, option: "Caller"
+                            }}
+                            readonly={readonly}
+                            onDelete={onCallerDelete}
+                            onEditClick={onCallerEdit}
+                        />
+                    )}
+                    {!headersParamName && (
+                        <div>
+                            <Button
+                                data-test-id="headers-add-button"
+                                onClick={addHeaderParam}
+                                className={connectorClasses.addParameterBtn}
+                                startIcon={<AddIcon/>}
+                                color="primary"
+                                disabled={(syntaxDiag !== "") || readonly}
+                            >
+                                Get all Headers
+                            </Button>
+                        </div>
+                    )}
+                    {addingHeaderParam && headersParamName && (
+                        <ParamEditor
+                            param={{id: 0, name: headersParamName}}
+                            syntaxDiag={syntaxDiag}
+                            onChange={onHeaderParamChange}
+                            onUpdate={headerParamEditInProgress ? onHeaderUpdate : null}
+                            onAdd={!headerParamEditInProgress ? onHeaderSave : null}
+                            onCancel={onHeaderCancelAddParam}
+                            nameDiagnostics={headersSemDiag}
+                            disabled={readonly}
+                            hideDefaultValue={true}
+                            dataTypeReqOptions={[]}
+                        />
+                    )}
+                    {!addingHeaderParam && headersParamName && (
+                        <ParamItem
+                            param={{
+                                id: 0, name: headersParamName, option: "Header"
+                            }}
+                            readonly={readonly}
+                            onDelete={onHeaderDelete}
+                            onEditClick={onHeaderEdit}
+                        />
+                    )}
+                </>
             )}
         </div>
     );
