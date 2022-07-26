@@ -18,8 +18,8 @@
  */
 
 import {
-    debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell,
-    NotebookCellKind, NotebookDocument, NotebookRange, ProviderResult, SourceBreakpoint, Uri, window, workspace, WorkspaceFolder
+    debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell, NotebookCellKind,
+    NotebookDocument, NotebookRange, ProviderResult, SourceBreakpoint, Uri, window, workspace, WorkspaceFolder
 } from "vscode";
 import fileUriToPath from "file-uri-to-path";
 import { mkdtempSync, writeFileSync } from "fs";
@@ -114,8 +114,13 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
     private eventHandlers = [
         {
             event: "output",
-            handle: (_event: DebugProtocol.Event) => {
-                // const outputEvent = <DebugProtocol.OutputEvent>event;
+            handle: (event: DebugProtocol.Event) => {
+                const outputEvent = <DebugProtocol.OutputEvent>event;
+                const compilationErr = "error: compilation contains errors";
+                if (runningNotebookDebug && outputEvent.body.output.includes(compilationErr)) {
+                    const compilationErrMsg = "Make sure to focus the cell needs to start debug."
+                    window.showInformationMessage(compilationErrMsg);
+                }
             }
         },
         {
@@ -143,8 +148,8 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
             handle: (request: DebugProtocol.Request) => {
                 const setBreakpointsArguments = <DebugProtocol.SetBreakpointsArguments>request.arguments;
                 const source = setBreakpointsArguments.source;
-                const breakpoints = setBreakpointsArguments.breakpoints ?? [];
-                if (source?.path?.startsWith("vscode-notebook-cell")) {
+                if (runningNotebookDebug && source?.path?.startsWith("vscode-notebook-cell")) {
+                    const breakpoints = setBreakpointsArguments.breakpoints ?? [];
                     breakpoints.forEach(breakpoint => {
                         breakpoint.line += debugCellInfoHandler?.getCellStartLine(source.path!)!;
                     });
