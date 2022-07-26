@@ -19,23 +19,29 @@
 
 import { WebView, VSBrowser, By, EditorView, Key } from 'vscode-extension-tester';
 import { join } from 'path';
-import { before, describe, it } from 'mocha';
+import { before, beforeEach, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { wait, getDiagramExplorer } from './util';
 import { DIAGRAM_LOADING_TIME, PROJECT_RUN_TIME } from './constants';
 
 describe('Swagger view UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
-    let rootFolder, webview;
+    let editorView, rootFolder, webview;
 
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT);
         await wait(2000);
-        const editorView = new EditorView();
+        editorView = new EditorView();
         await editorView.closeAllEditors();
         const diagramExplorer = await getDiagramExplorer();
 
         rootFolder = (await diagramExplorer.getVisibleItems())[0];
+    });
+
+    beforeEach(async () => {
+        if (webview) await webview.switchBack();
+        if (editorView) await editorView.closeAllEditors();
+        await wait(1000);
     });
 
     it('Test tryit button', async () => {
@@ -103,7 +109,6 @@ describe('Swagger view UI Tests', () => {
     });
 
     it('Test swagger view headers', async () => {
-        await webview.switchBack();
         // Open low code diagram
         (await rootFolder.findChildItem("deltaLine.bal"))?.click();
         await wait(DIAGRAM_LOADING_TIME)
@@ -156,7 +161,7 @@ describe('Swagger view UI Tests', () => {
         // check response
         const codeBlock = await swaggerWebView.findWebElement(By.className("highlight-code"));
         expect(execute).is.not.undefined;
-        const reponseBox = await codeBlock.findElement(By.css("code"));       
+        const reponseBox = await codeBlock.findElement(By.css("code"));
         expect(await reponseBox.getText()).is.equal('{\n  "ticketId": "T120",\n  "seat": "A10",\n  "price": 68\n}');
     });
 });
