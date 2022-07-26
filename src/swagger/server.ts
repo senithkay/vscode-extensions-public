@@ -40,9 +40,11 @@ const EAI_AGAIN = 'EAI_AGAIN';
 export class SwaggerServer {
 
   async sendRequest(data: Request): Promise<Response | boolean> {
+    const headers = data.headers as unknown as Record<string, string>;
     return new Promise<Response | boolean>((resolve, reject) => {
       axios({
         method: data.method,
+        headers,
         url: data.url,
         data: data.body
       })
