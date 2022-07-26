@@ -77,7 +77,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             <Panel onClose={onCancel}>
                 <>
                     {isLoading && (
-                        <Box display="flex" justifyContent="center" alignItems="center" height="80vh" width="700px">
+                        <Box display="flex" justifyContent="center" alignItems="center" height="80vh" width="600px">
                             <TextPreLoader position="absolute" text="Loading..." />
                         </Box>
                     )}
