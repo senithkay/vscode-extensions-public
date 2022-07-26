@@ -156,8 +156,7 @@ describe('Swagger view UI Tests', () => {
         // check response
         const codeBlock = await swaggerWebView.findWebElement(By.className("highlight-code"));
         expect(execute).is.not.undefined;
-        const reponseBox = await codeBlock.findElement(By.css("code"));
-        const reponse = await reponseBox.findElement(By.css("span"));
-        expect(await reponse.getText()).is.equal('{\n  "ticketId": "string",\n  "seat": "string",\n  "price": 0\n}');
+        const reponseBox = await codeBlock.findElement(By.css("code"));       
+        expect(await reponseBox.getText()).is.equal('{\n  "ticketId": "T120",\n  "seat": "A10",\n  "price": 68\n}');
     });
 });
