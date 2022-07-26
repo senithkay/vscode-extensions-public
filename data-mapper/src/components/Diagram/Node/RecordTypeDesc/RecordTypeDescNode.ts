@@ -18,8 +18,8 @@ export class RecordTypeDescNode extends DataMapperNodeModel {
     async initPorts() {
 		this.value.fields.forEach((subField) => {
 			if (STKindChecker.isRecordField(subField)) {
-				this.addPorts(subField, "OUT", "recordTypeDesc");
-			}
+				this.addPorts(subField, "OUT", "recordTypeDesc", "item");
+            }
 		});
     }
 

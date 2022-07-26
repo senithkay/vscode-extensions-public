@@ -4,6 +4,7 @@ import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, Reco
 import { DataMapperLinkModel } from "./Link/model/DataMapperLink";
 import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "./Node";
 import { DataMapperNodeModel } from "./Node/commons/DataMapperNode";
+import { SelectClauseNode } from "./Node/SelectClause";
 import { DataMapperPortModel } from "./Port/model/DataMapperPortModel";
 
 export function getFieldNames(expr: FieldAccess) {
@@ -46,7 +47,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 
 		rhs = (STKindChecker.isRecordField(sourcePort.field)
 			? sourcePort.field.fieldName.value : "");
-		
+
 		if (sourcePort.parentFieldAccess) {
 			rhs = sourcePort.parentFieldAccess + "." + rhs;
 		}
@@ -61,6 +62,8 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			mappingConstruct = targetNode.value.expression as MappingConstructor;
 		} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
 			mappingConstruct = targetNode.value.selectClause.expression;
+		} else if (targetNode instanceof SelectClauseNode && STKindChecker.isMappingConstructor(targetNode.value.expression)) {
+			mappingConstruct = targetNode.value.expression;
 		}
 
 		// Inserting a new specific field

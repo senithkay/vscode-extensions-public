@@ -15,15 +15,15 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { RecordTypeDesc } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { DataMapperPortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
-import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
+import { MappingConstructorWidget } from "../commons/MappingConstructorWidget/MappingConstructorWidget";
 
-import { SelectClauseNode, SELECT_CLAUSE_NODE_TYPE } from './SelectClauseNode';
+import { EXPANDED_EXPR_TARGET_PORT_PREFIX, SelectClauseNode, SELECT_CLAUSE_NODE_TYPE } from './SelectClauseNode';
 
 @injectable()
 @singleton()
@@ -34,12 +34,16 @@ export class SelectClauseFactory extends AbstractReactFactory<SelectClauseNode, 
 
     generateReactWidget(event: { model: SelectClauseNode; }): JSX.Element {
         return (
-            <RecordTypeTreeWidget
-                engine={this.engine}
-                id="selectClauseBody"
-                typeDesc={event.model.typeDesc}
-                getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
-            />
+            <>
+                {STKindChecker.isMappingConstructor(event.model.value.expression) && (
+                    <MappingConstructorWidget
+                        engine={this.engine}
+                        id={EXPANDED_EXPR_TARGET_PORT_PREFIX}
+                        value={event.model.value.expression}
+                        getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
+                    />
+                )}
+            </>
         );
     }
 

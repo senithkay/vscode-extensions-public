@@ -2,7 +2,7 @@ import {
     BinaryExpression,
     ExpressionFunctionBody,
     FunctionDefinition,
-    QueryExpression, RecordTypeDesc,
+    QueryExpression,
     STKindChecker,
     STNode,
     Visitor
@@ -19,7 +19,7 @@ import {
 } from "../Node";
 import { BinaryExpressionNode } from "../Node/BinaryExpression/BinaryExpressionNode";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { RecordTypeDescNode } from "../Node/RecordTypeDesc";
+import { QueryExprSourceNode } from "../Node/QueryExprSourceNode";
 import { SelectClauseNode } from "../Node/SelectClause";
 import { isPositionsEquals } from "../utils";
 
@@ -93,22 +93,19 @@ export class NodeInitVisitor implements Visitor {
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         if (isPositionsEquals(node.position, this.selection.selectedST.position)) {
             // create output node
-            const outputTypeDesc = this.selection.outST as RecordTypeDesc;
             this.outputNode = new SelectClauseNode(
                 this.context,
-                node.selectClause,
-                outputTypeDesc
+                node.selectClause
             );
 
-            this.outputNode.setPosition(1000, 100);
+            this.outputNode.setPosition(800, 100);
 
             // create input nodes
-            const inputTypeDesc = this.selection.inST as RecordTypeDesc;
-            const recordNode = new RecordTypeDescNode(
+            const recordNode = new QueryExprSourceNode(
                 this.context,
-                inputTypeDesc
+                node.queryPipeline.fromClause
             );
-            recordNode.setPosition(100, 100 + 400); // 400 is an arbitary value, need to calculate exact heigt;
+            recordNode.setPosition(100, 100);
             this.inputNodes.push(recordNode);
         } else {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
