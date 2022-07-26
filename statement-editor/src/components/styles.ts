@@ -53,6 +53,12 @@ const focusColor1 = {
     },
 }
 
+const activeColour = {
+    '&:active': {
+        backgroundColor: 'rgba(204,209,242,0.61)'
+    },
+}
+
 const removePadding = {
     padding: '0px'
 }
@@ -382,7 +388,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 margin: '0'
             },
             ...hoverColor1,
-            ...focusColor1
+            ...activeColour
         },
         suggestionDataType: {
             color: '#05A26B',
