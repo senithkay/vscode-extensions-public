@@ -11,15 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-
 import React, { useEffect, useState } from 'react';
 
+import { Button } from "@material-ui/core";
+import { default as AddIcon } from "@material-ui/icons/Add";
 import {
-    FormTextInput, ParamEditor,
+    dynamicConnectorStyles as connectorStyles,
+    ParamEditor, ParamItem,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import debounce from "lodash.debounce";
 
-import { useStyles } from "./styles";
 import { Payload } from "./types";
 
 export interface PayloadEditorProps {
@@ -28,29 +28,111 @@ export interface PayloadEditorProps {
     syntaxDiag?: string;
     nameSemDiag?: string;
     typeSemDiag?: string;
-    onChange: (payloadString: string, payLoad: Payload) => void
+    onChange: (payloadString: string, payLoad: Payload, avoidValueCommit?: boolean) => void;
+    onChangeInProgress?: (isInProgress: boolean) => void;
 }
 
 export function PayloadEditor(props: PayloadEditorProps) {
-    const { payload, syntaxDiag = null, nameSemDiag, typeSemDiag, readonly, onChange } = props;
+    const { payload, syntaxDiag = null, nameSemDiag, typeSemDiag, readonly, onChange, onChangeInProgress } = props;
 
+    const connectorClasses = connectorStyles();
+
+    const [payloadState, setPayloadState] = useState<Payload>(payload);
+    const [addingParam, setAddingParam] = useState<boolean>(false);
+    const [paramEditInProgress, setParamEditInProgress] = useState<boolean>(false);
     const onParamChange = (param: { id: number, name: string, dataType: string, defaultValue?: string }) => {
         const {name, dataType, defaultValue} = param;
         onChange(`@http:Payload ${dataType} ${name}${defaultValue ? ` = ${defaultValue}` : ""}` ,
-            {type: dataType, name, defaultValue});
+            {type: dataType, name, defaultValue}, true);
     };
+
+    const addParam = () => {
+        setAddingParam(true);
+        setPayloadState({name: "payload", type: "json"});
+        onParamChange({id: 0, name: "payload", dataType: "json"});
+        onChangeInProgress(true);
+    };
+    const onDelete = () => {
+        onChange("", undefined);
+    };
+    const onEdit = () => {
+        setAddingParam(true);
+        setParamEditInProgress(true);
+        onChangeInProgress(true);
+    };
+    const onUpdate = (param : {id: number, name: string, dataType?: string, defaultValue?: string,
+                               headerName?: string}) => {
+        const { dataType, name, defaultValue } = param;
+        setAddingParam(false);
+        setParamEditInProgress(false);
+        onChange(`@http:Payload ${dataType} ${name}${defaultValue ? ` = ${defaultValue}` : ""}` ,
+            {type: dataType, name, defaultValue});
+        onChangeInProgress(false);
+    };
+    const onSave = (param : {id: number, name: string, dataType?: string, defaultValue?: string,
+                             headerName?: string}) => {
+        const { dataType, name, defaultValue } = param;
+        setAddingParam(false);
+        onChange(`@http:Payload ${dataType} ${name}${defaultValue ? ` = ${defaultValue}` : ""}` ,
+            {type: dataType, name, defaultValue});
+        onChangeInProgress(false);
+    };
+    const onCancelAddParam = () => {
+        setAddingParam(false);
+        onChangeInProgress(false);
+        if (payload) {
+            setPayloadState({name: payload.name, type: payload.type, defaultValue: payload.defaultValue});
+            onChange(`@http:Payload ${payload?.type} ${payload?.name}${payload?.defaultValue ?
+                ` = ${payload?.defaultValue}` : ""}` , payload);
+        } else {
+            setPayloadState(undefined);
+            onChange("" , payload);
+        }
+    };
+
+    useEffect(() => {
+        setPayloadState(payload);
+    }, [payload, payload?.name, payload?.type]);
 
     return (
         <div>
-            <ParamEditor
-                param={{id: 0, name: payload.name, dataType: payload.type}}
-                syntaxDiag={syntaxDiag}
-                onChange={onParamChange}
-                nameDiagnostics={nameSemDiag}
-                typeDiagnostics={typeSemDiag}
-                hideButtons={true}
-                disabled={readonly}
-            />
+            {!payloadState && (
+                <div>
+                    <Button
+                        data-test-id="payload-add-button"
+                        onClick={addParam}
+                        className={connectorClasses.addParameterBtn}
+                        startIcon={<AddIcon/>}
+                        color="primary"
+                        disabled={(syntaxDiag !== "") || readonly}
+                    >
+                        Add Payload
+                    </Button>
+                </div>
+            )}
+            {addingParam && payloadState && (
+                <ParamEditor
+                    param={{id: 0, name: payloadState?.name, dataType: payloadState?.type}}
+                    syntaxDiag={syntaxDiag}
+                    onChange={onParamChange}
+                    onUpdate={paramEditInProgress ? onUpdate : null}
+                    onAdd={!paramEditInProgress ? onSave : null}
+                    onCancel={onCancelAddParam}
+                    nameDiagnostics={nameSemDiag}
+                    typeDiagnostics={typeSemDiag}
+                    disabled={readonly}
+                />
+            )}
+            {!addingParam && payloadState && (
+                <ParamItem
+                    param={{
+                        id: 0, name: payloadState?.name, type: payloadState?.type, option: "Payload"
+                    }}
+                    readonly={readonly}
+                    onDelete={onDelete}
+                    onEditClick={onEdit}
+                />
+            )}
         </div>
     );
 }

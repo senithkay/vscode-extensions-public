@@ -83,6 +83,7 @@ export function ResourceForm(props: FunctionProps) {
     const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.
         returnTypeDesc?.type?.source?.trim() : "");
     const [isAdvanceView, setIsAdvanceView] = useState<boolean>(false);
+    const [isPayloadInProgress, setIsPayloadInProgress] = useState(false);
     const [advancedParams, setAdvancedParams] = useState<AdvancedParams>(genAdvancedParams);
     const [isEdited, setIsEdited] = useState<boolean>(false);
 
@@ -205,20 +206,14 @@ export function ResourceForm(props: FunctionProps) {
     const debouncedReturnTypeChange = debounce(onReturnTypeChange, 800);
 
     // Payload related functions
-    const handlePayloadSelect = async (text: string[]) => {
-        if (text) {
-            if (text.length > 0) {
-                await handleResourceParamChange(functionName, path, generateParamString(queryParam,
-                    getPayloadString({name: "payload", type: "json"}), advancedString), "",
-                    false, false, returnType);
-            } else {
-                await handleResourceParamChange(functionName, path, generateParamString(queryParam, "",
-                    advancedString), "", false, false, returnType)
-            }
-        }
-    };
-    const handlePayloadChange = async (text: string) => {
+    const handlePayloadChange = async (text: string, payload: Payload, avoidValueCommit?: boolean) => {
         setCurrentComponentName("Payload");
+        if (!avoidValueCommit) {
+            setAdvancedParams({
+                requestParamName: advancedParams.requestParamName, headerParamName: advancedParams.headerParamName,
+                callerParamName: advancedParams.callerParamName, payload
+            });
+        }
         await handleResourceParamChange(functionName, path, generateParamString(queryParam, text, advancedString),
             "", undefined, undefined, returnType);
     };
@@ -258,6 +253,10 @@ export function ResourceForm(props: FunctionProps) {
         setIsQueryInProgress(isInProgress);
     };
 
+    const handlePayloadChangeInProgress = (isInProgress: boolean) => {
+        setIsPayloadInProgress(isInProgress);
+    };
+
     useEffect(() => {
         if (model) {
             if (!isParamInProgress) {
@@ -266,13 +265,15 @@ export function ResourceForm(props: FunctionProps) {
             if (!isQueryInProgress) {
                 setQueryParam(generateQueryParamFromST(model?.functionSignature?.parameters));
             }
+            const defaultAdvancedParams = generatePayloadParamFromST(model?.functionSignature?.parameters);
+            if (!isPayloadInProgress) {
+                setAdvancedParams(defaultAdvancedParams);
+            }
         } else {
             setPath("");
         }
         setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
         setFunctionName(model?.functionName?.value);
-        const defaultAdvancedParams = generatePayloadParamFromST(model?.functionSignature?.parameters);
-        setAdvancedParams(defaultAdvancedParams);
     }, [model]);
 
     return (
@@ -358,24 +359,17 @@ export function ResourceForm(props: FunctionProps) {
                                 typeSemDiag={paramDiagnostics?.queryTypeSemDiagnostic}
                                 onChange={handleQueryParamEditorChange}
                             />
-                            <CheckBoxGroup
-                                values={["Add Payload"]}
-                                defaultValues={!payloadString ? [] : ['Add Payload']}
-                                withMargins={false}
-                                onChange={handlePayloadSelect}
+                            <PayloadEditor
+                                payload={advancedParams.payload}
+                                onChange={handlePayloadChange}
+                                typeSemDiag={paramDiagnostics?.payloadTypeSemDiagnostic}
+                                nameSemDiag={paramDiagnostics?.payloadNameSemDiagnostic}
+                                syntaxDiag={currentComponentSyntaxDiag ?
+                                    currentComponentSyntaxDiag[0].message : ""}
+                                readonly={isParamInProgress || isQueryInProgress || ((currentComponentSyntaxDiag?.
+                                    length > 0) && currentComponentName !== "Payload")}
+                                onChangeInProgress={handlePayloadChangeInProgress}
                             />
-                            {payloadString && (
-                                <PayloadEditor
-                                    payload={advancedParams.payload}
-                                    onChange={handlePayloadChange}
-                                    typeSemDiag={paramDiagnostics?.payloadTypeSemDiagnostic}
-                                    nameSemDiag={paramDiagnostics?.payloadNameSemDiagnostic}
-                                    syntaxDiag={currentComponentSyntaxDiag ?
-                                        currentComponentSyntaxDiag[0].message : ""}
-                                    readonly={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
-                                        && currentComponentName !== "Payload")}
-                                />
-                            )}
                             <AdvancedParamEditor
                                 callerName={advancedParams?.callerParamName}
                                 requestName={advancedParams?.requestParamName}
@@ -423,13 +417,13 @@ export function ResourceForm(props: FunctionProps) {
                                     onClick={handleOnSave}
                                     disabled={(currentComponentSyntaxDiag !== undefined) ||
                                         (pathTypeSemDiagnostics !== "") || (pathNameSemDiagnostics !== "") ||
-                                        (paramDiagnostics?.queryTypeSemDiagnostic !== "") ||
-                                        (paramDiagnostics?.queryNameSemDiagnostic !== "") ||
-                                        (paramDiagnostics?.payloadNameSemDiagnostic !== "") ||
-                                        (paramDiagnostics?.payloadTypeSemDiagnostic !== "") ||
-                                        (paramDiagnostics?.requestNameSemDiagnostics !== "") ||
-                                        (paramDiagnostics?.callerNameSemDiagnostics !== "") ||
-                                        (paramDiagnostics?.headersNameSemDiagnostics !== "") ||
+                                        (!!paramDiagnostics?.queryTypeSemDiagnostic) ||
+                                        (!!paramDiagnostics?.queryNameSemDiagnostic) ||
+                                        (!!paramDiagnostics?.payloadNameSemDiagnostic) ||
+                                        (!!paramDiagnostics?.payloadTypeSemDiagnostic) ||
+                                        (!!paramDiagnostics?.requestNameSemDiagnostics) ||
+                                        (!!paramDiagnostics?.callerNameSemDiagnostics) ||
+                                        (!!paramDiagnostics?.headersNameSemDiagnostics) ||
                                         (model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)}
                                 />
                             </div>
