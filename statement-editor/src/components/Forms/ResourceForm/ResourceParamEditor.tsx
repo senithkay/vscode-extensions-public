@@ -244,6 +244,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                     optionList={paramOptions}
                     enabledOptions={paramOptions}
                     dataTypeReqOptions={paramOptions}
+                    alternativeName={draftParam.option === headerParameterOption ? "Identifier Name" : "Name"}
                     isEdit={false}
                     isTypeReadOnly={false}
                     option={queryParameterOption}

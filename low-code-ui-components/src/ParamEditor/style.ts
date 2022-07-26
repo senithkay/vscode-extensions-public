@@ -124,6 +124,12 @@ export const useStyles = makeStyles((theme: Theme) =>
         actionBtn: {
             fontSize: 13,
         },
+        addHeaderBtn: {
+            paddingLeft: 0,
+            marginTop: 6,
+            textTransform: 'initial',
+            marginLeft: -200
+        }
     }),
 );
 

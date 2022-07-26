@@ -14,6 +14,7 @@ import React from "react";
 
 import {
     CallerIcon,
+    HeaderIcon,
     ParamIcon,
     PayloadIcon,
     QueryIcon,
@@ -38,6 +39,8 @@ export function ParamIcons(props: Props) {
         return <RequestIcon />;
     } else if (props?.option === "Caller") {
         return <CallerIcon />;
+    } else if (props?.option === "Header") {
+        return <HeaderIcon/>;
     }
     return null;
 }

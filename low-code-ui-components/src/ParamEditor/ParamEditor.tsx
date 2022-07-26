@@ -14,6 +14,8 @@
 
 import React, { useEffect, useState } from 'react';
 
+import { Button } from "@material-ui/core";
+import { default as AddIcon } from "@material-ui/icons/Add";
 import debounce from "lodash.debounce";
 
 import { PrimaryButton, SecondaryButton } from "../buttons";
@@ -247,30 +249,42 @@ export function ParamEditor(props: ParamProps) {
                         />
                     </div>
                 )}
-            </div><div className={classes.headerNameWrapper}>
-            {(selectedOption === headerParameterOption && isHeaderConfigInProgress) && (
-                <FormTextInput
-                    label="Header Name"
-                    dataTestId="header-name"
-                    defaultValue={paramHeaderName}
-                    onChange={debouncedHeaderNameChange}
-                    customProps={{
-                        isErrored: ((syntaxDiag !== "" && currentComponentName === "HeaderName") ||
-                            (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
-                        optional: true
-                    }}
-                    errorMessage={((currentComponentName === "HeaderName" && (syntaxDiag) ? syntaxDiag : "")
-                        || nameDiagnostics)}
-                    onBlur={null}
-                    placeholder={"Enter Header Name"}
-                    size="small"
-                    disabled={syntaxDiag && currentComponentName !== "HeaderName"}
-                />
-            )}
+            </div>
+            <>
+                {(selectedOption === headerParameterOption && isHeaderConfigInProgress) && (
+                    <div className={classes.headerNameWrapper}>
+                        <FormTextInput
+                            label="Header Name"
+                            dataTestId="header-name"
+                            defaultValue={paramHeaderName}
+                            onChange={debouncedHeaderNameChange}
+                            customProps={{
+                                isErrored: ((syntaxDiag !== "" && currentComponentName === "HeaderName") ||
+                                    (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
+                                optional: true
+                            }}
+                            errorMessage={((currentComponentName === "HeaderName" && (syntaxDiag) ? syntaxDiag : "")
+                                || nameDiagnostics)}
+                            onBlur={null}
+                            placeholder={"Enter Header Name"}
+                            size="small"
+                            disabled={syntaxDiag && currentComponentName !== "HeaderName"}
+                        />
+                    </div>
+                )}
+            </>
             {(selectedOption === headerParameterOption && !isHeaderConfigInProgress) && (
-                <div onClick={handleShowHeaderName}>If identifier not equal header name</div>
+                <Button
+                    data-test-id="request-add-button"
+                    onClick={handleShowHeaderName}
+                    className={classes.addHeaderBtn}
+                    startIcon={<AddIcon/>}
+                    color="primary"
+                    disabled={(syntaxDiag !== "") || disabled}
+                >
+                    If identifier not equal header name
+                </Button>
             )}
-        </div>
             {!hideButtons && (
                 <div className={classes.btnContainer}>
                     <SecondaryButton
