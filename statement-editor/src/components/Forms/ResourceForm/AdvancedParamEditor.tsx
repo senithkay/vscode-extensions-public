@@ -203,7 +203,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
     return (
         <div>
             <div className={classes.advancedParamWrapper}>
-                <div className={classes.advancedParamHeader}>Advanced Params </div>
+                <div className={classes.advancedParamHeader}>Advanced Parameters </div>
                 <Button className={classes.advancedParamBtn} onClick={handleMoreSelect}>
                     {isMore ? "Hide" : "Show"}
                 </Button>

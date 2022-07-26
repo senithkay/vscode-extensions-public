@@ -11,7 +11,6 @@
  * associated services.
  */
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import {theme} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
