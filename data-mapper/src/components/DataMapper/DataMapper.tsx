@@ -31,7 +31,7 @@ export interface DataMapperProps {
     applyModifications: (modifications: STModification[]) => void;
 }
 
-enum ViewOption {
+export enum ViewOption {
     EXPAND,
     COLLAPSE
 }
@@ -43,7 +43,7 @@ export interface SelectionState {
 
 const selectionReducer = (state: SelectionState, action: {type: ViewOption, payload: SelectionState }) => {
     if (action.type === ViewOption.EXPAND) {
-        const previousST = !!state?.prevST ? [...state.prevST] : [state.selectedST];
+        const previousST = !!state.prevST.length ? [...state.prevST] : [state.selectedST];
         return { selectedST: action.payload.selectedST, prevST: previousST};
     }
     if (action.type === ViewOption.COLLAPSE) {
@@ -59,11 +59,12 @@ function DataMapperC(props: DataMapperProps) {
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
-        selectedST: fnST
+        selectedST: fnST,
+        prevST: []
     });
 
-    const handleSelectedST = (s: SelectionState) => {
-        dispatchSelection({type: ViewOption.EXPAND, payload: s});
+    const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState) => {
+        dispatchSelection({type: mode, payload: selectionState});
     }
 
     useEffect(() => {

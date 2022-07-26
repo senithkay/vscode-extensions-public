@@ -5,7 +5,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { SelectionState } from "../../components/DataMapper/DataMapper";
+import { SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
@@ -18,7 +18,7 @@ export interface IDataMapperContext {
         size: number
     };
     stSymbolInfo: STSymbolInfo;
-    changeSelection: (selection: SelectionState) => void;
+    changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
     applyModifications: (modifications: STModification[]) => void;
 }
 
@@ -35,7 +35,7 @@ export class DataMapperContext implements IDataMapperContext {
             size: number
         },
         public stSymbolInfo: STSymbolInfo,
-        public changeSelection: (selection: SelectionState) => void,
+        public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
         public applyModifications: (modifications: STModification[]) => void
     ){}
 

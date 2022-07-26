@@ -19,11 +19,16 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import ExpandIcon from "../../../../assets/icons/ExpandIcon";
+import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
 import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 
-import { QueryExpressionNode, QUERY_SOURCE_PORT_PREFIX, QUERY_TARGET_PORT_PREFIX } from './QueryExpressionNode';
+import {
+	QueryExpressionNode,
+	QUERY_SOURCE_PORT_PREFIX,
+	QUERY_TARGET_PORT_PREFIX
+} from './QueryExpressionNode';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
@@ -89,10 +94,11 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 		}
 
 		const onClickOnExpand = () => {
-			node.context.changeSelection({
-				...node.context.selection,
-				selectedST: node.value
-			})
+			node.context.changeSelection(ViewOption.EXPAND,
+				{
+					...node.context.selection,
+					selectedST: node.value
+				})
 		}
 
 		return (
