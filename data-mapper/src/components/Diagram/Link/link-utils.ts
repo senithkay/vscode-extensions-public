@@ -16,9 +16,8 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     return false;
 }
 
-export function generateQueryExpression(srcExpr: string, srcType: RecordTypeDesc, targetType: RecordTypeDesc) {
+export function generateQueryExpression(srcExpr: string,  targetType: RecordTypeDesc) {
 
-    const srcFields = srcType.fields.filter((field) => STKindChecker.isRecordField(field)) as RecordField[];
     const targetFields = targetType.fields.filter((field) => STKindChecker.isRecordField(field)) as RecordField[];
 
     return `from var item in ${srcExpr}

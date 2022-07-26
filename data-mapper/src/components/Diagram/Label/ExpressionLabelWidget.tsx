@@ -44,26 +44,12 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const onClickConvertToQuery = () => {
 		if (canUseQueryExpr) {
 			const link = props.model.link;
-			const sourcePort = link.getSourcePort() as DataMapperPortModel;
 			const targetPort = link.getTargetPort() as DataMapperPortModel;
 
-			if (STKindChecker.isRecordField(sourcePort.field)) {
-				const fieldType = sourcePort.field.typeName;
-				if (STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
-					let querySrc = "";
-					if (STKindChecker.isRecordField(targetPort.field)) {
-						const targetType = targetPort.field.typeName;
-						if (STKindChecker.isArrayTypeDesc(targetType) && STKindChecker.isRecordTypeDesc(targetType.memberTypeDesc)) {
-							props.model.context.changeSelection({
-								...props.model.context.selection,
-								inST: fieldType.memberTypeDesc,
-								outST: targetType.memberTypeDesc
-							});
-							querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, targetType.memberTypeDesc);
-						}
-					}
-					// const querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, targetType.memberTypeDesc);
-					console.log(querySrc);
+			if (STKindChecker.isRecordField(targetPort.field)) {
+				const targetType = targetPort.field.typeName;
+				if (STKindChecker.isArrayTypeDesc(targetType) && STKindChecker.isRecordTypeDesc(targetType.memberTypeDesc)) {
+					const querySrc = generateQueryExpression(link.value.source, targetType.memberTypeDesc);
 					if (link.value) {
 						const position = link.value.position as NodePosition;
 						const applyModification = props.model.context.applyModifications;

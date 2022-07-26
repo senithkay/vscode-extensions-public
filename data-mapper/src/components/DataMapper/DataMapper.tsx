@@ -38,19 +38,17 @@ enum ViewOption {
 
 export interface SelectionState {
     selectedST: STNode;
-    inST?: STNode;
-    outST?: STNode;
     prevST?: STNode[];
 }
 
 const selectionReducer = (state: SelectionState, action: {type: ViewOption, payload: SelectionState }) => {
     if (action.type === ViewOption.EXPAND) {
         const previousST = !!state?.prevST ? [...state.prevST] : [state.selectedST];
-        return { selectedST: action.payload.selectedST, prevST: previousST, inST: action.payload.inST, outST: action.payload.outST };
+        return { selectedST: action.payload.selectedST, prevST: previousST};
     }
     if (action.type === ViewOption.COLLAPSE) {
         const prevSelection = state.prevST.pop();
-        return { selectedST: prevSelection, prevST: [...state.prevST], inST: action.payload.inST, outST: action.payload.outST };
+        return { selectedST: prevSelection, prevST: [...state.prevST]};
     }
     return { selectedST: action.payload.selectedST };
 };
