@@ -14,7 +14,7 @@
 import React, { useContext } from "react";
 import { useIntl } from "react-intl";
 
-import { Box } from "@material-ui/core";
+import { Box, FormControl } from "@material-ui/core";
 import {
     FunctionDefinitionInfo,
     genVariableName,
@@ -32,6 +32,7 @@ import {
     getInitialSource,
 } from "../../../../../utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
+import { wizardStyles as useFormStyles } from "../../style";
 import { getDefaultParams, getFormFieldReturnType, getReturnTypeImports } from "../util";
 
 interface ActionFormProps {
@@ -40,6 +41,8 @@ interface ActionFormProps {
 }
 
 export function ActionForm(props: FormGeneratorProps) {
+    const formClasses = useFormStyles();
+
     const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
@@ -63,10 +66,10 @@ export function ActionForm(props: FormGeneratorProps) {
     let imports = new Set<string>();
 
     if (model && model.source) {
-        // Update existing action
+        // Update existing endpoint
         initialSource = model.source;
     } else {
-        // Adding new action
+        // Adding new endpoint
         const defaultParameters = getDefaultParams(action.parameters);
         const returnType = getFormFieldReturnType(action.returnType);
         imports = getReturnTypeImports(returnType);
@@ -102,9 +105,11 @@ export function ActionForm(props: FormGeneratorProps) {
     return (
         <>
             {isLoading && (
-                <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                    <TextPreLoader position="absolute" text="Loading action..." />
-                </Box>
+                <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
+                    <Box display="flex" justifyContent="center" width="100%">
+                        <TextPreLoader position="absolute" text="Loading action..." />
+                    </Box>
+                </FormControl>
             )}
             {!isLoading &&
                 StatementEditorWrapper({
