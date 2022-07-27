@@ -27,8 +27,6 @@ export async function getDiagnostics(
         }
     });
 
-    console.log({"diagnosticlogs":diagnostics})
-
     return diagnostics;
 }
 

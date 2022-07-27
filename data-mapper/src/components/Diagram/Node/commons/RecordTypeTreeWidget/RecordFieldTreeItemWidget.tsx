@@ -122,10 +122,6 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         </span>
     );
 
-    if ((STKindChecker.isRecordField(field) && STKindChecker.isSimpleNameReference(field.typeName) )){
-        console.log({"tpedesclog":field})
-    }
-
     const handleExpand = () => {
         //TODO Enable expand collapse functionality
         // setExpanded(!expanded)
