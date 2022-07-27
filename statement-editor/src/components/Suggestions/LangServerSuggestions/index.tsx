@@ -19,6 +19,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
+    ACTION,
     FUNCTION_COMPLETION_KIND,
     METHOD_COMPLETION_KIND,
     PROPERTY_COMPLETION_KIND
@@ -27,6 +28,7 @@ import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getExprWithArgs } from "../../../utils";
+import { getActionExprWithArgs } from "../../Parameters/ParameterTree/utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
 
 import { SuggestionsList } from "./SuggestionsList";
@@ -46,7 +48,13 @@ export function LSSuggestions() {
             lsSuggestions,
             lsSecondLevelSuggestions
         },
-        targetPosition
+        formCtx: {
+            formArgs: {
+                connector,
+            }
+        },
+        targetPosition,
+        config
     } = useContext(StatementEditorContext);
     const selectionForSecondLevel = lsSecondLevelSuggestions?.selection;
     const secondLevelSuggestions = lsSecondLevelSuggestions?.secondLevelSuggestions;
@@ -93,7 +101,9 @@ export function LSSuggestions() {
         let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
         const prefix = (inputEditorCtx.userInput.includes('.') && resourceAccessRegex.exec(inputEditorCtx.userInput)[0])
             || suggestion.prefix ;
-        if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
+        if (config.type === ACTION && completionKind === FUNCTION_COMPLETION_KIND) {
+            value = getActionExprWithArgs(value, connector);
+        } else if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
             value = getExprWithArgs(value, prefix);
         } else if (prefix) {
             value = prefix + value;

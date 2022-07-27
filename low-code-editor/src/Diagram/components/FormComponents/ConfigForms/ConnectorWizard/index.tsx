@@ -304,7 +304,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                 // TODO: Remove this when cleaning old forms
                 <ConnectorConfigWizard
                     position={diagramPosition}
-                    connectorInfo={selectedConnector?.package ? selectedConnector : connectorInfo}
+                    connectorInfo={selectedConnector}
                     endpointName={selectedEndpoint}
                     targetPosition={targetPosition}
                     model={model}
@@ -325,6 +325,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                         formType: "ActionForm",
                         formArgs: {
                             action: selectedAction,
+                            connector: selectedConnector,
                             endpointName: selectedEndpoint,
                         },
                         isLoading,
