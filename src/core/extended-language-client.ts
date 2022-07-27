@@ -616,31 +616,36 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     async getBalShellResult(params: NoteBookCellOutputRequest): Promise<NoteBookCellOutputResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESULT);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESULT);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_RESULT, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
     async getShellBufferFilePath(): Promise<NotebookFileSourceResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
     async restartNotebook(): Promise<boolean | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESTART);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESTART);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_RESTART) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
     async getNotebookVariables(): Promise<NotebookVariable[] | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_VARIABLES);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_VARIABLES);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_VARIABLES) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
     async deleteDeclarations(params: NotebookDeleteDclnRequest): Promise<boolean | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS);
+        const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS, params) :
             Promise.resolve(NOT_SUPPORTED);
     }

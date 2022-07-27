@@ -42,7 +42,8 @@ export class BallerinaNotebookController {
 
     private ballerinaExtension: BallerinaExtension;
     private variableView: VariableViewProvider;
-    private metaInfoHandler: MetoInfoHandler;
+    private isSupported: boolean;
+    private metaInfoHandler: MetaInfoHandler;
     private readonly controller: NotebookController;
     private executionOrder = 0;
 
@@ -52,10 +53,11 @@ export class BallerinaNotebookController {
      * @param extensionInstance Ballerina extension instance
      * @param variableViewProvider Provider for variable view
      */
-    constructor(extensionInstance: BallerinaExtension, variableViewProvider: VariableViewProvider) {
+    constructor(extensionInstance: BallerinaExtension, variableViewProvider: VariableViewProvider, isSupported: boolean) {
         this.ballerinaExtension = extensionInstance;
         this.variableView = variableViewProvider;
-        this.metaInfoHandler = new MetoInfoHandler();
+        this.isSupported = isSupported;
+        this.metaInfoHandler = new MetaInfoHandler();
 
         this.controller = notebooks.createNotebookController(
             this.controllerId,
@@ -83,14 +85,30 @@ export class BallerinaNotebookController {
      * 
      * @param cells Set of notebook cells to execute.
      * @param _notebook Notebook document
-     * @param controller Notebook controller
+     * @param _controller Notebook controller
      */
     private async execute(cells: NotebookCell[], _notebook: NotebookDocument,
-        controller: NotebookController): Promise<void> {
+        _controller: NotebookController): Promise<void> {
         for (let cell of cells) {
+            if (!this.isSupported) {
+                this.doNotSupportedExecution(cell);
+                continue;
+            }
             await this.doExecution(cell);
             this.updateVariableView(); // update the variable view to reflect changes
         }
+    }
+
+    private doNotSupportedExecution(cell: NotebookCell): void {
+        sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK, CMP_NOTEBOOK);
+        const execution = this.controller.createNotebookCellExecution(cell);
+        execution.executionOrder = ++this.executionOrder;
+        execution.start(Date.now());
+        execution.clearOutput();
+        execution.appendOutput([new NotebookCellOutput([
+            NotebookCellOutputItem.text("Incompatible ballerina version.")
+        ])]);
+        execution.end(false, Date.now());
     }
 
     private async doExecution(cell: NotebookCell): Promise<void> {
@@ -211,7 +229,7 @@ export class BallerinaNotebookController {
                 appendFailedToDeleteErrorMsg(failedVars);
             }
 
-            // end execution with succes or fail
+            // end execution with success or fail
             // success if there are no diagnostics and errors
             execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
         } catch (error) {
@@ -309,11 +327,11 @@ interface CellInfo {
  * - varToCellMap will hold the last successfully executed cell for each variable 
  *   and module declaration
  * - On an event of empty cell invocation or cell delete variables and module dclns
- *   need to be deleted will be identified by ensuring that each associated meto info 
+ *   need to be deleted will be identified by ensuring that each associated meta info 
  *   for the cell are mapped to the cell in varToCellMap. If not matched those values 
  *   have defined and executed in another cell after the execution of this cell.
  */
-class MetoInfoHandler {
+class MetaInfoHandler {
     private cellInfoList: CellInfo[];
     // NotebookCell instead of uri to address changes in notebook cell order
     // (which affects uri) due to add, delete, join, and split.
