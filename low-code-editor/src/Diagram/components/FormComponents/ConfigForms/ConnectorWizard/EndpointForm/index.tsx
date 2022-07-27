@@ -14,7 +14,7 @@
 import React, { useContext } from "react";
 import { useIntl } from "react-intl";
 
-import { Box } from "@material-ui/core";
+import { Box, FormControl } from "@material-ui/core";
 import {
     BallerinaConnectorInfo,
     genVariableName,
@@ -27,6 +27,7 @@ import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
 import { createCheckObjectDeclaration, createObjectDeclaration, getInitialSource } from "../../../../../utils";
 import { getFormattedModuleName } from "../../../../Portals/utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
+import { wizardStyles as useFormStyles } from "../../style";
 import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "../util";
 
 interface EndpointFormProps {
@@ -35,6 +36,8 @@ interface EndpointFormProps {
 }
 
 export function EndpointForm(props: FormGeneratorProps) {
+    const formClasses = useFormStyles();
+
     const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
@@ -102,13 +105,16 @@ export function EndpointForm(props: FormGeneratorProps) {
     return (
         <>
             {isLoading && (
-                <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                    <TextPreLoader position="absolute" text="Loading connector..." />
-                </Box>
+                <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControlExtended}>
+                    <Box display="flex" justifyContent="center" width="100%">
+                        <TextPreLoader position="absolute" text="Loading connector..." />
+                    </Box>
+                </FormControl>
             )}
             {!isLoading &&
+                connector?.functions?.length > 0 &&
                 StatementEditorWrapper({
-                    label: formTitle,
+                    label:  formTitle,
                     initialSource,
                     formArgs: { formArgs },
                     config: { type: "Connector" },
