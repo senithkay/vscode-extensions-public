@@ -111,7 +111,7 @@ export function ActionForm(props: FormGeneratorProps) {
                     </Box>
                 </FormControl>
             )}
-            {!isLoading &&
+            {!isLoading && action &&
                 StatementEditorWrapper({
                     label: formTitle,
                     initialSource,

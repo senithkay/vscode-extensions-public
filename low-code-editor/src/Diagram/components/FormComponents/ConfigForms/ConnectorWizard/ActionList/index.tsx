@@ -119,7 +119,7 @@ export function ActionList(props: FormGeneratorProps) {
                                 </div>
                             </>
                         )}
-                        {!isLoading && filteredActions?.length === 0 && (
+                        {!isLoading && (filteredActions?.length === 0 || !actions) && (
                             <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
                                 <Typography className={classes.subTitle}>
                                     <FormattedMessage
