@@ -57,12 +57,11 @@ export class QueryExprSourceNode extends DataMapperNodeModel {
     }
 
     private async getSourceType() {
-        const sourceFieldAccess = this.value.expression;
+        const expr = this.value.expression;
         const bindingPattern = this.value.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
-            if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
-                const expr = sourceFieldAccess as FieldAccess;
+            if (STKindChecker.isFieldAccess(expr)) {
                 this.sourceTypeDesc = await getTypeDescForFieldName(expr.fieldName, this.context);
             }
         }

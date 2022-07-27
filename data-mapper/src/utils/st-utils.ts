@@ -14,8 +14,10 @@ import { IDataMapperContext } from "./DataMapperContext/DataMapperContext";
 export async function getTypeDefinitionForTypeDesc(typeDesc: STNode,
                                                    context: IDataMapperContext): Promise<TypeDefinition> {
 
-    if (typeDesc && STKindChecker.isSimpleNameReference(typeDesc)) {
-        const { position } = typeDesc;
+    const isSimpleNameReference = STKindChecker.isSimpleNameReference(typeDesc);
+    const isQualifiedNameReference = STKindChecker.isQualifiedNameReference(typeDesc);
+    if (typeDesc && (isSimpleNameReference || isQualifiedNameReference)) {
+        const { position } = isSimpleNameReference ? typeDesc : typeDesc.identifier;
         const langClient = await context.getLangClient();
 
         const defReply = await langClient.definition({
@@ -96,22 +98,9 @@ export async function getTypeDescForFieldName(fieldName: STNode, context: IDataM
                         typeDesc = mem.typeDescriptor as RecordTypeDesc;
                     } else if (mem.position.startLine <= start.line
                         && mem.position.endLine >= end.line
-                        && STKindChecker.isRecordTypeDesc(mem.typeDescriptor)) {
-                        {
-                            mem.typeDescriptor.fields.forEach((field) => {
-                                if (STKindChecker.isRecordField(field)) {
-                                    const { startLine : sl, startColumn : sc, endLine : el, endColumn : ec } = field.fieldName.position as NodePosition;
-                                    if (sl === start.line
-                                        && sc === start.character
-                                        && el === end.line
-                                        && ec === end.character) {
-                                        if (STKindChecker.isArrayTypeDesc(field.typeName)) {
-                                            typeDesc = field.typeName.memberTypeDesc as RecordTypeDesc;
-                                        }
-                                    }
-                                }
-                            })
-                        }
+                        && STKindChecker.isRecordTypeDesc(mem.typeDescriptor))
+                    {
+                        typeDesc = findRecordTypeDesc(mem.typeDescriptor, defLoc);
                     }
                 }
             })
@@ -125,4 +114,65 @@ export async function getTypeDescForFieldName(fieldName: STNode, context: IDataM
 
 export function isObject (item: any) {
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
+}
+
+// function findRecordTypeDesc(members: RecordTypeDesc, expectedLocation: Location): RecordTypeDesc {
+//     const { start, end } = expectedLocation.range;
+//     for (const field of members.fields) {
+//         if (STKindChecker.isRecordField(field)) {
+//             const {startLine, startColumn, endLine, endColumn } = field.fieldName.position as NodePosition;
+//             if (startLine === start.line
+//                 && startColumn === start.character
+//                 && endLine === end.line
+//                 && endColumn === end.character
+//                 && STKindChecker.isArrayTypeDesc(field.typeName))
+//             {
+//                 return field.typeName.memberTypeDesc as RecordTypeDesc;
+//             } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
+//                 findRecordTypeDesc(field.typeName, expectedLocation);
+//             }
+//         }
+//     }
+//     return undefined;
+// }
+
+// function findRecordTypeDesc(members: RecordTypeDesc, expectedLocation: Location): RecordTypeDesc {
+//     const { start, end } = expectedLocation.range;
+//     const typeDesc = members.fields.map((field) => {
+//         if (STKindChecker.isRecordField(field)) {
+//             const {startLine, startColumn, endLine, endColumn } = field.fieldName.position as NodePosition;
+//             if (startLine === start.line
+//                 && startColumn === start.character
+//                 && endLine === end.line
+//                 && endColumn === end.character
+//                 && STKindChecker.isArrayTypeDesc(field.typeName))
+//             {
+//                 return field.typeName.memberTypeDesc as RecordTypeDesc;
+//             } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
+//                 return findRecordTypeDesc(field.typeName, expectedLocation);
+//             } else {
+//                 return undefined;
+//             }
+//         }
+//     });
+//     return typeDesc[0];
+// }
+
+function findRecordTypeDesc(members: RecordTypeDesc, expectedLocation: Location): RecordTypeDesc {
+    const { start, end } = expectedLocation.range;
+    let typeDesc;
+    members.fields.map((field) => {
+        if (STKindChecker.isRecordField(field)) {
+            const {startLine, startColumn, endLine, endColumn } = field.fieldName.position as NodePosition;
+            if (startLine === start.line
+                && startColumn === start.character
+                && endLine === end.line
+                && endColumn === end.character
+                && STKindChecker.isArrayTypeDesc(field.typeName))
+            {
+                typeDesc = field.typeName.memberTypeDesc as RecordTypeDesc;
+            }
+        }
+    });
+    return typeDesc;
 }

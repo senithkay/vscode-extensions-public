@@ -39,13 +39,12 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode){
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
-        const hasOutputTypeDescDefined = STKindChecker.isSimpleNameReference(typeDesc) && !typeDesc.name.isMissing;
         const hasDraftOutputTypeDescDefined = STKindChecker.isSimpleNameReference(typeDesc)
             && STKindChecker.isIdentifierToken(typeDesc.name)
             && typeDesc.name.value === draftFunctionName;
 
         // create output node
-        if (!hasOutputTypeDescDefined || hasDraftOutputTypeDescDefined) {
+        if (hasDraftOutputTypeDescDefined) {
             this.outputNode = new AddOutputTypeNode(
                 this.context
             );
