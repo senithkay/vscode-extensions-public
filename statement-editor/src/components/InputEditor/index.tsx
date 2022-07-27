@@ -134,7 +134,8 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const clickAwayHandler = (event: any) => {
-        if (!event.path[0].className.includes("suggestion")){
+        const path = event.path || (event.composedPath && event.composedPath());
+        if (path && !path[0].className.includes("suggestion")){
             handleEditEnd();
         }
         setIsEditing(false);
