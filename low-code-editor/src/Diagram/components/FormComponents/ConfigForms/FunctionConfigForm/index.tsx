@@ -13,9 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from "react";
 
-import { Box, Button, Divider, FormControl } from "@material-ui/core";
+import { Button, Divider, FormControl } from "@material-ui/core";
 import { ConfigOverlayFormStatus, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { FunctionDefinition, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { AddIcon } from "../../../../../assets/icons";
@@ -24,8 +25,9 @@ import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import {
     createFunctionSignature,
     updateFunctionSignature,
-} from "../../../../utils/modification-util";
+} from "../../../../utils";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
+import { isStatementEditorSupported } from "../../Utils";
 import { VariableNameInput, VariableNameInputProps } from "../Components/VariableNameInput";
 import { VariableTypeInput, VariableTypeInputProps } from "../Components/VariableTypeInput";
 import { recalculateItemIds } from "../ResourceConfigForm/ApiConfigureWizard/util";
@@ -58,10 +60,11 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
 
     const {
-        props: { syntaxTree },
+        props: { syntaxTree, ballerinaVersion, currentFile },
         api: {
-            code: { modifyDiagram },
-        },
+            ls: { getExpressionEditorLangClient },
+            code: { modifyDiagram }
+        }
     } = useDiagramContext();
     const existingFunctionNames = useRef([]);
 
@@ -248,6 +251,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         initialDiagnostics: model?.functionSignature?.returnTypeDesc?.typeData?.diagnostics,
     }
 
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
+
     const isValidReturnType = returnType ? validReturnType : true;
     const paramElements: React.ReactElement[] = [];
     parameters.forEach((value, index) => {
@@ -279,54 +284,71 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
         }
     });
     return (
-        <FormControl data-testid="function-form" className={formClasses.wizardFormControl}  >
-            <FormHeaderSection
-                onCancel={onCancel}
-                formTitle={"lowcode.develop.configForms.functionForms.title"}
-                defaultMessage={"Function"}
-            />
-            <div className={formClasses.formContentWrapper}>
-                <div className={formClasses.formNameWrapper}>
-                    <VariableNameInput {...functionNameConfig} />
-                    <Divider className={formClasses.sectionSeperatorHR} />
-                    <Section title={"Parameters"}>
-                        {paramElements}
-                        {addingNewParam ? (
-                            <FunctionParamSegmentEditor
-                                id={parameters.length}
-                                onCancel={closeNewParamView}
-                                onSave={onSaveNewParam}
-                                validateParams={validateParams}
-                                position={paramPosition}
-                                isEdit={!!model}
-                                paramCount={parameters.length}
-                            />
-                        ) : (
-                                <Button
-                                    onClick={openNewParamView}
-                                    className={formClasses.addParameterBtn}
-                                    startIcon={<AddIcon />}
-                                    color="primary"
-                                >
-                                    Add parameter
-                                </Button>
-                        )}
-                    </Section>
-                    <Divider className={formClasses.sectionSeperatorHR} />
-                    <Section title={"Return Type"}>
-                        <VariableTypeInput {...returnTypeConfig} />
-                    </Section>
-                </div>
-            </div>
-            <FormActionButtons
-                cancelBtnText="Cancel"
-                cancelBtn={true}
-                saveBtnText="Save"
-                onSave={handleOnSave}
-                onCancel={onCancel}
-                validForm={(functionName.length > 0) && (isMainFunction || isFunctionNameValid)
-                    && !addingNewParam && isValidReturnType}
-            />
-        </FormControl>
+        <>
+            {statementEditorSupported ? (
+                <FormEditor
+                    initialSource={model ? model.source : undefined}
+                    initialModel={model}
+                    isLastMember={isLastMember}
+                    targetPosition={model ? model?.functionSignature?.position : targetPosition}
+                    onCancel={onCancel}
+                    type={isMainFunction ? MAIN_TEXT : "Function"}
+                    currentFile={currentFile}
+                    getLangClient={getExpressionEditorLangClient}
+                    applyModifications={modifyDiagram}
+                    topLevelComponent={true} // todo: Remove this
+                />
+            ) : (
+                <FormControl data-testid="function-form" className={formClasses.wizardFormControl}  >
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={"lowcode.develop.configForms.functionForms.title"}
+                        defaultMessage={"Function"}
+                    />
+                    <div className={formClasses.formContentWrapper}>
+                        <div className={formClasses.formNameWrapper}>
+                            <VariableNameInput {...functionNameConfig} />
+                            <Divider className={formClasses.sectionSeperatorHR} />
+                            <Section title={"Parameters"}>
+                                {paramElements}
+                                {addingNewParam ? (
+                                    <FunctionParamSegmentEditor
+                                        id={parameters.length}
+                                        onCancel={closeNewParamView}
+                                        onSave={onSaveNewParam}
+                                        validateParams={validateParams}
+                                        position={paramPosition}
+                                        isEdit={!!model}
+                                        paramCount={parameters.length}
+                                    />
+                                ) : (
+                                    <Button
+                                        onClick={openNewParamView}
+                                        className={formClasses.addParameterBtn}
+                                        startIcon={<AddIcon />}
+                                        color="primary"
+                                    >
+                                        Add parameter
+                                    </Button>
+                                )}
+                            </Section>
+                            <Divider className={formClasses.sectionSeperatorHR} />
+                            <Section title={"Return Type"}>
+                                <VariableTypeInput {...returnTypeConfig} />
+                            </Section>
+                        </div>
+                    </div>
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        cancelBtn={true}
+                        saveBtnText="Save"
+                        onSave={handleOnSave}
+                        onCancel={onCancel}
+                        validForm={(functionName.length > 0) && (isMainFunction || isFunctionNameValid)
+                            && !addingNewParam && isValidReturnType}
+                    />
+                </FormControl>
+            )}
+        </>
     );
 }

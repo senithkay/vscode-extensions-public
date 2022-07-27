@@ -10,27 +10,33 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useEffect, useReducer } from 'react';
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext, useReducer } from 'react';
 
 import { FormControl } from '@material-ui/core';
 import { ExpressionEditorProps } from '@wso2-enterprise/ballerina-expression-editor';
-import { FormElementProps, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormElementProps, getAllVariables, STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { FormActionButtons, FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { ModuleVarDecl, NodePosition } from '@wso2-enterprise/syntax-tree';
 
-import { useDiagramContext } from '../../../../../Contexts/Diagram';
-import { getAllModuleVariables } from '../../../../utils/mixins';
-import { createModuleVarDecl, updateModuleVarDecl } from '../../../../utils/modification-util';
-import { getVarNamePositionFromST } from '../../../../utils/st-util';
+import { Context } from '../../../../../Contexts/Diagram';
+import {
+    createModuleVarDecl,
+    getAllModuleVariables,
+    getVarNamePositionFromST,
+    updateModuleVarDecl
+} from '../../../../utils';
 import { genVariableName } from '../../../Portals/utils';
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import CheckBoxGroup from '../../FormFieldComponents/CheckBox';
 import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from '../../FormFieldComponents/TextField/TextLabel';
+import { isStatementEditorSupported } from "../../Utils";
 import { VariableNameInput } from '../Components/VariableNameInput';
 import { VariableTypeInput, VariableTypeInputProps } from '../Components/VariableTypeInput';
 
-import { getFormConfigFromModel, isFormConfigValid, ModuleVarNameRegex, VariableOptions } from './util';
+import { getFormConfigFromModel, isFormConfigValid, VariableOptions } from './util';
 import { ModuleVarFormActionTypes, moduleVarFormReducer } from './util/reducer';
 
 
@@ -45,23 +51,23 @@ interface ModuleVariableFormProps {
 
 export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const formClasses = useFormStyles();
-    const { api: { code: { modifyDiagram }, insights: { onEvent } }, props: { stSymbolInfo } } = useDiagramContext();
+    const {
+        props: {
+            ballerinaVersion,
+            currentFile,
+            syntaxTree,
+            importStatements,
+            experimentalEnabled,
+            stSymbolInfo
+        },
+        api: {
+            code: { modifyDiagram },
+            ls: { getExpressionEditorLangClient },
+            library
+        },
+    } = useContext(Context);
     const { onSave, onCancel, targetPosition, model, formType, isLastMember } = props;
     const [state, dispatch] = useReducer(moduleVarFormReducer, getFormConfigFromModel(model));
-    const variableTypes: string[] = ["int", "float", "boolean", "string", "json", "xml"];
-
-    // Insight event to send when loading the component
-    useEffect(() => {
-        // const event: LowcodeEvent = {
-        //     type: ADD_VARIABLE,
-        //     name: `${state.varType} ${state.varName} = ${state.varValue};`
-        // };
-        // onEvent(event);
-      }, []);
-
-    if (state.varOptions.indexOf(VariableOptions.PUBLIC) === -1) {
-        variableTypes.unshift('var');
-    }
 
     const handleOnSave = () => {
         const modifications: STModification[] = []
@@ -73,11 +79,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         }
         modifyDiagram(modifications);
         onSave();
-        // const event: LowcodeEvent = {
-        //     type: SAVE_VARIABLE,
-        //     name: `${state.varType} ${state.varName} = ${state.varValue};`
-        // };
-        // onEvent(event);
     }
 
     const onAccessModifierChange = (modifierList: string[]) => {
@@ -104,13 +105,6 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         dispatch({ type: ModuleVarFormActionTypes.SET_VAR_NAME, payload: value });
     }
 
-    const validateNameValue = (value: string) => {
-        if (value && value !== '') {
-            return ModuleVarNameRegex.test(value);
-        }
-        return true;
-    };
-
     const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
         model: {
             name: "valueExpression",
@@ -136,19 +130,16 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
     const enableSaveBtn: boolean = isFormConfigValid(state);
 
-    const typeSelectorCustomProps = {
-        disableCreateNew: true,
-        values: variableTypes,
-    };
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
-    const variableNameTextFieldCustomProps = {
-        validate: validateNameValue
-    };
-
-    const variableQualifierSelectorCustomProps = {
-        collection: Object.values(VariableOptions),
-        disabled: false
-    };
+    const formConfig = getFormConfigFromModel(model);
+    const visibilityQualifier = formConfig.varOptions.includes(VariableOptions.PUBLIC) ? 'public' : '';
+    const finalKeyword = formConfig.varOptions.includes(VariableOptions.FINAL) ? 'final' : '';
+    const varType = formConfig.varType ? formConfig.varType : 'var';
+    const varName = formConfig.varName ? formConfig.varName : genVariableName("variable",
+        getAllVariables(stSymbolInfo));
+    const varValue = formConfig.varValue ? formConfig.varValue : 'EXPRESSION';
+    const initialSource = `${visibilityQualifier} ${finalKeyword} ${varType} ${varName} = ${varValue};`
 
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
@@ -187,48 +178,76 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
 
 
     return (
-        <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
-            <FormHeaderSection
-                onCancel={onCancel}
-                formTitle={"lowcode.develop.configForms.ModuleVarDecl.title"}
-                defaultMessage={"Variables"}
-                formType={formType}
-            />
-            <div className={formClasses.formContentWrapper}>
-                <div className={formClasses.formNameWrapper}>
-                    <TextLabel
-                        textLabelId="lowcode.develop.configForms.ConstDecl.accessModifier"
-                        defaultMessage="Access Modifier :"
-                        required={true}
+        <>
+            {statementEditorSupported ? (
+                StatementEditorWrapper(
+                    {
+                        label: 'Variable',
+                        initialSource,
+                        formArgs: {formArgs: {
+                                targetPosition: model ? targetPosition : {
+                                    startLine: targetPosition.startLine, startColumn: targetPosition.startColumn
+                                }
+                            }},
+                        config: { type: formType, model},
+                        onWizardClose: onCancel,
+                        onCancel,
+                        currentFile,
+                        getLangClient: getExpressionEditorLangClient,
+                        applyModifications: modifyDiagram,
+                        library,
+                        syntaxTree,
+                        stSymbolInfo,
+                        importStatements,
+                        experimentalEnabled,
+                        isModuleVar: true
+                    }
+                )
+            ) : (
+                <FormControl data-testid="module-variable-config-form" className={formClasses.wizardFormControl}>
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={"lowcode.develop.configForms.ModuleVarDecl.title"}
+                        defaultMessage={"Variables"}
+                        formType={formType}
                     />
-                    <CheckBoxGroup
-                        values={['public', 'final']}
-                        defaultValues={state.varOptions}
-                        onChange={onAccessModifierChange}
+                    <div className={formClasses.formContentWrapper}>
+                        <div className={formClasses.formNameWrapper}>
+                            <TextLabel
+                                textLabelId="lowcode.develop.configForms.ConstDecl.accessModifier"
+                                defaultMessage="Access Modifier :"
+                                required={true}
+                            />
+                            <CheckBoxGroup
+                                values={['public', 'final']}
+                                defaultValues={state.varOptions}
+                                onChange={onAccessModifierChange}
+                            />
+                            {variableTypeInput}
+                            <VariableNameInput
+                                displayName={'Variable Name'}
+                                value={state.varName}
+                                onValueChange={handleOnVarNameChange}
+                                validateExpression={updateExpressionValidity}
+                                position={namePosition}
+                                isEdit={!!model}
+                                initialDiagnostics={model?.typedBindingPattern?.typeData?.diagnostics}
+                            />
+                            <LowCodeExpressionEditor
+                                {...expressionEditorConfig}
+                            />
+                        </div>
+                    </div>
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        cancelBtn={true}
+                        saveBtnText="Save"
+                        onSave={handleOnSave}
+                        onCancel={onCancel}
+                        validForm={enableSaveBtn}
                     />
-                    {variableTypeInput}
-                    <VariableNameInput
-                        displayName={'Variable Name'}
-                        value={state.varName}
-                        onValueChange={handleOnVarNameChange}
-                        validateExpression={updateExpressionValidity}
-                        position={namePosition}
-                        isEdit={!!model}
-                        initialDiagnostics={model?.typedBindingPattern?.typeData?.diagnostics}
-                    />
-                    <LowCodeExpressionEditor
-                        {...expressionEditorConfig}
-                    />
-                </div>
-            </div>
-            <FormActionButtons
-                cancelBtnText="Cancel"
-                cancelBtn={true}
-                saveBtnText="Save"
-                onSave={handleOnSave}
-                onCancel={onCancel}
-                validForm={enableSaveBtn}
-            />
-        </FormControl>
+                </FormControl>
+            )}
+        </>
     )
 }

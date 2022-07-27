@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { FormControl, Input, InputAdornment } from "@material-ui/core";
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
@@ -26,7 +27,6 @@ import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getExprWithArgs } from "../../../utils";
-import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
 
 import { SuggestionsList } from "./SuggestionsList";
@@ -72,20 +72,18 @@ export function LSSuggestions() {
         }
     }
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
-
     React.useEffect(() => {
 
-        const client = keyboardNavigationManager.getClient()
+        const client = KeyboardNavigationManager.getClient();
 
-        keyboardNavigationManager.bindNewKey(client, ['right'], changeSelected, 1);
-        keyboardNavigationManager.bindNewKey(client, ['left'], changeSelected, -1);
-        keyboardNavigationManager.bindNewKey(client, ['up'], changeSelected, -2);
-        keyboardNavigationManager.bindNewKey(client, ['down'], changeSelected, 2);
-        keyboardNavigationManager.bindNewKey(client, ['enter'], onClickLSSuggestion, Suggestions[selectedListItem]);
+        client.bindNewKey(['right'], changeSelected, 1);
+        client.bindNewKey(['left'], changeSelected, -1);
+        client.bindNewKey(['up'], changeSelected, -2);
+        client.bindNewKey(['down'], changeSelected, 2);
+        client.bindNewKey(['enter'], onClickLSSuggestion, Suggestions[selectedListItem]);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
+            client.resetMouseTrapInstance();
         }
     }, [selectedListItem]);
 

@@ -40,10 +40,15 @@ export interface LSSuggestions {
 
 export interface SuggestionItem {
     value: string;
+    label?: string,
     kind?: string;
     insertText?: string;
     completionKind?: number;
+    suggestionType?: number;
+    insertTextFormat?: number;
     prefix?: string;
+    sortText?: string;
+    detail?: string;
 }
 
 export interface SecondLevelSuggestions {
@@ -78,9 +83,15 @@ export interface EditorModel {
     position: NodePosition;
     undoRedoManager: StmtEditorUndoRedoManager;
     isConfigurableStmt?: boolean;
+    isModuleVar?: boolean;
     isExistingStmt?: boolean;
     selectedNodePosition?: NodePosition;
     newConfigurableName?: string;
+}
+
+export interface SymbolIcon {
+    className: string;
+    color: string;
 }
 
 // tslint:disable-next-line:no-empty-interface

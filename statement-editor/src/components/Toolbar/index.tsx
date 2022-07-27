@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
+import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -24,7 +25,6 @@ import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import {
     ADD_CONFIGURABLE_LABEL,
-    CONFIGURABLE_NAME_CONSTRUCTOR,
     CONFIGURABLE_TYPE_BOOLEAN,
     CONFIGURABLE_TYPE_STRING
 } from "../../constants";
@@ -36,7 +36,6 @@ import {
     isConfigAllowedTypeDesc,
     isNodeDeletable
 } from "../../utils";
-import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorToolbarStyles } from "../styles";
 
@@ -66,15 +65,14 @@ export default function Toolbar(props: ToolbarProps) {
     const { inlineDocumentHandler } = props;
     const [docEnabled, setDocEnabled] = React.useState(false);
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
     React.useEffect(() => {
-        const client = keyboardNavigationManager.getClient();
-        keyboardNavigationManager.bindNewKey(client, ['command+z', 'ctrl+z'], undo);
-        keyboardNavigationManager.bindNewKey(client, ['command+shift+z', 'ctrl+shift+z'], redo)
-        keyboardNavigationManager.bindNewKey(client, ['del'], onDelFunction)
+        const client = KeyboardNavigationManager.getClient();
+        client.bindNewKey(['command+z', 'ctrl+z'], undo);
+        client.bindNewKey(['command+shift+z', 'ctrl+shift+z'], redo);
+        client.bindNewKey(['del'], onDelFunction);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
+            client.resetMouseTrapInstance();
         }
     }, [currentModel]);
 
@@ -125,7 +123,8 @@ export default function Toolbar(props: ToolbarProps) {
         //  (https://github.com/wso2-enterprise/internal-support-ballerina/issues/112)
         const configurableType = CONFIGURABLE_TYPE_STRING;
 
-        const configurableStmt = `configurable ${configurableType} ${CONFIGURABLE_NAME_CONSTRUCTOR} = ?;`;
+        const confName = genVariableName('conf', getAllVariables(stSymbolInfo));
+        const configurableStmt = `configurable ${configurableType} ${confName} = ?;`;
 
         addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt);
     }

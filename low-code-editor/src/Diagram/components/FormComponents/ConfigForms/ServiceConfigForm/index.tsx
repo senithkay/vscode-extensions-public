@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,15 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
-import { ServiceIcon } from "../../../../../assets/icons";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
+import { isStatementEditorSupported } from "../../Utils";
 
 import { HttpServiceForm } from "./forms/HttpService";
 import { TriggerServiceForm } from "./forms/TriggerService";
@@ -41,11 +43,41 @@ export enum ServiceTypes {
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onSave, onCancel, formType, isLastMember } = props;
-    const { props: { stSymbolInfo } } = useDiagramContext();
+    const {
+        props: {
+            currentFile,
+            stSymbolInfo,
+            ballerinaVersion,
+            syntaxTree
+        },
+        api: {
+            ls: {
+                getExpressionEditorLangClient
+            },
+            code: {
+                modifyDiagram
+            }
+        }
+    } = useDiagramContext();
     const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
 
-    let configForm = <div />;
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
+    let position: NodePosition;
+    if (model) {
+        const modelPosition = model.position as NodePosition;
+        const openBracePosition = model.openBraceToken.position as NodePosition;
+        position = {
+            startLine: modelPosition.startLine,
+            startColumn: 0,
+            endLine: openBracePosition.startLine,
+            endColumn: openBracePosition.startColumn - 1
+        };
+    } else {
+        position = targetPosition;
+    }
+
+    let configForm;
     switch (serviceType) {
         case ServiceTypes.HTTP:
             configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} isLastMember={isLastMember} />
@@ -55,15 +87,34 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     }
 
     return (
-        <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
-            <FormHeaderSection
-                onCancel={onCancel}
-                formTitle={"lowcode.develop.configForms.ServiceConfigForm.title"}
-                defaultMessage={"Service"}
-                formType={formType}
-            />
-            {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
-            {serviceType && configForm}
-        </FormControl>
+        <>
+            {statementEditorSupported ? (
+                <FormEditor
+                    initialSource={model ? model.source : undefined}
+                    initialModel={model}
+                    targetPosition={position}
+                    stSymbolInfo={stSymbolInfo}
+                    syntaxTree={syntaxTree}
+                    isLastMember={isLastMember}
+                    onCancel={onCancel}
+                    type={"Service"}
+                    currentFile={currentFile}
+                    getLangClient={getExpressionEditorLangClient}
+                    applyModifications={modifyDiagram}
+                    topLevelComponent={true}// todo: Remove this
+                />
+            ) : (
+                <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={"lowcode.develop.configForms.ServiceConfigForm.title"}
+                        defaultMessage={"Service"}
+                        formType={formType}
+                    />
+                    {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
+                    {serviceType && configForm}
+                </FormControl>
+            )}
+        </>
     )
 }

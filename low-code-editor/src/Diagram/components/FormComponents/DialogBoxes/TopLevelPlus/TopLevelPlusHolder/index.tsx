@@ -31,6 +31,7 @@ export function TopLevelPlusHolder(props: TopLevelPlusHolderProps) {
 
     const entryPoints: JSX.Element[] = [];
     const constructs: JSX.Element[] = [];
+    const moduleInit: JSX.Element[] = [];
 
     entries.forEach(entry => {
 
@@ -67,6 +68,20 @@ export function TopLevelPlusHolder(props: TopLevelPlusHolderProps) {
                     </div>
                 ));
                 break;
+            case PlusMenuCategories.MODULE_INIT:
+                moduleInit.push((
+                    <div
+                        className={classNames("sub-option enabled", { height: 'unset' })}
+                        data-testid="addcustom"
+                        onClick={onEntryClick}
+                    >
+                        <div className="icon-wrapper">
+                            {getConstructIcon(entry.type)}
+                        </div>
+                        <div className="text-label">{entry.name}</div>
+                    </div>
+                ));
+                break;
         }
     })
 
@@ -75,12 +90,31 @@ export function TopLevelPlusHolder(props: TopLevelPlusHolderProps) {
             <div className="holder-wrapper">
                 <div className="element-options">
                     <div className="element-option-holder" >
+                        <div className='options-title'>
+                            <div className='options-title-label'>
+                                Entry points
+                            </div>
+                        </div>
                         <div className='options-wrapper'>
                             {entryPoints}
                         </div>
                         {entryPoints.length > 0 && constructs.length > 0 && <Divider />}
+                        <div className='options-title'>
+                            <div className='options-title-label'>
+                                Constructs
+                            </div>
+                        </div>
                         <div className='options-wrapper'>
                             {constructs}
+                        </div>
+                        {moduleInit.length > 0 && constructs.length > 0 && entryPoints.length > 0 && <Divider />}
+                        <div className='options-title'>
+                            <div className='options-title-label'>
+                                Module level variables
+                            </div>
+                        </div>
+                        <div className='options-wrapper'>
+                            {moduleInit}
                         </div>
                     </div>
                 </div>

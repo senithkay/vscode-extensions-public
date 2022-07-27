@@ -22,6 +22,8 @@ import {
     ConnectorConfig,
     FormField,
     FunctionDefinitionInfo,
+    genVariableName,
+    getAllVariables,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -29,8 +31,7 @@ import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree
 import classNames from "classnames";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getAllVariables } from "../../../../../utils/mixins";
-import { checkVariableName, genVariableName } from "../../../../Portals/utils";
+import { checkVariableName } from "../../../../Portals/utils";
 import { VariableTypeInput } from "../../../ConfigForms/Components/VariableTypeInput";
 import { wizardStyles } from "../../../ConnectorConfigWizard/style";
 import { Form } from "../../../DynamicConnectorForm";

@@ -39,6 +39,7 @@ export function ModuleElement(props: ModuleElementProps) {
     const inputEditorCtx = useContext(InputEditorContext);
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
     const [clickedModuleElement, setClickedModuleElement] = useState('');
+    const { className, color } = getModuleIconStyle(label);
 
     const {
         modelCtx: {
@@ -100,8 +101,8 @@ export function ModuleElement(props: ModuleElementProps) {
             disableRipple={true}
         >
             <ListItemIcon
-                className={getModuleIconStyle(label)}
-                style={{ minWidth: '12%', textAlign: 'left' }}
+                className={className}
+                style={{ minWidth: '12%', textAlign: 'left', color }}
             />
             <ListItemText
                 primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}

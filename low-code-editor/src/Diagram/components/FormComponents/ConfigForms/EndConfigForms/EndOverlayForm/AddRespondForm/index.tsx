@@ -17,15 +17,15 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { FormControl } from "@material-ui/core";
 import { EndConfig, httpResponse, PrimitiveBalType, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { ActionStatement, RemoteMethodCallAction, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { createRespond, getInitialSource } from "../../../../../../utils/modification-util";
+import { createRespond, getInitialSource } from "../../../../../../utils";
 import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
+import { isStatementEditorSupported } from "../../../../Utils";
 
 interface RespondFormProps {
     config: EndConfig;
@@ -36,12 +36,12 @@ interface RespondFormProps {
 }
 
 export const DEFINE_RESPOND_EXP: string = "Define Respond Expression";
-export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddRespondForm(props: RespondFormProps) {
     const formClasses = useFormStyles();
     const {
         props: {
+            ballerinaVersion,
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
@@ -71,6 +71,8 @@ export function AddRespondForm(props: RespondFormProps) {
     const [statusCodeState, setStatusCode] = useState(undefined);
     const [resExp, setResExp] = useState(undefined);
     const intl = useIntl();
+
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
     const onExpressionChange = (value: any) => {
         respondFormConfig.respondExpression = value;
@@ -168,7 +170,6 @@ export function AddRespondForm(props: RespondFormProps) {
             {!validStatusCode ? <p className={formClasses.invalidCode}> <FormattedMessage id="lowcode.develop.configForms.Respond.invalidCodeError" defaultMessage="Invalid status code" /></p> : null}
         </div>
     );
-    const disableSave = (isMutationInProgress || !validForm || !validStatusCode);
 
     const initialSource = getInitialSource(createRespond(
         respondFormConfig.genType,
@@ -177,25 +178,6 @@ export function AddRespondForm(props: RespondFormProps) {
         resExp ? resExp : "EXPRESSION"
     ));
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
-        {
-            label: formTitle,
-            initialSource,
-            formArgs: { formArgs },
-            config,
-            onWizardClose,
-            handleStatementEditorChange,
-            onCancel,
-            currentFile,
-            getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram,
-            library,
-            syntaxTree,
-            stSymbolInfo,
-            importStatements,
-            experimentalEnabled
-        }
-    );
     const fieilTypes = [
         { type: PrimitiveBalType.String },
         { type: PrimitiveBalType.Xml },
@@ -208,61 +190,75 @@ export function AddRespondForm(props: RespondFormProps) {
 
     const statementType = [PrimitiveBalType.String, PrimitiveBalType.Xml, PrimitiveBalType.Json, httpResponse];
 
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Respond"}
-                />
-                <div className={formClasses.formContentWrapper}>
-                    <div className={formClasses.formNameWrapper}>
-                        <LowCodeExpressionEditor
-                            model={{
-                                name: "respond expression",
-                                value: respondFormConfig.respondExpression,
-                                type: PrimitiveBalType.Union,
-                                fields: fieilTypes
-                            }}
-                            customProps={{
-                                validate: validateExpression,
-                                tooltipTitle: respondStatementTooltipMessages.title,
-                                // TODO:Uncomment when Ballerina docs are available for Respond
-                                // tooltipActionText: respondStatementTooltipMessages.actionText,
-                                // tooltipActionLink: respondStatementTooltipMessages.actionLink,
-                                interactive: true,
-                                statementType,
-                                customTemplate: {
-                                    defaultCodeSnippet: 'checkpanic caller->respond( );',
-                                    targetColumn: 28
-                                },
-                                editPosition: formArgs.targetPosition,
-                            }}
-                            onChange={onExpressionChange}
-                        />
+    return (
+        <>
+            {statementEditorSupported ? (
+                StatementEditorWrapper(
+                    {
+                        label: formTitle,
+                        initialSource,
+                        formArgs: { formArgs },
+                        config,
+                        onWizardClose,
+                        onCancel,
+                        currentFile,
+                        getLangClient: getExpressionEditorLangClient,
+                        applyModifications: modifyDiagram,
+                        library,
+                        syntaxTree,
+                        stSymbolInfo,
+                        importStatements,
+                        experimentalEnabled
+                    }
+                )
+            ) : (
+                <FormControl data-testid="respond-form" className={cn(formClasses.wizardFormControl)}>
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={formTitle}
+                        defaultMessage={"Respond"}
+                    />
+                    <div className={formClasses.formContentWrapper}>
+                        <div className={formClasses.formNameWrapper}>
+                            <LowCodeExpressionEditor
+                                model={{
+                                    name: "respond expression",
+                                    value: respondFormConfig.respondExpression,
+                                    type: PrimitiveBalType.Union,
+                                    fields: fieilTypes
+                                }}
+                                customProps={{
+                                    validate: validateExpression,
+                                    tooltipTitle: respondStatementTooltipMessages.title,
+                                    // TODO:Uncomment when Ballerina docs are available for Respond
+                                    // tooltipActionText: respondStatementTooltipMessages.actionText,
+                                    // tooltipActionLink: respondStatementTooltipMessages.actionLink,
+                                    interactive: true,
+                                    statementType,
+                                    customTemplate: {
+                                        defaultCodeSnippet: 'checkpanic caller->respond( );',
+                                        targetColumn: 28
+                                    },
+                                    editPosition: formArgs.targetPosition,
+                                }}
+                                onChange={onExpressionChange}
+                            />
+                        </div>
+                        <div className={formClasses.formEqualWrapper}>
+                            {(!config.model) ? statusCodeComp : null}
+                        </div>
                     </div>
-                    <div className={formClasses.formEqualWrapper}>
-                        {(!config.model) ? statusCodeComp : null}
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText="Cancel"
-                    cancelBtn={true}
-                    saveBtnText={saveRespondButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={validForm}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={onSaveWithTour}
-                    onCancel={onCancel}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        cancelBtn={true}
+                        saveBtnText={saveRespondButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={validForm}
+                        onSave={onSaveWithTour}
+                        onCancel={onCancel}
+                    />
+                </FormControl>
+            )}
+        </>
+    );
 }

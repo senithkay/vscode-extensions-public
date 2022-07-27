@@ -84,7 +84,6 @@ function getStatementEditorWrapperProps(statement: STNode, file: string,
             getLibrariesData: () => Promise.resolve(undefined),
             getLibraryData: () => Promise.resolve(undefined)
         },
-        onStmtEditorModelChange: (arg: any) => null,
         label: statement.kind,
         initialSource: statement.source
     };

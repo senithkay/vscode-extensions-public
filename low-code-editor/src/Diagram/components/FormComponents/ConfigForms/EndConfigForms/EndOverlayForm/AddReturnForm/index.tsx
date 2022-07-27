@@ -12,19 +12,19 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
 import { EndConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { FunctionDefinition, ModulePart, ReturnStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
+import { FunctionDefinition, ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { createReturnStatement, getInitialSource } from "../../../../../../utils/modification-util";
+import { createReturnStatement, getInitialSource } from "../../../../../../utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
+import { isStatementEditorSupported } from "../../../../Utils";
 
 interface ReturnFormProps {
     config: EndConfig;
@@ -37,6 +37,7 @@ interface ReturnFormProps {
 export function AddReturnForm(props: ReturnFormProps) {
     const {
         props: {
+            ballerinaVersion,
             isMutationProgress: isMutationInProgress,
             currentFile,
             syntaxTree,
@@ -56,6 +57,8 @@ export function AddReturnForm(props: ReturnFormProps) {
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
     const classes = useStyles();
     const intl = useIntl();
+
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
     const [returnExpression, setReturnExpression] = useState(config.expression);
     const onReturnValueChange = (value: any) => {
@@ -123,77 +126,67 @@ export function AddReturnForm(props: ReturnFormProps) {
         returnExpression ? returnExpression as string : 'EXPRESSION'
     ));
 
-    const handleStatementEditorChange = (partialModel: ReturnStatement) => {
-        setReturnExpression(partialModel.expression?.source.trim())
-    }
-
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
-        {
-            label: formTitle,
-            initialSource,
-            formArgs: { formArgs },
-            config,
-            onWizardClose,
-            handleStatementEditorChange,
-            onCancel,
-            currentFile,
-            getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram,
-            library,
-            syntaxTree,
-            stSymbolInfo,
-            importStatements,
-            experimentalEnabled
-        }
-    );
-
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="return-form" className={classes.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Return"}
-                />
-                <div className={classes.formContentWrapper}>
-                    <div className={classes.formNameWrapper}>
-                        <LowCodeExpressionEditor
-                            model={{ name: "return expression", value: config.expression, optional: isOptional }}
-                            customProps={{
-                                validate: validateExpression,
-                                tooltipTitle: returnStatementTooltipMessages.title,
-                                // TODO:Uncomment when Ballerina docs are available for Return
-                                // tooltipActionText: returnStatementTooltipMessages.actionText,
-                                // tooltipActionLink: returnStatementTooltipMessages.actionLink,
-                                interactive: true,
-                                customTemplate: {
-                                    defaultCodeSnippet: 'return ;',
-                                    targetColumn: 8
-                                },
-                                editPosition: formArgs.targetPosition,
-                                initialDiagnostics: formArgs?.model?.expression?.typeData?.diagnostics
-                            }}
-                            onChange={onReturnValueChange}
-                        />
+    return (
+        <>
+            {statementEditorSupported ? (
+                StatementEditorWrapper(
+                    {
+                        label: formTitle,
+                        initialSource,
+                        formArgs: { formArgs },
+                        config,
+                        onWizardClose,
+                        onCancel,
+                        currentFile,
+                        getLangClient: getExpressionEditorLangClient,
+                        applyModifications: modifyDiagram,
+                        library,
+                        syntaxTree,
+                        stSymbolInfo,
+                        importStatements,
+                        experimentalEnabled
+                    }
+                )
+            ) : (
+                <FormControl data-testid="return-form" className={classes.wizardFormControl}>
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={formTitle}
+                        defaultMessage={"Return"}
+                    />
+                    <div className={classes.formContentWrapper}>
+                        <div className={classes.formNameWrapper}>
+                            <LowCodeExpressionEditor
+                                model={{ name: "return expression", value: config.expression, optional: isOptional }}
+                                customProps={{
+                                    validate: validateExpression,
+                                    tooltipTitle: returnStatementTooltipMessages.title,
+                                    // TODO:Uncomment when Ballerina docs are available for Return
+                                    // tooltipActionText: returnStatementTooltipMessages.actionText,
+                                    // tooltipActionLink: returnStatementTooltipMessages.actionLink,
+                                    interactive: true,
+                                    customTemplate: {
+                                        defaultCodeSnippet: 'return ;',
+                                        targetColumn: 8
+                                    },
+                                    editPosition: formArgs.targetPosition,
+                                    initialDiagnostics: formArgs?.model?.expression?.typeData?.diagnostics
+                                }}
+                                onChange={onReturnValueChange}
+                            />
+                        </div>
                     </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText="Cancel"
-                    cancelBtn={true}
-                    saveBtnText={saveReturnButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={isValidValue}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={onReturnExpressionSave}
-                    onCancel={onCancel}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent
-    }
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        cancelBtn={true}
+                        saveBtnText={saveReturnButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={isValidValue}
+                        onSave={onReturnExpressionSave}
+                        onCancel={onCancel}
+                    />
+                </FormControl>
+            )}
+        </>
+    );
 }
