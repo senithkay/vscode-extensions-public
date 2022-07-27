@@ -33,6 +33,10 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
     if (swaggerViewPanel) {
         swaggerViewPanel.dispose();
     }
+
+    if (serviceName && serviceName.startsWith("/")) {
+        serviceName = serviceName.substring(1);
+    }
     const swaggerServer: SwaggerServer = new SwaggerServer();
     const port = await getPortPromise({ port: 1000, stopPort: 3000 });
 
@@ -64,7 +68,7 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
         }
     );
 
-    const proxy = codeServerContext.codeServerEnv ? codeServerContext.manageChoreoRedirectUri :`http://localhost:${port}/`;
+    const proxy = codeServerContext.codeServerEnv ? codeServerContext.manageChoreoRedirectUri : `http://localhost:${port}/`;
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
     const html = render({ specs, file, serviceName, proxy });
     if (swaggerViewPanel && html) {
