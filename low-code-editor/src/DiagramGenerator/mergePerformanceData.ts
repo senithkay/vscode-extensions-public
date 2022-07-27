@@ -17,7 +17,7 @@
  *
  */
 
-import { GraphPoint, TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
 export interface ConnectorLatency {

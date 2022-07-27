@@ -73,6 +73,7 @@ export function Else(props: ElseProps) {
                 y1={viewState.elseTopHorizontalLine.y}
                 x2={viewState.elseTopHorizontalLine.x + viewState.elseTopHorizontalLine.length - TOP_CURVE_SVG_WIDTH}
                 y2={viewState.elseTopHorizontalLine.y}
+                strokeWidth="10"
             />
         </>
     );

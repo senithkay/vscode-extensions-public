@@ -1,10 +1,10 @@
 import * as React from "react";
 
-import { ANALYZE_TYPE, CommandResponse, DiagramEditorLangClientInterface, GetSyntaxTreeResponse, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, PerformanceAnalyzerGraphResponse, SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ANALYZE_TYPE, CommandResponse, DiagramEditorLangClientInterface, GetSyntaxTreeResponse, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
-import { PerformanceAnalyzerRealtimeResponse } from "../performanceUtil";
+import { PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from "../performanceUtil";
 
 import './style.scss';
 
@@ -29,7 +29,7 @@ export interface EditorAPI {
     gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
     getPFSession: () => Promise<PFSession>;
     showPerformanceGraph: () => Promise<boolean>;
-    getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>;
+    getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>;
     showMessage: () => Promise<boolean>;
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<GetSyntaxTreeResponse>;
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;

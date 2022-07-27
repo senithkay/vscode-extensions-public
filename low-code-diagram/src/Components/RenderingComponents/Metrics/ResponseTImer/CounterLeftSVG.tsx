@@ -19,7 +19,7 @@ export const COUNTERLEFT_SVG_HEIGHT = 31;
 export function CounterLeftSVG(props: { x: number, y: number, text: string }) {
     const { text, ...xyProps } = props;
 
-    const maxTextWidth = text.length >= 20;
+    const maxTextWidth = text.length >= 25;
     return (
         <svg {...xyProps} width={COUNTERLEFT_SVG_WIDTH} height={COUNTERLEFT_SVG_HEIGHT}>
             <defs>

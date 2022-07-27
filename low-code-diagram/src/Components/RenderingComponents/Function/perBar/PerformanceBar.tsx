@@ -39,10 +39,10 @@ export function PerformanceBar(props: PerformanceProps) {
     const content = "Click here to open the performance graph";
 
     useEffect(() => {
-        if (showTooltip) {
+        if (model && showTooltip) {
             setTooltip(showTooltip(element, content));
         }
-    });
+    }, [model]);
 
     const perBar = (
         <div className={"performance-bar"}>
