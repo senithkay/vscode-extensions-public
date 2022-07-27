@@ -227,7 +227,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 defaultValue={basePath}
                 onChange={debouncedPathChange}
                 completions={[]}
-                stModel={model}
                 onFocus={onBasePathFocus}
                 customProps={{
                     index: 1,
@@ -244,7 +243,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 defaultValue={listenerPort}
                 onChange={debouncedPortChange}
                 completions={[]}
-                stModel={model}
                 onFocus={onPortTextFieldFocus}
                 customProps={{
                     index: 2,
@@ -283,7 +281,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 </Panel>
             )}
         </>
-    )
+)
 
     return (
         <>

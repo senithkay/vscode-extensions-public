@@ -15,23 +15,23 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Divider, FormControl } from "@material-ui/core";
+import { LiteExpressionEditor, SuggestionItem } from '@wso2-enterprise/ballerina-expression-editor';
 import {
     createResource,
     getSource,
-    SettingsIcon,
-    SettingsIconSelected,
     updateResourceSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ConfigPanelSection,
     dynamicConnectorStyles as connectorStyles,
     FormHeaderSection,
-    FormTextInput, PrimaryButton, SecondaryButton,
+    PrimaryButton, SecondaryButton,
     SelectDropdownWithButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     ResourceAccessorDefinition,
-    STKindChecker
+    STKindChecker,
+    STNode
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
@@ -39,9 +39,9 @@ import { StmtDiagnostic } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
-import { FormEditorField } from "../Types";
+import { completionEditorTypeKinds } from '../../InputEditor/constants';
+import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 
-import { PathEditor } from "./PathEditor";
 import { QueryParamEditor } from "./QueryParamEditor";
 import { useStyles } from "./styles";
 import {
@@ -52,10 +52,11 @@ import {
 
 export interface FunctionProps {
     model: ResourceAccessorDefinition;
+    completions: SuggestionItem[];
 }
 
 export function ResourceForm(props: FunctionProps) {
-    const { model} = props;
+    const { model, completions } = props;
 
     const { targetPosition, isEdit, onChange, applyModifications, onCancel, getLangClient } =
         useContext(FormEditorContext);
@@ -120,31 +121,44 @@ export function ResourceForm(props: FunctionProps) {
                 typeName?.viewState?.diagnosticsInRange[0]?.message;
         }
     }
+    const getResourcePathDiagnostics = () => {
+        const diagPath = model.relativeResourcePath?.find(
+            resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
 
-    const handleResourceParamChange = async (resMethod: string, pathStr: string, queryParamStr: string,
-                                             payloadStr: string, caller: boolean, request: boolean,
-                                             returnStr: string, diagColumnOffset: number = -4) => {
+        let resourcePathDiagnostics;
+
+        if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
+            resourcePathDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.
+                viewState?.diagnosticsInRange;
+            resourcePathDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
+                typeDescriptor?.viewState?.diagnosticsInRange;
+        } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
+            resourcePathDiagnostics = diagPath?.viewState?.diagnostics;
+        }
+
+        return currentComponentSyntaxDiag || resourcePathDiagnostics || [];
+    }
+
+    const handleResourceParamChange = async (
+        resMethod: string, pathStr: string, queryParamStr: string,
+        payloadStr: string, caller: boolean, request: boolean,
+        returnStr: string,
+        currentModel?: STNode,
+        value?: string) => {
         const pathString = pathStr ? pathStr : ".";
         const codeSnippet = getSource(updateResourceSignature(resMethod, pathString, queryParamStr, payloadStr, caller,
             request, returnStr, targetPosition));
-        const position = model ? ({
-            startLine: model.functionName.position.startLine - 1,
-            startColumn: model.functionName.position.startColumn,
-            endLine: model.functionSignature.position.endLine - 1,
-            endColumn: model.functionSignature.position.endColumn
-        }) : targetPosition;
-        const updatedContent = getUpdatedSource(codeSnippet, model?.source, position, undefined,
+        const updatedContent = getUpdatedSource(codeSnippet, model?.source, model.position, undefined,
             true);
         const partialST = await getPartialSTForModuleMembers(
-            {codeSnippet: updatedContent.trim()}, getLangClient, true
+            { codeSnippet: updatedContent.trim() }, getLangClient, true
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            onChange(updatedContent, partialST, undefined, undefined, undefined, undefined, 0,
-                {startLine: -1, startColumn: diagColumnOffset});
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
+        await onChange(updatedContent, partialST, undefined, { model: currentModel }, value, completionEditorTypeKinds);
     };
 
     const handleSettingsToggle = () => {
@@ -158,11 +172,14 @@ export function ResourceForm(props: FunctionProps) {
             returnType);
     };
 
+    const onPathFocus = () => {
+        setCurrentComponentName("Path");
+    }
+
     const handlePathChange = async (value: string, avoidValueCommit?: boolean) => {
         if (!avoidValueCommit) {
             setPath(value);
         }
-        setCurrentComponentName("Path");
         await handleResourceParamChange(functionName, value, queryParam, "",
             false, false, returnType);
     };
@@ -177,21 +194,24 @@ export function ResourceForm(props: FunctionProps) {
             false, returnType);
     };
 
-    const handleQueryParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
+    const handleQueryParamEditorChange = async (value: string, stModel?: STNode, avoidValueCommit?: boolean) => {
         if (!avoidValueCommit) {
             setQueryParam(value);
         }
         setCurrentComponentName("QueryParam");
         await handleResourceParamChange(functionName, path, value, "", false,
-            false, returnType, -3);
+            false, returnType, stModel, value);
     };
 
     // Return type related functions
-    const onReturnTypeChange = async (value: string) => {
+    const onReturnFocus = () => {
         setCurrentComponentName("Return");
+    }
+
+    const onReturnTypeChange = async (value: string) => {
         setReturnType(value);
         await handleResourceParamChange(functionName, path, queryParam, "",
-            false, false, value, -3);
+            false, false, value, model.functionSignature.returnTypeDesc, value);
     }
     const debouncedReturnTypeChange = debounce(onReturnTypeChange, 800);
 
@@ -258,43 +278,39 @@ export function ResourceForm(props: FunctionProps) {
                                 />
                             </div>
                             <div className={connectorClasses.resourcePathWrapper}>
-                                <FormTextInput
-                                    dataTestId="resource-path"
-                                    label={pathTitle}
+                                <FieldTitle title='Resource Path' optional={true} />
+                                <LiteExpressionEditor
+                                    diagnostics={currentComponentName === "Path" && getResourcePathDiagnostics()}
                                     defaultValue={path}
                                     onChange={debouncedPathChange}
-                                    customProps={{
-                                        isErrored: ((currentComponentSyntaxDiag !== undefined &&
-                                                currentComponentName === "Path") || pathNameSemDiagnostics !== "" ||
-                                            pathTypeSemDiagnostics !== "")
-                                    }}
-                                    errorMessage={(currentComponentSyntaxDiag && currentComponentName === "Path"
-                                            && currentComponentSyntaxDiag[0].message) || pathNameSemDiagnostics ||
-                                        pathTypeSemDiagnostics}
-                                    onBlur={null}
-                                    placeholder={"Enter Path"}
-                                    size="small"
+                                    completions={completions}
+                                    onFocus={onPathFocus}
                                     disabled={(isParamInProgress || (currentComponentSyntaxDiag &&
                                         currentComponentName !== "Path")) || isQueryInProgress}
+                                    customProps={{
+                                        index: 1,
+                                        optional: true
+                                    }}
                                 />
                             </div>
-                            {!((isParamInProgress || (currentComponentSyntaxDiag && currentComponentName !== "Path"))
+                            {/* {!((isParamInProgress || (currentComponentSyntaxDiag && currentComponentName !== "Path"))
                                 || isQueryInProgress) && (
-                                <div className={connectorClasses.advancedToggleWrapper}>
-                                    <div className={classes.contentIconWrapper}>
-                                        {isAdvanceView ? (
-                                            <SettingsIcon onClick={handleSettingsToggle}/>
-                                        ) : (
-                                            <SettingsIconSelected onClick={handleSettingsToggle}/>
-                                        )}
+                                    <div className={connectorClasses.advancedToggleWrapper}>
+                                        <div className={classes.contentIconWrapper}>
+                                            {isAdvanceView ? (
+                                                <SettingsIcon onClick={handleSettingsToggle} />
+                                            ) : (
+                                                <SettingsIconSelected onClick={handleSettingsToggle} />
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )} */}
                         </div>
                     </div>
                     <div className={connectorClasses.resourceParamWrapper}>
-                        {isAdvanceView && (
+                        {/* {isAdvanceView && (
                             <PathEditor
+                                pathSegments={model.relativeResourcePath}
                                 relativeResourcePath={path}
                                 syntaxDiag={currentComponentSyntaxDiag}
                                 readonly={(!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||
@@ -304,10 +320,12 @@ export function ResourceForm(props: FunctionProps) {
                                 onChange={handlePathParamEditorChange}
                                 onChangeInProgress={handleParamChangeInProgress}
                             />
-                        )}
+                        )} */}
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <ConfigPanelSection title={"Parameters"}>
                             <QueryParamEditor
+                                completions={completions}
+                                parameters={model?.functionSignature?.parameters}
                                 queryParamString={queryParam}
                                 readonly={(currentComponentSyntaxDiag?.length > 0) || (isParamInProgress)}
                                 syntaxDiag={currentComponentSyntaxDiag}
@@ -318,24 +336,20 @@ export function ResourceForm(props: FunctionProps) {
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <FormTextInput
-                            label="Return Type"
-                            dataTestId="return-type"
+                        <FieldTitle title='Return Type' optional={true} />
+                        <LiteExpressionEditor
+                            diagnostics={currentComponentName === "Return" &&
+                                model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             defaultValue={returnType}
-                            customProps={{
-                                optional: true,
-                                isErrored: ((currentComponentSyntaxDiag !== undefined &&
-                                    currentComponentName === "Return") || model?.functionSignature?.returnTypeDesc?.
-                                    viewState?.diagnosticsInRange?.length > 0)
-                            }}
-                            errorMessage={((currentComponentSyntaxDiag &&
-                                    currentComponentName === "Return" && currentComponentSyntaxDiag[0].message)
-                                || model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange[0]?.message)}
                             onChange={debouncedReturnTypeChange}
-                            placeholder={"Enter Return Type"}
-                            size="small"
+                            completions={completions}
+                            onFocus={onReturnFocus}
                             disabled={isParamInProgress || isQueryInProgress || (currentComponentSyntaxDiag
                                 && currentComponentName !== "Return")}
+                            customProps={{
+                                index: 2,
+                                optional: true
+                            }}
                         />
                         <div className={classes.serviceFooterWrapper}>
                             <SecondaryButton

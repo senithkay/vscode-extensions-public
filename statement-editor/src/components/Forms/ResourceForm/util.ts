@@ -10,7 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FunctionSignature, NodePosition, ReturnTypeDescriptor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { CommaToken, DefaultableParam, DotToken, FunctionSignature, IdentifierToken, IncludedRecordParam, NodePosition, RequiredParam, ResourcePathRestParam, ResourcePathSegmentParam, RestParam, ReturnTypeDescriptor, SlashToken, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import {
     Path,
@@ -83,7 +84,7 @@ export function getEnabledQueryParams(queryParamString: string): string[] {
     let paramOptions: string[];
     if (!payloadAvailable && !requestAvailable && !callerAvailable) {
         paramOptions = allOptions;
-    } else if (!payloadAvailable && !requestAvailable && callerAvailable){
+    } else if (!payloadAvailable && !requestAvailable && callerAvailable) {
         paramOptions = optionsWithoutCaller;
     } else if (!payloadAvailable && requestAvailable && !callerAvailable) {
         paramOptions = optionsWithoutRequest;
@@ -229,6 +230,11 @@ export function convertPathStringToSegments(pathString: string): Path {
         });
     }
     return path;
+}
+
+export function generatePathFromST(segments: (IdentifierToken | ResourcePathSegmentParam | SlashToken | DotToken
+    | ResourcePathRestParam)[]): string {
+    return segments.reduce((prev, current) => `${prev}${current.value || current.source}`, '');
 }
 
 /**
@@ -386,6 +392,22 @@ export function generateQueryStringFromQueryCollection(params: QueryParamCollect
     return queryParamString;
 }
 
+export function generateParameterSectionString(params: (DefaultableParam | RestParam | RequiredParam | IncludedRecordParam | CommaToken)[]): string {
+    return params.reduce((prev, current) => `${prev}${current.value ? current.value : current.source}`, '');
+}
+
+export function getParameterType(param: string): PARAM_TYPES {
+    if (param.includes('@http:Payload')) {
+        return PARAM_TYPES.PAYLOAD;
+    } else if (param.includes('http:Caller')) {
+        return PARAM_TYPES.CALLER;
+    } else if (param.includes('http:Request')) {
+        return PARAM_TYPES.REQUEST;
+    } else {
+        return PARAM_TYPES.DEFAULT;
+    }
+}
+
 export function generateReturnTypeFromReturnCollection(params: ReturnType[]): string {
     const returnTypeCollection: string[] = [];
     params.forEach(param => {
@@ -415,7 +437,7 @@ export function getReturnTypePosition(functionSignature: FunctionSignature, targ
         };
     } else if (targetPosition) {
         return { ...targetPosition, endLine: targetPosition.startLine, endColumn: targetPosition.startColumn };
-    }else {
+    } else {
         return {
             endColumn: 0,
             endLine: 0,

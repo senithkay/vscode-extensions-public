@@ -57,7 +57,7 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
     if (values) {
         const items: string[] = values;
         items.forEach((value) => {
-            const icon = (<ParamIcons option={value}/>);
+            const icon = (<ParamIcons type={value}/>);
             menuItems.push(
                 <MenuItem
                     disabled={!enabled?.includes(value)}
@@ -90,7 +90,7 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
     }
 
     const renderValue = (value: any) => {
-        const icon = (<ParamIcons option={value}/>);
+        const icon = (<ParamIcons type={value}/>);
         return (
             <div className={dropDownClasses.renderValueWrapper}>
                 <div className={dropDownClasses.itemWrapper}>

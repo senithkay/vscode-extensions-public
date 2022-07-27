@@ -313,7 +313,6 @@ export function FunctionForm(props: FunctionProps) {
                             focus={true}
                             onChange={debouncedNameChange}
                             onFocus={onNameFocus}
-                            stModel={model}
                             disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                             hideSuggestions={true}
                             // placeholder={"Ex: name"}
@@ -362,7 +361,6 @@ export function FunctionForm(props: FunctionProps) {
                             defaultValue={returnType}
                             onChange={debouncedReturnChange}
                             completions={currentComponentCompletions}
-                            stModel={model}
                             onFocus={onReturnFocus}
                             disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
                             customProps={{

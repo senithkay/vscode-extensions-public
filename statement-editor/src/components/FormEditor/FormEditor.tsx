@@ -19,7 +19,7 @@ import * as monaco from "monaco-editor";
 
 import { CurrentModel } from '../../models/definitions';
 import { FormEditorContextProvider } from "../../store/form-editor-context";
-import { enrichModel, getUpdatedSource} from "../../utils";
+import { enrichModel, getUpdatedSource } from "../../utils";
 import {
     getCompletionsForType,
     getPartialSTForModuleMembers,
@@ -78,7 +78,7 @@ export function FormEditor(props: FormEditorProps) {
 
         const newModuleList = new Set<string>();
         moduleList?.forEach(module => {
-            if (!currentFile.content.includes(module)){
+            if (!currentFile.content.includes(module)) {
                 newModuleList.add(module);
             }
         })
@@ -164,7 +164,7 @@ export function FormEditor(props: FormEditorProps) {
                         }
                     )
                     const source = getInitialSource(type, position).trim();
-                    const partialST = await getPartialSTForModuleMembers({codeSnippet: source},
+                    const partialST = await getPartialSTForModuleMembers({ codeSnippet: source },
                         getLangClient, type === "Resource"
                     );
                     let moduleList;
@@ -201,20 +201,24 @@ export function FormEditor(props: FormEditorProps) {
                 isLastMember={isLastMember}
                 applyModifications={applyModifications}
             >
-                <FormRenderer
-                    type={type}
-                    model={model}
-                    targetPosition={targetPosition}
-                    stSymbolInfo={stSymbolInfo}
-                    syntaxTree={syntaxTree}
-                    completions={completions}
-                    onChange={onChange}
-                    onCancel={onCancel}
-                    getLangClient={getLangClient}
-                    currentFile={currentFile}
-                    isEdit={initialSource !== undefined}
-                    applyModifications={applyModifications}
-                />
+                {
+                    model && (
+                        <FormRenderer
+                            type={type}
+                            model={model}
+                            targetPosition={targetPosition}
+                            stSymbolInfo={stSymbolInfo}
+                            syntaxTree={syntaxTree}
+                            completions={completions}
+                            onChange={onChange}
+                            onCancel={onCancel}
+                            getLangClient={getLangClient}
+                            currentFile={currentFile}
+                            isEdit={initialSource !== undefined}
+                            applyModifications={applyModifications}
+                        />
+                    )
+                }
             </FormEditorContextProvider>
         </div>
     )

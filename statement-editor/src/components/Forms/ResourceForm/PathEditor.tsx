@@ -12,25 +12,21 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-import { Button } from "@material-ui/core";
-import { default as AddIcon } from "@material-ui/icons/Add";
 import {
-    dynamicConnectorStyles as connectorStyles,
-    ParamEditor,
-    ParamItem
-} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+    dynamicConnectorStyles as connectorStyles} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { DotToken, IdentifierToken, ResourcePathRestParam, ResourcePathSegmentParam, SlashToken, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { StmtDiagnostic } from "../../../models/definitions";
 
-import { Path, PathSegment } from "./types";
-import {convertPathStringToSegments, generateBallerinaResourcePath, genParamName, recalculateItemIds} from "./util";
+import { PathSegment } from "./types";
 
 const pathParameterOption = "Path Parameter";
 const pathSegmentOption = "Path Segment";
 
 export interface PathEditorProps {
+    pathSegments: (IdentifierToken | ResourcePathSegmentParam | SlashToken | DotToken | ResourcePathRestParam)[];
     relativeResourcePath: string;
     readonly?: boolean;
     syntaxDiag?: StmtDiagnostic[];
@@ -41,160 +37,167 @@ export interface PathEditorProps {
 }
 
 export function PathEditor(props: PathEditorProps) {
-    const { relativeResourcePath, syntaxDiag = "", pathTypeSemDiag, pathNameSemDiag, readonly, onChangeInProgress,
-            onChange } = props;
+    // const { relativeResourcePath, syntaxDiag = "", pathTypeSemDiag, pathNameSemDiag, readonly, onChangeInProgress,
+    //         onChange } = props;
+    const { pathSegments } = props;
     const options = [pathSegmentOption, pathParameterOption];
 
     const connectorClasses = connectorStyles();
 
-    const path: Path = convertPathStringToSegments(relativeResourcePath);
+    // const path: Path = convertPathStringToSegments(relativeResourcePath);
 
     // editingSegmentId > -1 when editing and -1 when no edit in progress
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [addingParam, setAddingParam] = useState<boolean>(false);
-    const [pathState, setPathState] = useState<Path>(path);
+    // const [pathState, setPathState] = useState<Path>(path);
     const [draftPath, setDraftPath] = useState<PathSegment>(undefined);
 
-    const onPathAdd = (param : {id: number, name: string, dataType?: string}, option: string) => {
+    const onPathAdd = (param: { id: number, name: string, dataType?: string }, option: string) => {
         const { id, name, dataType } = param;
-        pathState.segments.push({id, name, type: dataType, isParam: option === pathParameterOption});
-        setPathState(pathState);
-        setAddingParam(false);
-        setDraftPath(undefined);
-        setEditingSegmentId(-1);
-        onChangeInProgress(false);
-        onChange(generateBallerinaResourcePath(pathState));
+        // pathState.segments.push({ id, name, type: dataType, isParam: option === pathParameterOption });
+        // setPathState(pathState);
+        // setAddingParam(false);
+        // setDraftPath(undefined);
+        // setEditingSegmentId(-1);
+        // onChangeInProgress(false);
+        // onChange(generateBallerinaResourcePath(pathState));
     };
-    const onPathUpdate = (param : {id: number, name: string, dataType?: string}, option: string) => {
+    const onPathUpdate = (param: { id: number, name: string, dataType?: string }, option: string) => {
         const { id, name, dataType } = param;
-        const clonePath = { ...pathState }
-        const foundPath = pathState.segments.find(segment => segment.id === id);
-        if (foundPath) {
-            clonePath.segments[id] = {id, name, type: dataType, isParam: option === pathParameterOption};
-        }
-        setPathState(clonePath);
-        setAddingParam(false);
-        setDraftPath(undefined);
-        setEditingSegmentId(-1);
-        onChangeInProgress(false);
-        onChange(generateBallerinaResourcePath(pathState));
+        // const clonePath = { ...pathState }
+        // const foundPath = pathState.segments.find(segment => segment.id === id);
+        // if (foundPath) {
+        // clonePath.segments[id] = { id, name, type: dataType, isParam: option === pathParameterOption };
+        // }
+        // setPathState(clonePath);
+        // setAddingParam(false);
+        // setDraftPath(undefined);
+        // setEditingSegmentId(-1);
+        // onChangeInProgress(false);
+        // onChange(generateBallerinaResourcePath(pathState));
     };
 
-    const onEdit = (param : {id: number, name: string, dataType?: string, option?: string}) => {
-        const { id } = param;
-        const foundPath = pathState.segments.find(segment => segment.id === id);
-        if (foundPath) {
-            setEditingSegmentId(id);
-        }
-        setAddingParam(false);
-        setDraftPath(undefined);
-        onChangeInProgress(true);
+    const onEdit = (param: { id: number, name: string, dataType?: string, option?: string }) => {
+        // const { id } = param;
+        // const foundPath = pathState.segments.find(segment => segment.id === id);
+        // if (foundPath) {
+        //     setEditingSegmentId(id);
+        // }
+        // setAddingParam(false);
+        // setDraftPath(undefined);
+        // onChangeInProgress(true);
     };
 
-    const onDelete = (param : {id: number, name: string, dataType?: string, option?: string}) => {
-        const { id } = param;
-        const foundPath = pathState.segments.find(segment => segment.id === id);
-        if (foundPath) {
-            const pathClone = { ...pathState };
-            pathClone.segments.splice(id, 1);
-            recalculateItemIds(pathClone.segments);
-            setPathState(pathClone);
-        }
-        setAddingParam(false);
-        setDraftPath(undefined);
-        setEditingSegmentId(-1);
-        onChangeInProgress(false);
-        onChange(generateBallerinaResourcePath(pathState));
+    const onDelete = (param: { id: number, name: string, dataType?: string, option?: string }) => {
+        // const { id } = param;
+        // const foundPath = pathState.segments.find(segment => segment.id === id);
+        // if (foundPath) {
+        //     const pathClone = { ...pathState };
+        //     pathClone.segments.splice(id, 1);
+        //     recalculateItemIds(pathClone.segments);
+        //     setPathState(pathClone);
+        // }
+        // setAddingParam(false);
+        // setDraftPath(undefined);
+        // setEditingSegmentId(-1);
+        // onChangeInProgress(false);
+        // onChange(generateBallerinaResourcePath(pathState));
     };
 
-    const onParamChange = (param : {id: number, name: string, dataType: string}, option?: string,
+    const onParamChange = (param: { id: number, name: string, dataType: string }, option?: string,
                            optionChanged?: boolean) => {
-        const { id, name, dataType } = param;
-        const foundPath = pathState.segments.find(segment => segment.id === id);
-        const isParam = (option === pathParameterOption);
-        if (foundPath) {
-            // When we have are editing an existing param
-            const newPath = optionChanged ? (isParam ? {id, name: (name ? name : "name"), type: "string", isParam} :
-                    {id, name: "name", isParam}) : {id, name, type: dataType, isParam};
-            setEditingSegmentId(id);
-            setDraftPath(newPath);
-            pathState.segments[id] = newPath;
-            onChange(generateBallerinaResourcePath(pathState), true);
-        } else {
-            // When we have are editing a new param
-            const newPath = optionChanged ? (isParam ? {id, name: (name ? name : "name"), type: "string", isParam} :
-                {id, name: "name", isParam}) : {id, name, type: dataType, isParam};
-            setDraftPath(newPath);
-            const newParams = [...pathState.segments, newPath];
-            const clonedPathState: Path = {segments: newParams};
-            onChange(generateBallerinaResourcePath(clonedPathState), true);
-        }
-        onChangeInProgress(true);
+        // const { id, name, dataType } = param;
+        // const foundPath = pathState.segments.find(segment => segment.id === id);
+        // const isParam = (option === pathParameterOption);
+        // if (foundPath) {
+        //     // When we have are editing an existing param
+        //     const newPath = optionChanged ? (isParam ? { id, name: (name ? name : "name"), type: "string", isParam } :
+        //         { id, name: "name", isParam }) : { id, name, type: dataType, isParam };
+        //     setEditingSegmentId(id);
+        //     setDraftPath(newPath);
+        //     pathState.segments[id] = newPath;
+        //     onChange(generateBallerinaResourcePath(pathState), true);
+        // } else {
+        //     // When we have are editing a new param
+        //     const newPath = optionChanged ? (isParam ? { id, name: (name ? name : "name"), type: "string", isParam } :
+        //         { id, name: "name", isParam }) : { id, name, type: dataType, isParam };
+        //     setDraftPath(newPath);
+        //     const newParams = [...pathState.segments, newPath];
+        //     const clonedPathState: Path = { segments: newParams };
+        //     onChange(generateBallerinaResourcePath(clonedPathState), true);
+        // }
+        // onChangeInProgress(true);
     };
 
     const addPath = () => {
-        setDraftPath({
-            id: pathState.segments.length, name: genParamName("path", paramNames), isParam: false
-        });
-        setAddingParam(true);
-        onChangeInProgress(true);
+        // setDraftPath({
+        //     id: pathState.segments.length, name: genParamName("path", paramNames), isParam: false
+        // });
+        // setAddingParam(true);
+        // onChangeInProgress(true);
     };
 
     const cancelAddPath = () => {
-        setAddingParam(false);
-        setDraftPath(undefined);
-        setEditingSegmentId(-1);
-        onChangeInProgress(false);
-        onChange(generateBallerinaResourcePath(path));
+        // setAddingParam(false);
+        // setDraftPath(undefined);
+        // setEditingSegmentId(-1);
+        // onChangeInProgress(false);
+        // onChange(generateBallerinaResourcePath(path));
     };
 
     const paramNames: string[] = [];
-    const pathComponents: React.ReactElement[] = [];
-    pathState.segments.forEach((value, index) => {
-        if ((editingSegmentId !== index) && value.name) {
-            pathComponents.push(
-                <ParamItem
-                    param={{
-                        id: index, name: value.name, type: value.type, option:
-                            value.isParam ? pathParameterOption : pathSegmentOption
-                    }}
-                    readonly={editingSegmentId !== -1 || readonly || addingParam}
-                    onDelete={onDelete}
-                    onEditClick={onEdit}
-                />
-            );
-        } else if (editingSegmentId === index) {
-            const param = draftPath ? {id: draftPath.id, dataType: draftPath.type, name: draftPath.name} :
-                {id: value.id, dataType: value.type, name: value.name}
-            pathComponents.push(
-                <ParamEditor
-                    syntaxDiag={syntaxDiag ? syntaxDiag[0].message : ""}
-                    nameDiagnostics={pathNameSemDiag}
-                    typeDiagnostics={pathTypeSemDiag}
-                    param={param}
-                    isEdit={true}
-                    optionList={options}
-                    dataTypeReqOptions={[pathParameterOption]}
-                    option={value.isParam ? pathParameterOption : pathSegmentOption}
-                    onChange={onParamChange}
-                    onUpdate={onPathUpdate}
-                    onCancel={cancelAddPath}
-                />
-            )
+    const pathComponents: React.ReactElement[] = pathSegments.map((value, index) => {
+        if (STKindChecker.isIdentifierToken(value)) {
+            // haha
         }
-        paramNames.push(value.name);
-    });
 
-    useEffect(() => {
-        setPathState(convertPathStringToSegments(relativeResourcePath));
-    }, [relativeResourcePath]);
+        return undefined;
+    });
+    // pathState.segments.forEach((value, index) => {
+    //     if ((editingSegmentId !== index) && value.name) {
+    //         pathComponents.push(
+    //             <ParamItem
+    //                 param={{
+    //                     id: index, name: value.name, type: value.type, option:
+    //                         value.isParam ? pathParameterOption : pathSegmentOption
+    //                 }}
+    //                 readonly={editingSegmentId !== -1 || readonly || addingParam}
+    //                 onDelete={onDelete}
+    //                 onEditClick={onEdit}
+    //             />
+    //         );
+    //     } else if (editingSegmentId === index) {
+    //         const param = draftPath ? { id: draftPath.id, dataType: draftPath.type, name: draftPath.name } :
+    //             { id: value.id, dataType: value.type, name: value.name }
+    //         pathComponents.push(
+    //             <ParamEditor
+    //                 syntaxDiag={syntaxDiag ? syntaxDiag[0].message : ""}
+    //                 nameDiagnostics={pathNameSemDiag}
+    //                 typeDiagnostics={pathTypeSemDiag}
+    //                 param={param}
+    //                 isEdit={true}
+    //                 optionList={options}
+    //                 dataTypeReqOptions={[pathParameterOption]}
+    //                 option={value.isParam ? pathParameterOption : pathSegmentOption}
+    //                 onChange={onParamChange}
+    //                 onUpdate={onPathUpdate}
+    //                 onCancel={cancelAddPath}
+    //             />
+    //         )
+    //     }
+    //     paramNames.push(value.name);
+    // });
+
+    // useEffect(() => {
+    // setPathState(convertPathStringToSegments(relativeResourcePath));
+    // }, [relativeResourcePath]);
 
     return (
         <div>
             {pathComponents}
-            {addingParam && (
+            {/* {addingParam && (
                 <ParamEditor
-                    param={{id: draftPath.id, dataType: draftPath.type, name: draftPath.name}}
+                    param={{ id: draftPath.id, dataType: draftPath.type, name: draftPath.name }}
                     nameDiagnostics={pathNameSemDiag}
                     typeDiagnostics={pathTypeSemDiag}
                     syntaxDiag={syntaxDiag ? syntaxDiag[0].message : ""}
@@ -220,7 +223,7 @@ export function PathEditor(props: PathEditorProps) {
                         Add Path
                     </Button>
                 </div>
-            )}
+            )} */}
 
         </div>
     );

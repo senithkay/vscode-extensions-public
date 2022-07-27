@@ -21,23 +21,24 @@ import {
     SegmentIcon
 } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
+import { PARAM_TYPES } from "./ParamEditor";
+
 export interface Props {
     option: string;
 }
 
-export function ParamIcons(props: Props) {
-    if (props?.option === "Query") {
-        return <QueryIcon />;
-    } else if (props?.option === "Path Segment") {
-        return <SegmentIcon />;
-    } else if (props?.option === "Path Parameter") {
-        return <ParamIcon />;
-    } else if (props?.option === "Payload") {
-        return <PayloadIcon />;
-    } else if (props?.option === "Request") {
-        return <RequestIcon />;
-    } else if (props?.option === "Caller") {
-        return <CallerIcon />;
+
+export function ParamIcons(props: {type: string}): JSX.Element {
+    switch (props.type) {
+        case PARAM_TYPES.DEFAULT:
+            return <QueryIcon />;
+        case PARAM_TYPES.PAYLOAD:
+            return <PayloadIcon />;
+        case PARAM_TYPES.REQUEST:
+            return <RequestIcon />;
+        case PARAM_TYPES.CALLER:
+            return <CallerIcon />;
+        default:
+            return <></>;
     }
-    return null;
 }

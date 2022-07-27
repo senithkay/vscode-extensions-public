@@ -15,18 +15,26 @@ import React from "react";
 
 import { DeleteButton, ParamEditButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
+import { PARAM_TYPES } from "./ParamEditor";
 import { ParamIcons } from "./ParamIcon";
 import { useStyles } from './style';
 
+export interface ParameterConfig {
+    id: number;
+    name: string;
+    type?: string;
+    option?: PARAM_TYPES;
+}
+
 interface ParamItemProps {
-    param: { id: number, name: string, type?: string, option?: string };
+    param: ParameterConfig;
     readonly: boolean;
-    onDelete?: (param : {id: number, name: string, type?: string, option?: string}) => void;
-    onEditClick?: (param : {id: number, name: string, type?: string, option?: string}) => void;
+    onDelete?: (param: ParameterConfig) => void;
+    onEditClick?: (param: ParameterConfig) => void;
 }
 
 export function ParamItem(props: ParamItemProps) {
-    const { param, readonly, onDelete,  onEditClick } = props;
+    const { param, readonly, onDelete, onEditClick } = props;
     const classes = useStyles();
 
     const label = param?.type ? `${param.type} ${param.name}` : `${param.name}`;
@@ -39,7 +47,7 @@ export function ParamItem(props: ParamItemProps) {
         }
     };
 
-    const icon = (<ParamIcons option={param?.option}/>);
+    const icon = (<ParamIcons type={param?.option} />);
 
     return (
         <div className={classes.headerWrapper} data-testid={`${label}-item`}>
@@ -61,10 +69,10 @@ export function ParamItem(props: ParamItemProps) {
                     {!readonly && (
                         <>
                             <div className={classes.contentIconWrapper}>
-                                <ParamEditButton onClick={handleEdit}/>
+                                <ParamEditButton onClick={handleEdit} />
                             </div>
                             <div className={classes.deleteButtonWrapper}>
-                                <DeleteButton onClick={handleDelete}/>
+                                <DeleteButton onClick={handleDelete} />
                             </div>
                         </>
                     )}

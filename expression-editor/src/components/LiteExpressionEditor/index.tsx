@@ -389,12 +389,12 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         }
     }, [focus]);
 
-    // useEffect(() => {
-    //     if (defaultValue) {
-    //         const monacoModel = monacoRef.current.editor.getModel();
-    //         monacoModel.setValue(defaultValue.value);
-    //     }
-    // }, [defaultValue]);
+    useEffect(() => {
+        if (defaultValue) {
+            const monacoModel = monacoRef.current.editor.getModel();
+            monacoModel.applyEdits([{range: monacoModel.getFullModelRange(), text: defaultValue}]);
+        }
+    }, [defaultValue]);
 
     useEffect(() => {
         // !hideExpand
