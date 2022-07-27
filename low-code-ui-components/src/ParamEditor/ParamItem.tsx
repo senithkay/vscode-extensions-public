@@ -19,7 +19,7 @@ import { ParamIcons } from "./ParamIcon";
 import { useStyles } from './style';
 
 interface ParamItemProps {
-    param: { id: number, name: string, type?: string, option?: string };
+    param: { id: number, name: string, type?: string, defaultValue?: string, option?: string };
     readonly: boolean;
     onDelete?: (param : {id: number, name: string, type?: string, option?: string}) => void;
     onEditClick?: (param : {id: number, name: string, type?: string, option?: string}) => void;
@@ -29,7 +29,8 @@ export function ParamItem(props: ParamItemProps) {
     const { param, readonly, onDelete,  onEditClick } = props;
     const classes = useStyles();
 
-    const label = param?.type ? `${param.type} ${param.name}` : `${param.name}`;
+    const label = param?.type ? `${param.type} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}`
+        : `${param.name}`;
     const handleDelete = () => {
         onDelete(param);
     };

@@ -51,7 +51,7 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
                 "returns error?", targetPosition));
         }
         case "Resource": {
-            return getSource(createResource("get", ".", "", "", false,
+            return getSource(createResource("get", "greeting/hello", "", "", false,
                 false, "error?", targetPosition));
         }
     }
