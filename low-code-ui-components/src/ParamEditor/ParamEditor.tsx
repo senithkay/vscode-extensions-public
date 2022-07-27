@@ -12,159 +12,327 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { LiteExpressionEditor, SuggestionItem } from '@wso2-enterprise/ballerina-expression-editor';
-import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { Button } from "@material-ui/core";
+import { default as AddIcon } from "@material-ui/icons/Add";
 import debounce from "lodash.debounce";
 
 import { PrimaryButton, SecondaryButton } from '../buttons';
 import { ParamDropDown } from "../DropDown/ParamDropdown";
 import { FieldTitle } from '../FieldTitle';
+import { FormTextInput } from '../FormTextInput';
 
 import { useStyles } from "./style";
 
 export interface Param {
     id: number;
-    type?: string;
     name: string;
+    dataType?: string;
+    defaultValue?: string;
+    headerName?: string;
 }
+export const headerParameterOption = "Header";
 
 
 export enum PARAM_TYPES {
     DEFAULT = 'Query',
     PAYLOAD = 'Payload',
     REQUEST = 'Request',
-    CALLER = 'Caller'
+    CALLER = 'Caller',
+    HEADER = 'Header'
 }
 
 export interface ParamProps {
-    // param: Param;
-    // syntaxDiag?: string;
-    // typeDiagnostics?: string;
-    // nameDiagnostics?: string;
-    // isEdit?: boolean;
-    // isTypeReadOnly?: boolean;
-    // dataTypeReqOptions: string[];
-    paramIndex: number;
-    onSave: (param: Param, selectedOption?: string) => void;
-    // onUpdate?: (param: Param, selectedOption?: string) => void;
-    model: DefaultableParam | IncludedRecordParam | RequiredParam | RestParam;
-    onChange: (param: Param, selectedOption?: string, optionChanged?: boolean, model?: STNode) => void;
-    onCancel: () => void;
+    param: Param;
+    syntaxDiag?: string;
+    typeDiagnostics?: string;
+    nameDiagnostics?: string;
+    alternativeName?: string;
+    headerName?: string;
+    isEdit?: boolean;
+    isTypeReadOnly?: boolean;
+    dataTypeReqOptions?: string[];
     enabledOptions?: string[];
     optionList?: string[];
     option?: string;
-    completions: SuggestionItem[];
+    hideButtons?: boolean;
+    hideDefaultValue?: boolean;
+    disabled?: boolean;
+    onAdd?: (param: Param, selectedOption?: string) => void;
+    onUpdate?: (param: Param, selectedOption?: string) => void;
+    onChange: (param: Param, selectedOption?: string, optionChanged?: boolean) => void;
+    onCancel?: () => void;
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { model, onSave, onChange, onCancel, enabledOptions, option, optionList, paramIndex, completions } = props;
+    const { param, typeDiagnostics, nameDiagnostics, syntaxDiag, alternativeName, headerName, isTypeReadOnly,
+            hideDefaultValue, hideButtons, disabled, optionList, enabledOptions, dataTypeReqOptions, option = "",
+            onChange, onAdd, onUpdate, onCancel } = props;
+    const { id, name, dataType, headerName: hName, defaultValue } = param;
 
     const classes = useStyles();
 
+    const [paramDataType, setParamDataType] = useState<string>(dataType);
+    const [paramName, setParamName] = useState<string>(name);
+    const [paramHeaderName, setParamHeaderName] = useState<string>(paramName);
+    const [paramDefaultValue, setParamDefaultValue] = useState<string>(defaultValue);
     const [selectedOption, setSelectedOption] = useState<string>(option);
+    const [isHeaderConfigInProgress, setIsHeaderConfigInProgress] = useState<boolean>(!!hName);
+    // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
+
+    const isTypeVisible = dataTypeReqOptions ? dataTypeReqOptions.includes(selectedOption) : true;
 
     const handleNameChange = (value: string) => {
         setCurrentComponentName("Name");
-        onChange({ id: paramIndex, name: value, type: model.typeName.source.trim() }, selectedOption, false, model.paramName);
+        if (optionList) {
+            onChange({
+                id, name: value, dataType: paramDataType, headerName: paramHeaderName,
+                defaultValue: paramDefaultValue
+            }, selectedOption);
+        } else {
+            onChange({
+                id, name: value, dataType: paramDataType, headerName: paramHeaderName,
+                defaultValue: paramDefaultValue
+            });
+        }
     };
     const debouncedNameChange = debounce(handleNameChange, 800);
 
+    const handleHeaderNameChange = (value: string) => {
+        setParamHeaderName(value);
+        setCurrentComponentName("HeaderName");
+        if (optionList) {
+            onChange({
+                id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
+                    paramDefaultValue
+            }, selectedOption);
+        } else {
+            onChange({
+                id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
+                    paramDefaultValue
+            });
+        }
+    };
+    const debouncedHeaderNameChange = debounce(handleHeaderNameChange, 800);
+
     const handleTypeChange = (value: string) => {
         setCurrentComponentName("Type");
-        onChange({ id: paramIndex, name: model.paramName.value.trim(), type: value }, selectedOption, false, model.typeName);
+        if (optionList) {
+            onChange({
+                id, name: paramName, dataType: value, headerName: paramHeaderName,
+                defaultValue: paramDefaultValue
+            }, selectedOption);
+        } else {
+            onChange({
+                id, name: paramName, dataType: value, headerName: paramHeaderName, defaultValue:
+                    paramDefaultValue
+            });
+        }
     };
     const debouncedTypeChange = debounce(handleTypeChange, 800);
 
+    const handleDefaultValueChange = (value: string) => {
+        setParamDefaultValue(value);
+        setCurrentComponentName("DefaultValue");
+        if (optionList) {
+            onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value },
+                selectedOption);
+        } else {
+            onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value });
+        }
+    };
+    const debouncedDefaultValeChange = debounce(handleDefaultValueChange, 800);
+
     const handleOnSelect = (value: string) => {
         setSelectedOption(value);
-        onChange({ id: paramIndex, name: model.paramName.value.trim(), type: model.typeName.source.trim() }, value, true);
+        onChange({ id, name: "", dataType: "" }, value, true);
     };
 
     const handleAddParam = () => {
-        onSave({ id: paramIndex, name: model.paramName.value.trim(), type: model.typeName.source.trim() }, selectedOption);
+        if (onUpdate) {
+            if (optionList) {
+                onUpdate({
+                    id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
+                    defaultValue: paramDefaultValue
+                }, selectedOption);
+            } else {
+                onUpdate({
+                    id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
+                    defaultValue: paramDefaultValue
+                });
+            }
+        } else {
+            if (optionList) {
+                onAdd({
+                    id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
+                        paramDefaultValue
+                }, selectedOption);
+            } else {
+                onAdd({
+                    id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
+                        paramDefaultValue
+                });
+            }
+        }
     };
 
-    const textInputComponents: JSX.Element[] = [];
+    const handleShowHeaderName = () => {
+        setIsHeaderConfigInProgress(true);
+    };
 
+    useEffect(() => {
+        setParamDataType(dataType);
+    }, [dataType]);
 
-    const handleOnChange = (value: string) => {
-        // haha
-    }
+    useEffect(() => {
+        setParamName(name);
+    }, [name]);
 
-    const handleOnFocus = () => {
-        // haha
-    }
-    if (STKindChecker.isRequiredParam(model)) {
-        textInputComponents.push((
-            <>
-                <div className={classes.paramDataTypeWrapper}>
-                    <FieldTitle title='Type' optional={false} />
-                    <LiteExpressionEditor
-                        diagnostics={model.typeName.viewState?.diagnosticsInRange}
-                        defaultValue={model.typeName.source.trim()}
-                        onChange={handleOnChange}
-                        completions={currentComponentName === 'Type' ? completions : []}
-                        onFocus={handleOnFocus}
-                        disabled={false}
-                        customProps={{
-                            index: 1,
-                            optional: true
-                        }}
-                    />
-                </div>
-                <div className={classes.paramNameWrapper}>
-                    <FieldTitle title='Name' optional={false} />
-                    <LiteExpressionEditor
-                        diagnostics={model.paramName?.viewState?.diagnosticsInRange}
-                        defaultValue={model.paramName.value.trim()}
-                        onChange={handleOnChange}
-                        completions={currentComponentName === 'Name' ? completions : []}
-                        onFocus={handleOnFocus}
-                        disabled={false}
-                        customProps={{
-                            index: 1,
-                            optional: true
-                        }}
-                    />
-                </div>
-            </>
-        ));
-    }
+    useEffect(() => {
+        setSelectedOption(option);
+    }, [option]);
+
+    useEffect(() => {
+        setParamHeaderName(hName);
+    }, [hName]);
+
+    useEffect(() => {
+        setParamDefaultValue(defaultValue);
+    }, [defaultValue]);
 
     return (
         <div className={classes.paramContainer}>
-            <div className={classes.paramContent}>
+            {optionList && (
                 <div className={classes.paramTypeWrapper}>
                     <ParamDropDown
                         dataTestId="param-type-selector"
-                        defaultValue={option}
+                        defaultValue={selectedOption}
                         placeholder={"Select Type"}
                         customProps={{ values: optionList, enabledValues: enabledOptions }}
                         onChange={handleOnSelect}
                         label="Param Type"
                     />
                 </div>
-                {textInputComponents}
+            )}
+            <div className={classes.paramContent}>
+                {isTypeVisible && (
+                    <div className={classes.paramDataTypeWrapper}>
+                        <FormTextInput
+                            label="Data Type"
+                            dataTestId="data-type"
+                            defaultValue={paramDataType}
+                            onChange={debouncedTypeChange}
+                            onBlur={null}
+                            customProps={{
+                                isErrored: (syntaxDiag !== "" && currentComponentName === "Type")
+                                    || (typeDiagnostics !== "" && typeDiagnostics !== undefined),
+                                readonly: isTypeReadOnly
+                            }}
+                            errorMessage={((currentComponentName === "Type" && syntaxDiag ? syntaxDiag : "")
+                                || typeDiagnostics)}
+                            placeholder={"Enter Type"}
+                            size="small"
+                            disabled={(syntaxDiag && currentComponentName !== "Type") || disabled}
+                        />
+                    </div>
+                )}
+                <div className={classes.paramNameWrapper}>
+                    <FormTextInput
+                        label={alternativeName ? alternativeName : "Name"}
+                        dataTestId="param-name"
+                        defaultValue={paramName}
+                        onChange={debouncedNameChange}
+                        customProps={{
+                            isErrored: ((syntaxDiag !== "" && currentComponentName === "Name") ||
+                                (nameDiagnostics !== "" && nameDiagnostics !== undefined))
+                        }}
+                        errorMessage={((currentComponentName === "Name" && (syntaxDiag) ? syntaxDiag : "")
+                            || nameDiagnostics)}
+                        onBlur={null}
+                        placeholder={"Enter Name"}
+                        size="small"
+                        disabled={(syntaxDiag && currentComponentName !== "Name") || disabled}
+                    />
+                </div>
+                {!hideDefaultValue && (
+                    <div className={classes.paramNameWrapper}>
+                        <FormTextInput
+                            label="Default Value"
+                            dataTestId="default-value"
+                            defaultValue={paramDefaultValue}
+                            onChange={debouncedDefaultValeChange}
+                            customProps={{
+                                isErrored: ((syntaxDiag !== "" && currentComponentName === "DefaultValue") ||
+                                    (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
+                                optional: true
+                            }}
+                            errorMessage={((currentComponentName === "DefaultValue" && (syntaxDiag) ? syntaxDiag : "")
+                                || nameDiagnostics)}
+                            onBlur={null}
+                            placeholder={"Enter Default Value"}
+                            size="small"
+                            disabled={(syntaxDiag && currentComponentName !== "DefaultValue") || disabled}
+                        />
+                    </div>
+                )}
             </div>
-            <div className={classes.btnContainer}>
-                <SecondaryButton
-                    text="Cancel"
-                    fullWidth={false}
-                    onClick={onCancel}
-                    className={classes.actionBtn}
-                />
-                <PrimaryButton
-                    dataTestId={"path-segment-add-btn"}
-                    text={"Save"}
-                    disabled={false}
-                    fullWidth={false}
-                    onClick={handleAddParam}
-                    className={classes.actionBtn}
-                />
-            </div>
-        </div>
+            <>
+                {(selectedOption === headerParameterOption && isHeaderConfigInProgress) && (
+                    <div className={classes.headerNameWrapper}>
+                        <FormTextInput
+                            label="Header Name"
+                            dataTestId="header-name"
+                            defaultValue={paramHeaderName}
+                            onChange={debouncedHeaderNameChange}
+                            customProps={{
+                                isErrored: ((syntaxDiag !== "" && currentComponentName === "HeaderName") ||
+                                    (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
+                                optional: true
+                            }}
+                            errorMessage={((currentComponentName === "HeaderName" && (syntaxDiag) ? syntaxDiag : "")
+                                || nameDiagnostics)}
+                            onBlur={null}
+                            placeholder={"Enter Header Name"}
+                            size="small"
+                            disabled={syntaxDiag && currentComponentName !== "HeaderName"}
+                        />
+                    </div>
+                )}
+            </>
+            {(selectedOption === headerParameterOption && !isHeaderConfigInProgress) && (
+                <Button
+                    data-test-id="request-add-button"
+                    onClick={handleShowHeaderName}
+                    className={classes.addHeaderBtn}
+                    startIcon={<AddIcon />}
+                    color="primary"
+                    disabled={(syntaxDiag !== "") || disabled}
+                >
+                    If identifier not equal header name
+                </Button>
+            )}
+            {!hideButtons && (
+                <div className={classes.btnContainer}>
+                    <SecondaryButton
+                        text="Cancel"
+                        fullWidth={false}
+                        onClick={onCancel}
+                        className={classes.actionBtn}
+                    />
+                    <PrimaryButton
+                        dataTestId={"path-segment-add-btn"}
+                        text={onUpdate ? "Update" : " Add"}
+                        disabled={(!!syntaxDiag) || (!!typeDiagnostics) || (!!nameDiagnostics)
+                            || !(paramName !== "") || !(paramDataType !== "" || isTypeReadOnly || !isTypeVisible)
+                        }
+                        fullWidth={false}
+                        onClick={handleAddParam}
+                        className={classes.actionBtn}
+                    />
+                </div>
+            )}
+        </div >
     );
 }

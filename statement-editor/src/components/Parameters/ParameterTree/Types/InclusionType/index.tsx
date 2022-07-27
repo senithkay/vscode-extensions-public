@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 
@@ -26,17 +26,19 @@ export default function InclusionType(props: TypeProps) {
     const requiredParam = isRequiredParam(param);
     const isAllIncludedParamDefaultable = isAllDefaultableFields(param.inclusionType?.fields);
 
-    const [paramSelected, setParamSelected] = useState(param.selected || (requiredParam && !isAllIncludedParamDefaultable));
-
-    useEffect(() => {
-        param.selected = paramSelected;
-        param.inclusionType.selected = paramSelected;
-    }, [paramSelected]);
+    const [paramSelected, setParamSelected] = useState(
+        param.selected || (requiredParam && !isAllIncludedParamDefaultable)
+    );
 
     const toggleParamCheck = () => {
         param.selected = !paramSelected;
         param.inclusionType.selected = !paramSelected;
         setParamSelected(!paramSelected);
+        onChange();
+    };
+
+    const handleOnChange = () => {
+        param.selected = param.inclusionType.selected;
         onChange();
     };
 
@@ -67,14 +69,18 @@ export default function InclusionType(props: TypeProps) {
                     )}
                     {param.documentation && (
                         <ListItemText
-                            className={stmtEditorHelperClasses.docParamDescriptionText}
+                            className={stmtEditorHelperClasses.paramTreeDescriptionText}
                             primary={" : " + param.documentation}
                         />
                     )}
                 </div>
                 {paramSelected && param.inclusionType?.fields?.length > 0 && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
-                        <ParameterBranch parameters={param.inclusionType.fields} depth={depth + 1} onChange={onChange}/>
+                        <ParameterBranch
+                            parameters={param.inclusionType.fields}
+                            depth={depth + 1}
+                            onChange={handleOnChange}
+                        />
                     </div>
                 )}
             </div>

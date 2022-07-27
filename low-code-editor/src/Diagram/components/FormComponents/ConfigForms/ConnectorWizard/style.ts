@@ -22,16 +22,39 @@ const useStyles = makeStyles((theme: Theme) =>
         container: {
             width: '100%',
         },
-        emptyTitle: {
+        subTitle: {
             marginTop: theme.spacing(6),
             color: theme.palette.text.secondary
         },
         fullHeight: {
             height: '80vh',
         },
+        endpointItem: {
+            '&:hover': {
+                color: theme.palette.primary.main
+            },
+        },
         actionList: {
             height: '83vh',
             overflowY: 'scroll',
+        },
+        actionItem: {
+            '&:hover p': {
+                display: 'block',
+                whiteSpace: 'normal',
+            },
+            '&:hover': {
+                color: theme.palette.primary.main,
+            },
+        },
+        actionTitle: {
+            width: 220,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+        },
+        actionSubtitle: {
+            display: 'none',
+            color: theme.palette.text.hint,
         },
         searchBox: {
             position: 'relative',
@@ -45,7 +68,15 @@ const useStyles = makeStyles((theme: Theme) =>
             textAlign: 'left',
             marginBottom: '16px',
             paddingLeft: '10px'
-        }
+        },
+        iconWrapper: {
+            width: 16,
+            height: 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 14
+        },
     })
 );
 

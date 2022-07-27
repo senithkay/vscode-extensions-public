@@ -22,9 +22,11 @@ import {
     ImplicitNewExpression,
     ListConstructor,
     MappingConstructor,
+    NamedArg,
     NumericLiteral,
     ParenthesizedArgList,
     PositionalArg,
+    RemoteMethodCallAction,
     SpecificField,
     STKindChecker,
     STNode,
@@ -41,17 +43,8 @@ export function isAllDefaultableFields(recordFields: FormField[]): boolean {
     return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
 }
 
-export function isAllNotSelectedFields(recordFields: FormField[]): boolean {
-    return recordFields?.every((field) => !field.selected || (field.fields && isAllNotSelectedFields(field.fields)));
-}
-
-export function isAllNotEmptyFields(recordFields: FormField[]): boolean {
-    return recordFields?.every(
-        (field) =>
-            field.value ||
-            (field.fields && isAllNotEmptyFields(field.fields)) ||
-            (field.members && isAllNotEmptyFields(field.members))
-    );
+export function isAnyFieldSelected(recordFields: FormField[]): boolean {
+    return recordFields?.some((field) => field.selected || (field.fields && isAnyFieldSelected(field.fields)));
 }
 
 export function getSelectedUnionMember(unionFields: FormField): FormField {
@@ -59,6 +52,11 @@ export function getSelectedUnionMember(unionFields: FormField): FormField {
     if (!selectedMember) {
         selectedMember = unionFields.members?.find(
             (member) => getUnionFormFieldName(member) === unionFields.selectedDataType
+        );
+    }
+    if (!selectedMember) {
+        selectedMember = unionFields.members?.find(
+            (member) => member.typeName === unionFields.value?.replace(/['"]+/g, "")
         );
     }
     if (!selectedMember) {
@@ -73,7 +71,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
     }
     const parameterList: string[] = [];
     parameters.forEach((parameter) => {
-        if ((parameter.defaultable || parameter.optional) && !parameter.selected && !parameter.value) {
+        if ((parameter.defaultable || parameter.optional) && !parameter.selected) {
             return;
         }
         let draftParameter = "";
@@ -97,7 +95,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 break;
             case PrimitiveBalType.Nil:
             case "()":
-                draftParameter = getFieldValuePair(parameter, `()`, depth);
+                draftParameter = getFieldValuePair(parameter, `()`, depth, true);
                 break;
             case PrimitiveBalType.Json:
             case "map":
@@ -108,12 +106,13 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 if (!parameter.selected && allFieldsDefaultable) {
                     break;
                 }
-                if (parameter.selected && allFieldsDefaultable && isAllNotSelectedFields(parameter?.fields)) {
+                if (parameter.selected && allFieldsDefaultable && !isAnyFieldSelected(parameter?.fields)) {
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
                 draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly);
                 break;
+            case PrimitiveBalType.Enum:
             case PrimitiveBalType.Union:
                 const selectedMember = getSelectedUnionMember(parameter);
                 const selectedMemberParams = getDefaultParams([selectedMember], depth + 1, true);
@@ -126,10 +125,21 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 const inclusionParams = getDefaultParams([parameter.inclusionType], depth + 1, true);
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
+            case "object":
+                const typeInfo = parameter.typeInfo;
+                if (typeInfo && typeInfo.orgName === 'ballerina' && typeInfo.moduleName === 'sql'
+                    && typeInfo.name === 'ParameterizedQuery') {
+                    draftParameter = getFieldValuePair(parameter, '``', depth);
+                }
+                break;
             default:
-                if (!parameter.name){
+                if (!parameter.name) {
                     // Handle Enum type
                     draftParameter = getFieldValuePair(parameter, `"${parameter.typeName}"`, depth, true);
+                }
+                if (parameter.name === "rowType"){
+                    // Handle custom return type
+                    draftParameter = getFieldValuePair(parameter, EXPR_PLACEHOLDER, depth);
                 }
                 break;
         }
@@ -374,7 +384,18 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
 
 export function mapEndpointToFormField(model: STNode, formFields: FormField[]): FormField[] {
     let expression: ImplicitNewExpression;
-    if (model && STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
+    if (
+        model &&
+        (STKindChecker.isLocalVarDecl(model) || STKindChecker.isModuleVarDecl(model)) &&
+        STKindChecker.isCheckExpression(model.initializer) &&
+        STKindChecker.isImplicitNewExpression(model.initializer.expression)
+    ) {
+        expression = model.initializer.expression;
+    } else if (
+        model &&
+        STKindChecker.isCheckExpression(model) &&
+        STKindChecker.isImplicitNewExpression(model.expression)
+    ) {
         expression = model.expression;
     } else if (model && STKindChecker.isImplicitNewExpression(model)) {
         expression = model;
@@ -388,7 +409,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
         if (parenthesizedArgs.arguments === undefined || formFields.length <= nextValueIndex) {
             break;
         }
-        const positionalArg: PositionalArg = arg as PositionalArg;
+        const positionalArg = arg as PositionalArg;
         let formField = formFields[nextValueIndex];
         if (STKindChecker.isNamedArg(positionalArg)) {
             const argName = positionalArg.argumentName.name.value;
@@ -439,7 +460,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                         mappingConstructor.fields as SpecificField[],
                         formField.fields
                     );
-                    formField.selected = isAllNotEmptyFields(formField.fields);
+                    formField.selected = isAnyFieldSelected(formField.fields);
                     nextValueIndex++;
                 }
             } else if (
@@ -455,18 +476,124 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                     );
                     nextValueIndex++;
                 }
+                formField.selected = isAnyFieldSelected(formField.inclusionType?.fields);
             } else if (formField.typeName === "union") {
                 formField.value = positionalArg.expression?.source;
                 formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
+                formField.selected = isAnyFieldSelected(formField.members);
             }
-            formField.selected = formField.selected || checkFormFieldValue(formField);
         }
     }
     return formFields;
 }
 
+export function mapActionToFormField(model: STNode, formFields: FormField[]) {
+    let expression: RemoteMethodCallAction;
+    if (
+        model &&
+        STKindChecker.isLocalVarDecl(model) &&
+        STKindChecker.isCheckAction(model.initializer) &&
+        STKindChecker.isRemoteMethodCallAction(model.initializer.expression)
+    ) {
+        expression = model.initializer.expression;
+    } else if (
+        model &&
+        STKindChecker.isLocalVarDecl(model) &&
+        STKindChecker.isRemoteMethodCallAction(model.initializer)
+    ) {
+        expression = model.initializer;
+    } else if (
+        model &&
+        STKindChecker.isActionStatement(model) &&
+        STKindChecker.isCheckAction(model.expression) &&
+        STKindChecker.isRemoteMethodCallAction(model.expression.expression)
+    ) {
+        expression = model.expression.expression;
+    } else if (model && STKindChecker.isRemoteMethodCallAction(model)) {
+        expression = model;
+    } else {
+        return;
+    }
+
+    const methodArgs = expression.arguments.filter((arg) => arg.kind !== "CommaToken");
+    let nextValueIndex = 0;
+    for (const formField of formFields) {
+        if (methodArgs === undefined || methodArgs.length <= nextValueIndex) {
+            break;
+        }
+        if (STKindChecker.isNamedArg(methodArgs[nextValueIndex])) {
+            const namedArg: NamedArg = methodArgs[nextValueIndex] as NamedArg;
+            const fieldForNamedArg = formFields.find((field) => field.name === namedArg.argumentName.name.value);
+            if (fieldForNamedArg) {
+                fieldForNamedArg.value = namedArg.expression.source;
+                fieldForNamedArg.selected = checkFormFieldValue(fieldForNamedArg);
+            }
+            nextValueIndex++;
+        } else {
+            const positionalArg: PositionalArg = methodArgs[nextValueIndex] as PositionalArg;
+            if (
+                formField.typeName === "string" ||
+                formField.typeName === "int" ||
+                formField.typeName === "boolean" ||
+                formField.typeName === "float" ||
+                formField.typeName === "decimal" ||
+                formField.typeName === "httpRequest"
+            ) {
+                if (
+                    STKindChecker.isStringLiteral(positionalArg.expression) ||
+                    STKindChecker.isNumericLiteral(positionalArg.expression) ||
+                    STKindChecker.isBooleanLiteral(positionalArg.expression)
+                ) {
+                    if (formField.isRestParam) {
+                        formField.value = getRestParamFieldValue(methodArgs as PositionalArg[], nextValueIndex);
+                    } else {
+                        const literalExpression = positionalArg.expression;
+                        formField.value = literalExpression.literalToken.value;
+                    }
+                } else {
+                    formField.value = positionalArg.expression.source;
+                }
+                nextValueIndex++;
+            } else if (
+                formField.typeName === "handle" ||
+                formField.typeName === "object" ||
+                formField.typeName === "collection" ||
+                formField.typeName.includes("array")
+            ) {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
+                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
+                if (mappingConstructor) {
+                    mapRecordLiteralToRecordTypeFormField(
+                        mappingConstructor.fields as SpecificField[],
+                        formField.fields
+                    );
+                    nextValueIndex++;
+                }
+            } else if (
+                formField.typeName === "record" &&
+                STKindChecker.isSimpleNameReference(positionalArg.expression)
+            ) {
+                formField.value = positionalArg.expression.name.value;
+                nextValueIndex++;
+            } else if (formField.typeName === "union") {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.typeName === "enum") {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            } else if (formField.typeName === "json") {
+                formField.value = positionalArg.expression?.source;
+                nextValueIndex++;
+            }
+            formField.selected = checkFormFieldValue(formField);
+        }
+    }
+}
+
 export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificField[], formFields: FormField[]) {
-    specificFields.forEach((specificField) => {
+    specificFields?.forEach((specificField) => {
         if (specificField.kind !== "CommaToken") {
             formFields.forEach((formField) => {
                 if (getFieldName(formField.name) === specificField.fieldName.value) {
@@ -476,6 +603,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                         STKindChecker.isBooleanLiteral(specificField.valueExpr)
                             ? (formField.value = specificField.valueExpr.literalToken.value)
                             : (formField.value = specificField.valueExpr.source);
+                    formField.selected = checkFormFieldValue(formField);
 
                     if (specificField.valueExpr.kind === "MappingConstructor") {
                         const mappingField = specificField.valueExpr as MappingConstructor;
@@ -510,7 +638,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                 mappingField.fields as SpecificField[],
                                 formField.fields
                             );
-                            formField.selected = isAllNotEmptyFields(formField.fields);
+                            formField.selected = isAnyFieldSelected(formField.fields);
                         }
                     }
 
@@ -521,10 +649,19 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     }
                     formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
-                formField.selected = checkFormFieldValue(formField);
             });
         }
     });
+}
+
+export function getRestParamFieldValue(remoteMethodCallArguments: PositionalArg[], currentFieldIndex: number) {
+    const varArgValues: string[] = [];
+    for (let i = currentFieldIndex; i < remoteMethodCallArguments.length; i++) {
+        const varArgs: PositionalArg = remoteMethodCallArguments[i] as PositionalArg;
+        const literalExpression: any = varArgs.expression;
+        varArgValues.push(literalExpression.literalToken.value);
+    }
+    return varArgValues.join(",");
 }
 
 export function getFieldName(fieldName: string): string {

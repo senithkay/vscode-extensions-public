@@ -11,26 +11,22 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 
 import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
-import { isAllNotEmptyFields, isRequiredParam } from "../../utils";
+import { isRequiredParam } from "../../utils";
 
 export default function RecordType(props: TypeProps) {
     const { param, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
-    const filledRecord = isAllNotEmptyFields(param.fields);
 
-    const [paramSelected, setParamSelected] = useState(param.selected || requiredParam || filledRecord);
+    const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
 
-    useEffect(() => {
-        param.selected = paramSelected;
-    }, [paramSelected]);
 
     const toggleParamCheck = () => {
         if (!requiredParam) {
@@ -68,7 +64,7 @@ export default function RecordType(props: TypeProps) {
                     )}
                     {param.documentation && (
                         <ListItemText
-                            className={stmtEditorHelperClasses.docParamDescriptionText}
+                            className={stmtEditorHelperClasses.paramTreeDescriptionText}
                             primary={" : " + param.documentation}
                         />
                     )}

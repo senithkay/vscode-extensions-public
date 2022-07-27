@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { Box, FormControl } from '@material-ui/core';
+import { FormControl } from '@material-ui/core';
 import {
     CommandResponse,
     ExpressionEditorLangClientInterface,
@@ -26,7 +26,7 @@ import {
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
-import { CONNECTOR, CUSTOM_CONFIG_TYPE } from "../../constants";
+import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
 import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
@@ -66,7 +66,6 @@ export interface LowCodeEditorProps {
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
-    isLoading?: boolean;
     extraModules?: Set<string>;
 }
 
@@ -89,7 +88,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         experimentalEnabled,
         isConfigurableStmt,
         isModuleVar,
-        isLoading,
         extraModules,
         runBackgroundTerminalCommand
     } = props;
@@ -105,6 +103,44 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const [editors, setEditors] = useState<EditorModel[]>([]);
     const [editor, setEditor] = useState<EditorModel>();
     const [activeEditorId, setActiveEditorId] = useState<number>(0);
+
+    useEffect(() => {
+        (async () => {
+            let model = null;
+            if (initialSource) {
+                await sendDidOpen(fileURI, currentFile.content, getLangClient);
+
+                const partialST =
+                    isConfigurableStmt || isModuleVar
+                        ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
+                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, getLangClient);
+
+                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+                    model = partialST;
+                }
+            }
+            const newEditor: EditorModel = {
+                label,
+                model,
+                source: initialSource,
+                position: targetPosition,
+                isConfigurableStmt,
+                isModuleVar,
+                undoRedoManager: new StmtEditorUndoRedoManager(),
+            };
+
+            setEditors((prevEditors: EditorModel[]) => {
+                return [...prevEditors, newEditor];
+            });
+        })();
+    }, [initialSource]);
+
+    useEffect(() => {
+        if (!!editors.length) {
+            const lastEditorIndex = editors.length - 1;
+            switchEditor(lastEditorIndex);
+        }
+    }, [editors]);
 
     const switchEditor = (index: number) => {
         const switchedEditor = editors[index];
@@ -154,62 +190,14 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         });
     };
 
-    useEffect(() => {
-            (async () => {
-                let model = null;
-                if (initialSource) {
-                    await sendDidOpen(fileURI, currentFile.content, getLangClient);
-
-                    const partialST = (isConfigurableStmt || isModuleVar)
-                        ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
-                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, getLangClient);
-
-                    if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-                        model = partialST;
-                    }
-            }
-                const newEditor: EditorModel = {
-                    label,
-                    model,
-                    source: initialSource,
-                    position: targetPosition,
-                    isConfigurableStmt,
-                    isModuleVar,
-                    undoRedoManager: new StmtEditorUndoRedoManager()
-                };
-
-                setEditors((prevEditors: EditorModel[]) => {
-                    return [...prevEditors, newEditor];
-                });
-        })();
-
-    }, [initialSource]);
-
-    useEffect(() => {
-        if (!!editors.length) {
-            const lastEditorIndex = editors.length - 1;
-            switchEditor(lastEditorIndex);
-        }
-    }, [editors]);
-
-    const checkConnectorInfo = () => {
-        if (config.type === CONNECTOR && formArgs.formArgs.connector?.functions?.length > 0) {
-            return true;
-        }
-        if (config.type === CONNECTOR && !(formArgs.formArgs.connector?.functions)) {
-            return false;
-        }
-        return true;
-    };
-
     return (
         <FormControl data-testid="property-form">
-            {(isLoading || !editor || !checkConnectorInfo()) && (
+            {!editor && (
                 <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
-                    <div className={overlayClasses.loadingWrapper}>Loading...</div>
+                    <div className={overlayClasses.loadingWrapper}>Loading statement editor...</div>
                 </div>
             )}
-            {!isLoading && editor && checkConnectorInfo() && (
+            {editor && (
                     <>
                         <StatementEditor
                             editor={editor}

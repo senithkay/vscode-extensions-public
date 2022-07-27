@@ -22,6 +22,7 @@ import React, { ReactNode, useContext } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core";
+import { ModuleIcon } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
@@ -66,8 +67,12 @@ export function EndpointList(props: FormGeneratorProps) {
                 data-testid={`${name.toLowerCase().replaceAll(" ", "-")}`}
                 button={true}
                 onClick={handleOnSelect}
+                className={classes.endpointItem}
             >
-                <Typography variant="h4">{name}</Typography>
+                <div className={classes.iconWrapper}>
+                    <ModuleIcon module={connector} scale={0.5} />
+                </div>
+                <Typography>{name}</Typography>
             </ListItem>
         );
     };
@@ -149,7 +154,7 @@ export function EndpointList(props: FormGeneratorProps) {
     }
 
     return (
-        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControlExtended}>
+        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"lowcode.develop.configForms.endpointList.title"}
@@ -159,13 +164,19 @@ export function EndpointList(props: FormGeneratorProps) {
                 <div className={formClasses.formFeilds}>
                     <div className={classes.container}>
                         {isLoading && (
-                            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                                <TextPreLoader position="absolute" text="Fetching Endpoints..." />
+                            <Box display="flex" justifyContent="center">
+                                <TextPreLoader position="absolute" text="Fetching endpoints..." />
                             </Box>
                         )}
                         {!isLoading && !isEndpointExists && (
-                            <Box>
-                                <Typography className={classes.emptyTitle}>
+                            <Box
+                                display="flex"
+                                flexDirection="column"
+                                alignItems="center"
+                                justifyContent="center"
+                                height="80vh"
+                            >
+                                <Typography className={classes.subTitle}>
                                     <FormattedMessage
                                         id="lowcode.develop.configForms.endpoint.empty"
                                         defaultMessage="No existing connectors found"

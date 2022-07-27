@@ -8,24 +8,25 @@ export const useStyles = makeStyles((theme: Theme) =>
             flexDirection: `column`,
             borderRadius: 5,
             border: '1px solid #dee0e7',
-            padding: '0px 5px 5px 0px'
+            padding: 5
         },
         paramContent: {
             display: 'flex',
-            flexDirection: `row`,
+            flexDirection: 'row',
+            justifyContent: 'space-between'
         },
         paramTypeWrapper: {
-            padding: '0px 5px',
             display: 'block',
-            width: "35%"
+            width: "32%"
         },
         paramDataTypeWrapper: {
-            width: '32%',
-            marginLeft: 5
+            width: '32%'
         },
         paramNameWrapper: {
-            width: '32%',
-            marginLeft: 10
+            width: '32%'
+        },
+        headerNameWrapper: {
+            width: '33%'
         },
         headerWrapper: {
             display: 'flex',
@@ -116,12 +117,19 @@ export const useStyles = makeStyles((theme: Theme) =>
             padding: 0
         },
         btnContainer: {
+            marginTop: theme.spacing(2.5),
             display: "flex",
             justifyContent: "flex-end"
         },
         actionBtn: {
             fontSize: 13,
         },
+        addHeaderBtn: {
+            paddingLeft: 0,
+            marginTop: 6,
+            textTransform: 'initial',
+            marginLeft: -200
+        }
     }),
 );
 

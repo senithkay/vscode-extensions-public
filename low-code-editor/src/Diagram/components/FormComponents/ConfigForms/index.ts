@@ -18,7 +18,7 @@ import { AddModuleFrom } from "./AddModuleFrom";
 import { APIConfigForm } from "./APIConfigForm";
 import { ConditionConfigForm } from "./ConditionConfigForms";
 import { ConfigurableForm } from "./ConfigurableForm";
-import {ActionForm} from './ConnectorWizard/ActionForm';
+import { ActionForm } from './ConnectorWizard/ActionForm';
 import { ActionList } from "./ConnectorWizard/ActionList";
 import { ConnectorList } from "./ConnectorWizard/ConnectorList";
 import { EndpointForm } from "./ConnectorWizard/EndpointForm";

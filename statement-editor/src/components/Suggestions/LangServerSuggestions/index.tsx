@@ -13,8 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
+import { FormControl, Input, InputAdornment } from "@material-ui/core";
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
     FUNCTION_COMPLETION_KIND,
     METHOD_COMPLETION_KIND,
@@ -24,7 +27,6 @@ import { SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getExprWithArgs } from "../../../utils";
-import { KeyboardNavigationManager } from "../../../utils/keyboard-navigation-manager";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
 
 import { SuggestionsList } from "./SuggestionsList";
@@ -51,10 +53,16 @@ export function LSSuggestions() {
     const resourceAccessRegex = /.+\./gm;
     const [lenghtOfSuggestions, setLength] = useState<number>(lsSuggestions.length)
     const [Suggestions, setSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
+    const [keyword, setKeyword] = useState('');
+    const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
+    const [filteredSecondLevelSuggestions, setFilteredSecondLevelSuggestions] = useState<SuggestionItem[]>(secondLevelSuggestions);
+
 
     useEffect(() => {
         setLength(lsSuggestions.length);
-        setSuggestions(lsSuggestions)
+        setSuggestions(lsSuggestions);
+        setFilteredSuggestions(lsSuggestions);
+        setFilteredSecondLevelSuggestions(secondLevelSuggestions);
     }, [lsSuggestions]);
 
     const changeSelected = (key: number) => {
@@ -64,24 +72,23 @@ export function LSSuggestions() {
         }
     }
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
-
     React.useEffect(() => {
 
-        const client = keyboardNavigationManager.getClient()
+        const client = KeyboardNavigationManager.getClient();
 
-        keyboardNavigationManager.bindNewKey(client, ['right'], changeSelected, 1);
-        keyboardNavigationManager.bindNewKey(client, ['left'], changeSelected, -1);
-        keyboardNavigationManager.bindNewKey(client, ['up'], changeSelected, -2);
-        keyboardNavigationManager.bindNewKey(client, ['down'], changeSelected, 2);
-        keyboardNavigationManager.bindNewKey(client, ['enter'], onClickLSSuggestion, Suggestions[selectedListItem]);
+        client.bindNewKey(['right'], changeSelected, 1);
+        client.bindNewKey(['left'], changeSelected, -1);
+        client.bindNewKey(['up'], changeSelected, -2);
+        client.bindNewKey(['down'], changeSelected, 2);
+        client.bindNewKey(['enter'], onClickLSSuggestion, Suggestions[selectedListItem]);
 
         return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
+            client.resetMouseTrapInstance();
         }
     }, [selectedListItem]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
+        setKeyword('');
         const completionKind = suggestion.completionKind;
         let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
         const prefix = (inputEditorCtx.userInput.includes('.') && resourceAccessRegex.exec(inputEditorCtx.userInput)[0])
@@ -98,32 +105,55 @@ export function LSSuggestions() {
             : targetPosition;
         updateModel(value, nodePosition);
         inputEditorCtx.onInputChange('');
+        inputEditorCtx.onSuggestionSelection(value);
+    }
+
+    const searchSuggestions = (e: any) => {
+        const searchValue = e.target.value;
+        setKeyword(searchValue);
+        setFilteredSuggestions(lsSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())));
+        setFilteredSecondLevelSuggestions(secondLevelSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())))
     }
 
     return (
         <>
-            {!!lsSuggestions?.length && (
-                <>
-                    <div className={stmtEditorHelperClasses.lsSuggestionList}>
-                        <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+            <FormControl style={{ width: '100%', padding: '0 25px' }}>
+                <Input
+                    data-testid="ls-suggestions-searchbar"
+                    className={stmtEditorHelperClasses.librarySearchBox}
+                    placeholder={`Search Suggestions`}
+                    onChange={searchSuggestions}
+                    endAdornment={(
+                        <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
+                            <LibrarySearchIcon/>
+                        </InputAdornment>
+                    )}
+                />
+            </FormControl>
+            {(filteredSuggestions?.length || filteredSecondLevelSuggestions?.length) ?
+            (
+                <div className={stmtEditorHelperClasses.lsSuggestionList}>
+                    <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                        {!!filteredSuggestions?.length && (
                             <SuggestionsList
-                                lsSuggestions={lsSuggestions}
+                                lsSuggestions={filteredSuggestions}
                                 selectedListItem={selectedListItem}
                                 onClickLSSuggestion={onClickLSSuggestion}
                             />
-                            {!!secondLevelSuggestions?.length && (
-                                <SuggestionsList
-                                    lsSuggestions={secondLevelSuggestions}
-                                    selectedListItem={selectedListItem}
-                                    onClickLSSuggestion={onClickLSSuggestion}
-                                    selection={selectionForSecondLevel}
-                                />
-                            )}
-                        </div>
+                        )}
+                        {!!filteredSecondLevelSuggestions?.length && (
+                            <SuggestionsList
+                                lsSuggestions={filteredSecondLevelSuggestions}
+                                selectedListItem={selectedListItem}
+                                onClickLSSuggestion={onClickLSSuggestion}
+                                selection={selectionForSecondLevel}
+                            />
+                        )}
                     </div>
-                </>
-            )}
-            {!lsSuggestions?.length && (
+                </div>
+            )
+            :
+            (
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                     <p>Suggestions not available</p>
                 </div>

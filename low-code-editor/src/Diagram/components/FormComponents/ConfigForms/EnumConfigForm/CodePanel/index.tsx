@@ -70,7 +70,7 @@ export function CodePanel() {
     };
 
     return (
-        <FormControl data-testid="enum-form" className={overlayClasses.wizardFormControlExtended}>
+        <FormControl data-testid="enum-form" className={overlayClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={state.onCancel}
                 formTitle={"lowcode.develop.configForms.enumConfigForm.codePanel.title"}

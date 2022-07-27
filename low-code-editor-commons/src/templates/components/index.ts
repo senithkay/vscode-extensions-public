@@ -46,7 +46,9 @@ if {{{ CONDITION }}} {
     PROPERTY_STATEMENT: '{{{ PROPERTY }}}',
     REMOTE_SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
     REMOTE_SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{ CALLER }}}->{{{ FUNCTION }}}({{{ PARAMS }}});',
-    RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{ PAYLOAD }}}{{#if ADD_REQUEST}}http:Request request{{/if}}{{#if ADD_CALLER}}{{#if ADD_REQUEST}}, {{/if}}{{/if}}{{#if ADD_CALLER}}http:Caller caller{{/if}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
+    ACTION_STATEMENT: '{{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
+    ACTION_STATEMENT_CHECK: 'check {{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
+    RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}}({{{ QUERY_PARAM }}}{{{ PAYLOAD }}}{{#if ADD_REQUEST}}http:Request request{{/if}}{{#if ADD_CALLER}}{{#if ADD_REQUEST}}, {{/if}}{{/if}}{{#if ADD_CALLER}}http:Caller caller{{/if}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
     RESOURCE: `
 resource function {{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{PAYLOAD}}}{{#if ADD_REQUEST}}http:Request request{{/if}}{{#if ADD_CALLER}}{{#if ADD_REQUEST}}, {{/if}}{{/if}}{{#if ADD_CALLER}}http:Caller caller{{/if}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}} {
 

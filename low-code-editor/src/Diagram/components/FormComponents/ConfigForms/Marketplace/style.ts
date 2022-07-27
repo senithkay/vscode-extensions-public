@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
             marginLeft: theme.spacing(2),
         },
         container: {
-            width: 540,
+            width: 600,
             height: '85vh',
             '& .MuiFormControl-marginNormal': {
                 margin: '0 !important',

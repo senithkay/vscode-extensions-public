@@ -68,6 +68,15 @@ const statementFontStyles = {
     fontFamily: 'Droid sans mono'
 }
 
+const inputEditorTemplateStyles = {
+    minWidth: '20px',
+    letterSpacing: 0,
+    position: 'relative' as 'relative',
+    '&:focus': {
+        outline: 'none'
+    }
+}
+
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
@@ -107,14 +116,17 @@ export const useStatementRendererStyles = makeStyles(() =>
             ...removePadding
         },
         inputEditorTemplate: {
-            minWidth: '20px',
-            letterSpacing: 0,
-            position: 'relative',
             border: 'none',
-            '&:focus': {
-                outline: 'none'
-            },
+            ...inputEditorTemplateStyles,
             ...statementFontStyles
+        },
+        inputEditorEditingState: {
+            border: "2px solid rgba(229,232,255,0.5)",
+            borderRadius: '5px',
+            backgroundColor: "#FFFFFF",
+            boxShadow: "inset 0 0 0 1px #A6B3FF, inset 0 1px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)",
+            ...statementFontStyles,
+            ...inputEditorTemplateStyles
         },
         expressionElement: {
             position: 'relative',
@@ -134,6 +146,12 @@ export const useStatementRendererStyles = makeStyles(() =>
             '&.hovered': {
                 backgroundColor: '#e5ebf1',
             },
+            '&:focus-within': {
+                backgroundColor: 'transparent'
+            },
+            '&.hovered:focus-within:': {
+                backgroundColor: 'transparent',
+            },
             ...hoverColor2
         },
         syntaxErrorElementSelected: {
@@ -146,6 +164,11 @@ export const useStatementRendererStyles = makeStyles(() =>
                 backgroundColor: '#FCEDED',
                 boxShadow: '0 1px 4px 0 rgba(0,0,0,0.11)',
                 color: '#FE523C',
+            },
+            '&:focus-within': {
+                backgroundColor: 'transparent',
+                boxShadow: 'none',
+                border: 'none'
             }
         },
         addNewExpressionButton: {
@@ -220,7 +243,8 @@ export const useStatementRendererStyles = makeStyles(() =>
         },
         syntaxErrorTooltip : {
             position: 'absolute',
-            top: '-10px'
+            top: '-60px',
+            left: '80%'
         }
     }),
 );
@@ -251,7 +275,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         libraryTypeSelector: {
             height: '48px',
-            width: '45%',
+            marginLeft: '80px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end'
@@ -484,6 +508,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             padding: '0 10px'
         },
         parameterCheckbox: {
+            alignSelf: "center",
             color: '#2FA86C',
             padding: '0 6px 0 0',
             "& .MuiCheckbox-colorSecondary.Mui-checked": {
@@ -496,8 +521,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                     background: "transparent",
                 },
                 "& .MuiIconButton-label": {
-                    position: "relative",
-                    zIndex: 0,
+                    position: "relative"
                 },
                 "& .MuiIconButton-label::after": {
                     content: '""',
@@ -521,6 +545,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         checked: {},
         disabledCheckbox : {
+            alignSelf: "center",
             color: 'rgba(47,168,108,0.5)',
             padding: '0 6px 0 0',
             "&$checked": {
@@ -530,7 +555,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 },
                 "& .MuiIconButton-label": {
                     position: "relative",
-                    zIndex: 0,
                 },
                 "& .MuiIconButton-label::after": {
                     content: '""',
@@ -558,7 +582,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...stmtEditorPadding
         },
         returnSeparator : {
-            width: '616px',
+            width: '516px',
             opacity: '0.52',
             backgroundColor: "#DCDEE4",
             display: 'block',
@@ -577,10 +601,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         docParamDescriptionText: {
             flex: "inherit",
-            width: '320px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
             ...removePadding
         },
         includedRecordPlusBtn: {
@@ -672,6 +692,14 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             display: 'flex',
             alignItems: 'flex-start'
         },
+        paramTreeDescriptionText: {
+            flex: "inherit",
+            width: '320px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            ...removePadding
+        },
         listItemMultiLine: {
             display: 'flex',
             flexDirection: 'column',
@@ -759,7 +787,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         mainStatementWrapper: {
             display: 'flex',
             height: 'auto',
-            width: 700,
+            width: 600,
             flexDirection: 'column',
         },
         stmtEditorInnerWrapper: {
@@ -824,7 +852,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            padding: '10px 25px',
+            padding: '10px 25px 0 25px',
             borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {

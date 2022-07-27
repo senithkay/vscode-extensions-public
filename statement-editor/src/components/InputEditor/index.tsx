@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import { ClickAwayListener } from "@material-ui/core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
@@ -46,6 +46,7 @@ export function InputEditor(props: InputEditorProps) {
             updateModel,
             handleChange,
             hasSyntaxDiagnostics,
+            updateSyntaxDiagnostics,
             currentModel
         },
         targetPosition,
@@ -70,6 +71,7 @@ export function InputEditor(props: InputEditorProps) {
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);
+    const [isSelectingText, setIsSelectingText] = useState(false);
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
@@ -104,10 +106,22 @@ export function InputEditor(props: InputEditorProps) {
     }, [userInput]);
 
     useEffect(() => {
+        const suggestion = inputEditorCtx.suggestionInput
         if (hasSyntaxDiagnostics) {
             setIsEditing(false);
+            if (currentModel.model === model && suggestion) {
+                setUserInput(suggestion);
+            }
+        } else {
+            setUserInput(originalValue)
         }
     }, [hasSyntaxDiagnostics]);
+
+    useEffect(() => {
+        if (isEditing === false) {
+            setIsSelectingText(false);
+        }
+    }, [isEditing]);
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {
@@ -120,7 +134,8 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const clickAwayHandler = (event: any) => {
-        if (!event.path[0].className.includes("suggestion")){
+        const path = event.path || (event.composedPath && event.composedPath());
+        if (path && !path[0].className.includes("suggestion")){
             handleEditEnd();
         }
         setIsEditing(false);
@@ -144,6 +159,7 @@ export function InputEditor(props: InputEditorProps) {
         }
         setUserInput(input);
         inputEditorCtx.onInputChange(input);
+        inputEditorCtx.onSuggestionSelection('');
         debouncedContentChange(newValue, true);
     }
 
@@ -151,8 +167,10 @@ export function InputEditor(props: InputEditorProps) {
 
     const handleDoubleClick = () => {
         if (!notEditable && !hasSyntaxDiagnostics) {
+            setIsSelectingText(true);
             setIsEditing(true);
         } else if (!notEditable && hasSyntaxDiagnostics && (currentModel.model === model)) {
+            setIsSelectingText(true);
             setIsEditing(true);
         }
     };
@@ -160,10 +178,21 @@ export function InputEditor(props: InputEditorProps) {
     const handleEditEnd = () => {
         setPrevUserInput(userInput);
         if (userInput !== "") {
-            // Replace empty interpolation with placeholder value
-            const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
-            originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
-            updateModel(codeSnippet, model ? model.position : targetPosition);
+            // Check syntax diagnostics
+            let isIncorrectSyntax = false;
+            const semicolonRegex = new RegExp('(;)(?=(?:[^"]|"[^"]*")*$)');
+            if (userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
+                isIncorrectSyntax = semicolonRegex.test(userInput);
+            }
+            if (isIncorrectSyntax) {
+                updateSyntaxDiagnostics(true);
+            } else {
+                setUserInput(userInput);
+                // Replace empty interpolation with placeholder value
+                const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+                originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
+                updateModel(codeSnippet, model ? model.position : targetPosition);
+            }
         }
         setIsEditing(false);
     }
@@ -174,13 +203,14 @@ export function InputEditor(props: InputEditorProps) {
                 <input
                     data-testid="input-editor"
                     value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
-                    className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
+                    className={statementRendererClasses.inputEditorEditingState + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
                     size={userInput.length}
                     autoFocus={true}
                     style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
                     spellCheck="false"
+                    onFocus={isSelectingText && (event => {event.target.select(); })}
                 />
             </ClickAwayListener>
         ) : (

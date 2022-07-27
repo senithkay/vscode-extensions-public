@@ -14,11 +14,10 @@ import React from "react";
 
 import {
     CallerIcon,
-    ParamIcon,
+    HeaderIcon,
     PayloadIcon,
     QueryIcon,
-    RequestIcon,
-    SegmentIcon
+    RequestIcon
 } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { PARAM_TYPES } from "./ParamEditor";
@@ -38,6 +37,8 @@ export function ParamIcons(props: {type: string}): JSX.Element {
             return <RequestIcon />;
         case PARAM_TYPES.CALLER:
             return <CallerIcon />;
+        case PARAM_TYPES.HEADER:
+            return <HeaderIcon />;
         default:
             return <></>;
     }

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { Box, FormControl, Input, InputAdornment, List, ListItem, Typography } from "@material-ui/core";
@@ -19,11 +19,12 @@ import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edti
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import SearchIcon from "../../../../../../assets/icons/SearchIcon";
-import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../../style";
 import useStyles from "../style";
+
+import { ActionCard } from "./ActionCard";
 
 interface ActionListProps {
     actions: FunctionDefinitionInfo[];
@@ -34,18 +35,9 @@ export function ActionList(props: FormGeneratorProps) {
     const classes = useStyles();
     const formClasses = useFormStyles();
 
-    const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
+    const { onCancel, onBack, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
     const { actions, onSelect } = formArgs as ActionListProps;
-
-    const {
-        props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled },
-        api: {
-            ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
-            library,
-        },
-    } = useContext(Context);
 
     const [keyword, setKeyword] = useState("");
     const [filteredActions, setFilteredActions] = useState<FunctionDefinitionInfo[]>([]);
@@ -71,30 +63,22 @@ export function ActionList(props: FormGeneratorProps) {
         if (action.name === "init") {
             return;
         }
-        const name = action.displayAnnotation?.label || action.name;
-        const handleOnSelect = () => {
-            onSelect(action);
-        };
-        return (
-            <ListItem
-                key={`action-${action.name.toLowerCase()}`}
-                data-testid={`${action.name.toLowerCase().replaceAll(" ", "-")}`}
-                button={true}
-                onClick={handleOnSelect}
-            >
-                <Typography variant="h4">{name}</Typography>
-            </ListItem>
-        );
+        return <ActionCard key={action.name} action={action} onSelect={onSelect} />;
     });
 
     const handleActionSearch = (e: any) => {
         setKeyword(e.target.value);
     };
 
+    const handleOnBack = () => {
+        onBack();
+    };
+
     return (
-        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControlExtended}>
+        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
+                onBack={handleOnBack}
                 formTitle={"lowcode.develop.configForms.actionList.title"}
                 defaultMessage={"Action"}
             />
@@ -102,8 +86,8 @@ export function ActionList(props: FormGeneratorProps) {
                 <div className={formClasses.formFeilds}>
                     <div className={classes.container}>
                         {isLoading && (
-                            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                                <TextPreLoader position="absolute" text="Fetching Actions..." />
+                            <Box display="flex" justifyContent="center">
+                                <TextPreLoader position="absolute" text="Fetching actions..." />
                             </Box>
                         )}
                         {!isLoading && (
@@ -137,7 +121,7 @@ export function ActionList(props: FormGeneratorProps) {
                         )}
                         {!isLoading && filteredActions?.length === 0 && (
                             <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                                <Typography className={classes.emptyTitle}>
+                                <Typography className={classes.subTitle}>
                                     <FormattedMessage
                                         id="lowcode.develop.configForms.actionList.empty"
                                         defaultMessage="No actions found"

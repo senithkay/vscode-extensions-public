@@ -11,9 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { useIntl } from "react-intl";
 
+import { Box, FormControl } from "@material-ui/core";
 import {
     BallerinaConnectorInfo,
     genVariableName,
@@ -22,20 +23,25 @@ import {
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from "../../../../../../Contexts/Diagram";
+import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
 import { createCheckObjectDeclaration, createObjectDeclaration, getInitialSource } from "../../../../../utils";
 import { getFormattedModuleName } from "../../../../Portals/utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
-import { getDefaultParams, getFormFieldReturnType } from "../util";
+import { wizardStyles as useFormStyles } from "../../style";
+import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "../util";
 
 interface EndpointFormProps {
     connector: BallerinaConnectorInfo;
+    isModuleType?: boolean;
 }
 
 export function EndpointForm(props: FormGeneratorProps) {
+    const formClasses = useFormStyles();
+
     const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
-    const { connector } = formArgs as EndpointFormProps;
+    const { connector, isModuleType } = formArgs as EndpointFormProps;
 
     const {
         props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled },
@@ -52,7 +58,7 @@ export function EndpointForm(props: FormGeneratorProps) {
         defaultMessage: "Endpoint",
     });
 
-    const imports = new Set<string>([`${connector.package.organization}/${connector.moduleName}`]);
+    const imports = getConnectorImports(syntaxTree, connector.package.organization, connector.moduleName);
     const moduleName = getFormattedModuleName(connector.moduleName);
     let initialSource = "EXPRESSION";
 
@@ -95,26 +101,36 @@ export function EndpointForm(props: FormGeneratorProps) {
 
     // HACK
     formArgs.targetPosition = targetPosition;
-    formArgs.isEditForm = model ? true : false;
 
-    const stmtEditorComponent = StatementEditorWrapper({
-        label: formTitle,
-        initialSource,
-        formArgs: { formArgs },
-        config: { type: "Connector" },
-        onWizardClose: onSave,
-        onCancel,
-        currentFile,
-        getLangClient: getExpressionEditorLangClient,
-        applyModifications: modifyDiagram,
-        library,
-        syntaxTree,
-        stSymbolInfo,
-        extraModules: imports,
-        isLoading,
-        experimentalEnabled,
-        runBackgroundTerminalCommand,
-    });
-
-    return stmtEditorComponent;
+    return (
+        <>
+            {isLoading && (
+                <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControlExtended}>
+                    <Box display="flex" justifyContent="center" width="100%">
+                        <TextPreLoader position="absolute" text="Loading connector..." />
+                    </Box>
+                </FormControl>
+            )}
+            {!isLoading &&
+                connector?.functions?.length > 0 &&
+                StatementEditorWrapper({
+                    label:  formTitle,
+                    initialSource,
+                    formArgs: { formArgs },
+                    config: { type: "Connector" },
+                    onWizardClose: onSave,
+                    onCancel,
+                    currentFile,
+                    getLangClient: getExpressionEditorLangClient,
+                    applyModifications: modifyDiagram,
+                    library,
+                    syntaxTree,
+                    stSymbolInfo,
+                    extraModules: imports,
+                    experimentalEnabled,
+                    runBackgroundTerminalCommand,
+                    isModuleVar: isModuleType ?? false,
+                })}
+        </>
+    );
 }

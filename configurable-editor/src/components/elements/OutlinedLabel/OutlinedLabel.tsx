@@ -18,18 +18,19 @@
  */
 import React from "react";
 
-import { Chip } from "@material-ui/core";
+import { Chip, Tooltip } from "@material-ui/core";
 
 import { useStyles } from "./style";
 
 interface OutlinedLabelProps {
     type: "success" | "warning" | "info" | "primary" | "default";
     label: string;
+    tooltipText: string;
     isLink?: boolean;
     shape?: "square" | "round";
 }
 
-const OutlinedLabel = ({ type, label, isLink, shape }: OutlinedLabelProps) => {
+const OutlinedLabel = ({ type, label, tooltipText, isLink, shape }: OutlinedLabelProps) => {
     const classes = useStyles();
     let chipColor = "#5567D5";
     const cursor = isLink ? "pointer" : "default";
@@ -62,13 +63,15 @@ const OutlinedLabel = ({ type, label, isLink, shape }: OutlinedLabelProps) => {
     };
 
     return (
-        <Chip
-            size="small"
-            label={label}
-            variant="outlined"
-            classes={{root: classes.chipRoot, label: classes.chiplabel}}
-            style={chipStyles}
-        />
+        <Tooltip title={tooltipText} arrow={true} placement="right-start">
+            <Chip
+                size="small"
+                label={label}
+                variant="outlined"
+                classes={{root: classes.chipRoot, label: classes.chiplabel}}
+                style={chipStyles}
+            />
+        </Tooltip>
     );
 };
 export default OutlinedLabel;

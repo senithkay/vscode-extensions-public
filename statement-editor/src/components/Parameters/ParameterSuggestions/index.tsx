@@ -13,16 +13,19 @@
 import React, { useContext, useEffect } from "react";
 
 import { List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
-import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, FunctionDefinitionInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { ACTION, CONNECTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
     getCurrentModelParams,
     getDocDescription,
     getParentFunctionModel,
+    isConfigurableEditor,
     isDescriptionWithExample,
     isDocumentationSupportedModel,
+    isInsideConnectorParams,
     updateParamDocWithParamPositions,
     updateParamListFordMethodCallDoc
 } from "../../../utils";
@@ -40,32 +43,48 @@ export function ParameterSuggestions() {
         },
         formCtx: {
             formArgs: {
-                connector
+                connector,
+                action
             }
         },
         documentation: {
             documentation
-        }
+        },
+        editorCtx: {
+            editors,
+            activeEditorId
+        },
+        config
     } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
     const [paramDoc, setParamDoc] = React.useState(documentation.documentation);
 
-    const connectorInfo = (connector as BallerinaConnectorInfo);
-    const connectorInit = connectorInfo?.functions.find(func => func.name === "init");
+    const connectorInfo = connector as BallerinaConnectorInfo;
+    const actionInfo = action as FunctionDefinitionInfo;
+    const method =
+        config.type === CONNECTOR ? connectorInfo?.functions.find((func) => func.name === "init") : actionInfo;
+    const isConfigurable = isConfigurableEditor(editors, activeEditorId);
+    const isConnectorFlow =
+        (config.type === CONNECTOR || config.type === ACTION) &&
+        (connectorInfo || actionInfo) &&
+        method &&
+        !isConfigurable;
+    const insideParamList = currentModel.model ? isInsideConnectorParams(currentModel.model, config.type) : false;
 
     useEffect(() => {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
-            const paramsInModel: STNode[] = isDocumentationSupportedModel(currentModel.model) ?
-                getCurrentModelParams(currentModel.model) :
-                getCurrentModelParams(
-                    getParentFunctionModel((currentModel.model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
-                        statementModel));
+            const model = isDocumentationSupportedModel(currentModel.model) ? currentModel.model :
+                getParentFunctionModel((currentModel.model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                statementModel);
+            const paramsInModel: STNode[] = getCurrentModelParams(model);
+            let paramDocumentation : SymbolDocumentation  = documentation.documentation;
             // TODO: Remove this check once the methodCall param filter is added to the LS
-            if (STKindChecker.isMethodCall(currentModel.model)) {
-                updateParamListFordMethodCallDoc(paramsInModel, documentation.documentation);
+            if (STKindChecker.isMethodCall(model)) {
+                paramDocumentation = updateParamListFordMethodCallDoc(paramsInModel, paramDocumentation);
             }
-            setParamDoc(updateParamDocWithParamPositions(paramsInModel, documentation.documentation));
+            paramDocumentation = updateParamDocWithParamPositions(paramsInModel, paramDocumentation);
+            setParamDoc(paramDocumentation);
         }
     }, [currentModel.model, documentation]);
 
@@ -95,8 +114,8 @@ export function ParameterSuggestions() {
 
     return (
         <>
-            {!connectorInfo &&
-                (documentation === null && !connectorInfo ? (
+            {!isConnectorFlow &&
+                (documentation === null ? (
                     <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                         <p>Please upgrade to the latest Ballerina version</p>
                     </div>
@@ -107,7 +126,7 @@ export function ParameterSuggestions() {
                                 {paramDoc && <ParameterList paramDocumentation={paramDoc}/>}
                                 {documentation.documentation.description && (
                                     <>
-                                        {documentation.documentation.parameters?.length > 0 && (
+                                        {paramDoc?.parameters?.length > 0 && (
                                             <hr className={stmtEditorHelperClasses.returnSeparator}/>
                                         )}
                                         <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
@@ -137,32 +156,37 @@ export function ParameterSuggestions() {
                         )}
                     </>
                 ))}
-            {connectorInfo && connectorInit && (
+            {isConnectorFlow && insideParamList && (
                 <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                    {connectorInit.parameters && (<ParameterTree parameters={connectorInit.parameters} />)}
-                    {connectorInfo.documentation && (
+                    {method.parameters && (<ParameterTree parameters={method.parameters} />)}
+                    {method.parameters?.length > 0 && (
+                        <hr className={stmtEditorHelperClasses.returnSeparator} />
+                    )}
+                    {(connectorInfo?.documentation || method.documentation) && (
                         <>
-                            {connectorInit.parameters?.length > 0 && (
-                                <hr className={stmtEditorHelperClasses.returnSeparator} />
-                            )}
                             <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                                 Description
                             </ListSubheader>
                             <ListItem className={stmtEditorHelperClasses.docDescription}>
-                                {connectorInfo.documentation}
+                                {connectorInfo?.documentation || method.documentation}
                             </ListItem>
                         </>
                     )}
-                    {connectorInit.returnType?.documentation && (
+                    {method.returnType?.documentation && (
                         <>
                             <hr className={stmtEditorHelperClasses.returnSeparator} />
                             <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>Return</ListSubheader>
                             <ListItem className={stmtEditorHelperClasses.returnDescription}>
-                                <ListItemText primary={connectorInit.returnType?.documentation} />
+                                <ListItemText primary={method.returnType?.documentation} />
                             </ListItem>
                         </>
                     )}
                 </List>
+            )}
+            {isConnectorFlow && !insideParamList && (
+                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                    <p>Please select a method or parameter to see the parameter information</p>
+                </div>
             )}
         </>
     );

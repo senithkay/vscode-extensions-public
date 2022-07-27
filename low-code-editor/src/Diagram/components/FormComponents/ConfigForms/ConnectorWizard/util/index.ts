@@ -24,6 +24,7 @@ import {
     DoStatement,
     ForeachStatement,
     IfElseStatement,
+    ModulePart,
     NodePosition,
     QualifiedNameReference,
     STKindChecker,
@@ -34,7 +35,7 @@ import {
 
 import { isEndpointNode } from "../../../../../utils";
 import { getFormattedModuleName } from "../../../../Portals/utils";
-import { isAllDefaultableFields } from "../../../Utils";
+import { isAllDefaultableFields, isAnyFieldSelected, isDependOnDriver } from "../../../Utils";
 
 export async function fetchConnectorInfo(
     connector: BallerinaConnectorInfo,
@@ -125,33 +126,48 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 break;
             case PrimitiveBalType.Nil:
             case "()":
-                draftParameter = getFieldValuePair(parameter, `()`, depth);
+                draftParameter = getFieldValuePair(parameter, `()`, depth, true);
                 break;
             case PrimitiveBalType.Json:
             case "map":
                 draftParameter = getFieldValuePair(parameter, `{}`, depth);
                 break;
             case PrimitiveBalType.Record:
-                if (isAllDefaultableFields(parameter?.fields)) {
+                const allFieldsDefaultable = isAllDefaultableFields(parameter?.fields);
+                if (!parameter.selected && allFieldsDefaultable) {
+                    break;
+                }
+                if (parameter.selected && allFieldsDefaultable && !isAnyFieldSelected(parameter?.fields)) {
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
                 draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly);
                 break;
+            case PrimitiveBalType.Enum:
             case PrimitiveBalType.Union:
-                const firstMember = parameter.members[ 0 ];
-                const firstMemberParams = getDefaultParams([ firstMember ], depth + 1, true);
-                draftParameter = getFieldValuePair(parameter, firstMemberParams?.join(), depth);
+                const selectedMember = parameter.members[ 0 ];
+                const selectedMemberParams = getDefaultParams([ selectedMember ], depth + 1, true);
+                draftParameter = getFieldValuePair(parameter, selectedMemberParams?.join(), depth, false);
                 break;
             case "inclusion":
-                if (isAllDefaultableFields(parameter.inclusionType?.fields)) {
+                if (isAllDefaultableFields(parameter.inclusionType?.fields) && !parameter.selected) {
                     break;
                 }
-                const inclusionParams = getDefaultParams([ parameter.inclusionType ], depth + 1);
+                const inclusionParams = getDefaultParams([ parameter.inclusionType ], depth + 1, true);
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
-
+            case "object":
+                const typeInfo = parameter.typeInfo;
+                if (typeInfo && typeInfo.orgName === 'ballerina' && typeInfo.moduleName === 'sql'
+                    && typeInfo.name === 'ParameterizedQuery') {
+                    draftParameter = getFieldValuePair(parameter, '``', depth);
+                }
+                break;
             default:
+                if (!parameter.name) {
+                    // Handle Enum type
+                    draftParameter = getFieldValuePair(parameter, `"${parameter.typeName}"`, depth, true);
+                }
                 break;
         }
         if (draftParameter !== "") {
@@ -305,6 +321,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                 }
                 if (depth > 2 && (formField.typeName.trim() === "error" || formField.isErrorType)) {
                     response.hasReturn = true;
+                    response.hasError = true;
                     response.returnType = "error";
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
@@ -464,4 +481,35 @@ export function getConnectorFromVisibleEp(endpoint: VisibleEndpoint) {
         functions: [],
     };
     return connector;
+}
+
+export function getConnectorImports(syntaxTree: STNode, organization: string, moduleName: string) {
+    let isDriverImported = false;
+    const imports = new Set<string>([ `${organization}/${moduleName}` ]);
+
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        (syntaxTree as ModulePart).imports?.forEach((imp) => {
+            if (
+                STKindChecker.isImportDeclaration(imp) &&
+                imp.orgName?.orgName.value === organization &&
+                imp.typeData?.symbol?.moduleID?.moduleName === `${moduleName}.driver`
+            ) {
+                isDriverImported = true;
+            }
+        });
+        if (!isDriverImported && isDependOnDriver(moduleName)) {
+            imports.add(`${organization}/${moduleName}.driver as _`);
+        }
+    }
+    return imports;
+}
+
+export function getReturnTypeImports(returnType: FormFieldReturnType) {
+    const imports = new Set<string>();
+    if (returnType.importTypeInfo) {
+        returnType.importTypeInfo?.forEach((typeInfo) => {
+            imports.add(`${typeInfo.orgName}/${typeInfo.moduleName}`);
+        });
+    }
+    return imports;
 }

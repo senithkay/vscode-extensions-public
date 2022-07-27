@@ -18,13 +18,13 @@ import { formCreateSvg } from "../../../../assets";
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         wizardFormControl: {
-            width: 300,
+            width: 312,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
         },
         wizardFormControlExtended: {
-            width: 500,
+            width: 600,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },

@@ -72,6 +72,7 @@ export { default as DefaultConnectorIcon } from './DefaultConnectorIcon';
 export { QueryIcon } from './QueryIcon';
 export { SegmentIcon } from './SegmentIcon';
 export { CallerIcon } from './CallerIcon';
+export { HeaderIcon } from './HeaderIcon';
 export { RequestIcon } from './RequestIcon';
 export { PayloadIcon } from './PayloadIcon';
 export { ParamIcon } from './ParamIcon';

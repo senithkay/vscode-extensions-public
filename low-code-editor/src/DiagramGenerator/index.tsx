@@ -16,10 +16,24 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { CommandResponse, ConditionConfig, Connector, DiagramDiagnostic, DIAGRAM_MODIFIED, getImportStatements, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig, STModification, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CommandResponse, ConditionConfig,
+    Connector,
+    DiagramDiagnostic,
+    DIAGRAM_MODIFIED,
+    getImportStatements,
+    KeyboardNavigationManager,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibraryKind,
+    LibrarySearchResponse,
+    LowcodeEvent,
+    SentryConfig,
+    STModification,
+    STSymbolInfo,
+    WizardType
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
-import Mousetrap from 'mousetrap';
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
@@ -64,6 +78,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;
     const getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined> = props.getLibraryData;
     const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
+    const getBalVersion: () => Promise<string | undefined> = props.getBallerinaVersion;
     const getEnv: (name: string) => Promise<any> = props.getEnv;
 
     const defaultZoomStatus = {
@@ -81,6 +96,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [performanceData, setPerformanceData] = React.useState(undefined);
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
+    const [balVersion, setBalVersion] = React.useState("");
     const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
@@ -119,15 +135,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     }, [lastUpdatedAt]);
 
     React.useEffect(() => {
-        Mousetrap.bind(['command+z', 'ctrl+z'], () => {
-            undo();
-            return false;
-        });
-        Mousetrap.bind(['command+shift+z', 'ctrl+y'], () => {
-            redo();
-            return false;
-        });
         (async () => {
+            const version: string = await getBalVersion();
+            setBalVersion(version);
             const sentryConfig: SentryConfig = await getSentryConfig();
             if (sentryConfig) {
                 init(sentryConfig);
@@ -139,6 +149,14 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         setSelectedPosition(startColumn === 0 && startLine === 0 && syntaxTree ?
             getDefaultSelectedPosition(syntaxTree as ModulePart)
             : { startLine, startColumn });
+
+        const client = KeyboardNavigationManager.getClient();
+        client.bindNewKey(['command+z', 'ctrl+z'], undo);
+        client.bindNewKey(['command+shift+z', 'ctrl+y'], redo);
+
+        return () => {
+            client.resetMouseTrapInstance();
+        }
     }, [syntaxTree]);
 
     function zoomIn() {
@@ -271,6 +289,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             importStatements={getImportStatements(syntaxTree)}
                             experimentalEnabled={experimentalEnabled}
                             lowCodeResourcesVersion={lowCodeResourcesVersion}
+                            ballerinaVersion={balVersion}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {

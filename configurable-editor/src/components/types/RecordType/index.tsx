@@ -17,18 +17,19 @@
  *
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useContext, useEffect, useState } from "react";
 
-import { Box, Card, CardContent, Collapse } from "@material-ui/core";
+import { Box, Card, CardContent, Collapse, IconButton, Tooltip } from "@material-ui/core";
 
+import { DocIcon } from "../../../assets";
 import ConfigElement, { ConfigElementProps } from "../../ConfigElement";
+import { docLink } from "../../ConfigForm";
 import ExpandMore from "../../elements/ExpandMore";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { ConfigType, SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
 import { getRecordName } from "../../utils";
 import { ObjectTypeProps } from "../ObjectType";
-
 /**
  * A high level config property which can contain nested objects.
  */
@@ -38,13 +39,13 @@ export interface RecordTypeProps extends ObjectTypeProps {
 
 export const RecordType = (props: RecordTypeProps) => {
     const classes = useStyles();
-    const recordName: string = getRecordName(props.schema[SchemaConstants.NAME]);
-    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props, recordName));
+    const { fullRecordName, shortenedRecordName } = getRecordName(props.schema[SchemaConstants.NAME]);
+    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props, fullRecordName));
     const [expanded, setExpanded] = useState(true);
     const returnElement: ReactElement[] = [];
 
     useEffect(() => {
-        setRecordValue(getObjectElement(props, recordName));
+        setRecordValue(getObjectElement(props, fullRecordName));
     }, [props.unionId]);
 
     useEffect(() => {
@@ -84,8 +85,23 @@ export const RecordType = (props: RecordTypeProps) => {
         label: props.label,
         name: props.name,
         required: props.isRequired,
-        type: recordName ? recordName : ConfigType.MODULE,
+        shortenedType: shortenedRecordName ? shortenedRecordName : ConfigType.MODULE,
+        type: fullRecordName ? fullRecordName : ConfigType.MODULE,
     };
+
+    const openTriggerDocs = () => {
+        window.open(docLink);
+    };
+
+    const triggerDocIconButton = (
+        props.name === SchemaConstants.CONFIG ? (
+            <Tooltip title={"View Documentation"}>
+                <Box className={classes.docIcon}>
+                    <IconButton onClick={openTriggerDocs}><img src={DocIcon} /></IconButton>
+                </Box>
+            </Tooltip>
+        ) : null
+    );
 
     return (
         <Box className={classes.innerBoxCard}>
@@ -93,6 +109,7 @@ export const RecordType = (props: RecordTypeProps) => {
                 <CardContent className={classes.cardContent}>
                     <Box className={classes.innerBoxHead}>
                         <FieldLabel {...fieldLabelProps} />
+                        {docLink && triggerDocIconButton}
                         <ExpandMore
                             expand={expanded}
                             onClick={handleExpandClick}

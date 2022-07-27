@@ -37,7 +37,9 @@ import * as formComponents from '../components/Forms/Form';
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
+    ACTION,
     BAL_SOURCE,
+    CONNECTOR,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
@@ -48,7 +50,15 @@ import {
     StatementNodes, SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
-import { MinutiaeJSX, RemainingContent, StmtDiagnostic, StmtOffset, SuggestionItem } from '../models/definitions';
+import {
+   EditorModel, MinutiaeJSX,
+    RemainingContent,
+    StmtDiagnostic,
+    StmtOffset,
+    SuggestionItem,
+    SymbolIcon
+} from '../models/definitions';
+import { visitor as ClearDiagnosticVisitor } from "../visitors/clear-diagnostics-visitor";
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
 import { visitor as DiagnosticsMappingVisitor } from "../visitors/diagnostics-mapping-visitor";
 import { visitor as ExpressionDeletingVisitor } from "../visitors/expression-deleting-visitor";
@@ -172,6 +182,7 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
             startColumn: targetPosition.startColumn,
             startLine: targetPosition.startLine
         }
+        traversNode(model, ClearDiagnosticVisitor);
         diagnostics.map(diagnostic => {
             DiagnosticsMappingVisitor.setDiagnosticsNOffset(diagnostic, offset);
             traversNode(model, DiagnosticsMappingVisitor);
@@ -360,38 +371,50 @@ export function getClassNameForToken(model: STNode): string {
     return className;
 }
 
-export function getSuggestionIconStyle(suggestionType: number): string {
+export function getSuggestionIconStyle(suggestionType: number): SymbolIcon {
     let suggestionIconStyle: string;
+    let suggestionIconColor: string;
     switch (suggestionType) {
         case 3:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIconColor = "#652d90";
             break;
         case 5:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-field"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-field";
+            suggestionIconColor = "#007acc";
             break;
         case 6:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
         case 11:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
             break;
         case 14:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword";
+            suggestionIconColor = "#616161";
             break;
         case 20:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum-member"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum-member";
+            suggestionIconColor = "#007acc";
             break;
         case 22:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIconColor = "#616161";
             break;
         case 25:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-type-parameter"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-type-parameter";
+            suggestionIconColor = "#616161";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
     }
-    return suggestionIconStyle;
+    return {
+        className: suggestionIconStyle,
+        color: suggestionIconColor
+    };
 }
 
 export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
@@ -501,42 +524,76 @@ export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STS
     return undefined;
 }
 
-export function getModuleIconStyle(label: string): string {
+export function getModuleIconStyle(label: string): SymbolIcon {
     let suggestionIconStyle: string;
+    let suggestionIconColor: string;
     switch (label) {
         case "Functions":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIconColor = "#652d90";
             break;
         case "Classes":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIconColor = "#007acc";
             break;
         case "Constants":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
         case "Errors":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event";
+            suggestionIconColor = "#d67e00";
             break;
         case "Enums":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum";
+            suggestionIconColor = "#d67e00";
             break;
         case "Records":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIconColor = "#616161";
             break;
         case "Types":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
             break;
         case "Listeners":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIconColor = "#007acc";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface"
+            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIconColor = "#007acc";
             break;
     }
-    return suggestionIconStyle;
+    return {
+        className: suggestionIconStyle,
+        color: suggestionIconColor
+    };
 }
 
 export function isFunctionOrMethodCall(currentModel: STNode): boolean {
     return STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel);
+}
+
+export function isInsideConnectorParams(currentModel: STNode, editorConfigType: string): boolean {
+    const paramPosition = (currentModel.viewState as StatementEditorViewState)?.parentFunctionPos;
+    const modelPosition = currentModel.position as NodePosition;
+    return (
+        (editorConfigType === CONNECTOR || editorConfigType === ACTION)  &&
+        paramPosition &&
+        (paramPosition.startLine < modelPosition.startLine ||
+            (paramPosition.startLine === modelPosition.startLine &&
+                paramPosition.startColumn <= modelPosition.startColumn &&
+                paramPosition.endLine > modelPosition.endLine) ||
+            (paramPosition.endLine === modelPosition.endLine && paramPosition.endColumn >= modelPosition.endColumn))
+    );
+}
+
+export function isConfigurableEditor(editors: EditorModel[], activeEditorId: number): boolean {
+    if (editors?.length > activeEditorId) {
+        const activeEditor = editors[activeEditorId];
+        return activeEditor.isConfigurableStmt ?? false;
+    }
+    return false;
 }
 
 export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
@@ -642,7 +699,9 @@ export function updateParamDocWithParamPositions(paramsInModel: STNode[], docume
                 }
             }
         } else {
-            updatedDocWithPositions.parameters[value].modelPosition = param.position;
+            if (updatedDocWithPositions.parameters[value]){
+                updatedDocWithPositions.parameters[value].modelPosition = param.position;
+            }
         }
     });
 
@@ -713,12 +772,15 @@ export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput:
 }
 
 // TODO: Remove this function once the methodCall param filter is added to the LS
-export function updateParamListFordMethodCallDoc(paramsInModel: STNode[],  documentation : SymbolDocumentation) {
-    if (paramsInModel[0]?.source === undefined || documentation.parameters[0]?.name !==  paramsInModel[0]?.source){
-        if (documentation.parameters[0]?.kind === SymbolParameterType.REQUIRED){
-            documentation.parameters.splice(0, 1);
+export function updateParamListFordMethodCallDoc(paramsInModel: STNode[],  documentation : SymbolDocumentation) : SymbolDocumentation {
+    const updatedMethodParams : SymbolDocumentation = JSON.parse(JSON.stringify(documentation));
+    if (paramsInModel[0]?.source === undefined || updatedMethodParams.parameters[0]?.name !==  paramsInModel[0]?.source){
+        if (updatedMethodParams.parameters[0]?.kind === SymbolParameterType.REQUIRED){
+            updatedMethodParams.parameters.splice(0, 1);
         }
     }
+
+    return updatedMethodParams;
 }
 
 export function getExprWithArgs(suggestionValue: string, prefix?: string): string {
@@ -768,20 +830,24 @@ function getModelParamSourceList(currentModel: STNode): string[] {
 
 export function getParamUpdateModelPosition(model: STNode) {
     let position : NodePosition;
-    if (STKindChecker.isFunctionCall(model) || STKindChecker.isMethodCall(model)) {
+    if (
+        STKindChecker.isFunctionCall(model) ||
+        STKindChecker.isMethodCall(model) ||
+        STKindChecker.isRemoteMethodCallAction(model)
+    ) {
         position = {
             startLine: model.openParenToken.position.startLine,
             startColumn: model.openParenToken.position.startColumn,
             endLine: model.closeParenToken.position.endLine,
             endColumn: model.closeParenToken.position.endColumn,
-        }
-    } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)){
+        };
+    } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)) {
         position = {
             startLine: model.parenthesizedArgList.openParenToken.position.startLine,
             startColumn: model.parenthesizedArgList.openParenToken.position.startColumn,
             endLine: model.parenthesizedArgList.closeParenToken.position.endLine,
             endColumn: model.parenthesizedArgList.closeParenToken.position.endColumn,
-        }
+        };
     } else if (STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
         position = {
             startLine: model.expression.parenthesizedArgList.openParenToken.position.startLine,
