@@ -331,6 +331,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     }}
                     targetPosition={targetPosition}
                     model={model}
+                    showLoader={true}
                 />
             )}
         </>
