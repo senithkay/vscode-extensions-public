@@ -282,11 +282,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-        const isAllowedCustomSyntaxIssue = config.type === CUSTOM_CONFIG_TYPE
-            && partialST.syntaxDiagnostics.length && partialST.syntaxDiagnostics[0].message === "missing semicolon token"
-            && stmtDiagnostics.length === 0;
-
-        if (!partialST.syntaxDiagnostics.length || isAllowedCustomSyntaxIssue) {
+        if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(partialST.source);
@@ -312,9 +308,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             handleDiagnostics(updatedStatement).then();
-            if (!(config.type === CUSTOM_CONFIG_TYPE)) {
-                setHasSyntaxDiagnostics(true);
-            }
+            setHasSyntaxDiagnostics(true);
         }
     }
 
@@ -347,7 +341,9 @@ export function StatementEditor(props: StatementEditorProps) {
         if (config.type === CONNECTOR){
             await pullUnresolvedModules(diag);
         }
-        removeUnusedModules(diag);
+        if (config.type !== CONNECTOR && config.type !== ACTION){
+            removeUnusedModules(diag);
+        }
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
         return diag;
@@ -402,8 +398,8 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules?.size && runBackgroundTerminalCommand && !isPullingModule) {
-            const extraModulesArr = Array.from(extraModules);
+        if (!!moduleList?.size && runBackgroundTerminalCommand && !isPullingModule) {
+            const extraModulesArr = Array.from(moduleList);
             for (const diagnostic of completeDiagnostic) {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
                     for (const module of extraModulesArr) {

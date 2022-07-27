@@ -97,7 +97,7 @@ export function ViewContainer(props: ViewContainerProps) {
     };
 
     const onAddConfigurableClick = async () => {
-        await handleModifications();
+        await handleModifications(false);
 
         const model = statementModel as ModuleVarDecl;
 
@@ -126,10 +126,10 @@ export function ViewContainer(props: ViewContainerProps) {
         onCancel();
     };
 
-    const handleModifications = async () => {
+    const handleModifications = async (addImports= true) => {
         await sendDidClose(exprSchemeURI, getLangClient);
         await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
-        const imports = Array.from(modulesToBeImported) as string[];
+        const imports = addImports ? Array.from(modulesToBeImported) as string[] : [];
         const modifications = getModifications(statementModel, config.type, targetPosition, imports);
         applyModifications(modifications);
     };
