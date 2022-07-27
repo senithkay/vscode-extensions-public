@@ -1,4 +1,4 @@
-import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, FieldAccess, MappingConstructor, NodePosition, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDefinitionForTypeDesc } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
@@ -9,6 +9,7 @@ import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-st
 import { getFieldNames } from "../../utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
+import { isNodeInRange } from "../../utils/ls-utils";
  
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 
@@ -58,7 +59,18 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 				inPort = this.getInputPortsForExpr(inputNode, value);
 			}
 			const outPort = this.getOutputPortForField(fields);
-			const lm = new DataMapperLinkModel(value);
+
+			const hasError = this.context.diagnostics.some( (diagnostic) => {
+				const diagPosition: NodePosition = {
+					startLine: diagnostic.range.start.line,
+					startColumn: diagnostic.range.start.character,
+					endLine: diagnostic.range.end.line,
+					endColumn: diagnostic.range.end.character
+				};
+				return isNodeInRange(value.position, diagPosition)
+			});
+
+			const lm = new DataMapperLinkModel(value, hasError);
 			lm.addLabel(new ExpressionLabelModel({
 				value: otherVal?.source || value.source,
 				valueNode: otherVal || value,

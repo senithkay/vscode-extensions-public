@@ -4,6 +4,7 @@ import {
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
@@ -16,6 +17,7 @@ export interface IDataMapperContext {
     };
     stSymbolInfo: STSymbolInfo;
     applyModifications: (modifications: STModification[]) => void;
+    diagnostics: Diagnostic[];
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -30,7 +32,8 @@ export class DataMapperContext implements IDataMapperContext {
             size: number
         },
         public stSymbolInfo: STSymbolInfo,
-        public applyModifications: (modifications: STModification[]) => void
+        public applyModifications: (modifications: STModification[]) => void,
+        public diagnostics: Diagnostic[]
     ){}
 
     public get functionST(): FunctionDefinition {

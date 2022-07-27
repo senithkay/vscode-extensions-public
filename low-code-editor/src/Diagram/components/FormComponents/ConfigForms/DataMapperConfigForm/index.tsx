@@ -56,7 +56,8 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                 modifyDiagram
             },
             ls: {
-                getDiagramEditorLangClient
+                getDiagramEditorLangClient,
+                getExpressionEditorLangClient
             }
         }
     } = useContext(Context);
@@ -133,7 +134,7 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                 <DataMapper
                     fnST={functionST}
                     langClientPromise={getDiagramEditorLangClient}
-                    getLangClient={getDiagramEditorLangClient}
+                    getLangClient={getExpressionEditorLangClient}
                     filePath={currentFile.path}
                     currentFile={currentFile}
                     stSymbolInfo={stSymbolInfo}

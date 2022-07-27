@@ -6,13 +6,13 @@ import { FieldAccess, SimpleNameReference } from "@wso2-enterprise/syntax-tree";
 export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
-	constructor(public value: SimpleNameReference|FieldAccess = undefined) {
+	constructor(public value: SimpleNameReference|FieldAccess = undefined, public hasError: boolean = false) {
 		super({
 			type: LINK_TYPE_ID,
 			width: 1,
 			curvyness: 0,
 			locked: true,
-			color: "#5567D5"
+			color: hasError ? 'red' : "#5567D5"
 		});
 	}
 

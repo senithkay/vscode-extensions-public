@@ -1,4 +1,4 @@
-import { CaptureBindingPattern, QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, NodePosition, QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -9,6 +9,7 @@ import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
 import { ExpressionLabelModel } from "../../Label";
+import { isNodeInRange } from "../../utils/ls-utils";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -129,7 +130,18 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const sourcePortId = `${QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
                     const targetPort = this.getPort(targetPortId);
                     const sourcePort = this.getPort(sourcePortId);
-                    const link = new DataMapperLinkModel(value);
+
+                    const hasError = this.context.diagnostics.some( (diagnostic) => {
+                        const diagPosition: NodePosition = {
+                            startLine: diagnostic.range.start.line,
+                            startColumn: diagnostic.range.start.character,
+                            endLine: diagnostic.range.end.line,
+                            endColumn: diagnostic.range.end.character
+                        };
+                        return isNodeInRange(value.position, diagPosition)
+                    });
+
+                    const link = new DataMapperLinkModel(value, hasError);
                     link.setSourcePort(sourcePort);
                     link.setTargetPort(targetPort);
                     link.addLabel(new ExpressionLabelModel({
@@ -161,8 +173,19 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     private initQueryLinks() {
         // Currently we create links from "IN" ports and back tracing the inputs.
+
+        const hasError = this.context.diagnostics.some( (diagnostic) => {
+            const diagPosition: NodePosition = {
+                startLine: diagnostic.range.start.line,
+                startColumn: diagnostic.range.start.character,
+                endLine: diagnostic.range.end.line,
+                endColumn: diagnostic.range.end.character
+            };
+            return isNodeInRange(this.value.position, diagPosition)
+        });
+
         if (this.sourcePort && this.inPort) {
-            const link = new DataMapperLinkModel();
+            const link = new DataMapperLinkModel(undefined, hasError);
             link.setSourcePort(this.sourcePort);
             link.setTargetPort(this.inPort);
             link.registerListener({
@@ -195,7 +218,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 }
             });
             if (targetPort) {
-                const link = new DataMapperLinkModel();
+                const link = new DataMapperLinkModel(undefined, hasError);
                 link.setSourcePort(this.outPort);
                 link.setTargetPort(targetPort[1]);
                 link.registerListener({
