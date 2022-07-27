@@ -18,7 +18,7 @@
  */
 
 import { ballerinaExtInstance, LANGUAGE } from "../../core";
-import { commands, window } from "vscode";
+import { commands, window, TextDocument, workspace, Uri, Position } from "vscode";
 import {
     TM_EVENT_PROJECT_ADD, TM_EVENT_ERROR_EXECUTE_PROJECT_ADD, CMP_PROJECT_ADD, sendTelemetryEvent, sendTelemetryException, getMessageObject
 } from "../../telemetry";
@@ -61,6 +61,24 @@ function activateAddCommand() {
             }
         }
     });
+
+    commands.registerCommand("ballerina.action.rename",async (url:string, pos:number) => {
+        try {
+            const uri: Uri = Uri.parse(url);
+            const document: TextDocument = await workspace.openTextDocument(uri);
+            if (document === null) {
+                return;
+            }
+
+            const renamePosition: Position = document.positionAt(pos);
+            await commands.executeCommand('editor.action.rename', [
+                document.uri,
+                renamePosition,
+            ]);
+        } catch (error) {
+            // do nothing.
+        }
+    })
 }
 
 export { activateAddCommand };
