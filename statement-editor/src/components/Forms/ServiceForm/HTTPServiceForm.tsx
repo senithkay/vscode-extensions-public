@@ -205,13 +205,10 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                         defaultValue={basePath}
                         onChange={debouncedPortChange}
                         customProps={{
-                            isErrored: (currentComponentSyntaxDiag !== undefined && currentComponentName === "path") ||
-                                (portSemDiagMsg === undefined && serviceModel?.
-                                    viewState?.diagnosticsInRange[0]?.message)
+                            isErrored: (currentComponentSyntaxDiag !== undefined && currentComponentName === "path")
                         }}
                         errorMessage={(currentComponentSyntaxDiag && currentComponentName === "path"
-                            && currentComponentSyntaxDiag[0].message) ||
-                            portSemDiagMsg === undefined && serviceModel?.viewState?.diagnosticsInRange[0]?.message}
+                            && currentComponentSyntaxDiag[0].message)}
                         onBlur={null}
                         onFocus={onBasePathFocus}
                         placeholder={"Enter Path"}
