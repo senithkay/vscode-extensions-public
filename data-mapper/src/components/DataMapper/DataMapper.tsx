@@ -16,6 +16,7 @@ import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperConte
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
+import { QueryFindingVisitor } from "../Diagram/visitors/QueryFindingVisitor";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
@@ -44,11 +45,11 @@ export interface SelectionState {
 const selectionReducer = (state: SelectionState, action: {type: ViewOption, payload: SelectionState }) => {
     if (action.type === ViewOption.EXPAND) {
         const previousST = !!state.prevST.length ? [...state.prevST] : [state.selectedST];
-        return { selectedST: action.payload.selectedST, prevST: previousST};
+        return { selectedST: action.payload.selectedST, prevST: previousST };
     }
     if (action.type === ViewOption.COLLAPSE) {
         const prevSelection = state.prevST.pop();
-        return { selectedST: prevSelection, prevST: [...state.prevST]};
+        return { selectedST: prevSelection, prevST: [...state.prevST] };
     }
     return { selectedST: action.payload.selectedST };
 };
@@ -68,7 +69,7 @@ function DataMapperC(props: DataMapperProps) {
     }
 
     useEffect(() => {
-        async function generateNodes() {
+        (async () => {
             const context = new DataMapperContext(
                 filePath,
                 fnST,
@@ -81,12 +82,18 @@ function DataMapperC(props: DataMapperProps) {
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context, selection);
-            const st = STKindChecker.isFunctionDefinition(selection.selectedST) ? fnST : selection.selectedST;
-            traversNode(st, nodeInitVisitor);
+            let selectedST = selection.selectedST;
+            if (selectedST && STKindChecker.isQueryExpression(selectedST)) {
+                const visitor = new QueryFindingVisitor(selectedST);
+                traversNode(fnST, visitor);
+                selectedST = visitor.getQuery();
+            } else {
+                selectedST = fnST;
+            }
+            traversNode(selectedST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
-        }
-        generateNodes();
-    }, [selection.selectedST, fnST, filePath]);
+        })();
+    }, [selection, fnST]);
 
     return (
         <>

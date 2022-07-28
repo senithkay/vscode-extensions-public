@@ -91,8 +91,10 @@ export class NodeInitVisitor implements Visitor {
     };
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
-        if (isPositionsEquals(node.position, this.selection.selectedST.position)) {
-            // create output node
+        // TODO: Implement a way to identify the selectedST without using the positions since positions might change with imports, etc.
+        if (node.position.startLine === this.selection.selectedST.position.startLine
+            && node.position.startColumn === this.selection.selectedST.position.startColumn)
+        {
             this.outputNode = new SelectClauseNode(
                 this.context,
                 node.selectClause
