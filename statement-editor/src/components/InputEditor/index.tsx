@@ -17,11 +17,11 @@ import { ClickAwayListener } from "@material-ui/core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
+import { DEFAULT_INTERMEDIATE_CLAUSE, FUNCTION_CALL } from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { isPositionsEquals } from "../../utils";
-import { EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER } from "../../utils/expressions";
+import { EXPR_PLACEHOLDER, FUNCTION_CALL_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER } from "../../utils/expressions";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementRendererStyles } from "../styles";
 
@@ -63,6 +63,8 @@ export function InputEditor(props: InputEditorProps) {
             source = initialSource ? initialSource : '';
         } else if (model?.value) {
             source = model.value;
+        } else if (model.source === FUNCTION_CALL && STKindChecker.isFunctionCall(model)) {
+            source = model.functionName.source;
         } else {
             source = model.source;
         }
@@ -110,6 +112,9 @@ export function InputEditor(props: InputEditorProps) {
         if (hasSyntaxDiagnostics) {
             setIsEditing(false);
             if (currentModel.model === model && suggestion) {
+                setUserInput(suggestion);
+            } else if (STKindChecker.isFunctionCall(currentModel.model) 
+                        && currentModel.model.functionName === model && suggestion) {
                 setUserInput(suggestion);
             }
         } else {
@@ -187,9 +192,11 @@ export function InputEditor(props: InputEditorProps) {
             if (isIncorrectSyntax) {
                 updateSyntaxDiagnostics(true);
             } else {
-                setUserInput(userInput);
+                const input = (userInput === FUNCTION_CALL_PLACEHOLDER && STKindChecker.isFunctionCall(model)) ? 
+                    FUNCTION_CALL : userInput;
+                setUserInput(input) ;
                 // Replace empty interpolation with placeholder value
-                const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+                const codeSnippet = input.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
                 originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
                 updateModel(codeSnippet, model ? model.position : targetPosition);
             }

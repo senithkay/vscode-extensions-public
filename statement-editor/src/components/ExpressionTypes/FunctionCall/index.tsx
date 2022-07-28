@@ -14,7 +14,7 @@ import React, { useContext } from "react";
 
 import { FunctionCall } from "@wso2-enterprise/syntax-tree";
 
-import { EXPR_CONSTRUCTOR } from "../../../constants";
+import { EXPR_CONSTRUCTOR, FUNCTION_CALL } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
@@ -34,9 +34,11 @@ export function FunctionCallComponent(props: FunctionCallProps) {
         }
     } = useContext(StatementEditorContext);
 
+    const isOnPlaceholder = (model.source === FUNCTION_CALL);
+
     const inputEditorProps: InputEditorProps = {
-        model: model.functionName,
-        notEditable: true
+        model: isOnPlaceholder ? model : model.functionName,
+        notEditable: isOnPlaceholder ? false : true
     }
 
     const addNewExpression = () => {
@@ -56,10 +58,14 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     return (
         <>
             <InputEditor {...inputEditorProps} />
-            <TokenComponent model={model.openParenToken} />
-            <ExpressionArrayComponent expressions={model.arguments} />
-            {hasRestArg && (<NewExprAddButton model={model} onClick={addNewExpression}/>)}
-            <TokenComponent model={model.closeParenToken} />
+            {!isOnPlaceholder &&
+                <>
+                    <TokenComponent model={model.openParenToken} />
+                    <ExpressionArrayComponent expressions={model.arguments} />
+                    {hasRestArg && (<NewExprAddButton model={model} onClick={addNewExpression}/>)}
+                    <TokenComponent model={model.closeParenToken} />
+                </>
+            }
         </>
     );
 }

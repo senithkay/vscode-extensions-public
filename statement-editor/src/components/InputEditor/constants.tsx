@@ -29,6 +29,7 @@ export const EXPR_SCHEME = "expr://";
 
 export const INPUT_EDITOR_PLACEHOLDERS = new Map<string, string>([
     ['EXPRESSION', '<add-expression>'],
+    ['FUNCTION_CALL', '<add-function-call>'],
     ['STATEMENT', '<add-statement>'],
     ['TYPE_DESCRIPTOR', '<add-type>'],
     ['FIELD_NAME', '<add-field-name>'],
