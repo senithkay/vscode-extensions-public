@@ -50,7 +50,7 @@ export class NotebookDebuggerController {
                 const filename = basename(activeTextEditorUri.fsPath);
                 tmpFile = `${getTempDir()}/${filename.substring(0, filename.length - BAL_NOTEBOOK.length)}_notebook.bal`;
                 this.dumpNotebookCell(sourceIndex, balnotebook);
-                activeTextEditorUri = Uri.parse(tmpFile);
+                activeTextEditorUri = Uri.file(tmpFile);
             }
         } else {
             return Promise.reject();
