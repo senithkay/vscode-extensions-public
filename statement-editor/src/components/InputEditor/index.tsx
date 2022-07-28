@@ -50,6 +50,7 @@ export function InputEditor(props: InputEditorProps) {
             currentModel
         },
         targetPosition,
+        config
     } = useContext(StatementEditorContext);
 
     const inputEditorCtx = useContext(InputEditorContext);
@@ -78,7 +79,10 @@ export function InputEditor(props: InputEditorProps) {
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
     const placeHolder = useMemo(() => {
-        const trimmedInput = !!userInput ? userInput.trim() : EXPR_PLACEHOLDER;
+        const trimmedInput = !!userInput ? 
+                                (config.type === "Call" && userInput === FUNCTION_CALL) ? FUNCTION_CALL_PLACEHOLDER :
+                                    userInput.trim() :
+                                EXPR_PLACEHOLDER;
         if (statementModel && INPUT_EDITOR_PLACEHOLDERS.has(trimmedInput)) {
             if (isPositionsEquals(statementModel.position, model.position)) {
                 // override the placeholder when the statement is empty
@@ -113,7 +117,7 @@ export function InputEditor(props: InputEditorProps) {
             setIsEditing(false);
             if (currentModel.model === model && suggestion) {
                 setUserInput(suggestion);
-            } else if (STKindChecker.isFunctionCall(currentModel.model) 
+            } else if (STKindChecker.isFunctionCall(currentModel.model)
                         && currentModel.model.functionName === model && suggestion) {
                 setUserInput(suggestion);
             }
@@ -192,9 +196,9 @@ export function InputEditor(props: InputEditorProps) {
             if (isIncorrectSyntax) {
                 updateSyntaxDiagnostics(true);
             } else {
-                const input = (userInput === FUNCTION_CALL_PLACEHOLDER && STKindChecker.isFunctionCall(model)) ? 
+                setUserInput(userInput) ;
+                const input = (userInput === FUNCTION_CALL_PLACEHOLDER && config.type === "Call") ?
                     FUNCTION_CALL : userInput;
-                setUserInput(input) ;
                 // Replace empty interpolation with placeholder value
                 const codeSnippet = input.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
                 originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
