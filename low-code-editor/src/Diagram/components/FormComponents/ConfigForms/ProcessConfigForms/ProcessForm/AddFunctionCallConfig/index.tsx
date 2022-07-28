@@ -16,14 +16,14 @@ import { useIntl } from "react-intl";
 
 import { FormControl, Typography } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { FormElementProps, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CustomExpressionConfig, FormElementProps, ProcessConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../../Contexts/Diagram";
 import { createPropertyStatement, getInitialSource } from "../../../../../../utils";
-import { useStyles } from "../../../../DynamicConnectorForm/style";
+import { useStyles as useFormStyles } from "../../../../DynamicConnectorForm/style";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
 import { isStatementEditorSupported } from "../../../../Utils";
 
@@ -36,7 +36,7 @@ interface AddFunctionCallConfigProps {
 }
 
 export function AddFunctionCallConfig(props: AddFunctionCallConfigProps) {
-    const classes = useStyles();
+    const formClasses = useFormStyles();
     const intl = useIntl();
     const { config, formArgs, onCancel, onSave, onWizardClose } = props;
 
@@ -66,118 +66,58 @@ export function AddFunctionCallConfig(props: AddFunctionCallConfigProps) {
         callExpression = config.model.expression?.source.trim();
     }
 
-    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
-
-    const [variableExpression, setVariableExpression] = useState<string>(callExpression);
-    const [validExpression, setValidExpression] = useState(false);
-
     const varExp = callExpression ? callExpression + ";" : 'FUNCTION_CALL() ;';
     const initialSource = `${varExp}`;
 
-    // const onPropertyChange = (property: string) => {
-    //     setVariableExpression(property);
-    // };
+    const expressionFormConfig: CustomExpressionConfig = config.config as CustomExpressionConfig;
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
-    // const validateExpressionName = (fieldName: string, isInvalid: boolean) => {
-    //     setValidName(!isInvalid);
-    // };
+    let defaultExpression = "";
+    if (config?.model) {
+        defaultExpression = config?.model?.source.trim();
+    }
 
-    // const validateExpression = (fieldName: string, isInvalid: boolean) => {
-    //     setValidExpression(!isInvalid);
-    // };
+    const [expression, setExpression] = useState(defaultExpression);
+    const [isFormValid, setIsFormValid] = useState(!!expression);
 
-    // const handleSave = () => {
-    //     if (variableExpression) {
-    //         config.config = `${varName} = ${variableExpression};`;
-    //         onSave();
-    //     }
-    // };
+    const onExpressionChange = (value: any) => {
+        setExpression(value);
+    };
 
-    // const saveVariableButtonText = intl.formatMessage({
-    //     id: "lowcode.develop.configForms.functionCall.saveButton.text",
-    //     defaultMessage: "Save"
-    // });
+    const onSaveBtnClick = () => {
+        expressionFormConfig.expression = expression;
+        onSave();
+    }
 
-    // const cancelVariableButtonText = intl.formatMessage({
-    //     id: "lowcode.develop.configForms.functionCall.cancelButton.text",
-    //     defaultMessage: "Cancel"
-    // });
+    const validateExpression = (_field: string, isInvalid: boolean) => {
+        const isValidExpression = !isInvalid ? (expression !== undefined && expression !== "") : false;
+        setIsFormValid(isValidExpression);
+    }
 
     const formTitle = intl.formatMessage({
         id: "lowcode.develop.configForms.functionCall.title",
         defaultMessage: "Function Call"
     });
 
-    // const validForm: boolean = varName.length > 0 && variableExpression.length > 0;
+    const saveCustomStatementButtonLabel = intl.formatMessage({
+        id: "lowcode.develop.configForms.customStatement.saveButton.label",
+        defaultMessage: "Save"
+    });
 
-    // const nameExpressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
-    //     model: {
-    //         name: "variableName",
-    //         displayName: "Variable Name",
-    //         isOptional: false,
-    //     },
-    //     customProps: {
-    //         validate: validateExpressionName,
-    //         interactive: true,
-    //         editPosition: config?.model?.position || formArgs.targetPosition,
-    //         hideExpand: true,
-    //         customTemplate: {
-    //             defaultCodeSnippet: `any|error tempAssignment = ;`,
-    //             targetColumn: 28,
-    //         },
-    //         initialDiagnostics: (config.model as AssignmentStatement)?.varRef?.typeData?.diagnostics
-    //     },
-    //     onChange: setVarName,
-    //     defaultValue: varName
-    // };
-
-    // const expressionEditorConfig: FormElementProps<ExpressionEditorProps> = {
-    //     model: {
-    //         name: "Expression",
-    //         displayName: "Value Expression",
-    //         value: variableExpression,
-    //     },
-    //     customProps: {
-    //         validate: validateExpression,
-    //         interactive: true,
-    //         statementType: varName,
-    //         expressionInjectables: {
-    //             list: formArgs?.expressionInjectables?.list,
-    //             setInjectables: formArgs?.expressionInjectables?.setInjectables
-    //         },
-    //         editPosition: config?.model?.position || formArgs.targetPosition,
-    //         customTemplate: {
-    //             defaultCodeSnippet: `${varName || 'any|error assignment'} = ;`,
-    //             targetColumn: varName ? (varName.length + 3) : 24
-    //         },
-    //         changed: varName,
-    //         initialDiagnostics: (config.model as AssignmentStatement)?.expression?.typeData?.diagnostics
-    //     },
-    //     onChange: onPropertyChange,
-    //     defaultValue: variableExpression
-    // };
-
-    // const initialSource = getInitialSource(createPropertyStatement(
-    //     `${"EXPRESSION"} ;`
-    // ));
-
-    
-
-    // const nameExpressionEditor = (
-    //     <div className="exp-wrapper">
-    //         <LowCodeExpressionEditor
-    //             {...nameExpressionEditorConfig}
-    //         />
-    //     </div>
-    // );
-
-    // const expressionEditor = (
-    //     <div className="exp-wrapper">
-    //         <LowCodeExpressionEditor
-    //             {...expressionEditorConfig}
-    //         />
-    //     </div>
-    // );
+    const customStatementTooltipMessages = {
+        title: intl.formatMessage({
+            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.title",
+            defaultMessage: "Press CTRL+Spacebar for suggestions."
+        }),
+        actionText: intl.formatMessage({
+            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionText",
+            defaultMessage: "Learn about Ballerina expressions here"
+        }),
+        actionLink: intl.formatMessage({
+            id: "lowcode.develop.configForms.customStatement.expressionEditor.tooltip.actionTitle",
+            defaultMessage: "{learnBallerina}"
+        }, { learnBallerina: "https://ballerina.io/learn/by-example/" })
+    }
 
     return (
         <>
@@ -201,39 +141,46 @@ export function AddFunctionCallConfig(props: AddFunctionCallConfigProps) {
                     }
                 )
             ) : (
-                <FormControl data-testid="property-form" className={classes.wizardFormControl}>
-                    {/* <FormHeaderSection
+                <FormControl data-testid="custom-expression-form" className={formClasses.wizardFormControl}>
+                    <FormHeaderSection
                         onCancel={onCancel}
                         formTitle={formTitle}
-                        defaultMessage={"Assignment"}
+                        defaultMessage={"Other"}
                     />
-                    <div className={classes.formContentWrapper}>
-                        <div className={classes.formNameWrapper}>
-                            {nameExpressionEditor}
-                        </div>
-                        <div className={classes.formEqualWrapper}>
-                            {
-                                <div className={classes.formEqualContainer}>
-                                    <div className={classes.equalContainer}>
-                                        <Typography variant='body2' className={classes.equalCode}>=</Typography>
-                                    </div>
-                                    <div className={classes.valueContainer}>
-                                        {expressionEditor}
-                                    </div>
-                                </div>
-                            }
+                    <div className={formClasses.formContentWrapper}>
+                        <div className={formClasses.formNameWrapper}>
+                            <LowCodeExpressionEditor
+                                model={{ name: "statement", value: expression }}
+                                customProps={{
+                                    validate: validateExpression,
+                                    tooltipTitle: customStatementTooltipMessages.title,
+                                    tooltipActionText: customStatementTooltipMessages.actionText,
+                                    tooltipActionLink: customStatementTooltipMessages.actionLink,
+                                    interactive: true,
+                                    customTemplate: {
+                                        defaultCodeSnippet: ' ',
+                                        targetColumn: 1,
+                                    },
+                                    editPosition: config?.model?.position || formArgs?.targetPosition,
+                                    initialDiagnostics: config?.model?.typeData?.diagnostics,
+                                    disableFiltering: true,
+                                    diagnosticsFilterExtraColumns: { end: 1 },
+                                    diagnosticsFilterExtraRows: { end: 1 }
+                                }}
+                                onChange={onExpressionChange}
+                            />
                         </div>
                     </div>
                     <FormActionButtons
-                        cancelBtnText={cancelVariableButtonText}
+                        cancelBtnText="Cancel"
                         cancelBtn={true}
-                        saveBtnText={saveVariableButtonText}
+                        saveBtnText={saveCustomStatementButtonLabel}
                         isMutationInProgress={isMutationInProgress}
-                        validForm={validForm}
-                        onSave={handleSave}
+                        validForm={isFormValid}
+                        onSave={onSaveBtnClick}
                         onCancel={onCancel}
-                    /> */}
-                </FormControl >
+                    />
+                </FormControl>
             )}
         </>
     )
