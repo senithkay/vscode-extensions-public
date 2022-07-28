@@ -104,14 +104,14 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_CREATE_NOTEBOOK, CMP_NOTEBOOK);
             let notebookName = await window.showInputBox({ placeHolder: "new_notebook" });
             if (notebookName && notebookName.trim().length > 0) {
-                let newNotebookFile = notebookName.endsWith(BAL_NOTEBOOK) ? notebookName : `${notebookName}${BAL_NOTEBOOK}`;
-                let uri: Uri = Uri.parse(`file:${workspace.workspaceFolders![0].uri!.fsPath}${sep}${newNotebookFile}`);
+                notebookName = notebookName.endsWith(BAL_NOTEBOOK) ? notebookName : `${notebookName}${BAL_NOTEBOOK}`;
+                const uri: Uri = Uri.file(`${workspace.workspaceFolders![0].uri!.fsPath}${sep}${notebookName}`);
                 if (!fs.existsSync(uri.fsPath)) {
                     await createFile(uri, "");
                     commands.executeCommand("vscode.open", uri);
-                    outputChannel.appendLine(`${newNotebookFile} created in workspace`);
+                    outputChannel.appendLine(`${notebookName} created in workspace`);
                 } else {
-                    const message = `${newNotebookFile} already exists in the workspace.`;
+                    const message = `${notebookName} already exists in the workspace.`;
                     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_CREATE_NOTEBOOK,
                         CMP_NOTEBOOK, getMessageObject(message));
                     window.showErrorMessage(message);
