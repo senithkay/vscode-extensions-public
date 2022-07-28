@@ -17,7 +17,7 @@ import { ClickAwayListener } from "@material-ui/core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { DEFAULT_INTERMEDIATE_CLAUSE, FUNCTION_CALL } from "../../constants";
+import { CALL_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE, FUNCTION_CALL } from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { isPositionsEquals } from "../../utils";
@@ -80,7 +80,7 @@ export function InputEditor(props: InputEditorProps) {
 
     const placeHolder = useMemo(() => {
         const trimmedInput = !!userInput ? 
-                                (config.type === "Call" && userInput === FUNCTION_CALL) ? FUNCTION_CALL_PLACEHOLDER :
+                                (config.type === CALL_CONFIG_TYPE && userInput === FUNCTION_CALL) ? FUNCTION_CALL_PLACEHOLDER :
                                     userInput.trim() :
                                 EXPR_PLACEHOLDER;
         if (statementModel && INPUT_EDITOR_PLACEHOLDERS.has(trimmedInput)) {
@@ -197,7 +197,7 @@ export function InputEditor(props: InputEditorProps) {
                 updateSyntaxDiagnostics(true);
             } else {
                 setUserInput(userInput) ;
-                const input = (userInput === FUNCTION_CALL_PLACEHOLDER && config.type === "Call") ?
+                const input = (userInput === FUNCTION_CALL_PLACEHOLDER && config.type === CALL_CONFIG_TYPE) ?
                     FUNCTION_CALL : userInput;
                 // Replace empty interpolation with placeholder value
                 const codeSnippet = input.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");

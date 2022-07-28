@@ -19,6 +19,7 @@ import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
+    CALL_CONFIG_TYPE,
     CONFIGURABLE_VALUE_REQUIRED_TOKEN,
     DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
     QUERY_INTERMEDIATE_CLAUSES
@@ -48,8 +49,9 @@ export function ExpressionSuggestions() {
     const {
         modelCtx: {
             currentModel,
-            updateModel
-        }
+            updateModel,
+        },
+        config
     } = useContext(StatementEditorContext);
 
     const onClickExpressionSuggestion = (expression: Expression) => {
@@ -69,6 +71,8 @@ export function ExpressionSuggestions() {
             if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
                 filteredGroups = expressions.filter(
                     (exprGroup) => exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
+            } else if ((config.type === CALL_CONFIG_TYPE) && STKindChecker.isFunctionCall(currentModel.model)) {
+                filteredGroups = []
             }
             setFilteredExpressions(filteredGroups);
         }

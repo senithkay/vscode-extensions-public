@@ -38,7 +38,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
         config
     } = useContext(StatementEditorContext);
 
-    const isOnPlaceholder = (model.source === FUNCTION_CALL) && config.type === "Call";
+    const isOnPlaceholder = (model.source === FUNCTION_CALL) && config.type === CALL_CONFIG_TYPE;
 
     const inputEditorProps: InputEditorProps = {
         model: isOnPlaceholder ? model : model.functionName,
