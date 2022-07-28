@@ -368,14 +368,14 @@
                     "dark": "./resources/images/icons/refresh-inverse.svg"
                 },
                 "category": "Ballerina",
-                "when": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
+                "when": "notebookType == 'ballerina-notebook'"
             },
             {
                 "command": "ballerina.notebook.openVariableView",
                 "title": "Notebook Variables",
                 "icon": "$(notebook)",
                 "category": "Ballerina",
-                "enablement": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
+                "enablement": "notebookType == 'ballerina-notebook'"
             },
             {
                 "command": "ballerina.notebook.openOutlineView",
@@ -502,13 +502,13 @@
                     "command": "ballerina.notebook.restartNotebook",
                     "title": "Restart Notebook",
                     "group": "navigation@1",
-                    "when": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
+                    "when": "notebookType == 'ballerina-notebook'"
                 },
                 {
                     "command": "ballerina.notebook.openVariableView",
                     "title": "Variables",
                     "group": "navigation@2",
-                    "when": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
+                    "when": "notebookType == 'ballerina-notebook'"
                 },
                 {
                     "command": "ballerina.notebook.openOutlineView",
@@ -559,8 +559,7 @@
                     "when": "editorLangId != ballerina && !isBallerinaDiagram"
                 },
                 {
-                    "command": "ballerina.notebook.createNotebook",
-                    "when": "isWorkspaceTrusted"
+                    "command": "ballerina.notebook.createNotebook"
                 }
             ]
         },
