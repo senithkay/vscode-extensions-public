@@ -79,7 +79,7 @@ export function InputEditor(props: InputEditorProps) {
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
     const placeHolder = useMemo(() => {
-        const trimmedInput = !!userInput ? 
+        const trimmedInput = !!userInput ?
                                 (config.type === CALL_CONFIG_TYPE && userInput === FUNCTION_CALL) ? FUNCTION_CALL_PLACEHOLDER :
                                     userInput.trim() :
                                 EXPR_PLACEHOLDER;

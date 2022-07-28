@@ -458,7 +458,7 @@ export function getModuleElementDeclPosition(syntaxTree: STNode): NodePosition {
     return position;
 }
 
-export function isNodeDeletable(selectedNode: STNode, formType:string): boolean {
+export function isNodeDeletable(selectedNode: STNode, formType: string): boolean {
     const stmtViewState: StatementEditorViewState = selectedNode.viewState as StatementEditorViewState;
     const currentModelSource = selectedNode.source
         ? selectedNode.source.trim()

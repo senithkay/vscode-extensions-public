@@ -90,7 +90,7 @@ export function HelperPane(props: HelperPaneProps) {
             (isFunctionOrMethodCall(currentModel.model) || isInsideConnectorParams(currentModel.model, config.type)) &&
             !isConfigurableEditor(editors, activeEditorId)
         ) {
-            (currentModel.model?.source?.trim() === FUNCTION_CALL) ? 
+            (currentModel.model?.source?.trim() === FUNCTION_CALL) ?
                 setSelectedTab(TabElements.libraries) : setSelectedTab(TabElements.parameters);
         } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
             setSelectedTab(TabElements.expressions);
