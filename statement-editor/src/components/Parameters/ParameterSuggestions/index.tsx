@@ -33,6 +33,7 @@ import { StatementEditorViewState } from "../../../utils/statement-editor-viewst
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
 import { ParameterTree } from "../ParameterTree";
+import { retrieveUsedAction } from "../ParameterTree/utils";
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export function ParameterSuggestions() {
@@ -56,19 +57,22 @@ export function ParameterSuggestions() {
         },
         config
     } = useContext(StatementEditorContext);
-    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const statementEditorClasses = useStatementEditorStyles();
-    const [paramDoc, setParamDoc] = React.useState(documentation.documentation);
 
     const connectorInfo = connector as BallerinaConnectorInfo;
     const actionInfo = action as FunctionDefinitionInfo;
-    const method =
-        config.type === CONNECTOR ? connectorInfo?.functions.find((func) => func.name === "init") : actionInfo;
+
+    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const statementEditorClasses = useStatementEditorStyles();
+    const [paramDoc, setParamDoc] = React.useState(documentation.documentation);
+    const [activeMethod, setActiveMethod] = React.useState<FunctionDefinitionInfo>(
+        config.type === CONNECTOR ? connectorInfo?.functions.find((func) => func.name === "init") : actionInfo
+    );
+
     const isConfigurable = isConfigurableEditor(editors, activeEditorId);
     const isConnectorFlow =
         (config.type === CONNECTOR || config.type === ACTION) &&
         (connectorInfo || actionInfo) &&
-        method &&
+        activeMethod &&
         !isConfigurable;
     const insideParamList = currentModel.model ? isInsideConnectorParams(currentModel.model, config.type) : false;
 
@@ -87,6 +91,15 @@ export function ParameterSuggestions() {
             setParamDoc(paramDocumentation);
         }
     }, [currentModel.model, documentation]);
+
+    useEffect(() => {
+        if (config.type === ACTION && activeMethod && statementModel && connectorInfo?.functions.length > 0) {
+            const statementMethod = retrieveUsedAction(statementModel, connectorInfo);
+            if (activeMethod?.name !== statementMethod?.name){
+                setActiveMethod(statementMethod);
+            }
+        }
+    }, [currentModel.model, statementModel]);
 
     const getDocumentationDescription = () => {
         const doc = documentation.documentation.description;
@@ -158,26 +171,26 @@ export function ParameterSuggestions() {
                 ))}
             {isConnectorFlow && insideParamList && (
                 <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                    {method.parameters && (<ParameterTree parameters={method.parameters} />)}
-                    {method.parameters?.length > 0 && (
+                    {activeMethod.parameters && (<ParameterTree parameters={activeMethod.parameters} />)}
+                    {activeMethod.parameters?.length > 0 && (
                         <hr className={stmtEditorHelperClasses.returnSeparator} />
                     )}
-                    {(connectorInfo?.documentation || method.documentation) && (
+                    {(connectorInfo?.documentation || activeMethod.documentation) && (
                         <>
                             <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                                 Description
                             </ListSubheader>
                             <ListItem className={stmtEditorHelperClasses.docDescription}>
-                                {connectorInfo?.documentation || method.documentation}
+                                {connectorInfo?.documentation || activeMethod.documentation}
                             </ListItem>
                         </>
                     )}
-                    {method.returnType?.documentation && (
+                    {activeMethod.returnType?.documentation && (
                         <>
                             <hr className={stmtEditorHelperClasses.returnSeparator} />
                             <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>Return</ListSubheader>
                             <ListItem className={stmtEditorHelperClasses.returnDescription}>
-                                <ListItemText primary={method.returnType?.documentation} />
+                                <ListItemText primary={activeMethod.returnType?.documentation} />
                             </ListItem>
                         </>
                     )}

@@ -23,7 +23,6 @@ import {
     SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    FunctionCall,
     Minutiae,
     NodePosition,
     STKindChecker,
@@ -578,14 +577,19 @@ export function isInsideConnectorParams(currentModel: STNode, editorConfigType: 
     const paramPosition = (currentModel.viewState as StatementEditorViewState)?.parentFunctionPos;
     const modelPosition = currentModel.position as NodePosition;
     return (
-        (editorConfigType === CONNECTOR || editorConfigType === ACTION)  &&
+        (editorConfigType === CONNECTOR || editorConfigType === ACTION) &&
         paramPosition &&
         (paramPosition.startLine < modelPosition.startLine ||
-            (paramPosition.startLine === modelPosition.startLine &&
-                paramPosition.startColumn <= modelPosition.startColumn &&
-                paramPosition.endLine > modelPosition.endLine) ||
-            (paramPosition.endLine === modelPosition.endLine && paramPosition.endColumn >= modelPosition.endColumn))
+            (getNumericPosition(paramPosition.startLine) === getNumericPosition(modelPosition.startLine) &&
+                getNumericPosition(paramPosition.startColumn) <= getNumericPosition(modelPosition.startColumn) &&
+                getNumericPosition(paramPosition.endLine) > getNumericPosition(modelPosition.endLine)) ||
+            (getNumericPosition(paramPosition.endLine) === getNumericPosition(modelPosition.endLine) &&
+                getNumericPosition(paramPosition.endColumn) >= getNumericPosition(modelPosition.endColumn)))
     );
+}
+
+function getNumericPosition(position: number) {
+    return position || 0;
 }
 
 export function isConfigurableEditor(editors: EditorModel[], activeEditorId: number): boolean {
