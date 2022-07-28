@@ -172,6 +172,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 id: "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title",
                 defaultMessage: "An action can be used to invoke operations of an existing connector."
             })
+        },
+        functionCallStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.functionCall.tooltip.title",
+                defaultMessage: "A function call can "
+            })
         }
     }
 
@@ -586,6 +592,30 @@ export function StatementOptions(props: StatementOptionsProps) {
         )
     }
 
+    const functionCall: StatementComponent = {
+        name: "functionCall",
+        category: 'generics',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.functionCallStatement.title}
+                placement="left"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className={cn("sub-option enabled", { height: 'unset' })}
+                    data-testid="addFunctionCall"
+                    onClick={onSelectStatement.bind(undefined, "Call")}
+                >
+                    <div className="icon-wrapper">
+                        <CustomStatementIcon />
+                    </div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.functionCall.tooltip.title" defaultMessage="Function Call" /></div>
+                </div>
+            </Tooltip>
+        )
+    }
+
     const statements: StatementComponent[] = [];
     statements.push(connectorStatement);
     statements.push(actionStatement);
@@ -604,7 +634,8 @@ export function StatementOptions(props: StatementOptionsProps) {
         statements.push(flushStmt);
     }
     // statements.push(datamappingStatement);
-    statements.push(customStatement);
+    // statements.push(customStatement);
+    statements.push(functionCall);
     statements.push(httpConnector);
 
     const initStatements: Statements = {
