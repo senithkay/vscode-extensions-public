@@ -372,14 +372,14 @@
             },
             {
                 "command": "ballerina.notebook.openVariableView",
-                "title": "Variables",
+                "title": "Notebook Variables",
                 "icon": "$(notebook)",
                 "category": "Ballerina",
                 "enablement": "notebookType == 'ballerina-notebook' && isWorkspaceTrusted"
             },
             {
                 "command": "ballerina.notebook.openOutlineView",
-                "title": "Outline",
+                "title": "Notebook Outline",
                 "icon": "$(list-unordered)",
                 "category": "Ballerina",
                 "enablement": "notebookType == 'ballerina-notebook'"
@@ -434,7 +434,7 @@
             "panel": [
                 {
                     "id": "notebook-variables",
-                    "title": "Ballerina",
+                    "title": "Ballerina Notebook",
                     "icon": "$(notebook)"
                 }
             ]
