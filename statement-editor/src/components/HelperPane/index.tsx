@@ -18,6 +18,7 @@ import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-e
 import {
     ALL_LIBS_IDENTIFIER,
     DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    FUNCTION_CALL,
     LANG_LIBS_IDENTIFIER,
     STD_LIBS_IDENTIFIER
 } from "../../constants";
@@ -89,7 +90,8 @@ export function HelperPane(props: HelperPaneProps) {
             (isFunctionOrMethodCall(currentModel.model) || isInsideConnectorParams(currentModel.model, config.type)) &&
             !isConfigurableEditor(editors, activeEditorId)
         ) {
-            setSelectedTab(TabElements.parameters);
+            (currentModel.model?.source?.trim() === FUNCTION_CALL) ? 
+                setSelectedTab(TabElements.libraries) : setSelectedTab(TabElements.parameters);
         } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
             setSelectedTab(TabElements.expressions);
         }
