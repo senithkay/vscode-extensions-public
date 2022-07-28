@@ -16,10 +16,11 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     return false;
 }
 
-export function generateQueryExpression(srcExpr: string,  targetType: RecordTypeDesc) {
+export function generateQueryExpression(srcExpr: string, targetType: RecordTypeDesc) {
 
     const targetFields = targetType.fields.filter((field) => STKindChecker.isRecordField(field)) as RecordField[];
 
+    // TODO: Dynamically generate the identifier name instead of 'item'
     return `from var item in ${srcExpr}
         select {
             ${targetFields.map((field, index) => `${field.fieldName.value}: ${(index !== targetFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}

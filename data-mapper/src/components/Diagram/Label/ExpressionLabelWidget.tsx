@@ -7,6 +7,7 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { getTypeDescForFieldName } from "../../../utils/st-utils";
 import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
 import { DataMapperPortModel } from '../Port';
 
@@ -41,32 +42,38 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const [linkSelected, setLinkSelected] = React.useState(false);
 	const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
 
-	const onClickConvertToQuery = () => {
+	const onClickConvertToQuery = async () => {
 		if (canUseQueryExpr) {
 			const link = props.model.link;
 			const targetPort = link.getTargetPort() as DataMapperPortModel;
+			let targetTypeDesc;
 
-			if (STKindChecker.isRecordField(targetPort.field)) {
-				const targetType = targetPort.field.typeName;
-				if (STKindChecker.isArrayTypeDesc(targetType) && STKindChecker.isRecordTypeDesc(targetType.memberTypeDesc)) {
-					const querySrc = generateQueryExpression(link.value.source, targetType.memberTypeDesc);
-					if (link.value) {
-						const position = link.value.position as NodePosition;
-						const applyModification = props.model.context.applyModifications;
-						applyModification([{
-							type: "INSERT",
-							config: {
-								"STATEMENT": querySrc,
-							},
-							endColumn: position.endColumn,
-							endLine: position.endLine,
-							startColumn: position.startColumn,
-							startLine: position.startLine
-						}]);
-					}
+			if (STKindChecker.isRecordField(targetPort.field)
+				&& STKindChecker.isArrayTypeDesc(targetPort.field.typeName)
+				&& STKindChecker.isRecordTypeDesc(targetPort.field.typeName.memberTypeDesc)
+			) {
+				targetTypeDesc = targetPort.field.typeName.memberTypeDesc;
+			} else if (STKindChecker.isSpecificField(targetPort.field)) {
+				const targetType = await getTypeDescForFieldName(targetPort.field.fieldName, props.model.context);
+				if (STKindChecker.isRecordTypeDesc(targetType)) {
+					targetTypeDesc = targetType;
 				}
 			}
-
+			if (link.value && targetTypeDesc) {
+				const querySrc = generateQueryExpression(link.value.source, targetTypeDesc);
+				const position = link.value.position as NodePosition;
+				const applyModification = props.model.context.applyModifications;
+				applyModification([{
+					type: "INSERT",
+					config: {
+						"STATEMENT": querySrc,
+					},
+					endColumn: position.endColumn,
+					endLine: position.endLine,
+					startColumn: position.startColumn,
+					startLine: position.startLine
+				}]);
+			}
 		}
 	};
 

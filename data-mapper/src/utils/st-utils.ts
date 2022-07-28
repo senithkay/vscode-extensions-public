@@ -65,7 +65,10 @@ export async function getTypeDefinitionForTypeDesc(typeDesc: STNode,
 
 export async function getTypeDescForFieldName(fieldName: STNode, context: IDataMapperContext): Promise<RecordTypeDesc> {
 
-    if (fieldName && STKindChecker.isSimpleNameReference(fieldName)) {
+    if (fieldName && (STKindChecker.isSimpleNameReference(fieldName)
+        || STKindChecker.isIdentifierToken(fieldName)
+        || STKindChecker.isStringLiteral(fieldName)))
+    {
         const { position } = fieldName;
         const langClient = await context.getLangClient();
 
@@ -116,53 +119,11 @@ export function isObject (item: any) {
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
 }
 
-// function findRecordTypeDesc(members: RecordTypeDesc, expectedLocation: Location): RecordTypeDesc {
-//     const { start, end } = expectedLocation.range;
-//     for (const field of members.fields) {
-//         if (STKindChecker.isRecordField(field)) {
-//             const {startLine, startColumn, endLine, endColumn } = field.fieldName.position as NodePosition;
-//             if (startLine === start.line
-//                 && startColumn === start.character
-//                 && endLine === end.line
-//                 && endColumn === end.character
-//                 && STKindChecker.isArrayTypeDesc(field.typeName))
-//             {
-//                 return field.typeName.memberTypeDesc as RecordTypeDesc;
-//             } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-//                 findRecordTypeDesc(field.typeName, expectedLocation);
-//             }
-//         }
-//     }
-//     return undefined;
-// }
-
-// function findRecordTypeDesc(members: RecordTypeDesc, expectedLocation: Location): RecordTypeDesc {
-//     const { start, end } = expectedLocation.range;
-//     const typeDesc = members.fields.map((field) => {
-//         if (STKindChecker.isRecordField(field)) {
-//             const {startLine, startColumn, endLine, endColumn } = field.fieldName.position as NodePosition;
-//             if (startLine === start.line
-//                 && startColumn === start.character
-//                 && endLine === end.line
-//                 && endColumn === end.character
-//                 && STKindChecker.isArrayTypeDesc(field.typeName))
-//             {
-//                 return field.typeName.memberTypeDesc as RecordTypeDesc;
-//             } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-//                 return findRecordTypeDesc(field.typeName, expectedLocation);
-//             } else {
-//                 return undefined;
-//             }
-//         }
-//     });
-//     return typeDesc[0];
-// }
-
 function findRecordTypeDesc(members: RecordTypeDesc, expectedLocation: Location): RecordTypeDesc {
     const { start, end } = expectedLocation.range;
-    let typeDesc;
+    let typeDesc: RecordTypeDesc;
     members.fields.map((field) => {
-        if (STKindChecker.isRecordField(field)) {
+        if (STKindChecker.isRecordField(field) && !typeDesc) {
             const {startLine, startColumn, endLine, endColumn } = field.fieldName.position as NodePosition;
             if (startLine === start.line
                 && startColumn === start.character
@@ -171,6 +132,10 @@ function findRecordTypeDesc(members: RecordTypeDesc, expectedLocation: Location)
                 && STKindChecker.isArrayTypeDesc(field.typeName))
             {
                 typeDesc = field.typeName.memberTypeDesc as RecordTypeDesc;
+            } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
+                typeDesc = findRecordTypeDesc(field.typeName, expectedLocation);
+            } else if (STKindChecker.isArrayTypeDesc(field.typeName) && STKindChecker.isRecordTypeDesc(field.typeName.memberTypeDesc)) {
+                typeDesc = findRecordTypeDesc(field.typeName.memberTypeDesc, expectedLocation);
             }
         }
     });
