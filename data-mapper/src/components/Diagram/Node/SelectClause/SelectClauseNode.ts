@@ -28,7 +28,7 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, QueryExprSourceNode } from "../QueryExprSourceNode";
 
 export const SELECT_CLAUSE_NODE_TYPE = "datamapper-node-select-clause";
-export const EXPANDED_EXPR_TARGET_PORT_PREFIX = "expandedQueryExpr.target";
+export const EXPANDED_QUERY_TARGET_PORT_PREFIX = "expandedQueryExpr.target";
 
 export class SelectClauseNode extends DataMapperNodeModel {
 
@@ -47,7 +47,7 @@ export class SelectClauseNode extends DataMapperNodeModel {
         if (STKindChecker.isMappingConstructor(this.value.expression)) {
             this.value.expression.fields.forEach((field) => {
                 if (STKindChecker.isSpecificField(field)) {
-                    this.addPortsForSpecificField(field, "IN", EXPANDED_EXPR_TARGET_PORT_PREFIX);
+                    this.addPortsForSpecificField(field, "IN", EXPANDED_QUERY_TARGET_PORT_PREFIX);
                 }
             });
         }
@@ -68,7 +68,7 @@ export class SelectClauseNode extends DataMapperNodeModel {
             const mappings = this.genMappings(this.value.expression);
             mappings.forEach((mapping) => {
                 const { fields, value, otherVal } = mapping;
-                const targetPortId = `${EXPANDED_EXPR_TARGET_PORT_PREFIX}${fields.reduce((pV, cV) => `${pV}.${cV.fieldName.value}`, "")}.IN`;
+                const targetPortId = `${EXPANDED_QUERY_TARGET_PORT_PREFIX}${fields.reduce((pV, cV) => `${pV}.${cV.fieldName.value}`, "")}.IN`;
                 if (value && STKindChecker.isFieldAccess(value)) {
                     const fieldNames = getFieldNames(value);
                     const sourcePortId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;

@@ -23,7 +23,7 @@ import { DataMapperPortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { MappingConstructorWidget } from "../commons/MappingConstructorWidget/MappingConstructorWidget";
 
-import { EXPANDED_EXPR_TARGET_PORT_PREFIX, SelectClauseNode, SELECT_CLAUSE_NODE_TYPE } from './SelectClauseNode';
+import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode, SELECT_CLAUSE_NODE_TYPE } from './SelectClauseNode';
 
 @injectable()
 @singleton()
@@ -38,7 +38,7 @@ export class SelectClauseFactory extends AbstractReactFactory<SelectClauseNode, 
                 {STKindChecker.isMappingConstructor(event.model.value.expression) && (
                     <MappingConstructorWidget
                         engine={this.engine}
-                        id={EXPANDED_EXPR_TARGET_PORT_PREFIX}
+                        id={EXPANDED_QUERY_TARGET_PORT_PREFIX}
                         value={event.model.value.expression}
                         getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
                     />
