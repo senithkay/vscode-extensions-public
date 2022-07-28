@@ -42,6 +42,7 @@ import {
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
+    FUNCTION_CALL,
     IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
@@ -465,6 +466,10 @@ export function isNodeDeletable(selectedNode: STNode): boolean {
     let exprDeletable = !stmtViewState.exprNotDeletable;
     if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
         exprDeletable =  stmtViewState.templateExprDeletable;
+    }
+
+    if (currentModelSource === FUNCTION_CALL) {
+        exprDeletable = false;
     }
 
     return exprDeletable;
