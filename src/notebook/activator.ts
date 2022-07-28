@@ -108,6 +108,7 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
                 let uri: Uri = Uri.parse(`file:${workspace.workspaceFolders![0].uri!.fsPath}${sep}${newNotebookFile}`);
                 if (!fs.existsSync(uri.fsPath)) {
                     await createFile(uri, "");
+                    commands.executeCommand("vscode.open", uri);
                     outputChannel.appendLine(`${newNotebookFile} created in workspace`);
                 } else {
                     const message = `${newNotebookFile} already exists in the workspace.`;
