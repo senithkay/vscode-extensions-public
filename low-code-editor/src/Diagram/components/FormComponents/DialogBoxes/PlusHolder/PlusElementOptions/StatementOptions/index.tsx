@@ -176,7 +176,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         functionCallStatement: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.functionCall.tooltip.title",
-                defaultMessage: "A function call can "
+                defaultMessage: "A function call is a request that performs a predetermined function."
             })
         }
     }
