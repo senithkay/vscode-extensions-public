@@ -10,7 +10,7 @@ You can visualize the graphical representation of your Ballerina source further 
 
 ### Setting up the Prerequisites
 
-Before getting started, make sure you have installed the [Visual Studio Code editor](https://code.visualstudio.com/download).
+Before getting started, make sure you have installed the [Visual Studio Code editor](https://code.visualstudio.com/download) with version >= 1.67.0.
 
 ### Installing the Ballerina Extension
 
@@ -227,6 +227,45 @@ Run and debug code lenses are shown for the entry points of the Ballerina projec
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/low-code-view.gif?raw=true" width="100%" />
 
 Being based on sequence diagrams, Ballerina allows you to visualize a program written in Ballerina as a sequence diagram. The diagram displays the logic and network interaction of a function or a service resource making it easy to understand the source. You can view these diagrams using the Ballerina VS Code plugin.
+
+### Ballerina Notebook
+
+Ballerina notebooks can be created in VS Code using the `.balnotebook` extension for filename. Markdown and Ballerina code snippets are supported by Ballerina notebook cells.
+
+>**Info:** Make sure your VS Code version is `1.67.0` or higher when using Ballerina notebook.
+
+<details open>
+<summary>Code execution</summary>
+
+Notebook cells can be executed using the Run button available at the left side of the cell or using `shift` + `enter` keys. Additionally `Run All`, `Execute Above Cells`, `Execute Cell and Below`, `Clear outputs of All Cells` and `Restart Notebook` actions are available through the user interface.
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/notebook-code-execution.gif?raw=true" width="100%" />
+
+</details>
+
+<details>
+<summary>IntelliSense</summary>
+
+##### Code Completion
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/notebook-code-completion.gif?raw=true" width="100%" />
+
+</details>
+
+<details>
+<summary>Variable view</summary>
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/notebook-variable-view.gif?raw=true" width="100%" />
+
+</details>
+
+<details>
+<summary>Commands</summary>
+
+- **Create Notebook**: This command creates a notebook with the given filename.
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/notebook-create.gif?raw=true" width="100%" />
+
+</details>
 
 ---
 ## Configurations
