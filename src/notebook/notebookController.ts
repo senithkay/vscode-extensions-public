@@ -92,10 +92,13 @@ export class BallerinaNotebookController {
         for (let cell of cells) {
             if (!this.isSupported) {
                 this.doNotSupportedExecution(cell);
-                continue;
+                break;
             }
-            await this.doExecution(cell);
+            const continueExecution = await this.doExecution(cell);
             this.updateVariableView(); // update the variable view to reflect changes
+            if (!continueExecution) {
+                break;
+            }
         }
     }
 
@@ -111,7 +114,7 @@ export class BallerinaNotebookController {
         execution.end(false, Date.now());
     }
 
-    private async doExecution(cell: NotebookCell): Promise<void> {
+    private async doExecution(cell: NotebookCell): Promise<boolean> {
         sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK, CMP_NOTEBOOK);
         let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
         const cellContent = cell.document.getText().trim();
@@ -136,6 +139,7 @@ export class BallerinaNotebookController {
         execution.token.onCancellationRequested(() => {
             appendTextToOutput('Execution Interrupted.');
             execution.end(false, Date.now());
+            return false;
         });
 
         // if cell content is empty no need for an code execution
@@ -145,7 +149,7 @@ export class BallerinaNotebookController {
             let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
             appendFailedToDeleteErrorMsg(failedVars);
             execution.end(!failedVars.length, Date.now());
-            return;
+            return true;
         }
 
         // handle if language client is not ready yet 
@@ -154,7 +158,7 @@ export class BallerinaNotebookController {
                 NotebookCellOutputItem.text("Language client is not ready yet.")
             ])]);
             execution.end(false, Date.now());
-            return;
+            return false;
         }
 
         await langClient.onReady();
@@ -177,7 +181,7 @@ export class BallerinaNotebookController {
                 balRunner.on('close', (code) => {
                     execution.end(code === 0, Date.now());
                 });
-                return;
+                return true;
             }
 
             // code snippets
@@ -192,7 +196,7 @@ export class BallerinaNotebookController {
                 );
                 appendTextToOutput("Incompatible ballerina version.")
                 execution.end(false, Date.now());
-                return;
+                return false;
             }
             let output = response as NoteBookCellOutputResponse;
 
@@ -232,6 +236,7 @@ export class BallerinaNotebookController {
             // end execution with success or fail
             // success if there are no diagnostics and errors
             execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
+            return !(output.diagnostics.length) && !(output.errors.length);
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(this.ballerinaExtension, error, CMP_NOTEBOOK);
@@ -242,6 +247,7 @@ export class BallerinaNotebookController {
                 appendTextToOutput("Unknown error occurred.");
             }
             execution.end(false, Date.now());
+            return false;
         }
     }
 

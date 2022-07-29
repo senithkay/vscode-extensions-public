@@ -18,7 +18,7 @@
  */
 
 import { workspace, ExtensionContext, commands, Disposable, window, Uri } from 'vscode';
-import * as fs from 'fs';
+import { existsSync } from 'fs';
 import { sep } from 'path';
 import { BallerinaExtension, ExtendedLangClient } from '../core';
 import {
@@ -106,7 +106,7 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
             if (notebookName && notebookName.trim().length > 0) {
                 notebookName = notebookName.endsWith(BAL_NOTEBOOK) ? notebookName : `${notebookName}${BAL_NOTEBOOK}`;
                 const uri: Uri = Uri.file(`${workspace.workspaceFolders![0].uri!.fsPath}${sep}${notebookName}`);
-                if (!fs.existsSync(uri.fsPath)) {
+                if (!existsSync(uri.fsPath)) {
                     await createFile(uri, "");
                     commands.executeCommand("vscode.open", uri);
                     outputChannel.appendLine(`${notebookName} created in workspace`);
