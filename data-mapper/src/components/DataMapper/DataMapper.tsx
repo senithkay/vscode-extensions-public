@@ -16,7 +16,7 @@ import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperConte
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
-import { QueryFindingVisitor } from "../Diagram/visitors/QueryFindingVisitor";
+import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
@@ -44,7 +44,7 @@ export interface SelectionState {
 
 const selectionReducer = (state: SelectionState, action: {type: ViewOption, payload: SelectionState }) => {
     if (action.type === ViewOption.EXPAND) {
-        const previousST = !!state.prevST.length ? [...state.prevST] : [state.selectedST];
+        const previousST = !!state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
         return { selectedST: action.payload.selectedST, prevST: previousST };
     }
     if (action.type === ViewOption.COLLAPSE) {
@@ -83,13 +83,9 @@ function DataMapperC(props: DataMapperProps) {
 
             const nodeInitVisitor = new NodeInitVisitor(context, selection);
             let selectedST = selection.selectedST;
-            if (selectedST && STKindChecker.isQueryExpression(selectedST)) {
-                const visitor = new QueryFindingVisitor(selectedST);
-                traversNode(fnST, visitor);
-                selectedST = visitor.getQuery();
-            } else {
-                selectedST = fnST;
-            }
+            const visitor = new SelectedSTFindingVisitor(selectedST);
+            traversNode(fnST, visitor);
+            selectedST = visitor.getST();
             traversNode(selectedST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
         })();

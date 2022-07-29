@@ -10,26 +10,35 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { QueryExpression, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, QueryExpression, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
-export class QueryFindingVisitor implements Visitor {
+export class SelectedSTFindingVisitor implements Visitor {
 
-    private query: QueryExpression;
+    private node: QueryExpression | FunctionDefinition;
 
     constructor(
         private selectedST: STNode
     ) {}
+
+    beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode){
+        // TODO: Implement a way to identify the selectedST without using the positions since positions might change with imports, etc.
+        if (node.position.startLine === this.selectedST.position.startLine
+            && node.position.startColumn === this.selectedST.position.startColumn)
+        {
+            this.node = node;
+        }
+    }
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         // TODO: Implement a way to identify the selectedST without using the positions since positions might change with imports, etc.
         if (node.position.startLine === this.selectedST.position.startLine
             && node.position.startColumn === this.selectedST.position.startColumn)
         {
-            this.query = node;
+            this.node = node;
         }
     };
 
-    getQuery() {
-        return this.query;
+    getST() {
+        return this.node;
     }
 }

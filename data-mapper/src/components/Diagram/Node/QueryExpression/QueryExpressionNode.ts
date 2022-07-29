@@ -97,20 +97,17 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             const fieldNames = getFieldNames(sourceFieldAccess);
             const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
 
-            if (STKindChecker.isFunctionDefinition(this.context.selection.selectedST)) {
-                const paramNode = this.getModel().getNodes().find((node) =>
-                    node instanceof RequiredParamNode
-                    && node.value.paramName.value === fieldNames[0]) as RequiredParamNode;
-                this.sourcePort = paramNode.getPort(fieldId + ".OUT") as DataMapperPortModel;
-            } else {
-                const paramNode = this.getModel().getNodes().find((node) =>
-                    node instanceof QueryExprSourceNode
+            this.getModel().getNodes().map((node) => {
+                if (node instanceof RequiredParamNode && node.value.paramName.value === fieldNames[0]) {
+                    this.sourcePort = node.getPort(fieldId + ".OUT") as DataMapperPortModel;
+                } else if (node instanceof QueryExprSourceNode
                     && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)
-                    && node.value.typedBindingPattern.bindingPattern.source.trim() === fieldNames[0].trim()
-                ) as QueryExprSourceNode;
-                this.sourcePort = paramNode.getPort(
-                    `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as DataMapperPortModel;
-            }
+                    && node.value.typedBindingPattern.bindingPattern.source.trim() === fieldNames[0].trim())
+                {
+                    this.sourcePort = node.getPort(
+                        `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as DataMapperPortModel;
+                }
+            });
         }
     }
 
@@ -185,29 +182,25 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         // TODO - temp hack to render link
         if (this.outPort) {
             let targetPort: DataMapperPortModel;
-            if (STKindChecker.isFunctionDefinition(this.context.selection.selectedST)) {
-                const targetNode = this.getModel().getNodes().find((node) =>
-                    node instanceof ExpressionFunctionBodyNode
-                );
-                const ports = Object.entries(targetNode.getPorts());
-                ports.map((entry) => {
-                    const port = entry[1];
-                    if (port instanceof DataMapperPortModel) {
-                        if (STKindChecker.isRecordField(port.field)) {
-                            if (port.field.fieldName.value === "Assets") {
-                                targetPort = port;
+            this.getModel().getNodes().map((node) => {
+                    if (node instanceof ExpressionFunctionBodyNode) {
+                        const ports = Object.entries(node.getPorts());
+                        ports.map((entry) => {
+                            const port = entry[1];
+                            if (port instanceof DataMapperPortModel) {
+                                if (STKindChecker.isRecordField(port.field)) {
+                                    if (port.field.fieldName.value === "Assets") {
+                                        targetPort = port;
+                                    }
+                                }
                             }
-                        }
+                        });
+                    } else if (node instanceof SelectClauseNode) {
+                        const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
+                        targetPort = node.getPort(
+                            `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as DataMapperPortModel;
                     }
-                });
-            } else {
-                const targetNode = this.getModel().getNodes().find((node) =>
-                    node instanceof SelectClauseNode
-                ) as SelectClauseNode;
-                const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
-                targetPort = targetNode.getPort(
-                    `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as DataMapperPortModel;
-            }
+            });
 
             if (targetPort) {
                 const link = new DataMapperLinkModel();

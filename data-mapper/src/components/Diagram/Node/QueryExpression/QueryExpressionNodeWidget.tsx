@@ -102,39 +102,44 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 		}
 
 		return (
-			<div
-				className={classes.root}
-			>
-				<div className={classes.header}>
-					<DataMapperPortWidget engine={engine} port={node.inPort} />
-					<div className={classes.fromClause}>
-						Query: {node.value.queryPipeline.fromClause.expression.source}
-					</div>
-					<div className={classes.buttonWrapper}>
-						<IconButton
-							onClick={onClickOnExpand}
-							className={classes.icons}
-						>
-							<div className={classes.expandIcon}>
-								<ExpandIcon/>
+			<>
+				{/* TODO: Identify inner query expressions and render minimized boxes to denote those with links */}
+				{!!node.sourcePort && (
+					<div
+						className={classes.root}
+					>
+						<div className={classes.header}>
+							<DataMapperPortWidget engine={engine} port={node.inPort} />
+							<div className={classes.fromClause}>
+								Query: {node.value.queryPipeline.fromClause.expression.source}
 							</div>
-						</IconButton>
-					</div>
-					<DataMapperPortWidget engine={engine} port={node.outPort} />
-				</div>
-				<div className={classes.mappingPane}>
-					<RecordTypeTreeWidget
-						engine={engine}
-						typeDesc={node.sourceTypeDesc}
-						id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`}
-						getPort={getSourcePort}
-					/>
-					{STKindChecker.isMappingConstructor(node.value.selectClause.expression) &&
-						<MappingConstructorWidget engine={engine} value={node.value.selectClause.expression} id={QUERY_TARGET_PORT_PREFIX} getPort={getTargetPort} />
-					}
+							<div className={classes.buttonWrapper}>
+								<IconButton
+									onClick={onClickOnExpand}
+									className={classes.icons}
+								>
+									<div className={classes.expandIcon}>
+										<ExpandIcon/>
+									</div>
+								</IconButton>
+							</div>
+							<DataMapperPortWidget engine={engine} port={node.outPort} />
+						</div>
+						<div className={classes.mappingPane}>
+							<RecordTypeTreeWidget
+								engine={engine}
+								typeDesc={node.sourceTypeDesc}
+								id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`}
+								getPort={getSourcePort}
+							/>
+							{STKindChecker.isMappingConstructor(node.value.selectClause.expression) &&
+								<MappingConstructorWidget engine={engine} value={node.value.selectClause.expression} id={QUERY_TARGET_PORT_PREFIX} getPort={getTargetPort} />
+							}
 
-				</div>
-			</div>
+						</div>
+					</div>
+				)}
+			</>
 		);
 	}
 }
