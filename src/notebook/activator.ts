@@ -41,22 +41,22 @@ const update2RegEx = /^2201.[2-9].[0-9]/g;
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
     const variableViewProvider = new VariableViewProvider(ballerinaExtInstance);
-    const isSupported = ballerinaExtInstance.ballerinaVersion.match(update2RegEx);
-    const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider, !!isSupported);
+    const isLSSupported = ballerinaExtInstance.ballerinaVersion.match(update2RegEx);
+    const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider, !!isLSSupported);
 
     context.subscriptions.push(...[
         workspace.registerNotebookSerializer(NOTEBOOK_TYPE, new BallerinaNotebookSerializer()),
-        notebookController
+        notebookController,
+        registerCreateNotebook(ballerinaExtInstance),
+        registerFocusToOutline(),
     ]);
 
-    if (!isSupported) {
+    if (!isLSSupported) {
         return;
     }
 
     context.subscriptions.push(...[
         registerLanguageProviders(ballerinaExtInstance),
-        registerCreateNotebook(ballerinaExtInstance),
-        registerFocusToOutline(),
         registerVariableView(ballerinaExtInstance),
         registerRefreshVariableView(notebookController),
         registerRestartNotebook(ballerinaExtInstance, notebookController),
