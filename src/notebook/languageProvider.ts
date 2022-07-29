@@ -18,9 +18,8 @@
  */
 
 import {
-    CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider,
-    CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult,
-    TextDocument,
+    CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, CompletionList,
+    Disposable, DocumentSelector, languages, Position, TextDocument,
 } from "vscode";
 import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
 import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-low-code-editor-distribution";
@@ -35,10 +34,10 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider {
         this.ballerinaExtension = extensionInstance;
     }
 
-    provideCompletionItems(document: TextDocument, position: Position, token: CancellationToken,
-        context: CompletionContext): ProviderResult<CompletionItem[] | CompletionList<CompletionItem>> {
+    async provideCompletionItems(document: TextDocument, position: Position, token: CancellationToken,
+        context: CompletionContext): Promise<CompletionItem[] | CompletionList<CompletionItem>> {
         if (this.ballerinaExtension.langClient) {
-            return this.getCodeCompletionList(document, position, context);
+            return await this.getCodeCompletionList(document, position, context);
         }
         return [];
     }
