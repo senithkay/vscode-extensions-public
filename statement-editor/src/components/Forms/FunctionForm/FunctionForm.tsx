@@ -37,7 +37,7 @@ import {
     STKindChecker} from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { CurrentModel, StmtDiagnostic, SuggestionItem } from "../../../models/definitions";
+import { CurrentModel, StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
@@ -69,7 +69,7 @@ export function FunctionForm(props: FunctionProps) {
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
     const [currentComponentCompletions, setCurrentComponentCompletions] = useState<SuggestionItem[]>(undefined);
 
     // States related parameters

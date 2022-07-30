@@ -30,15 +30,18 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     ResourceAccessorDefinition,
+    ResourcePathRestParam,
+    ResourcePathSegmentParam,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { StmtDiagnostic, SuggestionItem } from "../../../models/definitions";
+import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
+import { completionEditorTypeKinds } from '../../InputEditor/constants';
 import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 
 import { AdvancedParamEditor } from "./AdvancedParamEditor";
@@ -49,9 +52,10 @@ import { AdvancedParams, Path, PathSegment, Payload, ResourceDiagnostics } from 
 import {
     convertPathStringToSegments,
     generateAdvancedParamString,
-    generateParamString,
+    generateParameterSectionString,
     generatePayloadParamFromST,
-    generateQueryParamFromST, getParamDiagnostics,
+    generateQueryParamFromST, genParamName, getParamDiagnostics,
+    getParamString,
     getPathOfResources,
     getPayloadString,
     getResourcePath,
@@ -66,9 +70,8 @@ export interface FunctionProps {
 export function ResourceForm(props: FunctionProps) {
     const { model, completions } = props;
 
-    const { targetPosition, isEdit, onChange, applyModifications, onCancel, getLangClient } =
-        useContext(FormEditorContext);
-
+    const { targetPosition, onChange, onCancel, getLangClient } = useContext(FormEditorContext);
+    console.log('model init >>>', model);
     const classes = useStyles();
     const connectorClasses = connectorStyles();
     const intl = useIntl();
@@ -92,7 +95,7 @@ export function ResourceForm(props: FunctionProps) {
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
 
     const resourceConfigTitle = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
@@ -154,18 +157,23 @@ export function ResourceForm(props: FunctionProps) {
             }
         });
 
+        console.log('resource path diagnostic', resourcePathDiagnostics);
         return resourcePathDiagnostics;
     }
 
     const handleResourceParamChange = async (
-        resMethod: string, pathStr: string, queryParamStr: string,
-        payloadStr: string, caller: boolean, request: boolean,
-        returnStr: string, diagColumnOffset: number = -4) => {
-        setIsEdited(true);
+        resMethod: string,
+        pathStr: string,
+        paramStr: string,
+        returnStr: string,
+        stModel?: STNode,
+        currentValue?: string) => {
+
+        // setIsEdited(true);
         const pathString = pathStr ? pathStr : ".";
-        const paramString = generateParamString(queryParamStr, payloadStr, "");
-        const codeSnippet = getSource(updateResourceSignature(resMethod, pathString, paramString, "",
-            false, false, returnStr, targetPosition));
+        const codeSnippet = getSource(
+            updateResourceSignature(resMethod, pathString, paramStr, "",
+                false, false, returnStr, targetPosition));
         const position = model ? ({
             startLine: model.functionName.position.startLine - 1,
             startColumn: model.functionName.position.startColumn,
@@ -177,28 +185,40 @@ export function ResourceForm(props: FunctionProps) {
         const partialST = await getPartialSTForModuleMembers(
             { codeSnippet: updatedContent.trim() }, getLangClient, true
         );
+
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
+            onChange(updatedContent, partialST, undefined, { model: stModel }, currentValue, completionEditorTypeKinds, 0,
+                { startLine: -1, startColumn: -4 });
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
-        await onChange(updatedContent, partialST, undefined);
+
     };
 
     const handlePathAddClick = async () => {
-        // const pathParamName = genVariableName("name", segmentNames);
         setCurrentComponentName("Path");
-        // const genPath = (path?.length > 0) ? `/[string ${pathParamName}]` : `[string ${pathParamName}]`;
-        // const newPath = path + genPath;
-        // await handleResourceParamChange(functionName, newPath, generateParamString(queryParam, payloadString,
-        //     advancedString), "", false, false, returnType);
+        const variables = model.relativeResourcePath
+            .filter(pathSegment => STKindChecker.isResourcePathSegmentParam(pathSegment)
+                || STKindChecker.isResourcePathRestParam(pathSegment))
+            .map(pathSegment => STKindChecker.isResourcePathSegmentParam(pathSegment)
+                || STKindChecker.isResourcePathRestParam(pathSegment) ? pathSegment?.paramName.value : "");
+        const genPath = (model.relativeResourcePath.length > 0) ? `/[string ${genParamName("param", variables)}]` : `[string ${genParamName("param", variables)}]`;
+        const newPath = getResourcePath(model.relativeResourcePath) + genPath;
+        await handleResourceParamChange(
+            functionName,
+            newPath,
+            getParamString(model.functionSignature?.parameters),
+            model?.functionSignature?.returnTypeDesc?.type?.source);
     };
 
     const handleMethodChange = async (value: string) => {
-        setFunctionName(value);
-        // await handleResourceParamChange(value.toLowerCase(), path, generateParamString(queryParam, payloadString,
-        //     advancedString), "", false, false,
-        //     returnType);
+        await handleResourceParamChange(
+            value.toLowerCase(),
+            getResourcePath(model.relativeResourcePath),
+            generateParameterSectionString(model?.functionSignature?.parameters),
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
     };
 
     const onPathFocus = () => {
@@ -209,9 +229,13 @@ export function ResourceForm(props: FunctionProps) {
         if (!avoidValueCommit) {
             setPath(value);
         }
-        setCurrentComponentName("Path");
-        // await handleResourceParamChange(functionName, value, generateParamString(queryParam, payloadString,
-        //     advancedString), "", false, false, returnType);
+        // setCurrentComponentName("Path");
+        await handleResourceParamChange(
+            model.functionName.value,
+            value,
+            generateParameterSectionString(model?.functionSignature?.parameters),
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
     };
     const debouncedPathChange = debounce(handlePathChange, 800);
 
@@ -220,8 +244,6 @@ export function ResourceForm(props: FunctionProps) {
             setPath(value);
         }
         setCurrentComponentName("PathParam");
-        // await handleResourceParamChange(functionName, value, generateParamString(queryParam, payloadString,
-        //     advancedString), "", false, false, returnType);
     };
 
     const handleQueryParamEditorChange = async (value: string, stModel?: STNode, avoidValueCommit?: boolean) => {
@@ -229,8 +251,12 @@ export function ResourceForm(props: FunctionProps) {
             setQueryParam(value);
         }
         setCurrentComponentName("QueryParam");
-        // await handleResourceParamChange(functionName, path, generateParamString(value, payloadString,
-        //     advancedString), "", false, false, returnType, -3);
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            value,
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
     };
 
     // Return type related functions
@@ -239,9 +265,17 @@ export function ResourceForm(props: FunctionProps) {
     }
 
     const onReturnTypeChange = async (value: string) => {
-        setReturnType(value);
+        // setReturnType(value);
         // await handleResourceParamChange(functionName, path, generateParamString(queryParam, payloadString,
         //     advancedString), "", false, false, value, -3);
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            generateParameterSectionString(model?.functionSignature?.parameters),
+            value,
+            model.functionSignature?.returnTypeDesc?.type,
+            value
+        );
     }
     const debouncedReturnTypeChange = debounce(onReturnTypeChange, 800);
 
@@ -307,25 +341,24 @@ export function ResourceForm(props: FunctionProps) {
         setIsAdvancedInProgress(isInProgress);
     };
 
-    useEffect(() => {
-        if (model) {
-            if (!isParamInProgress) {
-                setPath(resources === "." ? "" : resources);
-            }
-            if (!isQueryInProgress) {
-                setQueryParam(generateQueryParamFromST(model?.functionSignature?.parameters));
-            }
-            const defaultAdvancedParams = generatePayloadParamFromST(model?.functionSignature?.parameters);
-            if (!isPayloadInProgress && !isAdvancedInProgress) {
-                setAdvancedParams(defaultAdvancedParams);
-            }
-        } else {
-            setPath("");
-        }
-        setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
-        setFunctionName(model?.functionName?.value);
-    }, [model]);
-
+    // useEffect(() => {
+    //     if (model) {
+    //         if (!isParamInProgress) {
+    //             setPath(resources === "." ? "" : resources);
+    //         }
+    //         if (!isQueryInProgress) {
+    //             setQueryParam(generateQueryParamFromST(model?.functionSignature?.parameters));
+    //         }
+    //         const defaultAdvancedParams = generatePayloadParamFromST(model?.functionSignature?.parameters);
+    //         if (!isPayloadInProgress && !isAdvancedInProgress) {
+    //             setAdvancedParams(defaultAdvancedParams);
+    //         }
+    //     } else {
+    //         setPath("");
+    //     }
+    //     setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
+    //     setFunctionName(model?.functionName?.value);
+    // }, [model]);
     return (
         <FormControl data-testid="resource-form" className={connectorClasses.wizardFormControlExtended}>
             <div
@@ -354,7 +387,7 @@ export function ResourceForm(props: FunctionProps) {
                                 <FieldTitle title='Resource Path' optional={true} />
                                 <LiteExpressionEditor
                                     diagnostics={currentComponentName === "Path" && getResourcePathDiagnostics()}
-                                    defaultValue={getResourcePath(model?.relativeResourcePath)}
+                                    defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
                                     onChange={debouncedPathChange}
                                     completions={completions}
                                     onFocus={onPathFocus}
@@ -395,11 +428,9 @@ export function ResourceForm(props: FunctionProps) {
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <ConfigPanelSection title={"Parameters"}>
                             <ResourceParamEditor
+                                parameters={model.functionSignature?.parameters || []}
                                 resourceParamString={queryParam}
-                                readonly={
-                                    (currentComponentSyntaxDiag?.length > 0) || (isParamInProgress) ||
-                                    isAdvancedInProgress || isPayloadInProgress
-                                }
+                                readonly={false} // todo: implement the disable logic
                                 syntaxDiag={currentComponentSyntaxDiag}
                                 onChangeInProgress={handleQueryChangeInProgress}
                                 nameSemDiag={paramDiagnostics?.queryNameSemDiagnostic}
@@ -435,13 +466,12 @@ export function ResourceForm(props: FunctionProps) {
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <FieldTitle title='Return Type' optional={true} />
                         <LiteExpressionEditor
-                            diagnostics={currentComponentName === "Return" &&
+                            diagnostics={(currentComponentName === "Return" && currentComponentSyntaxDiag) ||
                                 model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange}
-                            defaultValue={model?.functionSignature?.returnTypeDesc?.type?.source}
+                            defaultValue={model?.functionSignature?.returnTypeDesc?.type?.source.trim()}
                             onChange={debouncedReturnTypeChange}
-                            disabled={isParamInProgress || isQueryInProgress || isPayloadInProgress ||
-                                isAdvancedInProgress ||
-                                (currentComponentSyntaxDiag && currentComponentName !== "Return")}
+                            onFocus={onReturnFocus}
+                            disabled={false}
                         />
                         <div className={classes.serviceFooterWrapper}>
                             <SecondaryButton
@@ -455,16 +485,8 @@ export function ResourceForm(props: FunctionProps) {
                                     text={saveButtonText}
                                     className={classes.saveBtn}
                                     onClick={handleOnSave}
-                                    disabled={(currentComponentSyntaxDiag !== undefined) ||
-                                        (pathTypeSemDiagnostics !== "") || (pathNameSemDiagnostics !== "") ||
-                                        (!!paramDiagnostics?.queryTypeSemDiagnostic) ||
-                                        (!!paramDiagnostics?.queryNameSemDiagnostic) ||
-                                        (!!paramDiagnostics?.payloadNameSemDiagnostic) ||
-                                        (!!paramDiagnostics?.payloadTypeSemDiagnostic) ||
-                                        (!!paramDiagnostics?.requestNameSemDiagnostics) ||
-                                        (!!paramDiagnostics?.callerNameSemDiagnostics) ||
-                                        (!!paramDiagnostics?.headersNameSemDiagnostics) ||
-                                        (model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)}
+                                    disabled={false}
+                                // todo: fix disabled status
                                 />
                             </div>
                         </div>

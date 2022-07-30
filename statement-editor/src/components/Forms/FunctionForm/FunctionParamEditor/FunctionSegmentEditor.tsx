@@ -23,7 +23,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { StmtDiagnostic } from "../../../../models/definitions";
+import { StatementSyntaxDiagnostics } from "../../../../models/definitions";
 import { FormEditorField } from "../../Types";
 
 import { FunctionParam } from "./FunctionParamItem";
@@ -36,7 +36,7 @@ interface FunctionParamSegmentEditorProps {
     onSave?: (segment: FunctionParam) => void;
     onUpdate?: (segment: FunctionParam) => void;
     onChange?: (segment: FunctionParam) => void;
-    syntaxDiag?: StmtDiagnostic[];
+    syntaxDiag?: StatementSyntaxDiagnostics[];
     onCancel?: () => void;
     isEdit?: boolean;
 }

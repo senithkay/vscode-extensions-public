@@ -275,14 +275,15 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                         ],
                     });
                 } else {
+                    const monacoModel = monacoRef.current.editor.getModel();
                     monaco.editor.setModelMarkers(
-                        monacoRef.current.editor.getModel(),
+                        monacoModel,
                         "expression editor",
                         diagnostics?.map((diagnostic: any) => ({
                             startLineNumber: 1,
-                            startColumn: diagnostic.range.start.character, // - snippetTargetPosition + 2,
+                            startColumn: diagnostic.range?.start?.character || monacoModel.getFullModelRange().startColumn, // - snippetTargetPosition + 2,
                             endLineNumber: 1,
-                            endColumn: diagnostic.range.end.character, // - snippetTargetPosition + 2,
+                            endColumn: diagnostic.range?.end?.character || monacoModel.getFullModelRange().endColumn, // - snippetTargetPosition + 2,
                             message: diagnostic.message,
                             severity: monaco.MarkerSeverity.Error,
                         }))
@@ -341,6 +342,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                     // event.isFlush()
                     if (!event.isFlush) {
                         debouncedContentChange(monacoModel.getValue(), monacoModel.getEOL(), lastPressedKey);
+                        setValidating(false);
                     } else {
                         setValidating(false);
                     }
@@ -392,7 +394,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     useEffect(() => {
         if (defaultValue) {
             const monacoModel = monacoRef.current.editor.getModel();
-            monacoModel.applyEdits([{range: monacoModel.getFullModelRange(), text: defaultValue}]);
+            monacoModel.applyEdits([{ range: monacoModel.getFullModelRange(), text: defaultValue }]);
         }
     }, [defaultValue]);
 

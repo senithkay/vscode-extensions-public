@@ -38,7 +38,7 @@ import {
 import classNames from "classnames";
 import debounce from "lodash.debounce";
 
-import { StmtDiagnostic } from "../../../models/definitions";
+import { StatementSyntaxDiagnostics } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModulePart } from "../../../utils/ls-utils";
@@ -62,7 +62,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
 
     let serviceModel: ServiceDeclaration;
     let portSemDiagMsg: string;

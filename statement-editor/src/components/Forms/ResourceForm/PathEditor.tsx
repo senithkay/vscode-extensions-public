@@ -18,7 +18,7 @@ import {
     dynamicConnectorStyles as connectorStyles} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { DotToken, IdentifierToken, ResourcePathRestParam, ResourcePathSegmentParam, SlashToken, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
-import { StmtDiagnostic } from "../../../models/definitions";
+import { StatementSyntaxDiagnostics } from "../../../models/definitions";
 
 import { PathSegment } from "./types";
 
@@ -29,7 +29,7 @@ export interface PathEditorProps {
     pathSegments: (IdentifierToken | ResourcePathSegmentParam | SlashToken | DotToken | ResourcePathRestParam)[];
     relativeResourcePath: string;
     readonly?: boolean;
-    syntaxDiag?: StmtDiagnostic[];
+    syntaxDiag?: StatementSyntaxDiagnostics[];
     pathNameSemDiag?: string;
     pathTypeSemDiag?: string;
     onChange: (paramString: string, avoidValueCommit?: boolean) => void,

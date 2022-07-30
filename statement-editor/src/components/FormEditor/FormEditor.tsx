@@ -70,10 +70,16 @@ export function FormEditor(props: FormEditorProps) {
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
-    const onChange = async (genSource: string, partialST: STNode, moduleList: Set<string>,
-                            currentModel?: CurrentModel, newValue?: string, completionKinds?: number[],
-                            offsetLineCount: number = 0,
-                            diagnosticOffSet: NodePosition = { startLine: 0, startColumn: 0 }) => {
+    const onChange = async (
+        genSource: string,
+        partialST: STNode,
+        moduleList: Set<string>,
+        currentModel?: CurrentModel,
+        newValue?: string,
+        completionKinds?: number[],
+        offsetLineCount: number = 0,
+        diagnosticOffSet: NodePosition = { startLine: 0, startColumn: 0 }
+    ) => {
         // Offset line position is to add some extra line if we do multiple code generations
 
         const newModuleList = new Set<string>();
@@ -103,6 +109,7 @@ export function FormEditor(props: FormEditorProps) {
         ), newModuleList, true);
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
+
         setModel(enrichModel(partialST, initialModel ? {
             startLine: initialModel.position.startLine + offsetLineCount + diagnosticOffSet.startLine,
             endLine: initialModel.position.endLine + offsetLineCount + diagnosticOffSet.startLine,

@@ -30,7 +30,7 @@ import {
     acceptedCompletionKindForTypes,
     PROPERTY_COMPLETION_KIND
 } from "../constants";
-import { CurrentModel, StmtDiagnostic, SuggestionItem } from '../models/definitions';
+import { CurrentModel, StatementSyntaxDiagnostics, SuggestionItem } from '../models/definitions';
 
 import { getFilteredDiagnosticMessages, getSymbolPosition, sortSuggestions } from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";

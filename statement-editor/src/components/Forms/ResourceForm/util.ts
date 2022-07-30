@@ -220,6 +220,11 @@ export function getResourcePath(pathSegments: (DotToken | SlashToken | Identifie
     return pathSegments.reduce((prev, current) => `${prev}${current.value ? current.value : current.source}`, '');
 }
 
+export function getParamString(parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam |
+                                            RestParam)[]): string {
+    return parameters.reduce((prev, current) => `${prev}${current.value ? current.value : current.source}`, '');
+}
+
 export function generateQueryParamFromST(params: STNode[]): string {
     let queryParamString: string = "";
     if (params && params.length > 0) {
@@ -404,7 +409,7 @@ export function getPayloadString(payload: Payload): string {
 }
 
 export function generateParamString(queryParamString: string, payloadString: string,
-    advancedParamString: string): string {
+                                    advancedParamString: string): string {
     let paramString = "";
     if (advancedParamString && !payloadString && !queryParamString) {
         paramString = advancedParamString;
