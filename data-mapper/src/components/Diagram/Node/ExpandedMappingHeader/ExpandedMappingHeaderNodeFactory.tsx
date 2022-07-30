@@ -25,22 +25,22 @@ import { ExpandedMappingHeaderWidget } from "./ExpandedMappingHeaderWidget";
 @injectable()
 @singleton()
 export class ExpandedMappingHeaderNodeFactory extends AbstractReactFactory<ExpandedMappingHeaderNode, DiagramEngine> implements IDataMapperNodeFactory {
-	constructor() {
-		super(EXPANDED_MAPPING_HEADER_NODE_TYPE);
-	}
+    constructor() {
+        super(EXPANDED_MAPPING_HEADER_NODE_TYPE);
+    }
 
-	generateReactWidget(event: { model: ExpandedMappingHeaderNode; }): JSX.Element {
-		return (
-			<ExpandedMappingHeaderWidget
-				node={event.model}
-				title={`Query: ${event.model.queryExpr.queryPipeline.fromClause.expression.source}`}
-			/>
-		);
-	}
+    generateReactWidget(event: { model: ExpandedMappingHeaderNode; }): JSX.Element {
+        return (
+            <ExpandedMappingHeaderWidget
+                node={event.model}
+                title={`Query: ${event.model.queryExpr.queryPipeline.fromClause.expression.source}`}
+            />
+        );
+    }
 
-	generateModel(event: { initialConfig: any }): any {
-		return undefined;
-	}
+    generateModel(event: { initialConfig: any }): any {
+        return undefined;
+    }
 }
 
 container.register("NodeFactory", { useClass: ExpandedMappingHeaderNodeFactory });

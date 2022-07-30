@@ -1,16 +1,15 @@
-import { CaptureBindingPattern, QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, QueryExpression, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDescForFieldName } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { DataMapperPortModel } from "../../Port";
-import { IntermediatePortModel } from "../../Port/IntermediatePort/IntermediatePortModel";
-import { getFieldNames, getParamForName, isPositionsEquals } from "../../utils";
+import { DataMapperPortModel, IntermediatePortModel } from "../../Port";
+import { getFieldNames } from "../../utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, QueryExprSourceNode } from "../QueryExprSourceNode";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 import { RequiredParamNode } from "../RequiredParam";
 import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
 
@@ -23,14 +22,13 @@ export const QUERY_TARGET_PORT_PREFIX = "queryExpr.target";
 export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
-    public targetTypeDesc: RecordTypeDesc;
     public sourcePort: DataMapperPortModel;
     public targetPort: DataMapperPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
 
-	   public sourceBindingPattern: CaptureBindingPattern;
+    public sourceBindingPattern: CaptureBindingPattern;
 
     constructor(
         public context: IDataMapperContext,
@@ -100,7 +98,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             this.getModel().getNodes().map((node) => {
                 if (node instanceof RequiredParamNode && node.value.paramName.value === fieldNames[0]) {
                     this.sourcePort = node.getPort(fieldId + ".OUT") as DataMapperPortModel;
-                } else if (node instanceof QueryExprSourceNode
+                } else if (node instanceof FromClauseNode
                     && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)
                     && node.value.typedBindingPattern.bindingPattern.source.trim() === fieldNames[0].trim())
                 {

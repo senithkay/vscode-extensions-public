@@ -12,7 +12,6 @@
  */
 import {
     CaptureBindingPattern,
-    FieldAccess,
     FromClause,
     RecordTypeDesc,
     STKindChecker
@@ -26,11 +25,12 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
 export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
 
-export class QueryExprSourceNode extends DataMapperNodeModel {
+export class FromClauseNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
     public sourceBindingPattern: CaptureBindingPattern;
     public sourcePort: DataMapperPortModel;
+
     constructor(
         public context: IDataMapperContext,
         public value: FromClause) {

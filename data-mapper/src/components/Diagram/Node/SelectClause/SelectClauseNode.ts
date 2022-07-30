@@ -25,7 +25,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { DataMapperPortModel } from "../../Port";
 import { getFieldNames, isPositionsEquals } from "../../utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, QueryExprSourceNode } from "../QueryExprSourceNode";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 
 export const SELECT_CLAUSE_NODE_TYPE = "datamapper-node-select-clause";
 export const EXPANDED_QUERY_TARGET_PORT_PREFIX = "expandedQueryExpr.target";
@@ -114,10 +114,10 @@ export class SelectClauseNode extends DataMapperNodeModel {
         return this.findNodeByValueNode(fromClause);
     }
 
-    private findNodeByValueNode(value: FromClause): QueryExprSourceNode {
-        let foundNode: QueryExprSourceNode;
+    private findNodeByValueNode(value: FromClause): FromClauseNode {
+        let foundNode: FromClauseNode;
         this.getModel().getNodes().find((node) => {
-            if (node instanceof QueryExprSourceNode
+            if (node instanceof FromClauseNode
                 && isPositionsEquals(value.position, node.value.position)) {
                 foundNode = node;
             }

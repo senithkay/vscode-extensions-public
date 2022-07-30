@@ -50,8 +50,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	abstract initPorts(): void;
 	abstract initLinks(): void;
-	// link init, port init logics
-	// extend this class
+	// extend this class to add link init, port init logics
 
 	protected addPorts(field: RecordField,
 		type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string, parent?: DataMapperPortModel) {

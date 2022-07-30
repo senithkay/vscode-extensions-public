@@ -23,32 +23,32 @@ import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 
 import {
-	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
-	QueryExprSourceNode,
-	QUERY_EXPR_SOURCE_NODE_TYPE
-} from './QueryExprSourceNode';
+    EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+    FromClauseNode,
+    QUERY_EXPR_SOURCE_NODE_TYPE
+} from './FromClauseNode';
 
 @injectable()
 @singleton()
-export class QueryExprSourceNodeFactory extends AbstractReactFactory<QueryExprSourceNode, DiagramEngine> implements IDataMapperNodeFactory {
-	constructor() {
-		super(QUERY_EXPR_SOURCE_NODE_TYPE);
-	}
+export class FromClauseNodeFactory extends AbstractReactFactory<FromClauseNode, DiagramEngine> implements IDataMapperNodeFactory {
+    constructor() {
+        super(QUERY_EXPR_SOURCE_NODE_TYPE);
+    }
 
-	generateReactWidget(event: { model: QueryExprSourceNode; }): JSX.Element {
-		return (
-			<RecordTypeTreeWidget
-				engine={this.engine}
-				id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`}
-				typeDesc={event.model.sourceTypeDesc}
-				getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
-			/>
-		);
-	}
+    generateReactWidget(event: { model: FromClauseNode; }): JSX.Element {
+        return (
+            <RecordTypeTreeWidget
+                engine={this.engine}
+                id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`}
+                typeDesc={event.model.sourceTypeDesc}
+                getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
+            />
+        );
+    }
 
-	generateModel(event: { initialConfig: any }): any {
-		return undefined;
-	}
+    generateModel(event: { initialConfig: any }): any {
+        return undefined;
+    }
 }
 
-container.register("NodeFactory", { useClass: QueryExprSourceNodeFactory });
+container.register("NodeFactory", {useClass: FromClauseNodeFactory});

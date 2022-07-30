@@ -25,123 +25,127 @@ import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/Ma
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 
 import {
-	QueryExpressionNode,
-	QUERY_SOURCE_PORT_PREFIX,
-	QUERY_TARGET_PORT_PREFIX
+    QueryExpressionNode,
+    QUERY_SOURCE_PORT_PREFIX,
+    QUERY_TARGET_PORT_PREFIX
 } from './QueryExpressionNode';
 
 const styles = (theme: Theme) => createStyles({
-	root: {
-		width: '100%',
-		minWidth: 400,
-		backgroundColor: "#fff",
-		padding: "5px",
-		display: "flex",
-		flexDirection: "column",
-		gap: "5px",
-		color: "#74828F"
-	},
-	fromClause: {
-		padding: "5px",
-		fontFamily: "monospace"
-	},
-	mappingPane: {
-		display: "flex",
-		flexDirection: "row",
-		justifyContent: "space-between"
-	},
-	header: {
-		display: "flex",
-		flexDirection: "row",
-		justifyContent: "space-between",
-	},
-	icons: {
-		padding: '8px',
-		'&:hover': {
-			backgroundColor: '#F0F1FB',
-		}
-	},
-	expandIcon: {
-		height: '15px',
-		width: '15px',
-		marginTop: '-7px'
-	},
-	buttonWrapper: {
-		border: '1px solid #e6e7ec',
-		borderRadius: '8px',
-		position: "absolute",
-		right: "35px"
-	}
+    root: {
+        width: '100%',
+        minWidth: 400,
+        backgroundColor: "#fff",
+        padding: "5px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        color: "#74828F"
+    },
+    fromClause: {
+        padding: "5px",
+        fontFamily: "monospace"
+    },
+    mappingPane: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between"
+    },
+    header: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+    icons: {
+        padding: '8px',
+        '&:hover': {
+            backgroundColor: '#F0F1FB',
+        }
+    },
+    expandIcon: {
+        height: '15px',
+        width: '15px',
+        marginTop: '-7px'
+    },
+    buttonWrapper: {
+        border: '1px solid #e6e7ec',
+        borderRadius: '8px',
+        position: "absolute",
+        right: "35px"
+    }
 });
 
 export interface QueryExpressionNodeWidgetProps extends WithStyles<typeof styles> {
-	node: QueryExpressionNode;
-	engine: DiagramEngine;
+    node: QueryExpressionNode;
+    engine: DiagramEngine;
 }
 
 class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidgetProps> {
-	render() {
-		const node = this.props.node;
-		const classes = this.props.classes;
-		const engine = this.props.engine;
+    render() {
+        const node = this.props.node;
+        const classes = this.props.classes;
+        const engine = this.props.engine;
 
-		const getSourcePort = (portId: string) => {
-			return node.getPort(portId) as DataMapperPortModel;
-		}
+        const getSourcePort = (portId: string) => {
+            return node.getPort(portId) as DataMapperPortModel;
+        }
 
-		const getTargetPort = (portId: string) => {
-			return node.getPort(portId) as DataMapperPortModel;
-		}
+        const getTargetPort = (portId: string) => {
+            return node.getPort(portId) as DataMapperPortModel;
+        }
 
-		const onClickOnExpand = () => {
-			node.context.changeSelection(ViewOption.EXPAND,
-				{
-					...node.context.selection,
-					selectedST: node.value
-				})
-		}
+        const onClickOnExpand = () => {
+            node.context.changeSelection(ViewOption.EXPAND,
+                {
+                    ...node.context.selection,
+                    selectedST: node.value
+                })
+        }
 
-		return (
-			<>
-				{/* TODO: Identify inner query expressions and render minimized boxes to denote those with links */}
-				{!!node.sourcePort && (
-					<div
-						className={classes.root}
-					>
-						<div className={classes.header}>
-							<DataMapperPortWidget engine={engine} port={node.inPort} />
-							<div className={classes.fromClause}>
-								Query: {node.value.queryPipeline.fromClause.expression.source}
-							</div>
-							<div className={classes.buttonWrapper}>
-								<IconButton
-									onClick={onClickOnExpand}
-									className={classes.icons}
-								>
-									<div className={classes.expandIcon}>
-										<ExpandIcon/>
-									</div>
-								</IconButton>
-							</div>
-							<DataMapperPortWidget engine={engine} port={node.outPort} />
-						</div>
-						<div className={classes.mappingPane}>
-							<RecordTypeTreeWidget
-								engine={engine}
-								typeDesc={node.sourceTypeDesc}
-								id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`}
-								getPort={getSourcePort}
-							/>
-							{STKindChecker.isMappingConstructor(node.value.selectClause.expression) &&
-								<MappingConstructorWidget engine={engine} value={node.value.selectClause.expression} id={QUERY_TARGET_PORT_PREFIX} getPort={getTargetPort} />
-							}
-
-						</div>
-					</div>
-				)}
-			</>
-		);
-	}
+        return (
+            <>
+                {/* TODO: Identify inner query expressions and render minimized boxes to denote those with links */}
+                {!!node.sourcePort && (
+                    <div
+                        className={classes.root}
+                    >
+                        <div className={classes.header}>
+                            <DataMapperPortWidget engine={engine} port={node.inPort}/>
+                            <div className={classes.fromClause}>
+                                Query: {node.value.queryPipeline.fromClause.expression.source}
+                            </div>
+                            <div className={classes.buttonWrapper}>
+                                <IconButton
+                                    onClick={onClickOnExpand}
+                                    className={classes.icons}
+                                >
+                                    <div className={classes.expandIcon}>
+                                        <ExpandIcon/>
+                                    </div>
+                                </IconButton>
+                            </div>
+                            <DataMapperPortWidget engine={engine} port={node.outPort}/>
+                        </div>
+                        <div className={classes.mappingPane}>
+                            <RecordTypeTreeWidget
+                                engine={engine}
+                                typeDesc={node.sourceTypeDesc}
+                                id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`}
+                                getPort={getSourcePort}
+                            />
+                            {STKindChecker.isMappingConstructor(node.value.selectClause.expression) && (
+                                <MappingConstructorWidget
+                                    engine={engine}
+                                    value={node.value.selectClause.expression}
+                                    id={QUERY_TARGET_PORT_PREFIX}
+                                    getPort={getTargetPort}
+                                />
+                            )}
+                        </div>
+                    </div>
+                )}
+            </>
+        );
+    }
 }
 
-export const QueryExpressionNodeWidget = withStyles(styles, { withTheme: true })(QueryExpressionNodeWidgetC);
+export const QueryExpressionNodeWidget = withStyles(styles, {withTheme: true})(QueryExpressionNodeWidgetC);

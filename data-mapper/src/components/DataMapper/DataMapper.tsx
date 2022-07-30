@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer, useState} from "react";
+import React, { useEffect, useReducer, useState } from "react";
 
 import {
     DiagramEditorLangClientInterface,
@@ -6,7 +6,7 @@ import {
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    FunctionDefinition, STKindChecker,
+    FunctionDefinition,
     STNode,
     traversNode,
 } from "@wso2-enterprise/syntax-tree";

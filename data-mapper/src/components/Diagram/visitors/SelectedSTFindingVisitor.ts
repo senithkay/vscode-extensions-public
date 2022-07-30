@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FunctionDefinition, QueryExpression, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, QueryExpression, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
 export class SelectedSTFindingVisitor implements Visitor {
 
@@ -20,23 +20,15 @@ export class SelectedSTFindingVisitor implements Visitor {
         private selectedST: STNode
     ) {}
 
-    beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode){
+    beginVisitSTNode(node: FunctionDefinition | QueryExpression, parent?: STNode){
         // TODO: Implement a way to identify the selectedST without using the positions since positions might change with imports, etc.
-        if (node.position.startLine === this.selectedST.position.startLine
+        if ((STKindChecker.isFunctionDefinition(node) || STKindChecker.isQueryExpression(node))
+            && node.position.startLine === this.selectedST.position.startLine
             && node.position.startColumn === this.selectedST.position.startColumn)
         {
             this.node = node;
         }
     }
-
-    beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
-        // TODO: Implement a way to identify the selectedST without using the positions since positions might change with imports, etc.
-        if (node.position.startLine === this.selectedST.position.startLine
-            && node.position.startColumn === this.selectedST.position.startColumn)
-        {
-            this.node = node;
-        }
-    };
 
     getST() {
         return this.node;

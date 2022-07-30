@@ -22,77 +22,77 @@ import { ViewOption } from "../../../DataMapper/DataMapper";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
 
 const useStyles = makeStyles(() =>
-	createStyles({
-		root: {
-			width: '100%',
-			minWidth: 400,
-			backgroundColor: "#fff",
-			padding: "5px",
-			display: "flex",
-			flexDirection: "column",
-			gap: "5px",
-			color: "#74828F"
-		},
-		fromClause: {
-			padding: "5px",
-			fontFamily: "monospace"
-		},
-		header: {
-			display: "flex",
-			flexDirection: "row",
-			justifyContent: "space-between",
-		},
-		icons: {
-			padding: '8px',
-			'&:hover': {
-				backgroundColor: '#F0F1FB',
-			}
-		},
-		collapseIcon: {
-			height: '15px',
-			width: '15px',
-			marginTop: '-7px',
-			marginLeft: '-7px'
-		},
-		buttonWrapper: {
-			border: '1px solid #e6e7ec',
-			borderRadius: '8px',
-			position: "absolute",
-			right: "35px"
-		}
-	})
+    createStyles({
+        root: {
+            width: '100%',
+            minWidth: 400,
+            backgroundColor: "#fff",
+            padding: "5px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "5px",
+            color: "#74828F"
+        },
+        fromClause: {
+            padding: "5px",
+            fontFamily: "monospace"
+        },
+        header: {
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+        },
+        icons: {
+            padding: '8px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            }
+        },
+        collapseIcon: {
+            height: '15px',
+            width: '15px',
+            marginTop: '-7px',
+            marginLeft: '-7px'
+        },
+        buttonWrapper: {
+            border: '1px solid #e6e7ec',
+            borderRadius: '8px',
+            position: "absolute",
+            right: "35px"
+        }
+    })
 );
 
 export interface ExpandedMappingHeaderWidgetProps {
-	node: ExpandedMappingHeaderNode;
-	title: string;
+    node: ExpandedMappingHeaderNode;
+    title: string;
 }
 
 export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetProps) {
-	const { node, title } = props;
-	const classes = useStyles();
+    const {node, title} = props;
+    const classes = useStyles();
 
-	const onClickOnCollapse = () => {
-		node.context.changeSelection(ViewOption.COLLAPSE);
-	}
+    const onClickOnCollapse = () => {
+        node.context.changeSelection(ViewOption.COLLAPSE);
+    }
 
-	return (
-		<div className={classes.root}>
-			<div className={classes.header}>
-				<div className={classes.fromClause}>
-					{title}
-				</div>
-				<div className={classes.buttonWrapper}>
-					<IconButton
-						onClick={onClickOnCollapse}
-						className={classes.icons}
-					>
-						<div className={classes.collapseIcon}>
-							<CollapseIcon/>
-						</div>
-					</IconButton>
-				</div>
-			</div>
-		</div>
-	);
+    return (
+        <div className={classes.root}>
+            <div className={classes.header}>
+                <div className={classes.fromClause}>
+                    {title}
+                </div>
+                <div className={classes.buttonWrapper}>
+                    <IconButton
+                        onClick={onClickOnCollapse}
+                        className={classes.icons}
+                    >
+                        <div className={classes.collapseIcon}>
+                            <CollapseIcon/>
+                        </div>
+                    </IconButton>
+                </div>
+            </div>
+        </div>
+    );
 }

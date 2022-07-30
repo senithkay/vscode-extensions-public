@@ -20,7 +20,7 @@ import {
 import { BinaryExpressionNode } from "../Node/BinaryExpression/BinaryExpressionNode";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
-import { QueryExprSourceNode } from "../Node/QueryExprSourceNode";
+import { FromClauseNode } from "../Node/FromClause";
 import { SelectClauseNode } from "../Node/SelectClause";
 import { isPositionsEquals } from "../utils";
 
@@ -95,6 +95,7 @@ export class NodeInitVisitor implements Visitor {
         if (node.position.startLine === this.selection.selectedST.position.startLine
             && node.position.startColumn === this.selection.selectedST.position.startColumn)
         {
+            // create output node
             this.outputNode = new SelectClauseNode(
                 this.context,
                 node.selectClause
@@ -103,12 +104,12 @@ export class NodeInitVisitor implements Visitor {
             this.outputNode.setPosition(800, 100);
 
             // create input nodes
-            const recordNode = new QueryExprSourceNode(
+            const fromClauseNode = new FromClauseNode(
                 this.context,
                 node.queryPipeline.fromClause
             );
-            recordNode.setPosition(100, 100);
-            this.inputNodes.push(recordNode);
+            fromClauseNode.setPosition(100, 100);
+            this.inputNodes.push(fromClauseNode);
 
             const queryNode = new ExpandedMappingHeaderNode(this.context, node);
             queryNode.setPosition(385, 10);
