@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,8 +29,8 @@ export class VariableViewProvider implements WebviewViewProvider {
 	public static readonly viewType = 'ballerinaViewVariables';
 	private ballerinaExtension: BallerinaExtension;
 
-    constructor(extensionInstance: BallerinaExtension) {
-        this.ballerinaExtension = extensionInstance; 
+	constructor(extensionInstance: BallerinaExtension) {
+		this.ballerinaExtension = extensionInstance;
 	}
 
 	public resolveWebviewView(webviewView: WebviewView, _context: WebviewViewResolveContext,
@@ -76,10 +76,14 @@ export class VariableViewProvider implements WebviewViewProvider {
 		return getLibraryWebViewContent(webViewOptions);
 	}
 
-    public updateVariables() {
+	public updateVariables() {
 		sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_UPDATE_VARIABLE_VIEW, CMP_NOTEBOOK);
 		if (webviewRPCHandler) {
-			webviewRPCHandler.invokeRemoteMethod("updateVariableValues", undefined, () => {});
+			webviewRPCHandler.invokeRemoteMethod("updateVariableValues", undefined, () => { });
 		}
-    }
+	}
+
+	public dispose() {
+		this.ballerinaExtension.setNotebookVariableViewEnabled(false);
+	}
 }

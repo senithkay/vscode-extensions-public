@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,31 +17,32 @@
  *
  */
 
-import { BallerinaExtension, ExtendedLangClient, LANGUAGE, NotebookFileSourceResponse } from "../core";
-import { CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, 
-    CompletionList, Disposable, DocumentSelector, languages, Position, ProviderResult, 
-    TextDocument, } from "vscode";
+import {
+    CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, CompletionList,
+    Disposable, DocumentSelector, languages, Position, TextDocument,
+} from "vscode";
 import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
-import { filterCompletions, getPlainTextSnippet, translateCompletionItemKind  } from "./utils";
-import { NOTEBOOK_TYPE } from "./constants";
 import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-low-code-editor-distribution";
+import { BallerinaExtension, ExtendedLangClient, LANGUAGE, NotebookFileSourceResponse, NOT_SUPPORTED } from "../core";
+import { filterCompletions, getPlainTextSnippet, translateCompletionItemKind } from "./utils";
+import { NOTEBOOK_TYPE } from "./constants";
 
-export class NotebookCompletionItemProvider implements CompletionItemProvider{
+export class NotebookCompletionItemProvider implements CompletionItemProvider {
     private ballerinaExtension: BallerinaExtension;
 
     constructor(extensionInstance: BallerinaExtension) {
         this.ballerinaExtension = extensionInstance;
     }
 
-    provideCompletionItems(document: TextDocument, position: Position, token: CancellationToken, 
-        context: CompletionContext): ProviderResult<CompletionItem[] | CompletionList<CompletionItem>> {
-            if (this.ballerinaExtension.langClient ) {
-                return this.getCodeCompletionList(document, position, context);
-            }
-            return [];
+    async provideCompletionItems(document: TextDocument, position: Position, token: CancellationToken,
+        context: CompletionContext): Promise<CompletionItem[] | CompletionList<CompletionItem>> {
+        if (this.ballerinaExtension.langClient) {
+            return await this.getCodeCompletionList(document, position, context);
+        }
+        return [];
     }
 
-    private async getCodeCompletionList(document: TextDocument, position: Position, context: CompletionContext): 
+    private async getCodeCompletionList(document: TextDocument, position: Position, context: CompletionContext):
         Promise<any> {
         let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
 
@@ -49,6 +50,9 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
             return [];
         }
         let response = await langClient.getShellBufferFilePath();
+        if (response === NOT_SUPPORTED) {
+            return [];
+        }
         let { content, filePath } = response as NotebookFileSourceResponse;
         performDidOpen(langClient, filePath, content);
         let endPositionOfMain = await this.getEndPositionOfMain(langClient, filePath);
@@ -78,7 +82,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
         });
         return filterCompletions(completions).map(item => {
             return {
-                ...item, 
+                ...item,
                 insertText: getPlainTextSnippet(item.insertText),
                 kind: translateCompletionItemKind(item.kind as MonacoCompletionItemKind)
             };
@@ -93,7 +97,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider{
         });
         let syntaxTree = response as GetSyntaxTreeResponse;
         if (syntaxTree && syntaxTree.syntaxTree && syntaxTree.syntaxTree.members) {
-            var main = syntaxTree.syntaxTree.members.find((member: { kind: string; functionName: { value: string; }; }) => 
+            var main = syntaxTree.syntaxTree.members.find((member: { kind: string; functionName: { value: string; }; }) =>
                 member.kind === 'FunctionDefinition' && member.functionName.value === 'main'
             );
             if (main) {

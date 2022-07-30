@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,14 +18,18 @@
  */
 
 import { spawn } from 'child_process';
-import { NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController, 
-    NotebookDocument, NotebookDocumentContentChange, notebooks, window, workspace } from 'vscode';
-import { BallerinaExtension, ExtendedLangClient, NotebookCellMetaInfo, NoteBookCellOutputResponse } from '../core';
+import {
+    NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController,
+    NotebookDocument, NotebookDocumentContentChange, notebooks, window, workspace
+} from 'vscode';
+import { BallerinaExtension, ExtendedLangClient, NotebookCellMetaInfo, NoteBookCellOutputResponse, NOT_SUPPORTED } from '../core';
+import {
+    CMP_NOTEBOOK, sendTelemetryEvent, sendTelemetryException, TM_EVENT_RUN_NOTEBOOK, TM_EVENT_RUN_NOTEBOOK_BAL_CMD,
+    TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET
+} from '../telemetry';
+import { isWindows } from '../utils';
 import { CUSTOM_DESIGNED_MIME_TYPES, NOTEBOOK_TYPE } from './constants';
 import { VariableViewProvider } from './variableView';
-import { CMP_NOTEBOOK, sendTelemetryEvent, sendTelemetryException, TM_EVENT_RUN_NOTEBOOK, TM_EVENT_RUN_NOTEBOOK_BAL_CMD, 
-    TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET } from '../telemetry';
-import { isWindows } from '../utils';
 
 /**
  * Notebook controller to provide functionality of code execution.
@@ -38,7 +42,8 @@ export class BallerinaNotebookController {
 
     private ballerinaExtension: BallerinaExtension;
     private variableView: VariableViewProvider;
-    private metaInfoHandler: MetoInfoHandler;
+    private isSupported: boolean;
+    private metaInfoHandler: MetaInfoHandler;
     private readonly controller: NotebookController;
     private executionOrder = 0;
 
@@ -48,10 +53,11 @@ export class BallerinaNotebookController {
      * @param extensionInstance Ballerina extension instance
      * @param variableViewProvider Provider for variable view
      */
-    constructor(extensionInstance: BallerinaExtension, variableViewProvider: VariableViewProvider) {
+    constructor(extensionInstance: BallerinaExtension, variableViewProvider: VariableViewProvider, isSupported: boolean) {
         this.ballerinaExtension = extensionInstance;
         this.variableView = variableViewProvider;
-        this.metaInfoHandler = new MetoInfoHandler();
+        this.isSupported = isSupported;
+        this.metaInfoHandler = new MetaInfoHandler();
 
         this.controller = notebooks.createNotebookController(
             this.controllerId,
@@ -65,7 +71,7 @@ export class BallerinaNotebookController {
         // handle deletetions of cells
         workspace.onDidChangeNotebookDocument(listner => {
             listner.contentChanges.forEach((change: NotebookDocumentContentChange) => {
-                change.removedCells.forEach( async (cell: NotebookCell) => {
+                change.removedCells.forEach(async (cell: NotebookCell) => {
                     let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
                     failedVars.length && window.showInformationMessage(this.getFailedToDeleteErrorMsg(failedVars));
                     this.updateVariableView();
@@ -79,26 +85,45 @@ export class BallerinaNotebookController {
      * 
      * @param cells Set of notebook cells to execute.
      * @param _notebook Notebook document
-     * @param controller Notebook controller
+     * @param _controller Notebook controller
      */
     private async execute(cells: NotebookCell[], _notebook: NotebookDocument,
-        controller: NotebookController): Promise<void> {
+        _controller: NotebookController): Promise<void> {
         for (let cell of cells) {
-            await this.doExecution(cell);
+            if (!this.isSupported) {
+                this.doNotSupportedExecution(cell);
+                break;
+            }
+            const continueExecution = await this.doExecution(cell);
             this.updateVariableView(); // update the variable view to reflect changes
+            if (!continueExecution) {
+                break;
+            }
         }
     }
 
-    private async doExecution(cell: NotebookCell): Promise<void> {
+    private doNotSupportedExecution(cell: NotebookCell): void {
         sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK, CMP_NOTEBOOK);
-        let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
-        const cellContent = cell.document.getText().trim();
-        
         const execution = this.controller.createNotebookCellExecution(cell);
         execution.executionOrder = ++this.executionOrder;
         execution.start(Date.now());
         execution.clearOutput();
-        
+        execution.appendOutput([new NotebookCellOutput([
+            NotebookCellOutputItem.text("Incompatible ballerina version.")
+        ])]);
+        execution.end(false, Date.now());
+    }
+
+    private async doExecution(cell: NotebookCell): Promise<boolean> {
+        sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_RUN_NOTEBOOK, CMP_NOTEBOOK);
+        let langClient: ExtendedLangClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
+        const cellContent = cell.document.getText().trim();
+
+        const execution = this.controller.createNotebookCellExecution(cell);
+        execution.executionOrder = ++this.executionOrder;
+        execution.start(Date.now());
+        execution.clearOutput();
+
         // appends string output to the current execution cell output
         const appendTextToOutput = (data: any) => {
             execution.appendOutput([new NotebookCellOutput([
@@ -107,15 +132,16 @@ export class BallerinaNotebookController {
         };
 
         //append text to the output when failed to remove a value from memory
-        const appendFailedToDeleteErrorMsg = (failedVars: string[]) => 
+        const appendFailedToDeleteErrorMsg = (failedVars: string[]) =>
             failedVars.length && appendTextToOutput(this.getFailedToDeleteErrorMsg(failedVars));
 
         // handle request to cancel the running execution 
         execution.token.onCancellationRequested(() => {
             appendTextToOutput('Execution Interrupted.');
             execution.end(false, Date.now());
+            return false;
         });
-        
+
         // if cell content is empty no need for an code execution
         // But if the cell contained executed code with definitions
         // remove them from the shell invokermemory
@@ -123,7 +149,7 @@ export class BallerinaNotebookController {
             let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
             appendFailedToDeleteErrorMsg(failedVars);
             execution.end(!failedVars.length, Date.now());
-            return;
+            return true;
         }
 
         // handle if language client is not ready yet 
@@ -132,7 +158,7 @@ export class BallerinaNotebookController {
                 NotebookCellOutputItem.text("Language client is not ready yet.")
             ])]);
             execution.end(false, Date.now());
-            return;
+            return false;
         }
 
         await langClient.onReady();
@@ -155,7 +181,7 @@ export class BallerinaNotebookController {
                 balRunner.on('close', (code) => {
                     execution.end(code === 0, Date.now());
                 });
-                return;
+                return true;
             }
 
             // code snippets
@@ -163,8 +189,17 @@ export class BallerinaNotebookController {
             let response = await langClient.getBalShellResult({
                 source: cellContent
             });
+            if (response === NOT_SUPPORTED) {
+                window.showInformationMessage(
+                    `Notebook Code execution not supported in ballerina version ${this.ballerinaExtension.ballerinaVersion}\n
+                    Use Ballerina 2201.2.0 (Swan Lake Update 2) or newer`
+                );
+                appendTextToOutput("Incompatible ballerina version.")
+                execution.end(false, Date.now());
+                return false;
+            }
             let output = response as NoteBookCellOutputResponse;
-            
+
             // log console output first
             // since console output will be logged until an exception happens so it comes first
             output.consoleOut && appendTextToOutput(output.consoleOut);
@@ -198,9 +233,10 @@ export class BallerinaNotebookController {
                 appendFailedToDeleteErrorMsg(failedVars);
             }
 
-            // end execution with succes or fail
+            // end execution with success or fail
             // success if there are no diagnostics and errors
             execution.end(!(output.diagnostics.length) && !(output.errors.length), Date.now());
+            return !(output.diagnostics.length) && !(output.errors.length);
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(this.ballerinaExtension, error, CMP_NOTEBOOK);
@@ -211,6 +247,7 @@ export class BallerinaNotebookController {
                 appendTextToOutput("Unknown error occurred.");
             }
             execution.end(false, Date.now());
+            return false;
         }
     }
 
@@ -244,13 +281,15 @@ export class BallerinaNotebookController {
         if (!langClient) {
             return [];
         }
+
+        await langClient.onReady();
         let failedVars: string[] = [];
         for (const varToDelete of varsToDelete) {
-            if (!(await langClient.deleteDeclarations({varToDelete: varToDelete}))) {
-                failedVars.push(varToDelete);
-            } else {
-                this.metaInfoHandler.clearVarFromMap(varToDelete);
+            const deleted = await langClient.deleteDeclarations({ varToDelete: varToDelete });
+            if (deleted === NOT_SUPPORTED) {
+                return [];
             }
+            deleted ? this.metaInfoHandler.clearVarFromMap(varToDelete) : failedVars.push(varToDelete);
         }
         return failedVars;
     }
@@ -272,7 +311,9 @@ export class BallerinaNotebookController {
     }
 
     dispose(): void {
-        throw new Error('Method not implemented.');
+        this.controller.dispose();
+        this.variableView.dispose();
+        this.metaInfoHandler.reset();
     }
 }
 
@@ -292,11 +333,11 @@ interface CellInfo {
  * - varToCellMap will hold the last successfully executed cell for each variable 
  *   and module declaration
  * - On an event of empty cell invocation or cell delete variables and module dclns
- *   need to be deleted will be identified by ensuring that each associated meto info 
+ *   need to be deleted will be identified by ensuring that each associated meta info 
  *   for the cell are mapped to the cell in varToCellMap. If not matched those values 
  *   have defined and executed in another cell after the execution of this cell.
  */
-class MetoInfoHandler {
+class MetaInfoHandler {
     private cellInfoList: CellInfo[];
     // NotebookCell instead of uri to address changes in notebook cell order
     // (which affects uri) due to add, delete, join, and split.
@@ -304,7 +345,7 @@ class MetoInfoHandler {
 
     constructor() {
         this.cellInfoList = [];
-        this.varToCellMap = new Map<string,NotebookCell>();
+        this.varToCellMap = new Map<string, NotebookCell>();
     }
 
     /**

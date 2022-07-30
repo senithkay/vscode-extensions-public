@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,13 +33,13 @@ export function translateCompletionItemKind(kind: MonacoCompletionItemKind) {
 export function filterCompletions(completions: CompletionResponse[]): CompletionResponse[] {
     const labelsUsedInShell = [
         "__last__", "__java_recall(handle context_id, handle name)", "__memorize(string name, any|error value)",
-        "main()", "init()", "__run()", "__recall_any_error(string name)", "__recall_any(string name)", 
-        "__java_memorize(handle context_id, handle name, any|error value)", "__stmts()", 
+        "main()", "init()", "__run()", "__recall_any_error(string name)", "__recall_any(string name)",
+        "__java_memorize(handle context_id, handle name, any|error value)", "__stmts()",
     ];
     return completions.filter(item => !labelsUsedInShell.includes(item.label));
 }
 
-export async function createFile(uri: Uri, content: string){
+export async function createFile(uri: Uri, content: string) {
     await workspace.fs.writeFile(uri, new TextEncoder().encode(content));
     return;
 }

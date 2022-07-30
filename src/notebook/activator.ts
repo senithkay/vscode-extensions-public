@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,42 +18,54 @@
  */
 
 import { workspace, ExtensionContext, commands, Disposable, window, Uri, debug } from 'vscode';
-import * as fs from 'fs';
+import { existsSync } from 'fs';
 import { sep } from 'path';
 import { BallerinaExtension, ExtendedLangClient } from '../core';
-import { CMP_NOTEBOOK, getMessageObject, sendTelemetryEvent, sendTelemetryException, TM_EVENT_CREATE_NOTEBOOK, 
-    TM_EVENT_ERROR_EXECUTE_CREATE_NOTEBOOK, TM_EVENT_OPEN_VARIABLE_VIEW, TM_EVENT_RESTART_NOTEBOOK } from '../telemetry';
+import {
+    CMP_NOTEBOOK, getMessageObject, sendTelemetryEvent, sendTelemetryException, TM_EVENT_CREATE_NOTEBOOK,
+    TM_EVENT_ERROR_EXECUTE_CREATE_NOTEBOOK, TM_EVENT_OPEN_VARIABLE_VIEW, TM_EVENT_RESTART_NOTEBOOK
+} from '../telemetry';
 import { outputChannel } from '../utils';
 import { BallerinaNotebookSerializer } from "./notebookSerializer";
 import { BallerinaNotebookController } from "./notebookController";
 import { registerLanguageProviders } from './languageProvider';
 import { VariableViewProvider } from './variableView';
-import { BAL_NOTEBOOK, CREATE_NOTEBOOK_COMMAND, DEBUG_NOTEBOOK_COMMAND, NOTEBOOK_TYPE, OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND, 
-    RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND } from './constants';
+import {
+    BAL_NOTEBOOK, CREATE_NOTEBOOK_COMMAND, DEBUG_NOTEBOOK_COMMAND, NOTEBOOK_TYPE, OPEN_OUTLINE_VIEW_COMMAND,
+    OPEN_VARIABLE_VIEW_COMMAND, RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND
+} from './constants';
 import { createFile } from './utils';
 import { BallerinaDebugAdapterTrackerFactory, NotebookDebuggerController } from './debugger';
 import { clearTerminal } from '../project';
 
 const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
+const update2RegEx = /^2201.[2-9].[0-9]/g;
+
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
     const variableViewProvider = new VariableViewProvider(ballerinaExtInstance);
-    const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider);
+    const isLSSupported = ballerinaExtInstance.ballerinaVersion.match(update2RegEx);
+    const notebookController = new BallerinaNotebookController(ballerinaExtInstance, variableViewProvider, !!isLSSupported);
 
-    context.subscriptions.push(
-        workspace.registerNotebookSerializer(NOTEBOOK_TYPE, new BallerinaNotebookSerializer())
-    );
-    context.subscriptions.push(notebookController);
-    context.subscriptions.push(registerLanguageProviders(ballerinaExtInstance));
-    context.subscriptions.push(registerCreateNotebook(ballerinaExtInstance));
-    context.subscriptions.push(registerFocusToOutline());
-    context.subscriptions.push(registerVariableView(ballerinaExtInstance));
-    context.subscriptions.push(registerRefreshVariableView(notebookController));
-    context.subscriptions.push(registerRestartNotebook(ballerinaExtInstance, notebookController));
-	context.subscriptions.push(
-		window.registerWebviewViewProvider(VariableViewProvider.viewType, variableViewProvider)
-    );
+    context.subscriptions.push(...[
+        workspace.registerNotebookSerializer(NOTEBOOK_TYPE, new BallerinaNotebookSerializer()),
+        notebookController,
+        registerCreateNotebook(ballerinaExtInstance),
+        registerFocusToOutline(),
+    ]);
+    if (!isLSSupported) {
+        return;
+    }
+
+    context.subscriptions.push(...[
+        registerLanguageProviders(ballerinaExtInstance),
+        registerVariableView(ballerinaExtInstance),
+        registerRefreshVariableView(notebookController),
+        registerRestartNotebook(ballerinaExtInstance, notebookController),
+        window.registerWebviewViewProvider(VariableViewProvider.viewType, variableViewProvider)
+    ]);
+
     if (ballerinaExtInstance.enabledNotebookDebugMode()) {
         ballerinaExtInstance.setNotebookDebugModeEnabled(true);
         context.subscriptions.push(registerDebug(new NotebookDebuggerController(ballerinaExtInstance)));
@@ -82,9 +94,9 @@ function registerRefreshVariableView(notebookController: BallerinaNotebookContro
     });
 }
 
-function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension, 
+function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension,
     notebookController: BallerinaNotebookController): Disposable {
-    return commands.registerCommand(RESTART_NOTEBOOK_COMMAND , async () => {
+    return commands.registerCommand(RESTART_NOTEBOOK_COMMAND, async () => {
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_RESTART_NOTEBOOK, CMP_NOTEBOOK);
         const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         if (!langClient) {
@@ -100,20 +112,21 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
     return commands.registerCommand(CREATE_NOTEBOOK_COMMAND, async () => {
         try {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_CREATE_NOTEBOOK, CMP_NOTEBOOK);
-            let notebookName = await window.showInputBox({ placeHolder: "new_notebook"});
+            let notebookName = await window.showInputBox({ placeHolder: "new_notebook" });
             if (notebookName && notebookName.trim().length > 0) {
-                let newNotebookFile = notebookName.endsWith(BAL_NOTEBOOK) ? notebookName : `${notebookName}${BAL_NOTEBOOK}`;
-                let uri: Uri = Uri.parse(`file:${workspace.workspaceFolders![0].uri!.fsPath}${sep}${newNotebookFile}`);
-                if (!fs.existsSync(uri.fsPath)) {
+                notebookName = notebookName.endsWith(BAL_NOTEBOOK) ? notebookName : `${notebookName}${BAL_NOTEBOOK}`;
+                const uri: Uri = Uri.file(`${workspace.workspaceFolders![0].uri!.fsPath}${sep}${notebookName}`);
+                if (!existsSync(uri.fsPath)) {
                     await createFile(uri, "");
-                    outputChannel.appendLine(`${newNotebookFile} created in workspace`);
+                    commands.executeCommand("vscode.open", uri);
+                    outputChannel.appendLine(`${notebookName} created in workspace`);
                 } else {
-                    const message = `${newNotebookFile} already exists in the workspace.`;
+                    const message = `${notebookName} already exists in the workspace.`;
                     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_ERROR_EXECUTE_CREATE_NOTEBOOK,
                         CMP_NOTEBOOK, getMessageObject(message));
                     window.showErrorMessage(message);
                 }
-            } 
+            }
         } catch (error) {
             if (error instanceof Error) {
                 sendTelemetryException(ballerinaExtInstance, error, CMP_NOTEBOOK);
