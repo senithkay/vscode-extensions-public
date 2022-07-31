@@ -251,6 +251,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                         segmentId={index}
                         syntaxDiagnostics={syntaxDiag}
                         model={param}
+                        completions={completions}
                         isEdit={true}
                         alternativeName={param.source.includes(RESOURCE_HEADER_PREFIX) ? "Identifier Name" : "Name"}
                         optionList={[PARAM_TYPES.DEFAULT, PARAM_TYPES.HEADER]}

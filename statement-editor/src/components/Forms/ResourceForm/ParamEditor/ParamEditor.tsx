@@ -12,22 +12,20 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-import { Button } from "@material-ui/core";
-import { default as AddIcon } from "@material-ui/icons/Add";
+import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
-    FormTextInput, ParamDropDown, PrimaryButton, SecondaryButton
+    ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { CommaToken, DefaultableParam, IncludedRecordParam, RequiredParam, RestParam } from '@wso2-enterprise/syntax-tree';
+import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker } from '@wso2-enterprise/syntax-tree';
 import debounce from "lodash.debounce";
 
-import { StatementSyntaxDiagnostics } from '../../../../models/definitions';
+import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
+import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
+import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_HEADER_PREFIX, RESOURCE_REQUEST_TYPE } from '../ResourceParamEditor';
 
 import { useStyles } from "./style";
-import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_HEADER_PREFIX, RESOURCE_REQUEST_TYPE } from '../ResourceParamEditor';
-import { Resource } from '../../Form';
-import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 
 export interface Param {
     id: number;
@@ -50,7 +48,8 @@ export enum PARAM_TYPES {
 export interface ParamProps {
     segmentId: number;
     syntaxDiagnostics: StatementSyntaxDiagnostics[];
-    model: (DefaultableParam | RequiredParam | IncludedRecordParam | RestParam)
+    model: (DefaultableParam | RequiredParam | IncludedRecordParam | RestParam);
+    completions: SuggestionItem[]
     alternativeName?: string;
     isEdit: boolean;
     optionList?: string[];
@@ -72,6 +71,7 @@ export function ParamEditor(props: ParamProps) {
         segmentId, syntaxDiagnostics, model, alternativeName, isEdit, option, optionList, isTypeReadOnly, onChange,
         onCancel
     } = props;
+    console.log('>>> parameditor model', model);
 
     const classes = useStyles();
 
@@ -93,29 +93,51 @@ export function ParamEditor(props: ParamProps) {
         setCurrentComponentName(ParamEditorInputTypes.PARAM_NAME)
     }
 
+    const onDefaultValueEditorFocus = () => {
+        setCurrentComponentName(ParamEditorInputTypes.DEFAULT_VALUE)
+    }
+
     const handleTypeChange = (value: string) => {
-        // todo handle default value scenario
-        onChange(segmentId, `${model.annotations?.length > 0 ? model.annotations[0].source : ''} ${value} ${model.paramName}`);
+        const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
+        const paramName = model.paramName.value;
+        const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
+        onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`);
 
     }
 
+    const handleNameChange = (value: string) => {
+        const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
+        const type = model.typeName.source.trim();
+        const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
+        onChange(segmentId, `${annotation} ${type} ${value} ${defaultValue}`);
+    }
+
+    const handleDefaultValueChange = (value: string) => {
+        const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
+        const type = model.typeName.source.trim();
+        const paramName = model.paramName.value
+        onChange(segmentId, `${annotation} ${type} ${paramName} = ${value}`);
+    }
+
     const debouncedTypeChange = debounce(handleTypeChange, 800);
+    const debouncedNameChange = debounce(handleNameChange, 800);
+    const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
 
 
-    const handleNameChange = () => {
-        // setCurrentComponentName("Name");
-        // if (optionList) {
-        //     onChange({
-        //         id, name: value, dataType: paramDataType, headerName: paramHeaderName,
-        //         defaultValue: paramDefaultValue
-        //     }, selectedOption);
-        // } else {
-        //     onChange({
-        //         id, name: value, dataType: paramDataType, headerName: paramHeaderName,
-        //         defaultValue: paramDefaultValue
-        //     });
-        // }
-    };
+    // const handleNameChange = () => {
+    // setCurrentComponentName("Name");
+    // if (optionList) {
+    //     onChange({
+    //         id, name: value, dataType: paramDataType, headerName: paramHeaderName,
+    //         defaultValue: paramDefaultValue
+    //     }, selectedOption);
+    // } else {
+    //     onChange({
+    //         id, name: value, dataType: paramDataType, headerName: paramHeaderName,
+    //         defaultValue: paramDefaultValue
+    //     });
+    // }
+    // };
 
     const handleHeaderNameChange = () => {
         // setParamHeaderName(value);
@@ -148,16 +170,16 @@ export function ParamEditor(props: ParamProps) {
     // }
     // };
 
-    const handleDefaultValueChange = () => {
-        // setParamDefaultValue(value);
-        // setCurrentComponentName("DefaultValue");
-        // if (optionList) {
-        //     onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value },
-        //         selectedOption);
-        // } else {
-        //     onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value });
-        // }
-    };
+    // const handleDefaultValueChange = () => {
+    // setParamDefaultValue(value);
+    // setCurrentComponentName("DefaultValue");
+    // if (optionList) {
+    //     onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value },
+    //         selectedOption);
+    // } else {
+    //     onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value });
+    // }
+    // };
 
     const handleOnSelect = (value: string) => {
         const newParamString = value === PARAM_TYPES.HEADER ?
@@ -167,31 +189,7 @@ export function ParamEditor(props: ParamProps) {
     };
 
     const handleAddParam = () => {
-        // if (onUpdate) {
-        //     if (optionList) {
-        //         onUpdate({
-        //             id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
-        //             defaultValue: paramDefaultValue
-        //         }, selectedOption);
-        //     } else {
-        //         onUpdate({
-        //             id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
-        //             defaultValue: paramDefaultValue
-        //         });
-        //     }
-        // } else {
-        //     if (optionList) {
-        //         onAdd({
-        //             id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
-        //                 paramDefaultValue
-        //         }, selectedOption);
-        //     } else {
-        //         onAdd({
-        //             id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
-        //                 paramDefaultValue
-        //         });
-        //     }
-        // }
+        
     };
 
 
@@ -234,6 +232,7 @@ export function ParamEditor(props: ParamProps) {
                     || model.source.includes(RESOURCE_REQUEST_TYPE)
                     || model.source.includes(RESOURCE_HEADER_MAP_TYPE)) && (
                         <div className={classes.paramDataTypeWrapper}>
+                            <FieldTitle title='Type' optional={false} />
                             <LiteExpressionEditor
                                 diagnostics={
                                     (currentComponentName === ParamEditorInputTypes.TYPE && syntaxDiagnostics) ||
@@ -247,38 +246,32 @@ export function ParamEditor(props: ParamProps) {
                         </div>
                     )}
                 <div className={classes.paramNameWrapper}>
+                    <FieldTitle title='Param Name' optional={false} />
                     <LiteExpressionEditor
                         diagnostics={
-                            (currentComponentName === ParamEditorInputTypes.TYPE && syntaxDiagnostics) ||
+                            (currentComponentName === ParamEditorInputTypes.PARAM_NAME && syntaxDiagnostics) ||
                             model.paramName?.viewState?.diagnosticsInRange
                         }
-                        defaultValue={model?.paramName?.source.trim()}
-                        onChange={debouncedTypeChange}
-                        onFocus={onTypeEditorFocus}
+                        defaultValue={model?.paramName?.value.trim()}
+                        onChange={debouncedNameChange}
+                        onFocus={onNameEditorFocus}
                         disabled={false}
                     />
                 </div>
-                {/* {!hideDefaultValue && (
-                    <div className={classes.paramNameWrapper}>
-                        <FormTextInput
-                            label="Default Value"
-                            dataTestId="default-value"
-                            defaultValue={paramDefaultValue}
-                            onChange={debouncedDefaultValeChange}
-                            customProps={{
-                                isErrored: ((syntaxDiag !== "" && currentComponentName === "DefaultValue") ||
-                                    (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
-                                optional: true
-                            }}
-                            errorMessage={((currentComponentName === "DefaultValue" && (syntaxDiag) ? syntaxDiag : "")
-                                || nameDiagnostics)}
-                            onBlur={null}
-                            placeholder={"Enter Default Value"}
-                            size="small"
-                            disabled={(syntaxDiag && currentComponentName !== "DefaultValue") || disabled}
-                        />
-                    </div>
-                )} */}
+                <div className={classes.paramNameWrapper}>
+                    <FieldTitle title='Default Value' optional={false} />
+                    <LiteExpressionEditor
+                        diagnostics={
+                            (currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && syntaxDiagnostics)
+                            || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange
+                            || []
+                        }
+                        defaultValue={STKindChecker.isDefaultableParam(model) && model.expression?.source.trim() || ""}
+                        onChange={debouncedDefaultValueChange}
+                        onFocus={onDefaultValueEditorFocus}
+                        disabled={false}
+                    />
+                </div>
             </div>
             <>
                 {/* {(selectedOption === headerParameterOption && isHeaderConfigInProgress) && (
@@ -327,7 +320,7 @@ export function ParamEditor(props: ParamProps) {
                     text={"Save"}
                     disabled={false}
                     fullWidth={false}
-                    onClick={handleAddParam}
+                    onClick={onCancel}
                     className={classes.actionBtn}
                 />
             </div>

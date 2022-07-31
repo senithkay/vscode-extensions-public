@@ -18,6 +18,7 @@ import { Button, Divider, FormControl } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
+    createResource,
     getSource,
     updateResourceSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -70,7 +71,7 @@ export interface FunctionProps {
 export function ResourceForm(props: FunctionProps) {
     const { model, completions } = props;
 
-    const { targetPosition, onChange, onCancel, getLangClient } = useContext(FormEditorContext);
+    const { targetPosition, isEdit, onChange, onCancel, getLangClient, applyModifications } = useContext(FormEditorContext);
     console.log('model init >>>', model);
     const classes = useStyles();
     const connectorClasses = connectorStyles();
@@ -172,8 +173,7 @@ export function ResourceForm(props: FunctionProps) {
         // setIsEdited(true);
         const pathString = pathStr ? pathStr : ".";
         const codeSnippet = getSource(
-            updateResourceSignature(resMethod, pathString, paramStr, "",
-                false, false, returnStr, targetPosition));
+            updateResourceSignature(resMethod, pathString, paramStr, returnStr, targetPosition));
         const position = model ? ({
             startLine: model.functionName.position.startLine - 1,
             startColumn: model.functionName.position.startColumn,
@@ -185,11 +185,12 @@ export function ResourceForm(props: FunctionProps) {
         const partialST = await getPartialSTForModuleMembers(
             { codeSnippet: updatedContent.trim() }, getLangClient, true
         );
+        console.log('updated content >>>', updatedContent)
 
         if (!partialST.syntaxDiagnostics.length) {
-            setCurrentComponentSyntaxDiag(undefined);
             onChange(updatedContent, partialST, undefined, { model: stModel }, currentValue, completionEditorTypeKinds, 0,
                 { startLine: -1, startColumn: -4 });
+            setCurrentComponentSyntaxDiag(undefined);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
@@ -316,12 +317,29 @@ export function ResourceForm(props: FunctionProps) {
         //                 targetPosition)
         //         ]);
         //     } else {
-        //         applyModifications([
-        //             createResource(functionName, path ? path : ".", generateParamString(queryParam, payloadString,
-        //                 advancedString), "", false, false, returnType, targetPosition)
-        //         ]);
         //     }
         // }
+        if (isEdit) {
+            applyModifications([
+                updateResourceSignature(
+                    model.functionName.value,
+                    getResourcePath(model.relativeResourcePath),
+                    getParamString(model.functionSignature.parameters),
+                    model.functionSignature.returnTypeDesc.source,
+                    targetPosition)
+            ]);
+        } else {
+            applyModifications([
+                createResource(
+                    model.functionName.value,
+                    getResourcePath(model.relativeResourcePath),
+                    getParamString(model.functionSignature.parameters),
+                    model.functionSignature.returnTypeDesc.source,
+                    targetPosition
+                )
+            ]);
+        }
+
         onCancel();
     }
 
@@ -436,7 +454,7 @@ export function ResourceForm(props: FunctionProps) {
                                 nameSemDiag={paramDiagnostics?.queryNameSemDiagnostic}
                                 typeSemDiag={paramDiagnostics?.queryTypeSemDiagnostic}
                                 onChange={handleQueryParamEditorChange}
-                                completions={[]}
+                                completions={completions}
                             />
                             <PayloadEditor
                                 payload={advancedParams.payload}
