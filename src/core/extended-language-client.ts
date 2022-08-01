@@ -70,7 +70,8 @@ enum EXTENDED_APIS {
     PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
-    SYMBOL_DOC = 'ballerinaSymbol/getSymbol'
+    SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
+    SYMBOL_EXPR_TYPE = 'ballerinaSymbol/getExprType'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -354,6 +355,14 @@ export interface SymbolInfoResponse {
     documentation: SymbolDocumentation
 }
 
+export interface ExpressionTypeDescRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
 interface NOT_SUPPORTED_TYPE {
 
 };
@@ -494,6 +503,12 @@ export class ExtendedLangClient extends LanguageClient {
     async getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse | null> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_DOC);
         return isSupported ? this.sendRequest<SymbolInfoResponse>(EXTENDED_APIS.SYMBOL_DOC, params) :
+            Promise.resolve(null);
+    }
+
+    async getExprType(params: ExpressionTypeDescRequest): Promise<ExpressionTypeResponse | null> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_EXPR_TYPE);
+        return isSupported ? this.sendRequest<ExpressionTypeResponse>(EXTENDED_APIS.SYMBOL_EXPR_TYPE, params) :
             Promise.resolve(null);
     }
 
@@ -647,7 +662,7 @@ export class ExtendedLangClient extends LanguageClient {
                     resolveMissingDependencies: true
                 },
                 { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true },
-                { name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true },
+                { name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true, getExprType: true },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true
                 },

@@ -426,6 +426,15 @@ function getLangClient() {
                 });
             });
         },
+        getExprType: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getExprType', [params], (resp) => {
+                    consoleLog(start, 'getExprType');
+                    resolve(resp);
+                });
+            });
+        }
     }
 }
 

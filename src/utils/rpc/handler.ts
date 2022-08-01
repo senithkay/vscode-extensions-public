@@ -300,7 +300,18 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                 });
             });
         }
-    },
+        }, {
+            methodName: 'getExprType',
+            handler: (args: any[]) => {
+                const start = new Date().getTime();
+                return langClient.onReady().then(() => {
+                    return langClient.getExprType(args[0]).then(result => {
+                        consoleLog(start, 'getExprType');
+                        return Promise.resolve(result);
+                    });
+                });
+            }
+        }
     ];
 };
 
