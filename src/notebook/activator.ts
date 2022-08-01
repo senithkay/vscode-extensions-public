@@ -36,11 +36,9 @@ import {
 } from './constants';
 import { createFile } from './utils';
 import { BallerinaDebugAdapterTrackerFactory, NotebookDebuggerController } from './debugger';
-import { clearTerminal } from '../project';
-
-const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 const update2RegEx = /^2201.[2-9].[0-9]/g;
+const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
@@ -68,9 +66,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     if (ballerinaExtInstance.enabledNotebookDebugMode()) {
         ballerinaExtInstance.setNotebookDebugModeEnabled(true);
-        context.subscriptions.push(registerDebug(new NotebookDebuggerController(ballerinaExtInstance)));
-        const factory = new BallerinaDebugAdapterTrackerFactory();
-        context.subscriptions.push(debug.registerDebugAdapterTrackerFactory('ballerina', factory));
+        context.subscriptions.push(...[
+            registerDebug(new NotebookDebuggerController(ballerinaExtInstance)),
+            debug.registerDebugAdapterTrackerFactory('ballerina', new BallerinaDebugAdapterTrackerFactory())
+        ]);
     }
 }
 
@@ -141,7 +140,6 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
 function registerDebug(debugController: NotebookDebuggerController): Disposable {
     return commands.registerCommand(DEBUG_NOTEBOOK_COMMAND, () => {
         commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-        clearTerminal();
         debugController.startDebugging();
     });
 }
