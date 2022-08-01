@@ -10,11 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { FunctionCall } from "@wso2-enterprise/syntax-tree";
+import { FunctionCall, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { EXPR_CONSTRUCTOR } from "../../../constants";
+import { CALL_CONFIG_TYPE, EXPR_CONSTRUCTOR, FUNCTION_CALL } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
@@ -30,13 +31,18 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     const {
         modelCtx: {
             updateModel,
-            hasRestArg
-        }
+            hasRestArg,
+            currentModel,
+            changeCurrentModel
+        },
+        config
     } = useContext(StatementEditorContext);
 
+    const isOnPlaceholder = (model.source === FUNCTION_CALL) && config.type === CALL_CONFIG_TYPE;
+
     const inputEditorProps: InputEditorProps = {
-        model: model.functionName,
-        notEditable: true
+        model: isOnPlaceholder ? model : model.functionName,
+        notEditable: isOnPlaceholder ? false : true
     }
 
     const addNewExpression = () => {
@@ -53,13 +59,25 @@ export function FunctionCallComponent(props: FunctionCallProps) {
         }
         updateModel(expr, newPosition);
     };
+
+
+    if (!currentModel.model) {
+        if (config.type === CALL_CONFIG_TYPE && model && STKindChecker.isFunctionCall(model)) {
+            changeCurrentModel(model);
+        }
+    }
+
     return (
         <>
             <InputEditor {...inputEditorProps} />
-            <TokenComponent model={model.openParenToken} />
-            <ExpressionArrayComponent expressions={model.arguments} />
-            {hasRestArg && (<NewExprAddButton model={model} onClick={addNewExpression}/>)}
-            <TokenComponent model={model.closeParenToken} />
+            {!isOnPlaceholder && (
+                <>
+                    <TokenComponent model={model.openParenToken} />
+                    <ExpressionArrayComponent expressions={model.arguments} />
+                    {hasRestArg && (<NewExprAddButton model={model} onClick={addNewExpression}/>)}
+                    <TokenComponent model={model.closeParenToken} />
+                </>
+            )}
         </>
     );
 }

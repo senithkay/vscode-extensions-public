@@ -45,6 +45,7 @@ export { ProcessConfigForm as Variable };
 export { ProcessConfigForm as AssignmentStatement };
 export { ProcessConfigForm as Log };
 export { ProcessConfigForm as Worker };
+export { ProcessConfigForm as Call };
 export { ConnectorList as ConnectorList };
 export { ConnectorForm as Connector };
 export { EndpointList as EndpointList };
