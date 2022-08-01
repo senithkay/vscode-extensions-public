@@ -38,10 +38,12 @@ import * as statementTypeComponents from '../components/Statements';
 import {
     ACTION,
     BAL_SOURCE,
+    CALL_CONFIG_TYPE,
     CONNECTOR,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
+    FUNCTION_CALL,
     IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
@@ -456,7 +458,7 @@ export function getModuleElementDeclPosition(syntaxTree: STNode): NodePosition {
     return position;
 }
 
-export function isNodeDeletable(selectedNode: STNode): boolean {
+export function isNodeDeletable(selectedNode: STNode, formType: string): boolean {
     const stmtViewState: StatementEditorViewState = selectedNode.viewState as StatementEditorViewState;
     const currentModelSource = selectedNode.source
         ? selectedNode.source.trim()
@@ -465,6 +467,8 @@ export function isNodeDeletable(selectedNode: STNode): boolean {
     let exprDeletable = !stmtViewState.exprNotDeletable;
     if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
         exprDeletable =  stmtViewState.templateExprDeletable;
+    }else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
+        exprDeletable = false;
     }
 
     return exprDeletable;
