@@ -71,7 +71,10 @@ export const triggerEntries: PlusMenuEntry[] = [
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
-    const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
+
+    const defaultOption = ((kind === "ServiceDeclaration") && !isTriggerType) ?
+        {name: "Resource", type: "ResourceAccessorDefinition", category: 2} : null;
+    const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(defaultOption);
 
     let menuEntries: PlusMenuEntry[] = [];
 
