@@ -93,6 +93,25 @@ export interface SymbolInfoResponse {
     documentation : SymbolDocumentation
 }
 
+export interface LinePosition {
+    line: number;
+    offset: number;
+}
+
+export interface ExpressionTypeDescRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
+export interface ExpressionTypeResponse {
+    documentIdentifier: { uri: string; };
+    types: string[];
+}
+
+
 export interface BallerinaExample {
     title: string;
     url: string;
@@ -435,6 +454,8 @@ export interface IBallerinaLangClient {
     revealRange: (params: RevealRangeParams) => void;
 
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>
+
+    getExprType: (params: ExpressionTypeDescRequest) => Thenable<ExpressionTypeResponse>
 
     close: () => void;
 }

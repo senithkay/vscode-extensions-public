@@ -123,6 +123,14 @@ export interface SymbolInfoResponse {
     documentation : SymbolDocumentation
 }
 
+export interface ExpressionTypeDescRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
     getDiagnostics: (
         params: BallerinaProjectParams
@@ -150,5 +158,8 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     ) => Thenable<PartialSTResponse>;
     getSymbolDocumentation: (
         params: SymbolInfoRequest
-    ) => Thenable<SymbolInfoResponse>
+    ) => Thenable<SymbolInfoResponse>;
+    getExprType: (
+        params: ExpressionTypeDescRequest
+    ) => Thenable<ExpressionTypeResponse>;
 }

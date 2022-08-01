@@ -44,7 +44,8 @@ export enum EXTENDED_APIS {
     PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
-    SYMBOL_DOC = 'ballerinaSymbol/getSymbol'
+    SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
+    SYMBOL_EXPR_TYPE = 'ballerinaSymbol/getExprType'
 }
 
 
@@ -731,6 +732,14 @@ export interface SymbolInfoResponse {
     documentation : SymbolDocumentation
 }
 
+export interface ExpressionTypeDescRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
 export interface IBallerinaLangClient {
 
     didOpen: (Params: DidOpenTextDocumentParams) => void;
@@ -802,6 +811,8 @@ export interface IBallerinaLangClient {
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>;
 
     definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
+
+    getExprType: (params: ExpressionTypeDescRequest) => Thenable<ExpressionTypeResponse>;
 
 
     // close: () => void;

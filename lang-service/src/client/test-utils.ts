@@ -1,6 +1,13 @@
 import { InitializeParams, InitializeResult,
     Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
-import { BallerinaTriggersRequest, BallerinaTriggersResponse, SymbolInfoRequest, SymbolInfoResponse } from ".";
+import {
+    BallerinaTriggersRequest,
+    BallerinaTriggersResponse,
+    ExpressionTypeDescRequest,
+    ExpressionTypeResponse,
+    SymbolInfoRequest,
+    SymbolInfoResponse
+} from ".";
 
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaExampleListParams,
@@ -87,6 +94,10 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
     }
 
     public getSymbolDocumentation(params: SymbolInfoRequest): Thenable<SymbolInfoResponse> {
+        return Promise.reject();
+    }
+
+    public getExprType(params: ExpressionTypeDescRequest): Thenable<ExpressionTypeResponse> {
         return Promise.reject();
     }
 }

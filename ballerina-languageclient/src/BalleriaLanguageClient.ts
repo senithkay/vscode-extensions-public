@@ -30,6 +30,7 @@ import {
     CompletionParams,
     CompletionResponse,
     ExecutorPositionsResponse,
+    ExpressionTypeDescRequest,
     ExpressionTypeRequest,
     ExpressionTypeResponse,
     EXTENDED_APIS,
@@ -264,6 +265,10 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public getSymbolDocumentation(params: SymbolInfoRequest): Thenable<SymbolInfoResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_DOC, params);
+    }
+
+    public getExprType(params: ExpressionTypeDescRequest): Thenable<ExpressionTypeResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_EXPR_TYPE, params);
     }
 
 }
