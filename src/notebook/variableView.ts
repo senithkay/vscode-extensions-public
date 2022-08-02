@@ -33,8 +33,7 @@ export class VariableViewProvider implements WebviewViewProvider {
 		this.ballerinaExtension = extensionInstance;
 	}
 
-	public resolveWebviewView(webviewView: WebviewView, _context: WebviewViewResolveContext,
-		token: CancellationToken,) {
+	public resolveWebviewView(webviewView: WebviewView, _context: WebviewViewResolveContext, _token: CancellationToken) {
 		const context = <ExtensionContext>this.ballerinaExtension.context;
 		const langClient = <ExtendedLangClient>this.ballerinaExtension.langClient;
 		webviewView.webview.options = {

@@ -39,7 +39,6 @@ export function filterCompletions(completions: CompletionResponse[]): Completion
     return completions.filter(item => !labelsUsedInShell.includes(item.label));
 }
 
-export async function createFile(uri: Uri, content: string) {
+export async function createFile(uri: Uri, content?: string) {
     await workspace.fs.writeFile(uri, new TextEncoder().encode(content));
-    return;
 }

@@ -107,7 +107,7 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
                 notebookName = notebookName.endsWith(BAL_NOTEBOOK) ? notebookName : `${notebookName}${BAL_NOTEBOOK}`;
                 const uri: Uri = Uri.file(`${workspace.workspaceFolders![0].uri!.fsPath}${sep}${notebookName}`);
                 if (!existsSync(uri.fsPath)) {
-                    await createFile(uri, "");
+                    await createFile(uri);
                     commands.executeCommand("vscode.open", uri);
                     outputChannel.appendLine(`${notebookName} created in workspace`);
                 } else {
