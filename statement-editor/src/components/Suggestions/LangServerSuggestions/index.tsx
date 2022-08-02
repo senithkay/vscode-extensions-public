@@ -71,37 +71,42 @@ export function LSSuggestions() {
 
 
     const changeSelectionOnRightLeft = (key: number) => {
-        const newSelected = selectedSuggestion.selectedListItem + key;
-        const newGroup = selectedSuggestion.selectedGroup;
-        const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
-        if (newSelected >= 0 && newSelected < suggestionList.length) {
-            setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
-        }
+        setSelectedSuggestion((prevState) => {
+            const newSelected = prevState.selectedListItem + key;
+            const newGroup = prevState.selectedGroup;
+            const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
+
+            if (newSelected >= 0 && newSelected < suggestionList.length) {
+                return {selectedListItem: newSelected, selectedGroup: newGroup};
+            }
+        });
     }
 
     const changeSelectionOnUpDown = (key: number) => {
-        let newSelected = selectedSuggestion.selectedListItem + key;
-        let newGroup = selectedSuggestion.selectedGroup;
-        const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
+        setSelectedSuggestion((prevState) => {
+            let newSelected = prevState.selectedListItem + key;
+            let newGroup = prevState.selectedGroup;
+            const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
 
-        if (suggestionList?.length > 0){
-            if (newSelected >= 0) {
-                if (suggestionList.length > 3 && newSelected < suggestionList.length) {
-                    setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
-                } else if ((selectedSuggestion.selectedListItem === suggestionList.length - 1 ||
-                    newSelected >= suggestionList.length) &&
-                    selectedSuggestion.selectedGroup < 1 &&
-                    filteredSecondLevelSuggestions?.length > 0){
-                    newGroup = selectedSuggestion.selectedGroup + 1;
-                    newSelected = 0;
-                    setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
+            if (suggestionList?.length > 0){
+                if (newSelected >= 0) {
+                    if (suggestionList.length > 3 && newSelected < suggestionList.length) {
+                        return {selectedListItem: newSelected, selectedGroup: newGroup};
+                    } else if ((selectedSuggestion.selectedListItem === suggestionList.length - 1 ||
+                            newSelected >= suggestionList.length) &&
+                        selectedSuggestion.selectedGroup < 1 &&
+                        filteredSecondLevelSuggestions?.length > 0){
+                        newGroup = selectedSuggestion.selectedGroup + 1;
+                        newSelected = 0;
+                        return {selectedListItem: newSelected, selectedGroup: newGroup};
+                    }
+                } else if (newSelected < 0 && newGroup > 0) {
+                    newGroup = selectedSuggestion.selectedGroup - 1;
+                    newSelected = filteredSuggestions.length - 1;
+                    return {selectedListItem: newSelected, selectedGroup: newGroup};
                 }
-            }else if (newSelected < 0 && newGroup > 0) {
-                newGroup = selectedSuggestion.selectedGroup - 1;
-                newSelected = filteredSuggestions.length - 1;
-                setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
             }
-        }
+        });
     }
 
     const enterOnSuggestion = () => {
