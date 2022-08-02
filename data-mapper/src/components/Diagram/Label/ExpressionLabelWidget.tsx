@@ -2,15 +2,16 @@ import * as React from 'react';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import styled from '@emotion/styled';
-import Button from '@material-ui/core/Button'
 import { Tooltip } from '@material-ui/core';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
-import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
-import { DataMapperPortModel } from '../Port';
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
+import { DataMapperPortModel } from '../Port';
+import { handleCodeActions } from '../utils/ls-utils';
+import { CodeActionWidget } from '../CodeAction';
 
 export interface FlowAliasLabelWidgetProps {
 	model: ExpressionLabelModel;
@@ -39,6 +40,15 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const [editable, setEditable] = React.useState(false);
 	const [linkSelected, setLinkSelected] = React.useState(false);
 	const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
+	const [codeActions, setCodeActions] = React.useState([]);
+
+	React.useEffect(() => {
+		async function genModel() {
+			const actions = (await handleCodeActions(props.model.context.filePath, props.model.link?.diagnostics,props.model.context.getLangClient))
+			setCodeActions(actions)
+        }
+        genModel();
+	}, [props.model]);
 
 	const onClickConvertToQuery = () => {
 		if (canUseQueryExpr) {
@@ -74,7 +84,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const onClickDelete= () => {
 		//TODO implement the delete link logic
 	};
-	
+
 	React.useEffect(() => {
 		const link = props.model.link;
 		link.registerListener({
@@ -121,7 +131,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 				/>
 			}
 			<S.ActionsContainer>
-				<span style={{display: "flex", alignItems: "center"}}>
+				<span style={{display: "flex"}}>
 					<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}</div>
 					<div>{!editable && linkSelected && canUseQueryExpr && 
 							(
@@ -131,6 +141,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 							)}
 					</div>
 					<div>{!editable && linkSelected && <DeleteIcon onClick={() => onClickDelete()} />}</div>
+					{!editable && linkSelected && codeActions.length > 0 && <CodeActionWidget codeActions={codeActions} context={props.model.context} />}
 
 				</span>
 			</S.ActionsContainer>

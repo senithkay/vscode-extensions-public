@@ -43,6 +43,7 @@ function DataMapperC(props: DataMapperProps) {
                 filePath,
                 fnST,
                 langClientPromise,
+                getLangClient,
                 currentFile,
                 stSymbolInfo,
                 applyModifications,

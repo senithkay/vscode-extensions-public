@@ -12,7 +12,7 @@ export async function getTypeDefinitionForTypeDesc(typeDesc: STNode,
 
     if (typeDesc && STKindChecker.isSimpleNameReference(typeDesc)) {
         const { position } = typeDesc;
-        const langClient = await context.getLangClient();
+        const langClient = await context.langClientPromise();
 
         const defReply = await langClient.definition({
             position: {

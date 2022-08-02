@@ -2,9 +2,10 @@ import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import {
     InitializeParams, InitializeRequest, InitializeResult, ProtocolConnection,
     Trace, DidOpenTextDocumentNotification,
-    DidOpenTextDocumentParams, TextDocumentItem, InitializedNotification, ShutdownRequest, ExitNotification, PublishDiagnosticsNotification, PublishDiagnosticsParams,
+    DidOpenTextDocumentParams, CodeAction, CodeActionParams, TextDocumentItem, InitializedNotification, ShutdownRequest, ExitNotification, PublishDiagnosticsNotification, PublishDiagnosticsParams,
     TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation, DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification, DefinitionParams, LocationLink
 } from 'vscode-languageserver-protocol';
+
 import { BLCTracer } from "./BLCTracer";
 import { BLCLogger } from "./BLCLogger";
 import { initializeRequest, didOpenTextDocumentParams } from "./messages"
@@ -266,4 +267,7 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_DOC, params);
     }
 
+    public codeAction(params: CodeActionParams): Promise<CodeAction[]> {
+        return this._clientConnection.sendRequest("textDocument/codeAction", params);
+    }
 }

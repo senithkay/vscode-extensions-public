@@ -15,7 +15,7 @@ import {
     PublishDiagnosticsParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
+import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 export async function getDiagnostics(
     docUri: string,
@@ -43,4 +43,58 @@ export function isNodeInRange(nodePosition: NodePosition, diagPosition: NodePosi
         (nodePosition?.startLine === diagPosition?.startLine ? nodePosition?.startColumn >= diagPosition?.startColumn : true) &&
         nodePosition?.endLine <= diagPosition?.endLine &&
         (nodePosition?.endLine === diagPosition?.endLine ? nodePosition?.endColumn <= diagPosition?.endColumn : true);
+}
+
+
+export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langClient: ExpressionEditorLangClientInterface): Promise<CodeAction[]> {
+    const codeAction = await langClient.codeAction({
+		context: {
+			diagnostics: [{
+				code: diagnostic.code,
+				message: diagnostic.message,
+				range: {
+					end: {
+						line: diagnostic.range.end.line,
+						character: diagnostic.range.end.character
+					},
+					start: {
+						line: diagnostic.range.start.line,
+						character: diagnostic.range.start.character
+					}
+				},
+				severity: 1
+			}],
+			only: ["quickfix"]
+		},
+		range: {
+			end: {
+				line: diagnostic.range.end.line,
+				character: diagnostic.range.end.character
+			},
+			start: {
+				line: diagnostic.range.start.line,
+				character: diagnostic.range.start.character
+			}
+		},
+		textDocument: {
+			uri: filePath
+		}
+	});
+
+    return codeAction
+}
+
+export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic[],
+	getLangClient: () => Promise<ExpressionEditorLangClientInterface>):
+	Promise<CodeAction[]> => {
+
+	const langClient = await getLangClient();
+	let codeActions: any[] = []
+
+	for (const diagnostic of diagnostics) {
+		const codeAction = await getCodeAction(`file://${fileURI}`,diagnostic, langClient)
+		codeActions = [...codeActions, ...codeAction]
+	}
+
+return codeActions;
 }

@@ -1,5 +1,6 @@
 import {
     DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -9,7 +10,8 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
     filePath: string;
-    getLangClient: () => Promise<DiagramEditorLangClientInterface>;
+    langClientPromise: () => Promise<DiagramEditorLangClientInterface>;
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     currentFile?: {
         content: string,
         path: string,
@@ -25,7 +27,8 @@ export class DataMapperContext implements IDataMapperContext {
     constructor(
         public filePath: string,
         private _functionST: FunctionDefinition,
-        public getLangClient: () => Promise<DiagramEditorLangClientInterface>,
+        public langClientPromise: () => Promise<DiagramEditorLangClientInterface>,
+        public getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
         public currentFile: {
             content: string,
             path: string,

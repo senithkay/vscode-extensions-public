@@ -60,7 +60,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			}
 			const outPort = this.getOutputPortForField(fields);
 
-			const hasError = this.context.diagnostics.some( (diagnostic) => {
+			const diagnostics = this.context.diagnostics.filter( (diagnostic) => {
 				const diagPosition: NodePosition = {
 					startLine: diagnostic.range.start.line,
 					startColumn: diagnostic.range.start.character,
@@ -70,7 +70,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 				return isNodeInRange(value.position, diagPosition)
 			});
 
-			const lm = new DataMapperLinkModel(value, hasError);
+			const lm = new DataMapperLinkModel(value, this.context.diagnostics);
 			lm.addLabel(new ExpressionLabelModel({
 				value: otherVal?.source || value.source,
 				valueNode: otherVal || value,

@@ -1,19 +1,39 @@
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { BezierCurve } from "@projectstorm/geometry";
-import { FieldAccess, SimpleNameReference } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, NodePosition, SimpleNameReference } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic } from "vscode-languageserver-protocol";
+
+import { isNodeInRange } from "../../utils/ls-utils";
 
 
 export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
-	constructor(public value: SimpleNameReference|FieldAccess = undefined, public hasError: boolean = false) {
+	public hasError: boolean
+	public diagnostics: Diagnostic[]
+
+	constructor(public value: SimpleNameReference|FieldAccess = undefined, diagnostics: Diagnostic[] = []) {
 		super({
 			type: LINK_TYPE_ID,
 			width: 1,
 			curvyness: 0,
 			locked: true,
-			color: hasError ? 'red' : "#5567D5"
+			color: "#5567D5"
 		});
+		this.diagnostics = value ? diagnostics.filter( (diagnostic) => {
+				const diagPosition: NodePosition = {
+					startLine: diagnostic.range.start.line,
+					startColumn: diagnostic.range.start.character,
+					endLine: diagnostic.range.end.line,
+					endColumn: diagnostic.range.end.character
+				};
+				return isNodeInRange(value.position, diagPosition);
+			}) : [];
+		this.hasError = this.diagnostics.length > 0;
+		if (this.hasError){
+			this.setColor('red');
+		}
+
 	}
 
 	getSVGPath(): string {

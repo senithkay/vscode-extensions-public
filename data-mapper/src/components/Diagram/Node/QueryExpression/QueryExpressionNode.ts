@@ -141,7 +141,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         return isNodeInRange(value.position, diagPosition)
                     });
 
-                    const link = new DataMapperLinkModel(value, hasError);
+                    const link = new DataMapperLinkModel(value, this.context.diagnostics);
                     link.setSourcePort(sourcePort);
                     link.setTargetPort(targetPort);
                     link.addLabel(new ExpressionLabelModel({
@@ -174,18 +174,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     private initQueryLinks() {
         // Currently we create links from "IN" ports and back tracing the inputs.
 
-        const hasError = this.context.diagnostics.some( (diagnostic) => {
-            const diagPosition: NodePosition = {
-                startLine: diagnostic.range.start.line,
-                startColumn: diagnostic.range.start.character,
-                endLine: diagnostic.range.end.line,
-                endColumn: diagnostic.range.end.character
-            };
-            return isNodeInRange(this.value.position, diagPosition)
-        });
 
         if (this.sourcePort && this.inPort) {
-            const link = new DataMapperLinkModel(undefined, hasError);
+            const link = new DataMapperLinkModel(undefined, this.context.diagnostics);
             link.setSourcePort(this.sourcePort);
             link.setTargetPort(this.inPort);
             link.registerListener({
@@ -218,7 +209,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 }
             });
             if (targetPort) {
-                const link = new DataMapperLinkModel(undefined, hasError);
+                const link = new DataMapperLinkModel(undefined, this.context.diagnostics);
                 link.setSourcePort(this.outPort);
                 link.setTargetPort(targetPort[1]);
                 link.registerListener({
