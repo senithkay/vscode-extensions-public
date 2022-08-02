@@ -388,7 +388,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 margin: '0'
             },
             ...hoverColor1,
-            ...focusColor1
+            ...activeColour
         },
         suggestionDataType: {
             color: '#05A26B',

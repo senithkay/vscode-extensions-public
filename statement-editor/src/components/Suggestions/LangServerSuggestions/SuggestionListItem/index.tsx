@@ -16,19 +16,19 @@ import React from "react";
 import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 
 import { acceptedCompletionKindForTypes } from "../../../../constants";
-import { SuggestionItem } from "../../../../models/definitions";
+import { Suggestion, SuggestionItem } from "../../../../models/definitions";
 import { getSuggestionIconStyle } from "../../../../utils";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
 
 export interface SuggestionListItemProps {
     key: number;
     suggestion: SuggestionItem;
-    selectedListItem: number;
+    isSelected: boolean
     onClickLSSuggestion: (suggestion: SuggestionItem) => void;
 }
 
 export function SuggestionListItem(props: SuggestionListItemProps) {
-    const { key, suggestion, selectedListItem, onClickLSSuggestion } = props;
+    const { key, suggestion, onClickLSSuggestion, isSelected } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { className, color } = getSuggestionIconStyle(suggestion.completionKind);
 
@@ -41,7 +41,7 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
             <ListItem
                 button={true}
                 key={key}
-                selected={key === selectedListItem}
+                selected={isSelected}
                 onMouseDown={onClickOnListItem}
                 className={stmtEditorHelperClasses.suggestionListItem}
                 disableRipple={true}
