@@ -25,7 +25,13 @@ let container: HTMLElement;
 
 export function renderVariableView(target: HTMLElement, getVariableValues: () => Promise<VariableValue[]>) {
     container = target;
-    render(<VariableView getVariableValues={getVariableValues} container={target} />, target);
+    render(
+        <VariableView
+            getVariableValues={getVariableValues}
+            container={target}
+        />,
+        target
+    );
 }
 
 export function updateVariableValues() {

@@ -1,5 +1,5 @@
+import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { createElement } from 'react';
 import { VariableValue, VariableView } from './VariableView';
 
 const getVariableValues = (): Promise<VariableValue[]> => {
@@ -28,6 +28,6 @@ const getVariableValues = (): Promise<VariableValue[]> => {
 const target: HTMLElement = document.createElement("div");
 
 storiesOf("Variable view", module)
-  .add("Variable view table", () => (
-    <VariableView getVariableValues={getVariableValues} container={target} />
-  ));
+    .add("Variable view table", () => (
+        <VariableView getVariableValues={getVariableValues} container={target} />
+    ));
