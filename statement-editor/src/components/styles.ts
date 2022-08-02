@@ -388,7 +388,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 margin: '0'
             },
             ...hoverColor1,
-            ...activeColour
+            ...focusColor1
         },
         suggestionDataType: {
             color: '#05A26B',
@@ -443,7 +443,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 margin: '0'
             },
             ...hoverColor1,
-            ...focusColor1
+            ...activeColour
         },
         loadingContainer: {
             height: '60vh',
