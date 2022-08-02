@@ -414,7 +414,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             border: '1px #E0E3E9',
             borderRadius: '5px',
             boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
-            color: '#CBCEDB',
+            color: '#8D91A3',
             textIndent: '12px',
             textAlign: 'left',
             marginBottom: '16px',
