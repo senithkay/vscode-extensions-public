@@ -361,6 +361,15 @@ function getLangClient() {
                 });
             })
         },
+        codeAction: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('codeAction', [params], (resp) => {
+                    consoleLog(start, 'codeAction');
+                    resolve(resp);
+                });
+            })
+        },
         getSTForModulePart: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
