@@ -45,7 +45,7 @@ interface ToolbarProps {
 
 export default function Toolbar(props: ToolbarProps) {
     const statementEditorClasses = useStatementEditorToolbarStyles();
-    const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo } = useContext(StatementEditorContext);
+    const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo, config } = useContext(StatementEditorContext);
     const {
         undo,
         redo,
@@ -81,7 +81,7 @@ export default function Toolbar(props: ToolbarProps) {
         let modelConfigurable = false;
 
         if (currentModel.model) {
-            modelDeletable = isNodeDeletable(currentModel.model);
+            modelDeletable = isNodeDeletable(currentModel.model, config.type);
             modelConfigurable = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION;
         }
 

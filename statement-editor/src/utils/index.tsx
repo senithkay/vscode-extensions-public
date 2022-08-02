@@ -23,7 +23,6 @@ import {
     SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    FunctionCall,
     Minutiae,
     NodePosition,
     STKindChecker,
@@ -39,10 +38,12 @@ import * as statementTypeComponents from '../components/Statements';
 import {
     ACTION,
     BAL_SOURCE,
+    CALL_CONFIG_TYPE,
     CONNECTOR,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
+    FUNCTION_CALL,
     IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
@@ -457,7 +458,7 @@ export function getModuleElementDeclPosition(syntaxTree: STNode): NodePosition {
     return position;
 }
 
-export function isNodeDeletable(selectedNode: STNode): boolean {
+export function isNodeDeletable(selectedNode: STNode, formType: string): boolean {
     const stmtViewState: StatementEditorViewState = selectedNode.viewState as StatementEditorViewState;
     const currentModelSource = selectedNode.source
         ? selectedNode.source.trim()
@@ -466,6 +467,8 @@ export function isNodeDeletable(selectedNode: STNode): boolean {
     let exprDeletable = !stmtViewState.exprNotDeletable;
     if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
         exprDeletable =  stmtViewState.templateExprDeletable;
+    }else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
+        exprDeletable = false;
     }
 
     return exprDeletable;
@@ -578,14 +581,19 @@ export function isInsideConnectorParams(currentModel: STNode, editorConfigType: 
     const paramPosition = (currentModel.viewState as StatementEditorViewState)?.parentFunctionPos;
     const modelPosition = currentModel.position as NodePosition;
     return (
-        (editorConfigType === CONNECTOR || editorConfigType === ACTION)  &&
+        (editorConfigType === CONNECTOR || editorConfigType === ACTION) &&
         paramPosition &&
         (paramPosition.startLine < modelPosition.startLine ||
-            (paramPosition.startLine === modelPosition.startLine &&
-                paramPosition.startColumn <= modelPosition.startColumn &&
-                paramPosition.endLine > modelPosition.endLine) ||
-            (paramPosition.endLine === modelPosition.endLine && paramPosition.endColumn >= modelPosition.endColumn))
+            (getNumericPosition(paramPosition.startLine) === getNumericPosition(modelPosition.startLine) &&
+                getNumericPosition(paramPosition.startColumn) <= getNumericPosition(modelPosition.startColumn) &&
+                getNumericPosition(paramPosition.endLine) > getNumericPosition(modelPosition.endLine)) ||
+            (getNumericPosition(paramPosition.endLine) === getNumericPosition(modelPosition.endLine) &&
+                getNumericPosition(paramPosition.endColumn) >= getNumericPosition(modelPosition.endColumn)))
     );
+}
+
+function getNumericPosition(position: number) {
+    return position || 0;
 }
 
 export function isConfigurableEditor(editors: EditorModel[], activeEditorId: number): boolean {
