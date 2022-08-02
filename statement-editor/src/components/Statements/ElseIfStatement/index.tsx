@@ -46,6 +46,16 @@ export function ElseBlockC(props: ElseBlockProps) {
         updateModel(``, newPosition);
     };
 
+    const deleteElseStatement = (ifBodyModel: STNode) => {
+        const newPosition: NodePosition = {
+            ...ifBodyModel.position,
+            startLine: ifBodyModel.position.startLine - 1,
+            startColumn: 0,
+            endColumn: 0
+        }
+        updateModel(`}`, newPosition);
+    };
+
     const conditionComponent: ReactNode = (STKindChecker.isBlockStatement(model.elseBody)) ?
         (
             <>
@@ -54,7 +64,7 @@ export function ElseBlockC(props: ElseBlockProps) {
                 &nbsp;&nbsp;&nbsp;{"..."}
                 <TokenComponent model={model.elseBody.closeBraceToken} />
                 &nbsp;
-                <ExprDeleteButton model={model.elseBody} onClick={deleteIfStatement} />;
+                <ExprDeleteButton model={model.elseBody} onClick={deleteElseStatement} />;
             </>
         ) : (
             <span>
