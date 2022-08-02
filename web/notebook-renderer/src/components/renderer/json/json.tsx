@@ -17,19 +17,19 @@
  *
  */
 
-import { h, FunctionComponent } from "preact";
-import ReactJson, { ThemeKeys, ThemeObject } from "react-json-view";
-import { DEFAULT_FONT_STYLE, JSON_DARK_THEME, JSON_LIGHT_THEME } from "../themes";
-import { NotebookCellResult } from "../types";
-import { getIsDarkMode } from "../utils";
+import { h, FunctionComponent } from 'preact';
+import ReactJson, { ThemeKeys, ThemeObject } from 'react-json-view';
+import { DEFAULT_FONT_STYLE, JSON_DARK_THEME, JSON_LIGHT_THEME } from '../themes';
+import { NotebookCellResult } from '../types';
+import { getIsDarkMode } from '../utils';
 
 export const JsonForNotebookOutput: FunctionComponent<{
     notebookCellOutput: Readonly<NotebookCellResult>
 }> = ({ notebookCellOutput }) => {
     const darkMode = getIsDarkMode();
     return <div style={{
-        maxHeight: "600px",
-        overflowY: "scroll"
+        maxHeight: '600px',
+        overflowY: 'scroll'
     }}>
         <Json
             value={JSON.parse(notebookCellOutput.shellValue.value)}

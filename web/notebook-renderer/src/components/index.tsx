@@ -30,13 +30,13 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
         try {
             switch (data.mime) {
                 case MIME_TYPE_TABLE:
-                    render(<TableForNotebookOutput notebookCellOutput={data.json()}/>, element);
+                    render(<TableForNotebookOutput notebookCellOutput={data.json()} />, element);
                     break;
                 case MIME_TYPE_JSON:
-                    render(<JsonForNotebookOutput notebookCellOutput={data.json()}/>, element);
+                    render(<JsonForNotebookOutput notebookCellOutput={data.json()} />, element);
                     break;
                 case MIME_TYPE_XML:
-                    render(<Xml notebookCellOutput={data.json()}/>, element);
+                    render(<Xml notebookCellOutput={data.json()} />, element);
                     break;
                 default:
                     break;
@@ -45,7 +45,7 @@ export const activate: ActivationFunction = (context: RendererContext<any>) => (
             let match = data.text().match(/^{\n\t"shellValue": {\n\t\t"value": (?<value>.*),\n\t\t"mimeType": "/);
             const darkMode = getIsDarkMode();
             render(<div>
-                <p style={darkMode ? {color: "rgb(244,135,113)"} : {color: "rgb(161, 38, 13)"}}>
+                <p style={darkMode ? { color: "rgb(244,135,113)" } : { color: "rgb(161, 38, 13)" }}>
                     Error in rendering output!
                 </p>
                 <p>{match?.groups ? match.groups.value : data.text()}</p>
