@@ -1,7 +1,7 @@
 {
   "name": "notebook-renderer",
   "version": "1.0.0",
-  "description": "",
+  "description": "Render-er for Ballerina notebook rich outputs",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --open",

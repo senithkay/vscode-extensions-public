@@ -1,7 +1,7 @@
 {
   "name": "variableview-lib",
   "version": "1.0.0",
-  "description": "",
+  "description": "Render-er for Ballerina notebook variable view",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --open",
