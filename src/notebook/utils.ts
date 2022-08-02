@@ -21,9 +21,40 @@ import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languagec
 import { CompletionItemKind as VSCodeCompletionItemKind, Uri, workspace } from "vscode";
 import { CompletionResponse } from "@wso2-enterprise/ballerina-low-code-editor";
 import { TextEncoder } from "util";
+import { isInDefinedVariables } from "./notebookController";
 
-export function getPlainTextSnippet(snippet: string) {
+const QUOTE = "'";
+
+function getPlainTextSnippet(snippet: string) {
     return snippet.replace(/\${\d+(:\S+)*}/g, "");
+}
+
+function getReplacedInsertedText(text: string) {
+    return text.replace(/\\\\/g, "\\");
+}
+
+function isVariableWithQuote(completionResponse: CompletionResponse) {
+    const insertText = getReplacedInsertedText(completionResponse.insertText);
+    return (
+        completionResponse.kind === 6 &&
+        insertText.startsWith(QUOTE) &&
+        !isInDefinedVariables(insertText)
+    );
+}
+
+export function getInsertText(completionResponse: CompletionResponse) {
+    const insertText = getReplacedInsertedText(completionResponse.insertText);
+    if (isVariableWithQuote(completionResponse)) {
+        return getPlainTextSnippet(insertText.substring(1));
+    }
+    return getPlainTextSnippet(insertText);
+}
+
+export function getLabel(completionResponse: CompletionResponse) {
+    if (isVariableWithQuote(completionResponse)) {
+        return completionResponse.label.substring(1);
+    }
+    return completionResponse.label;
 }
 
 export function translateCompletionItemKind(kind: MonacoCompletionItemKind) {
@@ -32,11 +63,20 @@ export function translateCompletionItemKind(kind: MonacoCompletionItemKind) {
 
 export function filterCompletions(completions: CompletionResponse[]): CompletionResponse[] {
     const labelsUsedInShell = [
-        "__last__", "__java_recall(handle context_id, handle name)", "__memorize(string name, any|error value)",
-        "main()", "init()", "__run()", "__recall_any_error(string name)", "__recall_any(string name)",
-        "__java_memorize(handle context_id, handle name, any|error value)", "__stmts()",
+        "__last__",
+        "__java_recall(handle context_id, handle name)",
+        "__memorize(string name, any|error value)",
+        "main()",
+        "init()",
+        "__run()",
+        "__recall_any_error(string name)",
+        "__recall_any(string name)",
+        "__java_memorize(handle context_id, handle name, any|error value)",
+        "__stmts()",
     ];
-    return completions.filter(item => !labelsUsedInShell.includes(item.label));
+    return completions.filter(
+        (item) => !labelsUsedInShell.includes(item.label)
+    );
 }
 
 export async function createFile(uri: Uri, content?: string) {
