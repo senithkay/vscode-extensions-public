@@ -108,6 +108,11 @@ export function LSSuggestions() {
         } else if (prefix) {
             value = prefix + value;
         }
+
+        if (value === "map") {
+            value = "map<TYPE_DESCRIPTOR>";
+        }
+
         const nodePosition : NodePosition = currentModel
             ? (currentModel.stmtPosition
                 ? currentModel.stmtPosition
