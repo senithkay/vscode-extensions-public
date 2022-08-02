@@ -101,3 +101,8 @@ export interface DocumentationInfo {
     modelPosition : NodePosition;
     documentation : SymbolInfoResponse | EmptySymbolInfo
 }
+
+export interface Suggestion {
+    selectedGroup?: number,
+    selectedListItem: number
+}
