@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import {
     DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -17,6 +18,7 @@ export interface DataMapperProps {
     fnST: FunctionDefinition;
     langClientPromise?: () => Promise<DiagramEditorLangClientInterface>;
     getLangClient?: () => Promise<DiagramEditorLangClientInterface>;
+    getEELangClient?: () => Promise<ExpressionEditorLangClientInterface>;
     filePath: string;
     currentFile?: {
         content: string,
@@ -29,7 +31,7 @@ export interface DataMapperProps {
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
+    const { fnST, langClientPromise, getEELangClient, filePath, currentFile, stSymbolInfo, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     useEffect(() => {
@@ -38,6 +40,7 @@ function DataMapperC(props: DataMapperProps) {
                 filePath,
                 fnST,
                 langClientPromise,
+                getEELangClient,
                 currentFile,
                 stSymbolInfo,
                 applyModifications

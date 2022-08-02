@@ -56,7 +56,8 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                 modifyDiagram
             },
             ls: {
-                getDiagramEditorLangClient
+                getDiagramEditorLangClient,
+                getExpressionEditorLangClient
             }
         }
     } = useContext(Context);
@@ -66,13 +67,37 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
 
     useEffect(() => {
-        if (model && STKindChecker.isFunctionDefinition(model)) {
-            handleFunctionST(model.functionName.value).then();
-        } else if (!!functionST) {
-            handleFunctionST(functionST.functionName.value).then();
-        } else {
-            createFunctionST().then();
-        }
+        (async () => {
+            // const langClient = await getExpressionEditorLangClient();
+            // const res = await langClient.getExprType({
+            //     documentIdentifier: {
+            //         uri: `file://${currentFile.path}`
+            //     },
+            //     startPosition: {
+            //         line: 29,
+            //         offset: 30
+            //     },
+            //     endPosition: {
+            //         line: 29,
+            //         offset: 45
+            //     }
+            // });
+            //
+            // // tslint:disable-next-line:no-console
+            // console.log("=============");
+            // // tslint:disable-next-line:no-console
+            // console.log(res);
+            // // tslint:disable-next-line:no-console
+            // console.log("=============");
+
+            if (model && STKindChecker.isFunctionDefinition(model)) {
+                handleFunctionST(model.functionName.value).then();
+            } else if (!!functionST) {
+                handleFunctionST(functionST.functionName.value).then();
+            } else {
+                createFunctionST().then();
+            }
+        })();
     }, [currentFile.content]);
 
     const handleFunctionST = async (funcName: string) => {
@@ -134,6 +159,7 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                     fnST={functionST}
                     langClientPromise={getDiagramEditorLangClient}
                     getLangClient={getDiagramEditorLangClient}
+                    getEELangClient={getExpressionEditorLangClient}
                     filePath={currentFile.path}
                     currentFile={currentFile}
                     stSymbolInfo={stSymbolInfo}

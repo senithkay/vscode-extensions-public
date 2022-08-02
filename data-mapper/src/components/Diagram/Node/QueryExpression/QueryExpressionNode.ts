@@ -53,6 +53,29 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         this.addPort(this.outPort);
         this.initSourcePorts();
         this.initTargetPorts();
+
+        const { startLine, startColumn, endLine, endColumn } = this.value.queryPipeline.fromClause.expression.position;
+        const langClient = await this.context.getEELangClient();
+        const res = await langClient.getExprType({
+            documentIdentifier: {
+                uri: `file://${this.context.currentFile.path}`
+            },
+            startPosition: {
+                line: startLine,
+                offset: startColumn
+            },
+            endPosition: {
+                line: endLine,
+                offset: endColumn
+            }
+        });
+
+        // tslint:disable-next-line:no-console
+        console.log("=============");
+        // tslint:disable-next-line:no-console
+        console.log(res);
+        // tslint:disable-next-line:no-console
+        console.log("=============");
     }
 
     private initSourcePorts() {
