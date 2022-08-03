@@ -222,7 +222,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                         100% { transform: rotate(360deg); }
                     }
                     html {
-                        overflow: hidden !important;
+                        overflow: scroll;
                     }
                     ${styles}
                 </style>
@@ -231,7 +231,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                 ${vwoScript}
             </head>
             
-            <body class="${bodyCss}">
+            <body class="${bodyCss}" style="background: #fff;">
                 ${body}
                 <script>
                     ${scripts}
@@ -248,30 +248,30 @@ function getComposerURI(): string {
         'jslibs'));
 }
 
-export function getComposerPath(): string {
-    return process.env.COMPOSER_DEBUG === "true"
+export function getComposerPath(disableComDebug: boolean): string {
+    return (process.env.COMPOSER_DEBUG === "true" && !disableComDebug)
         ? process.env.COMPOSER_DEV_HOST as string
         : getComposerURI();
 }
 
-function getComposerCSSFiles(): string[] {
+function getComposerCSSFiles(disableComDebug: boolean): string[] {
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
-        isCodeServer ? (`${RESOURCES_CDN}/jslibs/themes/ballerina-default.min.css`) : join(getComposerPath(), 'themes', 'ballerina-default.min.css')
+        isCodeServer ? (`${RESOURCES_CDN}/jslibs/themes/ballerina-default.min.css`) : join(getComposerPath(disableComDebug), 'themes', 'ballerina-default.min.css')
     ];
 }
 
-function getComposerJSFiles(componentName: string): string[] {
+function getComposerJSFiles(componentName: string, disableComDebug: boolean): string[] {
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
-        isCodeServer ? (`${RESOURCES_CDN}/jslibs/${componentName}.js`) : join(getComposerPath(), componentName + '.js'),
+        isCodeServer ? (`${RESOURCES_CDN}/jslibs/${componentName}.js`) : join(getComposerPath(disableComDebug), componentName + '.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
 
-export function getComposerWebViewOptions(componentName: string): Partial<WebViewOptions> {
+export function getComposerWebViewOptions(componentName: string, disableComDebug: boolean = false): Partial<WebViewOptions> {
     return {
-        cssFiles: getComposerCSSFiles(),
-        jsFiles: getComposerJSFiles(componentName)
+        cssFiles: getComposerCSSFiles(disableComDebug),
+        jsFiles: getComposerJSFiles(componentName, disableComDebug)
     };
 }
