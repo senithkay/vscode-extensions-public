@@ -21,6 +21,7 @@ import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
     ACTION,
     FUNCTION_COMPLETION_KIND,
+    MAPPING_TYPE_DESCRIPTER,
     METHOD_COMPLETION_KIND,
     PROPERTY_COMPLETION_KIND
 } from "../../../constants";
@@ -146,6 +147,11 @@ export function LSSuggestions() {
         } else if (prefix) {
             value = prefix + value;
         }
+
+        if (value === "map") {
+            value = MAPPING_TYPE_DESCRIPTER;
+        }
+
         const nodePosition : NodePosition = currentModel
             ? (currentModel.stmtPosition
                 ? currentModel.stmtPosition
