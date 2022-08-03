@@ -14,7 +14,7 @@
         "theme": "light"
     },
     "engines": {
-        "vscode": "^1.59.0"
+        "vscode": "^1.67.0"
     },
     "categories": [
         "Programming Languages",
@@ -26,7 +26,8 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "workspaceContains:Ballerina.toml",
-        "onView:ballerinaExplorerTreeView"
+        "onView:ballerinaExplorerTreeView",
+        "onNotebook:ballerina-notebook"
     ],
     "contributes": {
         "languages": [
@@ -358,6 +359,46 @@
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.notebook.restartNotebook",
+                "title": "Restart Notebook",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                },
+                "category": "Ballerina",
+                "when": "notebookType == 'ballerina-notebook'"
+            },
+            {
+                "command": "ballerina.notebook.openVariableView",
+                "title": "Notebook Variables",
+                "icon": "$(notebook)",
+                "category": "Ballerina",
+                "enablement": "notebookType == 'ballerina-notebook'"
+            },
+            {
+                "command": "ballerina.notebook.openOutlineView",
+                "title": "Notebook Outline",
+                "icon": "$(list-unordered)",
+                "category": "Ballerina",
+                "enablement": "notebookType == 'ballerina-notebook'"
+            },
+            {
+                "command": "ballerina.notebook.refreshVariableView",
+                "title": "Refresh",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                },
+                "category": "Ballerina",
+                "enablement": "isNotebookVariableViewEnabled"
+            },
+            {
+                "command": "ballerina.notebook.createNotebook",
+                "title": "Create Notebook",
+                "category": "Ballerina",
+                "icon": "$(notebook)"
             }
         ],
         "views": {
@@ -372,6 +413,14 @@
                     "name": "Choreo",
                     "contextualTitle": "Choreo Session Details"
                 }
+            ],
+            "notebook-variables": [
+                {
+                    "type": "webview",
+                    "id": "ballerinaViewVariables",
+                    "name": "Variable View",
+                    "when": "isNotebookVariableViewEnabled"
+                }
             ]
         },
         "viewsContainers": {
@@ -380,6 +429,13 @@
                     "id": "diagram-explorer",
                     "title": "Ballerina Low-Code",
                     "icon": "resources/images/icons/tab.svg"
+                }
+            ],
+            "panel": [
+                {
+                    "id": "notebook-variables",
+                    "title": "Ballerina Notebook",
+                    "icon": "$(notebook)"
                 }
             ]
         },
@@ -410,6 +466,11 @@
                     "command": "ballerina.new.module",
                     "when": "view == ballerinaExplorerTreeView",
                     "group": "navigation"
+                },
+                {
+                    "command": "ballerina.notebook.refreshVariableView",
+                    "when": "view == ballerinaViewVariables",
+                    "group": "navigation"
                 }
             ],
             "editor/title": [
@@ -434,6 +495,26 @@
                     "when": "isBallerinaDiagram",
                     "command": "ballerina.show.source",
                     "group": "navigation@4"
+                }
+            ],
+            "notebook/toolbar": [
+                {
+                    "command": "ballerina.notebook.restartNotebook",
+                    "title": "Restart Notebook",
+                    "group": "navigation@1",
+                    "when": "notebookType == 'ballerina-notebook'"
+                },
+                {
+                    "command": "ballerina.notebook.openVariableView",
+                    "title": "Variables",
+                    "group": "navigation@2",
+                    "when": "notebookType == 'ballerina-notebook'"
+                },
+                {
+                    "command": "ballerina.notebook.openOutlineView",
+                    "title": "Outline",
+                    "group": "navigation@3",
+                    "when": "notebookType == 'ballerina-notebook'"
                 }
             ],
             "view/item/context": [
@@ -476,9 +557,36 @@
                 {
                     "command": "ballerina.choreo.signin",
                     "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.notebook.createNotebook"
                 }
             ]
-        }
+        },
+        "notebooks": [
+            {
+                "id": "ballerina-notebook",
+                "type": "ballerina-notebook",
+                "displayName": "Ballerina Notebook",
+                "selector": [
+                    {
+                        "filenamePattern": "*.balnotebook"
+                    }
+                ]
+            }
+        ],
+        "notebookRenderer": [
+            {
+                "id": "ballerina-notebook-renderer",
+                "displayName": "Ballerina Notebook Renderer",
+                "entrypoint": "resources/jslibs/NotebookRenderer.js",
+                "mimeTypes": [
+                    "ballerina-notebook/json-view",
+                    "ballerina-notebook/table-view",
+                    "ballerina-notebook/xml-view"
+                ]
+            }
+        ]
     },
     "main": "./dist/extension",
     "scripts": {
@@ -496,7 +604,7 @@
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
     },
     "dependencies": {
-        "@types/vscode": "^1.59.0",
+        "@types/vscode": "^1.67.0",
         "@wso2-enterprise/ballerina-configurable-editor": "next",
         "@wso2-enterprise/ballerina-low-code-editor-distribution": "next",
         "@wso2-enterprise/ballerina-low-code-edtior-commons": "next",
@@ -519,7 +627,9 @@
         "@types/mocha": "^8.2.2",
         "@types/node": "^15.12.2",
         "@types/tcp-port-used": "^1.0.0",
-        "@types/vscode": "^1.59.0",
+        "@types/vscode": "^1.67.0",
+        "@types/vscode-notebook-renderer": "^1.60.0",
+        "@vscode/codicons": "0.0.20",
         "axios": "^0.22.0",
         "chai": "^4.3.4",
         "cross-env": "^7.0.3",

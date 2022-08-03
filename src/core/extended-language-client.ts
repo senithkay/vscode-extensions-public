@@ -70,6 +70,11 @@ enum EXTENDED_APIS {
     PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
+    NOTEBOOK_RESULT = "balShell/getResult",
+    NOTEBOOK_FILE_SOURCE = "balShell/getShellFileSource",
+    NOTEBOOK_RESTART = "balShell/restartNotebook",
+    NOTEBOOK_VARIABLES = "balShell/getVariableValues",
+    NOTEBOOK_DELETE_DCLNS = "balShell/deleteDeclarations",
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol'
 }
 
@@ -83,7 +88,8 @@ enum EXTENDED_APIS_ORG {
     TRIGGER = 'ballerinaTrigger',
     PERF_ANALYZER = 'performanceAnalyzer',
     PARTIAL_PARSER = 'partialParser',
-    BALLERINA_TO_OPENAPI = 'openAPILSExtension'
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension',
+    NOTEBOOK_SUPPORT = "balShell"
 }
 
 export interface ExtendedClientCapabilities extends ClientCapabilities {
@@ -148,6 +154,44 @@ export interface JsonToRecordRequest {
 
 export interface JsonToRecordResponse {
     codeBlock: string;
+}
+
+export interface NoteBookCellOutputRequest {
+    source: string;
+}
+
+export interface NoteBookCellOutputValue {
+    value: string;
+    mimeType: string;
+    type: string;
+}
+
+export interface NotebookCellMetaInfo {
+    definedVars: string[];
+    moduleDclns: string[];
+}
+
+export interface NoteBookCellOutputResponse {
+    shellValue?: NoteBookCellOutputValue;
+    errors: string[];
+    diagnostics: string[];
+    metaInfo?: NotebookCellMetaInfo;
+    consoleOut: string;
+}
+
+export interface NotebookFileSourceResponse {
+    content: string;
+    filePath: string;
+}
+
+export interface NotebookVariable {
+    name: string;
+    type: string;
+    value: string;
+}
+
+export interface NotebookDeleteDclnRequest {
+    varToDelete: string;
 }
 
 interface BallerinaInitializeParams {
@@ -571,6 +615,41 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
 
+    async getBalShellResult(params: NoteBookCellOutputRequest): Promise<NoteBookCellOutputResponse | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESULT);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_RESULT, params) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async getShellBufferFilePath(): Promise<NotebookFileSourceResponse | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async restartNotebook(): Promise<boolean | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESTART);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_RESTART) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async getNotebookVariables(): Promise<NotebookVariable[] | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_VARIABLES);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_VARIABLES) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async deleteDeclarations(params: NotebookDeleteDclnRequest): Promise<boolean | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS, params) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
     async getSTForSingleStatement(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_SINGLE_STATEMENT);
         const isSupported = true;
@@ -658,7 +737,11 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true, getSTForResource: true },
-                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
+                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
+                { 
+                    name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true, 
+                    getVariableValues: true, deleteDeclarations: true, restartNotebook: true 
+                }
             ]
         }).then(response => {
             const capabilities: Set<String> = new Set();

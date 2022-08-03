@@ -54,6 +54,8 @@ npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
     dependsOn ':swagger-viewer:buildSwaggerViewer'
+    dependsOn ':notebook-renderer:buildRenderer'
+    dependsOn ':variable-view:buildVariableView'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
     PatternSet patternSet = new PatternSet();
