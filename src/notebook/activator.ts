@@ -38,6 +38,9 @@ import { createFile } from './utils';
 import { BallerinaDebugAdapterTrackerFactory, NotebookDebuggerController } from './debugger';
 
 const update2RegEx = /^2201.[2-9].[0-9]/g;
+const CLEAR_ALL_CELLS_OUTPUT_COMMAND = 'notebook.clearAllCellsOutputs';
+const FOCUS_TO_OUTLINE_COMMAND = 'outline.focus';
+const FOCUS_VARIABLE_VIEW_COMMAND = 'ballerinaViewVariables.focus';
 const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
@@ -52,6 +55,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         registerCreateNotebook(ballerinaExtInstance),
         registerFocusToOutline(),
     ]);
+
     if (!isLSSupported) {
         return;
     }
@@ -75,7 +79,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 function registerFocusToOutline(): Disposable {
     return commands.registerCommand(OPEN_OUTLINE_VIEW_COMMAND, () => {
-        commands.executeCommand('outline.focus');
+        commands.executeCommand(FOCUS_TO_OUTLINE_COMMAND);
     });
 }
 
@@ -83,7 +87,7 @@ function registerVariableView(ballerinaExtInstance: BallerinaExtension): Disposa
     return commands.registerCommand(OPEN_VARIABLE_VIEW_COMMAND, () => {
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_VARIABLE_VIEW, CMP_NOTEBOOK);
         ballerinaExtInstance.setNotebookVariableViewEnabled(true);
-        commands.executeCommand('ballerinaViewVariables.focus');
+        commands.executeCommand(FOCUS_VARIABLE_VIEW_COMMAND);
     });
 }
 
@@ -103,7 +107,7 @@ function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension,
         }
         await langClient.restartNotebook();
         notebookController.resetController();
-        await commands.executeCommand('notebook.clearAllCellsOutputs');
+        await commands.executeCommand(CLEAR_ALL_CELLS_OUTPUT_COMMAND);
     });
 }
 
