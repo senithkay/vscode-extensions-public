@@ -159,7 +159,10 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     getSymbolDocumentation: (
         params: SymbolInfoRequest
     ) => Thenable<SymbolInfoResponse>;
-    getExprType: (
+    getTypeFromExpression: (
         params: ExpressionTypeDescRequest
+    ) => Thenable<ExpressionTypeResponse>;
+    getTypeFromSymbol: (
+        params: ExpressionTypeRequest
     ) => Thenable<ExpressionTypeResponse>;
 }

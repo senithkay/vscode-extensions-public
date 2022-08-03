@@ -4,6 +4,7 @@ import {
     BallerinaTriggersRequest,
     BallerinaTriggersResponse,
     ExpressionTypeDescRequest,
+    ExpressionTypeRequest,
     ExpressionTypeResponse,
     SymbolInfoRequest,
     SymbolInfoResponse
@@ -97,7 +98,11 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
         return Promise.reject();
     }
 
-    public getExprType(params: ExpressionTypeDescRequest): Thenable<ExpressionTypeResponse> {
+    public getTypeFromExpression(params: ExpressionTypeDescRequest): Thenable<ExpressionTypeResponse> {
+        return Promise.reject();
+    }
+
+    public getTypeFromSymbol(params: ExpressionTypeRequest): Thenable<ExpressionTypeResponse> {
         return Promise.reject();
     }
 }

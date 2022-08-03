@@ -8,6 +8,7 @@ import {
     BallerinaTriggersRequest,
     BallerinaTriggersResponse,
     ExpressionTypeDescRequest,
+    ExpressionTypeRequest,
     ExpressionTypeResponse,
     SymbolInfoRequest,
     SymbolInfoResponse,
@@ -112,8 +113,12 @@ export class BallerinaLangClient implements IBallerinaLangClient {
         return this.lsConnection.sendRequest("ballerinaSymbol/getSymbol", params)
     }
 
-    public getExprType(params: ExpressionTypeDescRequest): Thenable<ExpressionTypeResponse> {
-        return this.lsConnection.sendRequest("ballerinaSymbol/getSymbol", params)
+    public getTypeFromExpression(params: ExpressionTypeDescRequest): Thenable<ExpressionTypeResponse> {
+        return this.lsConnection.sendRequest("ballerinaSymbol/getTypeFromExpression", params)
+    }
+
+    public getTypeFromSymbol(params: ExpressionTypeRequest): Thenable<ExpressionTypeResponse> {
+        return this.lsConnection.sendRequest("ballerinaSymbol/getTypeFromSymbol", params)
     }
 }
 

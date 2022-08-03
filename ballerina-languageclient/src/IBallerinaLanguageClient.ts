@@ -45,7 +45,8 @@ export enum EXTENDED_APIS {
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
-    SYMBOL_EXPR_TYPE = 'ballerinaSymbol/getExprType'
+    SYMBOL_GET_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
+    SYMBOL_GET_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol'
 }
 
 
@@ -812,7 +813,9 @@ export interface IBallerinaLangClient {
 
     definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
 
-    getExprType: (params: ExpressionTypeDescRequest) => Thenable<ExpressionTypeResponse>;
+    getTypeFromExpression: (params: ExpressionTypeDescRequest) => Thenable<ExpressionTypeResponse>;
+
+    getTypeFromSymbol: (params: ExpressionTypeRequest) => Thenable<ExpressionTypeResponse>;
 
 
     // close: () => void;

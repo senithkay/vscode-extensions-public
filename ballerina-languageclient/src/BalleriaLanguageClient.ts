@@ -267,8 +267,12 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_DOC, params);
     }
 
-    public getExprType(params: ExpressionTypeDescRequest): Thenable<ExpressionTypeResponse> {
-        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_EXPR_TYPE, params);
+    public getTypeFromExpression(params: ExpressionTypeDescRequest): Thenable<ExpressionTypeResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_EXPRESSION, params);
+    }
+
+    public getTypeFromSymbol(params: ExpressionTypeRequest): Thenable<ExpressionTypeResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_SYMBOL, params);
     }
 
 }

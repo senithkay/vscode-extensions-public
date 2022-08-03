@@ -98,6 +98,11 @@ export interface LinePosition {
     offset: number;
 }
 
+export interface ExpressionTypeRequest {
+    documentIdentifier: { uri: string; };
+    position: LinePosition;
+}
+
 export interface ExpressionTypeDescRequest {
     documentIdentifier: {
         uri: string;
@@ -455,7 +460,9 @@ export interface IBallerinaLangClient {
 
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>
 
-    getExprType: (params: ExpressionTypeDescRequest) => Thenable<ExpressionTypeResponse>
+    getTypeFromExpression: (params: ExpressionTypeDescRequest) => Thenable<ExpressionTypeResponse>
+
+    getTypeFromSymbol: (params: ExpressionTypeRequest) => Thenable<ExpressionTypeResponse>
 
     close: () => void;
 }
