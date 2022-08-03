@@ -12,6 +12,7 @@
  */
 
 import { ReactNode } from "react";
+import { IconType } from "react-icons";
 
 import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -106,3 +107,9 @@ export interface Suggestion {
     selectedGroup?: number,
     selectedListItem: number
 }
+
+export interface SuggestionIcon {
+    SuggestIcon : IconType,
+    color: string
+}
+
