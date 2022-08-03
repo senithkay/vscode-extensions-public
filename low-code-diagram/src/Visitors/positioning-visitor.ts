@@ -53,6 +53,7 @@ import {
     PlusViewState,
     SimpleBBox,
     StatementViewState,
+    ViewState,
     WhileViewState
 } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
@@ -62,6 +63,13 @@ import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "
 import { getPlusViewState, updateConnectorCX } from "./util";
 
 let epCount: number = 0;
+let isPathHighlighting: boolean;
+let workerHighlights: WorkerHighlight[];
+
+export interface WorkerHighlight {
+    position: number;
+    highlight: boolean;
+}
 
 // This holds the plus widget height diff to be added to the function when its open.
 // This will be reset on every rerender.
@@ -186,6 +194,11 @@ export class PositioningVisitor implements Visitor {
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        const viewState: ViewState = node.viewState;
+        viewState.highlightedPaths = [];
+        workerHighlights = viewState.highlightedPaths;
+        viewState.isPathSelected = node.isInSelectedPath;
+        isPathHighlighting = node.isInSelectedPath;
         this.beginVisitFunctionDefinition(node);
     }
 
@@ -882,6 +895,12 @@ export class PositioningVisitor implements Visitor {
         ifBodyViewState.bBox.cx = viewState.bBox.cx;
         ifBodyViewState.bBox.cy = viewState.headIf.cy + (viewState.headIf.h / 2) + viewState.headIf.offsetFromBottom;
 
+        if (node.ifBody.isInSelectedPath) {
+            workerHighlights.push({ position: viewState.bBox.cy, highlight: true });
+        } else if (isPathHighlighting) {
+            workerHighlights.push({ position: viewState.bBox.cy, highlight: false });
+        }
+
         if (node.elseBody) {
             if (node.elseBody.elseBody.kind === "BlockStatement") {
                 const elseViewStatement: ElseViewState = node.elseBody.elseBody.viewState as ElseViewState;
@@ -899,6 +918,9 @@ export class PositioningVisitor implements Visitor {
                 elseViewStatement.elseBottomHorizontalLine.x = viewState.bBox.cx;
                 elseViewStatement.elseBottomHorizontalLine.y = elseViewStatement.elseBody.y +
                     elseViewStatement.elseBody.length;
+                if (isPathHighlighting) {
+                    workerHighlights.push({ position: elseViewStatement.elseBottomHorizontalLine.y, highlight: false });
+                }
             } else if (node.elseBody.elseBody.kind === "IfElseStatement") {
                 const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
                 const elseIfViewState: IfViewState = elseIfStmt.viewState;
@@ -916,6 +938,9 @@ export class PositioningVisitor implements Visitor {
                 elseIfViewState.elseIfBottomHorizontalLine.x = viewState.bBox.cx;
                 elseIfViewState.elseIfBottomHorizontalLine.y = viewState.bBox.cy + elseIfViewState.elseIfLifeLine.h +
                     elseIfViewState.headIf.h;
+                if (isPathHighlighting) {
+                    workerHighlights.push({ position: elseIfViewState.elseIfBottomHorizontalLine.y, highlight: false });
+                }
             }
         } else {
             const defaultElseVS: ElseViewState = viewState.defaultElseVS;
@@ -937,6 +962,10 @@ export class PositioningVisitor implements Visitor {
             // This is to check a else-if else and add else curve offset.
             if (viewState.childElseViewState) {
                 defaultElseVS.elseBottomHorizontalLine.y += DefaultConfig.elseCurveYOffset;
+            }
+
+            if (isPathHighlighting) {
+                workerHighlights.push({ position: defaultElseVS.elseBottomHorizontalLine.y, highlight: false });
             }
         }
     }

@@ -101,6 +101,14 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
     showPerformanceGraph = showPerf;
     getDataFromChoreo = getPerfDataFromChoreo;
 
+    await addRealtimeData();
+}
+
+async function addRealtimeData() {
+    if (!langClient || !filePath || !getDataFromChoreo || !updateDiagram) {
+        return;
+    }
+
     await langClient.getPerfEndpoints({
         documentIdentifier: {
             uri: filePath
@@ -124,14 +132,14 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
                 currentResourcePos = { startLine: pos.start.line, startColumn: pos.start.character, endLine: pos.end.line, endColumn: pos.end.character };
 
                 // add connector latencies
-                updateDiagram(realtimeData);
+                updateDiagram(realtimeData, ANALYZE_TYPE.REALTIME);
 
             }
         }
     });
 }
 
-function updateDiagram(realtimeData: PerformanceAnalyzerRealtimeResponse) {
+function updateDiagram(realtimeData: PerformanceAnalyzerRealtimeResponse, analyzeType: ANALYZE_TYPE) {
     const analysisData: ConnectorLatency[] = [];
     const concurrency = realtimeData.concurrency;
     const latency = realtimeData.latency;
@@ -141,7 +149,7 @@ function updateDiagram(realtimeData: PerformanceAnalyzerRealtimeResponse) {
         concurrency: `${concurrency.min} - ${concurrency.max}`,
         latency: getPerfValuesWithUnit(latency),
         tps: `${tps.min} - ${tps.max}`,
-        analyzeType: ANALYZE_TYPE.REALTIME
+        analyzeType
     };
 
     Object.keys(realtimeData.connectorLatencies).forEach((key) => {
@@ -169,7 +177,8 @@ export async function addAdvancedLabels(name: string, range: NodePosition, diagr
         return;
     }
     advancedData = data as PerformanceAnalyzerAdvancedResponse;
-    showPerformanceChart({ file: filePath, name, data: advancedData })
+    showPerformanceChart({ file: filePath, name, data: advancedData });
+    updatePerfPath(advancedData.criticalPath.toString());
 }
 
 async function showPerformanceChart(data: PerformanceGraphRequest) {
@@ -181,7 +190,12 @@ async function showPerformanceChart(data: PerformanceGraphRequest) {
 }
 
 export async function updatePerfPath(pathId: string) {
-    updateDiagram({ ...advancedData.paths[pathId].sequenceDiagramData, positions: advancedData.positions });
+    if (pathId === '-1') {
+        await addRealtimeData();
+    } else{
+        updateDiagram({ ...advancedData.paths[pathId].sequenceDiagramData, positions: advancedData.positions }, ANALYZE_TYPE.ADVANCED);
+    }
+
     diagramRedraw(syntaxTree);
     return true;
 }

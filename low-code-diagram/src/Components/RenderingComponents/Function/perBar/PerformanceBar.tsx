@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import { ANALYZE_TYPE } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Context/diagram";
@@ -15,11 +16,11 @@ export function PerformanceBar(props: PerformanceProps) {
     const { model } = props;
     const diagramContext = useContext(Context);
     const openPerformanceChart = diagramContext?.api?.edit?.openPerformanceChart;
-    const { diagramCleanDraw } = diagramContext?.actions;
+    const { diagramRedraw } = diagramContext?.actions;
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
 
-    const { concurrency, latency, tps, isDataAvailable } = generatePerfData(model);
+    const { concurrency, latency, tps, analyzeType, isDataAvailable } = generatePerfData(model);
 
     const onClickPerformance = async () => {
         let fullPath = "";
@@ -29,7 +30,7 @@ export function PerformanceBar(props: PerformanceProps) {
 
         if (openPerformanceChart) {
             await openPerformanceChart(`${model.functionName.value.toUpperCase()} /${fullPath}`,
-                model.position, diagramCleanDraw);
+                model.position, diagramRedraw);
         }
     };
     const element = (
@@ -48,13 +49,17 @@ export function PerformanceBar(props: PerformanceProps) {
         <div className={"performance-bar"}>
             <div className={"rectangle"}>&nbsp;</div>
             <p>
-                {`Forecasted performance of the critical path: Concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}`}
+                {`Forecasted performance of the ${isRealtime() ? "critical" : "selected"} path: Concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}`}
             </p>
-            {tooltip ? tooltip : element}
+            {isRealtime() && (tooltip ? tooltip : element)}
         </div>
     );
 
     return (
         isDataAvailable && perBar
     );
+
+    function isRealtime() {
+        return analyzeType === ANALYZE_TYPE.REALTIME;
+    }
 }

@@ -48,10 +48,10 @@ export interface DiagnosticInfo {
 }
 
 export interface PerfData {
-  concurrency: string;
+  concurrency?: string;
   latency: string;
-  tps: string;
-  analyzeType: string;
+  tps?: string;
+  analyzeType?: string;
 }
 
 export interface STNode {
@@ -72,6 +72,7 @@ export interface STNode {
   performance?: PerfData;
   leadingMinutiae: Minutiae[];
   trailingMinutiae: Minutiae[];
+  isInSelectedPath?: boolean;
 }
 
 export interface ActionStatement extends STNode {

@@ -15,8 +15,11 @@ import * as React from "react";
 import cn from "classnames";
 
 import { FunctionViewState, ViewState } from "../../../ViewState";
+import { WorkerHighlight } from "../../../Visitors";
 
 import "./style.scss";
+
+export const HIGHLIGHTED_PATH_WIDTH = 4;
 
 export interface WorkerLineProps {
     viewState: ViewState
@@ -29,9 +32,29 @@ export function WorkerLine(props: WorkerLineProps) {
     const y = functionViewState.workerLine.y;
     const h = functionViewState.workerLine.h;
     const classes = cn("worker-line");
+    const isPathSelected = viewState.isPathSelected;
+    const highlightedPaths: WorkerHighlight[] = viewState.highlightedPaths;
+
     return (
         <g className={classes}>
-            <line x1={x} y1={y} x2={x} y2={y + h} />
+            {getLines()}
         </g>
     );
+
+    function getLines() {
+        const lines: JSX.Element[] = [];
+        let cy = y;
+
+        if (highlightedPaths && highlightedPaths.length > 0) {
+            for (let i = 0; i < highlightedPaths.length; i++) {
+                const element = highlightedPaths[i];
+                const isHighlight = i === 0 ? isPathSelected : highlightedPaths[i - 1].highlight;
+                lines.push(<line x1={x} y1={cy} x2={x} y2={element.position} strokeWidth={isHighlight ? HIGHLIGHTED_PATH_WIDTH : 1} />)
+                cy = element.position;
+            }
+        }
+        lines.push(<line x1={x} y1={cy} x2={x} y2={y + h} strokeWidth={isPathSelected ? HIGHLIGHTED_PATH_WIDTH : 1} />)
+
+        return lines;
+    }
 }

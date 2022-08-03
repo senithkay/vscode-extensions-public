@@ -17,8 +17,8 @@
  *
  */
 
-import { TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { ANALYZE_TYPE, TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BlockStatement, FunctionDefinition, IfElseStatement, NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, ServiceDeclaration, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
 export interface ConnectorLatency {
     name: string;
@@ -30,37 +30,55 @@ export function mergeAnalysisDetails(
     stNode: STNode,
     serviceData: TopBarData,
     connectorLatencies: ConnectorLatency[],
-    currentResourcePos: NodePosition,
-    isClear = false
+    currentResourcePos: NodePosition
 ) {
     const analysisMerger = new AnalysisDetailMerger(serviceData, connectorLatencies, currentResourcePos);
     if (!stNode) {
         return;
     }
     traversNode(stNode, analysisMerger);
-    if (isClear) {
-        analysisMerger.clear();
-    } else {
-        analysisMerger.merge();
-    }
 }
 
 export class AnalysisDetailMerger implements Visitor {
-    anaylisisDetailMap: { [key: string]: RemoteMethodCallAction } = {};
     serviceData: TopBarData;
     connectorLatencies: ConnectorLatency[];
     currentResourcePos: NodePosition;
-    constructor(serviceData: TopBarData, connectorLatencies: ConnectorLatency[],
-                currentResourcePos: NodePosition) {
+    blocks: BlockStatement[];
+    currentResource: ResourceAccessorDefinition;
+    constructor(serviceData: TopBarData, connectorLatencies: ConnectorLatency[], currentResourcePos: NodePosition) {
         this.serviceData = serviceData;
         this.connectorLatencies = connectorLatencies;
         this.currentResourcePos = currentResourcePos;
+        this.blocks = [];
     }
+
+    public beginVisitBlockStatement(node: BlockStatement) {
+        node.isInSelectedPath = false;
+        this.blocks.push(node);
+    }
+
+    public endVisitBlockStatement(node: BlockStatement) {
+        this.blocks.pop();
+    }
+
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
         const { position: { startLine, startColumn, endLine, endColumn } } = node;
         const key = `(${startLine}:${startColumn},${endLine}:${endColumn})`;
-        (node as any).performance = {};
-        this.anaylisisDetailMap[key] = node;
+        delete node.performance;
+
+        this.connectorLatencies.forEach(data => {
+            if (key === data.name) {
+                node.performance = { latency: data.latency };
+                const isAdvanced = this.serviceData.analyzeType === ANALYZE_TYPE.ADVANCED;
+
+                if (this.blocks.length > 0) {
+                    this.blocks[this.blocks.length - 1].isInSelectedPath = isAdvanced;
+                }
+                if (this.currentResource) {
+                    this.currentResource.isInSelectedPath = isAdvanced;
+                }
+            }
+        });
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -73,24 +91,11 @@ export class AnalysisDetailMerger implements Visitor {
         } else {
             delete node.performance;
         }
+        node.isInSelectedPath = false;
+        this.currentResource = node;
     }
 
-    public merge() {
-        this.connectorLatencies.forEach(data => {
-
-            const invocation = this.anaylisisDetailMap[Object.keys(this.anaylisisDetailMap).find((key) => (
-                key === data.name)
-            )] as any;
-            if (invocation) {
-                invocation.performance.latency = data.latency;
-            }
-        });
-    }
-
-    public clear() {
-        Object.values(this.anaylisisDetailMap).forEach((value) => {
-            const invocation = value as any;
-            delete invocation.performance;
-        })
+    public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
+        this.currentResource = undefined;
     }
 };

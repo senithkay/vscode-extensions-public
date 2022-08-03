@@ -1,4 +1,4 @@
-import { TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ANALYZE_TYPE, TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 
 export function generatePerfData(model: FunctionDefinition) {
@@ -6,6 +6,7 @@ export function generatePerfData(model: FunctionDefinition) {
     let latency: string;
     let tps: string;
     let isDataAvailable = false;
+    let analyzeType: ANALYZE_TYPE;
 
     const data: TopBarData = (model as any).performance;
 
@@ -14,8 +15,8 @@ export function generatePerfData(model: FunctionDefinition) {
         concurrency = data.concurrency;
         latency = data.latency;
         tps = data.tps;
-        // isAdvancedPerfDataAvailable = data.
+        analyzeType = data.analyzeType;
     }
 
-    return { concurrency, latency, tps, isDataAvailable };
+    return { concurrency, latency, tps, analyzeType, isDataAvailable };
 }
