@@ -1,5 +1,9 @@
 # Change Log
 
+## **3.1.0**
+### Added
+- Ballerina Notebook. [#183](https://github.com/wso2/ballerina-plugin-vscode/issues/183)
+
 ## **3.0.2**
 ### Improved
 - The low-code diagram editor.
