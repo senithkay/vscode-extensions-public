@@ -12,13 +12,13 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
@@ -42,7 +42,8 @@ export enum PARAM_TYPES {
     PAYLOAD = 'Payload',
     REQUEST = 'Request',
     CALLER = 'Caller',
-    HEADER = 'Header'
+    HEADER = 'Header',
+    HEADER_MAP = 'Header'
 }
 
 export interface ParamProps {
@@ -55,7 +56,7 @@ export interface ParamProps {
     optionList?: string[];
     option?: string;
     isTypeReadOnly?: boolean;
-    onChange: (segmentId: number, paramString: string) => void;
+    onChange: (segmentId: number, paramString: string, paramModel?: STNode) => void;
     onCancel?: () => void;
 }
 
@@ -71,10 +72,7 @@ export function ParamEditor(props: ParamProps) {
         segmentId, syntaxDiagnostics, model, alternativeName, isEdit, option, optionList, isTypeReadOnly, onChange,
         onCancel
     } = props;
-    console.log('>>> parameditor model', model);
-
     const classes = useStyles();
-
     // const [paramDataType, setParamDataType] = useState<string>(dataType);
     // const [paramName, setParamName] = useState<string>(name);
     // const [paramHeaderName, setParamHeaderName] = useState<string>(paramName);
@@ -98,14 +96,16 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleTypeChange = (value: string) => {
+        console.log('>>> param type change', value, segmentId);
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const paramName = model.paramName.value;
         const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`);
+        onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`, model);
 
     }
 
     const handleNameChange = (value: string) => {
+        console.log('>>> param name change');
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const type = model.typeName.source.trim();
         const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
@@ -113,6 +113,7 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleDefaultValueChange = (value: string) => {
+        console.log('>>> param default value change');
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const type = model.typeName.source.trim();
         const paramName = model.paramName.value
@@ -189,7 +190,7 @@ export function ParamEditor(props: ParamProps) {
     };
 
     const handleAddParam = () => {
-        
+
     };
 
 
@@ -212,7 +213,7 @@ export function ParamEditor(props: ParamProps) {
     // useEffect(() => {
     //     setParamDefaultValue(defaultValue);
     // }, [defaultValue]);
-
+    console.log('>>> default value real value', (STKindChecker.isDefaultableParam(model) && model.expression?.source.trim()) || "hello");
     return (
         <div className={classes.paramContainer}>
             {optionList && (
@@ -258,20 +259,26 @@ export function ParamEditor(props: ParamProps) {
                         disabled={false}
                     />
                 </div>
-                <div className={classes.paramNameWrapper}>
-                    <FieldTitle title='Default Value' optional={false} />
-                    <LiteExpressionEditor
-                        diagnostics={
-                            (currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && syntaxDiagnostics)
-                            || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange
-                            || []
-                        }
-                        defaultValue={STKindChecker.isDefaultableParam(model) && model.expression?.source.trim() || ""}
-                        onChange={debouncedDefaultValueChange}
-                        onFocus={onDefaultValueEditorFocus}
-                        disabled={false}
-                    />
-                </div>
+                {
+                    !(model.source.includes(RESOURCE_CALLER_TYPE)
+                        || model.source.includes(RESOURCE_REQUEST_TYPE)
+                        || model.source.includes(RESOURCE_HEADER_MAP_TYPE)) && (
+                        <div className={classes.paramNameWrapper}>
+                            <FieldTitle title='Default Value' optional={false} />
+                            <LiteExpressionEditor
+                                diagnostics={
+                                    (currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && syntaxDiagnostics)
+                                    || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange
+                                    || []
+                                }
+                                defaultValue={(STKindChecker.isDefaultableParam(model) && model.expression?.source.trim()) || ""}
+                                onChange={debouncedDefaultValueChange}
+                                onFocus={onDefaultValueEditorFocus}
+                                disabled={false}
+                            />
+                        </div>
+                    )
+                }
             </div>
             <>
                 {/* {(selectedOption === headerParameterOption && isHeaderConfigInProgress) && (

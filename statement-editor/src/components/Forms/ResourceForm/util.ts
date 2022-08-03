@@ -221,7 +221,7 @@ export function getResourcePath(pathSegments: (DotToken | SlashToken | Identifie
 }
 
 export function getParamString(parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam |
-                                            RestParam)[]): string {
+    RestParam)[]): string {
     return parameters.reduce((prev, current) => `${prev}${current.value ? current.value : current.source}`, '');
 }
 
@@ -409,7 +409,7 @@ export function getPayloadString(payload: Payload): string {
 }
 
 export function generateParamString(queryParamString: string, payloadString: string,
-                                    advancedParamString: string): string {
+    advancedParamString: string): string {
     let paramString = "";
     if (advancedParamString && !payloadString && !queryParamString) {
         paramString = advancedParamString;
@@ -660,4 +660,25 @@ export function genParamName(defaultName: string, variables: string[]): string {
         varName = defaultName + index;
     }
     return varName;
+}
+
+
+export function getParameterNameFromModel(param: (CommaToken | RequiredParam | RestParam | IncludedRecordParam
+    | DefaultableParam)): string {
+    if (STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param) ||
+        STKindChecker.isIncludedRecordParam(param) || STKindChecker.isRestParam(param)) {
+        return param.paramName.value
+    }
+
+    return '';
+}
+
+export function getParameterTypeFromModel(param: (CommaToken | RequiredParam | RestParam | IncludedRecordParam
+    | DefaultableParam)): string {
+    if (STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param) ||
+        STKindChecker.isIncludedRecordParam(param) || STKindChecker.isRestParam(param)) {
+        return param.typeName.source;
+    }
+
+    return '';
 }

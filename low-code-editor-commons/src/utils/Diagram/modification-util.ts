@@ -228,7 +228,6 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
 }
 
 export function createResource(method: string, path: string, parameters: string, addReturn: string, targetPosition: NodePosition): STModification {
-    debugger;
     const resource: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -249,7 +248,6 @@ export function createResource(method: string, path: string, parameters: string,
 }
 
 export function updateResourceSignature(method: string, path: string, parameters: string, addReturn: string, targetPosition: NodePosition): STModification {
-    debugger;
     const resourceSignature: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,

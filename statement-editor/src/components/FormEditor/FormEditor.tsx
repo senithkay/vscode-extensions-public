@@ -76,19 +76,19 @@ export function FormEditor(props: FormEditorProps) {
         moduleList: Set<string>,
         currentModel?: CurrentModel,
         newValue?: string,
-        completionKinds?: number[],
+        completionKinds?: number[], // todo: use the enums instead of number
         offsetLineCount: number = 0,
         diagnosticOffSet: NodePosition = { startLine: 0, startColumn: 0 }
     ) => {
         // Offset line position is to add some extra line if we do multiple code generations
-
+        console.log('form editor onchange >>>', partialST, genSource);
         const newModuleList = new Set<string>();
         moduleList?.forEach(module => {
             if (!currentFile.content.includes(module)) {
                 newModuleList.add(module);
             }
         })
-        const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? {
+        const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? { // todo : move this to a seperate variable
             ...initialModel.position,
             startLine: initialModel.position.startLine + offsetLineCount,
             endLine: initialModel.position.endLine + offsetLineCount
@@ -107,10 +107,9 @@ export function FormEditor(props: FormEditorProps) {
                 endColumn: 0
             }
         ), newModuleList, true);
-        sendDidChange(fileURI, updatedContent, getLangClient).then();
-        const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
-
-        setModel(enrichModel(partialST, initialModel ? {
+        sendDidChange(fileURI, updatedContent, getLangClient);
+        const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient);
+        const newTargetPosition = initialModel ? { // todo : convert the positions to functions.
             startLine: initialModel.position.startLine + offsetLineCount + diagnosticOffSet.startLine,
             endLine: initialModel.position.endLine + offsetLineCount + diagnosticOffSet.startLine,
             startColumn: initialModel.position.startColumn + offsetLineCount + diagnosticOffSet.startColumn,
@@ -131,7 +130,11 @@ export function FormEditor(props: FormEditorProps) {
                     endColumn: diagnosticOffSet.startColumn
                 }
             )
-        ), diagnostics));
+        );
+        console.log('enrich arguments >>>', partialST, newTargetPosition, diagnostics);
+        setModel(enrichModel(partialST, newTargetPosition, diagnostics));
+
+        console.log('>>> form editor enriched model', partialST);
         if (currentModel && newValue && completionKinds) {
             handleCompletions(newValue, currentModel, completionKinds);
         }
@@ -142,6 +145,10 @@ export function FormEditor(props: FormEditorProps) {
             currentModel, getLangClient, newValue, completionKinds);
         setCompletions(lsSuggestions);
     };
+
+    useEffect(() => {
+        console.log('formeditor model change >>>', model)
+    }, [model])
 
     useEffect(() => {
         if (initialSource) {

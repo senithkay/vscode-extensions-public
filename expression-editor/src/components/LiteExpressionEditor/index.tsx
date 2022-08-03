@@ -215,8 +215,13 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     const [validating, setValidating] = useState<boolean>(false);
     const [showConfigurableView, setShowConfigurableView] = useState(false);
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState(""); // getInitialDiagnosticMessage(diagnostics)
-    const [initialLoaded, setInitialLoaded] = useState(false);
 
+    const [editorConfig] = useState({ onChange, diagnostics });
+
+    useEffect(() => {
+        editorConfig.onChange = onChange;
+        // editorConfig.onFocus = onFocus;
+    }, [onChange])
     // Configurable insertion icon will be displayed only when originalValue is empty
     // const [originalValue, setOriginalValue] = useState(model?.value || "");
     // const isEmpty = (model.value ?? "") === "";
@@ -392,7 +397,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     }, [focus]);
 
     useEffect(() => {
-        if (defaultValue) {
+        if (defaultValue !== undefined) {
             const monacoModel = monacoRef.current.editor.getModel();
             monacoModel.applyEdits([{ range: monacoModel.getFullModelRange(), text: defaultValue }]);
         }
@@ -414,7 +419,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                 monacoRef.current.editor.addContentWidget(expandWidget);
             }
         }
-    }, [expand]); // hideExpand
+    }, [expand]); // hideExpand;
 
     useEffect(() => {
         if (monacoRef.current) {
@@ -465,8 +470,8 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
 
     // ExpEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey?: string) => {
-        if (onChange) {
-            onChange(currentContent);
+        if (editorConfig.onChange && monacoRef?.current?.editor?.hasTextFocus()) {
+            editorConfig.onChange(currentContent);
         }
     };
     const debouncedContentChange = debounce(handleContentChange, DEBOUNCE_DELAY);
