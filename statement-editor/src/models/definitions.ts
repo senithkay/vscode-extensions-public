@@ -103,7 +103,13 @@ export interface DocumentationInfo {
     documentation : SymbolInfoResponse | EmptySymbolInfo
 }
 
+export interface Suggestion {
+    selectedGroup?: number,
+    selectedListItem: number
+}
+
 export interface SuggestionIcon {
     SuggestIcon : IconType,
     color: string
 }
+

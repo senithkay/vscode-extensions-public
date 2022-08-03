@@ -15,19 +15,20 @@ import React from "react";
 
 import { List } from "@material-ui/core";
 
-import { SuggestionItem } from "../../../../models/definitions";
+import { Suggestion, SuggestionItem } from "../../../../models/definitions";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
 import { SuggestionListItem } from "../SuggestionListItem";
 
 export interface SuggestionsListProps {
     lsSuggestions: SuggestionItem[];
-    selectedListItem: number;
+    selectedSuggestion: Suggestion;
+    currentGroup: number;
     onClickLSSuggestion: (suggestion: SuggestionItem) => void;
     selection?: string;
 }
 
 export function SuggestionsList(props: SuggestionsListProps) {
-    const { lsSuggestions, selectedListItem, onClickLSSuggestion, selection } = props;
+    const { lsSuggestions, selectedSuggestion, onClickLSSuggestion, selection, currentGroup } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     return (
@@ -43,8 +44,11 @@ export function SuggestionsList(props: SuggestionsListProps) {
                     lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                         <SuggestionListItem
                             key={index}
+                            isSelected={
+                                index === selectedSuggestion.selectedListItem &&
+                                currentGroup === selectedSuggestion.selectedGroup
+                            }
                             suggestion={suggestion}
-                            selectedListItem={selectedListItem}
                             onClickLSSuggestion={onClickLSSuggestion}
                         />
                     ))
