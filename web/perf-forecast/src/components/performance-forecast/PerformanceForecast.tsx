@@ -17,132 +17,101 @@
  *
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart } from 'recharts';
 import "./graph-styles.css";
 import { DataGrid } from '@mui/x-data-grid';
+import { GraphPoint, PerformanceForecastProps, Values, VSCode } from './model';
+// import { makeStyles } from '@material-ui/core/styles';
 
-export interface DataPoint {
-    concurrency: number,
-    latency: number,
-    thinkTime: number,
-    tps: number
-}
-
-export interface PerformanceForecastProps {
-    name: String,
-    data: DataPoint[]
-}
-
-interface vscode {
-    postMessage(message: any): void;
-}
+// const useStyles = makeStyles({
+//     root: {
+//         '&.MuiDataGrid-root .MuiDataGrid-cell:focus': {
+//             outline: 'none',
+//         },
+//     }
+// });
 
 const columns = [
     {
-        field: "A/I",
-        maxWidth: 50,
-        flex: 1
+        field: "LATENCY",
+        maxWidth: 200,
+        flex: 1,
+        sortable: false
     },
     {
-        field: "Title",
-        flex: 1
-    },
-    {
-        field: "Completed",
-        flex: 1
+        field: "PATH",
+        flex: 1,
+        sortable: false
     }
 ];
 
-function createData(number: any, item: any, qty: any, price: any) {
-    return { id: number, "Title": item, "A/I": qty, "Completed": price };
-}
-
-const rows = [
-    createData(1, "Apple", 5, 3),
-    createData(2, "Orange", 2, 2),
-    createData(3, "Grapes", 3, 1),
-    createData(4, "Tomato", 2, 1.6),
-    createData(5, "Mango", 1.5, 4)
-];
-
-
-declare const vscode: vscode;
+declare const vscode: VSCode;
 let currentConcurrency = 1;
 let hoverConcurrency = 1;
+
 export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) => {
+    const criticalPathId = data.criticalPath;
+    const paths = data.paths;
+    const pathMaps = data.pathmaps;
 
-    return (
-        <div className="performance-forcast">
-            <h1 className="center">Performance Graph - {name}</h1>
+    const rows: any = [];
+    const [graphData, setGraphData] = useState(paths[criticalPathId].graphData);
+    const [selectedRow, setSelectedRow] = useState(criticalPathId + 1);
+    // const classes = useStyles();
 
-            <div>
+    for (const key in pathMaps) {
+        const latency = paths[key].sequenceDiagramData.latency;
+        rows.push(createData(Number(key), pathMaps[key], getPerfValuesWithUnit(latency)))
+    }
 
-                <DataGrid
-                    rows={rows}
-                    columns={columns}
-                    hideFooter={true}
-                    onRowClick={(param: any, event: any, detail: any) => {console.log(param);
+    const graph = (
+        <><div className="diagram">
+            <div className="y-label">
+
+            </div>
+            <ResponsiveContainer height={250}>
+                <LineChart
+                    width={500}
+                    height={300}
+                    data={graphData}
+                    syncId="performance"
+                    margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5
                     }}
-                    disableExtendRowFullWidth={true}
-                    autoHeight={true}
-                />
-
+                >
+                    {getXAxis()}
+                    <YAxis
+                        tick={{ strokeWidth: 0, fontSize: 10 }}
+                        axisLine={false}
+                        tickSize={0}
+                        tickMargin={15}
+                        label={{ value: 'Throughput (req/s)', angle: -90, position: 'insideBottomLeft' }} />
+                    <YAxis />
+                    <Tooltip cursor={{ strokeWidth: 2 }} />
+                    <CartesianGrid strokeDasharray="0" />
+                    <Line type="monotone" dataKey="tps" baseLine={8}
+                        stroke="#5567D5" strokeWidth="2" fillOpacity={1} fill="url(#colorThroughput)" />
+                </LineChart>
+            </ResponsiveContainer>
+            <div className="x-label">
+                User Count
             </div>
-
-            <div className="diagram">
-                <div className="y-label">
-
-                </div>
-                <ResponsiveContainer height={250}>
-                    <LineChart
-                        width={500}
-                        height={300}
-                        data={data}
-                        syncId="performance"
-                        onMouseMove={handleHover}
-                        onClick={handleClick}
-                        margin={{
-                            top: 5,
-                            right: 30,
-                            left: 20,
-                            bottom: 5,
-                        }}
-                    >
-                        {getXAxis()}
-                        <YAxis
-                            tick={{ strokeWidth: 0, fontSize: 10 }}
-                            axisLine={false}
-                            tickSize={0}
-                            tickMargin={15}
-                            label={{ value: 'Throughput (req/s)', angle: -90, position: 'insideBottomLeft' }}
-                        />
-                        <YAxis />
-                        <Tooltip cursor={{ strokeWidth: 2 }} />
-                        <CartesianGrid strokeDasharray="0" />
-                        <Line type="monotone" dataKey="tps" activeDot={{ onClick: handleClick }} baseLine={8}
-                            stroke="#5567D5" strokeWidth="2" fillOpacity={1} fill="url(#colorThroughput)" />
-                    </LineChart>
-                </ResponsiveContainer>
-                <div className="x-label">
-                    User Count
-                </div>
-            </div>
-
-            <div className="diagram latency">
+        </div><div className="diagram latency">
                 <ResponsiveContainer width="100%" height={250}>
                     <LineChart
                         width={500}
                         height={300}
-                        data={data}
+                        data={graphData}
                         syncId="performance"
-                        onMouseMove={handleHover}
-                        onClick={handleClick}
                         margin={{
                             top: 5,
                             right: 30,
                             left: 20,
-                            bottom: 5,
+                            bottom: 5
                         }}
                     >
                         {getXAxis()}
@@ -151,20 +120,47 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
                             axisLine={false}
                             tickSize={0}
                             tickMargin={15}
-                            label={{ value: 'Latency (ms)', angle: -90, position: 'insideBottomLeft' }}
-
-                        />
+                            label={{ value: 'Latency (ms)', angle: -90, position: 'insideBottomLeft' }} />
                         <YAxis />
                         <Tooltip cursor={{ strokeWidth: 2 }} />
                         <CartesianGrid strokeDasharray="0" />
-                        <Line type="monotone" dataKey="latency" activeDot={{ onClick: handleClick }}
+                        <Line type="monotone" dataKey="latency"
                             stroke="#EA4C4D" strokeWidth="2" fillOpacity={1} fill="url(#colorLatency)" />
                     </LineChart>
                 </ResponsiveContainer>
                 <div className="x-label">
                     User Count
                 </div>
+            </div></>
+    );
+
+    return (
+        <div className="performance-forcast">
+            <h1 className="center">Performance Graph - {name}</h1>
+            <h3>Critical Path</h3>
+
+            <div>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    hideFooter={true}
+                    disableColumnMenu={true}
+                    disableExtendRowFullWidth={true}
+                    autoHeight={true}
+                    // className={classes.root}
+                    onRowClick={(param: any) => {
+                        const id = param.id;
+                        setGraphData(paths[id].graphData);
+                        setSelectedRow(id);
+                        updatePath(id.toString());
+                    }}
+                    selectionModel={selectedRow}
+                />
+
             </div>
+
+            {graphData && graph}
+
             <a href="https://wso2.com/choreo/docs/references/performance-analysis/">
                 How Performance Analyzer Works
             </a>
@@ -173,61 +169,14 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
 };
 
 /**
- * Handle mouse click event.
+ * Send path to update UI.
  * 
- * @param index clicked index
- * @param data event data
+ * @param pathId Path Id
  */
-const handleClick = (index: any, data: any) => {
-    if (index.chartX && index.activeCoordinate) {
-
-        // if click on line
-        const activeCoordinateX = index.activeCoordinate.x;
-        if (index.chartX > activeCoordinateX - 2 && index.chartX < activeCoordinateX + 2) {
-
-            const concurrenct = index.activeLabel;
-            currentConcurrency = concurrenct;
-            updateConcurrency(concurrenct);
-        }
-
-    } else {
-
-        // if click on dot
-        const payload: DataPoint = data.payload;
-        currentConcurrency = payload.concurrency;
-        updateConcurrency(payload.concurrency);
-    }
-
-}
-
-/**
- * Handle mouse hover event.
- * 
- * @param data event data
- */
-const handleHover = (data: any) => {
-    if (!data.activeLabel) {
-
-        updateConcurrency(currentConcurrency);
-    }
-
-    if (data.activeLabel && data.activeLabel != hoverConcurrency) {
-
-        hoverConcurrency = data.activeLabel;
-        updateConcurrency(data.activeLabel);
-
-    }
-}
-
-/**
- * Send concurrency to update codelenses.
- * 
- * @param concurrency Concurrency
- */
-function updateConcurrency(concurrency: number) {
+function updatePath(pathId: string) {
     vscode.postMessage({
-        command: 'updateCodeLenses',
-        text: concurrency
+        command: 'updatePerfPath',
+        text: pathId
     });
 }
 
@@ -244,10 +193,25 @@ const getXAxis = () =>
     >
     </XAxis>;
 
-const getYAxis = () =>
-    <YAxis
-        tick={{ strokeWidth: 0, fontSize: 10 }}
-        axisLine={false}
-        tickSize={0}
-        tickMargin={15}
-    />;
+function createData(id: number, connectors: string[], latency: string) {
+    let pathName = "Start";
+
+    connectors.forEach((connectorId) => {
+        pathName += ` - Connector${Number(connectorId) + 1}`;
+    });
+    pathName += " - End";
+    return { id, "LATENCY": latency, "PATH": pathName };
+}
+
+function getPerfValuesWithUnit(latencies: Values): string {
+
+    return `${getResponseTime(latencies.min!)} - ${getResponseTime(latencies.max)} ${getResponseUnit(latencies.max)}`;
+}
+
+function getResponseTime(responseTime: number) {
+    return responseTime > 1000 ? (responseTime / 1000).toFixed(2) : responseTime.toFixed(2)
+}
+
+function getResponseUnit(responseTime: number) {
+    return responseTime > 1000 ? " s" : " ms";
+}

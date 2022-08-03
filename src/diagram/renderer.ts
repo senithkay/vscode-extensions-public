@@ -361,8 +361,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 });
                 return Promise.resolve({});
             });
-            webViewRPCHandler.addMethod("updatePerformanceLabels", (args) => {
-                BLCEditor.updatePerformanceLabels(args);
+            webViewRPCHandler.addMethod("updatePerfPath", (args) => {
+                BLCEditor.updatePerfPath(args);
                 return Promise.resolve({});
             });
             drawDiagram({

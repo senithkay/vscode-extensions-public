@@ -20,11 +20,11 @@
 import { ViewColumn, window, WebviewPanel, Uri, Disposable } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
-import { updateCodeLenses } from ".";
+import { updatePerfPath } from ".";
 import { BallerinaExtension, ExtendedLangClient, WEBVIEW_TYPE } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
-import { refreshDiagramForPerformanceConcurrencyChanges } from "../diagram";
-import { GraphData } from "./model";
+import { refreshDiagramForPerformanceConcurrencyChanges as updateDiagramPerfPath } from "../diagram";
+import { PerformanceGraphRequest } from "./model";
 import { join } from "path";
 import { sendTelemetryEvent, CMP_PERF_ANALYZER, TM_EVENT_CLICK_PERF_GRAPH } from "../telemetry";
 
@@ -35,14 +35,14 @@ export class DefaultWebviewPanel {
     private extension: BallerinaExtension;
     static clearCodeLenses = true;
 
-    private constructor(panel: WebviewPanel, data: GraphData, type: WEBVIEW_TYPE, title: string, extension: BallerinaExtension) {
+    private constructor(panel: WebviewPanel, data: PerformanceGraphRequest, type: WEBVIEW_TYPE, title: string, extension: BallerinaExtension) {
         this.webviewPanel = panel;
         this.update(data, type, title);
         this.webviewPanel.onDidDispose(() => this.dispose(), null, this.disposables);
         this.extension = extension;
     }
 
-    public static create(langClient: ExtendedLangClient, data: GraphData, currentFileUri: Uri, title: string, viewColumn: ViewColumn,
+    public static create(langClient: ExtendedLangClient, data: PerformanceGraphRequest, currentFileUri: Uri, title: string, viewColumn: ViewColumn,
         extension: BallerinaExtension, type: WEBVIEW_TYPE) {
         extension.setWebviewContext({ isOpen: true, type });
         if (DefaultWebviewPanel.currentPanel && DefaultWebviewPanel.currentPanel.webviewPanel.viewColumn
@@ -76,16 +76,16 @@ export class DefaultWebviewPanel {
         DefaultWebviewPanel.currentPanel.webviewPanel.webview.onDidReceiveMessage(
             message => {
                 switch (message.command) {
-                    case 'updateCodeLenses':
+                    case 'updatePerfPath':
                         sendTelemetryEvent(extension, TM_EVENT_CLICK_PERF_GRAPH, CMP_PERF_ANALYZER, { 'concurrency': `${message.text}` });
                         for (let editor of window.visibleTextEditors) {
                             if (editor.document.uri.path === currentFileUri.path) {
-                                updateCodeLenses(message.text, editor.viewColumn);
+                                updatePerfPath(message.text, editor.viewColumn);
                                 break;
                             }
                         }
 
-                        refreshDiagramForPerformanceConcurrencyChanges(message.text);
+                        updateDiagramPerfPath(message.text);
                         return;
                 }
             }
@@ -93,7 +93,7 @@ export class DefaultWebviewPanel {
 
         DefaultWebviewPanel.currentPanel.webviewPanel.onDidDispose(() => {
             if (DefaultWebviewPanel.clearCodeLenses) {
-                refreshDiagramForPerformanceConcurrencyChanges(-1);
+                updateDiagramPerfPath("-1");
                 ExecutorCodeLensProvider.addCodeLenses(currentFileUri);
             }
         });
@@ -108,11 +108,11 @@ export class DefaultWebviewPanel {
         });
     }
 
-    private update(data: GraphData, type: WEBVIEW_TYPE, title) {
+    private update(request: PerformanceGraphRequest, type: WEBVIEW_TYPE, title) {
         if (DefaultWebviewPanel.currentPanel) {
             this.updateTitle(title);
         }
-        this.webviewPanel.webview.html = render(type, { name: data.name, data: data.graphData });
+        this.webviewPanel.webview.html = render(type, { name: request.name, data: request.data });
         DefaultWebviewPanel.clearCodeLenses = true;
     }
 

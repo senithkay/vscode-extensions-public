@@ -17,10 +17,10 @@
  *
  */
 
-import { ANALYZETYPE, DataLabel, GraphData, PerfContext, PerformanceAnalyzerRealtimeResponse, PerformanceGraphRequest } from "./model";
-import { commands, ExtensionContext, languages, Range as VRange, Uri, ViewColumn, window } from "vscode";
+import { ANALYZETYPE, DataLabel, GraphPoint, PerfContext, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse, PerformanceGraphRequest } from "./model";
+import { commands, ExtensionContext, languages, Uri, ViewColumn, window } from "vscode";
 import {
-    BallerinaExtension, ExtendedLangClient, GraphPoint, LANGUAGE, PerformanceAnalyzerGraphResponse,
+    BallerinaExtension, ExtendedLangClient, LANGUAGE,
     PerformanceAnalyzerResponse, WEBVIEW_TYPE
 } from "../core";
 import { CODELENSE_TYPE, ExecutorCodeLensProvider } from "./codelens-provider";
@@ -34,17 +34,17 @@ import { CMP_PERF_ANALYZER, sendTelemetryEvent, sendTelemetryException, TM_EVENT
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
     `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/3.0` :
-    "https://choreocontrolplane.preview-dv.choreo.dev/performance-analyzer/2.0.0/get_estimations/4.0";
+    "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0";
 
 const SUCCESS = "Success";
-const maxRetries = 3;
+const maxRetries = 5;
 const https = require('https');
 
 let langClient: ExtendedLangClient;
-let uiData: GraphData;
+let uiData: PerformanceGraphRequest;
 let extension: BallerinaExtension;
 let retryAttempts = 0;
-const cachedResponses = new Map<any, PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse>();
+const cachedResponses = new Map<any, PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse>();
 const perfContext: PerfContext = {
     resourceData: undefined,
     advancedData: undefined,
@@ -68,7 +68,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
         if (args.length < 1) {
             showMessage("Insufficient data to provide detailed estimations", MESSAGE_TYPE.INFO, false);
             return;
-        }        
+        }
         const data = args[0];
 
         if (!data) {
@@ -149,8 +149,8 @@ async function addPerfData(type: ANALYZETYPE, endpoints: PerformanceAnalyzerResp
     if (type == ANALYZETYPE.REALTIME) {
         addEndpointPerformanceLabel(data as PerformanceAnalyzerRealtimeResponse);
     } else {
-        perfContext.advancedData = data as PerformanceAnalyzerGraphResponse;
-        addInvocationsPerformanceLabels(1);
+        perfContext.advancedData = data as PerformanceAnalyzerAdvancedResponse;
+        // addInvocationsPerformanceLabels(1);
 
         if (!uiData || !perfContext.file) {
             return;
@@ -163,7 +163,7 @@ async function addPerfData(type: ANALYZETYPE, endpoints: PerformanceAnalyzerResp
     }
 }
 
-function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse
+function checkErrors(response: PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse
     | PerformanceAnalyzerResponse) {
     debug(`${response.message} ${new Date()}`);
     if (response.message === 'AUTHENTICATION_ERROR' || response.message === 'CONNECTION_ERROR') {
@@ -190,67 +190,67 @@ export function handleRetries() {
     }
 }
 
-function addInvocationsPerformanceLabels(concurrencyValue: number) {
-    if (!perfContext.advancedData || !perfContext.resourceData) {
-        return;
-    }
-    const sequenceDiagramData = perfContext.advancedData.sequenceDiagramData;
-    const graphData = perfContext.advancedData.graphData;
+// function addInvocationsPerformanceLabels(concurrencyValue: number) {
+//     if (!perfContext.advancedData || !perfContext.resourceData) {
+//         return;
+//     }
+//     const sequenceDiagramData = perfContext.advancedData.sequenceDiagramData;
+//     const graphData = perfContext.advancedData.graphData;
 
-    if (!sequenceDiagramData) {
-        return;
-    }
+//     if (!sequenceDiagramData) {
+//         return;
+//     }
 
-    if (sequenceDiagramData.length == 0) {
-        return;
-    }
+//     if (sequenceDiagramData.length == 0) {
+//         return;
+//     }
 
-    let concurrency;
-    switch (concurrencyValue) {
-        case 1: {
-            concurrency = 0;
-            break;
-        }
-        case 25: {
-            concurrency = 1;
-            break;
-        }
-        case 50: {
-            concurrency = 2;
-            break;
-        }
-        case 75: {
-            concurrency = 3;
-            break;
-        }
-        case 100: {
-            concurrency = 4;
-            break;
-        }
-    }
-    let data = sequenceDiagramData[concurrency];
-    const values = data.values;
-    addEndpointPerformanceLabel(graphData[concurrency]);
+//     let concurrency;
+//     switch (concurrencyValue) {
+//         case 1: {
+//             concurrency = 0;
+//             break;
+//         }
+//         case 25: {
+//             concurrency = 1;
+//             break;
+//         }
+//         case 50: {
+//             concurrency = 2;
+//             break;
+//         }
+//         case 75: {
+//             concurrency = 3;
+//             break;
+//         }
+//         case 100: {
+//             concurrency = 4;
+//             break;
+//         }
+//     }
+//     let data = sequenceDiagramData[concurrency];
+//     const values = data.values;
+//     addEndpointPerformanceLabel(graphData[concurrency]);
 
-    let file;
-    for (let i = 0; i < values.length; i++) {
-        const name = values[i].name.replace("(", "").replace(")", "").split("/");
-        const latency = Number(values[i].latency);
-        const tps = Number(values[i].tps);
-        file = name[0];
-        const pos = name[1].split(",");
-        const start = pos[0].split(":");
-        const end = pos[1].split(":");
-        const range = new VRange(parseInt(start[0]), parseInt(start[1]),
-            parseInt(end[0]), parseInt(end[1]));
-        const dataLabel = new DataLabel(CODELENSE_TYPE.ADVANCED, file, range,
-            { max: concurrencyValue }, { max: latency }, { max: tps },
-            null);
-        ExecutorCodeLensProvider.addDataLabel(dataLabel);
+//     let file;
+//     for (let i = 0; i < values.length; i++) {
+//         const name = values[i].name.replace("(", "").replace(")", "").split("/");
+//         const latency = Number(values[i].latency);
+//         const tps = Number(values[i].tps);
+//         file = name[0];
+//         const pos = name[1].split(",");
+//         const start = pos[0].split(":");
+//         const end = pos[1].split(":");
+//         const range = new VRange(parseInt(start[0]), parseInt(start[1]),
+//             parseInt(end[0]), parseInt(end[1]));
+//         const dataLabel = new DataLabel(CODELENSE_TYPE.ADVANCED, file, range,
+//             { max: concurrencyValue }, { max: latency }, { max: tps },
+//             null);
+//         ExecutorCodeLensProvider.addDataLabel(dataLabel);
 
-    }
-    uiData = { name: perfContext.resourceData.name, graphData: perfContext.advancedData.graphData };
-}
+//     }
+//     uiData = { name: perfContext.resourceData.name, graphData: perfContext.advancedData.graphData };
+// }
 
 function addEndpointPerformanceLabel(data: PerformanceAnalyzerRealtimeResponse | GraphPoint) {
     if (!data || !perfContext.file || !perfContext.resourceData) {
@@ -279,21 +279,21 @@ function addEndpointPerformanceLabel(data: PerformanceAnalyzerRealtimeResponse |
 
 }
 
-export function updateCodeLenses(concurrency: number, column: ViewColumn | undefined) {
-    ExecutorCodeLensProvider.dataLabels = [];
-    addInvocationsPerformanceLabels(concurrency);
-    ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
+export function updatePerfPath(concurrency: number, column: ViewColumn | undefined) {
+    // ExecutorCodeLensProvider.dataLabels = [];
+    // addInvocationsPerformanceLabels(concurrency);
+    // ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
 
-    if (!perfContext.file) {
-        return;
-    }
-    window.showTextDocument(Uri.parse(perfContext.file), { viewColumn: column ?? ViewColumn.Beside });
+    // if (!perfContext.file) {
+    //     return;
+    // }
+    // window.showTextDocument(Uri.parse(perfContext.file), { viewColumn: column ?? ViewColumn.Beside });
 }
 
 export function openPerformanceDiagram(request: PerformanceGraphRequest) {
     sendTelemetryEvent(extension, TM_EVENT_OPEN_PERF_GRAPH, CMP_PERF_ANALYZER, { 'initiator': "button" });
-    DefaultWebviewPanel.create(langClient, request.data, Uri.parse(request.file),
-        `Performance Forecast of ${request.data.name}`, ViewColumn.Three, extension,
+    DefaultWebviewPanel.create(langClient, request, Uri.parse(request.file),
+        `Performance Forecast of ${request.name}`, ViewColumn.Three, extension,
         WEBVIEW_TYPE.PERFORMANCE_FORECAST);
     return true;
 }
@@ -318,7 +318,7 @@ export function showChoreoSigninMessage(extension: BallerinaExtension) {
  * @param analyzeType Analyze type
  * @returns response
  */
-export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined> {
+export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined> {
 
     return new Promise((resolve, reject) => {
 

@@ -266,31 +266,6 @@ export interface PerformanceAnalyzerResponse {
     name: string;
 }
 
-export interface PerformanceAnalyzerGraphResponse {
-    message: string;
-    type: any;
-    sequenceDiagramData: SequenceGraphPoint[];
-    graphData: GraphPoint[];
-}
-
-
-export interface GraphPoint {
-    concurrency: String;
-    latency: String;
-    tps: String;
-}
-
-export interface SequenceGraphPoint {
-    concurrency: String;
-    values: SequenceGraphPointValue[];
-}
-
-export interface SequenceGraphPointValue {
-    name: String;
-    latency: String;
-    tps: String;
-}
-
 export interface OpenAPIConverterRequest {
     documentFilePath: string;
 }
