@@ -81,7 +81,6 @@ export function FormEditor(props: FormEditorProps) {
         diagnosticOffSet: NodePosition = { startLine: 0, startColumn: 0 }
     ) => {
         // Offset line position is to add some extra line if we do multiple code generations
-        console.log('form editor onchange >>>', partialST, genSource);
         const newModuleList = new Set<string>();
         moduleList?.forEach(module => {
             if (!currentFile.content.includes(module)) {
@@ -131,10 +130,8 @@ export function FormEditor(props: FormEditorProps) {
                 }
             )
         );
-        console.log('enrich arguments >>>', partialST, newTargetPosition, diagnostics);
         setModel(enrichModel(partialST, newTargetPosition, diagnostics));
 
-        console.log('>>> form editor enriched model', partialST);
         if (currentModel && newValue && completionKinds) {
             handleCompletions(newValue, currentModel, completionKinds);
         }
@@ -145,10 +142,6 @@ export function FormEditor(props: FormEditorProps) {
             currentModel, getLangClient, newValue, completionKinds);
         setCompletions(lsSuggestions);
     };
-
-    useEffect(() => {
-        console.log('formeditor model change >>>', model)
-    }, [model])
 
     useEffect(() => {
         if (initialSource) {

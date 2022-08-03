@@ -25,20 +25,14 @@ import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/defi
 
 import { Param, ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
 import { ParameterConfig, ParamItem } from './ParamEditor/ParamItem';
-import { QueryParam } from "./types";
 import { genParamName, getParameterNameFromModel, getParameterTypeFromModel, getParamString } from './util';
 
 export interface QueryParamEditorProps {
     parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam | RestParam)[];
     completions: SuggestionItem[];
     onChange: (paramString: string, model?: STNode, avoidValueCommit?: boolean) => void,
-    // onChangeInProgress: (isInProgress: boolean) => void; // not sure why?
     syntaxDiag?: StatementSyntaxDiagnostics[];
     readonly?: boolean;
-    // useless:
-    // resourceParamString: string;
-    // nameSemDiag?: string;
-    // typeSemDiag?: string;
 }
 
 export const RESOURCE_PAYLOAD_PREFIX = "@http:Payload";
@@ -53,15 +47,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const onEdit = (param: Param) => {
         setEditingSegmentId(param.id);
-        // onChangeInProgress(true);
     };
-
-    // const [parameterClone] = useState([...parameters]);
-
-    // useEffect(() => {
-    //     parameterClone.splice(0, parameterClone.length);
-    //     parameterClone.push(...parameters);
-    // }, [parameters])
 
     const onDelete = (param: ParameterConfig) => {
         parameters.splice(param.id === 0 ? param.id : param.id - 1, 2)
@@ -69,9 +55,6 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
     };
 
     const onParamChange = (segmentId: number, paramString: string, paramModel?: STNode) => {
-        // const { id, name, dataType, headerName, defaultValue } = param;
-        console.log('on param change >>>', segmentId, paramString, parameters);
-        console.log('editing param model >>>', paramModel);
         const newParamString = parameters.reduce((prev, current, currentIndex) => {
             if (segmentId === currentIndex) {
                 return `${prev} ${paramString}`;
@@ -80,7 +63,6 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
             return `${prev}${current.source ? current.source : current.value}`;
         }, '');
 
-        console.log('new parameter string >>>', newParamString);
         onChange(newParamString);
     };
 
@@ -140,7 +122,6 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                     />
                 );
             } else if (editingSegmentId === index) {
-                console.log('expanded model >>>', param);
                 paramComponents.push(
                     <ParamEditor
                         segmentId={index}

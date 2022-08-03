@@ -76,7 +76,6 @@ export function PayloadEditor(props: PayloadEditorProps) {
                 return returnString;
             }, '');
         }
-        console.log('>>> payload string', newParamString);
         onChange(newParamString);
         // onChange(`${RESOURCE_PAYLOAD_PREFIX} json ${genParamName('param', parameterNames)}`);
         setAddingParam(true);

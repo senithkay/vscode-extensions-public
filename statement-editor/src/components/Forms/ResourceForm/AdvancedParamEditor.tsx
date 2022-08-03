@@ -30,12 +30,6 @@ import { useStyles } from "./styles";
 import { genParamName, getParameterNameFromModel, getParameterType, getParameterTypeFromModel, getParamString } from './util';
 
 export interface PayloadEditorProps {
-    // requestName: string;
-    // headersName: string;
-    // callerName: string;
-    // requestSemDiag?: string;
-    // callerSemDiag?: string;
-    // headersSemDiag?: string;
     parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam | RestParam)[];
     syntaxDiag?: StatementSyntaxDiagnostics[];
     readonly?: boolean;

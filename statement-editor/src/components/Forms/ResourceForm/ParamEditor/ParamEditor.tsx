@@ -73,16 +73,10 @@ export function ParamEditor(props: ParamProps) {
         onCancel
     } = props;
     const classes = useStyles();
-    // const [paramDataType, setParamDataType] = useState<string>(dataType);
-    // const [paramName, setParamName] = useState<string>(name);
-    // const [paramHeaderName, setParamHeaderName] = useState<string>(paramName);
-    // const [paramDefaultValue, setParamDefaultValue] = useState<string>(defaultValue);
-    // const [selectedOption, setSelectedOption] = useState<string>(option);
-    // const [isHeaderConfigInProgress, setIsHeaderConfigInProgress] = useState<boolean>(!!hName);
-    // // States related to syntax diagnostics
+
+    // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
 
-    // const isTypeVisible = dataTypeReqOptions ? dataTypeReqOptions.includes(selectedOption) : true;
     const onTypeEditorFocus = () => {
         setCurrentComponentName(ParamEditorInputTypes.TYPE)
     }
@@ -96,7 +90,6 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleTypeChange = (value: string) => {
-        console.log('>>> param type change', value, segmentId);
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const paramName = model.paramName.value;
         const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
@@ -105,7 +98,6 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleNameChange = (value: string) => {
-        console.log('>>> param name change');
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const type = model.typeName.source.trim();
         const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
@@ -113,7 +105,6 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleDefaultValueChange = (value: string) => {
-        console.log('>>> param default value change');
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const type = model.typeName.source.trim();
         const paramName = model.paramName.value
@@ -124,64 +115,6 @@ export function ParamEditor(props: ParamProps) {
     const debouncedNameChange = debounce(handleNameChange, 800);
     const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
 
-
-    // const handleNameChange = () => {
-    // setCurrentComponentName("Name");
-    // if (optionList) {
-    //     onChange({
-    //         id, name: value, dataType: paramDataType, headerName: paramHeaderName,
-    //         defaultValue: paramDefaultValue
-    //     }, selectedOption);
-    // } else {
-    //     onChange({
-    //         id, name: value, dataType: paramDataType, headerName: paramHeaderName,
-    //         defaultValue: paramDefaultValue
-    //     });
-    // }
-    // };
-
-    const handleHeaderNameChange = () => {
-        // setParamHeaderName(value);
-        // setCurrentComponentName("HeaderName");
-        // if (optionList) {
-        //     onChange({
-        //         id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
-        //             paramDefaultValue
-        //     }, selectedOption);
-        // } else {
-        //     onChange({
-        //         id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
-        //             paramDefaultValue
-        //     });
-        // }
-    };
-
-    // const handleTypeChange = () => {
-    // setCurrentComponentName("Type");
-    // if (optionList) {
-    //     onChange({
-    //         id, name: paramName, dataType: value, headerName: paramHeaderName,
-    //         defaultValue: paramDefaultValue
-    //     }, selectedOption);
-    // } else {
-    //     onChange({
-    //         id, name: paramName, dataType: value, headerName: paramHeaderName, defaultValue:
-    //             paramDefaultValue
-    //     });
-    // }
-    // };
-
-    // const handleDefaultValueChange = () => {
-    // setParamDefaultValue(value);
-    // setCurrentComponentName("DefaultValue");
-    // if (optionList) {
-    //     onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value },
-    //         selectedOption);
-    // } else {
-    //     onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value });
-    // }
-    // };
-
     const handleOnSelect = (value: string) => {
         const newParamString = value === PARAM_TYPES.HEADER ?
             `${RESOURCE_HEADER_PREFIX} ${model.typeName.source} ${model.paramName.value}`
@@ -189,31 +122,6 @@ export function ParamEditor(props: ParamProps) {
         onChange(segmentId, newParamString);
     };
 
-    const handleAddParam = () => {
-
-    };
-
-
-    // useEffect(() => {
-    //     setParamDataType(dataType);
-    // }, [dataType]);
-
-    // useEffect(() => {
-    //     setParamName(name);
-    // }, [name]);
-
-    // useEffect(() => {
-    //     setSelectedOption(option);
-    // }, [option]);
-
-    // useEffect(() => {
-    //     setParamHeaderName(hName);
-    // }, [hName]);
-
-    // useEffect(() => {
-    //     setParamDefaultValue(defaultValue);
-    // }, [defaultValue]);
-    console.log('>>> default value real value', (STKindChecker.isDefaultableParam(model) && model.expression?.source.trim()) || "hello");
     return (
         <div className={classes.paramContainer}>
             {optionList && (
@@ -280,41 +188,6 @@ export function ParamEditor(props: ParamProps) {
                     )
                 }
             </div>
-            <>
-                {/* {(selectedOption === headerParameterOption && isHeaderConfigInProgress) && (
-                    <div className={classes.headerNameWrapper}>
-                        <FormTextInput
-                            label="Header Name"
-                            dataTestId="header-name"
-                            defaultValue={paramHeaderName}
-                            onChange={debouncedHeaderNameChange}
-                            customProps={{
-                                isErrored: ((syntaxDiag !== "" && currentComponentName === "HeaderName") ||
-                                    (nameDiagnostics !== "" && nameDiagnostics !== undefined)),
-                                optional: true
-                            }}
-                            errorMessage={((currentComponentName === "HeaderName" && (syntaxDiag) ? syntaxDiag : "")
-                                || nameDiagnostics)}
-                            onBlur={null}
-                            placeholder={"Enter Header Name"}
-                            size="small"
-                            disabled={syntaxDiag && currentComponentName !== "HeaderName"}
-                        />
-                    </div>
-                )} */}
-            </>
-            {/* {(selectedOption === headerParameterOption && !isHeaderConfigInProgress) && (
-                <Button
-                    data-test-id="request-add-button"
-                    onClick={handleShowHeaderName}
-                    className={classes.addHeaderBtn}
-                    startIcon={<AddIcon />}
-                    color="primary"
-                    disabled={(syntaxDiag !== "") || disabled}
-                >
-                    If identifier not equal header name
-                </Button>
-            )} */}
             <div className={classes.btnContainer}>
                 <SecondaryButton
                     text="Cancel"

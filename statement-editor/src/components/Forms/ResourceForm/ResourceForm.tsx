@@ -98,10 +98,6 @@ export function ResourceForm(props: FunctionProps) {
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
 
-    useEffect(() => {
-        console.log('>>> model yo', model)
-    }, [model]);
-
     const resourceConfigTitle = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
         defaultMessage: "Configure Resource"
@@ -188,7 +184,6 @@ export function ResourceForm(props: FunctionProps) {
         const partialST = await getPartialSTForModuleMembers(
             { codeSnippet: updatedContent.trim() }, getLangClient, true
         );
-        console.log('partial ST updated >>>', partialST);
 
         if (!partialST.syntaxDiagnostics.length) {
             onChange(updatedContent, partialST, undefined, { model: stModel }, currentValue, completionEditorTypeKinds, 0,
@@ -202,7 +197,6 @@ export function ResourceForm(props: FunctionProps) {
     };
 
     const handlePathAddClick = async () => {
-        console.log('>>> path add')
         setCurrentComponentName("Path");
         const variables = model.relativeResourcePath
             .filter(pathSegment => STKindChecker.isResourcePathSegmentParam(pathSegment)
@@ -219,7 +213,6 @@ export function ResourceForm(props: FunctionProps) {
     };
 
     const handleMethodChange = async (value: string) => {
-        console.log('>>> method change');
         await handleResourceParamChange(
             value.toLowerCase(),
             getResourcePath(model.relativeResourcePath),
@@ -233,7 +226,6 @@ export function ResourceForm(props: FunctionProps) {
     }
 
     const handlePathChange = async (value: string, avoidValueCommit?: boolean) => {
-        console.log('>>> path change')
         // if (!avoidValueCommit) {
         //     setPath(value);
         // }
@@ -255,7 +247,6 @@ export function ResourceForm(props: FunctionProps) {
     };
 
     const handleQueryParamEditorChange = async (value: string, stModel?: STNode, avoidValueCommit?: boolean) => {
-        console.log('>>> query param edit', value);
         // if (!avoidValueCommit) {
         //     setQueryParam(value);
         // }
