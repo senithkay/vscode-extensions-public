@@ -533,7 +533,7 @@
                     "command": "ballerina.notebook.debug",
                     "title": "Debug",
                     "group": "navigation@1",
-                    "when": "notebookType == 'ballerina-notebook' && isNotebookDebugModeEnabled && isWorkspaceTrusted"
+                    "when": "notebookType == 'ballerina-notebook' && isNotebookDebugModeEnabled"
                 }
             ],
             "view/item/context": [
