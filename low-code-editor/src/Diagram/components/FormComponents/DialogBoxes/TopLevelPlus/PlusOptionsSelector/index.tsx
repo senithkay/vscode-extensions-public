@@ -38,7 +38,7 @@ export enum PlusMenuCategories {
 export interface PlusMenuEntry {
     name: string,
     type: string,
-    category: PlusMenuCategories,
+    category?: PlusMenuCategories,
     subMenu?: PlusMenuEntry[]
 }
 
@@ -71,7 +71,10 @@ export const triggerEntries: PlusMenuEntry[] = [
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
-    const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
+
+    const defaultOption = ((kind === "ServiceDeclaration") && !isTriggerType) ?
+        {name: "Resource", type: "ResourceAccessorDefinition"} : undefined;
+    const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(defaultOption);
 
     let menuEntries: PlusMenuEntry[] = [];
 

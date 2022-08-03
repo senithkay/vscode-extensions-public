@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React from "react";
 
 import { FormControl } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -24,7 +24,6 @@ import { isStatementEditorSupported } from "../../Utils";
 
 import { HttpServiceForm } from "./forms/HttpService";
 import { TriggerServiceForm } from "./forms/TriggerService";
-import { ServiceTypeSelector } from "./ServiceTypeSelector";
 import { getServiceTypeFromModel } from "./util";
 
 interface ServiceConfigFormProps {
@@ -59,7 +58,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
             }
         }
     } = useDiagramContext();
-    const [serviceType, setServiceType] = useState<string>(getServiceTypeFromModel(model, stSymbolInfo));
+    const serviceType = getServiceTypeFromModel(model, stSymbolInfo);
 
     const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
@@ -78,43 +77,63 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     }
 
     let configForm;
-    switch (serviceType) {
-        case ServiceTypes.HTTP:
-            configForm = <HttpServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} isLastMember={isLastMember} />
-            break;
-        default:
-            configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
+    if (((serviceType === ServiceTypes.HTTP) || (serviceType === undefined)) && !statementEditorSupported) {
+        // Loading previous HTTP forms when trigger type is HTTP or service type is empty(Inserting a service)
+        configForm = (
+            <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    formTitle={"lowcode.develop.configForms.ServiceConfigForm.title"}
+                    defaultMessage={"Service"}
+                    formType={formType}
+                />
+                <HttpServiceForm
+                    onSave={onSave}
+                    onCancel={onCancel}
+                    model={model}
+                    targetPosition={targetPosition}
+                    isLastMember={isLastMember}
+                />
+            </FormControl>
+        )
+    } else if ((serviceType !== ServiceTypes.HTTP) && model) {
+        // Loading triggers in a service editing scenario when the service type is not HTTP
+        configForm = (
+            <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
+                <FormHeaderSection
+                    onCancel={onCancel}
+                    formTitle={"lowcode.develop.configForms.ServiceConfigForm.title"}
+                    defaultMessage={"Service"}
+                    formType={formType}
+                />
+                <div className={formClasses.formContentWrapper}>
+                    <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />
+                </div>
+            </FormControl>
+        )
+    } else {
+        // Loading statement editor form in other cases
+        configForm = (
+            <FormEditor
+                initialSource={model ? model.source : undefined}
+                initialModel={model}
+                targetPosition={position}
+                stSymbolInfo={stSymbolInfo}
+                syntaxTree={syntaxTree}
+                isLastMember={isLastMember}
+                onCancel={onCancel}
+                type={"Service"}
+                currentFile={currentFile}
+                getLangClient={getExpressionEditorLangClient}
+                applyModifications={modifyDiagram}
+                topLevelComponent={true}// todo: Remove this
+            />
+        )
     }
 
     return (
         <>
-            {statementEditorSupported ? (
-                <FormEditor
-                    initialSource={model ? model.source : undefined}
-                    initialModel={model}
-                    targetPosition={position}
-                    stSymbolInfo={stSymbolInfo}
-                    syntaxTree={syntaxTree}
-                    isLastMember={isLastMember}
-                    onCancel={onCancel}
-                    type={"Service"}
-                    currentFile={currentFile}
-                    getLangClient={getExpressionEditorLangClient}
-                    applyModifications={modifyDiagram}
-                    topLevelComponent={true}// todo: Remove this
-                />
-            ) : (
-                <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
-                    <FormHeaderSection
-                        onCancel={onCancel}
-                        formTitle={"lowcode.develop.configForms.ServiceConfigForm.title"}
-                        defaultMessage={"Service"}
-                        formType={formType}
-                    />
-                    {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
-                    {serviceType && configForm}
-                </FormControl>
-            )}
+            {configForm}
         </>
     )
 }
