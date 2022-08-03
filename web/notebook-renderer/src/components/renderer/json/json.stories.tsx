@@ -1,3 +1,4 @@
+import React from 'react';
 import { Attributes, ComponentChildren, h, Ref } from 'preact';
 import { Meta } from '@storybook/react';
 import { JsonForNotebookOutput } from './json';
@@ -8,12 +9,12 @@ export default {
     title: 'Components/Json',
 } as Meta;
 
-const Template = (args: JSX.IntrinsicAttributes & { notebookCellOutput: Readonly<NotebookCellResult>; } 
+const Template = (args: JSX.IntrinsicAttributes & { notebookCellOutput: Readonly<NotebookCellResult>; }
     & Readonly<Attributes & { children?: ComponentChildren; ref?: Ref<any>; }>) => <JsonForNotebookOutput {...args} />;
 
 export const SimpleJson1 = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: `{"username":"Jake","salary":100,"fullname":{"firstname":"jake","lastname":"Peralta"}}`,
                 mimeType: 'json',
@@ -25,7 +26,7 @@ export const SimpleJson1 = {
 
 export const SimpleJson2 = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: `[
                     {"username":"John","salary":100},
@@ -41,7 +42,7 @@ export const SimpleJson2 = {
 
 export const SimpleJson3 = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: `[
                     {"username":"John","salary":100,"fullname":{"firstname":"John","lastname":"Doe"}},
@@ -57,19 +58,19 @@ export const SimpleJson3 = {
 
 export const SimpleJson4 = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: JSON.stringify({
-                    "objectAttribute":{
-                        "Attribute":"value",
-                        "urlAttribute":"https://dummy.com/dummy"
+                    "objectAttribute": {
+                        "Attribute": "value",
+                        "urlAttribute": "https://dummy.com/dummy"
                     },
-                    "stringAttribute":"**Description:** ``` function test() returns int {  returns 10; } ```",
-                    "HTMLAttribute":"<p dir=\"auto\"><strong>Description:</strong></p> <p dir=\"auto\">Some description</p> <div class=\"highlight overflow-auto\"></div>",
-                    "BoolAttribute":false,
-                    "nullAttribute":null,
-                    "intAttribute":365591912,
-                    "floatAttribute":3655.91912,
+                    "stringAttribute": "**Description:** ``` function test() returns int {  returns 10; } ```",
+                    "HTMLAttribute": "<p dir=\"auto\"><strong>Description:</strong></p> <p dir=\"auto\">Some description</p> <div class=\"highlight overflow-auto\"></div>",
+                    "BoolAttribute": false,
+                    "nullAttribute": null,
+                    "intAttribute": 365591912,
+                    "floatAttribute": 3655.91912,
                 }),
                 mimeType: 'ballerina-notebook/json-view',
                 type: 'json'
@@ -80,7 +81,7 @@ export const SimpleJson4 = {
 
 export const SimpleArray = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: JSON.stringify([
                     1,

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Attributes, ComponentChildren, Ref } from 'preact';
 import { Meta } from '@storybook/react';
 import { Xml } from './xml';

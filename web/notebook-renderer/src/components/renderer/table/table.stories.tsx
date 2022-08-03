@@ -1,3 +1,4 @@
+import React from 'react';
 import { Attributes, ComponentChildren, Ref } from 'preact';
 import { Meta } from '@storybook/react';
 import { TableForNotebookOutput } from './table';
@@ -8,12 +9,12 @@ export default {
     title: 'Components/Table',
 } as Meta;
 
-const Template = (args: JSX.IntrinsicAttributes & { notebookCellOutput: Readonly<NotebookCellResult>; } 
+const Template = (args: JSX.IntrinsicAttributes & { notebookCellOutput: Readonly<NotebookCellResult>; }
     & Readonly<Attributes & { children?: ComponentChildren; ref?: Ref<any>; }>) => <TableForNotebookOutput {...args} />;
 
 export const EmptyTable = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: `[]`,
                 mimeType: 'table',
@@ -25,7 +26,7 @@ export const EmptyTable = {
 
 export const SimpleTable1 = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: `[
                     {"username":"John","salary":100},
@@ -41,7 +42,7 @@ export const SimpleTable1 = {
 
 export const SimpleTable2 = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: `[
                     {"username":"John","salary":100,"fullname":{"firstname":"John","lastname":"Doe"}},
@@ -57,7 +58,7 @@ export const SimpleTable2 = {
 
 export const SimpleTable3 = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: `[
                     {
@@ -148,7 +149,7 @@ export const SimpleTable3 = {
 
 export const InconsistentTable1 = {
     args: {
-        notebookCellOutput:{
+        notebookCellOutput: {
             shellValue: {
                 value: `[
                     {"username":"John","salary":100,"region":"LA"},

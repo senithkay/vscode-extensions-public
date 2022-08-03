@@ -24,25 +24,25 @@ export const DEFAULT_FONT_STYLE = {
 }
 
 export const CODE_EDITOR_COLORS = {
-    GREEN: "#05A26B",
-    BLUE: "#0095FF",
-    ORANGE: "#FF9D52",
-    RED: "#EA4C4D",
-    PURPLE: "#E040FB",
-    DARKER: "#1D2028",
-    DARK: "#40404B",
-    GREY: "#8D91A3",
-    LIGHT: "#CBCEDB",
-    LIGHTER: "#E6E7EC",
-    LIGHTEST: "#F7F8FB",
-    WHITE: "#FFFFFF"
+    GREEN: '#05A26B',
+    BLUE: '#0095FF',
+    ORANGE: '#FF9D52',
+    RED: '#EA4C4D',
+    PURPLE: '#E040FB',
+    DARKER: '#1D2028',
+    DARK: '#40404B',
+    GREY: '#8D91A3',
+    LIGHT: '#CBCEDB',
+    LIGHTER: '#E6E7EC',
+    LIGHTEST: '#F7F8FB',
+    WHITE: '#FFFFFF'
 }
 
 const FILL_COLORS = {
-    BACKGROUND_LIGHT: "#F7F8FB",
-    BACKGROUND_DARK: "#1D2028",
-    DIVIDER: "#EDEEF1",
-    TRANSPARENT: "transparent"
+    BACKGROUND_LIGHT: '#F7F8FB',
+    BACKGROUND_DARK: '#1D2028',
+    DIVIDER: '#EDEEF1',
+    TRANSPARENT: 'transparent'
 }
 
 /**

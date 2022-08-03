@@ -31,6 +31,8 @@ import { isWindows } from '../utils';
 import { CUSTOM_DESIGNED_MIME_TYPES, NOTEBOOK_TYPE } from './constants';
 import { VariableViewProvider } from './variableView';
 
+const definedVariables = new Set();
+
 /**
  * Notebook controller to provide functionality of code execution.
  */
@@ -313,7 +315,7 @@ export class BallerinaNotebookController {
     dispose(): void {
         this.controller.dispose();
         this.variableView.dispose();
-        this.metaInfoHandler.reset();
+        this.resetMetaInfoHandler();
     }
 }
 
@@ -422,12 +424,16 @@ class MetaInfoHandler {
             })
         }
         // update varToCellMap
-        [...metaInfo.definedVars, ...metaInfo.moduleDclns].forEach((key: string) => this.varToCellMap.set(key, cell));
+        [...metaInfo.definedVars, ...metaInfo.moduleDclns].forEach((key: string) => {
+            this.varToCellMap.set(key, cell);
+            definedVariables.add(key);
+        });
         return removedDefs.filter((key: string) => this.varToCellMap.get(key)?.document.uri === cell.document.uri);
     }
 
     clearVarFromMap(varToDelete: string) {
         this.varToCellMap.delete(varToDelete);
+        definedVariables.delete(varToDelete);
     }
 
     /**
@@ -437,4 +443,8 @@ class MetaInfoHandler {
         this.cellInfoList = [];
         this.varToCellMap.clear();
     }
+}
+
+export function isInDefinedVariables(variable: string) {
+    return definedVariables.has(variable);
 }

@@ -17,12 +17,12 @@
  *
  */
 
-import { h, FunctionComponent } from "preact";
+import { h, FunctionComponent } from 'preact';
 // @ts-ignore
 import XMLViewer from 'react-xml-viewer';
-import { DEFAULT_FONT_STYLE, XML_DARK_THEME, XML_LIGHT_THEME } from "../themes";
-import { NotebookCellResult } from "../types";
-import { getIsDarkMode } from "../utils";
+import { DEFAULT_FONT_STYLE, XML_DARK_THEME, XML_LIGHT_THEME } from '../themes';
+import { NotebookCellResult } from '../types';
+import { getIsDarkMode } from '../utils';
 
 export const Xml: FunctionComponent<{
     notebookCellOutput: Readonly<NotebookCellResult>
@@ -30,11 +30,11 @@ export const Xml: FunctionComponent<{
     const darkMode = getIsDarkMode();
     return <div style={{
         ...DEFAULT_FONT_STYLE,
-        letterSpacing: "0.05em",
+        letterSpacing: '0.05em',
         padding: 24,
-        maxHeight: "600px",
-        overflowY: "scroll",
-        backgroundColor: "transparent"
+        maxHeight: '600px',
+        overflowY: 'scroll',
+        backgroundColor: 'transparent'
     }}>
         <XMLViewer
             xml={notebookCellOutput.shellValue.value}

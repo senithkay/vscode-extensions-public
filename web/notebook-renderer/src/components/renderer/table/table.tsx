@@ -17,16 +17,16 @@
  *
  */
 
-import { h, FunctionComponent } from "preact";
-import { Json } from "../json/json";
+import { h, FunctionComponent } from 'preact';
+import { Json } from '../json/json';
 import {
     CODE_EDITOR_COLORS,
     DEFAULT_FONT_STYLE,
     JSON_DARK_THEME,
     JSON_LIGHT_THEME,
-} from "../themes";
-import { NotebookCellResult } from "../types";
-import { getIsDarkMode } from "../utils";
+} from '../themes';
+import { NotebookCellResult } from '../types';
+import { getIsDarkMode } from '../utils';
 
 interface TableProps {
     header: string[];
@@ -46,7 +46,7 @@ export const Table: FunctionComponent<{
             return (
                 <th
                     key={key}
-                    style={{ textAlign: "center", letterSpacing: "0.05em" }}
+                    style={{ textAlign: 'center', letterSpacing: '0.05em' }}
                 >
                     {key}
                 </th>
@@ -62,7 +62,7 @@ export const Table: FunctionComponent<{
                     {tableContent.header.map((key) => {
                         let value = getValue(tableContentValues[index], key);
                         return (
-                            <td style={{ textAlign: "left" }}>
+                            <td style={{ textAlign: 'left' }}>
                                 {value === Object(value) ? (
                                     <Json
                                         value={value}
@@ -72,7 +72,7 @@ export const Table: FunctionComponent<{
                                 ) : (
                                     value != null && (
                                         <pre
-                                            style={{color: darkMode ? CODE_EDITOR_COLORS.WHITE : CODE_EDITOR_COLORS.DARKER}}
+                                            style={{ color: darkMode ? CODE_EDITOR_COLORS.WHITE : CODE_EDITOR_COLORS.DARKER }}
                                         >
                                             {JSON.stringify(value, undefined, 2)}
                                         </pre>
@@ -105,7 +105,7 @@ export const TableForNotebookOutput: FunctionComponent<{
 
     if (!values.length) {
         return (
-            <p style={{ ...DEFAULT_FONT_STYLE, textAlign: "left" }}>
+            <p style={{ ...DEFAULT_FONT_STYLE, textAlign: 'left' }}>
                 Empty table!
             </p>
         );
@@ -131,8 +131,8 @@ export const TableForNotebookOutput: FunctionComponent<{
         <div
             style={{
                 ...DEFAULT_FONT_STYLE,
-                maxHeight: "600px",
-                overflowY: "scroll",
+                maxHeight: '600px',
+                overflowY: 'scroll',
             }}
         >
             <Table tableContent={tableProps} />
