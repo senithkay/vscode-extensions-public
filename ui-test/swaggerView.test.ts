@@ -19,32 +19,27 @@
 
 import { WebView, VSBrowser, By, EditorView, Key } from 'vscode-extension-tester';
 import { join } from 'path';
-import { before, beforeEach, describe, it } from 'mocha';
+import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { wait, getDiagramExplorer } from './util';
 import { DIAGRAM_LOADING_TIME, PROJECT_RUN_TIME } from './constants';
 
 describe('Swagger view UI Tests', () => {
-    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
-    let editorView, rootFolder, webview;
+    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
 
     before(async () => {
-        await VSBrowser.instance.openResources(PROJECT_ROOT);
-        await wait(2000);
-        editorView = new EditorView();
-        await editorView.closeAllEditors();
-        const diagramExplorer = await getDiagramExplorer();
-
-        rootFolder = (await diagramExplorer.getVisibleItems())[0];
-    });
-
-    beforeEach(async () => {
-        if (webview) await webview.switchBack();
-        if (editorView) await editorView.closeAllEditors();
-        await wait(1000);
+        await VSBrowser.instance.waitForWorkbench;
     });
 
     it('Test tryit button', async () => {
+        await wait(5000);
+        VSBrowser.instance.openResources(join(PROJECT_ROOT, "helloServicePackage"));
+        await wait(2000);
+        const editorView = new EditorView();
+        await editorView.closeAllEditors();
+        const diagramExplorer = await getDiagramExplorer();
+
+        const rootFolder = (await diagramExplorer.getVisibleItems())[0];
         await rootFolder.expand();
 
         // Open low code diagram
@@ -52,7 +47,7 @@ describe('Swagger view UI Tests', () => {
         await wait(DIAGRAM_LOADING_TIME)
 
         // switch to low code window
-        webview = new WebView();
+        const webview = new WebView();
         await webview.switchToFrame();
 
         // run project
@@ -109,6 +104,16 @@ describe('Swagger view UI Tests', () => {
     });
 
     it('Test swagger view headers', async () => {
+        await wait(5000);
+        VSBrowser.instance.openResources(join(PROJECT_ROOT, "swagger"));
+        await wait(2000);
+        const editorView = new EditorView();
+        await editorView.closeAllEditors();
+        const diagramExplorer = await getDiagramExplorer();
+
+        const rootFolder = (await diagramExplorer.getVisibleItems())[0];
+        await rootFolder.expand();
+
         // Open low code diagram
         (await rootFolder.findChildItem("deltaLine.bal"))?.click();
         await wait(DIAGRAM_LOADING_TIME)

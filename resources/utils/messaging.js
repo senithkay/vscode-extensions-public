@@ -426,6 +426,15 @@ function getLangClient() {
                 );
             })
         },
+        getNotebookVariables: () => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getNotebookVariables', [], (resp) => {
+                    consoleLog(start, 'getNotebookVariables');
+                    resolve(resp);
+                });
+            });
+        },
         getSymbolDocumentation: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();

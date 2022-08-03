@@ -35,6 +35,7 @@ import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams }
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { activate as activatePerformanceForecaster } from './forecaster';
 import { activate as activateSwaggerView } from './swagger';
+import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
 import { debug, log } from './utils';
 
@@ -98,6 +99,8 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
         activateTesting(ballerinaExtInstance);
+        // Enable Ballerina Notebook
+        activateNotebook(ballerinaExtInstance);
         activateLibraryBrowser(ballerinaExtInstance);
 
         ballerinaExtInstance.onReady().then(() => {
