@@ -11,6 +11,16 @@
  * associated services.
  */
 import React, { ReactNode } from 'react';
+import { IconType } from "react-icons";
+import {
+    VscSymbolEnum,
+    VscSymbolEnumMember, VscSymbolEvent,
+    VscSymbolField, VscSymbolInterface, VscSymbolKeyword,
+    VscSymbolMethod,
+    VscSymbolParameter, VscSymbolRuler,
+    VscSymbolStructure,
+    VscSymbolVariable
+} from "react-icons/vsc";
 
 import {
     CompletionResponse,
@@ -52,10 +62,10 @@ import {
     WHITESPACE_MINUTIAE
 } from "../constants";
 import {
-   EditorModel, MinutiaeJSX,
+    EditorModel, MinutiaeJSX,
     RemainingContent,
     StmtDiagnostic,
-    StmtOffset,
+    StmtOffset, SuggestionIcon,
     SuggestionItem,
     SymbolIcon
 } from '../models/definitions';
@@ -372,48 +382,49 @@ export function getClassNameForToken(model: STNode): string {
     return className;
 }
 
-export function getSuggestionIconStyle(suggestionType: number): SymbolIcon {
-    let suggestionIconStyle: string;
+export function getSuggestionIconStyle(suggestionType: number): SuggestionIcon {
     let suggestionIconColor: string;
+    let suggestionIcon: IconType;
     switch (suggestionType) {
         case 3:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIcon = VscSymbolMethod;
             suggestionIconColor = "#652d90";
             break;
         case 5:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-field";
+            suggestionIcon = VscSymbolField;
             suggestionIconColor = "#007acc";
             break;
         case 6:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIcon = VscSymbolVariable;
             suggestionIconColor = "#007acc";
             break;
         case 11:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
+            suggestionIcon = VscSymbolRuler;
+            suggestionIconColor = "#616161";
             break;
         case 14:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword";
+            suggestionIcon = VscSymbolKeyword;
             suggestionIconColor = "#616161";
             break;
         case 20:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum-member";
+            suggestionIcon = VscSymbolEnumMember;
             suggestionIconColor = "#007acc";
             break;
         case 22:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIcon = VscSymbolStructure;
             suggestionIconColor = "#616161";
             break;
         case 25:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-type-parameter";
+            suggestionIcon = VscSymbolParameter;
             suggestionIconColor = "#616161";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIcon = VscSymbolVariable;
             suggestionIconColor = "#007acc";
             break;
     }
     return {
-        className: suggestionIconStyle,
+        SuggestIcon: suggestionIcon,
         color: suggestionIconColor
     };
 }
@@ -527,48 +538,48 @@ export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STS
     return undefined;
 }
 
-export function getModuleIconStyle(label: string): SymbolIcon {
-    let suggestionIconStyle: string;
+export function getModuleIconStyle(label: string): SuggestionIcon {
+    let suggestionIcon: IconType;
     let suggestionIconColor: string;
     switch (label) {
         case "Functions":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIcon = VscSymbolMethod;
             suggestionIconColor = "#652d90";
             break;
         case "Classes":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIcon = VscSymbolInterface;
             suggestionIconColor = "#007acc";
             break;
         case "Constants":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIcon = VscSymbolVariable;
             suggestionIconColor = "#007acc";
             break;
         case "Errors":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event";
+            suggestionIcon = VscSymbolEvent;
             suggestionIconColor = "#d67e00";
             break;
         case "Enums":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum";
+            suggestionIcon = VscSymbolEnum;
             suggestionIconColor = "#d67e00";
             break;
         case "Records":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIcon = VscSymbolStructure;
             suggestionIconColor = "#616161";
             break;
         case "Types":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
+            suggestionIcon = VscSymbolRuler;
             break;
         case "Listeners":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIcon = VscSymbolVariable;
             suggestionIconColor = "#007acc";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIcon = VscSymbolInterface;
             suggestionIconColor = "#007acc";
             break;
     }
     return {
-        className: suggestionIconStyle,
+        SuggestIcon: suggestionIcon,
         color: suggestionIconColor
     };
 }
