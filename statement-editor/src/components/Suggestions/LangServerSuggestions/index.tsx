@@ -21,6 +21,7 @@ import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
     ACTION,
     FUNCTION_COMPLETION_KIND,
+    MAPPING_TYPE_DESCRIPTER,
     METHOD_COMPLETION_KIND,
     PROPERTY_COMPLETION_KIND
 } from "../../../constants";
@@ -110,7 +111,7 @@ export function LSSuggestions() {
         }
 
         if (value === "map") {
-            value = "map<TYPE_DESCRIPTOR>";
+            value = MAPPING_TYPE_DESCRIPTER;
         }
 
         const nodePosition : NodePosition = currentModel
