@@ -1,14 +1,15 @@
 import { CaptureBindingPattern, QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
+
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { DataMapperPortModel } from "../../Port";
 import { IntermediatePortModel } from "../../Port/IntermediatePort/IntermediatePortModel";
 import { getFieldNames, getParamForName } from "../../utils";
-import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { RequiredParamNode } from "../RequiredParam";
-import { ExpressionLabelModel } from "../../Label";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -56,7 +57,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
         const { startLine, startColumn, endLine, endColumn } = this.value.queryPipeline.fromClause.expression.position;
         const langClient = await this.context.getEELangClient();
-        const res = await langClient.getExprType({
+        let res = await langClient.getTypeFromExpression({
             documentIdentifier: {
                 uri: `file://${this.context.currentFile.path}`
             },
@@ -71,11 +72,29 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         });
 
         // tslint:disable-next-line:no-console
-        console.log("=============");
+        console.log("=======expr======");
         // tslint:disable-next-line:no-console
-        console.log(res);
+        console.log(JSON.stringify(res));
         // tslint:disable-next-line:no-console
-        console.log("=============");
+        console.log("=======expr======");
+
+        const fieldNamePos = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.position;
+        res = await langClient.getTypeFromSymbol({
+            documentIdentifier: {
+                uri: `file://${this.context.currentFile.path}`
+            },
+            position: {
+                line: fieldNamePos.startLine,
+                offset: fieldNamePos.startColumn
+            }
+        });
+
+        // tslint:disable-next-line:no-console
+        console.log("=======symbol======");
+        // tslint:disable-next-line:no-console
+        console.log(JSON.stringify(res));
+        // tslint:disable-next-line:no-console
+        console.log("=======symbol======");
     }
 
     private initSourcePorts() {
@@ -159,7 +178,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         value: otherVal?.source || value.source,
                         valueNode: otherVal || value,
                         context: this.context,
-                        link: link
+                        link
                     }));
                     link.registerListener({
                         selectionChanged(event) {
