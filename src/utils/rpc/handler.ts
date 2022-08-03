@@ -301,12 +301,23 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             });
         }
         }, {
-            methodName: 'getExprType',
+            methodName: 'getTypeFromExpression',
             handler: (args: any[]) => {
                 const start = new Date().getTime();
                 return langClient.onReady().then(() => {
-                    return langClient.getExprType(args[0]).then(result => {
-                        consoleLog(start, 'getExprType');
+                    return langClient.getTypeFromExpression(args[0]).then(result => {
+                        consoleLog(start, 'getTypeFromExpression');
+                        return Promise.resolve(result);
+                    });
+                });
+            }
+        }, {
+            methodName: 'getTypeFromSymbol',
+            handler: (args: any[]) => {
+                const start = new Date().getTime();
+                return langClient.onReady().then(() => {
+                    return langClient.getTypeFromSymbol(args[0]).then(result => {
+                        consoleLog(start, 'getTypeFromSymbol');
                         return Promise.resolve(result);
                     });
                 });

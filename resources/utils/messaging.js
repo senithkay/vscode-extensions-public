@@ -426,11 +426,20 @@ function getLangClient() {
                 });
             });
         },
-        getExprType: (params) => {
+        getTypeFromExpression: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
-                webViewRPCHandler.invokeRemoteMethod('getExprType', [params], (resp) => {
-                    consoleLog(start, 'getExprType');
+                webViewRPCHandler.invokeRemoteMethod('getTypeFromExpression', [params], (resp) => {
+                    consoleLog(start, 'getTypeFromExpression');
+                    resolve(resp);
+                });
+            });
+        },
+        getTypeFromSymbol: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getTypeFromSymbol', [params], (resp) => {
+                    consoleLog(start, 'getTypeFromSymbol');
                     resolve(resp);
                 });
             });
