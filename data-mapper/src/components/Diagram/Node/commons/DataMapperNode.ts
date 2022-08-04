@@ -4,7 +4,7 @@ import {
 	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
 	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MappingConstructor, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
 	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc,
-	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
+	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc, traversNode,
 	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
@@ -12,6 +12,7 @@ import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificF
 
 import { DataMapperPortModel } from '../../Port/model/DataMapperPortModel';
 import { RecordTypeDescriptorStore } from '../../utils/record-type-descriptor-store';
+import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
 
 export interface DataMapperNodeModelGenerics {
 	PORT: DataMapperPortModel;
@@ -107,14 +108,18 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 					} else if (STKindChecker.isFieldAccess(field.valueExpr)
 						|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
 						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
-					} else if (STKindChecker.isBinaryExpression(field.valueExpr)
-						&& ((STKindChecker.isFieldAccess(field.valueExpr.rhsExpr)
-						|| STKindChecker.isSimpleNameReference(field.valueExpr.rhsExpr)))) {
-						// TODO handle other types of expressions here
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr.rhsExpr, field.valueExpr));
 					} else {
-						// TODO handle other types of expressions here
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
+						const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
+						traversNode(field.valueExpr, fieldAccessFindingVisitor);
+						const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
+						if (fieldAccesseNodes.length > 0){
+							fieldAccesseNodes.forEach((fieldAccesseNode) => {
+								foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], fieldAccesseNode, field.valueExpr));
+							})
+						}
+						else{
+							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
+						}
 					}
 				}
 			})
