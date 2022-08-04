@@ -57,7 +57,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
         const { startLine, startColumn, endLine, endColumn } = this.value.queryPipeline.fromClause.expression.position;
         const langClient = await this.context.getEELangClient();
-        let res = await langClient.getTypeFromExpression({
+        const res = await langClient.getTypeFromExpression({
             documentIdentifier: {
                 uri: `file://${this.context.currentFile.path}`
             },
@@ -79,7 +79,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         console.log("=======expr======");
 
         const fieldNamePos = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.position;
-        res = await langClient.getTypeFromSymbol({
+        const res2 = await langClient.getTypeFromSymbol({
             documentIdentifier: {
                 uri: `file://${this.context.currentFile.path}`
             },
@@ -92,7 +92,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         // tslint:disable-next-line:no-console
         console.log("=======symbol======");
         // tslint:disable-next-line:no-console
-        console.log(JSON.stringify(res));
+        console.log(JSON.stringify(res2));
         // tslint:disable-next-line:no-console
         console.log("=======symbol======");
     }

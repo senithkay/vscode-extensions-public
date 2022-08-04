@@ -418,6 +418,10 @@ export interface BallerinaConstruct {
     icon?: string;
 }
 
+export interface TypeFromSymbolResponse {
+    type: FormField
+}
+
 export interface Connector extends BallerinaConstruct {}
 
 export interface Trigger extends BallerinaConstruct {}
@@ -460,9 +464,9 @@ export interface IBallerinaLangClient {
 
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>
 
-    getTypeFromExpression: (params: ExpressionTypeDescRequest) => Thenable<ExpressionTypeResponse>
+    getTypeFromExpression: (params: ExpressionTypeDescRequest) => Thenable<TypeFromSymbolResponse>
 
-    getTypeFromSymbol: (params: ExpressionTypeRequest) => Thenable<ExpressionTypeResponse>
+    getTypeFromSymbol: (params: ExpressionTypeRequest) => Thenable<TypeFromSymbolResponse>
 
     close: () => void;
 }

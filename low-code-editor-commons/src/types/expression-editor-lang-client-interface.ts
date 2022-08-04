@@ -14,6 +14,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
+import { FormField } from "./config-spec";
 import { BallerinaProjectParams } from "./lang-client-extended";
 
 export interface CompletionParams {
@@ -131,6 +132,10 @@ export interface ExpressionTypeDescRequest {
     endPosition: LinePosition;
 }
 
+export interface TypeFromSymbolResponse {
+    type: FormField
+}
+
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
     getDiagnostics: (
         params: BallerinaProjectParams
@@ -161,8 +166,8 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     ) => Thenable<SymbolInfoResponse>;
     getTypeFromExpression: (
         params: ExpressionTypeDescRequest
-    ) => Thenable<ExpressionTypeResponse>;
+    ) => Thenable<TypeFromSymbolResponse>;
     getTypeFromSymbol: (
         params: ExpressionTypeRequest
-    ) => Thenable<ExpressionTypeResponse>;
+    ) => Thenable<TypeFromSymbolResponse>;
 }

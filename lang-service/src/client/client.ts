@@ -12,6 +12,7 @@ import {
     ExpressionTypeResponse,
     SymbolInfoRequest,
     SymbolInfoResponse,
+    TypeFromSymbolResponse,
 } from ".";
 
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
@@ -113,11 +114,11 @@ export class BallerinaLangClient implements IBallerinaLangClient {
         return this.lsConnection.sendRequest("ballerinaSymbol/getSymbol", params)
     }
 
-    public getTypeFromExpression(params: ExpressionTypeDescRequest): Thenable<ExpressionTypeResponse> {
+    public getTypeFromExpression(params: ExpressionTypeDescRequest): Thenable<TypeFromSymbolResponse> {
         return this.lsConnection.sendRequest("ballerinaSymbol/getTypeFromExpression", params)
     }
 
-    public getTypeFromSymbol(params: ExpressionTypeRequest): Thenable<ExpressionTypeResponse> {
+    public getTypeFromSymbol(params: ExpressionTypeRequest): Thenable<TypeFromSymbolResponse> {
         return this.lsConnection.sendRequest("ballerinaSymbol/getTypeFromSymbol", params)
     }
 }

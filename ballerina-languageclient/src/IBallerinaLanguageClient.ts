@@ -741,6 +741,10 @@ export interface ExpressionTypeDescRequest {
     endPosition: LinePosition;
 }
 
+export interface TypeFromSymbolResponse {
+    type: FormField
+}
+
 export interface IBallerinaLangClient {
 
     didOpen: (Params: DidOpenTextDocumentParams) => void;
@@ -813,9 +817,9 @@ export interface IBallerinaLangClient {
 
     definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
 
-    getTypeFromExpression: (params: ExpressionTypeDescRequest) => Thenable<ExpressionTypeResponse>;
+    getTypeFromExpression: (params: ExpressionTypeDescRequest) => Thenable<TypeFromSymbolResponse>;
 
-    getTypeFromSymbol: (params: ExpressionTypeRequest) => Thenable<ExpressionTypeResponse>;
+    getTypeFromSymbol: (params: ExpressionTypeRequest) => Thenable<TypeFromSymbolResponse>;
 
 
     // close: () => void;
