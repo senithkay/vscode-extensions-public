@@ -238,13 +238,13 @@ export function FunctionForm(props: FunctionProps) {
     }
 
     const paramElements: React.ReactElement[] = [];
-    parameters?.forEach((value, index) => {
-        if (value.name.value) {
+    parameters?.forEach((param, index) => {
+        if (param.name.value) {
             if (editingSegmentId !== index) {
                 paramElements.push(
                     <FunctionParamItem
                         key={index}
-                        functionParam={value}
+                        functionParam={param}
                         readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}
                         onDelete={onDeleteParam}
                         onEditClick={handleOnEdit}
@@ -256,7 +256,6 @@ export function FunctionForm(props: FunctionProps) {
                         param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
                             RestParam)}
                         id={editingSegmentId}
-                        segment={value}
                         syntaxDiag={currentComponentSyntaxDiag}
                         onCancel={closeNewParamView}
                         onUpdate={handleOnUpdateParam}
@@ -332,6 +331,7 @@ export function FunctionForm(props: FunctionProps) {
                                     onChange={onParamChange}
                                     onSave={onSaveNewParam}
                                     isEdit={false}
+                                    completions={completions}
                                 />
                             ) : (
                                 <Button
