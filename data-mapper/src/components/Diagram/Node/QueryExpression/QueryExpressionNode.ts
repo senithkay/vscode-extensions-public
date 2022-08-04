@@ -131,16 +131,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const targetPort = this.getPort(targetPortId);
                     const sourcePort = this.getPort(sourcePortId);
 
-                    const hasError = this.context.diagnostics.some( (diagnostic) => {
-                        const diagPosition: NodePosition = {
-                            startLine: diagnostic.range.start.line,
-                            startColumn: diagnostic.range.start.character,
-                            endLine: diagnostic.range.end.line,
-                            endColumn: diagnostic.range.end.character
-                        };
-                        return isNodeInRange(value.position, diagPosition)
-                    });
-
                     const link = new DataMapperLinkModel(value, this.context.diagnostics);
                     link.setSourcePort(sourcePort);
                     link.setTargetPort(targetPort);
