@@ -12,6 +12,7 @@
  */
 
 import {
+    BallerinaConnectorInfo,
     FormField,
     FormFieldReturnType,
     getFormattedModuleName,
@@ -674,4 +675,41 @@ export function getUnionFormFieldName(field: FormField): string {
 
 export function checkFormFieldValue(field: FormField): boolean {
     return field.value !== undefined && field.value !== null;
+}
+
+export function retrieveUsedAction(actionModel: STNode, connector: BallerinaConnectorInfo) {
+    let methodName = "";
+    const methods = connector.functions;
+    if (
+        STKindChecker.isLocalVarDecl(actionModel) &&
+        STKindChecker.isCheckAction(actionModel.initializer) &&
+        STKindChecker.isRemoteMethodCallAction(actionModel.initializer.expression)
+    ) {
+        methodName = actionModel.initializer.expression.methodName.name.value;
+    } else if (
+        STKindChecker.isLocalVarDecl(actionModel) &&
+        STKindChecker.isRemoteMethodCallAction(actionModel.initializer)
+    ) {
+        methodName = actionModel.initializer.methodName.name.value;
+    } else if (
+        STKindChecker.isActionStatement(actionModel) &&
+        STKindChecker.isCheckAction(actionModel.expression) &&
+        STKindChecker.isRemoteMethodCallAction(actionModel.expression.expression)
+    ) {
+        methodName = actionModel.expression.expression.methodName.name.value;
+    }
+    if (methodName && methodName !== "" && methods?.length > 0) {
+        const usedMethod = methods.find((func) => func.name === methodName);
+        if (usedMethod) {
+            return usedMethod;
+        }
+    }
+    return undefined;
+}
+
+export function getActionExprWithArgs(suggestion: string, connector: BallerinaConnectorInfo): string {
+    const newActionName = suggestion.split("(")[0];
+    const newAction = connector?.functions.find((func) => func.name === newActionName);
+    const modelParams = getDefaultParams(newAction.parameters);
+    return newActionName + "(" + modelParams.join(",") + ")";
 }

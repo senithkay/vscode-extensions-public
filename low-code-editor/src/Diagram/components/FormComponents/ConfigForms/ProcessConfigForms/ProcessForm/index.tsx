@@ -22,6 +22,7 @@ import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloader
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
 import { AddCustomStatementConfig } from "./AddCustomStatementConfig";
 import { AddFlushStatement } from "./AddFlushStatement";
+import { AddFunctionCallConfig } from "./AddFunctionCallConfig";
 import { AddLogConfig } from "./AddLogConfig";
 import { AddReceiveStatement } from "./AddReceiveStatement";
 import { AddSendStatement } from "./AddSendStatement";
@@ -216,8 +217,19 @@ export function ProcessForm(props: ProcessFormProps) {
                     )
                 }
                 {
-                    (formType === "Custom" || formType === "Call") && (
+                    (formType === "Custom") && (
                         <AddCustomStatementConfig
+                            config={config}
+                            formArgs={formArgs}
+                            onSave={onSave}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                        />
+                    )
+                }
+                {
+                    (formType === "Call") && (
+                        <AddFunctionCallConfig
                             config={config}
                             formArgs={formArgs}
                             onSave={onSave}

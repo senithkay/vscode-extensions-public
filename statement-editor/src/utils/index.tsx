@@ -11,6 +11,16 @@
  * associated services.
  */
 import React, { ReactNode } from 'react';
+import { IconType } from "react-icons";
+import {
+    VscSymbolEnum,
+    VscSymbolEnumMember, VscSymbolEvent,
+    VscSymbolField, VscSymbolInterface, VscSymbolKeyword,
+    VscSymbolMethod,
+    VscSymbolParameter, VscSymbolRuler,
+    VscSymbolStructure,
+    VscSymbolVariable
+} from "react-icons/vsc";
 
 import {
     CompletionResponse,
@@ -23,7 +33,6 @@ import {
     SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    FunctionCall,
     Minutiae,
     NodePosition,
     STKindChecker,
@@ -39,10 +48,12 @@ import * as statementTypeComponents from '../components/Statements';
 import {
     ACTION,
     BAL_SOURCE,
+    CALL_CONFIG_TYPE,
     CONNECTOR,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
+    FUNCTION_CALL,
     IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
@@ -55,6 +66,7 @@ import {
     RemainingContent,
     StatementSyntaxDiagnostics,
     StmtOffset,
+    SuggestionIcon,
     SuggestionItem,
     SymbolIcon
 } from '../models/definitions';
@@ -76,7 +88,7 @@ import { ModelType, StatementEditorViewState } from "./statement-editor-viewstat
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
 export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
-                                 modulesToBeImported?: string[]): STModification[] {
+    modulesToBeImported?: string[]): STModification[] {
 
     const modifications: STModification[] = [];
     let source = model.source;
@@ -247,7 +259,7 @@ export function getDocDescription(doc: string): string[] {
 }
 
 export function getFilteredDiagnosticMessages(statement: string, targetPosition: NodePosition,
-                                              diagnostics: Diagnostic[]): StatementSyntaxDiagnostics[] {
+    diagnostics: Diagnostic[]): StatementSyntaxDiagnostics[] {
 
     const stmtDiagnostics: StatementSyntaxDiagnostics[] = [];
     const diag = getFilteredDiagnostics(diagnostics, false);
@@ -278,8 +290,8 @@ export function isPlaceHolderExists(statement: string): boolean {
 }
 
 export function getUpdatedSource(statement: string, currentFileContent: string,
-                                 targetPosition: NodePosition, moduleList?: Set<string>,
-                                 skipSemiColon?: boolean): string {
+    targetPosition: NodePosition, moduleList?: Set<string>,
+    skipSemiColon?: boolean): string {
 
     const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
@@ -373,48 +385,49 @@ export function getClassNameForToken(model: STNode): string {
     return className;
 }
 
-export function getSuggestionIconStyle(suggestionType: number): SymbolIcon {
-    let suggestionIconStyle: string;
+export function getSuggestionIconStyle(suggestionType: number): SuggestionIcon {
     let suggestionIconColor: string;
+    let suggestionIcon: IconType;
     switch (suggestionType) {
         case 3:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIcon = VscSymbolMethod;
             suggestionIconColor = "#652d90";
             break;
         case 5:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-field";
+            suggestionIcon = VscSymbolField;
             suggestionIconColor = "#007acc";
             break;
         case 6:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIcon = VscSymbolVariable;
             suggestionIconColor = "#007acc";
             break;
         case 11:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
+            suggestionIcon = VscSymbolRuler;
+            suggestionIconColor = "#616161";
             break;
         case 14:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-keyword";
+            suggestionIcon = VscSymbolKeyword;
             suggestionIconColor = "#616161";
             break;
         case 20:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum-member";
+            suggestionIcon = VscSymbolEnumMember;
             suggestionIconColor = "#007acc";
             break;
         case 22:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIcon = VscSymbolStructure;
             suggestionIconColor = "#616161";
             break;
         case 25:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-type-parameter";
+            suggestionIcon = VscSymbolParameter;
             suggestionIconColor = "#616161";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIcon = VscSymbolVariable;
             suggestionIconColor = "#007acc";
             break;
     }
     return {
-        className: suggestionIconStyle,
+        SuggestIcon: suggestionIcon,
         color: suggestionIconColor
     };
 }
@@ -459,7 +472,7 @@ export function getModuleElementDeclPosition(syntaxTree: STNode): NodePosition {
     return position;
 }
 
-export function isNodeDeletable(selectedNode: STNode): boolean {
+export function isNodeDeletable(selectedNode: STNode, formType: string): boolean {
     const stmtViewState: StatementEditorViewState = selectedNode.viewState as StatementEditorViewState;
     const currentModelSource = selectedNode.source
         ? selectedNode.source.trim()
@@ -467,7 +480,9 @@ export function isNodeDeletable(selectedNode: STNode): boolean {
 
     let exprDeletable = !stmtViewState.exprNotDeletable;
     if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
-        exprDeletable = stmtViewState.templateExprDeletable;
+        exprDeletable =  stmtViewState.templateExprDeletable;
+    }else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
+        exprDeletable = false;
     }
 
     return exprDeletable;
@@ -526,48 +541,48 @@ export function getExistingConfigurable(selectedModel: STNode, stSymbolInfo: STS
     return undefined;
 }
 
-export function getModuleIconStyle(label: string): SymbolIcon {
-    let suggestionIconStyle: string;
+export function getModuleIconStyle(label: string): SuggestionIcon {
+    let suggestionIcon: IconType;
     let suggestionIconColor: string;
     switch (label) {
         case "Functions":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-function";
+            suggestionIcon = VscSymbolMethod;
             suggestionIconColor = "#652d90";
             break;
         case "Classes":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIcon = VscSymbolInterface;
             suggestionIconColor = "#007acc";
             break;
         case "Constants":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIcon = VscSymbolVariable;
             suggestionIconColor = "#007acc";
             break;
         case "Errors":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-event";
+            suggestionIcon = VscSymbolEvent;
             suggestionIconColor = "#d67e00";
             break;
         case "Enums":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-enum";
+            suggestionIcon = VscSymbolEnum;
             suggestionIconColor = "#d67e00";
             break;
         case "Records":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-struct";
+            suggestionIcon = VscSymbolStructure;
             suggestionIconColor = "#616161";
             break;
         case "Types":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-ruler";
+            suggestionIcon = VscSymbolRuler;
             break;
         case "Listeners":
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-variable";
+            suggestionIcon = VscSymbolVariable;
             suggestionIconColor = "#007acc";
             break;
         default:
-            suggestionIconStyle = "suggest-icon codicon codicon-symbol-interface";
+            suggestionIcon = VscSymbolInterface;
             suggestionIconColor = "#007acc";
             break;
     }
     return {
-        className: suggestionIconStyle,
+        SuggestIcon: suggestionIcon,
         color: suggestionIconColor
     };
 }
@@ -583,11 +598,16 @@ export function isInsideConnectorParams(currentModel: STNode, editorConfigType: 
         (editorConfigType === CONNECTOR || editorConfigType === ACTION) &&
         paramPosition &&
         (paramPosition.startLine < modelPosition.startLine ||
-            (paramPosition.startLine === modelPosition.startLine &&
-                paramPosition.startColumn <= modelPosition.startColumn &&
-                paramPosition.endLine > modelPosition.endLine) ||
-            (paramPosition.endLine === modelPosition.endLine && paramPosition.endColumn >= modelPosition.endColumn))
+            (getNumericPosition(paramPosition.startLine) === getNumericPosition(modelPosition.startLine) &&
+                getNumericPosition(paramPosition.startColumn) <= getNumericPosition(modelPosition.startColumn) &&
+                getNumericPosition(paramPosition.endLine) > getNumericPosition(modelPosition.endLine)) ||
+            (getNumericPosition(paramPosition.endLine) === getNumericPosition(modelPosition.endLine) &&
+                getNumericPosition(paramPosition.endColumn) >= getNumericPosition(modelPosition.endColumn)))
     );
+}
+
+function getNumericPosition(position: number) {
+    return position || 0;
 }
 
 export function isConfigurableEditor(editors: EditorModel[], activeEditorId: number): boolean {

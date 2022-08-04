@@ -114,7 +114,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         }
     }
     if (draftVS){
-        draftVS.targetPosition = draftVS.targetPosition ? draftVS.targetPosition : model?.position;
+        draftVS.targetPosition = draftVS?.targetPosition || model?.position;
     }
 
     if (isEditConnector && !connector) {
@@ -136,7 +136,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                         x: viewState.bBox.cx + 80,
                         y: viewState.bBox.cy,
                     },
-                    targetPosition: draftVS.targetPosition || model?.position,
+                    targetPosition: draftVS?.targetPosition || model?.position,
                     model,
                     onClose: onWizardClose,
                     onSave: onWizardClose,
