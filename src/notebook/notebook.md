@@ -8,8 +8,9 @@ Ballerina notebook files can be created using the `.balnotebook` extension or us
     -   Notebook cells can be executed using the `Run` button available at the left side of the cell or using `shift` + `enter` keys. Additionally `Run All`, `Execute Above Cells`, `Execute Cell and Below`, `Clear outputs of All Cells` and `Restart Notebook` actions are available through the user interface.
 -   Code completions
 -   Rich outputs
-    -   Json view
+    -   JSON view
     -   Table view
+    -   XML view
 -   Debug support
 -   Variable view
 -   Integration with CLI commands
@@ -42,7 +43,7 @@ Each file provides a single purpose for the application.
 > 4. index.ts
 >     - entry point for the notebook.
 > 5. languageProvider.ts
->     - provides code completions.
+>     - provides code completions (can use to extend language capabilities).
 > 6. notebookController.ts
 >     - handles code execution and rendering of the generated output.
 > 7. notebookSerializer.ts
@@ -57,9 +58,9 @@ Each file provides a single purpose for the application.
 Code exection happens through following steps,
 
 1. Collect content of the cell.
-2. If content is empty, remove previously declared vars and types from cell.
+2. If content is empty, remove previously declared vars and types from cell if there was any.
 3. If content starts with `bal`, handle it as a CLI command using the `bal home` set for current workspace.
-4. Else content executes through ballerina shell and gets the resulted output.
+4. Else content executes through Ballerina shell and gets the resulted output.
 5. Output will be append to the notebook cell with the appopriate mime type using the notebook render.
 
     > `web/notebook-renderer` contains implementations for each mime type.
@@ -68,11 +69,11 @@ Code exection happens through following steps,
 
 ### Code completions
 
-Ballerina Notebook cells use `vscode-notebook-cell` as their scheme type in Uris.
+Ballerina notebook cells use `vscode-notebook-cell` as their scheme type in Uris.
 
-Since Ballerina Compiler does not provide support for `vscode-notebook-cell` scheme type or in-memory source streams, the temporary `.bal` file created by Ballerina Shell has been used to provide completions.
+Since Ballerina compiler does not provide support for `vscode-notebook-cell` scheme type or in-memory source streams, the temporary `.bal` file created by Ballerina shell has been used to provide completions.
 
-Another temporary `.bal` file will be created using the content shell `.bal` file which will change according to changes in notebook cell and details of positions and Uri details are used to get code completions from the Ballerina language Server.
+Another temporary `.bal` file will be created using the content of the shell `.bal` file, which will change according to changes in notebook cell and details of positions and Uri details are used to get code completions from the Ballerina language server.
 
 Steps follows in code completions can summerized as following,
 
@@ -106,20 +107,22 @@ Steps follows in code completions can summerized as following,
 
     > **Info:** This is done to install dependencies for the extension and build the web libraries required by the extension. Otherwise you can run `npm install` in the root directory, build the required libraries and put them in relavent directories. For `notebook-renderer` and `variable-view` its `resources/jslibs` in the root directory of the extension.
 
-3. Add your changes to the notebook implementation and run the changed extension, inside the editor, press F5. This will compile and run the extension in a new Extension Development Host window.
+3. Add your changes to the notebook implementation and to run the changed extension, inside the editor, press F5. This will compile and run the extension in a new Extension Development Host window.
 
 **Tips**
 
--   For the changes done in `Variable view` and `Notebook renderer` storybook testing can be used. To view inside the extension, build the lib for them using `npm build` and put the built lib inside `resources/jslibs` in the root directory.
+-   For the changes done in `variable-view` and `notebook-renderer` storybook testing can be used. To view inside the extension, build the lib for them using `npm build` and put the built lib inside `resources/jslibs` in the root directory.
 -   Set `LSDEBUG` to `true` to debug for the changes done the language server. After running the extension via `F5`, run the language server using `remote-debug`.
 
 ## Details on notebook debugger
 
-Since it is required to compile a source file, to support debugging in the notebook temporary `.bal` file is used.
+Since it is required to compile a source file, to support debugging in the notebook, a temporary `.bal` file is used.
 
-All the successfully ran cells' content which are above the cell which ran the debug will be in the module level of the temporary `.bal` file, the content of the cell which ran debug will put inside the main function of the `.bal` file.
+All the successfully ran cells' content which are above the cell that ran the debug will be in the module level of the temporary `.bal` file, and the content of the cell which ran debug will put inside the main function of the `.bal` file.
 
-Finally, requests send to the dubug adapter by VS Code and responses coming from debug adapter to VS Code will be mapped from cell to line in temporary `.bal` file and from line in temporary `.bal` file to cell respectively using `DebugAdapterTracker` which manipulates the requests and responses accordingly.
+Due to this, flow of the notebook should follow the same flow as a simple `.bal` file, should follow grammar rules including semicolons which is not a requirement when executing code snippets.
+
+Finally, requests send to the debug adapter by VS Code and responses coming from debug adapter to VS Code will be mapped from cell to line in temporary `.bal` file and from line in temporary `.bal` file to cell respectively using `DebugAdapterTracker` which manipulates the requests and responses accordingly.
 
 **Debugging the notebook debugger**
 
