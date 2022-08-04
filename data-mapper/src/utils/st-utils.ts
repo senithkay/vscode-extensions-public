@@ -10,8 +10,10 @@ import { DataMapperContext, IDataMapperContext } from "./DataMapperContext/DataM
 export async function getTypeDefinitionForTypeDesc(typeDesc: STNode,
                                                    context: IDataMapperContext): Promise<TypeDefinition> {
 
-    if (typeDesc && STKindChecker.isSimpleNameReference(typeDesc)) {
-        const { position } = typeDesc;
+    const isSimpleNameReference = STKindChecker.isSimpleNameReference(typeDesc);
+    const isQualifiedNameReference = STKindChecker.isQualifiedNameReference(typeDesc);
+    if (typeDesc && (isSimpleNameReference || isQualifiedNameReference)) {
+        const { position } = isSimpleNameReference ? typeDesc : typeDesc.identifier;
         const langClient = await context.getLangClient();
 
         const defReply = await langClient.definition({
