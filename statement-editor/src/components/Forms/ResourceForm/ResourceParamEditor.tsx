@@ -30,7 +30,7 @@ import { genParamName, getParameterNameFromModel, getParameterTypeFromModel, get
 export interface QueryParamEditorProps {
     parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam | RestParam)[];
     completions: SuggestionItem[];
-    onChange: (paramString: string, model?: STNode, avoidValueCommit?: boolean) => void,
+    onChange: (paramString: string, model?: STNode, currentValue?: string, avoidValueCommit?: boolean) => void,
     syntaxDiag?: StatementSyntaxDiagnostics[];
     readonly?: boolean;
 }
@@ -54,7 +54,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
         onChange(getParamString(parameters));
     };
 
-    const onParamChange = (segmentId: number, paramString: string, paramModel?: STNode) => {
+    const onParamChange = (segmentId: number, paramString: string, focusedModel?: STNode, changedValue?: string) => {
         const newParamString = parameters.reduce((prev, current, currentIndex) => {
             if (segmentId === currentIndex) {
                 return `${prev} ${paramString}`;
@@ -63,7 +63,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
             return `${prev}${current.source ? current.source : current.value}`;
         }, '');
 
-        onChange(newParamString);
+        onChange(newParamString, focusedModel, changedValue);
     };
 
 

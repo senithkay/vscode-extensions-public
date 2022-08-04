@@ -56,7 +56,7 @@ export interface ParamProps {
     optionList?: string[];
     option?: string;
     isTypeReadOnly?: boolean;
-    onChange: (segmentId: number, paramString: string, paramModel?: STNode) => void;
+    onChange: (segmentId: number, paramString: string, focusedModel?: STNode, typedInValue?: string) => void;
     onCancel?: () => void;
 }
 
@@ -70,7 +70,7 @@ enum ParamEditorInputTypes {
 export function ParamEditor(props: ParamProps) {
     const {
         segmentId, syntaxDiagnostics, model, alternativeName, isEdit, option, optionList, isTypeReadOnly, onChange,
-        onCancel
+        onCancel, completions
     } = props;
     const classes = useStyles();
 
@@ -93,7 +93,7 @@ export function ParamEditor(props: ParamProps) {
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const paramName = model.paramName.value;
         const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`, model);
+        onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`, model.typeName, value);
 
     }
 
@@ -101,14 +101,14 @@ export function ParamEditor(props: ParamProps) {
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const type = model.typeName.source.trim();
         const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        onChange(segmentId, `${annotation} ${type} ${value} ${defaultValue}`);
+        onChange(segmentId, `${annotation} ${type} ${value} ${defaultValue}`, model.paramName, value);
     }
 
     const handleDefaultValueChange = (value: string) => {
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const type = model.typeName.source.trim();
         const paramName = model.paramName.value
-        onChange(segmentId, `${annotation} ${type} ${paramName} = ${value}`);
+        onChange(segmentId, `${annotation} ${type} ${paramName} = ${value}`, STKindChecker.isDefaultableParam(model) ? model.expression : undefined, value);
     }
 
     const debouncedTypeChange = debounce(handleTypeChange, 800);
@@ -151,6 +151,7 @@ export function ParamEditor(props: ParamProps) {
                                 onChange={debouncedTypeChange}
                                 onFocus={onTypeEditorFocus}
                                 disabled={false}
+                                completions={currentComponentName === ParamEditorInputTypes.TYPE && completions}
                             />
                         </div>
                     )}
@@ -165,6 +166,7 @@ export function ParamEditor(props: ParamProps) {
                         onChange={debouncedNameChange}
                         onFocus={onNameEditorFocus}
                         disabled={false}
+                        completions={currentComponentName === ParamEditorInputTypes.PARAM_NAME && completions}
                     />
                 </div>
                 {
@@ -183,6 +185,7 @@ export function ParamEditor(props: ParamProps) {
                                 onChange={debouncedDefaultValueChange}
                                 onFocus={onDefaultValueEditorFocus}
                                 disabled={false}
+                                completions={currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && completions}
                             />
                         </div>
                     )

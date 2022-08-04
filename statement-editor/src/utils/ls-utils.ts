@@ -44,8 +44,8 @@ export async function getPartialSTForStatement(
 }
 
 export async function getPartialSTForModuleMembers(
-            partialSTRequest: PartialSTRequest,
-            getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isResource?: boolean): Promise<STNode> {
+    partialSTRequest: PartialSTRequest,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>, isResource?: boolean): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
     const resp = isResource ? await langClient.getSTForResource(partialSTRequest) :
         await langClient.getSTForModuleMembers(partialSTRequest);
@@ -160,13 +160,7 @@ export async function getCompletionsForType(docUri: string,
                                             completionKinds: number[] = []
 ): Promise<SuggestionItem[]> {
 
-    const isTypeDescriptor = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.TYPE_DESCRIPTOR;
-    const varName = STKindChecker.isLocalVarDecl(completeModel)
-        && completeModel.typedBindingPattern.bindingPattern.source.trim();
     const currentModelPosition = currentModel.model.position;
-    const currentModelSource = currentModel.model.source
-        ? currentModel.model.source.trim()
-        : currentModel.model.value.trim();
     const suggestions: SuggestionItem[] = [];
 
     const completionParams: CompletionParams = {
@@ -177,37 +171,37 @@ export async function getCompletionsForType(docUri: string,
             triggerKind: 1
         },
         position: {
-            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length + 1,
-            line: targetPosition.startLine + currentModelPosition.startLine
+            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
+            line: targetPosition.startLine + currentModelPosition.startLine - 1
         }
     }
 
     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
-    const inputElements = userInput.split('.');
 
     const langClient = await getLangClient();
     const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
 
-    const filteredCompletionItems = completions
+    completions
         .filter((completionResponse: CompletionResponse) => (
             (!completionResponse.kind || completionKinds.includes(completionResponse.kind) || !completionKinds || completionKinds.length <= 0)
-        ));
-
-    filteredCompletionItems.sort(sortSuggestions);
-
-    filteredCompletionItems.map((completion) => {
-        suggestions.push({
-            value: completion.insertText,
-            kind: completion.detail,
-            suggestionType: completion.kind,
-            label: completion.label,
-            sortText: completion.sortText,
-            insertTextFormat: completion.insertTextFormat,
-            detail: completion.detail,
-            insertText: completion.insertText
+        ))
+        .sort(sortSuggestions)
+        .forEach((completion) => {
+            suggestions.push({
+                value: completion.insertText,
+                kind: completion.detail,
+                suggestionType: completion.kind,
+                label: completion.label,
+                sortText: completion.sortText,
+                insertTextFormat: completion.insertTextFormat,
+                detail: completion.detail,
+                insertText: completion.insertText
+            });
         });
-    });
 
+    // filteredCompletionItems.sort(sortSuggestions);
+
+    // filteredCompletionItems
     return suggestions;
 }
 
@@ -276,8 +270,8 @@ export async function getSymbolDocumentation(
     userInput: string = ''): Promise<SymbolInfoResponse> {
     const langClient = await getLangClient();
     const symbolPos = getSymbolPosition(targetPosition, currentModel, userInput);
-    const symbolDoc = await  langClient.getSymbolDocumentation({
-        textDocumentIdentifier : {
+    const symbolDoc = await langClient.getSymbolDocumentation({
+        textDocumentIdentifier: {
             uri: docUri
         },
         position: {
@@ -293,6 +287,5 @@ export const handleDiagnostics = async (source: string, fileURI: string, targetP
     Promise<Diagnostic[]> => {
     const diagResp = await getDiagnostics(fileURI, getLangClient);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-    const filtered = getFilteredDiagnosticMessages(source, targetPosition, diag);
     return diag;
 }

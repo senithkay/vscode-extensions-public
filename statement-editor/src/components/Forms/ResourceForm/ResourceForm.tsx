@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
@@ -31,8 +31,6 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     ResourceAccessorDefinition,
-    ResourcePathRestParam,
-    ResourcePathSegmentParam,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
@@ -49,16 +47,11 @@ import { AdvancedParamEditor } from "./AdvancedParamEditor";
 import { PayloadEditor } from "./PayloadEditor";
 import { ResourceParamEditor } from "./ResourceParamEditor";
 import { useStyles } from "./styles";
-import { AdvancedParams, Path, PathSegment, Payload, ResourceDiagnostics } from "./types";
+import { ResourceDiagnostics } from "./types";
 import {
-    convertPathStringToSegments,
-    generateAdvancedParamString,
     generateParameterSectionString,
-    generatePayloadParamFromST,
-    generateQueryParamFromST, genParamName, getParamDiagnostics,
+    genParamName, getParamDiagnostics,
     getParamString,
-    getPathOfResources,
-    getPayloadString,
     getResourcePath,
     SERVICE_METHODS
 } from "./util";
@@ -71,28 +64,12 @@ export interface FunctionProps {
 export function ResourceForm(props: FunctionProps) {
     const { model, completions } = props;
 
-    const { targetPosition, isEdit, onChange, onCancel, getLangClient, applyModifications } = useContext(FormEditorContext);
+    const {
+        targetPosition, isEdit, onChange, onCancel, getLangClient, applyModifications
+    } = useContext(FormEditorContext);
     const classes = useStyles();
     const connectorClasses = connectorStyles();
     const intl = useIntl();
-
-    const resources = getPathOfResources(model?.relativeResourcePath);
-    const genAdvancedParams = generatePayloadParamFromST(model?.functionSignature?.parameters);
-    const [parameters, setParameters] = useState([]);
-    // States related to component model
-    // const [functionName, setFunctionName] = useState<string>(model?.functionName?.value);
-    // const [path, setPath] = useState<string>(model ? (resources === "." ? "" : resources) : "");
-    // const [isParamInProgress, setIsParamInProgress] = useState(false);
-    // const [queryParam, setQueryParam] = useState<string>(generateQueryParamFromST(model?.functionSignature?.
-    //     parameters));
-    // const [isQueryInProgress, setIsQueryInProgress] = useState(false);
-    // const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.
-    //     returnTypeDesc?.type?.source?.trim() : "");
-    // // const [isAdvanceView, setIsAdvanceView] = useState<boolean>(false);
-    // const [isPayloadInProgress, setIsPayloadInProgress] = useState(false);
-    // const [isAdvancedInProgress, setIsAdvancedInProgress] = useState(false);
-    // const [advancedParams, setAdvancedParams] = useState<AdvancedParams>(genAdvancedParams);
-    // const [isEdited, setIsEdited] = useState<boolean>(false);
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -146,18 +123,6 @@ export function ResourceForm(props: FunctionProps) {
             resourcePathDiagnostics = diagPath?.viewState?.diagnostics;
         }
 
-        // const payloadString = getPayloadString(advancedParams.payload);
-        // const advancedString = generateAdvancedParamString(advancedParams.requestParamName,
-        //     advancedParams.callerParamName, advancedParams.headerParamName);
-
-        // const pathSegments: Path = convertPathStringToSegments(path);
-        // const segmentNames: string[] = [];
-        // pathSegments?.segments?.forEach((s: PathSegment) => {
-        //     if (s.isParam) {
-        //         segmentNames.push(s.name);
-        //     }
-        // });
-
         return resourcePathDiagnostics;
     }
 
@@ -169,7 +134,6 @@ export function ResourceForm(props: FunctionProps) {
         stModel?: STNode,
         currentValue?: string) => {
 
-        // setIsEdited(true);
         const pathString = pathStr ? pathStr : ".";
         const codeSnippet = getSource(
             updateResourceSignature(resMethod, pathString, paramStr, returnStr, targetPosition));
@@ -203,7 +167,9 @@ export function ResourceForm(props: FunctionProps) {
                 || STKindChecker.isResourcePathRestParam(pathSegment))
             .map(pathSegment => STKindChecker.isResourcePathSegmentParam(pathSegment)
                 || STKindChecker.isResourcePathRestParam(pathSegment) ? pathSegment?.paramName.value : "");
-        const genPath = (model.relativeResourcePath.length > 0) ? `/[string ${genParamName("param", variables)}]` : `[string ${genParamName("param", variables)}]`;
+        const genPath = (model.relativeResourcePath.length > 0) ?
+            `/[string ${genParamName("param", variables)}]`
+            : `[string ${genParamName("param", variables)}]`;
         const newPath = getResourcePath(model.relativeResourcePath) + genPath;
         await handleResourceParamChange(
             model?.functionName?.value,
@@ -234,7 +200,9 @@ export function ResourceForm(props: FunctionProps) {
             model.functionName.value,
             value,
             generateParameterSectionString(model?.functionSignature?.parameters),
-            model.functionSignature?.returnTypeDesc?.type?.source
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            undefined,
+            value
         );
     };
     const debouncedPathChange = debounce(handlePathChange, 800);
@@ -246,7 +214,7 @@ export function ResourceForm(props: FunctionProps) {
         setCurrentComponentName("PathParam");
     };
 
-    const handleQueryParamEditorChange = async (value: string, stModel?: STNode, avoidValueCommit?: boolean) => {
+    const handleParamEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string, avoidValueCommit?: boolean) => {
         // if (!avoidValueCommit) {
         //     setQueryParam(value);
         // }
@@ -254,8 +222,10 @@ export function ResourceForm(props: FunctionProps) {
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
-            value,
-            model.functionSignature?.returnTypeDesc?.type?.source
+            paramString,
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            stModel,
+            currentValue
         );
     };
 
@@ -264,10 +234,7 @@ export function ResourceForm(props: FunctionProps) {
         setCurrentComponentName("Return");
     }
 
-    const onReturnTypeChange = async (value: string) => {
-        // setReturnType(value);
-        // await handleResourceParamChange(functionName, path, generateParamString(queryParam, payloadString,
-        //     advancedString), "", false, false, value, -3);
+    const onReturnTypeChange = (value: string) => {
         handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
@@ -329,40 +296,6 @@ export function ResourceForm(props: FunctionProps) {
         onCancel();
     }
 
-    // const handleParamChangeInProgress = (isInProgress: boolean) => {
-    //     setIsParamInProgress(isInProgress);
-    // };
-
-    // const handleQueryChangeInProgress = (isInProgress: boolean) => {
-    //     setIsQueryInProgress(isInProgress);
-    // };
-
-    // const handlePayloadChangeInProgress = (isInProgress: boolean) => {
-    //     setIsPayloadInProgress(isInProgress);
-    // };
-
-    // const handleAdvancedChangeInProgress = (isInProgress: boolean) => {
-    //     setIsAdvancedInProgress(isInProgress);
-    // };
-
-    // useEffect(() => {
-    //     if (model) {
-    //         if (!isParamInProgress) {
-    //             setPath(resources === "." ? "" : resources);
-    //         }
-    //         if (!isQueryInProgress) {
-    //             setQueryParam(generateQueryParamFromST(model?.functionSignature?.parameters));
-    //         }
-    //         const defaultAdvancedParams = generatePayloadParamFromST(model?.functionSignature?.parameters);
-    //         if (!isPayloadInProgress && !isAdvancedInProgress) {
-    //             setAdvancedParams(defaultAdvancedParams);
-    //         }
-    //     } else {
-    //         setPath("");
-    //     }
-    //     setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
-    //     setFunctionName(model?.functionName?.value);
-    // }, [model]);
     return (
         <FormControl data-testid="resource-form" className={connectorClasses.wizardFormControlExtended}>
             <div
@@ -431,28 +364,21 @@ export function ResourceForm(props: FunctionProps) {
                                 parameters={model.functionSignature?.parameters || []}
                                 readonly={false} // todo: implement the disable logic
                                 syntaxDiag={currentComponentSyntaxDiag}
-                                onChange={handleQueryParamEditorChange}
+                                onChange={handleParamEditorChange}
                                 completions={completions}
                             />
                             <PayloadEditor
                                 parameters={model.functionSignature?.parameters || []}
-                                onChange={handleQueryParamEditorChange}
+                                onChange={handleParamEditorChange}
                                 syntaxDiag={currentComponentSyntaxDiag}
                                 completions={completions}
                                 readonly={false}
                             />
                             <AdvancedParamEditor
-                                // callerName={advancedParams?.callerParamName}
-                                // requestName={advancedParams?.requestParamName}
-                                // headersName={advancedParams?.headerParamName}
-                                // callerSemDiag={paramDiagnostics?.callerNameSemDiagnostics}
-                                // headersSemDiag={paramDiagnostics?.headersNameSemDiagnostics}
-                                // requestSemDiag={paramDiagnostics?.requestNameSemDiagnostics}
                                 parameters={model.functionSignature?.parameters || []}
                                 syntaxDiag={currentComponentSyntaxDiag ? currentComponentSyntaxDiag : []}
-                                onChange={handleQueryParamEditorChange}
+                                onChange={handleParamEditorChange}
                                 readonly={false}
-                            // onChangeInProgress={handleAdvancedChangeInProgress}
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />

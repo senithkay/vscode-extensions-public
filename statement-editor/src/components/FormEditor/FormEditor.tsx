@@ -131,15 +131,17 @@ export function FormEditor(props: FormEditorProps) {
             )
         );
         setModel(enrichModel(partialST, newTargetPosition, diagnostics));
-
+        console.log('suggestion start >>>', currentModel, newValue, completionKinds);
         if (currentModel && newValue && completionKinds) {
             handleCompletions(newValue, currentModel, completionKinds);
         }
     };
 
     const handleCompletions = async (newValue: string, currentModel: CurrentModel, completionKinds: number[]) => {
+        console.log('suggestion args >>>', completionKinds, currentModel, model);
         const lsSuggestions = await getCompletionsForType(fileURI, targetPosition, model,
             currentModel, getLangClient, newValue, completionKinds);
+        console.log('suggestion >>>', lsSuggestions);
         setCompletions(lsSuggestions);
     };
 

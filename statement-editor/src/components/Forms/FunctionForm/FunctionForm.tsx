@@ -154,17 +154,9 @@ export function FunctionForm(props: FunctionProps) {
             }
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
-
-
-        // await functionParamChange(functionName.value, parametersStr, value, currentModel, value, );
     }
 
     const onReturnFocus = async () => {
-        // const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
-        // const currentModel: CurrentModel = {
-        //     model: model.functionSignature?.returnTypeDesc?.type
-        // };
-        // await functionParamChange(functionName.value, parametersStr, returnType.value, currentModel, "");
         setCurrentComponentCompletions([]);
         setCurrentComponentName("Return");
     }
