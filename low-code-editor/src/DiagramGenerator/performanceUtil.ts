@@ -45,14 +45,14 @@ export interface PerformanceGraphRequest {
 export interface PerformanceAnalyzerRealtimeResponse extends SequenceDiagramData {
     message?: string;
     type?: any;
-    positions: Record<string, string>;
+    positions: Record<string, ConnectorPosition>;
 }
 
 export interface PerformanceAnalyzerAdvancedResponse {
     criticalPath: number;
     pathmaps: Record<string, string[]>;
     paths: Record<string, PathData>;
-    positions: Record<string, string>;
+    positions: Record<string, ConnectorPosition>;
 }
 
 interface PathData {
@@ -65,6 +65,13 @@ interface GraphPoint {
     latency: number;
     tps: number;
 }
+
+interface ConnectorPosition {
+    name: string;
+    pkgID: string;
+    pos: string;
+}
+
 export interface Values {
     min?: number;
     max: number;
@@ -153,7 +160,7 @@ function updateDiagram(realtimeData: PerformanceAnalyzerRealtimeResponse, analyz
     };
 
     Object.keys(realtimeData.connectorLatencies).forEach((key) => {
-        const name = (realtimeData.positions[key]).split("/").pop();
+        const name = (realtimeData.positions[key]).pos.split("/").pop();
         const latencies = realtimeData.connectorLatencies[key];
         analysisData.push({ name, latency: getPerfValuesWithUnit(latencies) });
 

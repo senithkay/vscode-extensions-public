@@ -125,14 +125,34 @@ export function generatePerfData(data: any, analyzeType: ANALYZE_TYPE): Promise<
       return Promise.resolve({
         concurrency: { max: 50, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 },
         connectorLatencies: { "0": { max: 1, min: 1 }, "1": { max: 1, min: 1 } },
-        positions: { "0": "value1", "1": "value2" },
+        positions: {
+          "0": {
+            "name": "Client",
+            "pkgID": "ballerina/http",
+            "pos": "main.bal/(15:38,15:84)"
+          }, "1": {
+            "name": "Client",
+            "pkgID": "ballerina/http",
+            "pos": "main.bal/(15:38,15:84)"
+          }
+        },
         message: undefined, type: undefined
       });
     }
     return Promise.resolve({
       concurrency: { max: 1, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 },
       connectorLatencies: { "0": { max: 1, min: 1 }, "1": { max: 1, min: 1 } },
-      positions: { "0": "value1", "1": "value2" },
+      positions: {
+        "0": {
+          "name": "Client",
+          "pkgID": "ballerina/http",
+          "pos": "main.bal/(15:38,15:84)"
+        }, "1": {
+          "name": "Client",
+          "pkgID": "ballerina/http",
+          "pos": "main.bal/(15:38,15:84)"
+        }
+      },
       message: undefined, type: undefined
     });
 
