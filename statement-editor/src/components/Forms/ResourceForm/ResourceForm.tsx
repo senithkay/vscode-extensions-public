@@ -246,31 +246,6 @@ export function ResourceForm(props: FunctionProps) {
     }
     const debouncedReturnTypeChange = debounce(onReturnTypeChange, 800);
 
-    // Payload related functions
-    const handlePayloadChange = (value: string) => {
-        setCurrentComponentName("Payload");
-        handleResourceParamChange(
-            model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
-            generateParameterSectionString(model?.functionSignature?.parameters),
-            value,
-            model.functionSignature?.returnTypeDesc?.type,
-            value
-        );
-    };
-
-    const handleAdvancedParamChange = async (
-        requestName: string, headerName: string, callerName: string,
-        avoidValueCommit?: boolean) => {
-        setCurrentComponentName("Advanced");
-        // if (!avoidValueCommit) {
-        //     setAdvancedParams({
-        //         requestParamName: requestName, headerParamName: headerName,
-        //         callerParamName: callerName, payload: advancedParams.payload
-        //     });
-        // }
-    };
-
     const handleOnSave = () => {
         if (isEdit) {
             applyModifications([
@@ -362,10 +337,10 @@ export function ResourceForm(props: FunctionProps) {
                         <ConfigPanelSection title={"Parameters"}>
                             <ResourceParamEditor
                                 parameters={model.functionSignature?.parameters || []}
-                                readonly={false} // todo: implement the disable logic
                                 syntaxDiag={currentComponentSyntaxDiag}
                                 onChange={handleParamEditorChange}
                                 completions={completions}
+                                readonly={false} // todo: implement the disable logic
                             />
                             <PayloadEditor
                                 parameters={model.functionSignature?.parameters || []}
@@ -390,6 +365,7 @@ export function ResourceForm(props: FunctionProps) {
                             onChange={debouncedReturnTypeChange}
                             onFocus={onReturnFocus}
                             disabled={false}
+                            completions={completions}
                         />
                         <div className={classes.serviceFooterWrapper}>
                             <SecondaryButton
@@ -404,7 +380,6 @@ export function ResourceForm(props: FunctionProps) {
                                     className={classes.saveBtn}
                                     onClick={handleOnSave}
                                     disabled={false}
-                                // todo: fix disabled status
                                 />
                             </div>
                         </div>

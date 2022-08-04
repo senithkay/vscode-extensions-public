@@ -172,12 +172,11 @@ export async function getCompletionsForType(docUri: string,
         },
         position: {
             character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
-            line: targetPosition.startLine + currentModelPosition.startLine - 1
+            line: targetPosition.startLine + currentModelPosition.startLine
         }
     }
 
     // CodeSnippet is split to get the suggestions for field-access-expr (expression.field-name)
-
     const langClient = await getLangClient();
     const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
 
