@@ -14,6 +14,7 @@
 import React, { useState } from "react";
 
 import { Grid } from "@material-ui/core";
+import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     DefaultableParam,
@@ -28,7 +29,6 @@ import { FormEditorField } from "../../Types";
 
 import { FunctionParam } from "./FunctionParamItem";
 import { useStyles } from './style';
-import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 
 interface FunctionParamSegmentEditorProps {
     param?: (DefaultableParam | IncludedRecordParam | RequiredParam | RestParam);

@@ -155,11 +155,3 @@ export function QueryParamSegmentEditor(props: QueryParamSegmentEditorProps) {
         </div>
     );
 }
-function Context(Context: any): { props: { stSymbolInfo: any; }; } {
-    throw new Error("Function not implemented.");
-}
-
-function checkVariableName(arg0: string, value: string, arg2: string, stSymbolInfo: any) {
-    throw new Error("Function not implemented.");
-}
-
