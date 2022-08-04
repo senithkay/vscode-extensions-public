@@ -48,9 +48,13 @@ export function WorkerLine(props: WorkerLineProps) {
         if (highlightedPaths && highlightedPaths.length > 0) {
             for (let i = 0; i < highlightedPaths.length; i++) {
                 const element = highlightedPaths[i];
+
+                if (element.position.x !== x) {
+                    continue;
+                }
                 const isHighlight = i === 0 ? isPathSelected : highlightedPaths[i - 1].highlight;
-                lines.push(<line x1={x} y1={cy} x2={x} y2={element.position} strokeWidth={isHighlight ? HIGHLIGHTED_PATH_WIDTH : 1} />)
-                cy = element.position;
+                lines.push(<line x1={x} y1={cy} x2={x} y2={element.position.y} strokeWidth={isHighlight ? HIGHLIGHTED_PATH_WIDTH : 1} />)
+                cy = element.position.y;
             }
         }
         lines.push(<line x1={x} y1={cy} x2={x} y2={y + h} strokeWidth={isPathSelected ? HIGHLIGHTED_PATH_WIDTH : 1} />)

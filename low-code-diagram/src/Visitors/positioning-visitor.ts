@@ -67,7 +67,7 @@ let isPathHighlighting: boolean;
 let workerHighlights: WorkerHighlight[];
 
 export interface WorkerHighlight {
-    position: number;
+    position: { x: number, y: number };
     highlight: boolean;
 }
 
@@ -896,9 +896,9 @@ export class PositioningVisitor implements Visitor {
         ifBodyViewState.bBox.cy = viewState.headIf.cy + (viewState.headIf.h / 2) + viewState.headIf.offsetFromBottom;
 
         if (node.ifBody.isInSelectedPath) {
-            workerHighlights.push({ position: viewState.bBox.cy, highlight: true });
+            workerHighlights.push({ position: { x: viewState.bBox.cx, y: viewState.bBox.cy }, highlight: true });
         } else if (isPathHighlighting) {
-            workerHighlights.push({ position: viewState.bBox.cy, highlight: false });
+            workerHighlights.push({ position: { x: viewState.bBox.cx, y: viewState.bBox.cy }, highlight: false });
         }
 
         if (node.elseBody) {
@@ -919,7 +919,12 @@ export class PositioningVisitor implements Visitor {
                 elseViewStatement.elseBottomHorizontalLine.y = elseViewStatement.elseBody.y +
                     elseViewStatement.elseBody.length;
                 if (isPathHighlighting) {
-                    workerHighlights.push({ position: elseViewStatement.elseBottomHorizontalLine.y, highlight: false });
+                    workerHighlights.push({
+                        position: {
+                            x: elseViewStatement.elseBottomHorizontalLine.x, y: elseViewStatement.elseBottomHorizontalLine.y
+                        },
+                        highlight: false
+                    });
                 }
             } else if (node.elseBody.elseBody.kind === "IfElseStatement") {
                 const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
@@ -939,7 +944,12 @@ export class PositioningVisitor implements Visitor {
                 elseIfViewState.elseIfBottomHorizontalLine.y = viewState.bBox.cy + elseIfViewState.elseIfLifeLine.h +
                     elseIfViewState.headIf.h;
                 if (isPathHighlighting) {
-                    workerHighlights.push({ position: elseIfViewState.elseIfBottomHorizontalLine.y, highlight: false });
+                    workerHighlights.push({
+                        position: {
+                            x: elseIfViewState.elseIfBottomHorizontalLine.x, y: elseIfViewState.elseIfBottomHorizontalLine.y
+                        },
+                        highlight: false
+                    });
                 }
             }
         } else {
@@ -965,7 +975,12 @@ export class PositioningVisitor implements Visitor {
             }
 
             if (isPathHighlighting) {
-                workerHighlights.push({ position: defaultElseVS.elseBottomHorizontalLine.y, highlight: false });
+                workerHighlights.push({
+                    position: {
+                        x: defaultElseVS.elseBottomHorizontalLine.x, y: defaultElseVS.elseBottomHorizontalLine.y
+                    },
+                    highlight: false
+                });
             }
         }
     }
