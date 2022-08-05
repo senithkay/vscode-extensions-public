@@ -16,8 +16,8 @@ import React, { useContext } from "react";
 import { FunctionCall, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { CALL_CONFIG_TYPE, EXPR_CONSTRUCTOR, FUNCTION_CALL } from "../../../constants";
-import { FUNCTION_CALL_PLACEHOLDER } from "../../../utils/expressions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { FUNCTION_CALL_PLACEHOLDER } from "../../../utils/expressions";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { InputEditor, InputEditorProps } from "../../InputEditor";
