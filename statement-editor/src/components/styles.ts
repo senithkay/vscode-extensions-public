@@ -426,6 +426,31 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             fontWeight: 500,
             paddingLeft: '10px'
         },
+        selectionWrapper: {
+            display: 'flex',
+            flexDirection: 'row',
+            marginLeft: '14px',
+            marginBottom: '4px'
+        },
+        selectionSubHeader: {
+            height: '24px',
+            width: 'fit-content',
+            color: '#40404B',
+            padding: '0 10px',
+            borderRadius: '5px',
+            backgroundColor: 'rgba(204,209,242,0.61)',
+            display: 'flex',
+            alignItems: 'center',
+            fontFamily: 'Droid sans mono'
+        },
+        selectionSeparator: {
+            height: '1px',
+            width: '100%',
+            flex: '1 0',
+            backgroundColor: '#EDEEF1',
+            alignSelf: 'flex-end',
+            marginLeft: '10px'
+        },
         expressionList: {
             columnGap: '5%',
             display: 'grid',

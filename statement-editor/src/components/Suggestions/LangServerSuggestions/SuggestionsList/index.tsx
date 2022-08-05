@@ -36,7 +36,10 @@ export function SuggestionsList(props: SuggestionsListProps) {
             {(selection) && (
                 <>
                     <br/>
-                    <div className={stmtEditorHelperClasses.helperPaneSubHeader}>{selection}</div>
+                    <div className={stmtEditorHelperClasses.selectionWrapper}>
+                        <div className={stmtEditorHelperClasses.selectionSubHeader}>{selection}</div>
+                        <div className={stmtEditorHelperClasses.selectionSeparator} />
+                    </div>
                 </>
             )}
             <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
