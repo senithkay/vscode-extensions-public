@@ -1,7 +1,7 @@
 import { Canvas } from "../../../utils/components/canvas";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
-import { ConnectorForm } from "../../../utils/forms/connector-form";
+import { ConnectorMarketplace } from "../../../utils/forms/connector-form";
 import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
 import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
@@ -25,7 +25,7 @@ describe('Worker Scenario with Conflicts', () => {
 
         BlockLevelPlusWidget.clickOption("Connector");
 
-        ConnectorForm
+        ConnectorMarketplace
             .shouldBeVisible()
             .waitForConnectorsLoading()
             .searchConnector("http")
@@ -54,5 +54,4 @@ describe('Worker Scenario with Conflicts', () => {
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "worker-with-conflict-scenario.expected.bal");
     });
-
 });

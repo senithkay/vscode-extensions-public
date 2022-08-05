@@ -15,7 +15,7 @@ describe('Add connectors to module level via Low Code', () => {
         cy.visit(getIntegrationTestPageURL(EMPTY_BAL_FILE_PATH));
     });
 
-    it('Add http connector to function', () => {
+    it('Add add multiple connectors to module level', () => {
         // Add http connector (standard library)
         Canvas
             .welcomeMessageShouldBeVisible()
@@ -74,7 +74,7 @@ describe('Add connectors to module level via Low Code', () => {
             .save();
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-http-connector-to-function.expected.bal");
+            getCurrentSpecFolder() + "add-module-level-connector.expected.bal");
     });
 
 });
