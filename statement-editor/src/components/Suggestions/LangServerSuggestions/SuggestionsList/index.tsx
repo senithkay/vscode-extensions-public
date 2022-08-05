@@ -44,10 +44,10 @@ export function SuggestionsList(props: SuggestionsListProps) {
                     lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                         <SuggestionListItem
                             key={index}
-                            isSelected={ selectedSuggestion ? (
+                            isSelected={ selectedSuggestion && (
                                 index === selectedSuggestion.selectedListItem &&
                                 currentGroup === selectedSuggestion.selectedGroup
-                            ) : false
+                            )
                             }
                             suggestion={suggestion}
                             onClickLSSuggestion={onClickLSSuggestion}
