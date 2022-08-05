@@ -363,16 +363,42 @@ export interface SymbolInfoResponse {
     documentation: SymbolDocumentation
 }
 
-export interface ExpressionTypeDescRequest {
+export interface ExpressionRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
+    filePath?: string;
+}
+
+export interface TypeFromExpressionRequest {
     documentIdentifier: {
         uri: string;
     };
-    startPosition: LinePosition;
-    endPosition: LinePosition;
+    expressionRanges: ExpressionRange[];
 }
 
-export interface TypeFromSymbolResponse {
-    type: FormField
+export interface ResolvedTypeForExpression {
+    type: FormField;
+    requestedRange: ExpressionRange;
+}
+
+export interface TypesFromExpressionResponse {
+    types: ResolvedTypeForExpression[];
+}
+
+export interface TypeFromSymbolRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    positions: LinePosition[];
+}
+
+export interface ResolvedTypeForSymbol {
+    type: FormField;
+    requestedPosition: LinePosition;
+}
+
+export interface TypesFromSymbolResponse {
+    types: ResolvedTypeForSymbol[];
 }
 
 interface NOT_SUPPORTED_TYPE {
@@ -518,17 +544,17 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(null);
     }
 
-    async getTypeFromExpression(params: ExpressionTypeDescRequest): Promise<TypeFromSymbolResponse | null> {
+    async getTypeFromExpression(params: TypeFromExpressionRequest): Promise<TypesFromExpressionResponse | null> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE_FROM_EXPRESSION);
         return isSupported
-            ? this.sendRequest<TypeFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_EXPRESSION, params)
+            ? this.sendRequest<TypesFromExpressionResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_EXPRESSION, params)
             : Promise.resolve(null);
     }
 
-    async getTypeFromSymbol(params: ExpressionTypeRequest): Promise<TypeFromSymbolResponse | null> {
+    async getTypeFromSymbol(params: TypeFromSymbolRequest): Promise<TypesFromSymbolResponse | null> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL);
         return isSupported
-            ? this.sendRequest<TypeFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL, params)
+            ? this.sendRequest<TypesFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL, params)
             : Promise.resolve(null);
     }
 
