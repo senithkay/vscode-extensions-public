@@ -441,7 +441,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             backgroundColor: 'rgba(204,209,242,0.61)',
             display: 'flex',
             alignItems: 'center',
-            fontFamily: 'Droid sans mono'
+            ...statementFontStyles
         },
         selectionSeparator: {
             height: '1px',
