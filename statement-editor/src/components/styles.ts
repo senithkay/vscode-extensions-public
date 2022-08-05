@@ -430,7 +430,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             display: 'flex',
             flexDirection: 'row',
             marginLeft: '14px',
-            marginBottom: '4px'
+            marginBottom: '14px'
         },
         selectionSubHeader: {
             height: '24px',
