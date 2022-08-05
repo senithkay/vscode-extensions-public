@@ -52,11 +52,11 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
         type: { value: "string", isInteracted: false },
     };
 
-    const [segmentType, setSegmentType] = useState<FormEditorField>(segment?.type || {
-        value: "string", isInteracted: false
+    const [segmentType, setSegmentType] = useState<FormEditorField>({
+        value: param?.typeName?.source || "string", isInteracted: false
     });
-    const [segmentName, setSegmentName] = useState<FormEditorField>(segment?.name || {
-        value: "name", isInteracted: false
+    const [segmentName, setSegmentName] = useState<FormEditorField>({
+        value: param?.paramName?.value.trim() || "name", isInteracted: false
     });
 
     // States related to syntax diagnostics
@@ -145,10 +145,9 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             diagnostics={(syntaxDiag && currentComponentName === "Type"
                                 && syntaxDiag) || segmentType.isInteracted && param?.typeName?.viewState?.
                                     diagnosticsInRange}
-                            defaultValue={(segmentType.isInteracted || isEdit) ? segmentType.value : ""}
+                            defaultValue={isEdit ? segmentType.value : ""}
                             onChange={debouncedTypeChange}
                             onFocus={onTypeEditorFocus}
-                            disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Type"}
                             completions={completions}
                         />
                     </Grid>
@@ -173,10 +172,9 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                         <LiteExpressionEditor
                             diagnostics={(syntaxDiag && currentComponentName === "Name"
                                 && syntaxDiag) || param?.paramName?.viewState?.diagnosticsInRange}
-                            defaultValue={(segmentName.isInteracted || isEdit) ? segmentName.value : ""}
+                            defaultValue={isEdit ? segmentName.value : ""}
                             onChange={debouncedNameChange}
-                            onFocus={onTypeEditorFocus}
-                            disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Name"}
+                            onFocus={onNameEditorFocus}
                             completions={completions}
                         />
                     </Grid>
@@ -193,8 +191,9 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             <PrimaryButton
                                 dataTestId={"param-save-btn"}
                                 text={onUpdate ? "Update" : " Add"}
-                                disabled={(syntaxDiag?.length > 0) || (param?.viewState?.diagnosticsInRange?.length > 0)
-                                    || !(segmentName.isInteracted || isEdit) || !(segmentType.isInteracted || isEdit)
+                                disabled={
+                                    (syntaxDiag?.length > 0)
+                                    || (param?.viewState?.diagnosticsInRange?.length > 0)
                                 }
                                 fullWidth={false}
                                 onClick={onUpdate ? handleOnUpdate : handleOnSave}
