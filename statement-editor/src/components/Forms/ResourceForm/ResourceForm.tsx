@@ -345,14 +345,18 @@ export function ResourceForm(props: FunctionProps) {
                                 readonly={isEditInProgress} // todo: implement the disable logic
                                 onChangeInProgress={setIsEditInProgress}
                             />
-                            <PayloadEditor
-                                parameters={model.functionSignature?.parameters || []}
-                                onChange={handleParamEditorChange}
-                                syntaxDiag={currentComponentSyntaxDiag}
-                                completions={completions}
-                                readonly={isEditInProgress}
-                                onChangeInProgress={setIsEditInProgress}
-                            />
+                            {
+                                !model.functionName.value.includes('get') && (
+                                    <PayloadEditor
+                                        parameters={model.functionSignature?.parameters || []}
+                                        onChange={handleParamEditorChange}
+                                        syntaxDiag={currentComponentSyntaxDiag}
+                                        completions={completions}
+                                        readonly={isEditInProgress}
+                                        onChangeInProgress={setIsEditInProgress}
+                                    />
+                                )
+                            }
                             <AdvancedParamEditor
                                 parameters={model.functionSignature?.parameters || []}
                                 syntaxDiag={currentComponentSyntaxDiag ? currentComponentSyntaxDiag : []}
