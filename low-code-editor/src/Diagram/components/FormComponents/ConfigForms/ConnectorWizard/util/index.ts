@@ -37,6 +37,8 @@ import { isEndpointNode } from "../../../../../utils";
 import { getFieldName, getFormattedModuleName } from "../../../../Portals/utils";
 import { isAllDefaultableFields, isAnyFieldSelected, isDependOnDriver } from "../../../Utils";
 
+const EXPR_PLACEHOLDER = "EXPRESSION";
+
 export async function fetchConnectorInfo(
     connector: BallerinaConnectorInfo,
     langServerURL?: string,
@@ -108,21 +110,21 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
         let draftParameter = "";
         switch (parameter.typeName) {
             case PrimitiveBalType.String:
-                draftParameter = getFieldValuePair(parameter, `""`, depth);
+                draftParameter = getFieldValuePair(parameter, `""`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Int:
             case PrimitiveBalType.Float:
             case PrimitiveBalType.Decimal:
-                draftParameter = getFieldValuePair(parameter, `0`, depth);
+                draftParameter = getFieldValuePair(parameter, `0`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Boolean:
-                draftParameter = getFieldValuePair(parameter, `true`, depth);
+                draftParameter = getFieldValuePair(parameter, `true`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Array:
-                draftParameter = getFieldValuePair(parameter, `[]`, depth);
+                draftParameter = getFieldValuePair(parameter, `[]`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Xml:
-                draftParameter = getFieldValuePair(parameter, "xml ``", depth);
+                draftParameter = getFieldValuePair(parameter, "xml ``", depth, valueOnly);
                 break;
             case PrimitiveBalType.Nil:
             case "anydata":
@@ -131,7 +133,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 break;
             case PrimitiveBalType.Json:
             case "map":
-                draftParameter = getFieldValuePair(parameter, `{}`, depth);
+                draftParameter = getFieldValuePair(parameter, `{}`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Record:
                 const allFieldsDefaultable = isAllDefaultableFields(parameter?.fields);
@@ -142,13 +144,13 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
-                draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly);
+                draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly, false);
                 break;
             case PrimitiveBalType.Enum:
             case PrimitiveBalType.Union:
-                const selectedMember = parameter.members[ 0 ];
+                const selectedMember = getSelectedUnionMember(parameter);
                 const selectedMemberParams = getDefaultParams([ selectedMember ], depth + 1, true);
-                draftParameter = getFieldValuePair(parameter, selectedMemberParams?.join(), depth, false);
+                draftParameter = getFieldValuePair(parameter, selectedMemberParams?.join(), depth, false, false);
                 break;
             case "inclusion":
                 if (isAllDefaultableFields(parameter.inclusionType?.fields) && !parameter.selected) {
@@ -159,15 +161,23 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 break;
             case "object":
                 const typeInfo = parameter.typeInfo;
-                if (typeInfo && typeInfo.orgName === 'ballerina' && typeInfo.moduleName === 'sql'
-                    && typeInfo.name === 'ParameterizedQuery') {
-                    draftParameter = getFieldValuePair(parameter, '``', depth);
+                if (
+                    typeInfo &&
+                    typeInfo.orgName === "ballerina" &&
+                    typeInfo.moduleName === "sql" &&
+                    typeInfo.name === "ParameterizedQuery"
+                ) {
+                    draftParameter = getFieldValuePair(parameter, "``", depth);
                 }
                 break;
             default:
                 if (!parameter.name) {
                     // Handle Enum type
                     draftParameter = getFieldValuePair(parameter, `"${parameter.typeName}"`, depth, true);
+                }
+                if (parameter.name === "rowType") {
+                    // Handle custom return type
+                    draftParameter = getFieldValuePair(parameter, EXPR_PLACEHOLDER, depth);
                 }
                 break;
         }
@@ -178,7 +188,17 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
     return parameterList;
 }
 
-function getFieldValuePair(parameter: FormField, defaultValue: string, depth: number, valueOnly = false): string {
+function getFieldValuePair(
+    parameter: FormField,
+    defaultValue: string,
+    depth: number,
+    valueOnly = false,
+    useParamValue = true
+): string {
+    let value = defaultValue || EXPR_PLACEHOLDER;
+    if (useParamValue && parameter.value) {
+        value = parameter.value;
+    }
     if (depth === 1 && !valueOnly) {
         // Handle named args
         return `${getFieldName(parameter.name)} = ${defaultValue}`;
