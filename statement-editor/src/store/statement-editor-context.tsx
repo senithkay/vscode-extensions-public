@@ -43,7 +43,7 @@ export const StatementEditorContext = React.createContext({
         hasSyntaxDiagnostics: false,
         updateSyntaxDiagnostics: (hasSyntaxIssues: boolean) => {},
         editing: false,
-        updateEditing: (editing: boolean) => {}, 
+        updateEditing: (editing: boolean) => {},
         restArg: (restCheckClicked: boolean) => undefined,
         hasRestArg: false
     },
