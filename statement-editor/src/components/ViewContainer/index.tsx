@@ -54,7 +54,8 @@ export function ViewContainer(props: ViewContainerProps) {
     } = useContext(StatementEditorContext);
     const {
         modelCtx: {
-            statementModel
+            statementModel,
+            editing
         },
         modules: {
             modulesToBeImported
@@ -178,7 +179,7 @@ export function ViewContainer(props: ViewContainerProps) {
                                             ? addConfigurableButtonText
                                             : saveButtonText
                                     }
-                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1}
+                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1 || editing}
                                     fullWidth={false}
                                     onClick={
                                         activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick
