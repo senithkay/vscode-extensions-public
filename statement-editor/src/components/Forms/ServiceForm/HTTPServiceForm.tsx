@@ -176,7 +176,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         await serviceParamChange(value, listenerPort, listenerName);
     }
 
-    const debouncedPathChange = debounce(onBasePathChange, 800);
+    const debouncedPathChange = debounce(onBasePathChange, 1000);
 
     const onPortTextFieldFocus = async () => {
         setCurrentComponentName("port");
@@ -185,7 +185,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         setListenerPort(value);
         await serviceParamChange(basePath, value, listenerName, 'port');
     }
-    const debouncedPortChange = debounce(onPortChange, 800);
+    const debouncedPortChange = debounce(onPortChange, 1000);
 
     const onListenerSelect = async (name: string) => {
         setCurrentComponentName("Listener Selector");
