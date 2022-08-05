@@ -11,7 +11,7 @@ import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
 import { DataMapperPortModel } from '../Port';
 import { handleCodeActions } from '../utils/ls-utils';
-import { CodeActionWidget } from '../CodeAction';
+import { CodeActionWidget } from '../CodeAction/CodeAction';
 
 export interface FlowAliasLabelWidgetProps {
 	model: ExpressionLabelModel;
