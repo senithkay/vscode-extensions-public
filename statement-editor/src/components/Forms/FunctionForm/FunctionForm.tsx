@@ -34,7 +34,8 @@ import {
     IncludedRecordParam,
     RequiredParam,
     RestParam,
-    STKindChecker} from "@wso2-enterprise/syntax-tree";
+    STKindChecker
+} from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { CurrentModel, StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
@@ -161,7 +162,7 @@ export function FunctionForm(props: FunctionProps) {
         setCurrentComponentName("Return");
     }
 
-    const debouncedReturnChange = debounce(onReturnTypeChange, 1000);
+    const debouncedReturnChange = debounce(onReturnTypeChange, 1200);
 
     // Param related functions
     const openNewParamView = () => {
@@ -300,7 +301,10 @@ export function FunctionForm(props: FunctionProps) {
                         <FieldTitle title='Name' optional={false} />
                         <LiteExpressionEditor
                             defaultValue={functionName}
-                            diagnostics={model?.functionName?.viewState?.diagnosticsInRange}
+                            diagnostics={
+                                (currentComponentName === "Name" && currentComponentSyntaxDiag)
+                                || model?.functionName?.viewState?.diagnosticsInRange
+                            }
                             focus={true}
                             onChange={debouncedNameChange}
                             onFocus={onNameFocus}

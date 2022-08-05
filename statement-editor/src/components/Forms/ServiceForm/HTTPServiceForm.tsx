@@ -20,6 +20,7 @@ import {
     createImportStatement,
     createServiceDeclartion,
     getSource,
+    STModification,
     updateServiceDeclartion
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -57,8 +58,9 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const formClasses = useFormStyles();
     const { model } = props;
 
-    const { targetPosition, isEdit, isLastMember, currentFile, stSymbolInfo, onChange, applyModifications,
-            onCancel, getLangClient } = useContext(FormEditorContext);
+    const {
+        targetPosition, isEdit, isLastMember, currentFile, stSymbolInfo, onChange, applyModifications,
+        onCancel, getLangClient } = useContext(FormEditorContext);
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -95,8 +97,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const [basePath, setBsePath] = useState<string>(path);
     const [listenerPort, setListenerPort] = useState<string>(listenerConfig.listenerPort);
     const [listenerName, setListenerName] = useState<string>(listenerConfig.listenerName);
-    const [shouldAddNewLine] = useState<boolean>(false);
-    const [createdListerCount] = useState<number>(0);
+    const [shouldAddNewLine, setShouldAddNewLine] = useState<boolean>(false);
+    const [createdListnerCount, setCreatedListnerCount] = useState<number>(0);
     const [isInline, setIsInline] = useState<boolean>(!listenerName);
     const [isAddListenerInProgress, setIsAddListenerInProgress] = useState<boolean>(false);
 
@@ -119,7 +121,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         })
         .map(([key]) => key);
 
-    const serviceParamChange = async (servicePath: string, port: string, name: string) => {
+    const serviceParamChange = async (servicePath: string, port: string, name: string, fieldType?: string) => {
         const modelPosition = model.position as NodePosition;
         const openBracePosition = serviceModel.openBraceToken.position as NodePosition;
         const updatePosition = {
@@ -139,9 +141,27 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            const offset = isEdit ? (createdListerCount * 2) :
-                (shouldAddNewLine ? (createdListerCount * 2 + 1) : createdListerCount * 2);
-            onChange(updatedContent, partialST, HTTP_IMPORT, undefined, "", [], offset);
+            const offset = isEdit ? (createdListnerCount * 2) :
+                (shouldAddNewLine ? (createdListnerCount * 2 + 1) : createdListnerCount * 2);
+            let currentValue = "";
+            let currentModel;
+            switch (fieldType) {
+                case 'listenerName':
+                    currentValue = name;
+                    if (STKindChecker.isServiceDeclaration(model)
+                        && model.expressions.length > 0
+                        && STKindChecker.isSimpleNameReference(model.expressions[0])) {
+                        currentModel = { model: model.expressions[0] };
+                    }
+                    break;
+                case 'port':
+                    currentValue = port;
+                    break;
+                case 'path':
+                    currentValue = path;
+                    break;
+            }
+            onChange(updatedContent, partialST, HTTP_IMPORT, currentModel, currentValue, [], offset);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
@@ -163,7 +183,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     }
     const onPortChange = async (value: string) => {
         setListenerPort(value);
-        await serviceParamChange(basePath, value, listenerName);
+        await serviceParamChange(basePath, value, listenerName, 'port');
     }
     const debouncedPortChange = debounce(onPortChange, 800);
 
@@ -177,7 +197,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             setIsAddListenerInProgress(false);
         }
 
-        await serviceParamChange(basePath, listenerPort, name);
+        await serviceParamChange(basePath, listenerPort, name, 'listenerName');
     }
 
     const onListenerFormCancel = () => {
@@ -188,34 +208,43 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const handleOnSave = () => {
         if (isEdit) {
             const serviceUpdatePosition: NodePosition = {
-                ...targetPosition, endLine: targetPosition.endLine + (createdListerCount * 2),
-                startLine: targetPosition.startLine + (createdListerCount * 2)
+                ...targetPosition, endLine: targetPosition.endLine + (createdListnerCount * 2),
+                startLine: targetPosition.startLine + (createdListnerCount * 2)
             }
+
             applyModifications([
-                updateServiceDeclartion({
-                    serviceBasePath: basePath, listenerConfig:
-                        { createNewListener: false, listenerName, listenerPort, fromVar: false }
-                }
-                    , serviceUpdatePosition
+                updateServiceDeclartion(
+                    {
+                        serviceBasePath: basePath,
+                        listenerConfig: { createNewListener: false, listenerName, listenerPort, fromVar: listenerPort && listenerPort.length === 0 }
+                    },
+                    serviceUpdatePosition
                 )
             ]);
+
         } else {
             const serviceInsertPosition: NodePosition = {
-                startColumn: 0, endColumn: 0, endLine: targetPosition.endLine + (createdListerCount * 2),
-                startLine: targetPosition.startLine + (createdListerCount * 2)
+                startColumn: 0, endColumn: 0, endLine: targetPosition.endLine + (createdListnerCount * 2),
+                startLine: targetPosition.startLine + (createdListnerCount * 2)
             }
+
             applyModifications([
                 createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
                 createServiceDeclartion({
                     serviceBasePath: basePath, listenerConfig:
-                        { createNewListener: false, listenerName, listenerPort, fromVar: false }
+                        { createNewListener: false, listenerName, listenerPort, fromVar: listenerPort && listenerPort.length === 0 }
                 },
                     shouldAddNewLine ? {
-                        ...serviceInsertPosition, startLine: serviceInsertPosition.startLine + 1, endLine:
-                            serviceInsertPosition.endLine + 1
-                    } : serviceInsertPosition, isLastMember)
+                        ...serviceInsertPosition,
+                        startLine: serviceInsertPosition.startLine + 1,
+                        endLine: serviceInsertPosition.endLine + 1
+                    } : serviceInsertPosition,
+                    isLastMember
+                )
+
             ]);
         }
+
         onCancel();
     }
 
@@ -223,7 +252,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         <>
             <FieldTitle title='Path' optional={false} />
             <LiteExpressionEditor
-                diagnostics={currentComponentName === 'path' ? serviceModel?.viewState?.diagnosticsInRange : []}
+                diagnostics={currentComponentName === 'path' ?
+                    currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
                 defaultValue={basePath}
                 onChange={debouncedPathChange}
                 completions={[]}
@@ -239,7 +269,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         <>
             <FieldTitle title='Port' optional={false} />
             <LiteExpressionEditor
-                diagnostics={currentComponentName === 'port' ? serviceModel?.viewState?.diagnosticsInRange : []}
+                diagnostics={currentComponentName === 'port' ?
+                    currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
                 defaultValue={listenerPort}
                 onChange={debouncedPortChange}
                 completions={[]}
@@ -251,6 +282,23 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             />
         </>
     );
+
+    const onListenerConfigSave = (modifications: STModification[]) => {
+        const listenerMod: STModification = modifications.find(l => l.type === "LISTENER_DECLARATION");
+        if (modifications.find(l => l.type === "IMPORT")) {
+            HTTP_IMPORT.forEach(module => {
+                if (!currentFile.content.includes(module)) {
+                    setShouldAddNewLine(true);
+                }
+            })
+        }
+
+        setListenerName(listenerMod.config.LISTENER_NAME);
+        setListenerPort("");
+        setCreatedListnerCount(createdListnerCount + 1);
+        applyModifications(modifications);
+    }
+
     const getListenerSelector = () => (
         <>
             <FormHelperText className={formClasses.inputLabelForRequired}>
@@ -263,7 +311,10 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 customProps={{ disableCreateNew: false, values: listenerList || [] }}
                 onChange={onListenerSelect}
                 placeholder="Select Property"
-                defaultValue={isAddListenerInProgress ? "" : listenerName}
+                defaultValue={
+                    isAddListenerInProgress ?
+                        "" : listenerName
+                }
             />
             {isAddListenerInProgress && (
                 <Panel onClose={onListenerFormCancel}>
@@ -276,12 +327,12 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                         currentFile={currentFile}
                         getLangClient={getLangClient}
                         topLevelComponent={true}
-                        applyModifications={applyModifications}
+                        applyModifications={onListenerConfigSave}
                     />
                 </Panel>
             )}
         </>
-)
+    )
 
     return (
         <>
