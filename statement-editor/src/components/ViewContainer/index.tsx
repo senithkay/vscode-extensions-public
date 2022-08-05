@@ -130,8 +130,10 @@ export function ViewContainer(props: ViewContainerProps) {
         await sendDidClose(exprSchemeURI, getLangClient);
         await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
         const imports = addImports ? Array.from(modulesToBeImported) as string[] : [];
-        const modifications = getModifications(statementModel, config.type, targetPosition, imports);
-        applyModifications(modifications);
+        if (statementModel){
+            const modifications = getModifications(statementModel, config.type, targetPosition, imports);
+            applyModifications(modifications);
+        }
     };
 
     const handleClose = async () => {
