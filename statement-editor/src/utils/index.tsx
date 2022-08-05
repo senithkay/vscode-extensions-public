@@ -64,8 +64,9 @@ import {
 import {
     EditorModel, MinutiaeJSX,
     RemainingContent,
-    StmtDiagnostic,
-    StmtOffset, SuggestionIcon,
+    StatementSyntaxDiagnostics,
+    StmtOffset,
+    SuggestionIcon,
     SuggestionItem,
     SymbolIcon
 } from '../models/definitions';
@@ -186,8 +187,10 @@ export function enrichModel(model: STNode, targetPosition: NodePosition, diagnos
     return enrichModelWithViewState(model);
 }
 
-export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePosition,
-                                           diagnostics: Diagnostic[]): STNode {
+export function enrichModelWithDiagnostics(
+    model: STNode, targetPosition: NodePosition,
+    diagnostics: Diagnostic[]): STNode {
+
     if (diagnostics) {
         const offset: StmtOffset = {
             startColumn: targetPosition.startColumn,
@@ -202,7 +205,7 @@ export function enrichModelWithDiagnostics(model: STNode, targetPosition: NodePo
     return model;
 }
 
-export function enrichModelWithViewState(model: STNode): STNode  {
+export function enrichModelWithViewState(model: STNode): STNode {
     traversNode(model, DeleteConfigSetupVisitor);
     traversNode(model, ModelTypeSetupVisitor);
     traversNode(model, parentFunctionSetupVisitor);
@@ -247,18 +250,18 @@ export function isBindingPattern(modelType: number): boolean {
     return modelType === ModelType.BINDING_PATTERN;
 }
 
-export function isDescriptionWithExample(doc : string): boolean {
+export function isDescriptionWithExample(doc: string): boolean {
     return doc?.includes(BAL_SOURCE);
 }
 
-export function getDocDescription(doc: string) : string[] {
+export function getDocDescription(doc: string): string[] {
     return doc.split(BAL_SOURCE);
 }
 
 export function getFilteredDiagnosticMessages(statement: string, targetPosition: NodePosition,
-                                              diagnostics: Diagnostic[]): StmtDiagnostic[] {
+                                              diagnostics: Diagnostic[]): StatementSyntaxDiagnostics[] {
 
-    const stmtDiagnostics: StmtDiagnostic[] = [];
+    const stmtDiagnostics: StatementSyntaxDiagnostics[] = [];
     const diag = getFilteredDiagnostics(diagnostics, false);
     const noOfLines = statement.trim().split('\n').length;
     const diagTargetPosition: NodePosition = {
@@ -269,20 +272,20 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
     };
 
     getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
-            let isPlaceHolderDiag = false;
-            if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
-                || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
-                isPlaceHolderDiag = true;
-            }
-            if (!!message) {
-                stmtDiagnostics.push({message, isPlaceHolderDiag});
-            }
-        });
+        let isPlaceHolderDiag = false;
+        if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
+            || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
+            isPlaceHolderDiag = true;
+        }
+        if (!!message) {
+            stmtDiagnostics.push({ message, isPlaceHolderDiag });
+        }
+    });
 
     return stmtDiagnostics;
 }
 
-export function isPlaceHolderExists (statement: string) : boolean {
+export function isPlaceHolderExists(statement: string): boolean {
     return PLACEHOLDER_DIAGNOSTICS.some(placeHolder => (statement ? statement : "").includes(placeHolder))
 }
 
@@ -330,7 +333,7 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
 export function addImportStatements(
     currentFileContent: string,
     modulesToBeImported: string[]): string {
-    let moduleList : string = "";
+    let moduleList: string = "";
     modulesToBeImported.forEach(module => {
         moduleList += "import " + module + "; ";
     });
@@ -347,9 +350,9 @@ export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
 export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX: boolean = false): ReactNode[] {
     return minutiae?.map((element) => {
         if (element.kind === WHITESPACE_MINUTIAE) {
-            return Array.from({length: element.minutiae.length}, () => <>&nbsp;</>);
+            return Array.from({ length: element.minutiae.length }, () => <>&nbsp;</>);
         } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
-            return <br/>;
+            return <br />;
         }
     });
 }
@@ -437,7 +440,7 @@ export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
 }
 
 export function getSelectedModelPosition(codeSnippet: string, targetedPosition: NodePosition): NodePosition {
-    let selectedModelPosition : NodePosition = {
+    let selectedModelPosition: NodePosition = {
         ...targetedPosition,
         endColumn: targetedPosition.startColumn + codeSnippet.length
     };
@@ -615,35 +618,35 @@ export function isConfigurableEditor(editors: EditorModel[], activeEditorId: num
     return false;
 }
 
-export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition{
+export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode, userInput: string): LinePosition {
     let position: LinePosition;
-    if (STKindChecker.isFunctionCall(currentModel)){
+    if (STKindChecker.isFunctionCall(currentModel)) {
         position = {
-            line : targetPos.startLine + currentModel.position.startLine,
-            offset : (STKindChecker.isQualifiedNameReference(currentModel.functionName)) ?
+            line: targetPos.startLine + currentModel.position.startLine,
+            offset: (STKindChecker.isQualifiedNameReference(currentModel.functionName)) ?
                 targetPos.startColumn + currentModel.functionName.identifier.position.endColumn - 1 :
                 targetPos.startColumn + currentModel.functionName.name.position.endColumn - 1
 
         }
-        return  position;
-    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
+        return position;
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)) {
         position = {
-            line : targetPos.startLine + currentModel.position.startLine,
-            offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
+            line: targetPos.startLine + currentModel.position.startLine,
+            offset: targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
         }
-        return  position;
+        return position;
     } else if (STKindChecker.isMethodCall(currentModel)) {
         position = {
             line: targetPos.startLine + currentModel.methodName.position.startLine,
             offset: targetPos.startColumn + currentModel.methodName.position.startColumn
         }
         return position;
-    } else if (STKindChecker.isImplicitNewExpression(currentModel)){
+    } else if (STKindChecker.isImplicitNewExpression(currentModel)) {
         position = {
-            line : targetPos.startLine + currentModel.position.startLine,
-            offset : targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
+            line: targetPos.startLine + currentModel.position.startLine,
+            offset: targetPos.startColumn + currentModel.parenthesizedArgList.position.startColumn
         }
-        return  position;
+        return position;
     } else if (STKindChecker.isMethodCall(currentModel)) {
         position = {
             line: targetPos.startLine + currentModel.methodName.position.startLine,
@@ -652,8 +655,8 @@ export function getSymbolPosition(targetPos: NodePosition, currentModel: STNode,
         return position;
     }
     position = {
-        line : targetPos.startLine + currentModel.position.startLine,
-        offset : targetPos.startColumn + currentModel.position.startColumn + userInput.length
+        line: targetPos.startLine + currentModel.position.startLine,
+        offset: targetPos.startColumn + currentModel.position.startColumn + userInput.length
     }
     return position;
 }
@@ -681,19 +684,19 @@ export function getCurrentModelParams(currentModel: STNode): STNode[] {
     return paramsInModel;
 }
 
-export function updateParamDocWithParamPositions(paramsInModel: STNode[], documentation : SymbolDocumentation) : SymbolDocumentation {
-    const updatedDocWithPositions : SymbolDocumentation = JSON.parse(JSON.stringify(documentation));
+export function updateParamDocWithParamPositions(paramsInModel: STNode[], documentation: SymbolDocumentation): SymbolDocumentation {
+    const updatedDocWithPositions: SymbolDocumentation = JSON.parse(JSON.stringify(documentation));
     paramsInModel.map((param: STNode, value: number) => {
         if (STKindChecker.isNamedArg(param)) {
-            for (const docParam of updatedDocWithPositions.parameters){
+            for (const docParam of updatedDocWithPositions.parameters) {
                 if (keywords.includes(docParam.name) ?
                     param.argumentName.name.value === "'" + docParam.name :
                     param.argumentName.name.value === docParam.name ||
                     docParam.kind === SymbolParameterType.INCLUDED_RECORD ||
-                    docParam.kind === SymbolParameterType.REST){
+                    docParam.kind === SymbolParameterType.REST) {
                     // TODO: remove the special case for included records once the LS support the documentation for fields in records
                     if (docParam.kind === SymbolParameterType.INCLUDED_RECORD) {
-                        const includedRecordFields : ParameterInfo = {
+                        const includedRecordFields: ParameterInfo = {
                             type: undefined,
                             name: param.argumentName.name.value,
                             kind: undefined,
@@ -704,11 +707,11 @@ export function updateParamDocWithParamPositions(paramsInModel: STNode[], docume
                                 return (isPositionsEquals(filedParam.modelPosition, param.position) &&
                                     filedParam.name === param.argumentName.name.value)
                             }
-                            )){
+                            )) {
                                 docParam.fields.push(includedRecordFields);
                             }
                         } else {
-                            const fieldList : ParameterInfo[] = [includedRecordFields];
+                            const fieldList: ParameterInfo[] = [includedRecordFields];
                             docParam.fields = fieldList;
                         }
                         break;
@@ -718,7 +721,7 @@ export function updateParamDocWithParamPositions(paramsInModel: STNode[], docume
                 }
             }
         } else {
-            if (updatedDocWithPositions.parameters[value]){
+            if (updatedDocWithPositions.parameters[value]) {
                 updatedDocWithPositions.parameters[value].modelPosition = param.position;
             }
         }
@@ -727,15 +730,15 @@ export function updateParamDocWithParamPositions(paramsInModel: STNode[], docume
     return updatedDocWithPositions;
 }
 
-export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterInfo, parameters: ParameterInfo[]) : string {
+export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterInfo, parameters: ParameterInfo[]): string {
     const modelParams: string[] = getModelParamSourceList(currentModel);
 
     if (param.kind === SymbolParameterType.DEFAULTABLE) {
         containsMultipleDefaultableParams(parameters) ? (
-                modelParams.push((keywords.includes(param.name) ?
+            modelParams.push((keywords.includes(param.name) ?
                 `'${param.name} = ${EXPR_CONSTRUCTOR}` :
                 `${param.name} = ${EXPR_CONSTRUCTOR}`))
-            ) :
+        ) :
             modelParams.push(`${EXPR_CONSTRUCTOR}`);
     } else if (param.kind === SymbolParameterType.REST) {
         modelParams.push(EXPR_CONSTRUCTOR);
@@ -761,29 +764,29 @@ function containsMultipleDefaultableParams(parameters: ParameterInfo[]): boolean
     return !!found;
 }
 
-export function getUpdatedContentOnUncheck(currentModel: STNode, paramPosition: NodePosition) : string {
+export function getUpdatedContentOnUncheck(currentModel: STNode, paramPosition: NodePosition): string {
     const modelParams: string[] = [];
     if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
         currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-        map((parameter: STNode) => {
-            if (parameter.position !== paramPosition) {
-                modelParams.push(parameter.source);
-            }
-        });
-    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
+            map((parameter: STNode) => {
+                if (parameter.position !== paramPosition) {
+                    modelParams.push(parameter.source);
+                }
+            });
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)) {
         currentModel.parenthesizedArgList.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-        map((parameter: STNode) => {
-            if (parameter.position !== paramPosition) {
-                modelParams.push(parameter.source);
-            }
-        });
+            map((parameter: STNode) => {
+                if (parameter.position !== paramPosition) {
+                    modelParams.push(parameter.source);
+                }
+            });
     }
 
     const content: string = "(" + modelParams.join(",") + ")";
     return content;
 }
 
-export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput: string) : string {
+export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput: string): string {
     const modelParams: string[] = getModelParamSourceList(currentModel);
     modelParams.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
     const content: string = "(" + modelParams.join(",") + ")";
@@ -791,10 +794,10 @@ export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput:
 }
 
 // TODO: Remove this function once the methodCall param filter is added to the LS
-export function updateParamListFordMethodCallDoc(paramsInModel: STNode[],  documentation : SymbolDocumentation) : SymbolDocumentation {
-    const updatedMethodParams : SymbolDocumentation = JSON.parse(JSON.stringify(documentation));
-    if (paramsInModel[0]?.source === undefined || updatedMethodParams.parameters[0]?.name !==  paramsInModel[0]?.source){
-        if (updatedMethodParams.parameters[0]?.kind === SymbolParameterType.REQUIRED){
+export function updateParamListFordMethodCallDoc(paramsInModel: STNode[], documentation: SymbolDocumentation): SymbolDocumentation {
+    const updatedMethodParams: SymbolDocumentation = JSON.parse(JSON.stringify(documentation));
+    if (paramsInModel[0]?.source === undefined || updatedMethodParams.parameters[0]?.name !== paramsInModel[0]?.source) {
+        if (updatedMethodParams.parameters[0]?.kind === SymbolParameterType.REQUIRED) {
             updatedMethodParams.parameters.splice(0, 1);
         }
     }
@@ -816,7 +819,7 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
     return prefix ? prefix + exprWithArgs : exprWithArgs;
 }
 
-export function getFilteredExpressions(expression : ExpressionGroup[], currentModel: STNode): ExpressionGroup[] {
+export function getFilteredExpressions(expression: ExpressionGroup[], currentModel: STNode): ExpressionGroup[] {
     return expression.filter(
         (exprGroup) => exprGroup.relatedModelType === currentModel.viewState.modelType ||
             (currentModel.viewState.modelType === ModelType.FIELD_ACCESS &&
@@ -835,20 +838,20 @@ function getModelParamSourceList(currentModel: STNode): string[] {
     const modelParams: string[] = [];
     if (STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel)) {
         currentModel.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-        map((parameter: STNode) => {
-            modelParams.push(parameter.source);
-        });
-    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)){
+            map((parameter: STNode) => {
+                modelParams.push(parameter.source);
+            });
+    } else if (STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel)) {
         currentModel.parenthesizedArgList.arguments.filter((parameter: any) => !STKindChecker.isCommaToken(parameter)).
-        map((parameter: STNode) => {
-            modelParams.push(parameter.source);
-        });
+            map((parameter: STNode) => {
+                modelParams.push(parameter.source);
+            });
     }
     return modelParams;
 }
 
 export function getParamUpdateModelPosition(model: STNode) {
-    let position : NodePosition;
+    let position: NodePosition;
     if (
         STKindChecker.isFunctionCall(model) ||
         STKindChecker.isMethodCall(model) ||
@@ -891,10 +894,12 @@ export function isEndsWithoutSemicolon(completeModel: STNode): boolean {
         || STKindChecker.isBlockStatement(completeModel)
 }
 
-export function getParamHighlight(currentModel : STNode, param: ParameterInfo){
+export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
     return (
         currentModel && param ?
-            { backgroundColor: isPositionsEquals(currentModel.position, param.modelPosition) ?
-                    "rgba(204,209,242,0.61)" : 'inherit'} : undefined
+            {
+                backgroundColor: isPositionsEquals(currentModel.position, param.modelPosition) ?
+                    "rgba(204,209,242,0.61)" : 'inherit'
+            } : undefined
     );
 }

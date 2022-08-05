@@ -62,7 +62,7 @@ export interface RemainingContent {
     position: NodePosition
 }
 
-export interface StmtDiagnostic {
+export interface StatementSyntaxDiagnostics {
     message: string;
     isPlaceHolderDiag?: boolean;
 }

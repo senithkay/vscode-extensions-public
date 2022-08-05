@@ -19,7 +19,7 @@ import * as monaco from "monaco-editor";
 
 import { CurrentModel } from '../../models/definitions';
 import { FormEditorContextProvider } from "../../store/form-editor-context";
-import { enrichModel, getUpdatedSource} from "../../utils";
+import { enrichModel, getUpdatedSource } from "../../utils";
 import {
     getCompletionsForType,
     getPartialSTForModuleMembers,
@@ -70,19 +70,24 @@ export function FormEditor(props: FormEditorProps) {
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
-    const onChange = async (genSource: string, partialST: STNode, moduleList: Set<string>,
-                            currentModel?: CurrentModel, newValue?: string, completionKinds?: number[],
-                            offsetLineCount: number = 0,
-                            diagnosticOffSet: NodePosition = { startLine: 0, startColumn: 0 }) => {
+    const onChange = async (
+        genSource: string,
+        partialST: STNode,
+        moduleList: Set<string>,
+        currentModel?: CurrentModel,
+        newValue?: string,
+        completionKinds?: number[], // todo: use the enums instead of number
+        offsetLineCount: number = 0,
+        diagnosticOffSet: NodePosition = { startLine: 0, startColumn: 0 }
+    ) => {
         // Offset line position is to add some extra line if we do multiple code generations
-
         const newModuleList = new Set<string>();
         moduleList?.forEach(module => {
-            if (!currentFile.content.includes(module)){
+            if (!currentFile.content.includes(module)) {
                 newModuleList.add(module);
             }
         })
-        const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? {
+        const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? { // todo : move this to a seperate variable
             ...initialModel.position,
             startLine: initialModel.position.startLine + offsetLineCount,
             endLine: initialModel.position.endLine + offsetLineCount
@@ -101,9 +106,9 @@ export function FormEditor(props: FormEditorProps) {
                 endColumn: 0
             }
         ), newModuleList, true);
-        sendDidChange(fileURI, updatedContent, getLangClient).then();
-        const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient).then();
-        setModel(enrichModel(partialST, initialModel ? {
+        sendDidChange(fileURI, updatedContent, getLangClient);
+        const diagnostics = await handleDiagnostics(genSource, fileURI, targetPosition, getLangClient);
+        const newTargetPosition = initialModel ? { // todo : convert the positions to functions.
             startLine: initialModel.position.startLine + offsetLineCount + diagnosticOffSet.startLine,
             endLine: initialModel.position.endLine + offsetLineCount + diagnosticOffSet.startLine,
             startColumn: initialModel.position.startColumn + offsetLineCount + diagnosticOffSet.startColumn,
@@ -124,14 +129,15 @@ export function FormEditor(props: FormEditorProps) {
                     endColumn: diagnosticOffSet.startColumn
                 }
             )
-        ), diagnostics));
-        if (currentModel && newValue && completionKinds) {
-            handleCompletions(newValue, currentModel, completionKinds);
+        );
+        setModel(enrichModel(partialST, newTargetPosition, diagnostics));
+        if (currentModel && currentModel.model && newValue && completionKinds) {
+            handleCompletions(newValue, currentModel, completionKinds, newTargetPosition);
         }
     };
 
-    const handleCompletions = async (newValue: string, currentModel: CurrentModel, completionKinds: number[]) => {
-        const lsSuggestions = await getCompletionsForType(fileURI, targetPosition, model,
+    const handleCompletions = async (newValue: string, currentModel: CurrentModel, completionKinds: number[], newTargetPosition: NodePosition) => {
+        const lsSuggestions = await getCompletionsForType(fileURI, newTargetPosition, model,
             currentModel, getLangClient, newValue, completionKinds);
         setCompletions(lsSuggestions);
     };
@@ -164,7 +170,7 @@ export function FormEditor(props: FormEditorProps) {
                         }
                     )
                     const source = getInitialSource(type, position).trim();
-                    const partialST = await getPartialSTForModuleMembers({codeSnippet: source},
+                    const partialST = await getPartialSTForModuleMembers({ codeSnippet: source },
                         getLangClient, type === "Resource"
                     );
                     let moduleList;
@@ -201,20 +207,24 @@ export function FormEditor(props: FormEditorProps) {
                 isLastMember={isLastMember}
                 applyModifications={applyModifications}
             >
-                <FormRenderer
-                    type={type}
-                    model={model}
-                    targetPosition={targetPosition}
-                    stSymbolInfo={stSymbolInfo}
-                    syntaxTree={syntaxTree}
-                    completions={completions}
-                    onChange={onChange}
-                    onCancel={onCancel}
-                    getLangClient={getLangClient}
-                    currentFile={currentFile}
-                    isEdit={initialSource !== undefined}
-                    applyModifications={applyModifications}
-                />
+                {
+                    model && (
+                        <FormRenderer
+                            type={type}
+                            model={model}
+                            targetPosition={targetPosition}
+                            stSymbolInfo={stSymbolInfo}
+                            syntaxTree={syntaxTree}
+                            completions={completions}
+                            onChange={onChange}
+                            onCancel={onCancel}
+                            getLangClient={getLangClient}
+                            currentFile={currentFile}
+                            isEdit={initialSource !== undefined}
+                            applyModifications={applyModifications}
+                        />
+                    )
+                }
             </FormEditorContextProvider>
         </div>
     )

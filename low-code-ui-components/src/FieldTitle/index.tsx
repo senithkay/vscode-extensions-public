@@ -2,7 +2,8 @@ import React from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
-import { TooltipIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+
+import { TooltipIcon } from "../Tooltip";
 
 import { useStyles as useTextInputStyles } from "./style";
 

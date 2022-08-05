@@ -24,7 +24,7 @@ import {
     DocumentationInfo,
     EditorModel,
     LSSuggestions,
-    StmtDiagnostic,
+    StatementSyntaxDiagnostics,
     SuggestionItem
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
@@ -118,7 +118,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
-    const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
+    const [stmtDiagnostics, setStmtDiagnostics] = useState<StatementSyntaxDiagnostics[]>([]);
     const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
     const [documentation, setDocumentation] = useState<DocumentationInfo>(initSymbolInfo);

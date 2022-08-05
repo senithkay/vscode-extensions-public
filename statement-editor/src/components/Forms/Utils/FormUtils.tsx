@@ -51,8 +51,7 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
                 "returns error?", targetPosition));
         }
         case "Resource": {
-            return getSource(createResource("get", "greeting/hello", "", "", false,
-                false, "error?", targetPosition));
+            return getSource(createResource("get", "greeting/hello", '', "error?", targetPosition));
         }
     }
     return;
@@ -89,9 +88,11 @@ export function getListenerConfig(model: ServiceDeclaration, isEdit: boolean): L
         if (STKindChecker.isSimpleNameReference(serviceListenerExpression)) {
             return { listenerName: serviceListenerExpression.name.value, fromVar: true }
         } else if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {
-            return { listenerPort: serviceListenerExpression.parenthesizedArgList.arguments.length > 0 &&
+            return {
+                listenerPort: serviceListenerExpression.parenthesizedArgList.arguments.length > 0 &&
                     serviceListenerExpression.parenthesizedArgList.arguments[0].source,
-                     fromVar: false };
+                fromVar: false
+            };
         }
     } else {
         if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {
