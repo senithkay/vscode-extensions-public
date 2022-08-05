@@ -21,6 +21,7 @@ import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { InputEditor, InputEditorProps } from "../../InputEditor";
 import { TokenComponent } from "../../Token";
+import { FUNCTION_CALL_PLACEHOLDER } from "../../../utils/expressions";
 
 interface FunctionCallProps {
     model: FunctionCall;
@@ -61,7 +62,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     };
 
 
-    if (!currentModel.model) {
+    if (!currentModel.model || (currentModel.model.source === FUNCTION_CALL_PLACEHOLDER)) {
         if (config.type === CALL_CONFIG_TYPE && model && STKindChecker.isFunctionCall(model)) {
             changeCurrentModel(model);
         }
