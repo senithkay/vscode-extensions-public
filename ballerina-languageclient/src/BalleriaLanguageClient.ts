@@ -30,7 +30,6 @@ import {
     CompletionParams,
     CompletionResponse,
     ExecutorPositionsResponse,
-    ExpressionTypeDescRequest,
     ExpressionTypeRequest,
     ExpressionTypeResponse,
     EXTENDED_APIS,
@@ -52,7 +51,10 @@ import {
     RevealRangeParams,
     SymbolInfoRequest, SymbolInfoResponse,
     TriggerModifyRequest,
-    TypeFromSymbolResponse
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromExpressionResponse,
+    TypesFromSymbolResponse
 } from './IBallerinaLanguageClient'
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { LSConnection } from "./LSConnection";
@@ -268,11 +270,11 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_DOC, params);
     }
 
-    public getTypeFromExpression(params: ExpressionTypeDescRequest): Thenable<TypeFromSymbolResponse> {
+    public getTypeFromExpression(params: TypeFromExpressionRequest): Thenable<TypesFromExpressionResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_EXPRESSION, params);
     }
 
-    public getTypeFromSymbol(params: ExpressionTypeRequest): Thenable<TypeFromSymbolResponse> {
+    public getTypeFromSymbol(params: TypeFromSymbolRequest): Thenable<TypesFromSymbolResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_SYMBOL, params);
     }
 

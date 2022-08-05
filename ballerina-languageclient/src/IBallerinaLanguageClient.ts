@@ -741,8 +741,41 @@ export interface ExpressionTypeDescRequest {
     endPosition: LinePosition;
 }
 
-export interface TypeFromSymbolResponse {
-    type: FormField
+export interface ExpressionRange {
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
+export interface TypeFromExpressionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    expressionRanges: ExpressionRange[];
+}
+
+export interface ResolvedTypeForExpression {
+    type: FormField;
+    requestedRange: ExpressionRange;
+}
+
+export interface TypesFromExpressionResponse {
+    types: ResolvedTypeForExpression[];
+}
+
+export interface TypeFromSymbolRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    positions: LinePosition[];
+}
+
+export interface ResolvedTypeForSymbol {
+    type: FormField;
+    requestedPosition: LinePosition;
+}
+
+export interface TypesFromSymbolResponse {
+    types: ResolvedTypeForSymbol[];
 }
 
 export interface IBallerinaLangClient {
@@ -817,9 +850,9 @@ export interface IBallerinaLangClient {
 
     definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
 
-    getTypeFromExpression: (params: ExpressionTypeDescRequest) => Thenable<TypeFromSymbolResponse>;
+    getTypeFromExpression: (params: TypeFromExpressionRequest) => Thenable<TypesFromExpressionResponse>;
 
-    getTypeFromSymbol: (params: ExpressionTypeRequest) => Thenable<TypeFromSymbolResponse>;
+    getTypeFromSymbol: (params: TypeFromSymbolRequest) => Thenable<TypesFromSymbolResponse>;
 
 
     // close: () => void;

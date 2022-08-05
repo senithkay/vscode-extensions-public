@@ -103,19 +103,10 @@ export interface ExpressionTypeRequest {
     position: LinePosition;
 }
 
-export interface ExpressionTypeDescRequest {
-    documentIdentifier: {
-        uri: string;
-    };
-    startPosition: LinePosition;
-    endPosition: LinePosition;
-}
-
 export interface ExpressionTypeResponse {
     documentIdentifier: { uri: string; };
     types: string[];
 }
-
 
 export interface BallerinaExample {
     title: string;
@@ -418,8 +409,41 @@ export interface BallerinaConstruct {
     icon?: string;
 }
 
-export interface TypeFromSymbolResponse {
-    type: FormField
+export interface ExpressionRange {
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
+export interface TypeFromExpressionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    expressionRanges: ExpressionRange[];
+}
+
+export interface ResolvedTypeForExpression {
+    type: FormField;
+    requestedRange: ExpressionRange;
+}
+
+export interface TypesFromExpressionResponse {
+    types: ResolvedTypeForExpression[];
+}
+
+export interface TypeFromSymbolRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    positions: LinePosition[];
+}
+
+export interface ResolvedTypeForSymbol {
+    type: FormField;
+    requestedPosition: LinePosition;
+}
+
+export interface TypesFromSymbolResponse {
+    types: ResolvedTypeForSymbol[];
 }
 
 export interface Connector extends BallerinaConstruct {}
@@ -464,9 +488,9 @@ export interface IBallerinaLangClient {
 
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>
 
-    getTypeFromExpression: (params: ExpressionTypeDescRequest) => Thenable<TypeFromSymbolResponse>
+    getTypeFromExpression: (params: TypeFromExpressionRequest) => Thenable<TypesFromExpressionResponse>
 
-    getTypeFromSymbol: (params: ExpressionTypeRequest) => Thenable<TypeFromSymbolResponse>
+    getTypeFromSymbol: (params: TypeFromSymbolRequest) => Thenable<TypesFromSymbolResponse>
 
     close: () => void;
 }

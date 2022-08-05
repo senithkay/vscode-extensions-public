@@ -124,16 +124,41 @@ export interface SymbolInfoResponse {
     documentation : SymbolDocumentation
 }
 
-export interface ExpressionTypeDescRequest {
-    documentIdentifier: {
-        uri: string;
-    };
+export interface ExpressionRange {
     startPosition: LinePosition;
     endPosition: LinePosition;
 }
 
-export interface TypeFromSymbolResponse {
-    type: FormField
+export interface TypeFromExpressionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    expressionRanges: ExpressionRange[];
+}
+
+export interface ResolvedTypeForExpression {
+    type: FormField;
+    requestedRange: ExpressionRange;
+}
+
+export interface TypesFromExpressionResponse {
+    types: ResolvedTypeForExpression[];
+}
+
+export interface TypeFromSymbolRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    positions: LinePosition[];
+}
+
+export interface ResolvedTypeForSymbol {
+    type: FormField;
+    requestedPosition: LinePosition;
+}
+
+export interface TypesFromSymbolResponse {
+    types: ResolvedTypeForSymbol[];
 }
 
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
@@ -165,9 +190,9 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
         params: SymbolInfoRequest
     ) => Thenable<SymbolInfoResponse>;
     getTypeFromExpression: (
-        params: ExpressionTypeDescRequest
-    ) => Thenable<TypeFromSymbolResponse>;
+        params: TypeFromExpressionRequest
+    ) => Thenable<TypesFromExpressionResponse>;
     getTypeFromSymbol: (
-        params: ExpressionTypeRequest
-    ) => Thenable<TypeFromSymbolResponse>;
+        params: TypeFromSymbolRequest
+    ) => Thenable<TypesFromSymbolResponse>;
 }

@@ -3,12 +3,12 @@ import { InitializeParams, InitializeResult,
 import {
     BallerinaTriggersRequest,
     BallerinaTriggersResponse,
-    ExpressionTypeDescRequest,
-    ExpressionTypeRequest,
-    ExpressionTypeResponse,
     SymbolInfoRequest,
     SymbolInfoResponse,
-    TypeFromSymbolResponse
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromExpressionResponse,
+    TypesFromSymbolResponse
 } from ".";
 
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
@@ -99,11 +99,11 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
         return Promise.reject();
     }
 
-    public getTypeFromExpression(params: ExpressionTypeDescRequest): Thenable<TypeFromSymbolResponse> {
+    public getTypeFromExpression(params: TypeFromExpressionRequest): Thenable<TypesFromExpressionResponse> {
         return Promise.reject();
     }
 
-    public getTypeFromSymbol(params: ExpressionTypeRequest): Thenable<TypeFromSymbolResponse> {
+    public getTypeFromSymbol(params: TypeFromSymbolRequest): Thenable<TypesFromSymbolResponse> {
         return Promise.reject();
     }
 }
