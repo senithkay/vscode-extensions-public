@@ -76,6 +76,7 @@ export function LSSuggestions() {
     useEffect(() => {
         setFilteredSuggestions(lsSuggestions);
         setFilteredSecondLevelSuggestions(secondLevelSuggestions);
+        setSelectedSuggestion(initializeSelectedItem());
     }, [lsSuggestions, lsSecondLevelSuggestions, currentModel.model]);
 
 
@@ -113,7 +114,7 @@ export function LSSuggestions() {
                             newSelected = 0;
                             return {selectedListItem: newSelected, selectedGroup: newGroup};
                         }
-                    } else if (newSelected < 0 && newGroup > 0) {
+                    } else if (newSelected < 0 && newGroup > 0 && filteredSuggestions?.length > 0) {
                         newGroup = selectedSuggestion.selectedGroup - 1;
                         newSelected = filteredSuggestions.length - 1;
                         return {selectedListItem: newSelected, selectedGroup: newGroup};
