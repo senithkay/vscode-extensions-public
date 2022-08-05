@@ -70,7 +70,7 @@ export function ListenerForm(props: FunctionProps) {
     const [listenerPort, setListenerPort] = useState<FormEditorField>({
         value: model ? port : "", isInteracted: false
     });
-    const [listenerType, setListenerType] = useState<string>(type ? type : "HTTP");
+    const [listenerType, setListenerType] = useState<string>(type.length === 0 ? type : "HTTP");
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
