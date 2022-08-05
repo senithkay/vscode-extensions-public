@@ -61,14 +61,16 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             documentIdentifier: {
                 uri: `file://${this.context.currentFile.path}`
             },
-            startPosition: {
-                line: startLine,
-                offset: startColumn
-            },
-            endPosition: {
-                line: endLine,
-                offset: endColumn
-            }
+            expressionRanges: [{
+                startPosition: {
+                    line: startLine,
+                    offset: startColumn
+                },
+                endPosition: {
+                    line: endLine,
+                    offset: endColumn
+                }
+            }]
         });
 
         // tslint:disable-next-line:no-console
@@ -83,10 +85,10 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             documentIdentifier: {
                 uri: `file://${this.context.currentFile.path}`
             },
-            position: {
+            positions: [{
                 line: fieldNamePos.startLine,
                 offset: fieldNamePos.startColumn
-            }
+            }]
         });
 
         // tslint:disable-next-line:no-console
