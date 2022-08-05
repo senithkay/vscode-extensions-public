@@ -30,7 +30,7 @@ import {
 import { ListenerDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { StmtDiagnostic } from "../../../models/definitions";
+import { StatementSyntaxDiagnostics } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
@@ -70,11 +70,11 @@ export function ListenerForm(props: FunctionProps) {
     const [listenerPort, setListenerPort] = useState<FormEditorField>({
         value: model ? port : "", isInteracted: false
     });
-    const [listenerType, setListenerType] = useState<string>(type ? type : "HTTP");
+    const [listenerType, setListenerType] = useState<string>(type.length === 0 ? type : "HTTP");
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
 
     const listenerParamChange = async (name: string, portValue: string) => {
         const codeSnippet = getSource(createListenerDeclartion({listenerPort: portValue, listenerName: name},

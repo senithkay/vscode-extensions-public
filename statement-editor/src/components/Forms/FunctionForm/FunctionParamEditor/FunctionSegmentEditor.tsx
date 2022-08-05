@@ -14,6 +14,7 @@
 import React, { useState } from "react";
 
 import { Grid } from "@material-ui/core";
+import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     DefaultableParam,
@@ -23,26 +24,27 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { StmtDiagnostic } from "../../../../models/definitions";
+import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../../models/definitions";
 import { FormEditorField } from "../../Types";
 
 import { FunctionParam } from "./FunctionParamItem";
 import { useStyles } from './style';
 
 interface FunctionParamSegmentEditorProps {
-    param?: DefaultableParam | IncludedRecordParam | RequiredParam | RestParam;
+    param?: (DefaultableParam | IncludedRecordParam | RequiredParam | RestParam);
     id?: number;
     segment?: FunctionParam,
     onSave?: (segment: FunctionParam) => void;
     onUpdate?: (segment: FunctionParam) => void;
     onChange?: (segment: FunctionParam) => void;
-    syntaxDiag?: StmtDiagnostic[];
+    syntaxDiag?: StatementSyntaxDiagnostics[];
     onCancel?: () => void;
     isEdit?: boolean;
+    completions?: SuggestionItem[];
 }
 
 export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProps) {
-    const { param, segment, onSave, onUpdate, onChange, id, onCancel, syntaxDiag, isEdit } = props;
+    const { param, segment, onSave, onUpdate, onChange, id, onCancel, syntaxDiag, isEdit, completions } = props;
     const classes = useStyles();
     const initValue: FunctionParam = segment ? { ...segment } : {
         id: id ? id : 0,
@@ -50,11 +52,11 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
         type: { value: "string", isInteracted: false },
     };
 
-    const [segmentType, setSegmentType] = useState<FormEditorField>(segment?.type || {
-        value: "string", isInteracted: false
+    const [segmentType, setSegmentType] = useState<FormEditorField>({
+        value: param?.typeName?.source || "string", isInteracted: false
     });
-    const [segmentName, setSegmentName] = useState<FormEditorField>(segment?.name || {
-        value: "name", isInteracted: false
+    const [segmentName, setSegmentName] = useState<FormEditorField>({
+        value: param?.paramName?.value.trim() || "name", isInteracted: false
     });
 
     // States related to syntax diagnostics
@@ -76,23 +78,30 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
         });
     };
 
-    const handleOnTypeChange = (value: string) => {
-        setSegmentType({value, isInteracted: true});
+    const onTypeEditorFocus = () => {
         setCurrentComponentName("Type");
+    }
+
+    const handleOnTypeChange = (value: string) => {
+        setSegmentType({ value, isInteracted: true });
         onChange({
             ...initValue,
-            name: {value: segmentName.value, isInteracted: true},
-            type: {value, isInteracted: true}
+            name: { value: segmentName.value, isInteracted: true },
+            type: { value, isInteracted: true }
         });
     };
     const debouncedTypeChange = debounce(handleOnTypeChange, 1000);
-    const handleOnNameChange = (value: string) => {
-        setSegmentName({value, isInteracted: true});
+
+    const onNameEditorFocus = () => {
         setCurrentComponentName("Name");
+    }
+
+    const handleOnNameChange = (value: string) => {
+        setSegmentName({ value, isInteracted: true });
         onChange({
             ...initValue,
-            name: {value, isInteracted: true},
-            type: {value: segmentType.value, isInteracted: true}
+            name: { value, isInteracted: true },
+            type: { value: segmentType.value, isInteracted: true }
         });
     };
     const debouncedNameChange = debounce(handleOnNameChange, 1000);
@@ -114,7 +123,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                 </Grid>
                 <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={5}>
-                        <FormTextInput
+                        {/* <FormTextInput
                             dataTestId="function-param-type"
                             defaultValue={(segmentType.isInteracted || isEdit) ? segmentType.value : ""}
                             onChange={debouncedTypeChange}
@@ -131,10 +140,19 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                                 diagnosticsInRange[0]?.message
                             }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Type"}
+                        /> */}
+                        <LiteExpressionEditor
+                            diagnostics={(syntaxDiag && currentComponentName === "Type"
+                                && syntaxDiag) || segmentType.isInteracted && param?.typeName?.viewState?.
+                                    diagnosticsInRange}
+                            defaultValue={isEdit ? segmentType.value : ""}
+                            onChange={debouncedTypeChange}
+                            onFocus={onTypeEditorFocus}
+                            completions={completions}
                         />
                     </Grid>
                     <Grid item={true} xs={7}>
-                        <FormTextInput
+                        {/* <FormTextInput
                             dataTestId="function-param-name"
                             defaultValue={(segmentName.isInteracted || isEdit) ? segmentName.value : ""}
                             onChange={debouncedNameChange}
@@ -144,12 +162,20 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                                 isErrored: segmentName.isInteracted && ((syntaxDiag !== undefined &&
                                     currentComponentName === "Name") || (param?.paramName?.viewState?.
                                         diagnosticsInRange?.length > 0
-                                ))
+                                    ))
                             }}
                             errorMessage={(syntaxDiag && currentComponentName === "Name"
                                 && syntaxDiag[0].message) || param?.paramName?.viewState?.diagnosticsInRange[0]?.message
                             }
                             disabled={(syntaxDiag?.length > 0) && currentComponentName !== "Name"}
+                        /> */}
+                        <LiteExpressionEditor
+                            diagnostics={(syntaxDiag && currentComponentName === "Name"
+                                && syntaxDiag) || param?.paramName?.viewState?.diagnosticsInRange}
+                            defaultValue={isEdit ? segmentName.value : ""}
+                            onChange={debouncedNameChange}
+                            onFocus={onNameEditorFocus}
+                            completions={completions}
                         />
                     </Grid>
 
@@ -165,8 +191,11 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             <PrimaryButton
                                 dataTestId={"param-save-btn"}
                                 text={onUpdate ? "Update" : " Add"}
-                                disabled={(syntaxDiag?.length > 0) || (param?.viewState?.diagnosticsInRange?.length > 0)
-                                    || !(segmentName.isInteracted || isEdit) || !(segmentType.isInteracted || isEdit)
+                                disabled={
+                                    (syntaxDiag?.length > 0)
+                                    || (param?.viewState?.diagnosticsInRange?.length > 0)
+                                    || segmentName.value.length === 0
+                                    || segmentType.value.length === 0
                                 }
                                 fullWidth={false}
                                 onClick={onUpdate ? handleOnUpdate : handleOnSave}

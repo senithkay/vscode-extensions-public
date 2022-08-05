@@ -13,7 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
-import { StatementEditorButton } from "../../../../../../../low-code-ui-components/lib/buttons/StatementEditorButton";
+import { StatementEditorButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+
 import { GreyButton } from "../../../../../components/Buttons/GreyButton";
 import { PrimaryButtonSquare } from "../../../../../components/Buttons/PrimaryButtonSquare";
 

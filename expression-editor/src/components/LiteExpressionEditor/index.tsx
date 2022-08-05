@@ -215,7 +215,12 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     const [validating, setValidating] = useState<boolean>(false);
     const [showConfigurableView, setShowConfigurableView] = useState(false);
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState(""); // getInitialDiagnosticMessage(diagnostics)
-    const [initialLoaded, setInitialLoaded] = useState(false);
+
+    const [editorConfig] = useState({ onChange, diagnostics });
+
+    useEffect(() => {
+        editorConfig.onChange = onChange;
+    }, [onChange])
 
     // Configurable insertion icon will be displayed only when originalValue is empty
     // const [originalValue, setOriginalValue] = useState(model?.value || "");
@@ -275,14 +280,15 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                         ],
                     });
                 } else {
+                    const monacoModel = monacoRef.current.editor.getModel();
                     monaco.editor.setModelMarkers(
-                        monacoRef.current.editor.getModel(),
+                        monacoModel,
                         "expression editor",
-                        diagnostics.map((diagnostic: any) => ({
+                        editorConfig?.diagnostics?.map((diagnostic: any) => ({
                             startLineNumber: 1,
-                            startColumn: diagnostic.range.start.character, // - snippetTargetPosition + 2,
+                            startColumn: diagnostic.range?.start?.character || monacoModel.getFullModelRange().startColumn, // - snippetTargetPosition + 2,
                             endLineNumber: 1,
-                            endColumn: diagnostic.range.end.character, // - snippetTargetPosition + 2,
+                            endColumn: diagnostic.range?.end?.character || monacoModel.getFullModelRange().endColumn, // - snippetTargetPosition + 2,
                             message: diagnostic.message,
                             severity: monaco.MarkerSeverity.Error,
                         }))
@@ -341,6 +347,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                     // event.isFlush()
                     if (!event.isFlush) {
                         debouncedContentChange(monacoModel.getValue(), monacoModel.getEOL(), lastPressedKey);
+                        setValidating(false);
                     } else {
                         setValidating(false);
                     }
@@ -389,12 +396,12 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         }
     }, [focus]);
 
-    // useEffect(() => {
-    //     if (defaultValue) {
-    //         const monacoModel = monacoRef.current.editor.getModel();
-    //         monacoModel.setValue(defaultValue.value);
-    //     }
-    // }, [defaultValue]);
+    useEffect(() => {
+        if (defaultValue !== undefined) {
+            const monacoModel = monacoRef.current.editor.getModel();
+            monacoModel.applyEdits([{ range: monacoModel.getFullModelRange(), text: defaultValue }]);
+        }
+    }, [defaultValue]);
 
     useEffect(() => {
         // !hideExpand
@@ -412,7 +419,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                 monacoRef.current.editor.addContentWidget(expandWidget);
             }
         }
-    }, [expand]); // hideExpand
+    }, [expand]); // hideExpand;
 
     useEffect(() => {
         if (monacoRef.current) {
@@ -437,6 +444,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     }, [disabled]);
 
     useEffect(() => {
+        editorConfig.diagnostics = diagnostics;
         if (diagnostics) {
             handleDiagnostic();
             if (diagnostics.length > 0) {
@@ -463,8 +471,8 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
 
     // ExpEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey?: string) => {
-        if (onChange) {
-            onChange(currentContent);
+        if (editorConfig.onChange && monacoRef?.current?.editor?.hasTextFocus()) {
+            editorConfig.onChange(currentContent);
         }
     };
     const debouncedContentChange = debounce(handleContentChange, DEBOUNCE_DELAY);

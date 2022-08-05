@@ -18,9 +18,7 @@ import { default as AddIcon } from "@material-ui/icons/Add";
 import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createFunctionSignature,
-    ExpressionEditorLangClientInterface,
     getSource,
-    STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -28,27 +26,23 @@ import {
     dynamicConnectorStyles as connectorStyles,
     FormActionButtons,
     FormHeaderSection,
-    FormTextInput,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     DefaultableParam,
     FunctionDefinition,
     IncludedRecordParam,
-    NodePosition,
     RequiredParam,
     RestParam,
-    STKindChecker,
-    STNode
+    STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { CurrentModel, StmtDiagnostic, SuggestionItem } from "../../../models/definitions";
+import { CurrentModel, StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from '../../InputEditor/constants';
-import { CompletionEditor } from '../components/CompletionEditor/completionEditor';
 import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 import { recalculateItemIds } from "../Utils/FormUtils";
 
@@ -76,7 +70,7 @@ export function FunctionForm(props: FunctionProps) {
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
     const [currentComponentCompletions, setCurrentComponentCompletions] = useState<SuggestionItem[]>(undefined);
 
     // States related parameters
@@ -161,22 +155,14 @@ export function FunctionForm(props: FunctionProps) {
             }
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
-
-
-        // await functionParamChange(functionName.value, parametersStr, value, currentModel, value, );
     }
 
     const onReturnFocus = async () => {
-        // const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
-        // const currentModel: CurrentModel = {
-        //     model: model.functionSignature?.returnTypeDesc?.type
-        // };
-        // await functionParamChange(functionName.value, parametersStr, returnType.value, currentModel, "");
         setCurrentComponentCompletions([]);
         setCurrentComponentName("Return");
     }
 
-    const debouncedReturnChange = debounce(onReturnTypeChange, 1000);
+    const debouncedReturnChange = debounce(onReturnTypeChange, 1200);
 
     // Param related functions
     const openNewParamView = () => {
@@ -253,13 +239,13 @@ export function FunctionForm(props: FunctionProps) {
     }
 
     const paramElements: React.ReactElement[] = [];
-    parameters?.forEach((value, index) => {
-        if (value.name.value) {
+    parameters?.forEach((param, index) => {
+        if (param.name.value) {
             if (editingSegmentId !== index) {
                 paramElements.push(
                     <FunctionParamItem
                         key={index}
-                        functionParam={value}
+                        functionParam={param}
                         readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}
                         onDelete={onDeleteParam}
                         onEditClick={handleOnEdit}
@@ -271,7 +257,6 @@ export function FunctionForm(props: FunctionProps) {
                         param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
                             RestParam)}
                         id={editingSegmentId}
-                        segment={value}
                         syntaxDiag={currentComponentSyntaxDiag}
                         onCancel={closeNewParamView}
                         onUpdate={handleOnUpdateParam}
@@ -316,11 +301,13 @@ export function FunctionForm(props: FunctionProps) {
                         <FieldTitle title='Name' optional={false} />
                         <LiteExpressionEditor
                             defaultValue={functionName}
-                            diagnostics={model?.functionName?.viewState?.diagnosticsInRange}
+                            diagnostics={
+                                (currentComponentName === "Name" && currentComponentSyntaxDiag)
+                                || model?.functionName?.viewState?.diagnosticsInRange
+                            }
                             focus={true}
                             onChange={debouncedNameChange}
                             onFocus={onNameFocus}
-                            stModel={model}
                             disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                             hideSuggestions={true}
                             // placeholder={"Ex: name"}
@@ -348,6 +335,7 @@ export function FunctionForm(props: FunctionProps) {
                                     onChange={onParamChange}
                                     onSave={onSaveNewParam}
                                     isEdit={false}
+                                    completions={completions}
                                 />
                             ) : (
                                 <Button
@@ -369,7 +357,6 @@ export function FunctionForm(props: FunctionProps) {
                             defaultValue={returnType}
                             onChange={debouncedReturnChange}
                             completions={currentComponentCompletions}
-                            stModel={model}
                             onFocus={onReturnFocus}
                             disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
                             customProps={{

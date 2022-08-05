@@ -10,11 +10,14 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     CommaToken, DefaultableParam,
-    FunctionSignature, IncludedRecordParam,
-    NodePosition, RequiredParam, RestParam,
+    DotToken,
+    FunctionSignature, IdentifierToken, IncludedRecordParam,
+    NodePosition, RequiredParam, ResourcePathRestParam, ResourcePathSegmentParam, RestParam,
     ReturnTypeDescriptor,
+    SlashToken,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
@@ -154,6 +157,11 @@ export function convertPathStringToSegments(pathString: string): Path {
     return path;
 }
 
+// export function generatePathFromST(segments: (IdentifierToken | ResourcePathSegmentParam | SlashToken | DotToken
+//     | ResourcePathRestParam)[]): string {
+//     return segments.reduce((prev, current) => `${prev}${current.value || current.source}`, '');
+// }
+
 /**
  *
  * @param pathParamString path param will be like `string id`
@@ -204,6 +212,17 @@ export function generateBallerinaResourcePath(path: Path): string {
         }
     });
     return pathAsString;
+}
+
+export function getResourcePath(pathSegments: (DotToken | SlashToken | IdentifierToken
+    | ResourcePathRestParam | ResourcePathSegmentParam)[]): string {
+
+    return pathSegments.reduce((prev, current) => `${prev}${current.value ? current.value : current.source}`, '');
+}
+
+export function getParamString(parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam |
+    RestParam)[]): string {
+    return parameters.reduce((prev, current) => `${prev}${current.value ? current.value : current.source}`, '');
 }
 
 export function generateQueryParamFromST(params: STNode[]): string {
@@ -483,24 +502,36 @@ export function generateQueryStringFromQueryCollection(params: QueryParamCollect
         params.queryParams.forEach((value, index, array) => {
             if (index === (array.length - 1)) {
                 if (value.option === headerParameterOption) {
-                    queryParamString += `@http:Header ${value.mappedName ? `{name: ${value.mappedName}}` : ""}${
-                        value.type} ${value.name}${value.defaultValue ? ` = ${value.defaultValue}` : ""}`;
+                    queryParamString += `@http:Header ${value.mappedName ? `{name: ${value.mappedName}}` : ""}${value.type} ${value.name}${value.defaultValue ? ` = ${value.defaultValue}` : ""}`;
                 } else {
-                    queryParamString += `${value.type} ${value.name}${value.defaultValue ? ` = ${
-                        value.defaultValue}` : ""}`;
+                    queryParamString += `${value.type} ${value.name}${value.defaultValue ? ` = ${value.defaultValue}` : ""}`;
                 }
             } else {
                 if (value.option === headerParameterOption) {
-                    queryParamString += `@http:Header ${value.mappedName ? `{name: ${value.mappedName}}` : ""}${
-                        value.type} ${value.name}${value.defaultValue ? ` = ${value.defaultValue}, ` : ", "}`;
+                    queryParamString += `@http:Header ${value.mappedName ? `{name: ${value.mappedName}}` : ""}${value.type} ${value.name}${value.defaultValue ? ` = ${value.defaultValue}, ` : ", "}`;
                 } else {
-                    queryParamString += `${value.type} ${value.name}${value.defaultValue ? ` = "${
-                        value.defaultValue}", ` : ", "}`;
+                    queryParamString += `${value.type} ${value.name}${value.defaultValue ? ` = "${value.defaultValue}", ` : ", "}`;
                 }
             }
         });
     }
     return queryParamString;
+}
+
+export function generateParameterSectionString(params: (DefaultableParam | RestParam | RequiredParam | IncludedRecordParam | CommaToken)[]): string {
+    return params.reduce((prev, current) => `${prev}${current.value ? current.value : current.source}`, '');
+}
+
+export function getParameterType(param: string): PARAM_TYPES {
+    if (param.includes('@http:Payload')) {
+        return PARAM_TYPES.PAYLOAD;
+    } else if (param.includes('http:Caller')) {
+        return PARAM_TYPES.CALLER;
+    } else if (param.includes('http:Request')) {
+        return PARAM_TYPES.REQUEST;
+    } else {
+        return PARAM_TYPES.DEFAULT;
+    }
 }
 
 export function generateReturnTypeFromReturnCollection(params: ReturnType[]): string {
@@ -532,7 +563,7 @@ export function getReturnTypePosition(functionSignature: FunctionSignature, targ
         };
     } else if (targetPosition) {
         return { ...targetPosition, endLine: targetPosition.startLine, endColumn: targetPosition.startColumn };
-    }else {
+    } else {
         return {
             endColumn: 0,
             endLine: 0,
@@ -629,4 +660,25 @@ export function genParamName(defaultName: string, variables: string[]): string {
         varName = defaultName + index;
     }
     return varName;
+}
+
+
+export function getParameterNameFromModel(param: (CommaToken | RequiredParam | RestParam | IncludedRecordParam
+    | DefaultableParam)): string {
+    if (STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param) ||
+        STKindChecker.isIncludedRecordParam(param) || STKindChecker.isRestParam(param)) {
+        return param.paramName.value
+    }
+
+    return '';
+}
+
+export function getParameterTypeFromModel(param: (CommaToken | RequiredParam | RestParam | IncludedRecordParam
+    | DefaultableParam)): string {
+    if (STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param) ||
+        STKindChecker.isIncludedRecordParam(param) || STKindChecker.isRestParam(param)) {
+        return param.typeName.source;
+    }
+
+    return '';
 }

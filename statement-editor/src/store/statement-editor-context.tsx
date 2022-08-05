@@ -23,7 +23,7 @@ import {
     EditorModel,
     EmptySymbolInfo,
     LSSuggestions,
-    StmtDiagnostic
+    StatementSyntaxDiagnostics
 } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
@@ -105,7 +105,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     redo?: () => void,
     hasUndo?: boolean,
     hasRedo?: boolean,
-    diagnostics?: StmtDiagnostic[],
+    diagnostics?: StatementSyntaxDiagnostics[],
     lsSuggestions?: LSSuggestions,
     hasSyntaxDiagnostics?: boolean,
     updateSyntaxDiagnostics?: (hasSyntaxIssues: boolean) => void,

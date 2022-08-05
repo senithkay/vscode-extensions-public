@@ -18,9 +18,10 @@ import { Button } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import debounce from "lodash.debounce";
 
-import { PrimaryButton, SecondaryButton } from "../buttons";
+import { PrimaryButton, SecondaryButton } from '../buttons';
 import { ParamDropDown } from "../DropDown/ParamDropdown";
-import { FormTextInput } from "../FormTextInput";
+import { FieldTitle } from '../FieldTitle';
+import { FormTextInput } from '../FormTextInput';
 
 import { useStyles } from "./style";
 
@@ -32,6 +33,15 @@ export interface Param {
     headerName?: string;
 }
 export const headerParameterOption = "Header";
+
+
+export enum PARAM_TYPES {
+    DEFAULT = 'Query',
+    PAYLOAD = 'Payload',
+    REQUEST = 'Request',
+    CALLER = 'Caller',
+    HEADER = 'Header'
+}
 
 export interface ParamProps {
     param: Param;
@@ -75,14 +85,17 @@ export function ParamEditor(props: ParamProps) {
     const isTypeVisible = dataTypeReqOptions ? dataTypeReqOptions.includes(selectedOption) : true;
 
     const handleNameChange = (value: string) => {
-        setParamName(value);
         setCurrentComponentName("Name");
         if (optionList) {
-            onChange({id, name: value, dataType: paramDataType, headerName: paramHeaderName,
-                      defaultValue: paramDefaultValue}, selectedOption);
+            onChange({
+                id, name: value, dataType: paramDataType, headerName: paramHeaderName,
+                defaultValue: paramDefaultValue
+            }, selectedOption);
         } else {
-            onChange({id, name: value, dataType: paramDataType, headerName: paramHeaderName,
-                      defaultValue: paramDefaultValue});
+            onChange({
+                id, name: value, dataType: paramDataType, headerName: paramHeaderName,
+                defaultValue: paramDefaultValue
+            });
         }
     };
     const debouncedNameChange = debounce(handleNameChange, 800);
@@ -91,24 +104,31 @@ export function ParamEditor(props: ParamProps) {
         setParamHeaderName(value);
         setCurrentComponentName("HeaderName");
         if (optionList) {
-            onChange({id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
-                paramDefaultValue}, selectedOption);
+            onChange({
+                id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
+                    paramDefaultValue
+            }, selectedOption);
         } else {
-            onChange({id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
-                paramDefaultValue});
+            onChange({
+                id, name: paramName, dataType: paramDataType, headerName: value, defaultValue:
+                    paramDefaultValue
+            });
         }
     };
     const debouncedHeaderNameChange = debounce(handleHeaderNameChange, 800);
 
     const handleTypeChange = (value: string) => {
-        setParamDataType(value);
         setCurrentComponentName("Type");
         if (optionList) {
-            onChange({id, name: paramName, dataType: value, headerName: paramHeaderName,
-                      defaultValue: paramDefaultValue}, selectedOption);
+            onChange({
+                id, name: paramName, dataType: value, headerName: paramHeaderName,
+                defaultValue: paramDefaultValue
+            }, selectedOption);
         } else {
-            onChange({id, name: paramName, dataType: value, headerName: paramHeaderName, defaultValue:
-                paramDefaultValue});
+            onChange({
+                id, name: paramName, dataType: value, headerName: paramHeaderName, defaultValue:
+                    paramDefaultValue
+            });
         }
     };
     const debouncedTypeChange = debounce(handleTypeChange, 800);
@@ -117,35 +137,43 @@ export function ParamEditor(props: ParamProps) {
         setParamDefaultValue(value);
         setCurrentComponentName("DefaultValue");
         if (optionList) {
-            onChange({id, name: paramName, dataType: paramDataType, headerName, defaultValue: value},
+            onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value },
                 selectedOption);
         } else {
-            onChange({id, name: paramName, dataType: paramDataType, headerName, defaultValue: value});
+            onChange({ id, name: paramName, dataType: paramDataType, headerName, defaultValue: value });
         }
     };
     const debouncedDefaultValeChange = debounce(handleDefaultValueChange, 800);
 
     const handleOnSelect = (value: string) => {
         setSelectedOption(value);
-        onChange({id, name: paramName, dataType: paramDataType}, value, true);
+        onChange({ id, name: "", dataType: "" }, value, true);
     };
 
     const handleAddParam = () => {
         if (onUpdate) {
             if (optionList) {
-                onUpdate({id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
-                          defaultValue: paramDefaultValue}, selectedOption);
+                onUpdate({
+                    id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
+                    defaultValue: paramDefaultValue
+                }, selectedOption);
             } else {
-                onUpdate({id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
-                          defaultValue: paramDefaultValue});
+                onUpdate({
+                    id, name: paramName, dataType: paramDataType, headerName: paramHeaderName,
+                    defaultValue: paramDefaultValue
+                });
             }
         } else {
             if (optionList) {
-                onAdd({id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
-                    paramDefaultValue}, selectedOption);
+                onAdd({
+                    id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
+                        paramDefaultValue
+                }, selectedOption);
             } else {
-                onAdd({id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
-                    paramDefaultValue});
+                onAdd({
+                    id, name: paramName, dataType: paramDataType, headerName: paramHeaderName, defaultValue:
+                        paramDefaultValue
+                });
             }
         }
     };
@@ -278,7 +306,7 @@ export function ParamEditor(props: ParamProps) {
                     data-test-id="request-add-button"
                     onClick={handleShowHeaderName}
                     className={classes.addHeaderBtn}
-                    startIcon={<AddIcon/>}
+                    startIcon={<AddIcon />}
                     color="primary"
                     disabled={(syntaxDiag !== "") || disabled}
                 >
@@ -305,6 +333,6 @@ export function ParamEditor(props: ParamProps) {
                     />
                 </div>
             )}
-        </div>
+        </div >
     );
 }

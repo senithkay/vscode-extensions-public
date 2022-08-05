@@ -75,6 +75,7 @@ export const ACTION = "Action";
 export const TYPE_DESC_CONSTRUCTOR = "TYPE_DESCRIPTOR";
 export const EXPR_CONSTRUCTOR = "EXPRESSION";
 export const FIELD_DESCRIPTOR = "TYPE_DESCRIPTOR FIELD_NAME";
+export const MAPPING_TYPE_DESCRIPTER = "map<TYPE_DESCRIPTOR>";
 export const MAPPING_CONSTRUCTOR = "key : EXPRESSION";
 export const DEFAULT_INTERMEDIATE_CLAUSE = "DEFAULT_INTERMEDIATE_CLAUSE";
 export const DEFAULT_WHERE_INTERMEDIATE_CLAUSE = `where ${DEFAULT_INTERMEDIATE_CLAUSE}`;
@@ -108,6 +109,9 @@ export const PLACEHOLDER_DIAGNOSTICS: string[] = [
 export const IGNORABLE_DIAGNOSTICS: string[] = [
     'expression is not a constant expression'
 ];
+
+// The suggestion column size is handled with css (suggestionList -> gridTemplateColumns)
+export const SUGGESTION_COLUMN_SIZE = 3;
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement

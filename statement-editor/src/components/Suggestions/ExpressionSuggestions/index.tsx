@@ -24,6 +24,7 @@ import {
     DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
     QUERY_INTERMEDIATE_CLAUSES
 } from "../../../constants";
+import { Suggestion } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getFilteredExpressions } from "../../../utils";
@@ -36,11 +37,6 @@ import {
 } from "../../../utils/expressions";
 import { ModelType } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
-
-interface Suggestion {
-    selectedGroup?: number,
-    selectedListItem: number
-}
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();

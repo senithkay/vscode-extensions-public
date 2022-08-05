@@ -48,11 +48,12 @@ if {{{ CONDITION }}} {
     REMOTE_SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{ CALLER }}}->{{{ FUNCTION }}}({{{ PARAMS }}});',
     ACTION_STATEMENT: '{{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
     ACTION_STATEMENT_CHECK: 'check {{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
-    RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}}({{{ QUERY_PARAM }}}{{{ PAYLOAD }}}{{#if ADD_REQUEST}}http:Request request{{/if}}{{#if ADD_CALLER}}{{#if ADD_REQUEST}}, {{/if}}{{/if}}{{#if ADD_CALLER}}http:Caller caller{{/if}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
+    RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
     RESOURCE: `
-resource function {{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{PAYLOAD}}}{{#if ADD_REQUEST}}http:Request request{{/if}}{{#if ADD_CALLER}}{{#if ADD_REQUEST}}, {{/if}}{{/if}}{{#if ADD_CALLER}}http:Caller caller{{/if}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}} {
+    resource function {{{ METHOD }}} {{{ PATH }}} ({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}} {
 
-}`,
+    }
+    `,
     RESPOND_WITH_CHECK: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
     RESPOND: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
     RETURN_STATEMENT: 'return {{{ RETURN_EXPR }}};',
