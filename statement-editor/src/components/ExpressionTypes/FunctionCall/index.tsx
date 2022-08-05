@@ -16,12 +16,12 @@ import React, { useContext } from "react";
 import { FunctionCall, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { CALL_CONFIG_TYPE, EXPR_CONSTRUCTOR, FUNCTION_CALL } from "../../../constants";
+import { FUNCTION_CALL_PLACEHOLDER } from "../../../utils/expressions";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { InputEditor, InputEditorProps } from "../../InputEditor";
 import { TokenComponent } from "../../Token";
-import { FUNCTION_CALL_PLACEHOLDER } from "../../../utils/expressions";
 
 interface FunctionCallProps {
     model: FunctionCall;
