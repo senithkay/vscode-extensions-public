@@ -110,6 +110,9 @@ export const IGNORABLE_DIAGNOSTICS: string[] = [
     'expression is not a constant expression'
 ];
 
+// The suggestion column size is handled with css (suggestionList -> gridTemplateColumns)
+export const SUGGESTION_COLUMN_SIZE = 3;
+
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement
     | AssignmentStatement

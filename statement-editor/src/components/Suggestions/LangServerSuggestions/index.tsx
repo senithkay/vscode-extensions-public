@@ -23,7 +23,7 @@ import {
     FUNCTION_COMPLETION_KIND,
     MAPPING_TYPE_DESCRIPTER,
     METHOD_COMPLETION_KIND,
-    PROPERTY_COMPLETION_KIND
+    PROPERTY_COMPLETION_KIND, SUGGESTION_COLUMN_SIZE
 } from "../../../constants";
 import { Suggestion, SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
@@ -104,7 +104,7 @@ export function LSSuggestions() {
 
                 if (suggestionList?.length > 0){
                     if (newSelected >= 0) {
-                        if (suggestionList.length > 3 && newSelected < suggestionList.length) {
+                        if (suggestionList.length > SUGGESTION_COLUMN_SIZE && newSelected < suggestionList.length) {
                             return {selectedListItem: newSelected, selectedGroup: newGroup};
                         } else if ((selectedSuggestion.selectedListItem === suggestionList.length - 1 ||
                                 newSelected >= suggestionList.length) &&
@@ -140,8 +140,8 @@ export function LSSuggestions() {
 
         client.bindNewKey(['right'], changeSelectionOnRightLeft, 1);
         client.bindNewKey(['left'], changeSelectionOnRightLeft, -1);
-        client.bindNewKey(['up'], changeSelectionOnUpDown, -3);
-        client.bindNewKey(['down'], changeSelectionOnUpDown, 3);
+        client.bindNewKey(['up'], changeSelectionOnUpDown, -SUGGESTION_COLUMN_SIZE);
+        client.bindNewKey(['down'], changeSelectionOnUpDown, SUGGESTION_COLUMN_SIZE);
         client.bindNewKey(['enter'], enterOnSuggestion);
 
         return () => {
