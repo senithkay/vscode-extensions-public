@@ -72,7 +72,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
 
     const addParam = () => {
         let newParamString;
-        let segmentId = parameters.length + 1;
+        let segmentId = parameters.length === 0 ? 0 : parameters.length + 1;
         const lastParamIndex = parameters.findIndex(param => STKindChecker.isRestParam(param) || STKindChecker.isDefaultableParam(param));
         if (lastParamIndex === -1) {
             newParamString = `${getParamString(parameters)}${parameters.length === 0 ? '' : ','} string ${genParamName('param', paramNames)}`;
