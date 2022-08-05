@@ -62,52 +62,66 @@ export function LSSuggestions() {
     const [keyword, setKeyword] = useState('');
     const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
     const [filteredSecondLevelSuggestions, setFilteredSecondLevelSuggestions] = useState<SuggestionItem[]>(secondLevelSuggestions);
-    const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>({selectedGroup: 0, selectedListItem: 0});
+
+    const initializeSelectedItem = () : Suggestion => {
+        if (lsSuggestions?.length === 0 && secondLevelSuggestions?.length > 0){
+            return {selectedGroup: 1, selectedListItem: 0};
+        }
+        return {selectedGroup: 0, selectedListItem: 0};
+    }
+
+    const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(initializeSelectedItem());
 
 
     useEffect(() => {
         setFilteredSuggestions(lsSuggestions);
         setFilteredSecondLevelSuggestions(secondLevelSuggestions);
-    }, [lsSuggestions, secondLevelSuggestions]);
+    }, [lsSuggestions, lsSecondLevelSuggestions, currentModel.model]);
 
 
     const changeSelectionOnRightLeft = (key: number) => {
-        setSelectedSuggestion((prevState) => {
-            const newSelected = prevState.selectedListItem + key;
-            const newGroup = prevState.selectedGroup;
-            const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
+        if (selectedSuggestion){
+            setSelectedSuggestion((prevState) => {
+                const newSelected = prevState.selectedListItem + key;
+                const newGroup = prevState.selectedGroup;
+                const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
 
-            if (newSelected >= 0 && newSelected < suggestionList.length) {
-                return {selectedListItem: newSelected, selectedGroup: newGroup};
-            }
-        });
+                if (newSelected >= 0 && newSelected < suggestionList.length) {
+                    return {selectedListItem: newSelected, selectedGroup: newGroup};
+                }
+                return prevState;
+            });
+        }
     }
 
     const changeSelectionOnUpDown = (key: number) => {
-        setSelectedSuggestion((prevState) => {
-            let newSelected = prevState.selectedListItem + key;
-            let newGroup = prevState.selectedGroup;
-            const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
+        if (selectedSuggestion){
+            setSelectedSuggestion((prevState) => {
+                let newSelected = prevState.selectedListItem + key;
+                let newGroup = prevState.selectedGroup;
+                const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
 
-            if (suggestionList?.length > 0){
-                if (newSelected >= 0) {
-                    if (suggestionList.length > 3 && newSelected < suggestionList.length) {
-                        return {selectedListItem: newSelected, selectedGroup: newGroup};
-                    } else if ((selectedSuggestion.selectedListItem === suggestionList.length - 1 ||
-                            newSelected >= suggestionList.length) &&
-                        selectedSuggestion.selectedGroup < 1 &&
-                        filteredSecondLevelSuggestions?.length > 0){
-                        newGroup = selectedSuggestion.selectedGroup + 1;
-                        newSelected = 0;
+                if (suggestionList?.length > 0){
+                    if (newSelected >= 0) {
+                        if (suggestionList.length > 3 && newSelected < suggestionList.length) {
+                            return {selectedListItem: newSelected, selectedGroup: newGroup};
+                        } else if ((selectedSuggestion.selectedListItem === suggestionList.length - 1 ||
+                                newSelected >= suggestionList.length) &&
+                            selectedSuggestion.selectedGroup < 1 &&
+                            filteredSecondLevelSuggestions?.length > 0){
+                            newGroup = selectedSuggestion.selectedGroup + 1;
+                            newSelected = 0;
+                            return {selectedListItem: newSelected, selectedGroup: newGroup};
+                        }
+                    } else if (newSelected < 0 && newGroup > 0) {
+                        newGroup = selectedSuggestion.selectedGroup - 1;
+                        newSelected = filteredSuggestions.length - 1;
                         return {selectedListItem: newSelected, selectedGroup: newGroup};
                     }
-                } else if (newSelected < 0 && newGroup > 0) {
-                    newGroup = selectedSuggestion.selectedGroup - 1;
-                    newSelected = filteredSuggestions.length - 1;
-                    return {selectedListItem: newSelected, selectedGroup: newGroup};
                 }
-            }
-        });
+                return prevState;
+            });
+        }
     }
 
     const enterOnSuggestion = () => {
@@ -132,7 +146,7 @@ export function LSSuggestions() {
         return () => {
             client.resetMouseTrapInstance();
         }
-    }, [selectedSuggestion, currentModel.model, lsSuggestions, secondLevelSuggestions]);
+    }, [selectedSuggestion, currentModel.model, filteredSuggestions, filteredSecondLevelSuggestions]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         setKeyword('');
@@ -167,7 +181,7 @@ export function LSSuggestions() {
         setKeyword(searchValue);
         setFilteredSuggestions(lsSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())));
         setFilteredSecondLevelSuggestions(secondLevelSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())))
-        setSelectedSuggestion({selectedGroup: 0, selectedListItem: 0});
+        setSelectedSuggestion(initializeSelectedItem());
     }
 
     return (
