@@ -194,6 +194,8 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                                 disabled={
                                     (syntaxDiag?.length > 0)
                                     || (param?.viewState?.diagnosticsInRange?.length > 0)
+                                    || segmentName.value.length === 0
+                                    || segmentType.value.length === 0
                                 }
                                 fullWidth={false}
                                 onClick={onUpdate ? handleOnUpdate : handleOnSave}
