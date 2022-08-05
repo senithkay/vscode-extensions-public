@@ -34,7 +34,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { isEndpointNode } from "../../../../../utils";
-import { getFormattedModuleName } from "../../../../Portals/utils";
+import { getFieldName, getFormattedModuleName } from "../../../../Portals/utils";
 import { isAllDefaultableFields, isAnyFieldSelected, isDependOnDriver } from "../../../Utils";
 
 export async function fetchConnectorInfo(
@@ -125,6 +125,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 draftParameter = getFieldValuePair(parameter, "xml ``", depth);
                 break;
             case PrimitiveBalType.Nil:
+            case "anydata":
             case "()":
                 draftParameter = getFieldValuePair(parameter, `()`, depth, true);
                 break;
@@ -180,12 +181,34 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
 function getFieldValuePair(parameter: FormField, defaultValue: string, depth: number, valueOnly = false): string {
     if (depth === 1 && !valueOnly) {
         // Handle named args
-        return `${parameter.name} = ${defaultValue}`;
+        return `${getFieldName(parameter.name)} = ${defaultValue}`;
     }
     if (depth > 1 && !valueOnly) {
-        return `${parameter.name}: ${defaultValue}`;
+        return `${getFieldName(parameter.name)}: ${defaultValue}`;
     }
     return defaultValue;
+}
+
+export function getUnionFormFieldName(field: FormField): string {
+    return field.name || field.typeInfo?.name || field.typeName;
+}
+
+export function getSelectedUnionMember(unionFields: FormField): FormField {
+    let selectedMember = unionFields.members?.find((member) => member.selected === true);
+    if (!selectedMember) {
+        selectedMember = unionFields.members?.find(
+            (member) => getUnionFormFieldName(member) === unionFields.selectedDataType
+        );
+    }
+    if (!selectedMember) {
+        selectedMember = unionFields.members?.find(
+            (member) => member.typeName === unionFields.value?.replace(/['"]+/g, "")
+        );
+    }
+    if (!selectedMember) {
+        selectedMember = unionFields.members[ 0 ];
+    }
+    return selectedMember;
 }
 
 export function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldReturnType {
