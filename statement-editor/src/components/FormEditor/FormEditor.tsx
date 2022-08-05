@@ -131,7 +131,7 @@ export function FormEditor(props: FormEditorProps) {
             )
         );
         setModel(enrichModel(partialST, newTargetPosition, diagnostics));
-        if (currentModel && newValue && completionKinds) {
+        if (currentModel && currentModel.model && newValue && completionKinds) {
             handleCompletions(newValue, currentModel, completionKinds, newTargetPosition);
         }
     };

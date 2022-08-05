@@ -82,7 +82,9 @@ export function PayloadEditor(props: PayloadEditorProps) {
         onChangeInProgress(true);
     };
     const onDelete = (param: ParameterConfig) => {
+
         parameters.splice(param.id === 0 ? param.id : param.id - 1, 2)
+        setParamIndex(-1)
         onChange(getParamString(parameters));
     };
 
@@ -123,7 +125,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
                         className={connectorClasses.addParameterBtn}
                         startIcon={<AddIcon />}
                         color="primary"
-                        disabled={false}
+                        disabled={readonly}
                     >
                         Add Payload
                     </Button>

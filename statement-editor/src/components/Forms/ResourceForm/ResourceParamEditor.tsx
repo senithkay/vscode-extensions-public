@@ -33,6 +33,7 @@ export interface QueryParamEditorProps {
     onChange: (paramString: string, model?: STNode, currentValue?: string, avoidValueCommit?: boolean) => void,
     syntaxDiag?: StatementSyntaxDiagnostics[];
     readonly?: boolean;
+    onChangeInProgress?: (isInProgress: boolean) => void;
 }
 
 export const RESOURCE_PAYLOAD_PREFIX = "@http:Payload";
@@ -42,11 +43,12 @@ export const RESOURCE_CALLER_TYPE = "http:Caller";
 export const RESOURCE_HEADER_MAP_TYPE = "http:Headers";
 
 export function ResourceParamEditor(props: QueryParamEditorProps) {
-    const { parameters, completions, onChange, syntaxDiag, readonly } = props;
+    const { parameters, completions, onChange, syntaxDiag, readonly, onChangeInProgress } = props;
     const connectorClasses = connectorStyles();
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const onEdit = (param: Param) => {
         setEditingSegmentId(param.id);
+        onChangeInProgress(true);
     };
 
     const onDelete = (param: ParameterConfig) => {
@@ -89,10 +91,12 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
 
         onChange(newParamString);
         setEditingSegmentId(segmentId);
+        onChangeInProgress(true);
     };
 
     const onParamEditCancel = () => {
         setEditingSegmentId(-1);
+        onChangeInProgress(false);
     };
 
 
@@ -151,7 +155,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                         className={connectorClasses.addParameterBtn}
                         startIcon={<AddIcon />}
                         color="primary"
-                        disabled={false}
+                        disabled={readonly}
                     >
                         Add Parameter
                     </Button>

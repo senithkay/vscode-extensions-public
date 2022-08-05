@@ -73,7 +73,8 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                 }
             });
 
-        setAdvancedOptionsShown(foundRequestIndex > -1 || foundCallerIndex > -1 || foundHeaderIndex > -1);
+        setAdvancedOptionsShown(advancedOptionsShown ||
+            (foundRequestIndex > -1 || foundCallerIndex > -1 || foundHeaderIndex > -1));
         setRequestIndex(foundRequestIndex);
         setCallerIndex(foundCallerIndex);
         setHeaderIndex(foundHeaderIndex);
@@ -150,15 +151,30 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
 
         const handleCancelEditParam = () => {
             setCurrentEditOption(undefined);
+            onChangeInProgress(false);
         }
 
         const handleParamDelete = () => {
             parameters.splice(paramIndex === 0 ? paramIndex : paramIndex - 1, 2)
             onChange(getParamString(parameters));
+            switch (type) {
+                case PARAM_TYPES.CALLER:
+                    setCallerIndex(-1);
+                    break;
+                case PARAM_TYPES.HEADER:
+                    setHeaderIndex(-1);
+                    break;
+                case PARAM_TYPES.REQUEST:
+                    setRequestIndex(-1);
+                    break;
+                default:
+                // not required
+            }
         }
 
         const handleParamEditClick = () => {
             setCurrentEditOption(type);
+            onChangeInProgress(true);
         }
 
         return (
@@ -184,7 +200,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                                 type: getParameterTypeFromModel(parameters[paramIndex]),
                                 option: type
                             }}
-                            readonly={false}
+                            readonly={readonly}
                             onDelete={handleParamDelete}
                             onEditClick={handleParamEditClick}
                         />
@@ -200,7 +216,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         <div>
             <div className={classes.advancedParamWrapper}>
                 <div className={classes.advancedParamHeader}>Advanced Parameters </div>
-                <Button className={classes.advancedParamBtn} onClick={onShowAdvancedOptionsClick}>
+                <Button className={classes.advancedParamBtn} onClick={onShowAdvancedOptionsClick} disabled={readonly}>
                     {advancedOptionsShown ? "Hide" : "Show"}
                 </Button>
             </div>

@@ -76,6 +76,7 @@ export function ParamEditor(props: ParamProps) {
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
+    const [originalSource] = useState<string>(model.source);
 
     const onTypeEditorFocus = () => {
         setCurrentComponentName(ParamEditorInputTypes.TYPE)
@@ -108,7 +109,12 @@ export function ParamEditor(props: ParamProps) {
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const type = model.typeName.source.trim();
         const paramName = model.paramName.value
-        onChange(segmentId, `${annotation} ${type} ${paramName} = ${value}`, STKindChecker.isDefaultableParam(model) ? model.expression : undefined, value);
+        onChange(
+            segmentId,
+            `${annotation} ${type} ${paramName} = ${value}`,
+            STKindChecker.isDefaultableParam(model) ? model.expression : undefined,
+            value
+        );
     }
 
     const debouncedTypeChange = debounce(handleTypeChange, 800);
@@ -121,6 +127,11 @@ export function ParamEditor(props: ParamProps) {
             : `${model.typeName.source} ${model.paramName.value}`;
         onChange(segmentId, newParamString);
     };
+
+    const handleOnCancel = () => {
+        onChange(segmentId, originalSource);
+        onCancel();
+    }
 
     return (
         <div className={classes.paramContainer}>
@@ -195,13 +206,18 @@ export function ParamEditor(props: ParamProps) {
                 <SecondaryButton
                     text="Cancel"
                     fullWidth={false}
-                    onClick={onCancel}
+                    onClick={handleOnCancel}
                     className={classes.actionBtn}
                 />
                 <PrimaryButton
                     dataTestId={"path-segment-add-btn"}
                     text={"Save"}
-                    disabled={false}
+                    disabled={
+                        (syntaxDiagnostics && syntaxDiagnostics.length > 0)
+                        || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange.length > 0
+                        || model.paramName?.viewState?.diagnosticsInRange?.length > 0
+                        || model.typeName?.viewState?.diagnosticsInRange?.length > 0
+                    }
                     fullWidth={false}
                     onClick={onCancel}
                     className={classes.actionBtn}

@@ -220,8 +220,8 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
 
     useEffect(() => {
         editorConfig.onChange = onChange;
-        // editorConfig.onFocus = onFocus;
     }, [onChange])
+
     // Configurable insertion icon will be displayed only when originalValue is empty
     // const [originalValue, setOriginalValue] = useState(model?.value || "");
     // const isEmpty = (model.value ?? "") === "";
@@ -284,7 +284,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                     monaco.editor.setModelMarkers(
                         monacoModel,
                         "expression editor",
-                        diagnostics?.map((diagnostic: any) => ({
+                        editorConfig?.diagnostics?.map((diagnostic: any) => ({
                             startLineNumber: 1,
                             startColumn: diagnostic.range?.start?.character || monacoModel.getFullModelRange().startColumn, // - snippetTargetPosition + 2,
                             endLineNumber: 1,
@@ -444,6 +444,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     }, [disabled]);
 
     useEffect(() => {
+        editorConfig.diagnostics = diagnostics;
         if (diagnostics) {
             handleDiagnostic();
             if (diagnostics.length > 0) {

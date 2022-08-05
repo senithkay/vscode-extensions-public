@@ -74,6 +74,7 @@ export function ResourceForm(props: FunctionProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
+    const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
 
     const resourceConfigTitle = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
@@ -112,15 +113,15 @@ export function ResourceForm(props: FunctionProps) {
         const diagPath = model.relativeResourcePath?.find(
             resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
 
-        let resourcePathDiagnostics;
+        let resourcePathDiagnostics = [];
 
         if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
             resourcePathDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.
-                viewState?.diagnosticsInRange;
+                viewState?.diagnosticsInRange || [];
             resourcePathDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
-                typeDescriptor?.viewState?.diagnosticsInRange;
+                typeDescriptor?.viewState?.diagnosticsInRange || [];
         } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
-            resourcePathDiagnostics = diagPath?.viewState?.diagnostics;
+            resourcePathDiagnostics = diagPath?.viewState?.diagnostics || [];
         }
 
         return resourcePathDiagnostics;
@@ -201,8 +202,6 @@ export function ResourceForm(props: FunctionProps) {
             value,
             generateParameterSectionString(model?.functionSignature?.parameters),
             model.functionSignature?.returnTypeDesc?.type?.source,
-            undefined,
-            value
         );
     };
     const debouncedPathChange = debounce(handlePathChange, 800);
@@ -298,7 +297,10 @@ export function ResourceForm(props: FunctionProps) {
                             <div className={connectorClasses.resourcePathWrapper}>
                                 <FieldTitle title='Resource Path' optional={true} />
                                 <LiteExpressionEditor
-                                    diagnostics={currentComponentName === "Path" && getResourcePathDiagnostics()}
+                                    diagnostics={
+                                        (currentComponentName === "Path" && currentComponentSyntaxDiag)
+                                        || getResourcePathDiagnostics()
+                                    }
                                     defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
                                     onChange={debouncedPathChange}
                                     completions={completions}
@@ -340,20 +342,23 @@ export function ResourceForm(props: FunctionProps) {
                                 syntaxDiag={currentComponentSyntaxDiag}
                                 onChange={handleParamEditorChange}
                                 completions={completions}
-                                readonly={false} // todo: implement the disable logic
+                                readonly={isEditInProgress} // todo: implement the disable logic
+                                onChangeInProgress={setIsEditInProgress}
                             />
                             <PayloadEditor
                                 parameters={model.functionSignature?.parameters || []}
                                 onChange={handleParamEditorChange}
                                 syntaxDiag={currentComponentSyntaxDiag}
                                 completions={completions}
-                                readonly={false}
+                                readonly={isEditInProgress}
+                                onChangeInProgress={setIsEditInProgress}
                             />
                             <AdvancedParamEditor
                                 parameters={model.functionSignature?.parameters || []}
                                 syntaxDiag={currentComponentSyntaxDiag ? currentComponentSyntaxDiag : []}
                                 onChange={handleParamEditorChange}
-                                readonly={false}
+                                readonly={isEditInProgress}
+                                onChangeInProgress={setIsEditInProgress}
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
@@ -364,7 +369,7 @@ export function ResourceForm(props: FunctionProps) {
                             defaultValue={model?.functionSignature?.returnTypeDesc?.type?.source.trim()}
                             onChange={debouncedReturnTypeChange}
                             onFocus={onReturnFocus}
-                            disabled={false}
+                            disabled={isEditInProgress}
                             completions={completions}
                         />
                         <div className={classes.serviceFooterWrapper}>
@@ -379,7 +384,10 @@ export function ResourceForm(props: FunctionProps) {
                                     text={saveButtonText}
                                     className={classes.saveBtn}
                                     onClick={handleOnSave}
-                                    disabled={false}
+                                    disabled={currentComponentSyntaxDiag?.length > 0
+                                        || getResourcePathDiagnostics().length > 0
+                                        || model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange.length > 0
+                                        || isEditInProgress}
                                 />
                             </div>
                         </div>
