@@ -71,9 +71,6 @@ export default function Toolbar(props: ToolbarProps) {
         client.bindNewKey(['command+shift+z', 'ctrl+shift+z'], redo);
         client.bindNewKey(['del'], onDelFunction);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
     }, [currentModel]);
 
     const [deletable, configurable] = useMemo(() => {

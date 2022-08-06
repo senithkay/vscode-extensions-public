@@ -134,9 +134,6 @@ export function ExpressionSuggestions() {
         client.bindNewKey(['down'], changeSelectionOnUpDown, 3);
         client.bindNewKey(['enter'], enterOnSuggestion);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
     }, [selectedSuggestions, currentModel.model]);
 
     const searchExpressions = (searchValue: string) => {

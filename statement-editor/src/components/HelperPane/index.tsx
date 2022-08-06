@@ -79,9 +79,6 @@ export function HelperPane(props: HelperPaneProps) {
         client.bindNewKey(['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries);
         client.bindNewKey(['ctrl+shift+d', 'command+shift+d'], setSelectedTab, TabElements.parameters);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
     }, []);
 
     useEffect(() => {

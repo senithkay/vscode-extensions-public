@@ -43,6 +43,7 @@ export function LSSuggestions() {
         modelCtx: {
             currentModel,
             updateModel,
+            enterKeyHandler
         },
         suggestionsCtx: {
             lsSuggestions,
@@ -142,12 +143,14 @@ export function LSSuggestions() {
         client.bindNewKey(['left'], changeSelectionOnRightLeft, -1);
         client.bindNewKey(['up'], changeSelectionOnUpDown, -SUGGESTION_COLUMN_SIZE);
         client.bindNewKey(['down'], changeSelectionOnUpDown, SUGGESTION_COLUMN_SIZE);
-        client.bindNewKey(['enter'], enterOnSuggestion);
+        if (selectedSuggestion && (filteredSuggestions?.length > 0 || filteredSecondLevelSuggestions?.length > 0)){
+            client.bindNewKey(['enter'], enterOnSuggestion);
+        }
 
         return () => {
-            client.resetMouseTrapInstance();
+                client.bindNewKey(['enter'], enterKeyHandler);
         }
-    }, [selectedSuggestion, currentModel.model, filteredSuggestions, filteredSecondLevelSuggestions]);
+    }, [selectedSuggestion, currentModel.model]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         setKeyword('');
