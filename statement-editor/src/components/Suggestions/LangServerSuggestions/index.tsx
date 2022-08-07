@@ -43,7 +43,6 @@ export function LSSuggestions() {
         modelCtx: {
             currentModel,
             updateModel,
-            enterKeyHandler
         },
         suggestionsCtx: {
             lsSuggestions,
@@ -63,21 +62,12 @@ export function LSSuggestions() {
     const [keyword, setKeyword] = useState('');
     const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
     const [filteredSecondLevelSuggestions, setFilteredSecondLevelSuggestions] = useState<SuggestionItem[]>(secondLevelSuggestions);
-
-    const initializeSelectedItem = () : Suggestion => {
-        if (lsSuggestions?.length === 0 && secondLevelSuggestions?.length > 0){
-            return {selectedGroup: 1, selectedListItem: 0};
-        }
-        return {selectedGroup: 0, selectedListItem: 0};
-    }
-
-    const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(initializeSelectedItem());
+    const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(null);
 
 
     useEffect(() => {
         setFilteredSuggestions(lsSuggestions);
         setFilteredSecondLevelSuggestions(secondLevelSuggestions);
-        setSelectedSuggestion(initializeSelectedItem());
     }, [lsSuggestions, lsSecondLevelSuggestions, currentModel.model]);
 
 
@@ -88,7 +78,7 @@ export function LSSuggestions() {
                 const newGroup = prevState.selectedGroup;
                 const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
 
-                if (newSelected >= 0 && newSelected < suggestionList.length) {
+                if (newSelected >= 0 && newSelected < suggestionList?.length) {
                     return {selectedListItem: newSelected, selectedGroup: newGroup};
                 }
                 return prevState;
@@ -97,7 +87,16 @@ export function LSSuggestions() {
     }
 
     const changeSelectionOnUpDown = (key: number) => {
-        if (selectedSuggestion){
+        if (selectedSuggestion === null){
+            setSelectedSuggestion((prevState) => {
+                if (filteredSuggestions?.length >= 0) {
+                    return {selectedListItem: 0, selectedGroup: 0};
+                } else if (filteredSecondLevelSuggestions?.length >= 0) {
+                    return {selectedListItem: 0, selectedGroup: 1};
+                }
+                return prevState;
+            });
+        }else if (selectedSuggestion){
             setSelectedSuggestion((prevState) => {
                 let newSelected = prevState.selectedListItem + key;
                 let newGroup = prevState.selectedGroup;
@@ -132,6 +131,7 @@ export function LSSuggestions() {
                 filteredSuggestions[selectedSuggestion.selectedListItem] :
                 filteredSecondLevelSuggestions[selectedSuggestion.selectedListItem];
             onClickLSSuggestion(enteredSuggestion);
+            setSelectedSuggestion(null);
         }
     }
 
@@ -143,13 +143,8 @@ export function LSSuggestions() {
         client.bindNewKey(['left'], changeSelectionOnRightLeft, -1);
         client.bindNewKey(['up'], changeSelectionOnUpDown, -SUGGESTION_COLUMN_SIZE);
         client.bindNewKey(['down'], changeSelectionOnUpDown, SUGGESTION_COLUMN_SIZE);
-        if (selectedSuggestion && (filteredSuggestions?.length > 0 || filteredSecondLevelSuggestions?.length > 0)){
-            client.bindNewKey(['enter'], enterOnSuggestion);
-        }
+        client.bindNewKey(['enter'], enterOnSuggestion);
 
-        return () => {
-                client.bindNewKey(['enter'], enterKeyHandler);
-        }
     }, [selectedSuggestion, currentModel.model]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
@@ -185,7 +180,7 @@ export function LSSuggestions() {
         setKeyword(searchValue);
         setFilteredSuggestions(lsSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())));
         setFilteredSecondLevelSuggestions(secondLevelSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())))
-        setSelectedSuggestion(initializeSelectedItem());
+        setSelectedSuggestion(null);
     }
 
     return (

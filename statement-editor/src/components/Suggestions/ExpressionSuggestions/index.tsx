@@ -44,7 +44,7 @@ export function ExpressionSuggestions() {
     const inputEditorCtx = useContext(InputEditorContext);
     const [keyword, setKeyword] = useState('');
     const [filteredExpressions, setFilteredExpressions] = useState(expressions);
-    const [selectedSuggestions, setSelectedSuggestion] = React.useState<Suggestion>({selectedGroup: 0, selectedListItem: 0});
+    const [selectedSuggestions, setSelectedSuggestion] = React.useState<Suggestion>(null);
 
     const {
         modelCtx: {
@@ -86,33 +86,39 @@ export function ExpressionSuggestions() {
     }, [currentModel.model]);
 
     const changeSelectionOnUpDown = (key: number) => {
-        let newSelected = selectedSuggestions.selectedListItem + key;
-        let newGroup = selectedSuggestions.selectedGroup;
+        if (selectedSuggestions == null && filteredExpressions?.length > 0){
+            setSelectedSuggestion({ selectedListItem: 0, selectedGroup: 0 });
+        }else if (selectedSuggestions) {
+            let newSelected = selectedSuggestions.selectedListItem + key;
+            let newGroup = selectedSuggestions.selectedGroup;
 
-        if (newSelected >= 0 && filteredExpressions[selectedSuggestions.selectedGroup].expressions.length > 3 &&
-            newSelected < filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) {
+            if (newSelected >= 0 && filteredExpressions[selectedSuggestions.selectedGroup].expressions.length > 3 &&
+                newSelected < filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) {
 
-                setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
-        } else if (newSelected >= 0 &&
-            (selectedSuggestions.selectedListItem === filteredExpressions[selectedSuggestions.selectedGroup].expressions.length - 1 ||
-                newSelected >= filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) &&
+                setSelectedSuggestion({ selectedListItem: newSelected, selectedGroup: newGroup });
+            } else if (newSelected >= 0 &&
+                (selectedSuggestions.selectedListItem === filteredExpressions[selectedSuggestions.selectedGroup].expressions.length - 1 ||
+                    newSelected >= filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) &&
                 selectedSuggestions.selectedGroup < filteredExpressions.length - 1) {
 
-                    newGroup = selectedSuggestions.selectedGroup + 1;
-                    newSelected = 0;
-                    setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
-        } else if (newSelected < 0 && newGroup >= 0) {
-            newGroup = selectedSuggestions.selectedGroup - 1;
-            newSelected = filteredExpressions[newGroup].expressions.length - 1;
-            setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
+                newGroup = selectedSuggestions.selectedGroup + 1;
+                newSelected = 0;
+                setSelectedSuggestion({ selectedListItem: newSelected, selectedGroup: newGroup });
+            } else if (newSelected < 0 && newGroup >= 0) {
+                newGroup = selectedSuggestions.selectedGroup - 1;
+                newSelected = filteredExpressions[newGroup].expressions.length - 1;
+                setSelectedSuggestion({ selectedListItem: newSelected, selectedGroup: newGroup });
+            }
         }
     }
 
     const changeSelectionOnRightLeft = (key: number) => {
-        const newSelected = selectedSuggestions.selectedListItem + key;
-        const newGroup = selectedSuggestions.selectedGroup;
-        if (newSelected >= 0 && newSelected < filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) {
-            setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
+        if (selectedSuggestions){
+            const newSelected = selectedSuggestions.selectedListItem + key;
+            const newGroup = selectedSuggestions.selectedGroup;
+            if (newSelected >= 0 && newSelected < filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) {
+                setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
+            }
         }
     }
 
@@ -121,6 +127,7 @@ export function ExpressionSuggestions() {
             const expression: Expression =
                 filteredExpressions[selectedSuggestions.selectedGroup]?.expressions[selectedSuggestions.selectedListItem];
             updateModelWithSuggestion(expression);
+            setSelectedSuggestion(null);
         }
     }
 
@@ -193,8 +200,8 @@ export function ExpressionSuggestions() {
                                                     className={stmtEditorHelperClasses.expressionListItem}
                                                     key={index}
                                                     selected={
-                                                        groupIndex === selectedSuggestions.selectedGroup &&
-                                                        index === selectedSuggestions.selectedListItem
+                                                        groupIndex === selectedSuggestions?.selectedGroup &&
+                                                        index === selectedSuggestions?.selectedListItem
                                                     }
                                                     onMouseDown={() => onClickExpressionSuggestion(expression,
                                                         {selectedGroup: groupIndex, selectedListItem: index})}

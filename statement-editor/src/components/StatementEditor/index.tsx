@@ -497,7 +497,6 @@ export function StatementEditor(props: StatementEditorProps) {
                     handleChange={handleChange}
                     updateModel={updateModel}
                     handleModules={handleModules}
-                    enterKeyHandler={enterKeyHandler}
                     modulesToBeImported={moduleList}
                     initialSource={source}
                     undo={undo}
