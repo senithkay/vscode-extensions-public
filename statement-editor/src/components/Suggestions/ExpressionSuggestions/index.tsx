@@ -54,9 +54,12 @@ export function ExpressionSuggestions() {
         config
     } = useContext(StatementEditorContext);
 
-    const onClickExpressionSuggestion = (expression: Expression, clickedSuggestion : Suggestion) => {
-        if (clickedSuggestion){
-            setSelectedSuggestion({selectedGroup: clickedSuggestion.selectedGroup, selectedListItem: clickedSuggestion.selectedListItem});
+    const onClickExpressionSuggestion = (expression: Expression, clickedSuggestion: Suggestion) => {
+        if (clickedSuggestion) {
+            setSelectedSuggestion({
+                selectedGroup: clickedSuggestion.selectedGroup,
+                selectedListItem: clickedSuggestion.selectedListItem
+            });
             updateModelWithSuggestion(expression);
         }
     }
@@ -75,7 +78,7 @@ export function ExpressionSuggestions() {
     useEffect(() => {
         if (currentModel.model) {
             let filteredGroups: ExpressionGroup[] = getFilteredExpressions(expressions, currentModel.model);
-            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
+            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
                 filteredGroups = expressions.filter(
                     (exprGroup) => exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             } else if ((config.type === CALL_CONFIG_TYPE) && STKindChecker.isFunctionCall(currentModel.model)) {
@@ -86,9 +89,9 @@ export function ExpressionSuggestions() {
     }, [currentModel.model]);
 
     const changeSelectionOnUpDown = (key: number) => {
-        if (selectedSuggestions == null && filteredExpressions?.length > 0){
+        if (selectedSuggestions == null && filteredExpressions?.length > 0) {
             setSelectedSuggestion({ selectedListItem: 0, selectedGroup: 0 });
-        }else if (selectedSuggestions) {
+        } else if (selectedSuggestions) {
             let newSelected = selectedSuggestions.selectedListItem + key;
             let newGroup = selectedSuggestions.selectedGroup;
 
@@ -113,17 +116,17 @@ export function ExpressionSuggestions() {
     }
 
     const changeSelectionOnRightLeft = (key: number) => {
-        if (selectedSuggestions){
+        if (selectedSuggestions) {
             const newSelected = selectedSuggestions.selectedListItem + key;
             const newGroup = selectedSuggestions.selectedGroup;
             if (newSelected >= 0 && newSelected < filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) {
-                setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
+                setSelectedSuggestion({ selectedListItem: newSelected, selectedGroup: newGroup });
             }
         }
     }
 
     const enterOnSuggestion = () => {
-        if (selectedSuggestions){
+        if (selectedSuggestions) {
             const expression: Expression =
                 filteredExpressions[selectedSuggestions.selectedGroup]?.expressions[selectedSuggestions.selectedListItem];
             updateModelWithSuggestion(expression);
@@ -160,7 +163,7 @@ export function ExpressionSuggestions() {
             }
         });
         setFilteredExpressions(getFilteredExpressions(filteredGroups, currentModel.model));
-        setSelectedSuggestion({selectedGroup: 0, selectedListItem: 0});
+        setSelectedSuggestion({ selectedGroup: 0, selectedListItem: 0 });
     }
 
     return (
@@ -204,7 +207,7 @@ export function ExpressionSuggestions() {
                                                         index === selectedSuggestions?.selectedListItem
                                                     }
                                                     onMouseDown={() => onClickExpressionSuggestion(expression,
-                                                        {selectedGroup: groupIndex, selectedListItem: index})}
+                                                        { selectedGroup: groupIndex, selectedListItem: index })}
                                                     disableRipple={true}
                                                 >
                                                     <ListItemText
