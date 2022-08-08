@@ -92,6 +92,14 @@ enum EXTENDED_APIS_ORG {
     NOTEBOOK_SUPPORT = "balShell"
 }
 
+export enum DIAGNOSTIC_SEVERITY {
+    INTERNAL = "INTERNAL",
+    HINT = "HINT",
+    INFO = "INFO",
+    WARNING = "WARNING",
+    ERROR = "ERROR"
+}
+
 export interface ExtendedClientCapabilities extends ClientCapabilities {
     experimental: { introspection: boolean, showTextDocument: boolean };
 }
@@ -154,6 +162,12 @@ export interface JsonToRecordRequest {
 
 export interface JsonToRecordResponse {
     codeBlock: string;
+    diagnostics?: JsonToRecordMapperDiagnostic[];
+}
+
+export interface JsonToRecordMapperDiagnostic {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
 }
 
 export interface NoteBookCellOutputRequest {
