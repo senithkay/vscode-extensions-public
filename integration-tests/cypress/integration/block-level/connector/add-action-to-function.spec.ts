@@ -12,10 +12,6 @@ const BAL_FILE_PATH = "block-level/connector/add-action-to-function.bal";
 describe('Add action to function via Low Code', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
-    });
-
-    // INFO: Added multiple test scenarios in single test case to avoid multiple module pulling.
-    it('Add multiple action to function', () => {
         // Pulling existing connectors.
         cy.exec('bal pull ballerinax/googleapis.sheets', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
@@ -26,24 +22,27 @@ describe('Add action to function via Low Code', () => {
         cy.exec('bal pull ballerinax/mysql.driver', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+    });
 
-        // Test action creation with module level endpoint.
+    // INFO: Added multiple test scenarios in single test case to avoid multiple module pulling.
+    it('Add multiple action to function', () => {        
+        // Test action creation using function level endpoint.
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(0);
+            .clickDefaultWorkerPlusBtn(1);
 
         BlockLevelPlusWidget.clickOption("Action");
 
         EndpointListForm
             .shouldBeVisible()
-            .selectEndpoint("mysqlEp");
+            .selectEndpoint("httpEp");
 
         ActionListForm
             .shouldBeVisible()
-            .selectAction("query");
+            .selectAction("get");
 
         StatementEditor
             .shouldBeVisible()
@@ -71,7 +70,7 @@ describe('Add action to function via Low Code', () => {
             .shouldBeVisible()
             .save();
 
-        // Test action creation using function level endpoint.
+        // Test action creation with module level endpoint.
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
@@ -83,11 +82,11 @@ describe('Add action to function via Low Code', () => {
 
         EndpointListForm
             .shouldBeVisible()
-            .selectEndpoint("httpEp");
+            .selectEndpoint("mysqlEp");
 
         ActionListForm
             .shouldBeVisible()
-            .selectAction("get");
+            .selectAction("query");
 
         StatementEditor
             .shouldBeVisible()
