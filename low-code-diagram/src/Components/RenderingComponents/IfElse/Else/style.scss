@@ -17,10 +17,12 @@
 .else-line {
     line {
         stroke: $default_color;
+        stroke-width: 1px;
     }
 
     .line-curve {
         stroke: $default_color;
+        stroke-width: 1px;
         fill: none;
     }
 

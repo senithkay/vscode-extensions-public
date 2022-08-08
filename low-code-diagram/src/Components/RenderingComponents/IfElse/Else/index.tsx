@@ -26,7 +26,6 @@ import { Collapse } from "../../Collapse";
 import { ControlFlowLine } from "../../ControlFlowLine";
 import ControlFlowElseEnd from "../../ControlFlowLine/ControlFlowElseEnd";
 import ControlFlowElseStart from "../../ControlFlowLine/ControlFlowElseStart";
-import { HIGHLIGHTED_PATH_WIDTH } from "../../WorkerLine";
 
 import { BottomCurveSVG, BOTTOM_CURVE_SVG_HEIGHT, BOTTOM_CURVE_SVG_WIDTH } from "./BottomCurve";
 import "./style.scss";
@@ -65,7 +64,6 @@ export function Else(props: ElseProps) {
 
     const classes = cn("else-line");
     const diagnosticMsgs = getDiagnosticInfo(diagnostics);
-    const strokeWidth = elseBlock && elseBlock.isInSelectedPath ? HIGHLIGHTED_PATH_WIDTH : 1;
 
     const topHorizontalLine: ReactNode = (
         <>
@@ -75,7 +73,6 @@ export function Else(props: ElseProps) {
                 y1={viewState.elseTopHorizontalLine.y}
                 x2={viewState.elseTopHorizontalLine.x + viewState.elseTopHorizontalLine.length - TOP_CURVE_SVG_WIDTH}
                 y2={viewState.elseTopHorizontalLine.y}
-                strokeWidth={strokeWidth}
             />
         </>
     );
@@ -85,7 +82,6 @@ export function Else(props: ElseProps) {
             diagnostics={diagnosticMsgs}
             x={viewState.elseTopHorizontalLine.x + viewState.elseTopHorizontalLine.length - TOP_CURVE_SVG_WIDTH}
             y={viewState.elseTopHorizontalLine.y - yOffsetForCurve}
-            strokeWidth={strokeWidth}
         />
     );
 
@@ -95,7 +91,6 @@ export function Else(props: ElseProps) {
             y1={viewState.elseBody.y + TOP_CURVE_SVG_HEIGHT - yOffsetForCurve}
             x2={viewState.elseBody.x}
             y2={viewState.elseBody.y + viewState.elseBody.length - BOTTOM_CURVE_SVG_HEIGHT}
-            strokeWidth={strokeWidth}
         />
     );
 
@@ -104,7 +99,6 @@ export function Else(props: ElseProps) {
             diagnostics={diagnosticMsgs}
             x={viewState.elseBody.x - BOTTOM_CURVE_SVG_WIDTH + yOffsetForCurve}
             y={viewState.elseBody.y + viewState.elseBody.length - BOTTOM_CURVE_SVG_HEIGHT}
-            strokeWidth={strokeWidth}
         />
     );
 
@@ -115,7 +109,6 @@ export function Else(props: ElseProps) {
             x2={viewState.elseBottomHorizontalLine.x + viewState.elseBottomHorizontalLine.length -
                 BOTTOM_CURVE_SVG_WIDTH + yOffsetForCurve}
             y2={viewState.elseBottomHorizontalLine.y - yOffsetForCurve}
-            strokeWidth={strokeWidth}
         />
     );
 
