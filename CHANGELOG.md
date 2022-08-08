@@ -4,6 +4,9 @@
 ### Added
 - Ballerina Notebook. [#183](https://github.com/wso2/ballerina-plugin-vscode/issues/183)
 
+### Improved
+- The low-code diagram editor - New statement editor introduced.
+
 ## **3.0.2**
 ### Improved
 - The low-code diagram editor.
