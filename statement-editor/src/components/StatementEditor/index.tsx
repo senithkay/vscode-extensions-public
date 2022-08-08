@@ -124,6 +124,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [documentation, setDocumentation] = useState<DocumentationInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
     const [isPullingModule, setIsPullingModule] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -260,6 +261,10 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const updateSyntaxDiagnostics = (hasSyntaxIssues: boolean) => {
         setHasSyntaxDiagnostics(hasSyntaxIssues);
+    }
+
+    const updateEditing = (editing: boolean) => {
+        setIsEditing(editing);
     }
 
     const updateModel = async (codeSnippet: string, position: NodePosition, stmtModel?: STNode) => {
@@ -524,6 +529,8 @@ export function StatementEditor(props: StatementEditorProps) {
                     hasRestArg={isRestArg}
                     hasSyntaxDiagnostics={hasSyntaxDiagnostics}
                     updateSyntaxDiagnostics={updateSyntaxDiagnostics}
+                    editing={isEditing}
+                    updateEditing={updateEditing}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

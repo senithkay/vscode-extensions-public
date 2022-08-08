@@ -47,7 +47,8 @@ export function InputEditor(props: InputEditorProps) {
             handleChange,
             hasSyntaxDiagnostics,
             updateSyntaxDiagnostics,
-            currentModel
+            currentModel,
+            updateEditing
         },
         targetPosition,
         config
@@ -130,6 +131,7 @@ export function InputEditor(props: InputEditorProps) {
         if (isEditing === false) {
             setIsSelectingText(false);
         }
+        updateEditing(isEditing);
     }, [isEditing]);
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
