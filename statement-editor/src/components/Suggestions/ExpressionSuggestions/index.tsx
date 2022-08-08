@@ -44,7 +44,7 @@ export function ExpressionSuggestions() {
     const inputEditorCtx = useContext(InputEditorContext);
     const [keyword, setKeyword] = useState('');
     const [filteredExpressions, setFilteredExpressions] = useState(expressions);
-    const [selectedSuggestions, setSelectedSuggestion] = React.useState<Suggestion>({selectedGroup: 0, selectedListItem: 0});
+    const [selectedSuggestions, setSelectedSuggestion] = React.useState<Suggestion>(null);
 
     const {
         modelCtx: {
@@ -54,9 +54,12 @@ export function ExpressionSuggestions() {
         config
     } = useContext(StatementEditorContext);
 
-    const onClickExpressionSuggestion = (expression: Expression, clickedSuggestion : Suggestion) => {
-        if (clickedSuggestion){
-            setSelectedSuggestion({selectedGroup: clickedSuggestion.selectedGroup, selectedListItem: clickedSuggestion.selectedListItem});
+    const onClickExpressionSuggestion = (expression: Expression, clickedSuggestion: Suggestion) => {
+        if (clickedSuggestion) {
+            setSelectedSuggestion({
+                selectedGroup: clickedSuggestion.selectedGroup,
+                selectedListItem: clickedSuggestion.selectedListItem
+            });
             updateModelWithSuggestion(expression);
         }
     }
@@ -75,7 +78,7 @@ export function ExpressionSuggestions() {
     useEffect(() => {
         if (currentModel.model) {
             let filteredGroups: ExpressionGroup[] = getFilteredExpressions(expressions, currentModel.model);
-            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE){
+            if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
                 filteredGroups = expressions.filter(
                     (exprGroup) => exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             } else if ((config.type === CALL_CONFIG_TYPE) && STKindChecker.isFunctionCall(currentModel.model)) {
@@ -86,41 +89,48 @@ export function ExpressionSuggestions() {
     }, [currentModel.model]);
 
     const changeSelectionOnUpDown = (key: number) => {
-        let newSelected = selectedSuggestions.selectedListItem + key;
-        let newGroup = selectedSuggestions.selectedGroup;
+        if (selectedSuggestions == null && filteredExpressions?.length > 0) {
+            setSelectedSuggestion({ selectedListItem: 0, selectedGroup: 0 });
+        } else if (selectedSuggestions) {
+            let newSelected = selectedSuggestions.selectedListItem + key;
+            let newGroup = selectedSuggestions.selectedGroup;
 
-        if (newSelected >= 0 && filteredExpressions[selectedSuggestions.selectedGroup].expressions.length > 3 &&
-            newSelected < filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) {
+            if (newSelected >= 0 && filteredExpressions[selectedSuggestions.selectedGroup].expressions.length > 3 &&
+                newSelected < filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) {
 
-                setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
-        } else if (newSelected >= 0 &&
-            (selectedSuggestions.selectedListItem === filteredExpressions[selectedSuggestions.selectedGroup].expressions.length - 1 ||
-                newSelected >= filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) &&
+                setSelectedSuggestion({ selectedListItem: newSelected, selectedGroup: newGroup });
+            } else if (newSelected >= 0 &&
+                (selectedSuggestions.selectedListItem === filteredExpressions[selectedSuggestions.selectedGroup].expressions.length - 1 ||
+                    newSelected >= filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) &&
                 selectedSuggestions.selectedGroup < filteredExpressions.length - 1) {
 
-                    newGroup = selectedSuggestions.selectedGroup + 1;
-                    newSelected = 0;
-                    setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
-        } else if (newSelected < 0 && newGroup >= 0) {
-            newGroup = selectedSuggestions.selectedGroup - 1;
-            newSelected = filteredExpressions[newGroup].expressions.length - 1;
-            setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
+                newGroup = selectedSuggestions.selectedGroup + 1;
+                newSelected = 0;
+                setSelectedSuggestion({ selectedListItem: newSelected, selectedGroup: newGroup });
+            } else if (newSelected < 0 && newGroup >= 0) {
+                newGroup = selectedSuggestions.selectedGroup - 1;
+                newSelected = filteredExpressions[newGroup].expressions.length - 1;
+                setSelectedSuggestion({ selectedListItem: newSelected, selectedGroup: newGroup });
+            }
         }
     }
 
     const changeSelectionOnRightLeft = (key: number) => {
-        const newSelected = selectedSuggestions.selectedListItem + key;
-        const newGroup = selectedSuggestions.selectedGroup;
-        if (newSelected >= 0 && newSelected < filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) {
-            setSelectedSuggestion({selectedListItem: newSelected, selectedGroup: newGroup});
+        if (selectedSuggestions) {
+            const newSelected = selectedSuggestions.selectedListItem + key;
+            const newGroup = selectedSuggestions.selectedGroup;
+            if (newSelected >= 0 && newSelected < filteredExpressions[selectedSuggestions.selectedGroup].expressions.length) {
+                setSelectedSuggestion({ selectedListItem: newSelected, selectedGroup: newGroup });
+            }
         }
     }
 
     const enterOnSuggestion = () => {
-        if (selectedSuggestions){
+        if (selectedSuggestions) {
             const expression: Expression =
                 filteredExpressions[selectedSuggestions.selectedGroup]?.expressions[selectedSuggestions.selectedListItem];
             updateModelWithSuggestion(expression);
+            setSelectedSuggestion(null);
         }
     }
 
@@ -134,9 +144,6 @@ export function ExpressionSuggestions() {
         client.bindNewKey(['down'], changeSelectionOnUpDown, 3);
         client.bindNewKey(['enter'], enterOnSuggestion);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
     }, [selectedSuggestions, currentModel.model]);
 
     const searchExpressions = (searchValue: string) => {
@@ -156,7 +163,7 @@ export function ExpressionSuggestions() {
             }
         });
         setFilteredExpressions(getFilteredExpressions(filteredGroups, currentModel.model));
-        setSelectedSuggestion({selectedGroup: 0, selectedListItem: 0});
+        setSelectedSuggestion({ selectedGroup: 0, selectedListItem: 0 });
     }
 
     return (
@@ -196,11 +203,11 @@ export function ExpressionSuggestions() {
                                                     className={stmtEditorHelperClasses.expressionListItem}
                                                     key={index}
                                                     selected={
-                                                        groupIndex === selectedSuggestions.selectedGroup &&
-                                                        index === selectedSuggestions.selectedListItem
+                                                        groupIndex === selectedSuggestions?.selectedGroup &&
+                                                        index === selectedSuggestions?.selectedListItem
                                                     }
                                                     onMouseDown={() => onClickExpressionSuggestion(expression,
-                                                        {selectedGroup: groupIndex, selectedListItem: index})}
+                                                        { selectedGroup: groupIndex, selectedListItem: index })}
                                                     disableRipple={true}
                                                 >
                                                     <ListItemText

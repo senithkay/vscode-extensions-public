@@ -16,7 +16,7 @@ import React, { useEffect, useState } from 'react';
 import { FormControl } from '@material-ui/core';
 import {
     CommandResponse,
-    ExpressionEditorLangClientInterface,
+    ExpressionEditorLangClientInterface, KeyboardNavigationManager,
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse,
@@ -189,6 +189,13 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             return [...prevEditors, newEditor];
         });
     };
+
+    React.useEffect(() => {
+        const client = KeyboardNavigationManager.getClient();
+        return () => {
+            client.resetMouseTrapInstance();
+        }
+    }, []);
 
     return (
         <FormControl data-testid="property-form">

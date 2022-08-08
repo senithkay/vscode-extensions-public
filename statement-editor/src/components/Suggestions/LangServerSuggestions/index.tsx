@@ -30,7 +30,7 @@ import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getExprWithArgs } from "../../../utils";
 import { getActionExprWithArgs } from "../../Parameters/ParameterTree/utils";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { SuggestionsList } from "./SuggestionsList";
 
@@ -62,33 +62,24 @@ export function LSSuggestions() {
     const [keyword, setKeyword] = useState('');
     const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
     const [filteredSecondLevelSuggestions, setFilteredSecondLevelSuggestions] = useState<SuggestionItem[]>(secondLevelSuggestions);
-
-    const initializeSelectedItem = () : Suggestion => {
-        if (lsSuggestions?.length === 0 && secondLevelSuggestions?.length > 0){
-            return {selectedGroup: 1, selectedListItem: 0};
-        }
-        return {selectedGroup: 0, selectedListItem: 0};
-    }
-
-    const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(initializeSelectedItem());
+    const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(null);
 
 
     useEffect(() => {
         setFilteredSuggestions(lsSuggestions);
         setFilteredSecondLevelSuggestions(secondLevelSuggestions);
-        setSelectedSuggestion(initializeSelectedItem());
     }, [lsSuggestions, lsSecondLevelSuggestions, currentModel.model]);
 
 
     const changeSelectionOnRightLeft = (key: number) => {
-        if (selectedSuggestion){
+        if (selectedSuggestion) {
             setSelectedSuggestion((prevState) => {
                 const newSelected = prevState.selectedListItem + key;
                 const newGroup = prevState.selectedGroup;
                 const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
 
-                if (newSelected >= 0 && newSelected < suggestionList.length) {
-                    return {selectedListItem: newSelected, selectedGroup: newGroup};
+                if (newSelected >= 0 && newSelected < suggestionList?.length) {
+                    return { selectedListItem: newSelected, selectedGroup: newGroup };
                 }
                 return prevState;
             });
@@ -96,28 +87,37 @@ export function LSSuggestions() {
     }
 
     const changeSelectionOnUpDown = (key: number) => {
-        if (selectedSuggestion){
+        if (selectedSuggestion === null) {
+            setSelectedSuggestion((prevState) => {
+                if (filteredSuggestions?.length >= 0) {
+                    return { selectedListItem: 0, selectedGroup: 0 };
+                } else if (filteredSecondLevelSuggestions?.length >= 0) {
+                    return { selectedListItem: 0, selectedGroup: 1 };
+                }
+                return prevState;
+            });
+        } else if (selectedSuggestion) {
             setSelectedSuggestion((prevState) => {
                 let newSelected = prevState.selectedListItem + key;
                 let newGroup = prevState.selectedGroup;
                 const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
 
-                if (suggestionList?.length > 0){
+                if (suggestionList?.length > 0) {
                     if (newSelected >= 0) {
                         if (suggestionList.length > SUGGESTION_COLUMN_SIZE && newSelected < suggestionList.length) {
-                            return {selectedListItem: newSelected, selectedGroup: newGroup};
+                            return { selectedListItem: newSelected, selectedGroup: newGroup };
                         } else if ((selectedSuggestion.selectedListItem === suggestionList.length - 1 ||
                                 newSelected >= suggestionList.length) &&
                             selectedSuggestion.selectedGroup < 1 &&
-                            filteredSecondLevelSuggestions?.length > 0){
+                            filteredSecondLevelSuggestions?.length > 0) {
                             newGroup = selectedSuggestion.selectedGroup + 1;
                             newSelected = 0;
-                            return {selectedListItem: newSelected, selectedGroup: newGroup};
+                            return { selectedListItem: newSelected, selectedGroup: newGroup };
                         }
                     } else if (newSelected < 0 && newGroup > 0 && filteredSuggestions?.length > 0) {
                         newGroup = selectedSuggestion.selectedGroup - 1;
                         newSelected = filteredSuggestions.length - 1;
-                        return {selectedListItem: newSelected, selectedGroup: newGroup};
+                        return { selectedListItem: newSelected, selectedGroup: newGroup };
                     }
                 }
                 return prevState;
@@ -126,11 +126,12 @@ export function LSSuggestions() {
     }
 
     const enterOnSuggestion = () => {
-        if (selectedSuggestion){
-            const enteredSuggestion : SuggestionItem = selectedSuggestion.selectedGroup === 0 ?
+        if (selectedSuggestion) {
+            const enteredSuggestion: SuggestionItem = selectedSuggestion.selectedGroup === 0 ?
                 filteredSuggestions[selectedSuggestion.selectedListItem] :
                 filteredSecondLevelSuggestions[selectedSuggestion.selectedListItem];
             onClickLSSuggestion(enteredSuggestion);
+            setSelectedSuggestion(null);
         }
     }
 
@@ -144,17 +145,14 @@ export function LSSuggestions() {
         client.bindNewKey(['down'], changeSelectionOnUpDown, SUGGESTION_COLUMN_SIZE);
         client.bindNewKey(['enter'], enterOnSuggestion);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
-    }, [selectedSuggestion, currentModel.model, filteredSuggestions, filteredSecondLevelSuggestions]);
+    }, [selectedSuggestion, currentModel.model]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         setKeyword('');
         const completionKind = suggestion.completionKind;
         let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
         const prefix = (inputEditorCtx.userInput.includes('.') && resourceAccessRegex.exec(inputEditorCtx.userInput)[0])
-            || suggestion.prefix ;
+            || suggestion.prefix;
         if (config.type === ACTION && completionKind === FUNCTION_COMPLETION_KIND) {
             value = getActionExprWithArgs(value, connector);
         } else if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
@@ -167,7 +165,7 @@ export function LSSuggestions() {
             value = MAPPING_TYPE_DESCRIPTER;
         }
 
-        const nodePosition : NodePosition = currentModel
+        const nodePosition: NodePosition = currentModel
             ? (currentModel.stmtPosition
                 ? currentModel.stmtPosition
                 : currentModel.model.position)
@@ -180,9 +178,9 @@ export function LSSuggestions() {
     const searchSuggestions = (e: any) => {
         const searchValue = e.target.value;
         setKeyword(searchValue);
-        setFilteredSuggestions(lsSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())));
-        setFilteredSecondLevelSuggestions(secondLevelSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())))
-        setSelectedSuggestion(initializeSelectedItem());
+        setFilteredSuggestions(lsSuggestions.filter(suggestion => suggestion.value.toLowerCase().includes(searchValue.toLowerCase())));
+        setFilteredSecondLevelSuggestions(secondLevelSuggestions.filter(suggestion => suggestion.value.toLowerCase().includes(searchValue.toLowerCase())))
+        setSelectedSuggestion(null);
     }
 
     return (

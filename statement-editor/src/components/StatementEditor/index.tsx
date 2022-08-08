@@ -485,9 +485,6 @@ export function StatementEditor(props: StatementEditorProps) {
         client.bindNewKey(['shift+tab'], previousModelHandler);
         client.bindNewKey(['enter'], enterKeyHandler);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
     }, [currentModel.model]);
 
     return (
