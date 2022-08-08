@@ -54,49 +54,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         this.addPort(this.outPort);
         this.initSourcePorts();
         this.initTargetPorts();
-
-        const { startLine, startColumn, endLine, endColumn } = this.value.queryPipeline.fromClause.expression.position;
-        const langClient = await this.context.getEELangClient();
-        const res = await langClient.getTypeFromExpression({
-            documentIdentifier: {
-                uri: `file://${this.context.currentFile.path}`
-            },
-            expressionRanges: [{
-                startPosition: {
-                    line: startLine,
-                    offset: startColumn
-                },
-                endPosition: {
-                    line: endLine,
-                    offset: endColumn
-                }
-            }]
-        });
-
-        // tslint:disable-next-line:no-console
-        console.log("=======expr======");
-        // tslint:disable-next-line:no-console
-        console.log(JSON.stringify(res));
-        // tslint:disable-next-line:no-console
-        console.log("=======expr======");
-
-        const fieldNamePos = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.position;
-        const res2 = await langClient.getTypeFromSymbol({
-            documentIdentifier: {
-                uri: `file://${this.context.currentFile.path}`
-            },
-            positions: [{
-                line: fieldNamePos.startLine,
-                offset: fieldNamePos.startColumn
-            }]
-        });
-
-        // tslint:disable-next-line:no-console
-        console.log("=======symbol======");
-        // tslint:disable-next-line:no-console
-        console.log(JSON.stringify(res2));
-        // tslint:disable-next-line:no-console
-        console.log("=======symbol======");
     }
 
     private initSourcePorts() {
@@ -231,8 +188,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             const targetPort = ports.find((entry) => {
                 const port = entry[1];
                 if (port instanceof DataMapperPortModel) {
-                    if (STKindChecker.isRecordField(port.field)) {
-                        if (port.field.fieldName.value === "Assets") {
+                    if (STKindChecker.isRecordField(port.fieldNode)) {
+                        if (port.fieldNode.fieldName.value === "Assets") {
                             return true;
                         }
                     }

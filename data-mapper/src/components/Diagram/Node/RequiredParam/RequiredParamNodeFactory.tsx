@@ -1,16 +1,16 @@
 
 import * as React from 'react';
-import "reflect-metadata";
 
-import { RequiredParamNode, REQ_PARAM_NODE_TYPE } from './RequiredParamNode';
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import "reflect-metadata";
+import { container, injectable, singleton } from "tsyringe";
 
-import { injectable, container, singleton } from "tsyringe";
-import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
-import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
-import { RecordTypeDesc } from '@wso2-enterprise/syntax-tree';
 import { DataMapperPortModel } from '../../Port';
+import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
+import { RecordTypeTreeWidgetNew } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidgetNew";
+
+import { RequiredParamNode, REQ_PARAM_NODE_TYPE } from './RequiredParamNode';
 
 @injectable()
 @singleton()
@@ -20,12 +20,14 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
 	}
 
 	generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
-		return <RecordTypeTreeWidget
-			engine={this.engine}
-			id={event.model.value.paramName.value}
-			typeDesc={event.model.typeDef.typeDescriptor as RecordTypeDesc}
-			getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
-		/>;
+		return (
+			<RecordTypeTreeWidgetNew
+				engine={this.engine}
+				id={event.model.value.paramName.value}
+				typeDesc={event.model.typeDefNew}
+				getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
+			/>
+		);
 	}
 
 	generateModel(event: { initialConfig: any }): any {

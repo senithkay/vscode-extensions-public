@@ -1,16 +1,17 @@
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
 	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
 	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MappingConstructor, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
-	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordFieldWithDefaultValue, RecordTypeDesc,
-	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, STNode, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
-	TupleTypeDesc, TypeDefinition, TypedescTypeDesc, TypeReference, UnionTypeDesc, XmlTypeDesc
+	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordTypeDesc,
+	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
+	TupleTypeDesc, TypedescTypeDesc, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
+
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
-
-import { DataMapperPortModel } from '../../Port/model/DataMapperPortModel';
+import { DataMapperPortModel } from '../../Port';
 import { RecordTypeDescriptorStore } from '../../utils/record-type-descriptor-store';
 
 export interface DataMapperNodeModelGenerics {
@@ -57,7 +58,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const fieldId = `${parentId}.${field.fieldName.value}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.fieldName.value}`;
 		if (STKindChecker.isRecordField(field)) {
-			const fieldPort = new DataMapperPortModel(field, type, parentId, parentFieldAccessExpr, parent);
+			const fieldPort = new DataMapperPortModel(field.fieldName.value, type, parentId, field, parentFieldAccessExpr, parent);
 			this.addPort(fieldPort)
 			if (STKindChecker.isRecordTypeDesc(field.typeName)) {
 				field.typeName.fields.forEach((subField) => {
@@ -84,7 +85,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		type: "IN" | "OUT", parentId: string, parent?: DataMapperPortModel) {
 		const fieldId = `${parentId}.${field.fieldName.value}`;
 		if (STKindChecker.isSpecificField(field)) {
-			const fieldPort = new DataMapperPortModel(field, type, parentId, "", parent);
+			const fieldPort = new DataMapperPortModel(field.fieldName.value, type, parentId, field, "", parent);
 			this.addPort(fieldPort)
 			if (STKindChecker.isMappingConstructor(field.valueExpr)) {
 				field.valueExpr.fields.forEach((subField) => {
@@ -96,9 +97,22 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
+	protected addPortsForField(field: FormField, type: "IN" | "OUT", parentId: string,
+							   parentFieldAccessExpr?: string, parent?: DataMapperPortModel) {
+		const fieldId = `${parentId}.${field.name}`;
+		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.name}`;
+		const fieldPort = new DataMapperPortModel(field.name, type, parentId, undefined, parentFieldAccessExpr, parent);
+		this.addPort(fieldPort)
+		if (field.typeName === 'record') {
+			field.fields.forEach((subField) => {
+				this.addPortsForField(subField, type, fieldId, fieldAccessExpr, fieldPort);
+			});
+		}
+	}
+
 	protected genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
 		let foundMappings: FieldAccessToSpecificFied[] = [];
-		let currentFields = [...(parentFields ? parentFields : [])];
+		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
 			val.fields.forEach((field) => {
 				if (STKindChecker.isSpecificField(field)) {

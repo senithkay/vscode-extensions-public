@@ -11,14 +11,15 @@ export const PORT_TYPE_ID = "datamapper-port";
 export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMapperNodeModelGenerics> {
 
 	constructor(
-		public field: RecordField|SpecificField,
+		public field: string,
 		public portType: "IN" | "OUT",
 		public parentId: string,
+		public fieldNode?: RecordField | SpecificField,
 		public parentFieldAccess?: string,
 		public parentModel?: DataMapperPortModel) {
 		super({
 			type: PORT_TYPE_ID,
-			name: `${parentId}.${field.fieldName.value}.${portType}`,
+			name: `${parentId}.${field}.${portType}`,
 		});
 	}
 

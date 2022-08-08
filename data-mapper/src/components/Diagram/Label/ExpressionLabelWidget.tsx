@@ -1,15 +1,16 @@
 import * as React from 'react';
 
-import { ExpressionLabelModel } from './ExpressionLabelModel';
 import styled from '@emotion/styled';
-import Button from '@material-ui/core/Button'
 import { Tooltip } from '@material-ui/core';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
+import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+
 import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
 import { DataMapperPortModel } from '../Port';
-import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+
+import { ExpressionLabelModel } from './ExpressionLabelModel';
 
 
 export interface FlowAliasLabelWidgetProps {
@@ -45,9 +46,9 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			const link = props.model.link;
 			const sourcePort = link.getSourcePort() as DataMapperPortModel;
 			const targetPort = link.getTargetPort() as DataMapperPortModel;
-			
-			if (STKindChecker.isRecordField(sourcePort.field)) {
-				const fieldType = sourcePort.field.typeName;
+
+			if (STKindChecker.isRecordField(sourcePort.fieldNode)) {
+				const fieldType = sourcePort.fieldNode.typeName;
 				if (STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
 					const querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, undefined);
 					console.log(querySrc);

@@ -68,28 +68,6 @@ export function DataMapperConfigForm(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
-            // const langClient = await getExpressionEditorLangClient();
-            // const res = await langClient.getExprType({
-            //     documentIdentifier: {
-            //         uri: `file://${currentFile.path}`
-            //     },
-            //     startPosition: {
-            //         line: 29,
-            //         offset: 30
-            //     },
-            //     endPosition: {
-            //         line: 29,
-            //         offset: 45
-            //     }
-            // });
-            //
-            // // tslint:disable-next-line:no-console
-            // console.log("=============");
-            // // tslint:disable-next-line:no-console
-            // console.log(res);
-            // // tslint:disable-next-line:no-console
-            // console.log("=============");
-
             if (model && STKindChecker.isFunctionDefinition(model)) {
                 handleFunctionST(model.functionName.value).then();
             } else if (!!functionST) {

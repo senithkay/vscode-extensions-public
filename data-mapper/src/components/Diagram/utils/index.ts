@@ -44,9 +44,10 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	if (link.getSourcePort()) {
 		const sourcePort = link.getSourcePort() as DataMapperPortModel;
 
-		rhs = (STKindChecker.isRecordField(sourcePort.field)
-			? sourcePort.field.fieldName.value : "");
-		
+		rhs = (STKindChecker.isRecordField(sourcePort.fieldNode)
+			? sourcePort.fieldNode.fieldName.value
+			: sourcePort.field);
+
 		if (sourcePort.parentFieldAccess) {
 			rhs = sourcePort.parentFieldAccess + "." + rhs;
 		}
@@ -64,13 +65,13 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 		}
 
 		// Inserting a new specific field
-		if (STKindChecker.isRecordField(targetPort.field)) {
-			lhs = targetPort.field.fieldName.value;
+		if (STKindChecker.isRecordField(targetPort.fieldNode)) {
+			lhs = targetPort.fieldNode.fieldName.value;
 			const parentFieldNames: string[] = [];
 			let parent = targetPort.parentModel;
 			while (parent != null) {
-				if (STKindChecker.isRecordField(parent.field)) {
-					parentFieldNames.push(parent.field.fieldName.value);
+				if (STKindChecker.isRecordField(parent.fieldNode)) {
+					parentFieldNames.push(parent.fieldNode.fieldName.value);
 				};
 				parent = parent.parentModel;
 			}
@@ -128,9 +129,9 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 					startLine: targetPos.endLine
 				});
 			}
-		} else if (STKindChecker.isSpecificField(targetPort.field)) {
+		} else if (STKindChecker.isSpecificField(targetPort.fieldNode)) {
 			// Inserting just the valueExpr (RHS) to already available specific field in a mapping constructor
-			const targetPos = targetPort.field.valueExpr.position as NodePosition;
+			const targetPos = targetPort.fieldNode.valueExpr.position as NodePosition;
 			modifications.push({
 				type: "INSERT",
 				config: {
