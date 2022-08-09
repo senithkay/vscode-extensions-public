@@ -22,7 +22,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 	const hasError = 
 		Object.entries(port.links).some((link) =>{
 			if (link[1] instanceof DataMapperLinkModel){
-				return link[1].hasError;
+				return link[1].hasError();
 			}
 			return false;
 		})
