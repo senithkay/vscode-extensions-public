@@ -38,7 +38,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       },
     },
     wizardFormControl: {
-      width: 300,
+      width: 312,
       "& .MuiFormControl-marginNormal": {
         margin: '0 !important',
       },

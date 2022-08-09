@@ -10,8 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { STNode } from "@wso2-enterprise/syntax-tree";
-import { CodeAction, CodeActionParams, Diagnostic } from "vscode-languageserver-protocol";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { CodeAction, CodeActionParams, Diagnostic  } from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
 import { BallerinaProjectParams } from "./lang-client-extended";
@@ -105,9 +105,11 @@ export interface SymbolInfoRequest {
 
 export interface ParameterInfo {
     name : string,
-    description : string,
+    description? : string,
     kind : string,
-    type : string
+    type : string,
+    modelPosition? : NodePosition,
+    fields? : ParameterInfo[]
 }
 
 export interface SymbolDocumentation {

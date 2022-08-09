@@ -12,14 +12,28 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext } from "react";
+import { useIntl } from "react-intl";
 
-import { FunctionDefinitionInfo, genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Box, FormControl } from "@material-ui/core";
+import {
+    FunctionDefinitionInfo,
+    genVariableName,
+    getAllVariables,
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { createCheckedRemoteServiceCall, createRemoteServiceCall, getInitialSource } from "../../../../../utils";
+import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
+import {
+    createActionStatement,
+    createCheckActionStatement,
+    createCheckedRemoteServiceCall,
+    createRemoteServiceCall,
+    getInitialSource,
+} from "../../../../../utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
-import { getDefaultParams, getFormFieldReturnType } from "../util";
+import { wizardStyles as useFormStyles } from "../../style";
+import { getDefaultParams, getFormFieldReturnType, getReturnTypeImports } from "../util";
 
 interface ActionFormProps {
     action: FunctionDefinitionInfo;
@@ -27,17 +41,15 @@ interface ActionFormProps {
 }
 
 export function ActionForm(props: FormGeneratorProps) {
+    const formClasses = useFormStyles();
+
+    const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
     const { action, endpointName } = formArgs as ActionFormProps;
 
     const {
-        props: {
-            currentFile,
-            stSymbolInfo,
-            syntaxTree,
-            experimentalEnabled,
-        },
+        props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
@@ -45,12 +57,13 @@ export function ActionForm(props: FormGeneratorProps) {
         },
     } = useContext(Context);
 
-    // const formTitle = intl.formatMessage({
-    //     id: "lowcode.develop.configForms.endpoint.title",
-    //     defaultMessage: "Endpoint"
-    // });
+    const formTitle = intl.formatMessage({
+        id: "lowcode.develop.configForms.actionForm.title",
+        defaultMessage: "Action",
+    });
 
     let initialSource = "EXPRESSION";
+    let imports = new Set<string>();
 
     if (model && model.source) {
         // Update existing endpoint
@@ -59,47 +72,62 @@ export function ActionForm(props: FormGeneratorProps) {
         // Adding new endpoint
         const defaultParameters = getDefaultParams(action.parameters);
         const returnType = getFormFieldReturnType(action.returnType);
+        imports = getReturnTypeImports(returnType);
 
         initialSource = getInitialSource(
-            returnType.hasError
-                ? createCheckedRemoteServiceCall(
-                      returnType.returnType,
-                      genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
-                      endpointName,
-                      action.name,
-                      defaultParameters,
-                      targetPosition
-                  )
-                : createRemoteServiceCall(
-                    returnType.returnType,
-                    genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
-                    endpointName,
-                    action.name,
-                    defaultParameters,
-                    targetPosition
-                  )
+            returnType.hasReturn
+                ? returnType.hasError
+                    ? createCheckedRemoteServiceCall(
+                          returnType.returnType,
+                          genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
+                          endpointName,
+                          action.name,
+                          defaultParameters,
+                          targetPosition
+                      )
+                    : createRemoteServiceCall(
+                          returnType.returnType,
+                          genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
+                          endpointName,
+                          action.name,
+                          defaultParameters,
+                          targetPosition
+                      )
+                : returnType.hasError
+                ? createCheckActionStatement(endpointName, action.name, defaultParameters, targetPosition)
+                : createActionStatement(endpointName, action.name, defaultParameters, targetPosition)
         );
     }
 
     // HACK
     formArgs.targetPosition = targetPosition;
 
-    const stmtEditorComponent = StatementEditorWrapper({
-        label: "Endpoint",
-        initialSource,
-        formArgs: { formArgs },
-        config: { type: "Custom" },
-        onWizardClose: onSave,
-        onCancel,
-        currentFile,
-        getLangClient: getExpressionEditorLangClient,
-        applyModifications: modifyDiagram,
-        library,
-        syntaxTree,
-        stSymbolInfo,
-        isLoading,
-        experimentalEnabled,
-    });
-
-    return stmtEditorComponent;
+    return (
+        <>
+            {isLoading && (
+                <FormControl className={formClasses.wizardFormControl}>
+                    <Box display="flex" justifyContent="center" width="100%">
+                        <TextPreLoader position="absolute" text="Loading action..." />
+                    </Box>
+                </FormControl>
+            )}
+            {!isLoading && action &&
+                StatementEditorWrapper({
+                    label: formTitle,
+                    initialSource,
+                    formArgs: { formArgs },
+                    config: { type: "Action" },
+                    onWizardClose: onSave,
+                    onCancel,
+                    currentFile,
+                    getLangClient: getExpressionEditorLangClient,
+                    applyModifications: modifyDiagram,
+                    library,
+                    syntaxTree,
+                    stSymbolInfo,
+                    extraModules: imports,
+                    experimentalEnabled,
+                })}
+        </>
+    );
 }

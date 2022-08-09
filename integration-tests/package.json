@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/ballerina-low-code-integration-tests",
-    "version": "1.0.3",
+    "version": "1.0.5",
     "description": "Ballerina Low Code Integration Tests",
     "scripts": {
         "build": "echo 'not imlemented'",
@@ -37,6 +37,6 @@
         "cypress-real-events": "^1.7.0"
     },
     "nyc": { 
-        "reporter": "cobertura"
+        "reporter": ["cobertura", "html"]
     }
 }

@@ -33,12 +33,13 @@ export interface EditorAPI {
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<GetSyntaxTreeResponse>;
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
-    runCommandInBackground?: (command: string) => Promise<CommandResponse>;
+    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
     getLibrariesList: (kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>;
     getLibrariesData: () => Promise<LibrarySearchResponse | undefined>;
     getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse | undefined>;
     getSentryConfig: () => Promise<SentryConfig | undefined>;
+    getBallerinaVersion: () => Promise<string | undefined>;
     getEnv: (name: string) => Promise<any>;
 }
 
@@ -53,9 +54,9 @@ export type EditorProps = EditorState & EditorAPI;
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
-            sendTelemetryEvent, getSentryConfig,
+            sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, runCommandInBackground, getLibrariesList, getLibrariesData, getLibraryData, getEnv, ...restProps } = props;
+            runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -77,12 +78,13 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     resolveMissingDependency={resolveMissingDependency}
                     resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}
                     runCommand={runCommand}
-                    runCommandInBackground={runCommandInBackground}
+                    runBackgroundTerminalCommand={runBackgroundTerminalCommand}
                     sendTelemetryEvent={sendTelemetryEvent}
                     getLibrariesList={getLibrariesList}
                     getLibrariesData={getLibrariesData}
                     getLibraryData={getLibraryData}
                     getSentryConfig={getSentryConfig}
+                    getBallerinaVersion={getBallerinaVersion}
                     getEnv={getEnv}
                     panX="-30"
                     panY="0"

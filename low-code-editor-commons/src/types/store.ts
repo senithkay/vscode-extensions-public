@@ -14,6 +14,7 @@
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
+import { DiagramDiagnostic } from "./config-spec";
 import { BallerinaConnectorInfo, Connector } from "./lang-client-extended";
 
 export interface DiagramCoordinates {

@@ -19,7 +19,7 @@ import {
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { StmtOffset } from "../models/definitions";
-import {isDiagnosticInRange, isPositionsEquals} from "../utils";
+import { isDiagnosticInRange, isPositionsEquals } from "../utils";
 import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
 
 class DiagnosticsMappingVisitor implements Visitor {
@@ -84,11 +84,14 @@ class DiagnosticsMappingVisitor implements Visitor {
             // each node which matched to above condition.
             if (node && node.viewState && this.diagnostic.severity === 1) {
                 node?.viewState?.diagnosticsInRange.push({
+                    code: this.diagnostic.code.toString(),
+                    severity: this.diagnostic.severity.toString(),
+                    range: this.diagnostic.range,
+                    message: this.diagnostic.message,
                     diagnosticInfo: {
                         code: this.diagnostic.code.toString(),
-                        severity: this.diagnostic.severity.toString()
-                    },
-                    message: this.diagnostic.message
+                        severity: this.diagnostic.severity.toString(),
+                    }
                 });
             }
         }

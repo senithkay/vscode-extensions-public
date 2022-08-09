@@ -3,6 +3,7 @@ import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { WorkerForm } from "../../../utils/forms/worker-form";
 import { getIntegrationTestPageURL, getIntegrationTestStoryURL } from "../../../utils/story-url-utils";
+import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
 
 const BAL_FILE_PATH = "block-level/worker/add-worker-to-function.bal";
 
@@ -18,8 +19,9 @@ describe('Add worker to function via Low Code', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .getBlockLevelPlusWidget()
-            .clickOption("Worker");
+            .clickDefaultWorkerPlusBtn(0);
+
+        BlockLevelPlusWidget.clickOption("Worker");
 
         WorkerForm
             .shouldBeVisible()
@@ -36,8 +38,9 @@ describe('Add worker to function via Low Code', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .getBlockLevelPlusWidget()
-            .clickOption("Worker");
+            .clickDefaultWorkerPlusBtn(0);
+
+        BlockLevelPlusWidget.clickOption("Worker");
 
         WorkerForm
             .shouldBeVisible()
@@ -50,8 +53,9 @@ describe('Add worker to function via Low Code', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .getBlockLevelPlusWidget()
-            .clickOption("Worker");
+            .clickDefaultWorkerPlusBtn(0);
+
+        BlockLevelPlusWidget.clickOption("Worker");
 
         WorkerForm
             .shouldBeVisible()

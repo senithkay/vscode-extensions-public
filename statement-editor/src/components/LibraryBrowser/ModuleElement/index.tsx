@@ -20,6 +20,7 @@ import {
     ModuleProperty
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { InputEditorContext } from '../../../store/input-editor-context';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getModuleIconStyle } from "../../../utils";
 import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
@@ -35,8 +36,10 @@ interface ModuleElementProps {
 export function ModuleElement(props: ModuleElementProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { moduleProperty, key, isFunction, label } = props;
+    const inputEditorCtx = useContext(InputEditorContext);
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
     const [clickedModuleElement, setClickedModuleElement] = useState('');
+    const { SuggestIcon, color } = getModuleIconStyle(label);
 
     const {
         modelCtx: {
@@ -78,6 +81,7 @@ export function ModuleElement(props: ModuleElementProps) {
             }
         }
         setClickedModuleElement('');
+        inputEditorCtx.onSuggestionSelection(content);
         updateModuleList(getFQModuleName(moduleOrgName, moduleId));
         updateModel(content, currentModel.model ? currentModel.model.position : targetPosition);
     }
@@ -96,9 +100,8 @@ export function ModuleElement(props: ModuleElementProps) {
             className={stmtEditorHelperClasses.suggestionListItem}
             disableRipple={true}
         >
-            <ListItemIcon
-                className={getModuleIconStyle(label)}
-                style={{ minWidth: '12%', textAlign: 'left' }}
+            <SuggestIcon
+                style={{ minWidth: '12%', textAlign: 'left', color }}
             />
             <ListItemText
                 primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}

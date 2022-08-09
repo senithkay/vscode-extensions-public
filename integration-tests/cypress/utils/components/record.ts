@@ -17,13 +17,13 @@ export class Record {
 
     public clickEdit() {
         this.container.realHover().within(() => {
-            cy.get('.amendment-options .edit-btn-wrapper button').click();
+            cy.get('.amendment-options .edit-btn-wrapper #edit-button').click();
         });
     }
 
     public clickDelete() {
         this.container.realHover().within(() => {
-            cy.get('.amendment-options .delete-btn-wrapper button').click();
+            cy.get('.amendment-options .delete-btn-wrapper #delete-button').click();
         });
     }
 }

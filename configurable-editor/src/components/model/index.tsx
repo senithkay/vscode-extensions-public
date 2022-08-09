@@ -32,6 +32,7 @@ export enum SchemaConstants {
     REQUIRED = "required",
     ADDITIONAL_PROPERTIES = "additionalProperties",
     ANY_OF = "anyOf",
+    CONFIG = "config",
 }
 
 /**
