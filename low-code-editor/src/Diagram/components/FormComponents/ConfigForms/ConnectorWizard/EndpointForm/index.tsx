@@ -105,7 +105,7 @@ export function EndpointForm(props: FormGeneratorProps) {
     return (
         <>
             {isLoading && (
-                <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControlExtended}>
+                <FormControl className={formClasses.wizardFormControlExtended}>
                     <Box display="flex" justifyContent="center" width="100%">
                         <TextPreLoader position="absolute" text="Loading connector..." />
                     </Box>

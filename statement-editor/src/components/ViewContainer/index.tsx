@@ -54,7 +54,8 @@ export function ViewContainer(props: ViewContainerProps) {
     } = useContext(StatementEditorContext);
     const {
         modelCtx: {
-            statementModel
+            statementModel,
+            editing
         },
         modules: {
             modulesToBeImported
@@ -130,8 +131,10 @@ export function ViewContainer(props: ViewContainerProps) {
         await sendDidClose(exprSchemeURI, getLangClient);
         await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
         const imports = addImports ? Array.from(modulesToBeImported) as string[] : [];
-        const modifications = getModifications(statementModel, config.type, targetPosition, imports);
-        applyModifications(modifications);
+        if (statementModel){
+            const modifications = getModifications(statementModel, config.type, targetPosition, imports);
+            applyModifications(modifications);
+        }
     };
 
     const handleClose = async () => {
@@ -178,7 +181,7 @@ export function ViewContainer(props: ViewContainerProps) {
                                             ? addConfigurableButtonText
                                             : saveButtonText
                                     }
-                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1}
+                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1 || editing}
                                     fullWidth={false}
                                     onClick={
                                         activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick

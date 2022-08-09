@@ -95,6 +95,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 draftParameter = getFieldValuePair(parameter, "xml ``", depth, valueOnly);
                 break;
             case PrimitiveBalType.Nil:
+            case "anydata":
             case "()":
                 draftParameter = getFieldValuePair(parameter, `()`, depth, true);
                 break;
@@ -111,7 +112,13 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
-                draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly, false);
+                draftParameter = getFieldValuePair(
+                    parameter,
+                    `{\n${insideParamList?.join()}}`,
+                    depth,
+                    valueOnly,
+                    false
+                );
                 break;
             case PrimitiveBalType.Enum:
             case PrimitiveBalType.Union:
@@ -168,10 +175,10 @@ function getFieldValuePair(
     }
     if (depth === 1 && !valueOnly) {
         // Handle named args
-        return `${parameter.name} = ${value}`;
+        return `${getFieldName(parameter.name)} = ${value}`;
     }
     if (depth > 1 && !valueOnly) {
-        return `${parameter.name}: ${value}`;
+        return `${getFieldName(parameter.name)}: ${value}`;
     }
     return value;
 }
