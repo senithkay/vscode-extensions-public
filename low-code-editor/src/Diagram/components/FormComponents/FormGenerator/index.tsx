@@ -83,7 +83,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 <TextPreLoader position="absolute" text="Loading..." />
                             </Box>
                         ) }
-                        {(!showLoader || !isLoading) && <div className="form-generator">{getForm(formType, args)}</div>}
+                        {(!showLoader || !isLoading) && <div className="form-generator"  style={{height: "100%"}}>{getForm(formType, args)}</div>}
                     </>
                 </Panel>
             ) }
