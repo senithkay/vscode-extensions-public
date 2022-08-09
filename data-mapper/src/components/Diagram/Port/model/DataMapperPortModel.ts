@@ -2,7 +2,7 @@ import { LinkModel, PortModel, PortModelGenerics } from '@projectstorm/react-dia
 import { RecordField, SpecificField } from '@wso2-enterprise/syntax-tree';
 
 import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
-import { createSpecificFieldSource } from '../../utils';
+import { createSpecificFieldSource } from '../../utils/dm-utils';
 export interface DataMapperNodeModelGenerics {
 	PORT: DataMapperPortModel;
 }

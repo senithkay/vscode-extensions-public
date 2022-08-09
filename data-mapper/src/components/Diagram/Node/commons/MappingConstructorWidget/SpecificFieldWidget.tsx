@@ -10,7 +10,7 @@ import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperPortWidget } from "../../../Port/view/DataMapperPortWidget";
 import { DataMapperPortModel } from "../../../Port/model/DataMapperPortModel";
-import { getFieldTypeName } from "../../../utils";
+import { getFieldTypeName } from "../../../utils/dm-utils";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>

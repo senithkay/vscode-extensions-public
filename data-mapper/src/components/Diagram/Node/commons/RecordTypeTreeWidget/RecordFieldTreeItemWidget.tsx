@@ -9,7 +9,7 @@ import { RecordField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree
 
 import { DataMapperPortWidget } from "../../../Port/view/DataMapperPortWidget";
 import { DataMapperPortModel } from "../../../Port/model/DataMapperPortModel";
-import { getFieldTypeName } from "../../../utils";
+import { getFieldTypeName } from "../../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../../utils/record-type-descriptor-store";
 
 // tslint:disable: jsx-no-multiline-js

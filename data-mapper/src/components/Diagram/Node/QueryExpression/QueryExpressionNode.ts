@@ -6,7 +6,7 @@ import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { DataMapperPortModel } from "../../Port";
 import { IntermediatePortModel } from "../../Port/IntermediatePort/IntermediatePortModel";
-import { getFieldNames, getParamForName } from "../../utils";
+import { getFieldNames, getParamForName } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { RequiredParamNode } from "../RequiredParam";
