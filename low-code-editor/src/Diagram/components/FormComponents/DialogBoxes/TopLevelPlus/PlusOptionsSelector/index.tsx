@@ -30,6 +30,7 @@ export interface PlusOptionsProps {
 }
 
 export enum PlusMenuCategories {
+    MODULE_INIT,
     CONSTRUCT,
     ENTRY_POINT
 }
@@ -37,7 +38,7 @@ export enum PlusMenuCategories {
 export interface PlusMenuEntry {
     name: string,
     type: string,
-    category: PlusMenuCategories,
+    category?: PlusMenuCategories,
     subMenu?: PlusMenuEntry[]
 }
 
@@ -45,16 +46,16 @@ export const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Main', type: 'FunctionDefinition', category: PlusMenuCategories.ENTRY_POINT },
     { name: 'Service', type: 'ServiceDeclaration', category: PlusMenuCategories.ENTRY_POINT },
     { name: 'Trigger', type: 'TriggerList', category: PlusMenuCategories.ENTRY_POINT },
-    { name: 'Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Record', type: 'RecordEditor', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Function', type: 'FunctionDefinition', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Connector', type: 'ModuleConnectorDecl', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Listener', type: 'ListenerDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Enum', type: 'EnumDeclaration', category: PlusMenuCategories.CONSTRUCT },
     { name: 'Class', type: 'ClassDefinition', category: PlusMenuCategories.CONSTRUCT },
-    { name: 'Other', type: 'Custom', category: PlusMenuCategories.CONSTRUCT }
+    { name: 'Connector', type: 'ModuleConnectorDecl', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Other', type: 'Custom', category: PlusMenuCategories.MODULE_INIT }
 ];
 
 export const classMemberEntries: PlusMenuEntry[] = [
@@ -70,7 +71,10 @@ export const triggerEntries: PlusMenuEntry[] = [
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
-    const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(undefined);
+
+    const defaultOption = ((kind === "ServiceDeclaration") && !isTriggerType) ?
+        {name: "Resource", type: "ResourceAccessorDefinition"} : undefined;
+    const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(defaultOption);
 
     let menuEntries: PlusMenuEntry[] = [];
 
@@ -116,7 +120,8 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     configOverlayFormStatus={{
                         formType: selectedOption.type,
                         formName: selectedOption.name,
-                        isLoading: false
+                        isLoading: false,
+                        isLastMember: isLastMember
                     }}
                     onCancel={handleOnClose}
                     onSave={handleOnSave}

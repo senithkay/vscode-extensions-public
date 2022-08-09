@@ -37,6 +37,8 @@ export enum EXTENDED_APIS {
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
+    PARTIAL_PARSE_MODULE_PART = 'partialParser/getSTForModulePart',
+    PARTIAL_PARSE_RESOURCE = 'partialParser/getSTForResource',
     EXAMPLE_LIST = 'ballerinaExample/list',
     PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
@@ -221,6 +223,7 @@ export interface FunctionDefinitionInfo {
     parameters: FormField[];
     returnType?: FormField;
     isRemote?: boolean;
+    displayAnnotation?: DisplayAnnotation;
 }
 
 export interface BallerinaConnectorInfo extends Connector {
@@ -287,7 +290,7 @@ export interface Connector {
     displayName?: string;
     moduleName?: string;
     package: Package;
-    displayAnnotation?: any;
+    displayAnnotation?: DisplayAnnotation;
 }
 
 export interface BallerinaProjectParams {
@@ -376,7 +379,7 @@ export interface BallerinaModule {
     displayName?: string;
     moduleName?: string;
     package: Package;
-    displayAnnotation?: any;
+    displayAnnotation?: DisplayAnnotation;
     icon?: string;
 }
 
@@ -455,8 +458,9 @@ export interface Parameter {
     defaultable?: boolean;
 }
 
-// tslint:disable-next-line: no-empty-interface
-export interface DisplayAnnotation { }
+export interface DisplayAnnotation {
+    label?: string;
+}
 
 export interface MemberField {
     typeName?: string;
@@ -773,6 +777,10 @@ export interface IBallerinaLangClient {
     getSTForExpression	: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
 
     getSTForModuleMembers: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
+
+    getSTForModulePart: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
+
+    getSTForResource: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
 
     getTriggers: (params: BallerinaTriggersRequest) => Thenable<BallerinaTriggersResponse>;
 

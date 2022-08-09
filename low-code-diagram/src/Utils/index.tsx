@@ -96,18 +96,17 @@ export function getDraftComponent(viewState: BlockViewState, state: any, insertC
                     draftComponents.push(<IfElse model={null} blockViewState={viewState} />);
                     break;
                 case "Log":
-                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
-                    break;
                 case "Worker":
-                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                 case "AssignmentStatement":
                 case "Variable":
-                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
-                    break;
-                case "DataMapper":
-                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
-                    break;
+                case "AsyncSend":
+                case "ReceiveStatement":
+                case "WaitStatement":
+                case "FlushStatement":
                 case "Custom":
+                    draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
+                    break;
+                case "Call":
                     draftComponents.push(<DataProcessor model={null} blockViewState={viewState} />);
                     break;
                 case "HTTP":

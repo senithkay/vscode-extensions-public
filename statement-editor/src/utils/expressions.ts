@@ -27,6 +27,7 @@ export interface ExpressionGroup {
 }
 
 export const EXPR_PLACEHOLDER = "EXPRESSION";
+export const FUNCTION_CALL_PLACEHOLDER = "FUNCTION_CALL";
 export const STMT_PLACEHOLDER = "STATEMENT";
 export const TYPE_DESC_PLACEHOLDER = "TYPE_DESCRIPTOR";
 export const BINDING_PATTERN_PLACEHOLDER = "BINDING_PATTERN";
@@ -233,6 +234,18 @@ const range: ExpressionGroup = {
             name: "Range less than ",
             template: ` ${SELECTED_EXPRESSION} ..< ${EXPR_PLACEHOLDER}`,
             example: "Es ..< Ex"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+//     6.26 Range expression
+const concurrency: ExpressionGroup = {
+    name: "Concurrency",
+    expressions: [
+        {
+            name: "Wait for a worker's return",
+            template: `wait ${EXPR_PLACEHOLDER}`,
+            example: "wait Ex"
         }
     ],
     relatedModelType: ModelType.EXPRESSION
@@ -525,6 +538,18 @@ const typeDescriptors : ExpressionGroup = {
     relatedModelType: ModelType.TYPE_DESCRIPTOR
 }
 
+const remoteMethodCall: ExpressionGroup = {
+    name: "Remote Method Call",
+    expressions: [
+        {
+            name: "Remote Method Call",
+            template: `${SELECTED_EXPRESSION}->${EXPR_PLACEHOLDER}()`,
+            example: "Es->m()"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+
 const operatorSymbols : ExpressionGroup = {
     name: "Operators",
     expressions: [
@@ -635,6 +660,7 @@ export const expressions: ExpressionGroup[] = [
     conditional,
     checking,
     trap,
+    concurrency,
     query,
     typeTest,
     typeofEx,
@@ -647,6 +673,7 @@ export const expressions: ExpressionGroup[] = [
     typeDescriptors,
     operatorSymbols,
     queryIntermediateClauses,
+    remoteMethodCall,
     orderKey,
     orderDirectionKeywords
 ];

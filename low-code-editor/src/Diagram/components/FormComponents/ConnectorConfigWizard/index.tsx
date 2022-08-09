@@ -20,7 +20,6 @@ import {
     BallerinaConstruct,
     Connector,
     ConnectorConfig,
-    ConnectorConfigWizardProps,
     CONNECTOR_CLOSED,
     DiagramOverlayPosition,
     FunctionDefinitionInfo,
@@ -31,20 +30,20 @@ import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree
 
 import { Context } from "../../../../Contexts/Diagram";
 import { fetchConnectorInfo } from "../../Portals/utils";
-import { fetchConnectorsList } from "../ConfigForms/ConnectorList";
+import { fetchConnectorsList } from "../ConfigForms/ConnectorWizard/ConnectorList";
 import { SearchQueryParams } from "../ConfigForms/Marketplace";
 import { FormGenerator } from "../FormGenerator";
 
 export interface ConfigWizardState {
     isLoading: boolean;
-    connector: Connector;
+    connector: BallerinaConnectorInfo;
     functionDefInfo: Map<string, FunctionDefinitionInfo>;
     connectorConfig: ConnectorConfig;
     model?: STNode;
     wizardType?: WizardType;
 }
 
-export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
+export function ConnectorConfigWizard(props: any) {
     const {
         actions: {
             toggleDiagramOverlay
@@ -89,7 +88,8 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
         isAction,
         isEdit,
         specialConnectorName,
-        functionNode
+        functionNode,
+        isLoading
     } = props;
 
     const initWizardState: ConfigWizardState = {
@@ -116,7 +116,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
     }, []);
 
     React.useEffect(() => {
-        if (wizardState.isLoading) {
+        if (wizardState.isLoading && connectorInfo) {
             (async () => {
                 let connector = connectorInfo;
                 if (specialConnectorName) {
@@ -156,7 +156,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
             })();
             toggleDiagramOverlay();
         }
-    }, [wizardState]);
+    }, [wizardState, connectorInfo]);
 
     const handleClose = () => {
         onClose();
@@ -193,7 +193,7 @@ export function ConnectorConfigWizard(props: ConnectorConfigWizardProps) {
                             onClose: handleClose,
                             onSave: handleSave,
                         },
-                        isLoading: true,
+                        isLoading: isLoading || wizardState.isLoading,
                     }}
                 />
             ) : null}

@@ -12,12 +12,18 @@
  */
 import React from "react";
 
-import { ConnectorConfig, FormField, FormFieldReturnType, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ConnectorConfig,
+    FormField,
+    FormFieldReturnType,
+    genVariableName,
+    getAllVariables,
+    STModification,
+    STSymbolInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { getAllVariables } from "../../../utils/mixins";
 import { createImportStatement, createPropertyStatement, createQueryWhileStatement, updateFunctionSignature } from "../../../utils/modification-util";
-import { genVariableName } from "../../Portals/utils";
 import * as Forms from "../ConfigForms";
 import { FormFieldChecks } from "../Types";
 
@@ -50,6 +56,10 @@ export function isAllIgnorable(fields: FormField[]): boolean {
 
 export function isAllDefaultableFields(recordFields: FormField[]): boolean {
     return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
+}
+
+export function isAnyFieldSelected(recordFields: FormField[]): boolean {
+    return recordFields?.some((field) => field.selected || (field.fields && isAnyFieldSelected(field.fields)));
 }
 
 export function isAllFieldsValid(allFieldChecks: Map<string, FormFieldChecks>, model: FormField | FormField[], isRoot: boolean): boolean {
@@ -139,7 +149,7 @@ export function addReturnTypeImports(modifications: STModification[], returnType
     }
 }
 
-export function checkDBConnector(connectorModule: string): boolean {
+export function isDependOnDriver(connectorModule: string): boolean {
     const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect"]
     if (dbConnectors.includes(connectorModule)) {
         return true;
@@ -159,7 +169,7 @@ export function addDbExtraImport(modifications: STModification[], syntaxTree: ST
                 importCounts = importCounts + 1;
             }
         });
-        if (importCounts === 0 && checkDBConnector(moduleName)) {
+        if (importCounts === 0 && isDependOnDriver(moduleName)) {
             const addDriverImport: STModification = createImportStatement(orgName, `${moduleName}.driver as _`, {
                 startColumn: 0,
                 startLine: 0,
@@ -191,5 +201,19 @@ export function addDbExtraStatements(
         const closeStatement = `check ${resp}.close();`;
         const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
         modifications.push(addCloseStatement);
+    }
+}
+
+export function isStatementEditorSupported(version: string): boolean {
+    if (!version) {
+        return false;
+    }
+    const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
+    const versionStr = version.match(versionRegex);
+    const splittedVersions = versionStr[0]?.split(".");
+    if (parseInt(splittedVersions[1], 10) === 1) {
+        return parseInt(splittedVersions[2], 10) >= 1;
+    } else {
+        return parseInt(splittedVersions[1], 10) > 1;
     }
 }

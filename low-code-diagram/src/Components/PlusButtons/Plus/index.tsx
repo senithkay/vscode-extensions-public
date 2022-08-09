@@ -41,9 +41,11 @@ export interface PlusStates {
 
 export const PlusButton = (props: PlusProps) => {
     const diagramContext = useContext(Context);
+    const functionContext = useFunctionContext();
     const { syntaxTree, isReadOnly } = diagramContext.props;
     const renderPlusWidget = diagramContext?.api?.edit?.renderPlusWidget;
     const { diagramCleanDraw, diagramRedraw } = diagramContext.actions;
+    const hasWorkerDecl: boolean = functionContext?.hasWorker;
 
     const { overlayId, overlayNode } = useFunctionContext();
 
@@ -92,6 +94,7 @@ export const PlusButton = (props: PlusProps) => {
         viewState.selectedComponent = "STATEMENT";
         viewState.collapsedClicked = false;
         viewState.collapsedPlusDuoExpanded = false;
+        viewState.selected = true;
         diagramRedraw(syntaxTree);
         setPlusHolder(renderPlusWidget("PlusElements", {
             position: { x: (x - (DefaultConfig.plusHolder.width / 2)), y: (y) },
@@ -101,59 +104,23 @@ export const PlusButton = (props: PlusProps) => {
             isCallerAvailable: (model.viewState as BlockViewState)?.isCallerAvailable,
             isResource: (model.viewState as BlockViewState)?.isResource,
             overlayId: overlayId,
-            overlayNode: overlayNode
+            overlayNode: overlayNode,
+            hasWorkerDecl: hasWorkerDecl
         }, viewState as PlusViewState));
     };
 
-    // On click for the collapse button in plus collapse button.
-    const handleCollapseClick = () => {
-        if (!viewState.collapsed && !viewState.isLast) {
-            setStates({
-                isPlusHolderShown: false,
-                isSmallPlusShown: false,
-                isCollapsePlusDuoShown: false
-            });
-            const blockViewState: BlockViewState = model.viewState as BlockViewState;
-            viewState.collapsedClicked = true;
-            viewState.collapsedPlusDuoExpanded = false;
-            viewState.expanded = false;
-            if (!viewState.isLast) {
-                blockViewState.collapseView = undefined;
-                blockViewState.collapsed = false;
-            }
-            diagramRedraw(syntaxTree);
-        }
-    };
-
-    // click away handler for plus.
-    const handleClickAway = () => {
-        if (!initPlus && (states.isCollapsePlusDuoShown)) {
-            setStates({
-                ...states,
-                isSmallPlusShown: false,
-                isCollapsePlusDuoShown: false
-            });
-            viewState.selectedComponent = undefined;
-            viewState.expanded = false;
-            viewState.collapsedClicked = false;
-            viewState.collapsedPlusDuoExpanded = false;
-            diagramCleanDraw(syntaxTree);
-        }
-    };
-
     const handleOnClose = () => {
-        if (!initPlus) {
-            setStates({
-                ...states,
-                isPlusHolderShown: false
-            });
-            viewState.selectedComponent = undefined;
-            viewState.expanded = false;
-            viewState.collapsedClicked = false;
-            viewState.collapsedPlusDuoExpanded = false;
-            diagramCleanDraw(syntaxTree);
-            setPlusHolder(undefined);
-        }
+        setStates({
+            ...states,
+            isPlusHolderShown: false
+        });
+        viewState.selectedComponent = undefined;
+        viewState.expanded = false;
+        viewState.collapsedClicked = false;
+        viewState.collapsedPlusDuoExpanded = false;
+        viewState.selected = false;
+        diagramCleanDraw(syntaxTree);
+        setPlusHolder(undefined);
     }
 
     const handlePlusHolderItemClick = (type: string, subType: string,
@@ -171,18 +138,22 @@ export const PlusButton = (props: PlusProps) => {
         viewState.draftSelectedConnector = selectedConnector;
         viewState.draftConnector = connectorType;
         viewState.draftForExistingConnector = isExisting;
+        viewState.selected = false;
         diagramRedraw(syntaxTree);
         setPlusHolder(undefined);
     };
 
-    const plusCircle = !initPlus && !states.isPlusHolderShown && !states.isCollapsePlusDuoShown && viewState.visible ?
+    // !initPlus && !states.isPlusHolderShown &&
+    const plusCircle = !states.isCollapsePlusDuoShown && viewState.visible ?
         (
             <PlusCircleSVG
                 x={x - (PLUSCIRCLE_SVG_WIDTH_WITH_SHADOW / 2)}
                 y={y - (PLUSCIRCLE_SVG_HEIGHT_WITH_SHADOW / 2)}
+                selected={viewState.selected}
             />
         ) : null;
-    const smallPlus = !states.isPlusHolderShown && viewState.visible && !initPlus ?
+    // && !initPlus !states.isPlusHolderShown &&
+    const smallPlus = viewState.visible ?
         (
             <g
                 onMouseEnter={onMouseEnter}
@@ -201,40 +172,14 @@ export const PlusButton = (props: PlusProps) => {
             </g>
         ) : null;
 
-    useEffect(() => {
-        if (initPlus && overlayNode) {
-            setStates({
-                isPlusHolderShown: true
-            });
-            setPlusHolder(renderPlusWidget("PlusElements", {
-                position: { x: (x - (DefaultConfig.plusHolder.width / 2)), y: (y) },
-                onClose: handleOnClose,
-                onChange: handlePlusHolderItemClick,
-                initPlus: initPlus,
-                isCallerAvailable: (model.viewState as BlockViewState)?.isCallerAvailable,
-                isResource: (model.viewState as BlockViewState)?.isResource,
-                overlayId: overlayId,
-                overlayNode: overlayNode
-            }, viewState as PlusViewState));
-        }
-    }, [initPlus, overlayNode, model]);
-
     return (
         <g ref={plusRef}>
             {
                 (!isReadOnly) && (<g className="main-plus-wrapper" data-plus-index={viewState.index}>
                     {plusCircle}
-                    {plusHolder}
-                    {/* <ClickAwayListener
-                        mouseEvent="onMouseDown"
-                        touchEvent="onTouchStart"
-                        onClickAway={handleClickAway}
-                    > */}
                     <g>
                         {smallPlus}
                     </g>
-
-                    {/* </ClickAwayListener> */}
                 </g>)
             }
         </g>

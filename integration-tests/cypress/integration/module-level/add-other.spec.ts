@@ -10,7 +10,10 @@ describe('Test adding a module level other component', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     });
 
-    it('Add an other statement to an empty file', () => {
+    // Top level other statement rendering in statement editor is having some issues.
+    // On the other hand it is decided to remove the Other option from the top level plus widget.
+    // Due to these reasons, the below test is skipped until the Other option is completely removed.
+    it.skip('Add an other statement to an empty file', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();

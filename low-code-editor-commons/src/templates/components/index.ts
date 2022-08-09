@@ -1,6 +1,7 @@
 export default {
     CHECKED_PAYLOAD_FUNCTION_INVOCATION: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ RESPONSE }}}.{{{ PAYLOAD }}}();',
-    DECLARATION: '{{{ TYPE }}} {{{ VARIABLE }}} = new ({{{ PARAMS }}});',
+    DECLARATION: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{CHECK}}} new ({{{ PARAMS }}});',
+    DECLARATION_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check new ({{{ PARAMS }}});',
     FOREACH_STATEMENT_CONDITION: '{{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}}',
     FOREACH_STATEMENT: `
 foreach {{{ TYPE }}} {{{ VARIABLE }}} in {{{ COLLECTION }}} {
@@ -45,11 +46,14 @@ if {{{ CONDITION }}} {
     PROPERTY_STATEMENT: '{{{ PROPERTY }}}',
     REMOTE_SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
     REMOTE_SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{ CALLER }}}->{{{ FUNCTION }}}({{{ PARAMS }}});',
-    RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{ PAYLOAD }}}{{#if ADD_REQUEST}}http:Request request{{/if}}{{#if ADD_CALLER}}{{#if ADD_REQUEST}}, {{/if}}{{/if}}{{#if ADD_CALLER}}http:Caller caller{{/if}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
+    ACTION_STATEMENT: '{{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
+    ACTION_STATEMENT_CHECK: 'check {{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
+    RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
     RESOURCE: `
-resource function {{{ METHOD }}} {{{ PATH }}} ({{{ QUERY_PARAM }}}{{{PAYLOAD}}}{{#if ADD_REQUEST}}http:Request request{{/if}}{{#if ADD_CALLER}}{{#if ADD_REQUEST}}, {{/if}}{{/if}}{{#if ADD_CALLER}}http:Caller caller{{/if}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}} {
+    resource function {{{ METHOD }}} {{{ PATH }}} ({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}} {
 
-}`,
+    }
+    `,
     RESPOND_WITH_CHECK: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
     RESPOND: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
     RETURN_STATEMENT: 'return {{{ RETURN_EXPR }}};',
@@ -94,7 +98,7 @@ listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 {{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {
 
 }`,
-    FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`,
+    FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}}({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`,
     SERVICE_WITH_LISTENER_DECLARATION_UPDATE: `
 listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
@@ -155,5 +159,17 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     worker {{{NAME}}} returns {{{RETURN_TYPE}}} {
 
     }
+    `,
+    ASYNC_SEND_STATEMENT: `
+    {{{EXPRESSION}}} -> {{{TARGET_WORKER}}};
+    `,
+    ASYNC_RECEIVE_STATEMENT: `
+    error|{{{TYPE}}} {{{VAR_NAME}}} = <- {{{SENDER_WORKER}}};
+    `,
+    WAIT_STATEMENT: `
+    {{{TYPE}}} {{{VAR_NAME}}} = wait {{{WORKER_NAME}}};
+    `,
+    FLUSH_STATEMENT: `
+    error? {{{VAR_NAME}}} = flush {{{WORKER_NAME}}};
     `
 }

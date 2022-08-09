@@ -12,6 +12,7 @@
  */
 import {
     BinaryExpression,
+    ConstDeclaration,
     FieldAccess,
     FunctionCall,
     IndexedExpression,
@@ -48,6 +49,7 @@ import { RemainingContent } from "../models/definitions";
 import { isPositionsEquals } from "../utils";
 
 export const DEFAULT_EXPR = "EXPRESSION";
+export const DEFAULT_FUNCTION_CALL = "FUNCTION_CALL()";
 export const DEFAULT_TYPE_DESC = "TYPE_DESCRIPTOR";
 export const DEFAULT_BINDING_PATTERN = "BINDING_PATTERN";
 
@@ -441,6 +443,12 @@ class ExpressionDeletingVisitor implements Visitor {
         }
     }
 
+    public beginVisitConstDeclaration(node: ConstDeclaration) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node?.typeDescriptor?.position)){
+            this.setProperties('', node?.typeDescriptor?.position);
+        }
+    }
+
     setProperties(codeAfterDeletion: string, newPosition: NodePosition) {
         this.codeAfterDeletion = codeAfterDeletion;
         this.newPosition = newPosition;
@@ -450,6 +458,13 @@ class ExpressionDeletingVisitor implements Visitor {
     getContent(): RemainingContent {
         return {
             code: this.isNodeFound ? this.codeAfterDeletion : DEFAULT_EXPR,
+            position: this.isNodeFound ? this.newPosition : this.deletePosition
+        };
+    }
+
+    getFunctionCallContent(): RemainingContent {
+        return {
+            code: this.isNodeFound ? this.codeAfterDeletion : DEFAULT_FUNCTION_CALL,
             position: this.isNodeFound ? this.newPosition : this.deletePosition
         };
     }

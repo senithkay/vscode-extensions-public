@@ -12,71 +12,25 @@
  */
 import React from "react";
 
-import { ClickAwayListener } from "@material-ui/core";
-import { PlusWidgetProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormGeneratorProps } from "../../FormGenerator";
 
-import { OverlayBackground } from "../../../OverlayBackground";
-import { DiagramOverlay, DiagramOverlayContainer } from "../../../Portals/Overlay";
+import { PlusOptionsSelector } from "./PlusOptionsSelector";
 
-import { classMemberEntries, moduleLevelEntries, PlusMenuCategories, PlusOptionsSelector, triggerEntries } from "./PlusOptionsSelector";
+export function TopLevelOptionRenderer(props: FormGeneratorProps) {
+    const { onCancel } = props;
+    const { kind, targetPosition, isTriggerType, isLastMember, showCategorized } = props.configOverlayFormStatus.formArgs;
 
-
-export function TopLevelOptionRenderer(props: PlusWidgetProps) {
-    const { position, kind, onClose, targetPosition, isTriggerType, isLastMember, showCategorized, offset } = props;
-
-    const getPlusMenuYPosition = (): number => {
-        let menuHeight = 0;
-
-        switch (kind) {
-            case 'ModulePart':
-                menuHeight += 42;
-                const categroyMap: Map<PlusMenuCategories, number> = new Map();
-                let rows = 0;
-
-                moduleLevelEntries.forEach(entry => {
-                    if (categroyMap.has(entry.category)) {
-                        categroyMap.set(entry.category, categroyMap.get(entry.category) + 1);
-                    } else {
-                        categroyMap.set(entry.category, 1);
-                    }
-                });
-
-                categroyMap.forEach(value => {
-                    rows += Math.floor(value / 2) + value % 2;
-                })
-
-                menuHeight += 48 * rows;
-                break;
-            case 'ServiceDeclaration':
-                menuHeight = isTriggerType ? (52 * triggerEntries.length) : (52 * classMemberEntries.length);
-                break;
-            default:
-            // not used
-        }
-
-        if (offset + menuHeight >= window.innerHeight) {
-            return offset - menuHeight;
-        } else {
-            return offset - 10;
-        }
-    }
-
-    const positionY = position.y !== 0 && offset ? position.y : getPlusMenuYPosition();
     return (
-        <DiagramOverlayContainer>
-            <DiagramOverlay
-                position={{ x: position.x, y: positionY }}
-            >
-                <PlusOptionsSelector
-                    kind={kind}
-                    onClose={onClose}
-                    targetPosition={targetPosition}
-                    isTriggerType={isTriggerType}
-                    isLastMember={isLastMember}
-                    showCategorized={showCategorized}
-                />
-                <OverlayBackground />
-            </DiagramOverlay>
-        </DiagramOverlayContainer>
+        <>
+            <PlusOptionsSelector
+                kind={kind}
+                onClose={onCancel}
+                targetPosition={targetPosition}
+                isTriggerType={isTriggerType}
+                isLastMember={isLastMember}
+                showCategorized={showCategorized}
+            />
+        </>
+
     );
 }

@@ -126,22 +126,15 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                     w = DefaultConfig.defaultBlockWidth;
                     break;
                 case "Log":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = DefaultConfig.defaultBlockWidth;
-                    break;
                 case "Worker":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = DefaultConfig.defaultBlockWidth;
-                    break;
                 case "Variable":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = DefaultConfig.defaultBlockWidth;
-                    break;
                 case "AssignmentStatement":
-                    h = PROCESS_SVG_HEIGHT;
-                    w = DefaultConfig.defaultBlockWidth;
-                    break;
                 case "Custom":
+                case "Call":
+                case "AsyncSend":
+                case "ReceiveStatement":
+                case "WaitStatement":
+                case "FlushStatement":
                     h = PROCESS_SVG_HEIGHT;
                     w = DefaultConfig.defaultBlockWidth;
                     break;

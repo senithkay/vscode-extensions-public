@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { AssignmentStatement } from "@wso2-enterprise/syntax-tree";
+import { AssignmentStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
@@ -37,11 +37,31 @@ export function AssignmentStatementComponent(props: AssignmentStatementProps) {
         changeCurrentModel(model.expression);
     }
 
+    let expressionComponent;
+
+    if (model.expression && STKindChecker.isReceiveAction(model.expression)) {
+        expressionComponent = (
+            <>
+                <TokenComponent model={model.expression.leftArrow} className="operator" />
+                <ExpressionComponent model={model.expression.receiveWorkers} />
+            </>
+        );
+    } else if (model.expression && STKindChecker.isWaitAction(model.expression)) {
+        expressionComponent = (
+            <>
+                <TokenComponent model={model.expression.waitKeyword} className="operator" />
+                <ExpressionComponent model={model.expression.waitFutureExpr} />
+            </>
+        );
+    } else {
+        expressionComponent = <ExpressionComponent model={model.expression} />
+    }
+
     return (
         <>
             <ExpressionComponent model={model.varRef} />
             <TokenComponent model={model.equalsToken} className="operator" />
-            <ExpressionComponent model={model.expression} />
+            {expressionComponent}
             <TokenComponent model={model.semicolonToken} />
         </>
     );

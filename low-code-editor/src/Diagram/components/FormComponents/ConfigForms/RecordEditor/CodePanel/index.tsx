@@ -91,7 +91,7 @@ export function CodePanel() {
                 defaultMessage={"Record Configuration"}
                 onCancel={state.onCancel}
             />
-            <div className={overlayClasses.formWrapper}>
+            <div className={overlayClasses.recordFormWrapper}>
                 <div className={recordClasses.recordFieldWrapper}>
                     <RecordField recordModel={state.recordModel} />
                 </div>

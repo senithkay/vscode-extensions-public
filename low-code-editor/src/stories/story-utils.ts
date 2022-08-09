@@ -63,6 +63,7 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     },
     resolveMissingDependencyByCodeAction: () => Promise.resolve(false),
     runCommand: () => Promise.resolve(false),
+    runBackgroundTerminalCommand: () => Promise.resolve({error: false, message: ""}),
     sendTelemetryEvent: () => Promise.resolve(undefined),
     showMessage: () => Promise.resolve(false),
     showPerformanceGraph: () => Promise.resolve(false),
@@ -71,6 +72,7 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getLibrariesData: () => Promise.resolve(undefined),
     getLibraryData: () => Promise.resolve(undefined),
     getSentryConfig: () => Promise.resolve(undefined),
+    getBallerinaVersion: () => Promise.resolve("2201.1.1 (swan lake update 1)"), // Test will check only latest forms
     getEnv: (name: string) => Promise.resolve(undefined),
     experimentalEnabled: true
   }

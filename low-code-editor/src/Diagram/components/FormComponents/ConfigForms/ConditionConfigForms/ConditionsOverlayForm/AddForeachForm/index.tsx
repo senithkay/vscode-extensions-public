@@ -11,30 +11,32 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: ordered-imports
 import React, { useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
+import { FormControl, Typography } from "@material-ui/core";
+import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
+import {
+    ConditionConfig,
+    ForeachConfig,
+    FormField,
+    getAllVariables
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { BinaryExpression, ForeachStatement } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
-import { FormControl, Typography } from "@material-ui/core";
 
-import { FormField, ConditionConfig, ForeachConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import Tooltip from '../../../../../../../components/TooltipV2'
 import { Context } from "../../../../../../../Contexts/Diagram";
-import { getAllVariables } from "../../../../../../utils/mixins";
-import { createForeachStatement, createForeachStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
+import { createForeachStatement, createForeachStatementWithBlock, getInitialSource } from "../../../../../../utils";
 import { genVariableName } from "../../../../../Portals/utils";
 import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { SelectDropdownWithButton } from "../../../../FormFieldComponents/DropDown/SelectDropdownWithButton";
-import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { FormElementProps } from "../../../../Types";
-import { wizardStyles } from "../../../style";
-import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
-import Tooltip from '../../../../../../../components/TooltipV2'
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
+import { FormTextInput } from "../../../../FormFieldComponents/TextField/FormTextInput";
+import { FormElementProps } from "../../../../Types";
+import { isStatementEditorSupported } from "../../../../Utils";
+import { VariableTypeInput, VariableTypeInputProps } from "../../../Components/VariableTypeInput";
 
 interface Iterations {
     start?: string;
@@ -50,11 +52,11 @@ interface ForeachProps {
 }
 
 export const DEFINE_RANGE: string = "Define Range";
-export const EXISTING_PROPERTY: string = "Select Existing Property";
 
 export function AddForeachForm(props: ForeachProps) {
     const {
         props: {
+            ballerinaVersion,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             currentFile,
@@ -71,7 +73,7 @@ export function AddForeachForm(props: ForeachProps) {
         }
     } = useContext(Context);
 
-    const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
+    const { condition, formArgs, onCancel, onWizardClose, onSave } = props;
 
     const [conditionExpression] = useState(condition.conditionExpression);
     let initCollectionDefined: boolean = (condition.scopeSymbols.length > 0);
@@ -100,12 +102,9 @@ export function AddForeachForm(props: ForeachProps) {
     }
 
     const classes = useStyles();
-    const overlayClasses = wizardStyles();
     const intl = useIntl();
-
     const nameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$|^\[[a-zA-Z0-9_]*, *[a-zA-Z0-9_]*\]$");
-
-    // const conditionExpression: ForeachConfig = condition.conditionExpression as ForeachConfig;
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
     const validateNameValue = (value: string) => {
         if (value && value !== '') {
@@ -120,13 +119,10 @@ export function AddForeachForm(props: ForeachProps) {
 
     if (!conditionExpression.variable || (conditionExpression.variable === '')) {
         conditionExpression.variable = genVariableName("item", getAllVariables(stSymbolInfo));
-    };
+    }
 
     const [expressionValue, setExpressionValue] = useState(conditionExpression.collection)
     const [isValidExpression, setIsValidExpression] = useState(!!conditionExpression.collection);
-
-    // FIXME: Replace with type selection expression editor!
-    const variableTypes: string[] = ["var", "int", "float", "decimal", "boolean", "string", "json", "xml"];
 
     const [selectedType, setSelectedType] = useState(conditionExpression.type ? conditionExpression.type : "var");
 
@@ -193,11 +189,6 @@ export function AddForeachForm(props: ForeachProps) {
         defaultMessage: "Foreach"
     });
 
-    const currentValueVariableLabel = intl.formatMessage({
-        id: "lowcode.develop.configForms.forEach.currentValueVariable.label",
-        defaultMessage: "Current Value Variable"
-    });
-
     const invalidConnectionErrorMessage = intl.formatMessage({
         id: "lowcode.develop.configForms.forEach.invalidConnectionErrorMessage",
         defaultMessage: "Invalid collection name."
@@ -235,44 +226,17 @@ export function AddForeachForm(props: ForeachProps) {
     };
 
     const initialSource = formArgs.model ? getInitialSource(createForeachStatementWithBlock(
-                                conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
-                                conditionExpression.variable,
-                                selectedType,
-                                (formArgs.model as ForeachStatement).blockStatement.statements.map(statement => {
-                                    return statement.source
-                                })
-                            )) : getInitialSource(createForeachStatement(
-                                conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
-                                conditionExpression.variable,
-                                selectedType
-                            ));
-
-    const handleStatementEditorChange = (partialModel: ForeachStatement) => {
-        conditionExpression.type = partialModel.typedBindingPattern.typeDescriptor.source.trim();
-        conditionExpression.variable = partialModel.typedBindingPattern.bindingPattern.source.trim();
-        conditionExpression.collection = partialModel.actionOrExpressionNode.source.trim();
-        setSelectedType(partialModel.typedBindingPattern.typeDescriptor.source.trim());
-    }
-
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
-        {
-            label: formTitle,
-            initialSource,
-            formArgs: { formArgs },
-            config: condition,
-            onWizardClose,
-            handleStatementEditorChange,
-            onCancel,
-            currentFile,
-            getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram,
-            library,
-            syntaxTree,
-            stSymbolInfo,
-            importStatements,
-            experimentalEnabled
-        }
-    );
+        conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
+        conditionExpression.variable,
+        selectedType,
+        (formArgs.model as ForeachStatement).blockStatement.statements.map(statement => {
+            return statement.source
+        })
+    )) : getInitialSource(createForeachStatement(
+        conditionExpression.collection ? conditionExpression.collection : 'EXPRESSION',
+        conditionExpression.variable,
+        selectedType
+    ));
 
     const validateExpression = (fieldName: string, isInvalidType: boolean) => {
         setIsValidExpression(!isInvalidType)
@@ -296,70 +260,84 @@ export function AddForeachForm(props: ForeachProps) {
         </div>
     );
 
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="foreach-form" className={classes.wizardFormControlExtended}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"Foreach"}
-                />
-                <div className={classes.formContentWrapper}>
-                    <div className={classes.formCodeBlockWrapper}>
-                        <div className={classes.formCodeExpressionWrapper}>
-                            <Typography variant='body2' className={classes.startTitleCode}>foreach</Typography>
-                            <div className={classes.variableExpEditorWrapper}>
-                                {variableTypeInput}
-                            </div>
-                            <div className={classes.variableExpEditorWrapper}>
-                                <FormTextInput
-                                    customProps={{
-                                        validate: validateNameValue,
-                                    }}
-                                    onChange={onVariableNameChange}
-                                    defaultValue={conditionExpression.variable}
-                                    label="Current Value"
-                                    placeholder="Current Value"
-                                    errorMessage={invalidConnectionErrorMessage}
-                                />
-                            </div>
-                        </div>
-                        <div className={classes.formCodeExpressionEndWrapper}>
-                            <Typography variant='body2' className={classnames(classes.forEachEndCode)}>in</Typography>
-                            <div className={classes.formCodeExpressionLargeField}>
-                                <div className={classes.stmtEditorWrapper}>
-                                    <LowCodeExpressionEditor {...expElementProps} />
+    return (
+        <>
+            {statementEditorSupported ? (
+                StatementEditorWrapper(
+                    {
+                        label: formTitle,
+                        initialSource,
+                        formArgs: { formArgs },
+                        config: condition,
+                        onWizardClose,
+                        onCancel,
+                        currentFile,
+                        getLangClient: getExpressionEditorLangClient,
+                        applyModifications: modifyDiagram,
+                        library,
+                        syntaxTree,
+                        stSymbolInfo,
+                        importStatements,
+                        experimentalEnabled
+                    }
+                )
+            ) : (
+                <FormControl data-testid="foreach-form" className={classes.wizardFormControlExtended}>
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={formTitle}
+                        defaultMessage={"Foreach"}
+                    />
+                    <div className={classes.formContentWrapper}>
+                        <div className={classes.formCodeBlockWrapper}>
+                            <div className={classes.formCodeExpressionWrapper}>
+                                <Typography variant='body2' className={classes.startTitleCode}>foreach</Typography>
+                                <div className={classes.variableExpEditorWrapper}>
+                                    {variableTypeInput}
+                                </div>
+                                <div className={classes.variableExpEditorWrapper}>
+                                    <FormTextInput
+                                        customProps={{
+                                            validate: validateNameValue,
+                                        }}
+                                        onChange={onVariableNameChange}
+                                        defaultValue={conditionExpression.variable}
+                                        label="Current Value"
+                                        placeholder="Current Value"
+                                        errorMessage={invalidConnectionErrorMessage}
+                                    />
                                 </div>
                             </div>
-                            <Typography variant='body2' className={classes.forEachEndCode}>{`{`}</Typography>
+                            <div className={classes.formCodeExpressionEndWrapper}>
+                                <Typography variant='body2' className={classnames(classes.forEachEndCode)}>in</Typography>
+                                <div className={classes.formCodeExpressionLargeField}>
+                                    <div className={classes.stmtEditorWrapper}>
+                                        <LowCodeExpressionEditor {...expElementProps} />
+                                    </div>
+                                </div>
+                                <Typography variant='body2' className={classes.forEachEndCode}>{`{`}</Typography>
+                            </div>
+                        </div>
+                        <div className={classes.formCodeBlockWrapper}>
+                            <div className={classes.middleDottedwrapper}>
+                                <Tooltip type='info' text={{content: forEachTooltipMessages.codeBlockTooltip}}>
+                                    <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                                </Tooltip>
+                            </div>
+                            <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                         </div>
                     </div>
-                    <div className={classes.formCodeBlockWrapper}>
-                        <div className={classes.middleDottedwrapper}>
-                            <Tooltip type='info' text={{ content: forEachTooltipMessages.codeBlockTooltip }}>
-                                <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
-                            </Tooltip>
-                        </div>
-                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtnText={cancelForEachButtonLabel}
-                    cancelBtn={true}
-                    saveBtnText={saveForEachButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={isValidExpression && expressionValue.length > 0}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={handleSave}
-                    onCancel={onCancel}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+                    <FormActionButtons
+                        cancelBtnText={cancelForEachButtonLabel}
+                        cancelBtn={true}
+                        saveBtnText={saveForEachButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={isValidExpression && expressionValue.length > 0}
+                        onSave={handleSave}
+                        onCancel={onCancel}
+                    />
+                </FormControl>
+            )}
+        </>
+    );
 }

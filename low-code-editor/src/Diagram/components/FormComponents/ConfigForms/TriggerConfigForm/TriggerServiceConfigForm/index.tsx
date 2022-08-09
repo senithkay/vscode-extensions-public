@@ -30,7 +30,7 @@ import "../style.scss";
 
 export function TriggerForm(props: FormGeneratorProps) {
     const { onCancel, onSave, targetPosition, configOverlayFormStatus } = props
-    const { formArgs, isLoading, isLastMember } = configOverlayFormStatus;
+    const { formArgs, isLastMember } = configOverlayFormStatus;
     const { id, moduleName, displayAnnotation: { label } } = formArgs;
     const formClasses = useFormStyles();
     const intl = useIntl();
@@ -38,7 +38,7 @@ export function TriggerForm(props: FormGeneratorProps) {
     const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
     const [addNewChannel, setNewChannel] = useState(false);
     const [channelList, setChannelList] = useState<string[]>([]);
-    const [isTriggersLoading, setIsTriggersLoading] = useState(isLoading)
+    const [isTriggersLoading, setIsTriggersLoading] = useState(true);
     const [triggerInfo, setTriggerInfo] = useState<BallerinaTriggerResponse>();
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
     const unSelectedChannels = channelList === undefined ? [] : channelList.filter((channel) => !selectedChannels.includes(channel));

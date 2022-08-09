@@ -110,10 +110,11 @@ export function ParameterList(props: ParameterListProps) {
     }
 
     const addIncludedRecordToModel = (userInput: string) => {
-        if (isDocumentationSupportedModel(model)) {
-            updateModel(getUpdatedContentForNewNamedArg(model, userInput), getParamUpdateModelPosition(model));
-            setPlusButtonClicked(false);
-        }
+        const modelToUpdate : STNode = isDocumentationSupportedModel(model) ? model :
+            getParentFunctionModel((model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                statementModel)
+        updateModel(getUpdatedContentForNewNamedArg(modelToUpdate, userInput), getParamUpdateModelPosition(modelToUpdate));
+        setPlusButtonClicked(false);
     }
 
     return (
