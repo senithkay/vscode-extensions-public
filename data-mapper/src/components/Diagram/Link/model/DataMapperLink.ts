@@ -9,7 +9,6 @@ import { isNodeInRange } from "../../utils/ls-utils";
 export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
-	public hasError: boolean
 
 	constructor(public value: SimpleNameReference|FieldAccess = undefined, public diagnostics: Diagnostic[] = []) {
 		super({
@@ -20,8 +19,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 			color: "#5567D5"
 		});
 
-		this.hasError = diagnostics.length > 0;
-		if (this.hasError){
+		if (diagnostics.length > 0){
 			this.setColor('red');
 		}
 
@@ -44,5 +42,9 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 			}
 			return curve.getSVGCurve();
 		}
+	}
+
+	public hasError(): boolean {
+		return this.diagnostics.length > 0 ;
 	}
 }
