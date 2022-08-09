@@ -166,7 +166,8 @@ export interface LiteExpressionEditorProps {
         optional?: boolean;
         name?: string;
     },
-    stModel?: STNode
+    stModel?: STNode;
+    testId?: string;
 }
 
 export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
@@ -185,7 +186,8 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         diagnostics,
         model,
         customProps,
-        stModel
+        stModel,
+        testId
     } = props;
 
     const [expressionEditorState, setExpressionEditorState] = useState<ExpressionEditorState>({
@@ -595,7 +597,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
             <div
                 className={classNames("exp-container", { "hide-suggestion": hideSuggestions })}
                 style={{ height: expand ? (superExpand ? "200px" : "100px") : "34px" }}
-                field-name={"fieldName"}
+                field-name={testId}
             >
                 <div className="exp-absolute-wrapper">
                     <div

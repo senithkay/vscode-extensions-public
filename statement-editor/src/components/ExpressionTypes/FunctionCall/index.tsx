@@ -17,6 +17,7 @@ import { FunctionCall, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { CALL_CONFIG_TYPE, EXPR_CONSTRUCTOR, FUNCTION_CALL } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { FUNCTION_CALL_PLACEHOLDER } from "../../../utils/expressions";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { InputEditor, InputEditorProps } from "../../InputEditor";
@@ -61,7 +62,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     };
 
 
-    if (!currentModel.model) {
+    if (!currentModel.model || (currentModel.model.source === FUNCTION_CALL_PLACEHOLDER)) {
         if (config.type === CALL_CONFIG_TYPE && model && STKindChecker.isFunctionCall(model)) {
             changeCurrentModel(model);
         }

@@ -78,7 +78,6 @@ export function FunctionForm(props: FunctionProps) {
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [addingNewParam, setAddingNewParam] = useState(false);
 
-    const functionBodyBlock = model && STKindChecker.isFunctionBodyBlock(model.functionBody) && model?.functionBody;
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
     const functionParamChange = async (funcName: string, parametersStr: string, returnTypeStr: string,
@@ -133,7 +132,7 @@ export function FunctionForm(props: FunctionProps) {
             ...targetPosition, startColumn: model?.functionName?.position?.startColumn
         })
         );
-        const updatedContent = await getUpdatedSource(codeSnippet, model?.source, {
+        const updatedContent = getUpdatedSource(codeSnippet, model?.source, {
             ...model?.functionSignature?.position, startColumn: model?.functionName?.position?.startColumn
         }, undefined, true);
         const partialST = await getPartialSTForModuleMembers(
@@ -300,6 +299,7 @@ export function FunctionForm(props: FunctionProps) {
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title='Name' optional={false} />
                         <LiteExpressionEditor
+                            testId={"function-name"}
                             defaultValue={functionName}
                             diagnostics={
                                 (currentComponentName === "Name" && currentComponentSyntaxDiag)
@@ -353,6 +353,7 @@ export function FunctionForm(props: FunctionProps) {
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <FieldTitle title='Return Type' optional={true} />
                         <LiteExpressionEditor
+                            testId={"return-type"}
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             defaultValue={returnType}
                             onChange={debouncedReturnChange}

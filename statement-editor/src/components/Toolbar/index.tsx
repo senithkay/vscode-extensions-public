@@ -25,6 +25,7 @@ import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import {
     ADD_CONFIGURABLE_LABEL,
+    CALL_CONFIG_TYPE,
     CONFIGURABLE_TYPE_BOOLEAN,
     CONFIGURABLE_TYPE_STRING
 } from "../../constants";
@@ -71,9 +72,6 @@ export default function Toolbar(props: ToolbarProps) {
         client.bindNewKey(['command+shift+z', 'ctrl+shift+z'], redo);
         client.bindNewKey(['del'], onDelFunction);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
     }, [currentModel]);
 
     const [deletable, configurable] = useMemo(() => {
@@ -83,6 +81,10 @@ export default function Toolbar(props: ToolbarProps) {
         if (currentModel.model) {
             modelDeletable = isNodeDeletable(currentModel.model, config.type);
             modelConfigurable = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION;
+
+            if (STKindChecker.isFunctionCall(currentModel.model) && config.type === CALL_CONFIG_TYPE) {
+                modelConfigurable = false;
+            }
         }
 
         return [modelDeletable, modelConfigurable]
