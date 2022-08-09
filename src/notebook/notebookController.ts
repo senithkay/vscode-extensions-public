@@ -122,7 +122,6 @@ export class BallerinaNotebookController {
         const cellContent = cell.document.getText().trim();
 
         const execution = this.controller.createNotebookCellExecution(cell);
-        execution.executionOrder = ++this.executionOrder;
         execution.start(Date.now());
         execution.clearOutput();
 
@@ -146,13 +145,15 @@ export class BallerinaNotebookController {
 
         // if cell content is empty no need for an code execution
         // But if the cell contained executed code with definitions
-        // remove them from the shell invokermemory
+        // remove them from the shell invoker memory
         if (!cellContent && !!langClient) {
             let failedVars = await this.deleteMetaInfoFromMemoryForCell(cell);
             appendFailedToDeleteErrorMsg(failedVars);
-            execution.end(!failedVars.length, Date.now());
-            return true;
+            execution.end(undefined);
+            return !failedVars.length;
         }
+
+        execution.executionOrder = ++this.executionOrder;
 
         // handle if language client is not ready yet 
         if (!langClient) {
@@ -309,7 +310,7 @@ export class BallerinaNotebookController {
     }
 
     private getFailedToDeleteErrorMsg(failedVars: string[]) {
-        return `'${failedVars.join("', '")}' is/are not removed from memory since it/they have referred in other cells.`
+        return `'${failedVars.join("', '")}' delaration(s) is/are not removed from memory since it/they have referred in other cells.`
     }
 
     dispose(): void {
