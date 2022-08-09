@@ -47,16 +47,16 @@ export default function TabPanel(props: TabPanelProps) {
             let hint;
             switch(tabValue) {
                 case "Suggestions":
-                    hint = "Ctrl+Shift+S";
+                    hint = "Ctrl+Shift+M";
                   break;
                 case "Expressions":
-                    hint = "Ctrl+Shift+E";
+                    hint = "Ctrl+Shift+,";
                     break;
                 case "Libraries":
-                    hint = "Ctrl+Shift+L";
+                    hint = "Ctrl+Shift+.";
                     break;
                 case "Parameters":
-                    hint = "Ctrl+Shift+D";
+                    hint = "Ctrl+Shift+/";
                     break;
             }
 
