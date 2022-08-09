@@ -9,7 +9,7 @@ import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-st
 import { getFieldNames } from "../../utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
-import { isNodeInRange } from "../../utils/ls-utils";
+import { filterDiagnostics } from "../../utils/ls-utils";
  
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 
@@ -60,17 +60,8 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			}
 			const outPort = this.getOutputPortForField(fields);
 
-			const diagnostics = this.context.diagnostics.filter( (diagnostic) => {
-				const diagPosition: NodePosition = {
-					startLine: diagnostic.range.start.line,
-					startColumn: diagnostic.range.start.character,
-					endLine: diagnostic.range.end.line,
-					endColumn: diagnostic.range.end.character
-				};
-				return isNodeInRange(value.position, diagPosition)
-			});
 
-			const lm = new DataMapperLinkModel(value, this.context.diagnostics);
+			const lm = new DataMapperLinkModel(value, filterDiagnostics( this.context.diagnostics, value.position));
 			lm.addLabel(new ExpressionLabelModel({
 				value: otherVal?.source || value.source,
 				valueNode: otherVal || value,

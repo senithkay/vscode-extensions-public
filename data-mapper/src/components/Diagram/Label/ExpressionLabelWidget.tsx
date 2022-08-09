@@ -44,7 +44,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 	React.useEffect(() => {
 		async function genModel() {
-			const actions = (await handleCodeActions(props.model.context.filePath, props.model.link?.diagnostics,props.model.context.getLangClient))
+			const actions = (await handleCodeActions(props.model.context.filePath, props.model.link?.diagnostics,props.model.context.langClientPromise))
 			setCodeActions(actions)
         }
         genModel();

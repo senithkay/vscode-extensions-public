@@ -11,7 +11,7 @@
  * associated services.
  */
 import {
-    ExpressionEditorLangClientInterface,
+	DiagramEditorLangClientInterface,
     PublishDiagnosticsParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
@@ -19,7 +19,7 @@ import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 export async function getDiagnostics(
     docUri: string,
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>): Promise<PublishDiagnosticsParams[]> {
+    getLangClient: () => Promise<DiagramEditorLangClientInterface>): Promise<PublishDiagnosticsParams[]> {
     const langClient = await getLangClient();
     const diagnostics = await langClient.getDiagnostics({
         documentIdentifier: {
@@ -31,11 +31,23 @@ export async function getDiagnostics(
 }
 
 export const handleDiagnostics = async (fileURI: string,
-                                        getLangClient: () => Promise<ExpressionEditorLangClientInterface>):
+                                        getLangClient: () => Promise<DiagramEditorLangClientInterface>):
     Promise<Diagnostic[]> => {
     const diagResp = await getDiagnostics(`file://${fileURI}`, getLangClient);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
     return diag;
+}
+
+export const filterDiagnostics = (diagnostics: Diagnostic[], nodePosition:NodePosition) : Diagnostic[] => {
+	return diagnostics.filter( (diagnostic) => {
+		const diagPosition: NodePosition = {
+			startLine: diagnostic.range.start.line,
+			startColumn: diagnostic.range.start.character,
+			endLine: diagnostic.range.end.line,
+			endColumn: diagnostic.range.end.character
+		};
+		return isNodeInRange(nodePosition, diagPosition);
+	})
 }
 
 export function isNodeInRange(nodePosition: NodePosition, diagPosition: NodePosition): boolean {
@@ -46,7 +58,7 @@ export function isNodeInRange(nodePosition: NodePosition, diagPosition: NodePosi
 }
 
 
-export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langClient: ExpressionEditorLangClientInterface): Promise<CodeAction[]> {
+export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langClient: DiagramEditorLangClientInterface): Promise<CodeAction[]> {
     const codeAction = await langClient.codeAction({
 		context: {
 			diagnostics: [{
@@ -85,7 +97,7 @@ export async function getCodeAction(filePath: string, diagnostic: Diagnostic, la
 }
 
 export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic[],
-	getLangClient: () => Promise<ExpressionEditorLangClientInterface>):
+	getLangClient: () => Promise<DiagramEditorLangClientInterface>):
 	Promise<CodeAction[]> => {
 
 	const langClient = await getLangClient();

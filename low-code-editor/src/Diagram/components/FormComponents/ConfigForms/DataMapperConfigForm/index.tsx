@@ -134,7 +134,6 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                 <DataMapper
                     fnST={functionST}
                     langClientPromise={getDiagramEditorLangClient}
-                    getLangClient={getExpressionEditorLangClient}
                     filePath={currentFile.path}
                     currentFile={currentFile}
                     stSymbolInfo={stSymbolInfo}

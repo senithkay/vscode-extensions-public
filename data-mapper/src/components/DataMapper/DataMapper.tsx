@@ -19,7 +19,6 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 export interface DataMapperProps {
     fnST: FunctionDefinition;
     langClientPromise?: () => Promise<DiagramEditorLangClientInterface>;
-    getLangClient?: () => Promise<ExpressionEditorLangClientInterface>;
     filePath: string;
     currentFile?: {
         content: string,
@@ -32,7 +31,7 @@ export interface DataMapperProps {
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise,getLangClient, filePath, currentFile, stSymbolInfo, applyModifications } = props;
+    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
 
@@ -43,7 +42,6 @@ function DataMapperC(props: DataMapperProps) {
                 filePath,
                 fnST,
                 langClientPromise,
-                getLangClient,
                 currentFile,
                 stSymbolInfo,
                 applyModifications,
@@ -59,7 +57,7 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         async function generateDiagnostics() {
-            const diagnostics =  await handleDiagnostics(filePath, getLangClient)
+            const diagnostics =  await handleDiagnostics(filePath, langClientPromise)
             setDiagnostics(diagnostics)
         }
         generateDiagnostics();
