@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useEffect } from 'react';
 
 import { FormControl } from "@material-ui/core";
@@ -124,8 +124,7 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     }
 
     return (!functionST ? <>Loading...</>
-            : 
-                
+            :
             <FormControl data-testid="record-form" className={overlayClasses.dataMapperWizardFormControl}>
             <FormHeaderSection
                 formTitle={"lowcode.develop.configForms.DataMapper.title"}
