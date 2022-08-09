@@ -56,7 +56,8 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                 modifyDiagram
             },
             ls: {
-                getDiagramEditorLangClient
+                getDiagramEditorLangClient,
+                getExpressionEditorLangClient
             }
         }
     } = useContext(Context);
@@ -123,25 +124,25 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     }
 
     return (!functionST ? <>Loading...</>
-            : (
-                <FormControl data-testid="record-form" className={overlayClasses.dataMapperWizardFormControl}>
-                    <FormHeaderSection
-                        formTitle={"lowcode.develop.configForms.DataMapper.title"}
-                        defaultMessage={"Data Mapper"}
-                        onCancel={onCancel}
-                    />
-                    <div className={dataMapperClasses.dataMapperContainer}>
-                        <DataMapper
-                            fnST={functionST}
-                            langClientPromise={getDiagramEditorLangClient}
-                            getLangClient={getDiagramEditorLangClient}
-                            filePath={currentFile.path}
-                            currentFile={currentFile}
-                            stSymbolInfo={stSymbolInfo}
-                            applyModifications={modifyDiagram}
-                        />
-                    </div>
-                </FormControl>
-            )
-    );
+            : 
+                
+            <FormControl data-testid="record-form" className={overlayClasses.dataMapperWizardFormControl}>
+            <FormHeaderSection
+                formTitle={"lowcode.develop.configForms.DataMapper.title"}
+                defaultMessage={"Data Mapper"}
+                onCancel={onCancel}
+            />
+            <div className={dataMapperClasses.dataMapperContainer}>
+                <DataMapper
+                    fnST={functionST}
+                    langClientPromise={getDiagramEditorLangClient}
+                    getLangClient={getExpressionEditorLangClient}
+                    filePath={currentFile.path}
+                    currentFile={currentFile}
+                    stSymbolInfo={stSymbolInfo}
+                    applyModifications={modifyDiagram}
+                />
+            </div>
+            </FormControl>
+            );
 }

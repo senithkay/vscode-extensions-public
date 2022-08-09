@@ -13,7 +13,6 @@ import { IDataMapperContext } from "./DataMapperContext/DataMapperContext";
 
 export async function getTypeDefinitionForTypeDesc(typeDesc: STNode,
                                                    context: IDataMapperContext): Promise<TypeDefinition> {
-
     const isSimpleNameReference = STKindChecker.isSimpleNameReference(typeDesc);
     const isQualifiedNameReference = STKindChecker.isQualifiedNameReference(typeDesc);
     if (typeDesc && (isSimpleNameReference || isQualifiedNameReference)) {

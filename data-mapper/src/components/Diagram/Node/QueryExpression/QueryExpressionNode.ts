@@ -1,4 +1,4 @@
-import { CaptureBindingPattern, QueryExpression, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, NodePosition, QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -12,6 +12,8 @@ import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 import { RequiredParamNode } from "../RequiredParam";
 import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
+import { ExpressionLabelModel } from "../../Label";
+import { isNodeInRange } from "../../utils/ls-utils";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -126,7 +128,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const sourcePortId = `${QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
                     const targetPort = this.getPort(targetPortId);
                     const sourcePort = this.getPort(sourcePortId);
-                    const link = new DataMapperLinkModel(value);
+
+                    const link = new DataMapperLinkModel(value, this.context.diagnostics);
                     link.setSourcePort(sourcePort);
                     link.setTargetPort(targetPort);
                     link.addLabel(new ExpressionLabelModel({
@@ -158,8 +161,10 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     private initQueryLinks() {
         // Currently we create links from "IN" ports and back tracing the inputs.
+
+
         if (this.sourcePort && this.inPort) {
-            const link = new DataMapperLinkModel();
+            const link = new DataMapperLinkModel(undefined, this.context.diagnostics);
             link.setSourcePort(this.sourcePort);
             link.setTargetPort(this.inPort);
             link.registerListener({
@@ -201,7 +206,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             });
 
             if (targetPort) {
-                const link = new DataMapperLinkModel();
+                const link = new DataMapperLinkModel(undefined, this.context.diagnostics);
                 link.setSourcePort(this.outPort);
                 link.setTargetPort(targetPort);
                 link.registerListener({

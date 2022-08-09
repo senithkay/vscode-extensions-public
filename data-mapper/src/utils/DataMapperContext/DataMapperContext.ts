@@ -1,17 +1,20 @@
 import {
     DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
     selection: SelectionState;
     filePath: string;
-    getLangClient: () => Promise<DiagramEditorLangClientInterface>;
+    langClientPromise: () => Promise<DiagramEditorLangClientInterface>;
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     currentFile?: {
         content: string,
         path: string,
@@ -20,6 +23,7 @@ export interface IDataMapperContext {
     stSymbolInfo: STSymbolInfo;
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
     applyModifications: (modifications: STModification[]) => void;
+    diagnostics: Diagnostic[];
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -28,7 +32,8 @@ export class DataMapperContext implements IDataMapperContext {
         public filePath: string,
         private _functionST: FunctionDefinition,
         private _selection: SelectionState,
-        public getLangClient: () => Promise<DiagramEditorLangClientInterface>,
+        public langClientPromise: () => Promise<DiagramEditorLangClientInterface>,
+        public getLangClient: () => Promise<ExpressionEditorLangClientInterface>,
         public currentFile: {
             content: string,
             path: string,
@@ -36,7 +41,8 @@ export class DataMapperContext implements IDataMapperContext {
         },
         public stSymbolInfo: STSymbolInfo,
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
-        public applyModifications: (modifications: STModification[]) => void
+        public applyModifications: (modifications: STModification[]) => void,
+        public diagnostics: Diagnostic[]
     ){}
 
     public get functionST(): FunctionDefinition {

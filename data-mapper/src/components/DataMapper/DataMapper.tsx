@@ -2,6 +2,7 @@ import React, { useEffect, useReducer, useState } from "react";
 
 import {
     DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -17,11 +18,13 @@ import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
+import { handleDiagnostics } from "../Diagram/utils/ls-utils";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
     langClientPromise?: () => Promise<DiagramEditorLangClientInterface>;
-    getLangClient?: () => Promise<DiagramEditorLangClientInterface>;
+    getLangClient?: () => Promise<ExpressionEditorLangClientInterface>;
     filePath: string;
     currentFile?: {
         content: string,
@@ -56,8 +59,10 @@ const selectionReducer = (state: SelectionState, action: {type: ViewOption, payl
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
+    const { fnST, langClientPromise,getLangClient, filePath, currentFile, stSymbolInfo, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
+    const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
+
 
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
@@ -75,10 +80,12 @@ function DataMapperC(props: DataMapperProps) {
                 fnST,
                 selection,
                 langClientPromise,
+                getLangClient,
                 currentFile,
                 stSymbolInfo,
                 handleSelectedST,
-                applyModifications
+                applyModifications,
+                diagnostics
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context, selection);
@@ -90,6 +97,14 @@ function DataMapperC(props: DataMapperProps) {
             setNodes(nodeInitVisitor.getNodes());
         })();
     }, [selection, fnST]);
+
+    useEffect(() => {
+        async function generateDiagnostics() {
+            const diagnostics =  await handleDiagnostics(filePath, getLangClient)
+            setDiagnostics(diagnostics)
+        }
+        generateDiagnostics();
+    }, [fnST]);
 
     return (
         <>

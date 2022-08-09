@@ -11,7 +11,7 @@
  * associated services.
  */
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
+import { CodeAction, CodeActionParams, Diagnostic } from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
 import { BallerinaProjectParams } from "./lang-client-extended";
@@ -150,5 +150,8 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     ) => Thenable<PartialSTResponse>;
     getSymbolDocumentation: (
         params: SymbolInfoRequest
-    ) => Thenable<SymbolInfoResponse>
+    ) => Thenable<SymbolInfoResponse>;
+    codeAction: (
+        params: CodeActionParams
+    ) => Thenable<CodeAction[]> ;
 }
