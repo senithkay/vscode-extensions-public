@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Grid } from "@material-ui/core";
 import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
