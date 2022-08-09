@@ -28,7 +28,7 @@ import { basename, join } from "path";
 import { DebugProtocol } from "vscode-debugprotocol";
 import { BallerinaExtension, LANGUAGE } from "../core";
 import { DEBUG_REQUEST } from "../debugger";
-import { BAL_NOTEBOOK } from "./constants";
+import { BAL_NOTEBOOK, NOTEBOOK_CELL_SCHEME } from "./constants";
 import { getSmallerMax } from "./utils";
 
 let tmpDirectory: string;
@@ -43,7 +43,7 @@ export class NotebookDebuggerController {
 
     async startDebugging(): Promise<boolean> {
         let activeTextEditorUri = window.activeTextEditor!.document.uri;
-        if (activeTextEditorUri.scheme === 'vscode-notebook-cell') {
+        if (activeTextEditorUri.scheme === NOTEBOOK_CELL_SCHEME) {
             const balnotebook = workspace.notebookDocuments.find(nb => nb.uri.fsPath === activeTextEditorUri.fsPath);
             if (balnotebook) {
                 const sourceIndex = parseInt(activeTextEditorUri.fragment.replace("ch", ""));
@@ -55,6 +55,7 @@ export class NotebookDebuggerController {
         } else {
             return Promise.reject();
         }
+
         const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(activeTextEditorUri);
         const debugConfig: DebugConfiguration = await this.constructDebugConfig(activeTextEditorUri);
         runningNotebookDebug = true;
@@ -62,7 +63,7 @@ export class NotebookDebuggerController {
         debug.onDidChangeBreakpoints((breakpointChangeEvent) => {
             for (const addedBP of breakpointChangeEvent.added) {
                 if (addedBP instanceof SourceBreakpoint && !breakpointList.includes(addedBP)) {
-                    breakpointList.push(addedBP)
+                    breakpointList.push(addedBP);
                 };
             }
             for (const removedBP of breakpointChangeEvent.removed) {
@@ -118,7 +119,7 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
                 const outputEvent = <DebugProtocol.OutputEvent>event;
                 const compilationErr = "error: compilation contains errors";
                 if (runningNotebookDebug && outputEvent.body.output.includes(compilationErr)) {
-                    const compilationErrMsg = "Make sure to focus the cell needs to start debug."
+                    const compilationErrMsg = "Make sure to focus the cell needs to start debug.";
                     window.showInformationMessage(compilationErrMsg);
                 }
             }
@@ -148,7 +149,7 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
             handle: (request: DebugProtocol.Request) => {
                 const setBreakpointsArguments = <DebugProtocol.SetBreakpointsArguments>request.arguments;
                 const source = setBreakpointsArguments.source;
-                if (runningNotebookDebug && source?.path?.startsWith("vscode-notebook-cell")) {
+                if (runningNotebookDebug && source?.path?.startsWith(NOTEBOOK_CELL_SCHEME)) {
                     const breakpoints = setBreakpointsArguments.breakpoints ?? [];
                     breakpoints.forEach(breakpoint => {
                         breakpoint.line += debugCellInfoHandler?.getCellStartLine(source.path!)!;
@@ -178,7 +179,7 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
             handle: (request: DebugProtocol.Request) => {
                 const sourceArguments = <DebugProtocol.SourceArguments>request.arguments;
                 const source = sourceArguments.source;
-                if (source?.path?.startsWith("vscode-notebook-cell")) {
+                if (source?.path?.startsWith(NOTEBOOK_CELL_SCHEME)) {
                     source.path = tmpFile;
                 }
             }

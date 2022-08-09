@@ -32,7 +32,7 @@ import { BALLERINA_HOME } from '../core/preferences';
 import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
 import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient/node';
-import { BAL_NOTEBOOK, getTempFile } from '../notebook';
+import { BAL_NOTEBOOK, getTempFile, NOTEBOOK_CELL_SCHEME } from '../notebook';
 import fileUriToPath from 'file-uri-to-path';
 
 const BALLERINA_COMMAND = "ballerina.command";
@@ -87,7 +87,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     config.script = activeDoc.uri.fsPath;
     if (activeDoc.fileName.endsWith(BAL_NOTEBOOK)) {
         let activeTextEditorUri = activeDoc.uri;
-        if (activeTextEditorUri.scheme === 'vscode-notebook-cell') {
+        if (activeTextEditorUri.scheme === NOTEBOOK_CELL_SCHEME) {
             activeTextEditorUri = Uri.file(getTempFile());
             config.script = fileUriToPath(activeTextEditorUri.toString(true));
         } else {
@@ -95,7 +95,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         }
     }
 
-    if (activeDoc.uri.scheme !== 'vscode-notebook-cell') {
+    if (activeDoc.uri.scheme !== NOTEBOOK_CELL_SCHEME) {
         if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
             await ballerinaExtInstance.langClient.getBallerinaProject({
                 documentIdentifier: {
