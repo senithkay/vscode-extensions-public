@@ -1,10 +1,11 @@
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { DataMapperLinkModel } from "../Link/model/DataMapperLink";
-import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
+import { DataMapperLinkModel } from "../Link";
+import { ExpressionFunctionBodyNode, QueryExpressionNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { DataMapperPortModel } from "../Port/model/DataMapperPortModel";
+import { SelectClauseNode } from "../Node/SelectClause";
+import { DataMapperPortModel } from "../Port";
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
@@ -46,7 +47,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 
 		rhs = (STKindChecker.isRecordField(sourcePort.field)
 			? sourcePort.field.fieldName.value : "");
-		
+
 		if (sourcePort.parentFieldAccess) {
 			rhs = sourcePort.parentFieldAccess + "." + rhs;
 		}
@@ -61,6 +62,8 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			mappingConstruct = targetNode.value.expression as MappingConstructor;
 		} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
 			mappingConstruct = targetNode.value.selectClause.expression;
+		} else if (targetNode instanceof SelectClauseNode && STKindChecker.isMappingConstructor(targetNode.value.expression)) {
+			mappingConstruct = targetNode.value.expression;
 		}
 
 		// Inserting a new specific field
@@ -146,3 +149,12 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	}
 	return `${lhs} = ${rhs}`;
 }
+
+// TODO: Move below util to low-code-editor-commons
+export function isPositionsEquals(position1: NodePosition, position2: NodePosition): boolean {
+	return position1?.startLine === position2?.startLine &&
+		position1?.startColumn === position2?.startColumn &&
+		position1?.endLine === position2?.endLine &&
+		position1?.endColumn === position2?.endColumn;
+}
+

@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 
 import {
     DiagramEditorLangClientInterface,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
+import {
+    FunctionDefinition,
+    STNode,
+    traversNode,
+} from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
+import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
@@ -27,28 +32,64 @@ export interface DataMapperProps {
     applyModifications: (modifications: STModification[]) => void;
 }
 
+export enum ViewOption {
+    EXPAND,
+    COLLAPSE
+}
+
+export interface SelectionState {
+    selectedST: STNode;
+    prevST?: STNode[];
+}
+
+const selectionReducer = (state: SelectionState, action: {type: ViewOption, payload: SelectionState }) => {
+    if (action.type === ViewOption.EXPAND) {
+        const previousST = !!state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
+        return { selectedST: action.payload.selectedST, prevST: previousST };
+    }
+    if (action.type === ViewOption.COLLAPSE) {
+        const prevSelection = state.prevST.pop();
+        return { selectedST: prevSelection, prevST: [...state.prevST] };
+    }
+    return { selectedST: action.payload.selectedST };
+};
+
 function DataMapperC(props: DataMapperProps) {
 
     const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
+    const [selection, dispatchSelection] = useReducer(selectionReducer, {
+        selectedST: fnST,
+        prevST: []
+    });
+
+    const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState) => {
+        dispatchSelection({type: mode, payload: selectionState});
+    }
+
     useEffect(() => {
-        async function generateNodes() {
+        (async () => {
             const context = new DataMapperContext(
                 filePath,
                 fnST,
+                selection,
                 langClientPromise,
                 currentFile,
                 stSymbolInfo,
+                handleSelectedST,
                 applyModifications
             );
 
-            const nodeInitVisitor = new NodeInitVisitor(context);
-            traversNode(fnST, nodeInitVisitor);
+            const nodeInitVisitor = new NodeInitVisitor(context, selection);
+            let selectedST = selection.selectedST;
+            const visitor = new SelectedSTFindingVisitor(selectedST);
+            traversNode(fnST, visitor);
+            selectedST = visitor.getST();
+            traversNode(selectedST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
-        }
-        generateNodes();
-    }, [fnST, filePath]);
+        })();
+    }, [selection, fnST]);
 
     return (
         <>

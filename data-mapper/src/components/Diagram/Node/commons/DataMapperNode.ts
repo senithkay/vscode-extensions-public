@@ -52,6 +52,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	abstract initPorts(): void;
 	abstract initLinks(): void;
+	// extend this class to add link init, port init logics
 
 	protected addPorts(field: RecordField,
 		type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string, parent?: DataMapperPortModel) {
@@ -99,7 +100,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	protected genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
 		let foundMappings: FieldAccessToSpecificFied[] = [];
-		let currentFields = [...(parentFields ? parentFields : [])];
+		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
 			val.fields.forEach((field) => {
 				if (STKindChecker.isSpecificField(field)) {
