@@ -11,70 +11,84 @@ import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 const BAL_FILE_PATH = "service/add-service-to-empty-file.bal";
 
 describe('add a http service to an empty file', () => {
-  beforeEach(() => {
-    cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-  })
+    beforeEach(() => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
+    })
 
-  it('Add new service and resource', () => {
-    Canvas
-      .welcomeMessageShouldBeVisible()
-      .clickTopLevelPlusButton();
-    // Canvas
-    //   .welcomeMessageShouldBeVisible()
-    //   .clickTopLevelPlusButton();
-    // TopLevelPlusWidget.clickOption("Service");
-    // ServiceForm
-    //   .selectServiceType("HTTP")
-    //   .typeServicePath("/hello")
-    //   .clickDefineListenerline()
-    //   .typeListenerPort(9090)
-    //   .save();
-    // Canvas.clickTopLevelPlusButton(5);
-    // TopLevelPlusWidget.clickOption("Resource");
-    // ResourceForm
-    //   .selectMethod("GET")
-    //   .typePathName("world")
-    //   .save()
+    it('Add new service with resource', () => {
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
 
-    // Canvas.getService("/hello")
-    //   .shouldHaveResources(2)
+        TopLevelPlusWidget
+            .clickOption('Service');
 
-    // Canvas.getService("/hello")
-    //   .getResourceFunction("GET", "world")
-    //   .expand()
-    //   .shouldBeExpanded()
-    //   .getDiagram()
-    //   .shouldBeRenderedProperly()
-    //   .getBlockLevelPlusWidget()
-    //   .clickOption("HTTP");
+        ServiceForm
+            .save();
 
-    // HttpForm
-    //   .shouldBeVisible()
-    //   .waitForConnectorLoad()
-    //   .haveDefaultName()
-    //   .typeConnectionName("boo")
-    //   .typeUrl('"https://foo.com"')
-    //   .continueToInvoke()
-    //   .selectOperation("GET")
-    //   .typeOperationPath('"foo"')
-    //   .saveAndDone();
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-service.expected.bal");
+    });
 
-    // Canvas.getService("/hello")
-    //   .getResourceFunction("GET", "world")
-    //   .shouldBeExpanded()
-    //   .getDiagram()
-    //   .clickDefaultWorkerPlusBtn(2)
-    //   .getBlockLevelPlusWidget()
-    //   .clickOption("Log")
+    it('Add new service with different basepath and port number', () => {
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
 
-    // LogForm
-    //   .shouldBeVisible()
-    //   .selectType("Debug")
-    //   .typeExpression(`"This is a debug message."`)
-    //   .save();
+        TopLevelPlusWidget
+            .clickOption('Service');
 
-    // SourceCode.shouldBeEqualTo(
-    //   getCurrentSpecFolder() + "add-service.expected.bal");
-  })
+        ServiceForm
+            .typeServicePath('/hello')
+            .typeListenerPort(8080)
+            .save();
 
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-service-diff-port.expected.bal");
+    });
+
+    it('Edit service', () => {
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget
+            .clickOption('Service');
+
+        ServiceForm
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-service.expected.bal");
+
+        Canvas.getService('/').clickEdit();
+
+        ServiceForm
+            .typeServicePath('/hello')
+            .typeListenerPort(8080)
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-service-diff-port.expected.bal");
+    });
+
+    it('Delete service', () => {
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget
+            .clickOption('Service');
+
+        ServiceForm
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-service.expected.bal");
+
+        Canvas.getService('/').clickDelete();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "delete-service.expected.bal");
+    });
 })
