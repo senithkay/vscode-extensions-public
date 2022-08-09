@@ -311,7 +311,16 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                 });
             });
         }
-    },
+    },{
+        methodName: 'codeAction',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.codeAction(args[0]).then(result => {
+                consoleLog(start, 'codeAction');
+                return result;
+            });
+        }
+    }
     ];
 };
 
