@@ -72,7 +72,10 @@ export const Table: FunctionComponent<{
                                 ) : (
                                     value != null && (
                                         <pre
-                                            style={{ color: darkMode ? CODE_EDITOR_COLORS.WHITE : CODE_EDITOR_COLORS.DARKER }}
+                                            style={{ 
+                                                ...DEFAULT_FONT_STYLE,
+                                                color: darkMode ? CODE_EDITOR_COLORS.WHITE : CODE_EDITOR_COLORS.DARKER,
+                                            }}
                                         >
                                             {JSON.stringify(value, undefined, 2)}
                                         </pre>
