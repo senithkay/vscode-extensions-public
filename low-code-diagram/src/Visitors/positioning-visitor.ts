@@ -545,6 +545,10 @@ export class PositioningVisitor implements Visitor {
     private calculateStatementPosition(statements: STNode[], blockViewState: BlockViewState, height: number, index: number, epGap: number) {
         statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
+
+            // Assign cy of the expanded function to each statement
+            // statementViewState.expandOffSet += blockViewState.expandOffSet;
+
             statementViewState.bBox.cx = blockViewState.bBox.cx;
             statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
 
@@ -791,7 +795,12 @@ export class PositioningVisitor implements Visitor {
                         // to skip updating EP heights which less than the current EP height
                         mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy + statementViewState.action.trigger.h + DefaultConfig.connectorLine.gap;
                     }
-                    statementViewState.expandOffSet = blockViewState.expandOffSet;
+                    // let maxOffSet = 0;
+                    // endpoint.actions.forEach((action) => {
+                    //     if (action.expandOffSet > maxOffSet) {
+                    //         maxOffSet = action.expandOffSet;
+                    //     }
+                    // });
                     endpoint.actions.push(statementViewState);
                 }
 

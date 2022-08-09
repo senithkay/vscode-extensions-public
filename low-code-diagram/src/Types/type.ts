@@ -14,6 +14,7 @@ export interface Endpoint {
     firstAction?: StatementViewState;
     isExpandedPoint?: boolean;
     offsetValue?: number;
+    isParent?: boolean;
 }
 
 export interface TooltipContent {

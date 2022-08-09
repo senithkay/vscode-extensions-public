@@ -100,8 +100,8 @@ export function FunctionExpand(props: FunctionProps) {
         </>
 
         {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
-        {isInitPlusAvailable && <StartButton model={model} />}
-        {!isInitPlusAvailable && <StartButton model={model} />}
+        {/* {isInitPlusAvailable && <StartButton model={model} />}
+        {!isInitPlusAvailable && <StartButton model={model} />} */}
         {!isInitPlusAvailable && (
           <WorkerBody model={block} viewState={block.viewState} expandReadonly={true} />
         )}
@@ -125,7 +125,8 @@ export function FunctionExpand(props: FunctionProps) {
   return (
     <svg
       x={0}
-      y={xyProps.y + (PROCESS_SVG_HEIGHT / 4) * 3 - DefaultConfig.dotGap}
+      y={xyProps.y - (PROCESS_SVG_HEIGHT + DefaultConfig.dotGap)}
+      // y={xyProps.y + (PROCESS_SVG_HEIGHT / 4) * 3 - DefaultConfig.dotGap}
       // y={xyProps.y - expandViewX / 2}
       // x={expandViewX}
       className="expand-expression"
@@ -151,10 +152,11 @@ export function FunctionExpand(props: FunctionProps) {
         y={model.viewState.bBox.cy - (arrowSpaceX + arrowSpaceY)}
       > */}
       <rect
-        y={PROCESS_SVG_HEIGHT / 2}
+        y={PROCESS_SVG_HEIGHT + PROCESS_SVG_HEIGHT/2}
         x="40"
         width={blockWidth}
-        height={blockHeight - DefaultConfig.dotGap * 2}
+        height={blockHeight - (PROCESS_SVG_HEIGHT * 2 + DefaultConfig.dotGap * 2 + DefaultConfig.dotGap / 2)}
+        // height={blockHeight - DefaultConfig.dotGap * 2}
         rx="30"
         strokeDasharray={"0.3em"}
         strokeWidth={1}

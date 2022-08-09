@@ -19,6 +19,7 @@ import {
   IdentifierToken,
   ModulePart,
   STNode,
+  VisibleEndpoint,
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
@@ -33,6 +34,7 @@ import { FunctionExpand } from "../../RenderingComponents/FunctionExpand";
 import { HideFunctionSVG } from "./HideFunctionSVG";
 import { ShowFunctionSVG } from "./ShowFunctionSVG";
 import "./style.scss";
+import { Endpoint } from "../../../Types/type";
 
 export interface ShowFunctionBtnProps {
   x: number;
@@ -42,6 +44,9 @@ export interface ShowFunctionBtnProps {
   toolTipTitle?: string;
   isButtonDisabled?: boolean;
   createModifications?: (model: STNode) => STModification[];
+  setConfirmDialogActive?: any;
+  setFunctionBlock?: any;
+  isConfirmDialogActive?: boolean;
 }
 
 export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
@@ -60,12 +65,19 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
     toolTipTitle,
     isButtonDisabled,
     functionName,
+    setFunctionBlock,
+    setConfirmDialogActive,
+    isConfirmDialogActive,
     ...xyProps
   } = props;
 
-  const [isConfirmDialogActive, setConfirmDialogActive] = useState(false);
+  // const [isConfirmDialogActive, setConfirmDialogActive] = useState(false);
   const [isBtnActive, setBtnActive] = useState(true);
-  const [functionBlock, setFunctionBlock] = useState(undefined);
+  // const [functionBlock, setFunctionBlock] = useState(undefined);
+
+  const [connectorsState, setConnectorsState] = useState(undefined);
+  const [offSetValueState, setOffSetValueState] = useState(undefined);
+
   const nodeViewState: StatementViewState = model.viewState;
 
   useEffect(() => {
@@ -85,8 +97,11 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
   // }, [isDiagramFunctionExpanded]);
 
   const fetchDefinition = async () => {
+    const offsetValue = model.viewState.bBox.cy;
+    const parentConnectors = model.viewState.parentBlock.viewState.connectors as Map<string, Endpoint>;
     if (isConfirmDialogActive) {
       nodeViewState.functionNodeExpanded = false;
+      nodeViewState.functionNode = undefined;
       setConfirmDialogActive(false);
       diagramRedraw(recalculateSizingAndPositioning(initializeViewState(syntaxTree)));
     } else {
@@ -103,9 +118,19 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
           },
         };
         const funDef = await getFunctionDef(range, model.viewState.functionNodeFilePath);
+        
+        const expandST = funDef.syntaxTree as FunctionDefinition;
+        // const childVP = expandST.functionBody.VisibleEndpoints;
+        // if (childVP.length > 0) {
+        //   childVP.forEach(ep => {
+        //      const found = parentConnectors.get(ep.name);
+        //      if (!found || !found.actions.length) {
+        //       found.visibleEndpoint = ep;
+        //      }
+        //   });
+        // }
         // const offsetValue = model.viewState.bBox.cx;
-        const offsetValue = model.viewState.bBox.cy;
-        const sizedBlock = initializeViewState(funDef.syntaxTree, model.viewState.parentBlock.viewState.connectors, offsetValue) as FunctionDefinition;
+        const sizedBlock = initializeViewState(expandST, parentConnectors, offsetValue) as FunctionDefinition;
         sizedBlock.viewState.functionNodeFilePath = funDef.defFilePath;
         sizedBlock.viewState.functionNodeSource = sizedBlock.source;
         nodeViewState.functionNode = sizedBlock as FunctionDefinition;
@@ -144,13 +169,13 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
             )}
           </g>
 
-          {isConfirmDialogActive && functionBlock && (
+          {/* {isConfirmDialogActive && functionBlock && (
             <FunctionExpand
               model={functionBlock}
               hideHeader={true}
               {...xyProps}
             />
-          )}
+          )} */}
         </g>
       )}
     </g>

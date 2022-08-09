@@ -77,7 +77,7 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
         const mainEp: EndpointViewState = visibleEndpoint.viewState;
         mainEp.collapsed = value.firstAction?.collapsed;
 
-        if (haveParent || !value.isExpandedPoint) {
+        // if (haveParent || !value.isExpandedPoint) {
             if (!foundFirst) {
                 if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
                     mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
@@ -97,37 +97,45 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
             if (mainEp.isExternal) { // Render external endpoints align with the start element
                 mainEp.lifeLine.h += mainEp.lifeLine.cy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2));
                 mainEp.lifeLine.cy = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2);
-                if (mainEp.expandConnectorHeight > mainEp.lifeLine.h) {
-                    mainEp.lifeLine.h = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2) + mainEp.expandConnectorHeight - (mainEp.lifeLine.cy + 10);
+                const highCy = getHighestHeight(value.offsetValue, value.actions);
+                if (highCy > mainEp.lifeLine.h) {
+                    mainEp.lifeLine.h = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2) + highCy - (mainEp.lifeLine.cy + (PROCESS_SVG_HEIGHT * 3 ) + PROCESS_SVG_HEIGHT / 2);
                 }
             }
 
-            updateActionTriggerCx(mainEp.lifeLine.cx, value.actions, value.isExpandedPoint);
-        } else {
-            // When isExpanded is true
-            value.visibleEndpoint.viewState.expandConnectorHeight = getHigestHeight(value.actions);
-        }
+            updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
+        // } else {
+        //     // When isExpanded is true
+        //     value.visibleEndpoint.viewState.expandConnectorHeight = getHigestHeight(value.actions);
+        // }
     });
 }
 
-export function getHigestHeight(actions: StatementViewState[]) {
-    let maxOffSet = 0;
-    let maxActionCY = 0;
+export function getHighestHeight(offSet: number, actions: StatementViewState[]) {
+    // let maxOffSet = 0;
+    // let maxActionCY = 0;
+    let maxValue = 0;
+    const offSetValue = offSet;
     actions.forEach((action) => {
-        if (action.expandOffSet > maxOffSet) {
-            maxOffSet = action.expandOffSet;
-        }
-        if (action.action.trigger.cy > maxActionCY) {
-            maxActionCY = action.action.trigger.cy;
+        // if (action.expandOffSet > maxOffSet) {
+        //     maxOffSet = action.expandOffSet;
+        // }
+        // if (action.action.trigger.cy > maxActionCY) {
+        //     maxActionCY = action.action.trigger.cy;
+        // }
+        if (offSetValue && offSetValue > 0) {
+            const current  = offSetValue + action.action.trigger.cy;
+            if (current > maxValue) {
+                maxValue = current;
+            }
         }
     });
-    return maxOffSet + maxActionCY;
+    return maxValue;
 }
 
-export function updateActionTriggerCx(connectorCX: number, actions: StatementViewState[], isExpanded: boolean) {
+export function updateActionTriggerCx(connectorCX: number, actions: StatementViewState[]) {
     actions.forEach((action) => {
-        // const offset = isExpanded && action.expandOffSet > 0 ? action.expandOffSet  + 295 : 0;
-        action.action.trigger.cx = connectorCX;
+        action.action.trigger.cx = connectorCX;  
     });
 }
 

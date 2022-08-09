@@ -276,11 +276,16 @@ export class InitVisitor implements Visitor {
         this.parentConnectors?.forEach((parentEp: Endpoint, key: string) => {
             // TODO: Check all the conditions to map the correct endpoint
             const currentVp = this.allEndpoints?.get(key);
-            if (currentVp && parentEp.actions.length > 0 && parentEp.visibleEndpoint.moduleName === currentVp.visibleEndpoint.moduleName
+            if (currentVp && parentEp.visibleEndpoint.moduleName === currentVp.visibleEndpoint.moduleName
                 && parentEp.visibleEndpoint.orgName === currentVp.visibleEndpoint.orgName)
             {
                 node.viewState.expandOffSet = this.offsetValue;
                 parentEp.isExpandedPoint = true;
+                if (parentEp.offsetValue) {
+                    parentEp.offsetValue += this.offsetValue;
+                } else {
+                    parentEp.offsetValue = this.offsetValue;
+                }
                 this.allEndpoints.set(key, parentEp);
             }
         })
