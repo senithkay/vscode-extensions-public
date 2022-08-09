@@ -7,7 +7,7 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
-import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
+import { canConvertLinkToQueryExpr, generateQueryExpression, generateQueryExpressionNew } from '../Link/link-utils';
 import { FormFieldPortModel } from '../Port';
 import { STNodePortModel } from "../Port/model/STNodePortModel";
 
@@ -56,6 +56,26 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 				const fieldType = sourcePort.field.typeName;
 				if (STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
 					const querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, undefined);
+					console.log(querySrc);
+					if (link.value) {
+						const position = link.value.position as NodePosition;
+						const applyModification = props.model.context.applyModifications;
+						applyModification([{
+							type: "INSERT",
+							config: {
+								"STATEMENT": querySrc,
+							},
+							endColumn: position.endColumn,
+							endLine: position.endLine,
+							startColumn: position.startColumn,
+							startLine: position.startLine
+						}]);
+					}
+				}
+			} else if (sourcePort instanceof FormFieldPortModel) {
+				const field = sourcePort.field;
+				if (field.typeName === 'array' && field.memberType.typeName === 'record') {
+					const querySrc = generateQueryExpressionNew(link.value.source, field.memberType);
 					console.log(querySrc);
 					if (link.value) {
 						const position = link.value.position as NodePosition;

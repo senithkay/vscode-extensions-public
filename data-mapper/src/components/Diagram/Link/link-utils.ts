@@ -1,4 +1,5 @@
 import { PortModel } from "@projectstorm/react-diagrams-core";
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { RecordField, RecordTypeDesc, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { FormFieldPortModel } from "../Port/model/FormFieldPortModel";
@@ -28,6 +29,17 @@ export function generateQueryExpression(srcExpr: string, srcType: RecordTypeDesc
     return `from var item in ${srcExpr}
         select {
             ${srcFields.map((field, index) => `${field.fieldName.value}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
+        }
+    `
+}
+
+export function generateQueryExpressionNew(srcExpr: string, srcType: FormField) {
+
+    const srcFields = srcType.fields;
+
+    return `from var item in ${srcExpr}
+        select {
+            ${srcType.fields.map((field, index) => `${field.name}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
         }
     `
 }
