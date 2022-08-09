@@ -17,7 +17,7 @@ export async function getTypeDefinitionForTypeDesc(typeDesc: STNode,
     const isQualifiedNameReference = STKindChecker.isQualifiedNameReference(typeDesc);
     if (typeDesc && (isSimpleNameReference || isQualifiedNameReference)) {
         const { position } = isSimpleNameReference ? typeDesc : typeDesc.identifier;
-        const langClient = await context.getLangClient();
+        const langClient = await context.langClientPromise();
 
         const defReply = await langClient.definition({
             position: {
@@ -69,7 +69,7 @@ export async function getTypeDescForFieldName(fieldName: STNode, context: IDataM
         || STKindChecker.isStringLiteral(fieldName)))
     {
         const { position } = fieldName;
-        const langClient = await context.getLangClient();
+        const langClient = await context.langClientPromise();
 
         const defReply = await langClient.definition({
             position: {

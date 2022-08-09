@@ -8,8 +8,6 @@ import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { getTypeDescForFieldName } from "../../../utils/st-utils";
-import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
-import { DataMapperPortModel } from '../Port';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 

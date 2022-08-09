@@ -3,7 +3,6 @@ import md5 from "blueimp-md5";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDescForFieldName } from "../../../../utils/st-utils";
-import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { DataMapperPortModel, IntermediatePortModel } from "../../Port";
 import { getFieldNames } from "../../utils";
@@ -13,7 +12,6 @@ import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause
 import { RequiredParamNode } from "../RequiredParam";
 import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
 import { ExpressionLabelModel } from "../../Label";
-import { isNodeInRange } from "../../utils/ls-utils";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
