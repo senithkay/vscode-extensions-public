@@ -23,16 +23,20 @@ export class ListenerForm {
     }
 
     static clearListenername() {
-        ExpressionEditor
-            .getForField("Listener Name", this.selector)
-            .clear();
+        const typeInput = `{selectall}{del}`;
+        this.getForm()
+            .get('[data-testid="listener-name"]')
+            .type(typeInput);
+        this.getForm().wait(1000);
         return this;
     }
 
     static clearPortValue() {
-        ExpressionEditor
-            .getForField("Listener Port", this.selector)
-            .clear();
+        const typeInput = `{selectall}{del}`;
+        this.getForm()
+            .get('[data-testid="listener-port"]')
+            .type(typeInput);
+        this.getForm().wait(1000);
         return this;
     }
 

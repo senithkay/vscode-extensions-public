@@ -17,7 +17,7 @@ export class Listener {
 
     public clickEdit() {
         this.container.trigger('mouseover').within(() => {
-            cy.get('.listener-amendment-options .edit-btn-wrapper button').click();
+            cy.get('#edit-button').click({ force: true });
         })
     }
 }

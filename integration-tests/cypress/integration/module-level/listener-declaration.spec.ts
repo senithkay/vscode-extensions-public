@@ -25,7 +25,7 @@ describe('Listener', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     });
 
-    it.skip('Add and Edit Listener', () => {
+    it('Add and Edit Listener', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
