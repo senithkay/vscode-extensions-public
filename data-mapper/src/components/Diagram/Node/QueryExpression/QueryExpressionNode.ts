@@ -13,6 +13,8 @@ import { RequiredParamNode } from "../RequiredParam";
 import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
 import { ExpressionLabelModel } from "../../Label";
 
+import { filterDiagnostics } from "../../utils/ls-utils";
+
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
 export const QUERY_SOURCE_PORT_PREFIX = "queryExpr.source";
@@ -127,7 +129,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const targetPort = this.getPort(targetPortId);
                     const sourcePort = this.getPort(sourcePortId);
 
-                    const link = new DataMapperLinkModel(value, this.context.diagnostics);
+                    const link = new DataMapperLinkModel(value, filterDiagnostics( this.context.diagnostics, value.position));
                     link.setSourcePort(sourcePort);
                     link.setTargetPort(targetPort);
                     link.addLabel(new ExpressionLabelModel({
@@ -162,7 +164,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
 
         if (this.sourcePort && this.inPort) {
-            const link = new DataMapperLinkModel(undefined, this.context.diagnostics);
+            const link = new DataMapperLinkModel(undefined);
             link.setSourcePort(this.sourcePort);
             link.setTargetPort(this.inPort);
             link.registerListener({
@@ -204,7 +206,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             });
 
             if (targetPort) {
-                const link = new DataMapperLinkModel(undefined, this.context.diagnostics);
+                const link = new DataMapperLinkModel(undefined);
                 link.setSourcePort(this.outPort);
                 link.setTargetPort(targetPort);
                 link.registerListener({
