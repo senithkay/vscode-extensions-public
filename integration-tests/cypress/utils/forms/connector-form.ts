@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export class ConnectorForm {
+export class ConnectorMarketplace {
     private static marketplaceSelector = '[data-testid="log-form"]';
 
     static selectConnector(type: string) {

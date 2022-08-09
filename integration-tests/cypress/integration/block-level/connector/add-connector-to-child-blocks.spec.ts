@@ -1,27 +1,28 @@
+import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
 import { Canvas } from "../../../utils/components/canvas";
 import { SourceCode } from "../../../utils/components/code-view";
-import { getCurrentSpecFolder } from "../../../utils/file-utils";
-import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
-import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
-import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
 import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
+import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
+import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { ConnectorMarketplace } from "../../../utils/forms/connector-form";
+import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 
-const BAL_FILE_PATH = "block-level/connector/add-connector-to-function.bal";
+const BAL_FILE_PATH = "block-level/connector/add-connector-to-child-blocks.bal";
 
-describe('Add connector to function via Low Code', () => {
+describe('Add connector to child blocks via Low Code', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     });
 
-    it('Add http connector to function', () => {
+    it('Add connector to if block', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(0);
+            .clickIfConditionWorkerPlusBtn()
+            .getBlockLevelPlusWidget();
 
         BlockLevelPlusWidget.clickOption("Connector");
 
@@ -48,93 +49,17 @@ describe('Add connector to function via Low Code', () => {
             .save();
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-http-connector-to-function.expected.bal");
+            getCurrentSpecFolder() + "add-http-connector-to-if-block.expected.bal");
     });
 
-    it('Add google sheet connector to function', () => {
-
-        cy.exec('bal pull ballerinax/googleapis.sheets', { failOnNonZeroExit: false }).then((result) => {
-            cy.log('Package pull results: ' + JSON.stringify(result));
-        });
-
+    it('Add connector to foreach block', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(0);
-
-        BlockLevelPlusWidget.clickOption("Connector");
-
-        ConnectorMarketplace
-            .shouldBeVisible()
-            .waitForConnectorsLoading()
-            .searchConnector("sheet")
-            .waitForConnectorsLoading()
-            .selectConnector("google sheets");
-
-        StatementEditor
-            .shouldBeVisible()
-            .getEditorPane();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("StringLiteral")
-            .doubleClickExpressionContent('""');
-
-        InputEditor
-            .typeInput('"foo"');
-
-        StatementEditor
-            .save();
-
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-sheet-connector-to-function.expected.bal");
-    });
-
-    it('Add mysql connector to function', () => {
-
-        cy.exec('bal pull ballerinax/mysql', { failOnNonZeroExit: false }).then((result) => {
-            cy.log('Package pull results: ' + JSON.stringify(result));
-        });
-        cy.exec('bal pull ballerinax/mysql.driver', { failOnNonZeroExit: false }).then((result) => {
-            cy.log('Package pull results: ' + JSON.stringify(result));
-        });
-
-        Canvas.getFunction("myfunction")
-            .nameShouldBe("myfunction")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(0);
-
-        BlockLevelPlusWidget.clickOption("Connector");
-
-        ConnectorMarketplace
-            .shouldBeVisible()
-            .waitForConnectorsLoading()
-            .searchConnector("mysql")
-            .waitForConnectorsLoading()
-            .selectConnector("mysql / client");
-
-        StatementEditor
-            .shouldBeVisible()
-            .getEditorPane();
-
-        StatementEditor
-            .save();
-
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-mysql-connector-to-function.expected.bal");
-    });
-
-    it('Open and Close Form', () => {
-        Canvas.getFunction("myfunction")
-            .nameShouldBe("myfunction")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(0);
+            .clickForEachWorkerPlusBtn()
+            .getBlockLevelPlusWidget();
 
         BlockLevelPlusWidget.clickOption("Connector");
 
@@ -147,6 +72,57 @@ describe('Add connector to function via Low Code', () => {
 
         StatementEditor
             .shouldBeVisible()
-            .close();
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("StringLiteral")
+            .doubleClickExpressionContent('""');
+
+        InputEditor
+            .typeInput('"https://foo.com"');
+
+        StatementEditor
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-http-connector-to-foreach-block.expected.bal");
+    });
+
+    it('Add connector to while block', () => {
+        Canvas.getFunction("myfunction")
+            .nameShouldBe("myfunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickWhileWorkerPlusBtn()
+            .getBlockLevelPlusWidget();
+
+        BlockLevelPlusWidget.clickOption("Connector");
+
+        ConnectorMarketplace
+            .shouldBeVisible()
+            .waitForConnectorsLoading()
+            .searchConnector("http")
+            .waitForConnectorsLoading()
+            .selectConnector("http / client");
+
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("StringLiteral")
+            .doubleClickExpressionContent('""');
+
+        InputEditor
+            .typeInput('"https://foo.com"');
+
+        StatementEditor
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-http-connector-to-while-block.expected.bal");
     });
 });
