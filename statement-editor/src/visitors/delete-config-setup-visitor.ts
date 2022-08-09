@@ -23,7 +23,7 @@ import {
     QueryExpression,
     QueryPipeline,
     RecordField,
-    RecordFieldWithDefaultValue,
+    RecordFieldWithDefaultValue, ReturnStatement,
     SimpleNameReference,
     STNode,
     TupleTypeDesc,
@@ -60,6 +60,12 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitAssignmentStatement(node: AssignmentStatement) {
         (node.varRef.viewState as StatementEditorViewState).exprNotDeletable = true;
+    }
+
+    public beginVisitReturnStatement(node: ReturnStatement) {
+        if (node.expression){
+            (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
+        }
     }
 
     public beginVisitTupleTypeDesc(node: TupleTypeDesc) {

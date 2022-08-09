@@ -32,6 +32,7 @@ import {
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
+    SimpleNameReference,
     SpecificField,
     STKindChecker,
     STNode,
@@ -104,8 +105,8 @@ class ExpressionDeletingVisitor implements Visitor {
             if (isPositionsEquals(this.deletePosition, node.expression.position)) {
                 this.setProperties(DEFAULT_EXPR, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.methodName.position)) {
-                this.setProperties(DEFAULT_EXPR, {
-                    ...node.methodName.position,
+                this.setProperties('', {
+                    ...node.dotToken.position,
                     endColumn: node.closeParenToken.position.endColumn
                 });
             } else {
@@ -116,6 +117,14 @@ class ExpressionDeletingVisitor implements Visitor {
                 if (hasArgToBeDeleted) {
                     this.setProperties(DEFAULT_EXPR, this.deletePosition);
                 }
+            }
+        }
+    }
+
+    public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
+        if (!this.isNodeFound){
+            if (STKindChecker.isReturnStatement(node.parent)){
+                this.setProperties("", node.position);
             }
         }
     }
