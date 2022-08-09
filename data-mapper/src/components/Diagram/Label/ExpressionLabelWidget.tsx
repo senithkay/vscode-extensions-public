@@ -8,7 +8,8 @@ import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
-import { DataMapperPortModel } from '../Port';
+import { FormFieldPortModel } from '../Port';
+import { STNodePortModel } from "../Port/model/STNodePortModel";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 
@@ -44,11 +45,15 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const onClickConvertToQuery = () => {
 		if (canUseQueryExpr) {
 			const link = props.model.link;
-			const sourcePort = link.getSourcePort() as DataMapperPortModel;
-			const targetPort = link.getTargetPort() as DataMapperPortModel;
+			const sourcePort = link.getSourcePort() instanceof FormFieldPortModel
+				? link.getSourcePort() as FormFieldPortModel
+				: link.getSourcePort() as STNodePortModel;
+			const targetPort = link.getTargetPort() instanceof FormFieldPortModel
+				? link.getTargetPort() as FormFieldPortModel
+				: link.getTargetPort() as STNodePortModel;
 
-			if (STKindChecker.isRecordField(sourcePort.fieldNode)) {
-				const fieldType = sourcePort.fieldNode.typeName;
+			if (sourcePort instanceof STNodePortModel && STKindChecker.isRecordField(sourcePort.field)) {
+				const fieldType = sourcePort.field.typeName;
 				if (STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
 					const querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, undefined);
 					console.log(querySrc);
@@ -72,10 +77,10 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		}
 	};
 
-	const onClickDelete= () => {
-		//TODO implement the delete link logic
+	const onClickDelete = () => {
+		// TODO implement the delete link logic
 	};
-	
+
 	React.useEffect(() => {
 		const link = props.model.link;
 		link.registerListener({
@@ -88,7 +93,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 	return (
 		<S.Label>
-			{editable && 
+			{editable &&
 				<input
 
 					size={str.length}
@@ -99,7 +104,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 						zIndex: 1000,
 						border: "1px solid #5567D5"
 					}}
-					autoFocus
+					autoFocus={true}
 					value={str}
 					onChange={(event) => {
 						const newVal = event.target.value;
@@ -110,10 +115,10 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 						props.model.value = newVal;
 					}}
 					onKeyUp={(evt) => {
-							if(evt.key === "Escape") {
+							if (evt.key === "Escape") {
 								setEditable(false);
 							}
-							if(evt.key === "Enter") {
+							if (evt.key === "Enter") {
 								props.model.updateSource();
 							}
 						}
@@ -124,7 +129,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			<S.ActionsContainer>
 				<span style={{display: "flex", alignItems: "center"}}>
 					<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}</div>
-					<div>{!editable && linkSelected && canUseQueryExpr && 
+					<div>{!editable && linkSelected && canUseQueryExpr &&
 							(
 						        <Tooltip title={"Make Query"} placement="top" arrow={true}>
 									<QueryBuilderOutlinedIcon onClick={onClickConvertToQuery} />

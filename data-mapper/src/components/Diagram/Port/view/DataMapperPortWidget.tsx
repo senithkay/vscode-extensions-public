@@ -6,10 +6,12 @@ import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 
 import Brightness1 from '@material-ui/icons/Brightness1';
 import { IntermediatePortModel } from "../IntermediatePort";
+import { STNodePortModel } from "../model/STNodePortModel";
+import { FormFieldPortModel } from "../model/FormFieldPortModel";
 
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
-	port: DataMapperPortModel|IntermediatePortModel;
+	port: DataMapperPortModel | IntermediatePortModel | STNodePortModel | FormFieldPortModel;
 }
 
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {

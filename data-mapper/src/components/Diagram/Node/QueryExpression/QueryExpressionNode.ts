@@ -10,6 +10,7 @@ import { getFieldNames, getParamForName } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { RequiredParamNode } from "../RequiredParam";
+import {STNodePortModel} from "../../Port/model/STNodePortModel";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -187,9 +188,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             const ports = Object.entries(targetNode.getPorts());
             const targetPort = ports.find((entry) => {
                 const port = entry[1];
-                if (port instanceof DataMapperPortModel) {
-                    if (STKindChecker.isRecordField(port.fieldNode)) {
-                        if (port.fieldNode.fieldName.value === "Assets") {
+                if (port instanceof STNodePortModel) {
+                    if (STKindChecker.isRecordField(port.field)) {
+                        if (port.field.fieldName.value === "Assets") {
                             return true;
                         }
                     }

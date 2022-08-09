@@ -1,10 +1,12 @@
+import {PortModel} from "@projectstorm/react-diagrams-core";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperLinkModel } from "../Link/model/DataMapperLink";
-import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
+import { ExpressionFunctionBodyNode, QueryExpressionNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { DataMapperPortModel } from "../Port/model/DataMapperPortModel";
+import { FormFieldPortModel } from "../Port";
+import {STNodePortModel} from "../Port/model/STNodePortModel";
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
@@ -42,9 +44,13 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	let rhs = "";
 	const modifications: STModification[] = [];
 	if (link.getSourcePort()) {
-		const sourcePort = link.getSourcePort() as DataMapperPortModel;
+		const sourcePort = link.getSourcePort() instanceof FormFieldPortModel
+			? link.getSourcePort() as FormFieldPortModel
+			: link.getSourcePort() as STNodePortModel;
 
-		rhs = sourcePort.field;
+		rhs = sourcePort instanceof FormFieldPortModel
+			? sourcePort.field.name
+			: sourcePort.field.fieldName.value;
 
 		if (sourcePort.parentFieldAccess) {
 			rhs = sourcePort.parentFieldAccess + "." + rhs;
@@ -52,7 +58,9 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	}
 
 	if (link.getTargetPort()) {
-		const targetPort = link.getTargetPort() as DataMapperPortModel;
+		const targetPort = link.getTargetPort() instanceof FormFieldPortModel
+			? link.getTargetPort() as FormFieldPortModel
+			: link.getTargetPort() as STNodePortModel;
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
 
 		let mappingConstruct;
@@ -63,11 +71,17 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 		}
 
 		// Inserting a new specific field
-		lhs = targetPort.field;
+		lhs = targetPort instanceof FormFieldPortModel
+			? targetPort.field.name
+			: targetPort.field.fieldName.value;
+
 		const parentFieldNames: string[] = [];
 		let parent = targetPort.parentModel;
 		while (parent != null) {
-			parentFieldNames.push(parent.field);
+			const parentField = parent instanceof FormFieldPortModel
+				? parent.field.name
+				: parent.field.fieldName.value;
+			parentFieldNames.push(parentField);
 			parent = parent.parentModel;
 		}
 		if (mappingConstruct) {
@@ -125,20 +139,20 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 		}
 
 		// Handle this for query expressions
-		// if (STKindChecker.isSpecificField(targetPort.fieldNode)) {
-		// 	// Inserting just the valueExpr (RHS) to already available specific field in a mapping constructor
-		// 	const targetPos = targetPort.fieldNode.valueExpr.position as NodePosition;
-		// 	modifications.push({
-		// 		type: "INSERT",
-		// 		config: {
-		// 			"STATEMENT": rhs,
-		// 		},
-		// 		endColumn: targetPos.endColumn,
-		// 		endLine: targetPos.endLine,
-		// 		startColumn: targetPos.startColumn,
-		// 		startLine: targetPos.startLine
-		// 	});
-		// }
+		if (targetPort instanceof STNodePortModel && STKindChecker.isSpecificField(targetPort.field)) {
+			// Inserting just the valueExpr (RHS) to already available specific field in a mapping constructor
+			const targetPos = targetPort.field.valueExpr.position as NodePosition;
+			modifications.push({
+				type: "INSERT",
+				config: {
+					"STATEMENT": rhs,
+				},
+				endColumn: targetPos.endColumn,
+				endLine: targetPos.endLine,
+				startColumn: targetPos.startColumn,
+				startLine: targetPos.startLine
+			});
+		}
 		targetNode.context.applyModifications(modifications);
 	}
 	return `${lhs} = ${rhs}`;

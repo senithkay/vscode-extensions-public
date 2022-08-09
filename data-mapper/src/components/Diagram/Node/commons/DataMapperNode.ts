@@ -12,6 +12,8 @@ import {
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 import { DataMapperPortModel } from '../../Port';
+import { FormFieldPortModel } from "../../Port/model/FormFieldPortModel";
+import { STNodePortModel } from "../../Port/model/STNodePortModel";
 import { RecordTypeDescriptorStore } from '../../utils/record-type-descriptor-store';
 
 export interface DataMapperNodeModelGenerics {
@@ -54,11 +56,12 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initLinks(): void;
 
 	protected addPorts(field: RecordField,
-		type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string, parent?: DataMapperPortModel) {
+		                  type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string, parent?: STNodePortModel) {
 		const fieldId = `${parentId}.${field.fieldName.value}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.fieldName.value}`;
 		if (STKindChecker.isRecordField(field)) {
-			const fieldPort = new DataMapperPortModel(field.fieldName.value, type, parentId, field, parentFieldAccessExpr, parent);
+			// const fieldPort = new DataMapperPortModel(field.fieldName.value, type, parentId, field, parentFieldAccessExpr, parent);
+			const fieldPort = new STNodePortModel(field, type, parentId, parentFieldAccessExpr, parent);
 			this.addPort(fieldPort)
 			if (STKindChecker.isRecordTypeDesc(field.typeName)) {
 				field.typeName.fields.forEach((subField) => {
@@ -82,10 +85,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForSpecificField(field: SpecificField,
-		type: "IN" | "OUT", parentId: string, parent?: DataMapperPortModel) {
+		                                  type: "IN" | "OUT", parentId: string, parent?: STNodePortModel) {
 		const fieldId = `${parentId}.${field.fieldName.value}`;
 		if (STKindChecker.isSpecificField(field)) {
-			const fieldPort = new DataMapperPortModel(field.fieldName.value, type, parentId, field, "", parent);
+			const fieldPort = new STNodePortModel(field, type, parentId, "", parent);
 			this.addPort(fieldPort)
 			if (STKindChecker.isMappingConstructor(field.valueExpr)) {
 				field.valueExpr.fields.forEach((subField) => {
@@ -98,10 +101,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForField(field: FormField, type: "IN" | "OUT", parentId: string,
-							   parentFieldAccessExpr?: string, parent?: DataMapperPortModel) {
+							                     parentFieldAccessExpr?: string, parent?: FormFieldPortModel) {
 		const fieldId = `${parentId}.${field.name}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.name}`;
-		const fieldPort = new DataMapperPortModel(field.name, type, parentId, undefined, parentFieldAccessExpr, parent);
+		const fieldPort = new FormFieldPortModel(field, type, parentId, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
 		if (field.typeName === 'record') {
 			field.fields.forEach((subField) => {

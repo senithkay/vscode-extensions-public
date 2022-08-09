@@ -19,7 +19,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DataMapperPortModel, DataMapperPortWidget } from "../../../Port";
+import { DataMapperPortModel, DataMapperPortWidget, FormFieldPortModel, STNodePortModel } from "../../../Port";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -84,7 +84,7 @@ export interface RecordFieldTreeItemWidgetNewProps {
     parentId: string;
     field: FormField;
     engine: DiagramEngine;
-    getPort: (portId: string) => DataMapperPortModel;
+    getPort: (portId: string) => DataMapperPortModel | STNodePortModel | FormFieldPortModel;
     treeDepth?: number;
 }
 

@@ -6,7 +6,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
-import { DataMapperPortModel } from '../../Port';
+import { FormFieldPortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidgetNew } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidgetNew";
 
@@ -25,7 +25,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<Expressi
 				engine={this.engine}
 				id="exprFunctionBody"
 				typeDesc={event.model.typeDefNew}
-				getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
+				getPort={(portId: string) => event.model.getPort(portId) as FormFieldPortModel}
 			/>
 		);
 	}

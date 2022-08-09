@@ -1,12 +1,12 @@
 import { LinkModel, PortModel, PortModelGenerics } from '@projectstorm/react-diagrams';
-import { RecordField, SpecificField } from '@wso2-enterprise/syntax-tree';
 
-import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
+import { DataMapperLinkModel } from '../../Link';
 import { createSpecificFieldSource } from '../../utils/dm-utils';
 export interface DataMapperNodeModelGenerics {
 	PORT: DataMapperPortModel;
 }
-export const PORT_TYPE_ID = "datamapper-port";
+
+export const PORT_TYPE_ID = "form-field-port";
 
 export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMapperNodeModelGenerics> {
 
@@ -14,7 +14,6 @@ export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMappe
 		public field: string,
 		public portType: "IN" | "OUT",
 		public parentId: string,
-		public fieldNode?: RecordField | SpecificField,
 		public parentFieldAccess?: string,
 		public parentModel?: DataMapperPortModel) {
 		super({
