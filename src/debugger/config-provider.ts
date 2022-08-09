@@ -18,10 +18,8 @@
  */
 
 import {
-    DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration,
-    debug, ExtensionContext, window, commands,
-    DebugSession,
-    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri
+    DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, debug, ExtensionContext, window, commands,
+    DebugSession, DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -29,7 +27,10 @@ import * as path from "path";
 import { ballerinaExtInstance, BallerinaExtension, LANGUAGE } from '../core';
 import { BallerinaProject, ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
-import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
+import {
+    TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException,
+    CMP_NOTEBOOK, TM_EVENT_START_NOTEBOOK_DEBUG
+} from '../telemetry';
 import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
 import { ExecutableOptions } from 'vscode-languageclient/node';
 import { BAL_NOTEBOOK, getTempFile, NOTEBOOK_CELL_SCHEME } from '../notebook';
@@ -86,6 +87,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 
     config.script = activeDoc.uri.fsPath;
     if (activeDoc.fileName.endsWith(BAL_NOTEBOOK)) {
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_NOTEBOOK_DEBUG, CMP_NOTEBOOK);
         let activeTextEditorUri = activeDoc.uri;
         if (activeTextEditorUri.scheme === NOTEBOOK_CELL_SCHEME) {
             activeTextEditorUri = Uri.file(getTempFile());
@@ -118,7 +120,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
             ballerinaExtInstance.showMessageInvalidFile();
             return Promise.reject();
         }
-    
+
         let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         if (langClient.initializeResult) {
             const { experimental } = langClient.initializeResult!.capabilities;

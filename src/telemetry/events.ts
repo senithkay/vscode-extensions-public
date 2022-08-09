@@ -101,3 +101,4 @@ export const TM_EVENT_RUN_NOTEBOOK_BAL_CMD = "notebook.run.bal.cmd";
 export const TM_EVENT_RESTART_NOTEBOOK = "notebook.restart";
 export const TM_EVENT_OPEN_VARIABLE_VIEW = "notebook.variable-view.open";
 export const TM_EVENT_UPDATE_VARIABLE_VIEW = "notebook.variable-view.update";
+export const TM_EVENT_START_NOTEBOOK_DEBUG = "notebook.start.debug";
