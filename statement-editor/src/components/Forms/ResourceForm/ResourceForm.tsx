@@ -84,10 +84,6 @@ export function ResourceForm(props: FunctionProps) {
         id: "lowcode.develop.apiConfigWizard.httpMethod.title",
         defaultMessage: "HTTP Method"
     });
-    const pathTitle = intl.formatMessage({
-        id: "lowcode.develop.apiConfigWizard.path.title",
-        defaultMessage: "Path"
-    });
     const saveButtonText = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.saveButton.text",
         defaultMessage: "Save"
@@ -192,7 +188,7 @@ export function ResourceForm(props: FunctionProps) {
         setCurrentComponentName("Path");
     }
 
-    const handlePathChange = async (value: string, avoidValueCommit?: boolean) => {
+    const handlePathChange = async (value: string) => {
         // if (!avoidValueCommit) {
         //     setPath(value);
         // }
@@ -206,14 +202,8 @@ export function ResourceForm(props: FunctionProps) {
     };
     const debouncedPathChange = debounce(handlePathChange, 800);
 
-    const handlePathParamEditorChange = async (value: string, avoidValueCommit?: boolean) => {
-        // if (!avoidValueCommit) {
-        //     setPath(value);
-        // }
-        setCurrentComponentName("PathParam");
-    };
 
-    const handleParamEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string, avoidValueCommit?: boolean) => {
+    const handleParamEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
         // if (!avoidValueCommit) {
         //     setQueryParam(value);
         // }
