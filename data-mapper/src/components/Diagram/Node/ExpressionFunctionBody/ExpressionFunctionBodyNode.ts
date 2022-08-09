@@ -6,7 +6,7 @@ import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortModel } from "../../Port";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { getFieldNames } from "../../utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
 
@@ -100,24 +100,25 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 	}
 
 	private getOutputPortForField(fields: SpecificField[]) {
-		let nextTypeNode = this.typeDef.typeDescriptor as RecordTypeDesc;
-		let recField: RecordField;
+		let nextTypeNode = this.typeDefNew;
+		let recField: FormField;
 		let portIdBuffer = "exprFunctionBody";
 		for (let i = 0; i < fields.length; i++) {
 			const specificField = fields[i];
 			portIdBuffer += `.${specificField.fieldName.value}`
 			const recFieldTemp = nextTypeNode.fields.find(
-				(recF) => STKindChecker.isRecordField(recF) && recF.fieldName.value === specificField.fieldName.value);
+				(recF) => recF.name === specificField.fieldName.value);
 			if (recFieldTemp) {
 				if (i === fields.length - 1) {
-					recField = recFieldTemp as RecordField;
-				} else if (STKindChecker.isRecordTypeDesc(recFieldTemp.typeName)){
-					nextTypeNode = recFieldTemp.typeName
-				} else if (STKindChecker.isSimpleNameReference(recFieldTemp.typeName)){
-					const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-					const typeDef = recordTypeDescriptors.gettypeDescriptor(recFieldTemp.typeName.name.value)
-					nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
+					recField = recFieldTemp;
+				} else if (recFieldTemp.typeName === 'record') {
+					nextTypeNode = recFieldTemp
 				}
+				// else if (STKindChecker.isSimpleNameReference(recFieldTemp.typeName)){
+				// 	const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+				// 	const typeDef = recordTypeDescriptors.gettypeDescriptor(recFieldTemp.typeName.name.value)
+				// 	nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
+				// }
 			}
 		}
 		if (recField) {
@@ -128,36 +129,37 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 	}
 
 	// Improve to return multiple ports for complex expressions
-	private getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess|SimpleNameReference): DataMapperPortModel {
-		// const typeDesc = node.typeDef.typeDescriptor;
-		// let portIdBuffer = node.value.paramName.value;
-		// if (STKindChecker.isRecordTypeDesc(typeDesc)) {
-		// 	if (STKindChecker.isFieldAccess(expr)) {
-		// 		const fieldNames = getFieldNames(expr);
-		// 		let nextTypeNode: RecordTypeDesc = typeDesc;
-		// 		for (let i = 1; i < fieldNames.length; i++) { // Note i = 1 as we omit param name
-		// 			const fieldName = fieldNames[i];
-		// 			portIdBuffer += `.${fieldName}`;
-		// 			const recField = nextTypeNode.fields.find(
-		// 				(field) => STKindChecker.isRecordField(field) && field.fieldName.value === fieldName);
-		// 			if (recField) {
-		// 				if (i === fieldNames.length - 1) {
-		// 					const portId = portIdBuffer + ".OUT";
-		// 					const port = (node.getPort(portId) as DataMapperPortModel);
-		// 					return port;
-		// 				} else if (STKindChecker.isRecordTypeDesc(recField.typeName)) {
-		// 					nextTypeNode = recField.typeName;
-		// 				} else if (STKindChecker.isSimpleNameReference(recField.typeName) ){
-		// 					const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-		// 					const typeDef = recordTypeDescriptors.gettypeDescriptor(recField.typeName.name.value)
-		// 					nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
-		// 				}
-		// 			}
-		// 		}
-		// 	} else {
-		// 		// handle this when direct mapping parameters is enabled
-		// 	}
-		// }
+	private getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess | SimpleNameReference): DataMapperPortModel {
+		const typeDesc = node.typeDefNew;
+		let portIdBuffer = node.value.paramName.value;
+		if (typeDesc.typeName === 'record') {
+			if (STKindChecker.isFieldAccess(expr)) {
+				const fieldNames = getFieldNames(expr); // input.Assets.AssetsNew
+				let nextTypeNode: FormField = typeDesc;
+				for (let i = 1; i < fieldNames.length; i++) { // Note i = 1 as we omit param name // Assets.AssetsNew
+					const fieldName = fieldNames[i]; // Assets // AssetsNew
+					portIdBuffer += `.${fieldName}`; // input.Assets  // input.Assets.AssetsNew
+					const recField = nextTypeNode.fields.find(
+						(field) => field.name === fieldName);  // record {..., record {...} AssetsNew, ...} Assets  //  record {...} AssetsNew
+					if (recField) {
+						if (i === fieldNames.length - 1) {
+							const portId = portIdBuffer + ".OUT"; // input.Assets.AssetsNew.OUT
+							const port = (node.getPort(portId) as DataMapperPortModel);
+							return port;
+						} else if (recField.typeName === 'record') {
+							nextTypeNode = recField; // record {..., record {...} AssetsNew, ...}
+						}
+						// else if (STKindChecker.isSimpleNameReference(recField.typeName) ){
+						// 	const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+						// 	const typeDef = recordTypeDescriptors.gettypeDescriptor(recField.typeName.name.value)
+						// 	nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
+						// }
+					}
+				}
+			} else {
+				// handle this when direct mapping parameters is enabled
+			}
+		}
 		return null;
 	}
 
