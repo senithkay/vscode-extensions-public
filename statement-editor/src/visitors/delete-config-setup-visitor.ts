@@ -12,13 +12,13 @@
  */
 import {
     AssignmentStatement,
-    BinaryExpression,
+    BinaryExpression, FunctionCall,
     IdentifierToken,
     KeySpecifier,
     LetVarDecl,
     LimitClause,
     ListConstructor,
-    MappingConstructor,
+    MappingConstructor, MethodCall,
     OrderKey,
     QueryExpression,
     QueryPipeline,
@@ -88,6 +88,18 @@ class DeleteConfigSetupVisitor implements Visitor {
                 (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
             });
         }
+    }
+
+    public beginVisitMethodCall(node: MethodCall) {
+        node.arguments.map((args: STNode) => {
+            (args.viewState as StatementEditorViewState).templateExprDeletable = true;
+        });
+    }
+
+    public beginVisitFunctionCall(node: FunctionCall) {
+        node.arguments.map((args: STNode) => {
+            (args.viewState as StatementEditorViewState).templateExprDeletable = true;
+        });
     }
 
     public beginVisitOrderKey(node: OrderKey) {

@@ -131,7 +131,7 @@ export function ParameterList(props: ParameterListProps) {
                     {paramDocumentation.parameters?.map((param: ParameterInfo, value: number) => (
                             <>
                                 {param.kind === SymbolParameterType.REQUIRED ? (
-                                    <RequiredArg param={param} value={value}/>
+                                    <RequiredArg param={param} value={value} handleCheckboxClick={handleCheckboxClick}/>
                                 ) : (
                                     <>
                                         {param.kind === SymbolParameterType.INCLUDED_RECORD ? (

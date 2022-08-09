@@ -115,7 +115,18 @@ class ExpressionDeletingVisitor implements Visitor {
                 });
 
                 if (hasArgToBeDeleted) {
-                    this.setProperties(DEFAULT_EXPR, this.deletePosition);
+                    const expressions: string[] = [];
+                    node.arguments.map((expr: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(','), {
+                        ...node.position,
+                        startColumn: node.openParenToken.position.endColumn,
+                        endColumn: node.closeParenToken.position.startColumn
+                    });
                 }
             }
         }
@@ -234,7 +245,18 @@ class ExpressionDeletingVisitor implements Visitor {
             });
 
             if (hasArgToBeDeleted) {
-                this.setProperties(DEFAULT_EXPR, this.deletePosition);
+                const expressions: string[] = [];
+                node.arguments.map((expr: STNode) => {
+                    if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                        expressions.push(expr.source);
+                    }
+                });
+
+                this.setProperties(expressions.join(','), {
+                    ...node.position,
+                    startColumn: node.openParenToken.position.endColumn,
+                    endColumn: node.closeParenToken.position.startColumn
+                });
             }
         }
     }
