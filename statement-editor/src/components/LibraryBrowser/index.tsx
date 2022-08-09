@@ -197,7 +197,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                     <Input
                         id={"searchKeyword"}
                         className={stmtEditorHelperClasses.librarySearchBox}
-                        autoFocus={false}
+                        autoFocus={true}
                         placeholder={`search in ${searchScope}`}
                         onChange={debounceLibrarySearch}
                         endAdornment={(
