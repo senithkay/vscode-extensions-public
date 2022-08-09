@@ -75,7 +75,7 @@ export function ActionList(props: FormGeneratorProps) {
     };
 
     return (
-        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="action-list-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
                 onBack={handleOnBack}
@@ -86,7 +86,7 @@ export function ActionList(props: FormGeneratorProps) {
                 <div className={formClasses.formFeilds}>
                     <div className={classes.container}>
                         {isLoading && (
-                            <Box display="flex" justifyContent="center">
+                            <Box data-testid="action-list-loader" display="flex" justifyContent="center">
                                 <TextPreLoader position="absolute" text="Fetching actions..." />
                             </Box>
                         )}
@@ -114,7 +114,7 @@ export function ActionList(props: FormGeneratorProps) {
                                         defaultMessage="Select an action"
                                     />
                                 </Typography>
-                                <div className={classes.actionList}>
+                                <div data-testid="action-list" className={classes.actionList}>
                                     <List>{actionElementList}</List>
                                 </div>
                             </>

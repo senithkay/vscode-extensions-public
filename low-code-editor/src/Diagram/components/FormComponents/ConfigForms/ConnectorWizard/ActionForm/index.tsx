@@ -105,7 +105,7 @@ export function ActionForm(props: FormGeneratorProps) {
     return (
         <>
             {isLoading && (
-                <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
+                <FormControl className={formClasses.wizardFormControl}>
                     <Box display="flex" justifyContent="center" width="100%">
                         <TextPreLoader position="absolute" text="Loading action..." />
                     </Box>
