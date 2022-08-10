@@ -12,18 +12,21 @@
  */
 import {
     AssignmentStatement,
-    BinaryExpression, FunctionCall,
+    BinaryExpression,
+    FunctionCall,
     IdentifierToken,
     KeySpecifier,
     LetVarDecl,
     LimitClause,
     ListConstructor,
-    MappingConstructor, MethodCall,
+    MappingConstructor,
+    MethodCall,
     OrderKey,
     QueryExpression,
     QueryPipeline,
     RecordField,
-    RecordFieldWithDefaultValue, ReturnStatement,
+    RecordFieldWithDefaultValue,
+    ReturnStatement,
     SimpleNameReference,
     STNode,
     TupleTypeDesc,
@@ -63,7 +66,7 @@ class DeleteConfigSetupVisitor implements Visitor {
     }
 
     public beginVisitReturnStatement(node: ReturnStatement) {
-        if (node.expression){
+        if (node.expression) {
             (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }

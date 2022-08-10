@@ -20,12 +20,15 @@ import {
     KeySpecifier,
     LetClause,
     LimitClause,
-    ListConstructor, LocalVarDecl,
+    ListConstructor,
+    LocalVarDecl,
     MappingConstructor,
-    MethodCall, ModuleVarDecl,
+    MethodCall,
+    ModuleVarDecl,
     NodePosition,
     OptionalFieldAccess,
-    OptionalTypeDesc, OrderByClause,
+    OptionalTypeDesc,
+    OrderByClause,
     ParenthesisedTypeDesc,
     QueryExpression,
     QueryPipeline,
@@ -133,8 +136,8 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
-        if (!this.isNodeFound){
-            if (STKindChecker.isReturnStatement(node.parent)){
+        if (!this.isNodeFound) {
+            if (STKindChecker.isReturnStatement(node.parent) && isPositionsEquals(this.deletePosition, node.position)) {
                 this.setProperties("", node.position);
             }
         }
@@ -217,8 +220,8 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
-        if (!this.isNodeFound){
-            node.qualifiers.map((qualifier : STNode) => {
+        if (!this.isNodeFound) {
+            node.qualifiers.map((qualifier: STNode) => {
                 if (isPositionsEquals(this.deletePosition, qualifier.position)) {
                     this.setProperties("", qualifier.position);
                 }
