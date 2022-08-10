@@ -46,15 +46,15 @@ export const filterDiagnostics = (diagnostics: Diagnostic[], nodePosition:NodePo
 			endLine: diagnostic.range.end.line,
 			endColumn: diagnostic.range.end.character
 		};
-		return isNodeInRange(nodePosition, diagPosition);
+		return isDiagInRange(nodePosition, diagPosition);
 	})
 }
 
-export function isNodeInRange(nodePosition: NodePosition, diagPosition: NodePosition): boolean {
-    return nodePosition?.startLine >= diagPosition?.startLine &&
-        (nodePosition?.startLine === diagPosition?.startLine ? nodePosition?.startColumn >= diagPosition?.startColumn : true) &&
-        nodePosition?.endLine <= diagPosition?.endLine &&
-        (nodePosition?.endLine === diagPosition?.endLine ? nodePosition?.endColumn <= diagPosition?.endColumn : true);
+export function isDiagInRange(nodePosition: NodePosition, diagPosition: NodePosition): boolean {
+    return diagPosition?.startLine >= nodePosition?.startLine &&
+        (diagPosition?.startLine === nodePosition?.startLine ? diagPosition?.startColumn >= nodePosition?.startColumn : true) &&
+        diagPosition?.endLine <= nodePosition?.endLine &&
+        (diagPosition?.endLine === nodePosition?.endLine ? diagPosition?.endColumn <= nodePosition?.endColumn : true);
 }
 
 

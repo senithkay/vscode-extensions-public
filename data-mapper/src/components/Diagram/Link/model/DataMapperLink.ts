@@ -3,9 +3,6 @@ import { BezierCurve } from "@projectstorm/geometry";
 import { FieldAccess, NodePosition, SimpleNameReference } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { isNodeInRange } from "../../utils/ls-utils";
-
-
 export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
