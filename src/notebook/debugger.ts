@@ -46,10 +46,9 @@ export class NotebookDebuggerController {
         if (activeTextEditorUri.scheme === NOTEBOOK_CELL_SCHEME) {
             const balnotebook = workspace.notebookDocuments.find(nb => nb.uri.fsPath === activeTextEditorUri.fsPath);
             if (balnotebook) {
-                const sourceIndex = parseInt(activeTextEditorUri.fragment.replace("ch", ""));
                 const filename = basename(activeTextEditorUri.fsPath);
                 tmpFile = `${getTempDir()}/${filename.substring(0, filename.length - BAL_NOTEBOOK.length)}_notebook.bal`;
-                this.dumpNotebookCell(sourceIndex, balnotebook);
+                this.dumpNotebookCell(activeTextEditorUri, balnotebook);
                 activeTextEditorUri = Uri.file(tmpFile);
             }
         } else {
@@ -92,14 +91,19 @@ export class NotebookDebuggerController {
         return debugConfig;
     }
 
-    dumpNotebookCell(sourceIndex: number, balnotebook: NotebookDocument) {
-        debugCellInfoHandler = new DebugCellInfoHandler(balnotebook.cellAt(sourceIndex))
-        const cells = balnotebook.getCells(new NotebookRange(0, sourceIndex + 1));
+    dumpNotebookCell(cellUri: Uri, balnotebook: NotebookDocument) {
+        let cells = balnotebook.getCells();
+        const currentCell = cells.find(cell => cell.document.uri === cellUri);
+        if (!currentCell) {
+            return;
+        }
+        debugCellInfoHandler = new DebugCellInfoHandler(currentCell);
         let contentToWrite = "";
         let nextLineToWrite = 0;
+        cells = balnotebook.getCells(new NotebookRange(0, currentCell.index + 1));
         cells.forEach(cell => {
             if (cell.kind === NotebookCellKind.Code && cell.executionSummary?.success) {
-                contentToWrite += sourceIndex === cell.index
+                contentToWrite += cellUri === cell.document.uri
                     ? "public function main() {" + cell.document.getText() + "\n}"
                     : cell.document.getText() + "\n";
                 debugCellInfoHandler?.addLineToCell(nextLineToWrite, cell);
