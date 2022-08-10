@@ -20,9 +20,9 @@ import {
     KeySpecifier,
     LetClause,
     LimitClause,
-    ListConstructor,
+    ListConstructor, LocalVarDecl,
     MappingConstructor,
-    MethodCall,
+    MethodCall, ModuleVarDecl,
     NodePosition,
     OptionalFieldAccess,
     OptionalTypeDesc, OrderByClause,
@@ -212,6 +212,24 @@ class ExpressionDeletingVisitor implements Visitor {
                     endLine: node.closeBrace.position.endLine,
                     endColumn: node.closeBrace.position.startColumn
                 });
+            }
+        }
+    }
+
+    public beginVisitModuleVarDecl(node: ModuleVarDecl) {
+        if (!this.isNodeFound){
+            node.qualifiers.map((qualifier : STNode) => {
+                if (isPositionsEquals(this.deletePosition, qualifier.position)) {
+                    this.setProperties("", qualifier.position);
+                }
+            });
+        }
+    }
+
+    public beginVisitLocalVarDecl(node: LocalVarDecl) {
+        if (!this.isNodeFound){
+            if (node.finalKeyword && isPositionsEquals(this.deletePosition, node.finalKeyword.position)) {
+                this.setProperties("", node.finalKeyword.position);
             }
         }
     }
