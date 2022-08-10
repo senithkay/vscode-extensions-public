@@ -8,7 +8,7 @@ import { container, injectable, singleton } from "tsyringe";
 
 import { FormFieldPortModel, STNodePortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
-import { RecordTypeTreeWidgetNew } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidgetNew";
+import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
 
 import { RequiredParamNode, REQ_PARAM_NODE_TYPE } from './RequiredParamNode';
 
@@ -21,10 +21,10 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
 
 	generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
 		return (
-			<RecordTypeTreeWidgetNew
+			<RecordTypeTreeWidget
 				engine={this.engine}
 				id={event.model.value.paramName.value}
-				typeDesc={event.model.typeDefNew}
+				typeDesc={event.model.typeDef}
 				getPort={(portId: string) => event.model.getPort(portId) as FormFieldPortModel | STNodePortModel}
 			/>
 		);

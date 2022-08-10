@@ -8,7 +8,7 @@ import { container, injectable, singleton } from "tsyringe";
 
 import { FormFieldPortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
-import { RecordTypeTreeWidgetNew } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidgetNew";
+import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
 
 import { ExpressionFunctionBodyNode, EXPR_FN_BODY_NODE_TYPE } from './ExpressionFunctionBodyNode';
 
@@ -21,10 +21,10 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<Expressi
 
 	generateReactWidget(event: { model: ExpressionFunctionBodyNode; }): JSX.Element {
 		return (
-			<RecordTypeTreeWidgetNew
+			<RecordTypeTreeWidget
 				engine={this.engine}
 				id="exprFunctionBody"
-				typeDesc={event.model.typeDefNew}
+				typeDesc={event.model.typeDef}
 				getPort={(portId: string) => event.model.getPort(portId) as FormFieldPortModel}
 			/>
 		);

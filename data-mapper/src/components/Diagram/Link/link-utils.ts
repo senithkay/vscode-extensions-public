@@ -22,7 +22,7 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     return false;
 }
 
-export function generateQueryExpression(srcExpr: string, srcType: RecordTypeDesc, targetType: RecordTypeDesc) {
+export function generateQueryExpressionFromTypeDesc(srcExpr: string, srcType: RecordTypeDesc) {
 
     const srcFields = srcType.fields.filter((field) => STKindChecker.isRecordField(field)) as RecordField[];
 
@@ -33,7 +33,7 @@ export function generateQueryExpression(srcExpr: string, srcType: RecordTypeDesc
     `
 }
 
-export function generateQueryExpressionNew(srcExpr: string, srcType: FormField) {
+export function generateQueryExpressionFromFormField(srcExpr: string, srcType: FormField) {
 
     const srcFields = srcType.fields;
 

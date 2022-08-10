@@ -16,11 +16,13 @@ import { RecordField, SpecificField } from "@wso2-enterprise/syntax-tree";
 import { DataMapperLinkModel } from "../../Link";
 import { createSpecificFieldSource } from "../../utils/dm-utils";
 
-import { DataMapperNodeModelGenerics } from "./DataMapperPortModel";
+export interface STNodeModelGenerics {
+	PORT: STNodePortModel;
+}
 
 export const ST_NODE_PORT = "st-node-port";
 
-export class STNodePortModel extends PortModel<PortModelGenerics & DataMapperNodeModelGenerics> {
+export class STNodePortModel extends PortModel<PortModelGenerics & STNodeModelGenerics> {
 
 	constructor(
 		public field: RecordField | SpecificField,

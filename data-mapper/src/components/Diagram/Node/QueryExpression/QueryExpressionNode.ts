@@ -5,7 +5,7 @@ import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { DataMapperPortModel, FormFieldPortModel, IntermediatePortModel, STNodePortModel } from "../../Port";
+import { FormFieldPortModel, IntermediatePortModel, STNodePortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
@@ -22,7 +22,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public sourceTypeDesc: FormField;
     public targetTypeDesc: RecordTypeDesc;
     public sourcePort: FormFieldPortModel;
-    public targetPort: DataMapperPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
@@ -61,7 +60,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         if (this.sourceBindingPattern) {
             const parentId = `${QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
             this.sourceTypeDesc.fields.forEach((field) => {
-                this.addPortsForField(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
+                this.addPortsForFormField(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
             });
         }
     }
@@ -88,7 +87,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 const paramNode = this.getModel().getNodes().find((node) =>
                     node instanceof RequiredParamNode
                     && node.value.paramName.value === fieldNames[0]) as RequiredParamNode;
-                let nextRecTypeDesc = paramNode.typeDefNew;
+                let nextRecTypeDesc = paramNode.typeDef;
                 let sourceTypeDesc: FormField;
                 for (let i = 1; i < fieldNames.length; i++) {
                     const field = nextRecTypeDesc.fields.find((formField) =>

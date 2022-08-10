@@ -4,9 +4,9 @@ import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/s
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
-import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
+import { DataMapperPortWidget, FormFieldPortModel, STNodePortModel} from '../../Port';
 import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
-import { RecordTypeTreeWidgetNew } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidgetNew";
+import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
 
 import { QueryExpressionNode, QUERY_SOURCE_PORT_PREFIX, QUERY_TARGET_PORT_PREFIX } from './QueryExpressionNode';
 
@@ -49,11 +49,11 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 		const engine = this.props.engine;
 
 		const getSourcePort = (portId: string) => {
-			return node.getPort(portId) as DataMapperPortModel;
+			return node.getPort(portId) as STNodePortModel | FormFieldPortModel;
 		}
 
 		const getTargetPort = (portId: string) => {
-			return node.getPort(portId) as DataMapperPortModel;
+			return node.getPort(portId) as STNodePortModel | FormFieldPortModel;
 		}
 
 		return (
@@ -68,7 +68,7 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 					<DataMapperPortWidget engine={engine} port={node.outPort} />
 				</div>
 				<div className={classes.mappingPane}>
-					<RecordTypeTreeWidgetNew
+					<RecordTypeTreeWidget
 						engine={engine}
 						typeDesc={node.sourceTypeDesc}
 						id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`}

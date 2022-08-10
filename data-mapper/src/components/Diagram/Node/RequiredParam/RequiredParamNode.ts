@@ -7,8 +7,7 @@ import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 export const REQ_PARAM_NODE_TYPE = "datamapper-node-required-param";
 
 export class RequiredParamNode extends DataMapperNodeModel {
-	public typeDef: TypeDefinition;
-	public typeDefNew: FormField;
+	public typeDef: FormField;
  constructor(
         public context: IDataMapperContext,
 		      public value: RequiredParam,
@@ -37,18 +36,14 @@ export class RequiredParamNode extends DataMapperNodeModel {
 	 console.log(JSON.stringify(res2));
 
 		const { type } = res2.types[0];
-		this.typeDefNew = type;
+		this.typeDef = type;
 
 		if (type?.typeName && type.typeName === 'record') {
 			const fields = type.fields;
 			fields.forEach((subField) => {
-				this.addPortsForField(subField, "OUT", this.value.paramName.value, this.value.paramName.value);
+				this.addPortsForFormField(subField, "OUT", this.value.paramName.value, this.value.paramName.value);
 			});
 		}
-
-		// const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-		// await recordTypeDescriptors.retrieveTypeDescriptors(recordTypeDesc, this.context)
-
     }
 
  async initLinks() {

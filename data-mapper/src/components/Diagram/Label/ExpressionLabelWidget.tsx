@@ -7,7 +7,11 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
-import { canConvertLinkToQueryExpr, generateQueryExpression, generateQueryExpressionNew } from '../Link/link-utils';
+import {
+	canConvertLinkToQueryExpr,
+	generateQueryExpressionFromFormField,
+	generateQueryExpressionFromTypeDesc
+} from '../Link/link-utils';
 import { FormFieldPortModel } from '../Port';
 import { STNodePortModel } from "../Port/model/STNodePortModel";
 
@@ -55,8 +59,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			if (sourcePort instanceof STNodePortModel && STKindChecker.isRecordField(sourcePort.field)) {
 				const fieldType = sourcePort.field.typeName;
 				if (STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
-					const querySrc = generateQueryExpression(link.value.source, fieldType.memberTypeDesc, undefined);
-					console.log(querySrc);
+					const querySrc = generateQueryExpressionFromTypeDesc(link.value.source, fieldType.memberTypeDesc);
 					if (link.value) {
 						const position = link.value.position as NodePosition;
 						const applyModification = props.model.context.applyModifications;
@@ -75,8 +78,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			} else if (sourcePort instanceof FormFieldPortModel) {
 				const field = sourcePort.field;
 				if (field.typeName === 'array' && field.memberType.typeName === 'record') {
-					const querySrc = generateQueryExpressionNew(link.value.source, field.memberType);
-					console.log(querySrc);
+					const querySrc = generateQueryExpressionFromFormField(link.value.source, field.memberType);
 					if (link.value) {
 						const position = link.value.position as NodePosition;
 						const applyModification = props.model.context.applyModifications;

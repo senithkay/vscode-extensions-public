@@ -16,11 +16,13 @@ import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DataMapperLinkModel } from "../../Link";
 import { createSpecificFieldSource } from "../../utils/dm-utils";
 
-import { DataMapperNodeModelGenerics } from "./DataMapperPortModel";
+export interface FormFieldNodeModelGenerics {
+	PORT: FormFieldPortModel;
+}
 
 export const FORM_FIELD_PORT = "form-field-port";
 
-export class FormFieldPortModel extends PortModel<PortModelGenerics & DataMapperNodeModelGenerics> {
+export class FormFieldPortModel extends PortModel<PortModelGenerics & FormFieldNodeModelGenerics> {
 
 	constructor(
 		public field: FormField,

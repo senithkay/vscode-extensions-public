@@ -4,20 +4,17 @@ import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
 	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
 	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MappingConstructor, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
-	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordField, RecordTypeDesc,
+	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordTypeDesc,
 	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, StreamTypeDesc, StringTypeDesc, TableTypeDesc,
 	TupleTypeDesc, TypedescTypeDesc, UnionTypeDesc, XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
-import { DataMapperPortModel } from '../../Port';
-import { FormFieldPortModel } from "../../Port/model/FormFieldPortModel";
-import { STNodePortModel } from "../../Port/model/STNodePortModel";
-import { RecordTypeDescriptorStore } from '../../utils/record-type-descriptor-store';
+import { FormFieldPortModel, STNodePortModel } from "../../Port";
 
 export interface DataMapperNodeModelGenerics {
-	PORT: DataMapperPortModel;
+	PORT: STNodePortModel | FormFieldPortModel;
 }
 
 export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | BooleanTypeDesc | ByteTypeDesc | DecimalTypeDesc
@@ -55,35 +52,6 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initPorts(): void;
 	abstract initLinks(): void;
 
-	protected addPorts(field: RecordField,
-		                  type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string, parent?: STNodePortModel) {
-		const fieldId = `${parentId}.${field.fieldName.value}`;
-		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.fieldName.value}`;
-		if (STKindChecker.isRecordField(field)) {
-			// const fieldPort = new DataMapperPortModel(field.fieldName.value, type, parentId, field, parentFieldAccessExpr, parent);
-			const fieldPort = new STNodePortModel(field, type, parentId, parentFieldAccessExpr, parent);
-			this.addPort(fieldPort)
-			if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-				field.typeName.fields.forEach((subField) => {
-					if (STKindChecker.isRecordField(subField)) {
-						this.addPorts(subField, type, fieldId, fieldAccessExpr, fieldPort);
-					}
-				});
-			}
-			if (STKindChecker.isSimpleNameReference(field.typeName)) {
-				const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-				const typeDef = recordTypeDescriptors.gettypeDescriptor(field.typeName.name.value)
-				if (!!typeDef?.typeDescriptor && STKindChecker.isRecordTypeDesc(typeDef?.typeDescriptor)){
-					typeDef?.typeDescriptor?.fields.forEach((subField : any) => {
-						if (STKindChecker.isRecordField(subField)) {
-							this.addPorts(subField, type, fieldId, fieldAccessExpr, fieldPort);
-						}
-					});
-				}
-			}
-		}
-	}
-
 	protected addPortsForSpecificField(field: SpecificField,
 		                                  type: "IN" | "OUT", parentId: string, parent?: STNodePortModel) {
 		const fieldId = `${parentId}.${field.fieldName.value}`;
@@ -100,15 +68,15 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected addPortsForField(field: FormField, type: "IN" | "OUT", parentId: string,
-							                     parentFieldAccessExpr?: string, parent?: FormFieldPortModel) {
+	protected addPortsForFormField(field: FormField, type: "IN" | "OUT", parentId: string,
+								                        parentFieldAccessExpr?: string, parent?: FormFieldPortModel) {
 		const fieldId = `${parentId}.${field.name}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.name}`;
 		const fieldPort = new FormFieldPortModel(field, type, parentId, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
 		if (field.typeName === 'record') {
 			field.fields.forEach((subField) => {
-				this.addPortsForField(subField, type, fieldId, fieldAccessExpr, fieldPort);
+				this.addPortsForFormField(subField, type, fieldId, fieldAccessExpr, fieldPort);
 			});
 		}
 	}
