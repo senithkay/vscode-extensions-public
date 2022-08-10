@@ -1,12 +1,10 @@
-import {PortModel} from "@projectstorm/react-diagrams-core";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { DataMapperLinkModel } from "../Link/model/DataMapperLink";
+import { DataMapperLinkModel } from "../Link";
 import { ExpressionFunctionBodyNode, QueryExpressionNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { FormFieldPortModel } from "../Port";
-import {STNodePortModel} from "../Port/model/STNodePortModel";
+import { FormFieldPortModel, STNodePortModel } from "../Port";
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
@@ -63,28 +61,37 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			: link.getTargetPort() as STNodePortModel;
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
 
-		let mappingConstruct;
-		if (targetNode instanceof ExpressionFunctionBodyNode && STKindChecker.isMappingConstructor(targetNode.value.expression)) {
-			mappingConstruct = targetNode.value.expression as MappingConstructor;
-		} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
-			mappingConstruct = targetNode.value.selectClause.expression;
-		}
+		if (targetPort instanceof STNodePortModel && STKindChecker.isSpecificField(targetPort.field)) {
+			// Inserting just the valueExpr (RHS) to already available specific field in a mapping constructor
+			const targetPos = targetPort.field.valueExpr.position as NodePosition;
+			modifications.push({
+				type: "INSERT",
+				config: {
+					"STATEMENT": rhs,
+				},
+				endColumn: targetPos.endColumn,
+				endLine: targetPos.endLine,
+				startColumn: targetPos.startColumn,
+				startLine: targetPos.startLine
+			});
+		} else if (targetPort instanceof FormFieldPortModel) {
+			// Inserting a new specific field
+			let mappingConstruct;
+			const parentFieldNames: string[] = [];
 
-		// Inserting a new specific field
-		lhs = targetPort instanceof FormFieldPortModel
-			? targetPort.field.name
-			: targetPort.field.fieldName.value;
+			lhs = targetPort.field.name;
+			if (targetNode instanceof ExpressionFunctionBodyNode && STKindChecker.isMappingConstructor(targetNode.value.expression)) {
+				mappingConstruct = targetNode.value.expression as MappingConstructor;
+			} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
+				mappingConstruct = targetNode.value.selectClause.expression;
+			}
 
-		const parentFieldNames: string[] = [];
-		let parent = targetPort.parentModel;
-		while (parent != null) {
-			const parentField = parent instanceof FormFieldPortModel
-				? parent.field.name
-				: parent.field.fieldName.value;
-			parentFieldNames.push(parentField);
-			parent = parent.parentModel;
-		}
-		if (mappingConstruct) {
+			let parent = targetPort.parentModel;
+			while (parent != null) {
+				parentFieldNames.push(parent.field.name);
+				parent = parent.parentModel;
+			}
+
 			let targetMappingConstruct = mappingConstruct;
 			let fromFieldIdx = -1;
 			if (parentFieldNames.length > 0) {
@@ -104,24 +111,23 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 						break;
 					}
 				}
-				const createSpeficField = (missingFields: string[]) => {
-					let source = "";
-					if (missingFields.length > 0) {
-						source = `\t${missingFields[0]}: {\n${createSpeficField(missingFields.slice(1))}}`;
-					} else {
-						source = `\t${lhs}: ${rhs}`;
-					}
-					return source;
+
+				function createSpecificField(missingFields: string[]): string {
+					return missingFields.length > 0
+						? `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
+						: `\t${lhs}: ${rhs}`;
 				}
+
 				if (fromFieldIdx >= 0 && fromFieldIdx <= fieldNames.length) {
 					const missingFields = fieldNames.slice(fromFieldIdx);
-					source = createSpeficField(missingFields);
+					source = createSpecificField(missingFields);
 				} else {
 					source = `${lhs}: ${rhs}`;
 				}
 			} else {
 				source = `${lhs}: ${rhs}`;
 			}
+
 			const targetPos = targetMappingConstruct.openBrace.position as NodePosition;
 			if (targetMappingConstruct.fields.length > 0) {
 				source += ",";
@@ -135,22 +141,6 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				endLine: targetPos.endLine,
 				startColumn: targetPos.endColumn,
 				startLine: targetPos.endLine
-			});
-		}
-
-		// Handle this for query expressions
-		if (targetPort instanceof STNodePortModel && STKindChecker.isSpecificField(targetPort.field)) {
-			// Inserting just the valueExpr (RHS) to already available specific field in a mapping constructor
-			const targetPos = targetPort.field.valueExpr.position as NodePosition;
-			modifications.push({
-				type: "INSERT",
-				config: {
-					"STATEMENT": rhs,
-				},
-				endColumn: targetPos.endColumn,
-				endLine: targetPos.endLine,
-				startColumn: targetPos.startColumn,
-				startLine: targetPos.startLine
 			});
 		}
 		targetNode.context.applyModifications(modifications);

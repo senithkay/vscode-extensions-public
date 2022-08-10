@@ -1,14 +1,14 @@
 import * as React from 'react';
+
+import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-
-import { List, Typography } from '@material-ui/core';
-
-import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
-import { QueryExpressionNode, QUERY_SOURCE_PORT_PREFIX, QUERY_TARGET_PORT_PREFIX } from './QueryExpressionNode';
-import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
-import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
-import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
 import { STKindChecker } from '@wso2-enterprise/syntax-tree';
+
+import { DataMapperPortModel, DataMapperPortWidget } from '../../Port';
+import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
+import { RecordTypeTreeWidgetNew } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidgetNew";
+
+import { QueryExpressionNode, QUERY_SOURCE_PORT_PREFIX, QUERY_TARGET_PORT_PREFIX } from './QueryExpressionNode';
 
 const styles = (theme: Theme) => createStyles({
 	root: {
@@ -16,7 +16,7 @@ const styles = (theme: Theme) => createStyles({
 		minWidth: 400,
 		backgroundColor: "#fff",
 		padding: "5px",
-		display: "flex", 
+		display: "flex",
 		flexDirection: "column",
 		gap: "5px",
 		color: "#74828F"
@@ -26,12 +26,12 @@ const styles = (theme: Theme) => createStyles({
 		fontFamily: "monospace"
 	},
 	mappingPane: {
-		display: "flex", 
+		display: "flex",
 		flexDirection: "row",
 		justifyContent: "space-between"
 	},
 	header: {
-		display: "flex", 
+		display: "flex",
 		flexDirection: "row",
 		justifyContent: "space-between",
 	}
@@ -68,11 +68,11 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
 					<DataMapperPortWidget engine={engine} port={node.outPort} />
 				</div>
 				<div className={classes.mappingPane}>
-					<RecordTypeTreeWidget 
-						engine={engine}	
-						typeDesc={node.sourceTypeDesc} 
-						id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`} 
-						getPort={getSourcePort} 
+					<RecordTypeTreeWidgetNew
+						engine={engine}
+						typeDesc={node.sourceTypeDesc}
+						id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`}
+						getPort={getSourcePort}
 					/>
 					{STKindChecker.isMappingConstructor(node.value.selectClause.expression) &&
 						<MappingConstructorWidget engine={engine} value={node.value.selectClause.expression} id={QUERY_TARGET_PORT_PREFIX} getPort={getTargetPort} />

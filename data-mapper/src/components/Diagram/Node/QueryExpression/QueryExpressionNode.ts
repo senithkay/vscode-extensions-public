@@ -1,16 +1,15 @@
-import { CaptureBindingPattern, QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CaptureBindingPattern, QueryExpression, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { DataMapperPortModel } from "../../Port";
-import { IntermediatePortModel } from "../../Port/IntermediatePort/IntermediatePortModel";
-import { getFieldNames, getParamForName } from "../../utils/dm-utils";
+import { DataMapperPortModel, FormFieldPortModel, IntermediatePortModel, STNodePortModel } from "../../Port";
+import { getFieldNames } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { RequiredParamNode } from "../RequiredParam";
-import {STNodePortModel} from "../../Port/model/STNodePortModel";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -20,15 +19,15 @@ export const QUERY_TARGET_PORT_PREFIX = "queryExpr.target";
 
 export class QueryExpressionNode extends DataMapperNodeModel {
 
-    public sourceTypeDesc: RecordTypeDesc;
+    public sourceTypeDesc: FormField;
     public targetTypeDesc: RecordTypeDesc;
-    public sourcePort: DataMapperPortModel;
+    public sourcePort: FormFieldPortModel;
     public targetPort: DataMapperPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
 
-	public sourceBindingPattern: CaptureBindingPattern;
+	   public sourceBindingPattern: CaptureBindingPattern;
 
     constructor(
         public context: IDataMapperContext,
@@ -62,9 +61,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         if (this.sourceBindingPattern) {
             const parentId = `${QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
             this.sourceTypeDesc.fields.forEach((field) => {
-                if (STKindChecker.isRecordField(field)) {
-                    this.addPorts(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
-                }
+                this.addPortsForField(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
             });
         }
     }
@@ -88,25 +85,21 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
                 const fieldNames = getFieldNames(sourceFieldAccess);
                 const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
-                const param = getParamForName(fieldNames[0], this.context.functionST);
                 const paramNode = this.getModel().getNodes().find((node) =>
                     node instanceof RequiredParamNode
                     && node.value.paramName.value === fieldNames[0]) as RequiredParamNode;
-                const paramTypeDesc = paramNode.typeDef.typeDescriptor as RecordTypeDesc;
-                let nextRecTypeDesc = paramTypeDesc;
-                let sourceTypeDesc: RecordTypeDesc;
+                let nextRecTypeDesc = paramNode.typeDefNew;
+                let sourceTypeDesc: FormField;
                 for (let i = 1; i < fieldNames.length; i++) {
-                    const field = nextRecTypeDesc.fields.find((field) =>
-                        STKindChecker.isRecordField(field) && field.fieldName.value === fieldNames[i]) as RecordField;
+                    const field = nextRecTypeDesc.fields.find((formField) =>
+                        formField.name === fieldNames[i]);
                     if (i === fieldNames.length - 1) {
-                        const fieldType = field.typeName;
-                        if (STKindChecker.isArrayTypeDesc(fieldType)
-                            && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
-                            sourceTypeDesc = fieldType.memberTypeDesc;
+                        if (field.typeName === 'array' && field.memberType.typeName === 'record') {
+                            sourceTypeDesc = field.memberType;
                         }
-                        this.sourcePort = paramNode.getPort(fieldId + ".OUT") as DataMapperPortModel;
-                    } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-                        nextRecTypeDesc = field.typeName; // TODO Handle other cases
+                        this.sourcePort = paramNode.getPort(fieldId + ".OUT") as FormFieldPortModel;
+                    } else if (field.typeName === 'record') {
+                        nextRecTypeDesc = field; // TODO Handle other cases
                     }
                 }
                 this.sourceTypeDesc = sourceTypeDesc;
@@ -194,6 +187,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             return true;
                         }
                     }
+                } else if (port instanceof FormFieldPortModel) {
+                    return port.field.name === 'Assets'
                 }
             });
             if (targetPort) {
