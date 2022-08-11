@@ -18,8 +18,8 @@
  */
 
 import {
-    debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell, NotebookCellKind,
-    NotebookDocument, NotebookRange, ProviderResult, SourceBreakpoint, Uri, window, workspace, WorkspaceFolder
+    debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell,
+    NotebookCellKind, NotebookRange, ProviderResult, SourceBreakpoint, Uri, window, workspace, WorkspaceFolder
 } from "vscode";
 import fileUriToPath from "file-uri-to-path";
 import { mkdtempSync, writeFileSync } from "fs";
@@ -41,23 +41,13 @@ export class NotebookDebuggerController {
 
     constructor(private extensionInstance: BallerinaExtension) { }
 
-    async startDebugging(): Promise<boolean> {
-        let activeTextEditorUri = window.activeTextEditor!.document.uri;
-        if (activeTextEditorUri.scheme === NOTEBOOK_CELL_SCHEME) {
-            const balnotebook = workspace.notebookDocuments.find(nb => nb.uri.fsPath === activeTextEditorUri.fsPath);
-            if (balnotebook) {
-                const filename = basename(activeTextEditorUri.fsPath);
-                tmpFile = `${getTempDir()}/${filename.substring(0, filename.length - BAL_NOTEBOOK.length)}_notebook.bal`;
-                this.dumpNotebookCell(activeTextEditorUri, balnotebook);
-                activeTextEditorUri = Uri.file(tmpFile);
-            }
-        } else {
-            return Promise.reject();
-        }
-
-        const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(activeTextEditorUri);
-        const debugConfig: DebugConfiguration = await this.constructDebugConfig(activeTextEditorUri);
+    async startDebugging(cell: NotebookCell): Promise<boolean> {
         runningNotebookDebug = true;
+        const fileToRunDebug = this.dumpNotebookCell(cell);
+        const uriToRunDebug = Uri.file(fileToRunDebug);
+        const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uriToRunDebug);
+        const debugConfig: DebugConfiguration = this.constructDebugConfig(uriToRunDebug);
+
         debug.onDidTerminateDebugSession(() => runningNotebookDebug = false);
         debug.onDidChangeBreakpoints((breakpointChangeEvent) => {
             for (const addedBP of breakpointChangeEvent.added) {
@@ -69,10 +59,11 @@ export class NotebookDebuggerController {
                 breakpointList = breakpointList.filter(bp => bp.id !== removedBP.id);
             }
         });
+
         return debug.startDebugging(workspaceFolder, debugConfig);
     }
 
-    async constructDebugConfig(uri: Uri): Promise<DebugConfiguration> {
+    constructDebugConfig(uri: Uri): DebugConfiguration {
         const debugConfig: DebugConfiguration = {
             type: LANGUAGE.BALLERINA,
             name: "Ballerina Notebook Debug",
@@ -91,19 +82,16 @@ export class NotebookDebuggerController {
         return debugConfig;
     }
 
-    dumpNotebookCell(cellUri: Uri, balnotebook: NotebookDocument) {
-        let cells = balnotebook.getCells();
-        const currentCell = cells.find(cell => cell.document.uri === cellUri);
-        if (!currentCell) {
-            return;
-        }
-        debugCellInfoHandler = new DebugCellInfoHandler(currentCell);
+    dumpNotebookCell(debugCell: NotebookCell): string {
+        debugCellInfoHandler = new DebugCellInfoHandler(debugCell);
+        const filename = basename(debugCell.document.uri.fsPath);
+        tmpFile = `${getTempDir()}/${filename.substring(0, filename.length - BAL_NOTEBOOK.length)}_notebook.bal`;
         let contentToWrite = "";
         let nextLineToWrite = 0;
-        cells = balnotebook.getCells(new NotebookRange(0, currentCell.index + 1));
+        const cells = debugCell.notebook.getCells(new NotebookRange(0, debugCell.index + 1));
         cells.forEach(cell => {
             if (cell.kind === NotebookCellKind.Code && cell.executionSummary?.success) {
-                contentToWrite += cellUri === cell.document.uri
+                contentToWrite += debugCell.document.uri === cell.document.uri
                     ? "public function main() {" + cell.document.getText() + "\n}"
                     : cell.document.getText() + "\n";
                 debugCellInfoHandler?.addLineToCell(nextLineToWrite, cell);
@@ -111,6 +99,7 @@ export class NotebookDebuggerController {
             }
         });
         writeFileSync(tmpFile, contentToWrite);
+        return tmpFile;
     }
 }
 
@@ -122,7 +111,7 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
             handle: (event: DebugProtocol.Event) => {
                 const outputEvent = <DebugProtocol.OutputEvent>event;
                 const compilationErr = "error: compilation contains errors";
-                if (runningNotebookDebug && outputEvent.body.output.includes(compilationErr)) {
+                if (outputEvent.body.output.includes(compilationErr)) {
                     const compilationErrMsg = "Make sure to focus the cell needs to start debug.";
                     window.showInformationMessage(compilationErrMsg);
                 }
@@ -133,7 +122,7 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
             handle: (event: DebugProtocol.Event) => {
                 const breakpointEvent = <DebugProtocol.BreakpointEvent>event;
                 const breakpoint = breakpointEvent.body.breakpoint;
-                const cellInfo = runningNotebookDebug && debugCellInfoHandler?.getCellForLine(breakpoint.line!);
+                const cellInfo = debugCellInfoHandler?.getCellForLine(breakpoint.line!);
                 if (cellInfo && cellInfo.cell) {
                     breakpoint.source!.path = cellInfo.cell.document.uri.toString();
                     breakpoint.source!.name = basename(cellInfo.cell.document.uri.fsPath);
@@ -153,7 +142,7 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
             handle: (request: DebugProtocol.Request) => {
                 const setBreakpointsArguments = <DebugProtocol.SetBreakpointsArguments>request.arguments;
                 const source = setBreakpointsArguments.source;
-                if (runningNotebookDebug && source?.path?.startsWith(NOTEBOOK_CELL_SCHEME)) {
+                if (source?.path?.startsWith(NOTEBOOK_CELL_SCHEME)) {
                     const breakpoints = setBreakpointsArguments.breakpoints ?? [];
                     breakpoints.forEach(breakpoint => {
                         breakpoint.line += debugCellInfoHandler?.getCellStartLine(source.path!)!;
@@ -200,7 +189,7 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
                     if (!breakpoint.source?.name?.endsWith(BAL_NOTEBOOK)) {
                         return;
                     }
-                    const cellInfo = runningNotebookDebug && debugCellInfoHandler?.getCellForLine(breakpoint.line!);
+                    const cellInfo = debugCellInfoHandler?.getCellForLine(breakpoint.line!);
                     if (cellInfo && cellInfo.cell) {
                         breakpoint.source!.path = cellInfo.cell.document.uri.toString();
                         breakpoint.source!.name = basename(cellInfo.cell.document.uri.fsPath);
@@ -219,7 +208,7 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
                 const stackTraceResponse = <DebugProtocol.StackTraceResponse>response;
                 const stackFrames = stackTraceResponse.body.stackFrames;
                 stackFrames.forEach(stackFrame => {
-                    const cellInfo = runningNotebookDebug && debugCellInfoHandler?.getCellForLine(stackFrame.line);
+                    const cellInfo = debugCellInfoHandler?.getCellForLine(stackFrame.line);
                     if (cellInfo && cellInfo.cell) {
                         stackFrame.source!.path = cellInfo.cell.document.uri.toString();
                         stackFrame.source!.name = basename(cellInfo.cell.document.uri.fsPath);
@@ -253,6 +242,9 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
     }
 
     private visitSources(msg: DebugProtocol.ProtocolMessage): void {
+        if (!runningNotebookDebug) {
+            return;
+        }
         let handler: any = undefined;
         switch (msg.type) {
             case 'event':

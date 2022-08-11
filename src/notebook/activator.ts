@@ -142,8 +142,8 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
 }
 
 function registerDebug(debugController: NotebookDebuggerController): Disposable {
-    return commands.registerCommand(DEBUG_NOTEBOOK_COMMAND, () => {
+    return commands.registerCommand(DEBUG_NOTEBOOK_COMMAND, (cell) => {
         commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-        debugController.startDebugging();
+        debugController.startDebugging(cell);
     });
 }
