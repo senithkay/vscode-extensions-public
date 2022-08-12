@@ -8,15 +8,25 @@ export class ResourceForm {
 
     static typePathName(pathName: string) {
         ExpressionEditor
-            .getForField("Resource path", this.selector)
-            .type(pathName)
-            .waitForValidations();
+            .getForField("resource-path", this.selector)
+            .clear()
+            .type(pathName);
+        cy.wait(2000);
+        return this;
+    }
+
+    static typeReturnValue(pathName: string) {
+        ExpressionEditor
+            .getForField("return-type", this.selector)
+            .clear()
+            .type(pathName);
+        cy.wait(2000);
         return this;
     }
 
     static selectMethod(type: methods) {
         SelectDropDown
-            .getForField("HTTP Method", this.selector)
+            .getForField("api-method", this.selector)
             .select(type);
         return this;
     }

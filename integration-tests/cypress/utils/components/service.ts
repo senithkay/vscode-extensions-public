@@ -26,6 +26,7 @@ export class Service {
         return this;
     }
 
+
     public clickEdit() {
         this.container.within(() => {
             cy.get('.service-header')
@@ -42,6 +43,14 @@ export class Service {
                 .get('#delete-button')
                 .click({ force: true });
         });
+    }
+
+    public clickPlusIcon(targetLine: number = 0) {
+        this.container.within(() => {
+            cy.get(`.plus-container[target-line="${targetLine}"]`)
+                .click();
+        });
+        return this;
     }
 
     public shouldHaveResources(count: number) {

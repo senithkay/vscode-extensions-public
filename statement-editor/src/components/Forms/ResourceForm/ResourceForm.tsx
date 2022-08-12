@@ -276,7 +276,7 @@ export function ResourceForm(props: FunctionProps) {
                         <div className={connectorClasses.resourceMethodPathWrapper}>
                             <div className={connectorClasses.methodTypeContainer}>
                                 <SelectDropdownWithButton
-                                    dataTestId="api-method"
+                                    dataTestId='api-method'
                                     defaultValue={model?.functionName?.value?.toUpperCase() || ""}
                                     customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
                                     onChange={handleMethodChange}
@@ -287,6 +287,7 @@ export function ResourceForm(props: FunctionProps) {
                             <div className={connectorClasses.resourcePathWrapper}>
                                 <FieldTitle title='Resource Path' optional={true} />
                                 <LiteExpressionEditor
+                                    testId="resource-path"
                                     diagnostics={
                                         (currentComponentName === "Path" && currentComponentSyntaxDiag)
                                         || getResourcePathDiagnostics()
@@ -358,6 +359,7 @@ export function ResourceForm(props: FunctionProps) {
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <FieldTitle title='Return Type' optional={true} />
                         <LiteExpressionEditor
+                            testId="return-type"
                             diagnostics={(currentComponentName === "Return" && currentComponentSyntaxDiag) ||
                                 model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange}
                             defaultValue={model?.functionSignature?.returnTypeDesc?.type?.source.trim()}
