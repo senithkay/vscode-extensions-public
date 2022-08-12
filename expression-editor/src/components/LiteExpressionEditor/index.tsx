@@ -145,6 +145,7 @@ export interface GetCompletionsParams {
 
 export interface LiteExpressionEditorProps {
     defaultValue?: string;
+    externalChangedValue?: string;
     focus?: boolean;
     targetPosition?: any;
     onChange?: (value: string) => void;
@@ -187,7 +188,8 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         model,
         customProps,
         stModel,
-        testId
+        testId,
+        externalChangedValue
     } = props;
 
     const [expressionEditorState, setExpressionEditorState] = useState<ExpressionEditorState>({
@@ -195,6 +197,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         content: undefined,
         uri: undefined,
         diagnostic: diagnostics,
+        isDirty: false,
     });
 
     const initialValue = defaultValue;
@@ -399,11 +402,11 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     }, [focus]);
 
     useEffect(() => {
-        if (defaultValue !== undefined) {
+        if (externalChangedValue !== undefined) {
             const monacoModel = monacoRef.current.editor.getModel();
-            monacoModel.applyEdits([{ range: monacoModel.getFullModelRange(), text: defaultValue }]);
+            monacoModel.setValue(externalChangedValue);
         }
-    }, [defaultValue]);
+    }, [externalChangedValue]);
 
     useEffect(() => {
         // !hideExpand
@@ -467,6 +470,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         }
 
         if (onFocus) {
+            // dirty
             onFocus();
         }
     };

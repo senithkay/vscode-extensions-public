@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
 import { useIntl } from "react-intl";
+import { v4 as uuid } from 'uuid';
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
@@ -75,6 +76,7 @@ export function ResourceForm(props: FunctionProps) {
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
+    const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
 
     const resourceConfigTitle = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
@@ -162,16 +164,22 @@ export function ResourceForm(props: FunctionProps) {
     };
 
     const handlePathAddClick = async () => {
+        setShouldUpdatePath(true);
         setCurrentComponentName("Path");
         const variables = model.relativeResourcePath
             .filter(pathSegment => STKindChecker.isResourcePathSegmentParam(pathSegment)
                 || STKindChecker.isResourcePathRestParam(pathSegment))
             .map(pathSegment => STKindChecker.isResourcePathSegmentParam(pathSegment)
                 || STKindChecker.isResourcePathRestParam(pathSegment) ? pathSegment?.paramName.value : "");
-        const genPath = (model.relativeResourcePath.length > 0) ?
-            `/[string ${genParamName("param", variables)}]`
-            : `[string ${genParamName("param", variables)}]`;
-        const newPath = getResourcePath(model.relativeResourcePath) + genPath;
+        let newPath = '';
+        if (model.relativeResourcePath.length === 1 && STKindChecker.isDotToken(model.relativeResourcePath[0])) {
+            newPath = `[string ${genParamName("param", variables)}]`;
+        } else {
+            const genPath = (model.relativeResourcePath.length > 0) ?
+                `/[string ${genParamName("param", variables)}]`
+                : `[string ${genParamName("param", variables)}]`;
+            newPath = getResourcePath(model.relativeResourcePath) + genPath;
+        }
         await handleResourceParamChange(
             model?.functionName?.value,
             newPath,
@@ -197,6 +205,7 @@ export function ResourceForm(props: FunctionProps) {
         //     setPath(value);
         // }
         // setCurrentComponentName("Path");
+        setShouldUpdatePath(false);
         await handleResourceParamChange(
             model.functionName.value,
             value,
@@ -302,6 +311,7 @@ export function ResourceForm(props: FunctionProps) {
                                         || getResourcePathDiagnostics()
                                     }
                                     defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
+                                    externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}
                                     onChange={debouncedPathChange}
                                     completions={completions}
                                     onFocus={onPathFocus}
@@ -390,7 +400,7 @@ export function ResourceForm(props: FunctionProps) {
                                     onClick={handleOnSave}
                                     disabled={currentComponentSyntaxDiag?.length > 0
                                         || getResourcePathDiagnostics().length > 0
-                                        || model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange.length > 0
+                                        || model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange?.length > 0
                                         || isEditInProgress}
                                 />
                             </div>
