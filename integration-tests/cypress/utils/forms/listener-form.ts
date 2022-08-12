@@ -40,7 +40,7 @@ export class ListenerForm {
         return this;
     }
 
-    static typeListenerPortValue(value: number) {
+    static typeListenerPortValue(value: string) {
         const typeInput = `{selectall}${value}`;
         this.getForm()
             .get('[data-testid="listener-port"]')
@@ -66,6 +66,20 @@ export class ListenerForm {
             .get('button')
             .contains("Save")
             .click();
+        return this;
+    }
+
+    static saveShouldBeDisabled() {
+        this.getForm()
+            .contains("Save")
+            .should('be.disabled', { timeout: 5000 })
+        return this;
+    }
+
+    static saveShouldBeEnabled() {
+        this.getForm()
+            .contains("Save")
+            .should('be.enabled', { timeout: 5000 })
         return this;
     }
 

@@ -20,4 +20,10 @@ export class Listener {
             cy.get('#edit-button').click({ force: true });
         })
     }
+
+    public clickDelete() {
+        this.container.trigger('mouseover').within(() => {
+            cy.get('#delete-button').click({ force: true });
+        })
+    }
 }
