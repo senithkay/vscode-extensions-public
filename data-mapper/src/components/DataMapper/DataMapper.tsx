@@ -60,8 +60,6 @@ function DataMapperC(props: DataMapperProps) {
 
     const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
-    const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
-
 
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
@@ -74,6 +72,8 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
+            const diagnostics=  await handleDiagnostics(filePath, langClientPromise)
+
             const context = new DataMapperContext(
                 filePath,
                 fnST,
@@ -95,14 +95,6 @@ function DataMapperC(props: DataMapperProps) {
             setNodes(nodeInitVisitor.getNodes());
         })();
     }, [selection, fnST]);
-
-    useEffect(() => {
-        async function generateDiagnostics() {
-            const diagnostics =  await handleDiagnostics(filePath, langClientPromise)
-            setDiagnostics(diagnostics)
-        }
-        generateDiagnostics();
-    }, [fnST]);
 
     return (
         <>
