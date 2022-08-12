@@ -12,6 +12,7 @@ import "../../assets/fonts/Gilmer/gilmer.css";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
+import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 
 export interface DataMapperProps {
@@ -46,6 +47,8 @@ function DataMapperC(props: DataMapperProps) {
                 applyModifications
             );
 
+            const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+            await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
             const nodeInitVisitor = new NodeInitVisitor(context);
             traversNode(fnST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());

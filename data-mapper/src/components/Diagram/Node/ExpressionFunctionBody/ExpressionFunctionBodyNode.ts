@@ -1,5 +1,5 @@
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, FieldAccess, MappingConstructor, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
@@ -7,6 +7,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { FormFieldPortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
+import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
 
@@ -27,26 +28,19 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     }
 
  async initPorts() {
-        const langClient = await this.context.getEELangClient();
-        const res = await langClient.getTypeFromSymbol({
-         documentIdentifier: {
-             uri: `file://${this.context.currentFile.path}`
-         },
-         positions: [
-             {
-                 line: this.typeDesc.position.startLine,
-                 offset: this.typeDesc.position.startColumn
-             }
-         ]
-        });
-        // tslint:disable-next-line:no-console
-        console.log(JSON.stringify(res));
+	 const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+	 this.typeDef = recordTypeDescriptors.getTypeDescriptor({
+		 name: this.typeDesc.source.trim(),
+		 position: {
+			 startLine: this.typeDesc.position.startLine,
+			 startColumn: this.typeDesc.position.startColumn,
+			 endLine: this.typeDesc.position.startLine,
+			 endColumn: this.typeDesc.position.startColumn
+		 }
+	 });
 
-        const { type } = res.types[0];
-        this.typeDef = type;
-
-        if (type?.typeName && type.typeName === 'record') {
-         const fields = type.fields;
+  if (this.typeDef && this.typeDef.typeName === 'record') {
+         const fields = this.typeDef.fields;
          fields.forEach((subField) => {
              this.addPortsForFormField(subField, "IN", "exprFunctionBody");
          });
