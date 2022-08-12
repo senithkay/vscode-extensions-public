@@ -33,11 +33,11 @@ function DataMapperC(props: DataMapperProps) {
 
     const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
-    const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
-
 
     useEffect(() => {
         async function generateNodes() {
+            const diagnostics=  await handleDiagnostics(filePath, langClientPromise)
+
             const context = new DataMapperContext(
                 filePath,
                 fnST,
@@ -52,16 +52,9 @@ function DataMapperC(props: DataMapperProps) {
             traversNode(fnST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
         }
+
         generateNodes();
     }, [fnST, filePath]);
-
-    useEffect(() => {
-        async function generateDiagnostics() {
-            const diagnostics =  await handleDiagnostics(filePath, langClientPromise)
-            setDiagnostics(diagnostics)
-        }
-        generateDiagnostics();
-    }, [fnST]);
 
     return (
         <>
