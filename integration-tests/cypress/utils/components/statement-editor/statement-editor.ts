@@ -19,7 +19,6 @@ export class StatementEditor {
     static shouldBeVisible() {
         this.getStatementEditor().should("be.visible");
         return this;
-
     }
 
     private static getStatementEditor() {
@@ -35,6 +34,7 @@ export class StatementEditor {
             .get('button')
             .contains("Save")
             .should('not.be.disabled')
+            .wait(1000)
             .click();
         return this;
 

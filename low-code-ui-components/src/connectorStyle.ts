@@ -23,7 +23,7 @@ export const connectorStyles = makeStyles((theme: Theme) =>
             },
         },
         wizardFormControlExtended: {
-            width: 500,
+            width: 600,
             "& .MuiFormControl-marginNormal": {
                 margin: '0 !important',
             },
@@ -227,7 +227,6 @@ export const connectorStyles = makeStyles((theme: Theme) =>
             fontSize: '12px',
             textTransform: 'capitalize',
             display: 'inline-block',
-            lineHeight: '40px',
             marginBottom: '0.06rem',
             marginLeft: '0.25rem',
             marginTop: '0.094375rem'
@@ -884,7 +883,7 @@ export const connectorStyles = makeStyles((theme: Theme) =>
         },
         methodTypeContainer: {
             display: 'block',
-            width: '25%',
+            width: '38%',
         },
         advancedToggleWrapper: {
             width: '10%',

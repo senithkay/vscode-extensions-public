@@ -12,8 +12,6 @@
  */
 import React from "react";
 
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-
 import { FormGeneratorProps } from "../../FormGenerator";
 
 import { PlusOptionsSelector } from "./PlusOptionsSelector";
@@ -24,11 +22,6 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
 
     return (
         <>
-            <FormHeaderSection
-                onCancel={onCancel}
-                formTitle={"lowcode.develop.configForms.plusholder.title"}
-                defaultMessage={"Add Constructs"}
-            />
             <PlusOptionsSelector
                 kind={kind}
                 onClose={onCancel}

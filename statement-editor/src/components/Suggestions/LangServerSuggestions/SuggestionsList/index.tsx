@@ -15,19 +15,20 @@ import React from "react";
 
 import { List } from "@material-ui/core";
 
-import { SuggestionItem } from "../../../../models/definitions";
+import { Suggestion, SuggestionItem } from "../../../../models/definitions";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
 import { SuggestionListItem } from "../SuggestionListItem";
 
 export interface SuggestionsListProps {
     lsSuggestions: SuggestionItem[];
-    selectedListItem: number;
+    selectedSuggestion: Suggestion;
+    currentGroup: number;
     onClickLSSuggestion: (suggestion: SuggestionItem) => void;
     selection?: string;
 }
 
 export function SuggestionsList(props: SuggestionsListProps) {
-    const { lsSuggestions, selectedListItem, onClickLSSuggestion, selection } = props;
+    const { lsSuggestions, selectedSuggestion, onClickLSSuggestion, selection, currentGroup } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     return (
@@ -35,7 +36,10 @@ export function SuggestionsList(props: SuggestionsListProps) {
             {(selection) && (
                 <>
                     <br/>
-                    <div className={stmtEditorHelperClasses.helperPaneSubHeader}>{selection}</div>
+                    <div className={stmtEditorHelperClasses.selectionWrapper}>
+                        <div className={stmtEditorHelperClasses.selectionSubHeader}>{selection}</div>
+                        <div className={stmtEditorHelperClasses.selectionSeparator} />
+                    </div>
                 </>
             )}
             <List className={stmtEditorHelperClasses.suggestionList} data-testid="suggestion-list">
@@ -43,8 +47,12 @@ export function SuggestionsList(props: SuggestionsListProps) {
                     lsSuggestions.map((suggestion: SuggestionItem, index: number) => (
                         <SuggestionListItem
                             key={index}
+                            isSelected={ selectedSuggestion && (
+                                index === selectedSuggestion.selectedListItem &&
+                                currentGroup === selectedSuggestion.selectedGroup
+                            )
+                            }
                             suggestion={suggestion}
-                            selectedListItem={selectedListItem}
                             onClickLSSuggestion={onClickLSSuggestion}
                         />
                     ))

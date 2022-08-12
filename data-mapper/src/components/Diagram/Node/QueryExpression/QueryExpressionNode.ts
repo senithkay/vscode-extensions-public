@@ -1,14 +1,18 @@
 import { CaptureBindingPattern, NodePosition, QueryExpression, RecordField, RecordTypeDesc, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
+
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { getTypeDescForFieldName } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
-import { DataMapperPortModel } from "../../Port";
-import { IntermediatePortModel } from "../../Port/IntermediatePort/IntermediatePortModel";
-import { getFieldNames, getParamForName } from "../../utils";
-import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
+import { DataMapperPortModel, IntermediatePortModel } from "../../Port";
+import { getFieldNames } from "../../utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 import { RequiredParamNode } from "../RequiredParam";
+import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
 import { ExpressionLabelModel } from "../../Label";
+
 import { filterDiagnostics } from "../../utils/ls-utils";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
@@ -20,14 +24,13 @@ export const QUERY_TARGET_PORT_PREFIX = "queryExpr.target";
 export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
-    public targetTypeDesc: RecordTypeDesc;
     public sourcePort: DataMapperPortModel;
     public targetPort: DataMapperPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
 
-	public sourceBindingPattern: CaptureBindingPattern;
+    public sourceBindingPattern: CaptureBindingPattern;
 
     constructor(
         public context: IDataMapperContext,
@@ -80,36 +83,31 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     private async getSourceType() {
-        const sourceFieldAccess = this.value.queryPipeline.fromClause.expression;
+        const expr = this.value.queryPipeline.fromClause.expression;
         const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
-            if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
-                const fieldNames = getFieldNames(sourceFieldAccess);
-                const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
-                const param = getParamForName(fieldNames[0], this.context.functionST);
-                const paramNode = this.getModel().getNodes().find((node) =>
-                    node instanceof RequiredParamNode
-                    && node.value.paramName.value === fieldNames[0]) as RequiredParamNode;
-                const paramTypeDesc = paramNode.typeDef.typeDescriptor as RecordTypeDesc;
-                let nextRecTypeDesc = paramTypeDesc;
-                let sourceTypeDesc: RecordTypeDesc;
-                for (let i = 1; i < fieldNames.length; i++) {
-                    const field = nextRecTypeDesc.fields.find((field) =>
-                        STKindChecker.isRecordField(field) && field.fieldName.value === fieldNames[i]) as RecordField;
-                    if (i === fieldNames.length - 1) {
-                        const fieldType = field.typeName;
-                        if (STKindChecker.isArrayTypeDesc(fieldType)
-                            && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
-                            sourceTypeDesc = fieldType.memberTypeDesc;
-                        }
-                        this.sourcePort = paramNode.getPort(fieldId + ".OUT") as DataMapperPortModel;
-                    } else if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-                        nextRecTypeDesc = field.typeName; // TODO Handle other cases
-                    }
-                }
-                this.sourceTypeDesc = sourceTypeDesc;
+            if (STKindChecker.isFieldAccess(expr)) {
+                this.sourceTypeDesc = await getTypeDescForFieldName(expr.fieldName, this.context);
             }
+        }
+
+        const sourceFieldAccess = this.value.queryPipeline.fromClause.expression;
+        if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
+            const fieldNames = getFieldNames(sourceFieldAccess);
+            const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
+
+            this.getModel().getNodes().map((node) => {
+                if (node instanceof RequiredParamNode && node.value.paramName.value === fieldNames[0]) {
+                    this.sourcePort = node.getPort(fieldId + ".OUT") as DataMapperPortModel;
+                } else if (node instanceof FromClauseNode
+                    && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)
+                    && node.value.typedBindingPattern.bindingPattern.source.trim() === fieldNames[0].trim())
+                {
+                    this.sourcePort = node.getPort(
+                        `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as DataMapperPortModel;
+                }
+            });
         }
     }
 
@@ -138,7 +136,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         value: otherVal?.source || value.source,
                         valueNode: otherVal || value,
                         context: this.context,
-                        link: link
+                        link
                     }));
                     link.registerListener({
                         selectionChanged(event) {
@@ -186,22 +184,31 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
         // TODO - temp hack to render link
         if (this.outPort) {
-            const targetNode = this.getModel().getNodes().find((node) => node instanceof ExpressionFunctionBodyNode);
-            const ports = Object.entries(targetNode.getPorts());
-            const targetPort = ports.find((entry) => {
-                const port = entry[1];
-                if (port instanceof DataMapperPortModel) {
-                    if (STKindChecker.isRecordField(port.field)) {
-                        if (port.field.fieldName.value === "Assets") {
-                            return true;
-                        }
+            let targetPort: DataMapperPortModel;
+            this.getModel().getNodes().map((node) => {
+                    if (node instanceof ExpressionFunctionBodyNode) {
+                        const ports = Object.entries(node.getPorts());
+                        ports.map((entry) => {
+                            const port = entry[1];
+                            if (port instanceof DataMapperPortModel) {
+                                if (STKindChecker.isRecordField(port.field)) {
+                                    if (port.field.fieldName.value === "Assets") {
+                                        targetPort = port;
+                                    }
+                                }
+                            }
+                        });
+                    } else if (node instanceof SelectClauseNode) {
+                        const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
+                        targetPort = node.getPort(
+                            `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as DataMapperPortModel;
                     }
-                }
             });
+
             if (targetPort) {
                 const link = new DataMapperLinkModel(undefined);
                 link.setSourcePort(this.outPort);
-                link.setTargetPort(targetPort[1]);
+                link.setTargetPort(targetPort);
                 link.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {

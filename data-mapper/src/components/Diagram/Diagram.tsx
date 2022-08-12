@@ -83,6 +83,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				node.setModel(model);
 				await node.initPorts();
 				await node.initLinks();
+				engine.repaintCanvas();
 			}
 			model.setLocked(true)
 			engine.setModel(model);

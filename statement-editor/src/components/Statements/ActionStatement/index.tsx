@@ -13,12 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ActionStatement } from "@wso2-enterprise/syntax-tree";
+import { ActionStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import { ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
-
 
 interface ReturnStatementProps {
     model: ActionStatement;
@@ -28,18 +28,29 @@ export function ActionStatementC(props: ReturnStatementProps) {
     const { model } = props;
     const stmtCtx = useContext(StatementEditorContext);
     const {
-        modelCtx: {
-            currentModel,
-            changeCurrentModel
-        }
+        modelCtx: { currentModel, changeCurrentModel },
+        config,
     } = stmtCtx;
 
     if (!currentModel.model) {
-        changeCurrentModel(model.expression);
+        if (
+            config.type === ACTION &&
+            model &&
+            STKindChecker.isCheckAction(model.expression) &&
+            STKindChecker.isRemoteMethodCallAction(model.expression.expression)
+        ) {
+            if (model.expression.expression.arguments?.length > 0) {
+                changeCurrentModel(model.expression.expression.arguments[0]);
+            } else {
+                changeCurrentModel(model.expression.expression);
+            }
+        } else {
+            changeCurrentModel(model.expression);
+        }
     }
 
     let component: JSX.Element;
-    if (model.expression?.kind === "AsyncSendAction") {
+    if (STKindChecker.isAsyncSendAction(model.expression)) {
         const expressionModel: any = model.expression as any;
         component = (
             <>
@@ -48,17 +59,15 @@ export function ActionStatementC(props: ReturnStatementProps) {
                 <ExpressionComponent model={expressionModel.peerWorker} />
                 <TokenComponent model={model.semicolonToken} />
             </>
-        )
+        );
     } else {
         component = (
             <>
                 <ExpressionComponent model={model.expression} />
                 <TokenComponent model={model.semicolonToken} />
             </>
-        )
+        );
     }
 
-    return (
-        component
-    );
+    return component;
 }

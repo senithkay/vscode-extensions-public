@@ -228,10 +228,14 @@ function getValue(key: string, obj: object): any {
     }
 }
 
-export function getRecordName(name: string): string {
+export function getRecordName(name: string): { fullRecordName: string, shortenedRecordName: string } {
     if (name === undefined) {
-        return name;
+        return { fullRecordName: name, shortenedRecordName: name };
     }
 
-    return name.split("/")[1];
+    const fullRecordNameArray = name.split("/");
+    const fullRecordName = fullRecordNameArray[fullRecordNameArray.length - 1];
+    const shortenedRecordNameArray = fullRecordName.split(":");
+    const shortenedRecordName = shortenedRecordNameArray[shortenedRecordNameArray.length - 1];
+    return { fullRecordName, shortenedRecordName };
 }

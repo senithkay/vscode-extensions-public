@@ -27,6 +27,7 @@ export interface ExpressionGroup {
 }
 
 export const EXPR_PLACEHOLDER = "EXPRESSION";
+export const FUNCTION_CALL_PLACEHOLDER = "FUNCTION_CALL";
 export const STMT_PLACEHOLDER = "STATEMENT";
 export const TYPE_DESC_PLACEHOLDER = "TYPE_DESCRIPTOR";
 export const BINDING_PATTERN_PLACEHOLDER = "BINDING_PATTERN";
@@ -429,6 +430,10 @@ const queryIntermediateClauses : ExpressionGroup = {
             name: "Limit-Clause",
             template: `limit ${EXPR_PLACEHOLDER}`,
             example: "limit Ex"
+        }, {
+            name: "OrderBy-Clause",
+            template: `order by ${EXPR_PLACEHOLDER} ascending`,
+            example: "order by Ex ascending"
         }
     ],
     relatedModelType: ModelType.QUERY_EXPRESSION

@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useMemo } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
-import { genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -25,6 +25,7 @@ import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import {
     ADD_CONFIGURABLE_LABEL,
+    CALL_CONFIG_TYPE,
     CONFIGURABLE_TYPE_BOOLEAN,
     CONFIGURABLE_TYPE_STRING
 } from "../../constants";
@@ -36,7 +37,6 @@ import {
     isConfigAllowedTypeDesc,
     isNodeDeletable
 } from "../../utils";
-import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorToolbarStyles } from "../styles";
 
@@ -46,7 +46,7 @@ interface ToolbarProps {
 
 export default function Toolbar(props: ToolbarProps) {
     const statementEditorClasses = useStatementEditorToolbarStyles();
-    const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo } = useContext(StatementEditorContext);
+    const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo, config } = useContext(StatementEditorContext);
     const {
         undo,
         redo,
@@ -66,16 +66,12 @@ export default function Toolbar(props: ToolbarProps) {
     const { inlineDocumentHandler } = props;
     const [docEnabled, setDocEnabled] = React.useState(false);
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
     React.useEffect(() => {
-        const client = keyboardNavigationManager.getClient();
-        keyboardNavigationManager.bindNewKey(client, ['command+z', 'ctrl+z'], undo);
-        keyboardNavigationManager.bindNewKey(client, ['command+shift+z', 'ctrl+shift+z'], redo)
-        keyboardNavigationManager.bindNewKey(client, ['del'], onDelFunction)
+        const client = KeyboardNavigationManager.getClient();
+        client.bindNewKey(['command+z', 'ctrl+z'], undo);
+        client.bindNewKey(['command+shift+z', 'ctrl+shift+z'], redo);
+        client.bindNewKey(['del'], onDelFunction);
 
-        return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
-        }
     }, [currentModel]);
 
     const [deletable, configurable] = useMemo(() => {
@@ -83,8 +79,12 @@ export default function Toolbar(props: ToolbarProps) {
         let modelConfigurable = false;
 
         if (currentModel.model) {
-            modelDeletable = isNodeDeletable(currentModel.model);
+            modelDeletable = isNodeDeletable(currentModel.model, config.type);
             modelConfigurable = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION;
+
+            if (STKindChecker.isFunctionCall(currentModel.model) && config.type === CALL_CONFIG_TYPE) {
+                modelConfigurable = false;
+            }
         }
 
         return [modelDeletable, modelConfigurable]
@@ -187,7 +187,7 @@ export default function Toolbar(props: ToolbarProps) {
                 <StatementEditorHint content={"Add configurable"} >
                     <IconButton
                         onClick={onClickOnConfigurable}
-                        disabled={!configurable}
+                        disabled={!configurable || hasSyntaxDiagnostics}
                         className={statementEditorClasses.toolbarIcons}
                     >
                         <ToolbarConfigurableIcon/>

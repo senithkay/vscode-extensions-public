@@ -14,9 +14,7 @@ export type topLevelOptions =
     | "Other"
     | "Resource";
 
-export type methods = "GET" | "PUT" | "DELETE" | "POST" | "OPTIONS" | "HEAD" | "PATCH";
-
-export type optionNames =
+export type blockLevelOptions =
     | "Connector"
     | "Action"
     | "HTTP"
@@ -30,3 +28,5 @@ export type optionNames =
     | "Return"
     | "Respond"
     | "Worker"
+
+export type methods = "GET" | "PUT" | "DELETE" | "POST" | "OPTIONS" | "HEAD" | "PATCH";

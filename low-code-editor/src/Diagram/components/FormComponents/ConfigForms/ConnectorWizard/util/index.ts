@@ -24,6 +24,7 @@ import {
     DoStatement,
     ForeachStatement,
     IfElseStatement,
+    ModulePart,
     NodePosition,
     QualifiedNameReference,
     STKindChecker,
@@ -33,8 +34,10 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { isEndpointNode } from "../../../../../utils";
-import { getFormattedModuleName } from "../../../../Portals/utils";
-import { isAllDefaultableFields } from "../../../Utils";
+import { getFieldName, getFormattedModuleName } from "../../../../Portals/utils";
+import { isAllDefaultableFields, isAnyFieldSelected, isDependOnDriver } from "../../../Utils";
+
+const EXPR_PLACEHOLDER = "EXPRESSION";
 
 export async function fetchConnectorInfo(
     connector: BallerinaConnectorInfo,
@@ -107,51 +110,75 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
         let draftParameter = "";
         switch (parameter.typeName) {
             case PrimitiveBalType.String:
-                draftParameter = getFieldValuePair(parameter, `""`, depth);
+                draftParameter = getFieldValuePair(parameter, `""`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Int:
             case PrimitiveBalType.Float:
             case PrimitiveBalType.Decimal:
-                draftParameter = getFieldValuePair(parameter, `0`, depth);
+                draftParameter = getFieldValuePair(parameter, `0`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Boolean:
-                draftParameter = getFieldValuePair(parameter, `true`, depth);
+                draftParameter = getFieldValuePair(parameter, `true`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Array:
-                draftParameter = getFieldValuePair(parameter, `[]`, depth);
+                draftParameter = getFieldValuePair(parameter, `[]`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Xml:
-                draftParameter = getFieldValuePair(parameter, "xml ``", depth);
+                draftParameter = getFieldValuePair(parameter, "xml ``", depth, valueOnly);
                 break;
             case PrimitiveBalType.Nil:
+            case "anydata":
             case "()":
-                draftParameter = getFieldValuePair(parameter, `()`, depth);
+                draftParameter = getFieldValuePair(parameter, `()`, depth, true);
                 break;
             case PrimitiveBalType.Json:
             case "map":
-                draftParameter = getFieldValuePair(parameter, `{}`, depth);
+                draftParameter = getFieldValuePair(parameter, `{}`, depth, valueOnly);
                 break;
             case PrimitiveBalType.Record:
-                if (isAllDefaultableFields(parameter?.fields)) {
+                const allFieldsDefaultable = isAllDefaultableFields(parameter?.fields);
+                if (!parameter.selected && allFieldsDefaultable) {
+                    break;
+                }
+                if (parameter.selected && allFieldsDefaultable && !isAnyFieldSelected(parameter?.fields)) {
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
-                draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly);
+                draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly, false);
                 break;
+            case PrimitiveBalType.Enum:
             case PrimitiveBalType.Union:
-                const firstMember = parameter.members[ 0 ];
-                const firstMemberParams = getDefaultParams([ firstMember ], depth + 1, true);
-                draftParameter = getFieldValuePair(parameter, firstMemberParams?.join(), depth);
+                const selectedMember = getSelectedUnionMember(parameter);
+                const selectedMemberParams = getDefaultParams([ selectedMember ], depth + 1, true);
+                draftParameter = getFieldValuePair(parameter, selectedMemberParams?.join(), depth, false, false);
                 break;
             case "inclusion":
-                if (isAllDefaultableFields(parameter.inclusionType?.fields)) {
+                if (isAllDefaultableFields(parameter.inclusionType?.fields) && !parameter.selected) {
                     break;
                 }
-                const inclusionParams = getDefaultParams([ parameter.inclusionType ], depth + 1);
+                const inclusionParams = getDefaultParams([ parameter.inclusionType ], depth + 1, true);
                 draftParameter = getFieldValuePair(parameter, `${inclusionParams?.join()}`, depth);
                 break;
-
+            case "object":
+                const typeInfo = parameter.typeInfo;
+                if (
+                    typeInfo &&
+                    typeInfo.orgName === "ballerina" &&
+                    typeInfo.moduleName === "sql" &&
+                    typeInfo.name === "ParameterizedQuery"
+                ) {
+                    draftParameter = getFieldValuePair(parameter, "``", depth);
+                }
+                break;
             default:
+                if (!parameter.name) {
+                    // Handle Enum type
+                    draftParameter = getFieldValuePair(parameter, `"${parameter.typeName}"`, depth, true);
+                }
+                if (parameter.name === "rowType") {
+                    // Handle custom return type
+                    draftParameter = getFieldValuePair(parameter, EXPR_PLACEHOLDER, depth);
+                }
                 break;
         }
         if (draftParameter !== "") {
@@ -161,15 +188,47 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
     return parameterList;
 }
 
-function getFieldValuePair(parameter: FormField, defaultValue: string, depth: number, valueOnly = false): string {
+function getFieldValuePair(
+    parameter: FormField,
+    defaultValue: string,
+    depth: number,
+    valueOnly = false,
+    useParamValue = true
+): string {
+    let value = defaultValue || EXPR_PLACEHOLDER;
+    if (useParamValue && parameter.value) {
+        value = parameter.value;
+    }
     if (depth === 1 && !valueOnly) {
         // Handle named args
-        return `${parameter.name} = ${defaultValue}`;
+        return `${getFieldName(parameter.name)} = ${defaultValue}`;
     }
     if (depth > 1 && !valueOnly) {
-        return `${parameter.name}: ${defaultValue}`;
+        return `${getFieldName(parameter.name)}: ${defaultValue}`;
     }
     return defaultValue;
+}
+
+export function getUnionFormFieldName(field: FormField): string {
+    return field.name || field.typeInfo?.name || field.typeName;
+}
+
+export function getSelectedUnionMember(unionFields: FormField): FormField {
+    let selectedMember = unionFields.members?.find((member) => member.selected === true);
+    if (!selectedMember) {
+        selectedMember = unionFields.members?.find(
+            (member) => getUnionFormFieldName(member) === unionFields.selectedDataType
+        );
+    }
+    if (!selectedMember) {
+        selectedMember = unionFields.members?.find(
+            (member) => member.typeName === unionFields.value?.replace(/['"]+/g, "")
+        );
+    }
+    if (!selectedMember) {
+        selectedMember = unionFields.members[ 0 ];
+    }
+    return selectedMember;
 }
 
 export function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldReturnType {
@@ -305,6 +364,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                 }
                 if (depth > 2 && (formField.typeName.trim() === "error" || formField.isErrorType)) {
                     response.hasReturn = true;
+                    response.hasError = true;
                     response.returnType = "error";
                 }
                 if (type === "" && formField.typeInfo && !formField.isErrorType) {
@@ -464,4 +524,35 @@ export function getConnectorFromVisibleEp(endpoint: VisibleEndpoint) {
         functions: [],
     };
     return connector;
+}
+
+export function getConnectorImports(syntaxTree: STNode, organization: string, moduleName: string) {
+    let isDriverImported = false;
+    const imports = new Set<string>([ `${organization}/${moduleName}` ]);
+
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        (syntaxTree as ModulePart).imports?.forEach((imp) => {
+            if (
+                STKindChecker.isImportDeclaration(imp) &&
+                imp.orgName?.orgName.value === organization &&
+                imp.typeData?.symbol?.moduleID?.moduleName === `${moduleName}.driver`
+            ) {
+                isDriverImported = true;
+            }
+        });
+        if (!isDriverImported && isDependOnDriver(moduleName)) {
+            imports.add(`${organization}/${moduleName}.driver as _`);
+        }
+    }
+    return imports;
+}
+
+export function getReturnTypeImports(returnType: FormFieldReturnType) {
+    const imports = new Set<string>();
+    if (returnType.importTypeInfo) {
+        returnType.importTypeInfo?.forEach((typeInfo) => {
+            imports.add(`${typeInfo.orgName}/${typeInfo.moduleName}`);
+        });
+    }
+    return imports;
 }

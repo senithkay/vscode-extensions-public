@@ -169,21 +169,7 @@ export function Diagram() {
 
     const handleDeleteComponent = (model: STNode, onDelete?: () => void) => {
         const modifications: STModification[] = [];
-        // used configurable
-        const configurables: Map<string, STNode> = stSymbolInfo.configurables;
-        const usedConfigurables = Array.from(configurables.keys()).filter(config => model.source.includes(`${config}`));
-        const variableReferences: Map<string, STNode[]> = stSymbolInfo.variableNameReferences;
 
-        // delete unused configurables
-        usedConfigurables.forEach(configurable => {
-            // check used configurables usages
-            if (variableReferences.has(configurable) && variableReferences.get(configurable).length === 1) {
-                const deleteConfig: STModification = removeStatement(
-                    configurables.get(configurable).position
-                );
-                modifications.push(deleteConfig);
-            }
-        });
         // delete action
         if (STKindChecker.isIfElseStatement(model) && !model.viewState.isMainIfBody){
             const ifElseRemovePosition = model.position;

@@ -1,11 +1,13 @@
 .plus-holder {
     .holder-wrapper {
-        width: 396px;
+        width: 312px;
         background-color: #fff;
         display: flex;
         flex-direction: column;
         padding-bottom: 1.5rem;
         z-index: 3;
+        height: calc(100vh - 60px);
+        overflow-x: hidden;
     }
 
     .element-options {
@@ -16,7 +18,25 @@
         .element-option-holder {
             display: flex;
             flex-direction: column;
-            margin: 1rem 0 0;
+
+            .options-title {
+                width: 260px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+
+                .options-title-label {
+                    font-size: 13px;
+                    line-height: 14px;
+                    font-weight: 500;
+                    margin-top: 0;
+                    width: auto;
+                }
+            }
+
+            hr.MuiDivider-root {
+                margin: 10px 0;
+            }
 
             .options-wrapper {
                 display: flex;
@@ -24,9 +44,9 @@
                 justify-content: space-between;
 
                 hr.MuiDivider-root {
-                    width: 350px;
+                    width: 262px;
                     height: 1px;
-                    margin: 0.25rem 0;
+                    margin: 10px 0;
                 }
 
                 .connect-option {
@@ -94,7 +114,8 @@
                 }
 
                 .sub-option {
-                    width: 163px;
+                    width: 260px;
+                    height: 40px;
                     padding: 4px;
                     display: flex;
                     flex-direction: row;
@@ -105,6 +126,21 @@
                         background: #f7f8fb;
                         border-radius: 5px;
                         cursor: pointer;
+
+                        .icon-wrapper {
+                            .svg-sub-menu-plus-option-icon {
+                                // fill: #5567D5;
+                                fill: #5567D5;
+    
+                                &.secondary {
+                                    fill: #5567D5;
+                                }
+                            }
+                        }
+
+                        .text-label {
+                            color: #5567D5;
+                        }
                     }
 
                     &.enabled {
@@ -121,10 +157,10 @@
 
                         .svg-sub-menu-plus-option-icon {
                             // fill: #5567D5;
-                            fill: #cbcddb;
+                            fill: #40404B;
 
                             &.secondary {
-                                fill: #cbcddb;
+                                fill: #40404B;
                             }
                         }
                     }

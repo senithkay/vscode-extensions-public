@@ -76,7 +76,8 @@ export function OperatorComponent(props: OperatorProps) {
     const { modelCtx } = useContext(StatementEditorContext);
     const {
         currentModel: selectedModel,
-        changeCurrentModel
+        changeCurrentModel,
+        hasSyntaxDiagnostics
     } = modelCtx;
 
     const statementRenedererClasses = useStatementRendererStyles();
@@ -96,15 +97,17 @@ export function OperatorComponent(props: OperatorProps) {
     }
 
     const onMouseClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        changeCurrentModel(model);
+        if (!hasSyntaxDiagnostics) {
+            e.stopPropagation();
+            e.preventDefault();
+            changeCurrentModel(model);
+        }
     }
 
     const styleClassNames = cn(statementRenedererClasses.expressionElement,
         isSelected && statementRenedererClasses.expressionElementSelected,
         {
-            "hovered": !isSelected && isHovered,
+            "hovered": !isSelected && isHovered && !hasSyntaxDiagnostics,
         },
     )
     const inputEditorProps = {

@@ -67,7 +67,7 @@ export function TriggerList(props: FormGeneratorProps) {
                     ) : (
                         <FormGenerator
                             onCancel={handleTriggerFormClose}
-                            configOverlayFormStatus={{ formType: "TriggerForm", isLoading: true, formArgs: triggerArgs }}
+                            configOverlayFormStatus={{ formType: "TriggerForm", isLoading: false, formArgs: triggerArgs }}
                             targetPosition={targetPosition}
                             onSave={onSave}
                         />

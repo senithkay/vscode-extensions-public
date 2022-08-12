@@ -64,11 +64,11 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const x = viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2;
     const y = viewState.bBox.cy;
 
-    const draftVS: DraftStatementViewState = viewState as DraftStatementViewState;
+    const draftVS = blockViewState?.draft[1] ? blockViewState?.draft[1] as DraftStatementViewState : undefined;
 
     const [isEditConnector, setIsConnectorEdit] = useState<boolean>(false);
 
-    const [connector, setConnector] = useState<BallerinaConnectorInfo>(draftVS.connector);
+    const [connector, setConnector] = useState<BallerinaConnectorInfo>(draftVS?.connector);
 
     const toggleSelection = () => {
         setIsConnectorEdit(!isEditConnector);
@@ -113,7 +113,9 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             isReferencedVariable = true;
         }
     }
-    draftVS.targetPosition = draftVS.targetPosition ? draftVS.targetPosition : model?.position;
+    if (draftVS){
+        draftVS.targetPosition = draftVS?.targetPosition || model?.position;
+    }
 
     if (isEditConnector && !connector) {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
@@ -127,14 +129,14 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const toolTip = isReferencedVariable ? "API is referred in the code below" : undefined;
 
     useEffect(() => {
-        if ((draftVS || model) && renderConnectorWizard) {
+        if ((draftVS || (model && isEditConnector)) && renderConnectorWizard) {
                 renderConnectorWizard({
                     connectorInfo: connector,
                     diagramPosition: {
                         x: viewState.bBox.cx + 80,
                         y: viewState.bBox.cy,
                     },
-                    targetPosition: draftVS.targetPosition || model?.position,
+                    targetPosition: draftVS?.targetPosition || model?.position,
                     model,
                     onClose: onWizardClose,
                     onSave: onWizardClose,

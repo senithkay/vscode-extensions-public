@@ -40,6 +40,7 @@ import "../../style.scss";
 import While from "../../../../../../../assets/icons/While";
 import { FormattedMessage, useIntl } from "react-intl";
 import { HttpLogo, PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { isStatementEditorSupported } from "../../../../Utils";
 
 export const PROCESS_TYPES = [""];
 
@@ -63,17 +64,13 @@ export interface Statements {
 }
 
 export function StatementOptions(props: StatementOptionsProps) {
-    const { api: { insights: { onEvent } } } = useContext(Context);
+    const { api: { insights: { onEvent } }, props: { ballerinaVersion } } = useContext(Context);
+
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
     const intl = useIntl();
     const { onSelect, viewState, isCallerAvailable, isResource, hasWorkerDecl } = props;
 
     const plusHolderStatementTooltipMessages = {
-        logStatement: {
-            title: intl.formatMessage({
-                id: "lowcode.develop.plusHolder.plusElements.statements.log.tooltip.title",
-                defaultMessage: "A log statement logs an event with an information statement, an error that occurs in a service, or an integration. If the event has not yet occurred, you can view the logs from the 'Run & Test' console . If the event has occurred, you can view the logs from the Observability page."
-            })
-        },
         worker: {
             title: intl.formatMessage({
                 id: "lowcode.develop.plusHolder.plusElements.statements.worker.tooltip.title",
@@ -175,6 +172,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 id: "lowcode.develop.plusHolder.plusElements.statements.action.tooltip.title",
                 defaultMessage: "An action can be used to invoke operations of an existing connector."
             })
+        },
+        functionCallStatement: {
+            title: intl.formatMessage({
+                id: "lowcode.develop.plusHolder.plusElements.statements.functionCall.tooltip.title",
+                defaultMessage: "A function call is a request that performs a predetermined function."
+            })
         }
     }
 
@@ -191,29 +194,9 @@ export function StatementOptions(props: StatementOptionsProps) {
         onSelectStatement(type)
     }
 
-    const logStm: StatementComponent = {
-        name: "log",
-        category: 'generics',
-        component:
-            (
-                <Tooltip
-                    title={plusHolderStatementTooltipMessages.logStatement.title}
-                    placement="left"
-                    arrow={true}
-                    interactive={true}
-                >
-                    <div className="sub-option enabled" data-testid="addLog" onClick={onSelectStatement.bind(undefined, "Log")}>
-                        <div className="icon-wrapper">
-                            <LogIcon />
-                        </div>
-                        <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.log.title" defaultMessage="Log" /></div>
-                    </div>
-                </Tooltip>
-            )
-    }
     const workerBlock: StatementComponent = {
         name: "worker",
-        category: 'actors',
+        category: 'concurrency',
         component:
             (
                 <Tooltip
@@ -221,8 +204,13 @@ export function StatementOptions(props: StatementOptionsProps) {
                     placement="left"
                     arrow={true}
                     interactive={true}
+                    disabled={!viewState.allowWorker}
                 >
-                    <div className="sub-option enabled" data-testid="addLog" onClick={onSelectStatement.bind(undefined, "Worker")}>
+                    <div
+                        className={cn("sub-option", { enabled: viewState.allowWorker })}
+                        data-testid="addWorker"
+                        onClick={viewState.allowWorker ? onSelectStatement.bind(undefined, "Worker") : null}
+                    >
                         <div className="icon-wrapper">
                             <LogIcon />
                         </div>
@@ -287,11 +275,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 placement="right"
                 arrow={true}
                 interactive={true}
+                disabled={!hasWorkerDecl}
             >
                 <div
-                    className="sub-option enabled"
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
                     data-testid="addSend"
-                    onClick={onSelectStatement.bind(undefined, "AsyncSend")}
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "AsyncSend") : null}
                 >
                     <div className="icon-wrapper">
                         <AsyncSend />
@@ -315,11 +304,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 placement="right"
                 arrow={true}
                 interactive={true}
+                disabled={!hasWorkerDecl}
             >
                 <div
-                    className="sub-option enabled"
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
                     data-testid="addReceive"
-                    onClick={onSelectStatement.bind(undefined, "ReceiveStatement")}
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "ReceiveStatement") : null}
                 >
                     <div className="icon-wrapper">
                         <AsyncReceive />
@@ -343,11 +333,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 placement="right"
                 arrow={true}
                 interactive={true}
+                disabled={!hasWorkerDecl}
             >
                 <div
-                    className="sub-option enabled"
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
                     data-testid="addWait"
-                    onClick={onSelectStatement.bind(undefined, "WaitStatement")}
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "WaitStatement") : null}
                 >
                     <div className="icon-wrapper">
                         <AsyncWait />
@@ -371,11 +362,12 @@ export function StatementOptions(props: StatementOptionsProps) {
                 placement="right"
                 arrow={true}
                 interactive={true}
+                disabled={!hasWorkerDecl}
             >
                 <div
-                    className="sub-option enabled"
+                    className={cn("sub-option", { enabled: hasWorkerDecl })}
                     data-testid="addFlush"
-                    onClick={onSelectStatement.bind(undefined, "FlushStatement")}
+                    onClick={hasWorkerDecl ? onSelectStatement.bind(undefined, "FlushStatement") : null}
                 >
                     <div className="icon-wrapper">
                         <Flush />
@@ -477,7 +469,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     };
     const actionStatement: StatementComponent = {
         name: "action",
-        category: "communications",
+        category: "actors",
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.actionStatement.title}
@@ -600,28 +592,51 @@ export function StatementOptions(props: StatementOptionsProps) {
         )
     }
 
+    const functionCall: StatementComponent = {
+        name: "functionCall",
+        category: 'generics',
+        component: (
+            <Tooltip
+                title={plusHolderStatementTooltipMessages.functionCallStatement.title}
+                placement="left"
+                arrow={true}
+                interactive={true}
+            >
+                <div
+                    className={cn("sub-option enabled", { height: 'unset' })}
+                    data-testid="addFunctionCall"
+                    onClick={onSelectStatement.bind(undefined, "Call")}
+                >
+                    <div className="icon-wrapper">
+                        <CustomStatementIcon />
+                    </div>
+                    <div className="text-label"><FormattedMessage id="lowcode.develop.plusHolder.plusElements.statements.functionCall.tooltip.title" defaultMessage="Function Call" /></div>
+                </div>
+            </Tooltip>
+        )
+    }
+
     const statements: StatementComponent[] = [];
     statements.push(connectorStatement);
     statements.push(actionStatement);
-    statements.push(logStm);
     statements.push(propertyStm);
     statements.push(assignmentStm);
     statements.push(ifStm);
     statements.push(foreachStm);
     statements.push(whileStmt);
     statements.push(returnStm);
-    statements.push(respondStm);
-    statements.push(sendStmt);
-    statements.push(receiveStmt);
-    statements.push(waitStmt);
-    statements.push(flushStmt);
-    // statements.push(datamappingStatement);
-    statements.push(customStatement);
-    statements.push(httpConnector);
-
-    if (viewState.allowWorker) {
+    // statements.push(respondStm);
+    if (statementEditorSupported) {
         statements.push(workerBlock);
+        statements.push(sendStmt);
+        statements.push(receiveStmt);
+        statements.push(waitStmt);
+        statements.push(flushStmt);
     }
+    // statements.push(datamappingStatement);
+    // statements.push(customStatement);
+    statements.push(functionCall);
+    statements.push(httpConnector);
 
     const initStatements: Statements = {
         statement: statements,
@@ -675,13 +690,6 @@ export function StatementOptions(props: StatementOptionsProps) {
         });
     }
 
-    const concurrencyComp = (
-        <>
-            {(concurrencyElements.length > 0 ? <Divider className="options-divider" /> : null)}
-            {concurrencyElements}
-        </>
-    )
-
     return (
         <>
             <div className="element-option-holder" >
@@ -691,7 +699,8 @@ export function StatementOptions(props: StatementOptionsProps) {
                     {controlFlowElements}
                     {(genericElements.length > 0 ? <Divider className="options-divider" /> : null)}
                     {genericElements}
-                    {hasWorkerDecl && concurrencyComp}
+                    {(concurrencyElements.length > 0 ? <Divider className="options-divider" /> : null)}
+                    {concurrencyElements}
                     {(communicationElements.length > 0 ? <Divider className="options-divider" /> : null)}
                     {communicationElements}
                 </div>

@@ -10,31 +10,42 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getParamHighlight } from "../../../utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 // tslint:disable: jsx-no-multiline-js
 interface RequiredArgProps {
     param : ParameterInfo
     value : number
-    checkedList : any[]
 }
 export function RequiredArg(props : RequiredArgProps){
-    const { param, value, checkedList } = props;
+    const { param, value} = props;
     const statementEditorHelperClasses = useStmtEditorHelperPanelStyles();
+
+    const {
+        modelCtx: {
+            currentModel
+        }
+    } = useContext(StatementEditorContext);
 
 
     return(
-        <ListItem key={value} className={statementEditorHelperClasses.requiredArgList}>
+        <ListItem
+            key={value}
+            className={statementEditorHelperClasses.requiredArgList}
+            style={getParamHighlight(currentModel.model, param)}
+        >
             <Checkbox
                 classes={{
                     root : statementEditorHelperClasses.disabledCheckbox,
                     checked : statementEditorHelperClasses.checked
                 }}
-                checked={checkedList.indexOf(value) !== -1}
+                checked={param.modelPosition !== undefined}
                 disabled={true}
             />
             <ListItemText

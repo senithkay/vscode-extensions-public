@@ -13,18 +13,18 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { KeyboardNavigationManager, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
+import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
 import {
     CurrentModel,
+    DocumentationInfo,
     EditorModel,
-    EmptySymbolInfo,
     LSSuggestions,
-    StmtDiagnostic,
+    StatementSyntaxDiagnostics,
     SuggestionItem
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
@@ -39,10 +39,9 @@ import {
     getPreviousNode,
     getSelectedModelPosition,
     getUpdatedSource,
-    isBindingPattern,
+    isBindingPattern, isDocumentationSupportedModel,
     isOperator,
 } from "../../utils";
-import { KeyboardNavigationManager } from '../../utils/keyboard-navigation-manager';
 import {
     getCompletions,
     getDiagnostics,
@@ -56,6 +55,7 @@ import { StackElement } from "../../utils/undo-redo";
 import { visitor as CommonParentFindingVisitor } from "../../visitors/common-parent-finding-visitor";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditorWrapper";
+import { ReturnStatementC } from '../Statements/ReturnStatement';
 import { ViewContainer } from "../ViewContainer";
 
 export interface StatementEditorProps extends LowCodeEditorProps {
@@ -90,7 +90,7 @@ export function StatementEditor(props: StatementEditorProps) {
         importStatements,
         experimentalEnabled,
         extraModules,
-        runCommandInBackground
+        runBackgroundTerminalCommand
     } = props;
 
     const {
@@ -110,21 +110,28 @@ export function StatementEditor(props: StatementEditorProps) {
     } = editorManager;
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    const initSymbolInfo: EmptySymbolInfo = {}
+    const initSymbolInfo : DocumentationInfo = {
+        modelPosition: null,
+        documentation: {}
+    }
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
-    const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
+    const [stmtDiagnostics, setStmtDiagnostics] = useState<StatementSyntaxDiagnostics[]>([]);
     const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
-    const [documentation, setDocumentation] = useState<SymbolInfoResponse | EmptySymbolInfo>(initSymbolInfo);
+    const [documentation, setDocumentation] = useState<DocumentationInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
     const [isPullingModule, setIsPullingModule] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
-        if (undoItem) {
+        if (hasSyntaxDiagnostics) {
+            const currentSource = (currentModel.model?.value) ? currentModel.model.value : currentModel.model.source;
+            handleChange(currentSource).then();
+        } else if (undoItem) {
             const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
@@ -156,7 +163,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (!newConfigurableName) {
+            if (!newConfigurableName || isPullingModule) {
                 const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
 
                 sendDidChange(fileURI, updatedContent, getLangClient).then();
@@ -252,6 +259,14 @@ export function StatementEditor(props: StatementEditorProps) {
         handleCompletions(newValue).then();
     }
 
+    const updateSyntaxDiagnostics = (hasSyntaxIssues: boolean) => {
+        setHasSyntaxDiagnostics(hasSyntaxIssues);
+    }
+
+    const updateEditing = (editing: boolean) => {
+        setIsEditing(editing);
+    }
+
     const updateModel = async (codeSnippet: string, position: NodePosition, stmtModel?: STNode) => {
         const existingModel = stmtModel || model;
         let partialST: STNode;
@@ -272,11 +287,10 @@ export function StatementEditor(props: StatementEditorProps) {
                 : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-        const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
-        sendDidChange(fileURI, updatedContent, getLangClient).then();
-        const diagnostics = await handleDiagnostics(partialST.source);
-
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+            const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
             const oldModel: StackElement = {
@@ -293,7 +307,12 @@ export function StatementEditor(props: StatementEditorProps) {
             setCurrentModel({ model: newCurrentModel });
             setHasSyntaxDiagnostics(false);
 
-        } else if (partialST.syntaxDiagnostics.length) {
+        } else if (partialST.syntaxDiagnostics.length){
+            const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
+            const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
+
+            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            handleDiagnostics(updatedStatement).then();
             setHasSyntaxDiagnostics(true);
         }
     }
@@ -324,18 +343,41 @@ export function StatementEditor(props: StatementEditorProps) {
     const handleDiagnostics = async (statement: string): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-        pullUnresolvedModules(diag);
-        removeUnusedModules(diag);
+        if (config.type === CONNECTOR){
+            await pullUnresolvedModules(diag);
+        }
+        if (config.type !== CONNECTOR && config.type !== ACTION){
+            removeUnusedModules(diag);
+        }
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
         return diag;
     }
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (newCurrentModel && STKindChecker.isFunctionCall(newCurrentModel)) {
-            setDocumentation(await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient));
+        if (config.type === CONNECTOR || config.type === ACTION){
+            return setDocumentation(initSymbolInfo);
+        }
+        if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){
+            setDocumentation({
+                modelPosition: newCurrentModel.position,
+                documentation: await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient)
+            });
         } else {
-            setDocumentation(initSymbolInfo);
+            if (newCurrentModel && (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos){
+                const parentModel =
+                    getCurrentModel((newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                        enrichModel(model, targetPosition));
+
+                if (isDocumentationSupportedModel(parentModel) && parentModel.position !== documentation.modelPosition){
+                    setDocumentation({
+                        modelPosition: (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                        documentation: await getSymbolDocumentation(fileURI, targetPosition, parentModel, getLangClient)
+                    });
+                }
+            } else {
+                setDocumentation(initSymbolInfo);
+            }
         }
     };
 
@@ -360,25 +402,23 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const pullUnresolvedModules = (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules.size && runCommandInBackground) {
-            completeDiagnostic?.forEach((diagnostic) => {
+    const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
+        if (!!moduleList?.size && runBackgroundTerminalCommand && !isPullingModule) {
+            const extraModulesArr = Array.from(moduleList);
+            for (const diagnostic of completeDiagnostic) {
                 if (diagnostic.message?.includes("cannot resolve module '")) {
-                    extraModules.forEach((module) => {
-                        if (diagnostic.message?.includes(module)) {
-                            // Pull module in background
+                    for (const module of extraModulesArr) {
+                        if (diagnostic.message?.includes(module) && !isPullingModule) {
                             setIsPullingModule(true);
-                            runCommandInBackground(`bal pull ${module}`)
-                                .then((response) => {
-                                    // TODO: handle pull command response
-                                })
-                                .finally(() => {
-                                    setIsPullingModule(false);
-                                });
+                            const response = await runBackgroundTerminalCommand(
+                                `bal pull ${module.replace(" as _", "")}`
+                            );
+                            // TODO: Handle response
                         }
-                    });
+                    }
                 }
-            });
+            }
+            setIsPullingModule(false);
         }
     };
 
@@ -440,21 +480,16 @@ export function StatementEditor(props: StatementEditorProps) {
         setModel({ ...enrichModel(editedModel, targetPosition, diagnostics) });
     }
 
-    const keyboardNavigationManager = new KeyboardNavigationManager()
-
     React.useEffect(() => {
 
-        const client = keyboardNavigationManager.getClient();
+        const client = KeyboardNavigationManager.getClient();
 
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+left', 'command+left'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['ctrl+right', 'command+right'], parentModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['tab'], nextModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['shift+tab'], previousModelHandler);
-        keyboardNavigationManager.bindNewKey(client, ['enter'], enterKeyHandler);
+        client.bindNewKey(['ctrl+left', 'command+left'], parentModelHandler);
+        client.bindNewKey(['ctrl+right', 'command+right'], parentModelHandler);
+        client.bindNewKey(['tab'], nextModelHandler);
+        client.bindNewKey(['shift+tab'], previousModelHandler);
+        client.bindNewKey(['enter'], enterKeyHandler);
 
-        return () => {
-            keyboardNavigationManager.resetMouseTrapInstance(client)
-        }
     }, [currentModel.model]);
 
     return (
@@ -472,7 +507,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     undo={undo}
                     redo={redo}
                     hasRedo={undoRedoManager.hasRedo()}
-                    hasUndo={undoRedoManager.hasUndo()}
+                    hasUndo={undoRedoManager.hasUndo() || hasSyntaxDiagnostics}
                     diagnostics={stmtDiagnostics}
                     lsSuggestions={lsSuggestionsList}
                     editorManager={editorManager}
@@ -493,6 +528,9 @@ export function StatementEditor(props: StatementEditorProps) {
                     restArg={restArg}
                     hasRestArg={isRestArg}
                     hasSyntaxDiagnostics={hasSyntaxDiagnostics}
+                    updateSyntaxDiagnostics={updateSyntaxDiagnostics}
+                    editing={isEditing}
+                    updateEditing={updateEditing}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

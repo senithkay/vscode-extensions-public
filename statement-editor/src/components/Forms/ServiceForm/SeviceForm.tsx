@@ -23,7 +23,6 @@ import { FormEditorContext } from "../../../store/form-editor-context";
 import { getServiceTypeFromModel } from "../Utils/FormUtils";
 
 import { HttpServiceForm } from "./HTTPServiceForm";
-import { ServiceTypeSelector } from "./ServiceTypeSelector";
 
 interface ServiceConfigFormProps {
     model?: ServiceDeclaration | ModulePart;
@@ -61,9 +60,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     }
 
     useEffect(() => {
-        if (isEdit) {
-            setServiceType(getServiceTypeFromModel(serviceModel, stSymbolInfo));
-        }
+        setServiceType(getServiceTypeFromModel(serviceModel, stSymbolInfo));
     }, [model]);
 
     return (
@@ -73,7 +70,6 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 formTitle={"lowcode.develop.configForms.ServiceConfigForm.title"}
                 defaultMessage={"Service"}
             />
-            {!serviceType && <ServiceTypeSelector onSelect={setServiceType} />}
             {serviceType && configForm}
         </FormControl>
     )

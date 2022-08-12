@@ -29,13 +29,14 @@ import { theme } from "./style";
 export interface FieldLabelProps {
     name: string;
     type: string;
+    shortenedType: string;
     description: string;
     label?: string;
     required?: boolean;
 }
 
 export function FieldLabel(props: FieldLabelProps) {
-    const { name, type, description, label, required } = props;
+    const { name, type, shortenedType, description, label, required } = props;
     const classes = useStyles();
 
     const fieldLabel: string = (label !== undefined) ? label : name;
@@ -54,7 +55,8 @@ export function FieldLabel(props: FieldLabelProps) {
                 </ThemeProvider>
                 <OutlinedLabel
                     type="success"
-                    label={type === ConfigType.NUMBER ? ConfigType.FLOAT : type}
+                    label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType}
+                    tooltipText={type === ConfigType.NUMBER ? ConfigType.FLOAT : type}
                     shape="square"
                 />
             </Box>
