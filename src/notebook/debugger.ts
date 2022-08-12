@@ -19,7 +19,7 @@
 
 import {
     debug, DebugAdapterTracker, DebugAdapterTrackerFactory, DebugConfiguration, DebugSession, NotebookCell,
-    NotebookCellKind, NotebookRange, ProviderResult, SourceBreakpoint, Uri, window, workspace, WorkspaceFolder
+    NotebookCellKind, NotebookRange, ProviderResult, SourceBreakpoint, Uri, workspace, WorkspaceFolder
 } from "vscode";
 import fileUriToPath from "file-uri-to-path";
 import { mkdtempSync, writeFileSync } from "fs";
@@ -106,17 +106,6 @@ export class NotebookDebuggerController {
 export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory {
 
     private eventHandlers = [
-        {
-            event: "output",
-            handle: (event: DebugProtocol.Event) => {
-                const outputEvent = <DebugProtocol.OutputEvent>event;
-                const compilationErr = "error: compilation contains errors";
-                if (outputEvent.body.output.includes(compilationErr)) {
-                    const compilationErrMsg = "Make sure to focus the cell needs to start debug.";
-                    window.showInformationMessage(compilationErrMsg);
-                }
-            }
-        },
         {
             event: "breakpoint",
             handle: (event: DebugProtocol.Event) => {
