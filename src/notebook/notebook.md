@@ -216,5 +216,8 @@ Following end points are provided by the language server to facilitate requireme
 ## Possible improvements
 
 -   Better code completions
--   Semantic highlighting
+    - Since completions are provided through a temporary `.bal` file the support for code snippets reduced to only to provide texts without any placeholders.
+    - Because of putting the cell content into the main function in temporary `bal` file completions for module level are not working at the moment. (Ex:- `import`)
 -   Improvements for debugger
+    - Support provided by the debugger is very limited now, as we are required to provide a `.bal` file for Ballerina debug adapter. And providing content for that file is tricky. So the main possible improvement for this is to more intelligent way to create the `.bal` file with the associated cell contents from the respective notebook.
+-   Add Semantic highlighting
