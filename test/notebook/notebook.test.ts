@@ -20,9 +20,6 @@
 import { assert, expect } from "chai";
 import path from "path";
 import { commands, NotebookCell } from "vscode";
-import { ExtendedLangClient } from "../../src/core/extended-language-client";
-import { getServerOptions } from "../../src/server/server";
-import { getBallerinaCmd } from "../test-util";
 import { MIME_TYPE_JSON, MIME_TYPE_TABLE } from "./constants";
 import {
     assertContainsMimeTypes, assertHasTextOutputInVSCode, closeActiveWindows,
@@ -41,20 +38,6 @@ interface TestData {
 
 suite("Ballerina Notebook Tests", function () {
     this.timeout(20000);
-    let langClient: ExtendedLangClient;
-
-    suiteSetup((done): any => {
-        langClient = new ExtendedLangClient(
-            'ballerina-vscode',
-            'Ballerina LS Client',
-            getServerOptions(getBallerinaCmd()),
-            { documentSelector: [{ language: 'ballerina' }] },
-            undefined,
-            false
-        );
-        langClient.start();
-        done();
-    });
 
     teardown(async function () {
         await commands.executeCommand('notebook.clearAllCellsOutputs');
@@ -65,8 +48,6 @@ suite("Ballerina Notebook Tests", function () {
     test.skip("Verify output & metadata when re-opening", async () => {
         const balnotebook = await openNotebook(sampleBalnotebook);
         await commands.executeCommand('notebook.clearAllCellsOutputs');
-        // TODO: create a notebook from scratch and add cell contents
-        // with proposed API - vscode.proposed.notebookEditorEdit.d.ts
 
         let cell1: NotebookCell;
         let cell2: NotebookCell;
@@ -97,23 +78,20 @@ suite("Ballerina Notebook Tests", function () {
                 cell1.executionSummary?.executionOrder!,
                 'Execution count > cell 1'
             );
+            expect(cell3.executionSummary?.executionOrder).to.be.equal(undefined, 'Empty cell should not have an execution number');
         }
 
-        openNotebook(sampleBalnotebook).then(() => {
-            langClient.onReady().then(async () => {
-                await runAllCellsInActiveNotebook(balnotebook, true);
-                verifyCellMetadata();
+        await runAllCellsInActiveNotebook(balnotebook, true);
+        verifyCellMetadata();
 
-                // Save and close this notebook.
-                await saveActiveNotebook();
-                await closeActiveWindows();
+        // Save and close this notebook.
+        await saveActiveNotebook();
+        await closeActiveWindows();
 
-                // Reopen the notebook & validate the metadata.
-                await openNotebook(sampleBalnotebook);
-                initializeCells();
-                verifyCellMetadata();
-            });
-        });
+        // Reopen the notebook & validate the metadata.
+        await openNotebook(sampleBalnotebook);
+        initializeCells();
+        verifyCellMetadata();
     });
 
     test.skip("Verify code execution", async () => {
@@ -159,29 +137,19 @@ suite("Ballerina Notebook Tests", function () {
                 mimeTypes: []
             },
             {
-                cellid: 3,
+                cellid: 8,
                 outputLength: 1,
                 mimeTypes: ['text/plain', MIME_TYPE_TABLE]
             }
         ];
 
         const balnotebook = await openNotebook(sampleBalnotebook);
-        // TODO: create a notebook from scratch and add cell contents
-        // with proposed API - vscode.proposed.notebookEditorEdit.d.ts
-
-        const verifyCellOutputs = () => {
-            for (const testData of testDataList) {
-                const cell = balnotebook.getCells()![testData.cellid]!;
-                assert.lengthOf(cell.outputs, testData.outputLength, `Incorrect output for cell ${testData.cellid}`);
-                assertContainsMimeTypes(cell, testData.mimeTypes);
-            }
+        await runAllCellsInActiveNotebook(balnotebook, true);
+        const notebookCells = balnotebook.getCells()!;
+        for (const testData of testDataList) {
+            const cell = notebookCells[testData.cellid]!;
+            assert.lengthOf(cell.outputs, testData.outputLength, `Incorrect output for cell ${testData.cellid}`);
+            assertContainsMimeTypes(cell, testData.mimeTypes);
         }
-
-        openNotebook(sampleBalnotebook).then(() => {
-            langClient.onReady().then(async () => {
-                await runAllCellsInActiveNotebook(balnotebook)
-                verifyCellOutputs();
-            });
-        });
     });
 });

@@ -59,11 +59,11 @@ export const runAllCellsInActiveNotebook = async (notebookDocument: NotebookDocu
     }
 }
 
-export const noop = () => {}
+export const noop = () => { }
 
 export const assertHasTextOutputInVSCode = (cell: NotebookCell, text: string) => {
     assert.ok(cell.outputs.length, 'No output');
-    const result = cell.outputs.some(output => output.items.some((item) => 
+    const result = cell.outputs.some(output => output.items.some((item) =>
         item.mime === 'text/plain' && (new TextDecoder().decode(item.data) === text)));
     assert.isTrue(result, `${text} not found in outputs of cell ${cell.index + 1}`);
     return result;
