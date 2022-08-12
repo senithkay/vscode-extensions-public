@@ -69,8 +69,16 @@ const data =
         }
     },
     "positions": {
-        "0": "main.bal/(14:53,14:104)",
-        "1": "main.bal/(17:69,17:126)"
+        "0": {
+            "name": "Client",
+            "pkgID": "ballerina/http",
+            "pos": "main.bal/(15:38,15:84)"
+        },
+        "1": {
+            "name": "Client",
+            "pkgID": "ballerina/http",
+            "pos": "main.bal/(15:38,15:84)"
+        }
     }
 };
 

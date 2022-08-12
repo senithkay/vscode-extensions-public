@@ -21,48 +21,38 @@ import React, { useState } from 'react';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart } from 'recharts';
 import "./graph-styles.css";
 import { DataGrid } from '@mui/x-data-grid';
-import { GraphPoint, PerformanceForecastProps, Values, VSCode } from './model';
-// import { makeStyles } from '@material-ui/core/styles';
-
-// const useStyles = makeStyles({
-//     root: {
-//         '&.MuiDataGrid-root .MuiDataGrid-cell:focus': {
-//             outline: 'none',
-//         },
-//     }
-// });
+import { ConnectorPosition, GraphPoint, PerformanceForecastProps, Values, VSCode } from './model';
 
 const columns = [
     {
-        field: "LATENCY",
-        maxWidth: 200,
-        flex: 1,
-        sortable: false
+        field: "LATENCY (User Count 1 - 50)",
+        minWidth: 170,
+        maxWidth: 180,
+        flex: 0.2,
+        sortable: false,
     },
     {
         field: "PATH",
+        minWidth: 700,
         flex: 1,
         sortable: false
     }
 ];
 
 declare const vscode: VSCode;
-let currentConcurrency = 1;
-let hoverConcurrency = 1;
-
 export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) => {
     const criticalPathId = data.criticalPath;
     const paths = data.paths;
     const pathMaps = data.pathmaps;
+    const positions = data.positions;
 
     const rows: any = [];
     const [graphData, setGraphData] = useState(paths[criticalPathId].graphData);
-    const [selectedRow, setSelectedRow] = useState(criticalPathId + 1);
-    // const classes = useStyles();
+    const [selectedRow, setSelectedRow] = useState(criticalPathId);
 
     for (const key in pathMaps) {
         const latency = paths[key].sequenceDiagramData.latency;
-        rows.push(createData(Number(key), pathMaps[key], getPerfValuesWithUnit(latency)))
+        rows.push(createData(Number(key), pathMaps[key], positions, getPerfValuesWithUnit(latency)))
     }
 
     const graph = (
@@ -137,7 +127,7 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
     return (
         <div className="performance-forcast">
             <h1 className="center">Performance Graph - {name}</h1>
-            <h3>Critical Path</h3>
+            <h3>Paths</h3>
 
             <div>
                 <DataGrid
@@ -147,7 +137,6 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
                     disableColumnMenu={true}
                     disableExtendRowFullWidth={true}
                     autoHeight={true}
-                    // className={classes.root}
                     onRowClick={(param: any) => {
                         const id = param.id;
                         setGraphData(paths[id].graphData);
@@ -193,11 +182,12 @@ const getXAxis = () =>
     >
     </XAxis>;
 
-function createData(id: number, connectors: string[], latency: string) {
+function createData(id: number, connectors: string[], positions: Record<string, ConnectorPosition>,  latency: string) {
     let pathName = "Start";
 
     connectors.forEach((connectorId) => {
-        pathName += ` - Connector${Number(connectorId) + 1}`;
+        const position = positions[connectorId];
+        pathName += ` - ${position.pkgID}/${position.name}`;
     });
     pathName += " - End";
     return { id, "LATENCY": latency, "PATH": pathName };
@@ -205,7 +195,7 @@ function createData(id: number, connectors: string[], latency: string) {
 
 function getPerfValuesWithUnit(latencies: Values): string {
 
-    return `${getResponseTime(latencies.min!)} - ${getResponseTime(latencies.max)} ${getResponseUnit(latencies.max)}`;
+    return `${getResponseTime(latencies.min!)} ${getResponseUnit(latencies.min!)} - ${getResponseTime(latencies.max)} ${getResponseUnit(latencies.max)}`;
 }
 
 function getResponseTime(responseTime: number) {

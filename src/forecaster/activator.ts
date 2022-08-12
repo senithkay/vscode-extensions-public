@@ -33,7 +33,7 @@ import { CMP_PERF_ANALYZER, sendTelemetryEvent, sendTelemetryException, TM_EVENT
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
-    `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/3.0` :
+    `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/4.0` :
     "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0";
 
 const SUCCESS = "Success";

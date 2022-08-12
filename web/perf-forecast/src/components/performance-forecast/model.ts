@@ -26,7 +26,7 @@ export interface PerformanceAnalyzerAdvancedResponse {
     criticalPath: number;
     pathmaps: Record<string, string[]>;
     paths: Record<string, PathData>;
-    positions: Record<string, string>;
+    positions: Record<string, ConnectorPosition>;
 }
 
 interface PathData {
@@ -38,6 +38,12 @@ export interface GraphPoint {
     concurrency: number;
     latency: number;
     tps: number;
+}
+
+export interface ConnectorPosition {
+    name: string;
+    pkgID: string;
+    pos: string;
 }
 
 export interface Values {

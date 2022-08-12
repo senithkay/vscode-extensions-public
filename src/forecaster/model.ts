@@ -147,7 +147,7 @@ export interface PerfContext {
 export interface PerformanceAnalyzerRealtimeResponse {
     message: string;
     type: any;
-    positions: Record<string, string>;
+    positions: Record<string, ConnectorPosition>;
     concurrency: Values;
     latency: Values;
     tps: Values;
@@ -159,12 +159,18 @@ export interface PerformanceAnalyzerAdvancedResponse {
     criticalPath: number;
     pathmaps: Record<string, string[]>;
     paths: Record<string, PathData>;
-    positions: Record<string, string>;
+    positions: Record<string, ConnectorPosition>;
 }
 
 interface PathData {
     graphData: GraphPoint[];
     sequenceDiagramData: SequenceDiagramData;
+}
+
+interface ConnectorPosition {
+    name: string;
+    pkgID: string;
+    pos: string;
 }
 
 export interface GraphPoint {
