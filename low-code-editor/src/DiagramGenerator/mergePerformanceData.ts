@@ -18,7 +18,8 @@
  */
 
 import { ANALYZE_TYPE, TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { BlockStatement, FunctionDefinition, IfElseStatement, NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, ServiceDeclaration, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, IfElseStatement, NamedWorkerDeclaration, NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { haveConnectors } from "./connectorVisitor";
 
 export interface ConnectorLatency {
     name: string;
@@ -44,39 +45,77 @@ export class AnalysisDetailMerger implements Visitor {
     connectorLatencies: ConnectorLatency[];
     currentResourcePos: NodePosition;
     blocks: BlockStatement[];
-    currentResource: ResourceAccessorDefinition;
+    isAdvanced: boolean;
     constructor(serviceData: TopBarData, connectorLatencies: ConnectorLatency[], currentResourcePos: NodePosition) {
         this.serviceData = serviceData;
         this.connectorLatencies = connectorLatencies;
         this.currentResourcePos = currentResourcePos;
         this.blocks = [];
+        this.isAdvanced = serviceData.analyzeType === ANALYZE_TYPE.ADVANCED;
     }
 
     public beginVisitBlockStatement(node: BlockStatement) {
-        node.isInSelectedPath = false;
         this.blocks.push(node);
+        node.isInSelectedPath = false;
+        node.controlFlow = { isReached: false };
+        node.statements.forEach((statement) => {
+            statement.controlFlow = { isReached: false };
+        });
     }
 
     public endVisitBlockStatement(node: BlockStatement) {
         this.blocks.pop();
+        if (node.isInSelectedPath) {
+            node.controlFlow = { isReached: true };
+            this.updateStatements(node.statements, true);
+        }
+        node.isInSelectedPath = false;
+    }
+
+    public beginVisitIfElseStatement(node: IfElseStatement) {
+        if (node.ifBody) {
+            node.ifBody.controlFlow = { isReached: false };
+        }
+        if (node.elseBody?.elseBody) {
+            node.elseBody.elseBody.controlFlow = { isReached: false };
+        }
+        this.updateStatements(node.ifBody.statements, false);
+        if (node.elseBody?.elseBody && 
+            STKindChecker.isBlockStatement(node.elseBody.elseBody)) this.updateStatements(node.elseBody.elseBody.statements, false);
+    }
+
+    public endVisitIfElseStatement(node: IfElseStatement) {
+        if (this.isAdvanced && !node.ifBody.controlFlow?.isReached && !node.elseBody?.elseBody?.controlFlow?.isReached) {
+            node.isInSelectedPath = true;
+
+            if (!haveConnectors(node.ifBody)) {
+                node.ifBody.controlFlow = { isReached: true };
+                this.updateStatements(node.ifBody.statements, true);
+
+            } else if (node.elseBody?.elseBody) {
+                node.elseBody.elseBody.controlFlow = { isReached: true };
+                if (STKindChecker.isBlockStatement(node.elseBody.elseBody)) this.updateStatements(node.elseBody.elseBody.statements, true);
+            }
+        }
     }
 
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
+        node.controlFlow = { isReached: false };
         const { position: { startLine, startColumn, endLine, endColumn } } = node;
         const key = `(${startLine}:${startColumn},${endLine}:${endColumn})`;
-        delete node.performance;
+
+        if (this.isAdvanced) {
+            delete node.performance;
+        }
 
         this.connectorLatencies.forEach(data => {
             if (key === data.name) {
                 node.performance = { latency: data.latency };
-                const isAdvanced = this.serviceData.analyzeType === ANALYZE_TYPE.ADVANCED;
 
                 if (this.blocks.length > 0) {
-                    this.blocks[this.blocks.length - 1].isInSelectedPath = isAdvanced;
+                    this.blocks.forEach((block) => block.isInSelectedPath = this.isAdvanced);
                 }
-                if (this.currentResource) {
-                    this.currentResource.isInSelectedPath = isAdvanced;
-                }
+                node.controlFlow = { isReached: this.isAdvanced };
             }
         });
     }
@@ -88,14 +127,23 @@ export class AnalysisDetailMerger implements Visitor {
                 concurrency: this.serviceData.concurrency, latency: this.serviceData.latency,
                 tps: this.serviceData.tps, analyzeType: this.serviceData.analyzeType
             };
-        } else {
+
+            if (STKindChecker.isFunctionBodyBlock(node.functionBody)) {
+                node.functionBody.statements.forEach((statement) => {
+                    statement.controlFlow = { isReached: this.isAdvanced }
+                });
+            }
+        } else if (this.isAdvanced) {
             delete node.performance;
+            if (STKindChecker.isFunctionBodyBlock(node.functionBody)) {
+                this.updateStatements(node.functionBody.statements, false);
+            }
         }
-        node.isInSelectedPath = false;
-        this.currentResource = node;
     }
 
-    public endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
-        this.currentResource = undefined;
+    updateStatements(statements: any, isReached: boolean) {
+        statements.forEach((statement: any) => {
+            statement.controlFlow = { isReached }
+        });
     }
 };

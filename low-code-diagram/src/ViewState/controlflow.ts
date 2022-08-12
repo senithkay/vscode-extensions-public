@@ -10,6 +10,7 @@ export interface ControlFlowLineState {
     y: number;
     h?: number;
     w?: number;
+    isDotted?: boolean;
 }
 
 export class ControlFlowState {

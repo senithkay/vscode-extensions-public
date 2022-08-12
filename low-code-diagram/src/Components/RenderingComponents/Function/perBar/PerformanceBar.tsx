@@ -16,7 +16,7 @@ export function PerformanceBar(props: PerformanceProps) {
     const { model } = props;
     const diagramContext = useContext(Context);
     const openPerformanceChart = diagramContext?.api?.edit?.openPerformanceChart;
-    const { diagramRedraw } = diagramContext?.actions;
+    const { diagramCleanDraw } = diagramContext?.actions;
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
     const [tooltip, setTooltip] = useState(undefined);
 
@@ -30,7 +30,7 @@ export function PerformanceBar(props: PerformanceProps) {
 
         if (openPerformanceChart) {
             await openPerformanceChart(`${model.functionName.value.toUpperCase()} /${fullPath}`,
-                model.position, diagramRedraw);
+                model.position, diagramCleanDraw);
         }
     };
     const element = (

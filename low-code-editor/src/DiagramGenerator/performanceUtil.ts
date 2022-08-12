@@ -183,6 +183,7 @@ export async function addAdvancedLabels(name: string, range: NodePosition, diagr
     if (!data) {
         return;
     }
+    currentResourcePos = { startLine: range.startLine, startColumn: range.startColumn, endLine: range.endLine, endColumn: range.endColumn };
     advancedData = data as PerformanceAnalyzerAdvancedResponse;
     showPerformanceChart({ file: filePath, name, data: advancedData });
     updatePerfPath(advancedData.criticalPath.toString());

@@ -130,7 +130,8 @@ export function generatePerfData(data: any, analyzeType: ANALYZE_TYPE): Promise<
             "name": "Client",
             "pkgID": "ballerina/http",
             "pos": "main.bal/(15:38,15:84)"
-          }, "1": {
+          },
+          "1": {
             "name": "Client",
             "pkgID": "ballerina/http",
             "pos": "main.bal/(15:38,15:84)"
@@ -147,7 +148,8 @@ export function generatePerfData(data: any, analyzeType: ANALYZE_TYPE): Promise<
           "name": "Client",
           "pkgID": "ballerina/http",
           "pos": "main.bal/(15:38,15:84)"
-        }, "1": {
+        },
+        "1": {
           "name": "Client",
           "pkgID": "ballerina/http",
           "pos": "main.bal/(15:38,15:84)"
