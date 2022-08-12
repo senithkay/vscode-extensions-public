@@ -63,4 +63,12 @@ export class StatementEditor {
             .click();
         return this;
     }
+
+    static clickStatementEditor() {
+        this.getStatementEditor()
+            .get(this.selector)
+            .click();
+        return this;
+
+    }
 }
