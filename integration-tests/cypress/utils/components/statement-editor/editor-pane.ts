@@ -83,4 +83,10 @@ export class EditorPane {
             .should("not.exist", { timeout: 20000 });
         return this;
     }
+
+    static checkForSyntaxDiagnosticsHighlighting() {
+        cy.get(`[data-testid="syntax-error-highlighting"]`)
+            .should("be.visible");
+        return this;
+    }
 }
