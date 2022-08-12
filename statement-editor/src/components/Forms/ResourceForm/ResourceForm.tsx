@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from 'react';
 import { useIntl } from "react-intl";
-import { v4 as uuid } from 'uuid';
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
