@@ -13,11 +13,12 @@
  */
 import React from 'react';
 
-import { BallerinaConnectorInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaConnectorInfo, ConnectorWizardType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ModuleVarDecl, NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { ConnectorConfigWizard } from '../../ConnectorConfigWizard';
 import { ConfigurableForm } from '../ConfigurableForm';
+import { ConnectorWizard } from '../ConnectorWizard';
 
 import { ModuleVariableForm } from './ModuleVariableForm';
 
@@ -60,15 +61,19 @@ export function ModuleDeclForm(props: ModuleDeclFormProps) {
             {isConfigurable && !isModuleConnector && <ConfigurableForm {...props} />}
             {!isConfigurable && !isModuleConnector && <ModuleVariableForm {...props} />}
             {!isConfigurable && isModuleConnector && (
-                <ConnectorConfigWizard
+                <ConnectorWizard
+                    wizardType={ConnectorWizardType.ENDPOINT}
+                    diagramPosition={{ x: 0, y: 0 }}
+                    targetPosition={
+                        model
+                            ? targetPosition
+                            : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
+                    }
                     connectorInfo={connector}
-                    position={{ x: 0, y: 0 }}
-                    targetPosition={targetPosition || model?.position}
                     model={model}
                     onClose={onCancel}
                     onSave={onSave}
-                    isModuleEndpoint={true}
-                    isEdit={true}
+                    isModuleType={true}
                 />
             )}
         </>

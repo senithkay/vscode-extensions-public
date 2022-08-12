@@ -7,12 +7,18 @@ import { LowCodeDiagramProperties } from "../Context/types";
 
 import { FunctionDiagram } from "./functionDiagram";
 
-export function ReadOnlyDiagram(props: { model: FunctionDefinition | ResourceAccessorDefinition }) {
-    const { model } = props;
+export interface ReadOnlyDiagramProps {
+    model: FunctionDefinition | ResourceAccessorDefinition;
+    onDiagramDoubleClick ?: () => void;
+}
+
+export function ReadOnlyDiagram(props: ReadOnlyDiagramProps) {
+    const { model, onDiagramDoubleClick } = props;
 
     const context: LowCodeDiagramProperties = {
         syntaxTree: model,
         isReadOnly: true,
+        onDiagramDoubleClick,
     }
 
     return (

@@ -15,16 +15,17 @@ export class InputEditor {
         return cy.get(`[data-testid="input-editor"]`);
     }
 
-    static typeInput(text: string) {
+    static typeInput(text: string, parseSpecialCharSequences: boolean = true) {
         this.getInputEditor()
             .focus()
             .clear()
-            .type(text);
+            .type(text, { parseSpecialCharSequences: parseSpecialCharSequences });
 
-        cy.wait(500)
+        cy.wait(3000);
 
         this.getInputEditor()
             .type('{enter}');
+        
         return this;
     }
 }

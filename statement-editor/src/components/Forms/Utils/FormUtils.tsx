@@ -30,8 +30,8 @@ export function recalculateItemIds(items: any[]) {
 export function getInitialSource(type: string, targetPosition: NodePosition): string {
     switch (type) {
         case "Function": {
-            return getSource(createFunctionSignature("", "name", "", "",
-                targetPosition));
+            return getSource(createFunctionSignature("", "name", "",
+                "returns error?", targetPosition));
         }
         case "Service": {
             return getSource(createServiceDeclartion({
@@ -42,17 +42,16 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         }
         case "Listener": {
             return getSource(createListenerDeclartion({
-                listenerName: "name",
+                listenerName: "l",
                 listenerPort: "9090"
             }, targetPosition, false));
         }
         case "Main": {
-            return getSource(createFunctionSignature("public", "main", "", "",
-                targetPosition));
+            return getSource(createFunctionSignature("public", "main", "",
+                "returns error?", targetPosition));
         }
         case "Resource": {
-            return getSource(createResource("get", ".", "", "", false,
-                false, "", targetPosition));
+            return getSource(createResource("get", "greeting/hello", '', "error?", targetPosition));
         }
     }
     return;
@@ -89,9 +88,11 @@ export function getListenerConfig(model: ServiceDeclaration, isEdit: boolean): L
         if (STKindChecker.isSimpleNameReference(serviceListenerExpression)) {
             return { listenerName: serviceListenerExpression.name.value, fromVar: true }
         } else if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {
-            return { listenerPort: serviceListenerExpression.parenthesizedArgList.arguments.length > 0 &&
+            return {
+                listenerPort: serviceListenerExpression.parenthesizedArgList.arguments.length > 0 &&
                     serviceListenerExpression.parenthesizedArgList.arguments[0].source,
-                     fromVar: false };
+                fromVar: false
+            };
         }
     } else {
         if (STKindChecker.isExplicitNewExpression(serviceListenerExpression)) {

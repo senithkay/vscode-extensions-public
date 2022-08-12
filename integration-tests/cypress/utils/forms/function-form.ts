@@ -5,20 +5,20 @@ export class FunctionForm {
     private static selector = '[data-testid="function-form"]';
 
     static typeFunctionName(fnName: string) {
-        const typeInput = `{selectall}${fnName}`;
-        this.getForm()
-            .get('[data-testid="function-name"]')
-            .type(typeInput);
+        ExpressionEditor
+            .getForField("function-name", this.selector)
+            .clear()
+            .type(fnName)
         this.getForm().wait(1000);
         return this;
     }
 
     static typeReturnType(retType: string) {
-        const typeInput = `{selectall}${retType}`;
-        this.getForm()
-            .get('[data-testid="return-type"]')
-            .type(typeInput);
-        this.getForm().wait(1000);
+        ExpressionEditor
+            .getForField("return-type", this.selector)
+            .clear()
+            .type(retType)
+        this.getForm().wait(5000);
         return this;
     }
 

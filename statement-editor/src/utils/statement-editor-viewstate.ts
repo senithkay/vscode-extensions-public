@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { Diagnostic } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export enum ModelType {
     EXPRESSION,
@@ -37,6 +37,7 @@ export class StatementEditorViewState {
         isFieldWithNewLine: false,
         isClosingBraceWithNewLine: false
     };
+    public parentFunctionPos: NodePosition = null;
 }
 
 interface MultilineConstructConfig {

@@ -41,7 +41,7 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
 
     const schema: object[] = props.schema[SchemaConstants.ANY_OF];
     const schemaProperties: object[] = getSchemaProperties(schema, props.id);
-    const typeMap = getTypeMap(schema, props.id);
+    const { typeMap, shortenedTypeMap } = getTypeMap(schema, props.id);
 
     const unionValue: ConfigElementProps = {
         description: props.description,
@@ -105,6 +105,7 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
             innerElement = getConfigElementProps(innerSchema[0], fieldId, props);
             if (innerSchema) {
                 const configElementProps = getConfigElementProps(innerSchema[0], elementType, innerElement);
+                configElementProps.unionId = fieldId;
                 returnElement = <ConfigElement {...configElementProps}/>;
             }
         }
@@ -116,6 +117,7 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         label: props.label,
         name: props.name,
         required: props.isRequired,
+        shortenedType: getUnionType(Array.from(shortenedTypeMap.values())),
         type: getUnionType(Array.from(typeMap.values())),
     };
 
@@ -151,16 +153,21 @@ function getSchemaProperties(schema: object[], id: string): object[] {
     return currentSchema;
 }
 
-function getTypeMap(properties: object[], id: string) {
+function getTypeMap(
+    properties: object[],
+    id: string,
+): { typeMap: Map<string, string>; shortenedTypeMap: Map<string, string> } {
     const typeMap = new Map<string, string>();
+    const shortenedTypeMap = new Map<string, string>();
     if (properties === undefined) {
-        return typeMap;
+        return { typeMap, shortenedTypeMap };
     }
     Object.keys(properties).forEach((key, index) => {
-        const name: string = getRecordName(properties[key].name);
-        typeMap.set(id + "-" + (index + 1), name ? name : properties[key].type);
+        const { fullRecordName, shortenedRecordName } = getRecordName(properties[key].name);
+        typeMap.set(id + "-" + (index + 1), fullRecordName ? fullRecordName : properties[key].type);
+        shortenedTypeMap.set(id + "-" + (index + 1), shortenedRecordName ? shortenedRecordName : properties[key].type);
     });
-    return typeMap;
+    return { typeMap, shortenedTypeMap };
 }
 
 function getTypeFromLabel(schema: object[], name: string): string {
@@ -184,8 +191,8 @@ function getAllTypeLabels(properties: object[]): string[] {
         return unionTypes;
     }
     Object.keys(properties).forEach((key) => {
-        const name: string = getRecordName(properties[key].name);
-        unionTypes.push(name ? name : properties[key].type);
+        const { fullRecordName } = getRecordName(properties[key].name);
+        unionTypes.push(fullRecordName ? fullRecordName : properties[key].type);
     });
     return unionTypes;
 }

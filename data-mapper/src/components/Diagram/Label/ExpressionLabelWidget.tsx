@@ -7,6 +7,8 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { getTypeDescForFieldName } from "../../../utils/st-utils";
+import { CodeActionWidget } from '../CodeAction/CodeAction';
 import {
 	canConvertLinkToQueryExpr,
 	generateQueryExpressionFromFormField,
@@ -45,8 +47,17 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const [editable, setEditable] = React.useState(false);
 	const [linkSelected, setLinkSelected] = React.useState(false);
 	const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
+	const [codeActions, setCodeActions] = React.useState([]);
 
-	const onClickConvertToQuery = () => {
+	React.useEffect(() => {
+		async function genModel() {
+			const actions = (await handleCodeActions(props.model.context.filePath, props.model.link?.diagnostics, props.model.context.langClientPromise))
+			setCodeActions(actions)
+        }
+  genModel();
+	}, [props.model]);
+
+	const onClickConvertToQuery = async () => {
 		if (canUseQueryExpr) {
 			const link = props.model.link;
 			const sourcePort = link.getSourcePort() instanceof FormFieldPortModel
@@ -55,28 +66,37 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			const targetPort = link.getTargetPort() instanceof FormFieldPortModel
 				? link.getTargetPort() as FormFieldPortModel
 				: link.getTargetPort() as STNodePortModel;
+			let targetTypeDesc;
 
-			if (sourcePort instanceof STNodePortModel && STKindChecker.isRecordField(sourcePort.field)) {
-				const fieldType = sourcePort.field.typeName;
-				if (STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc)) {
-					const querySrc = generateQueryExpressionFromTypeDesc(link.value.source, fieldType.memberTypeDesc);
-					if (link.value) {
-						const position = link.value.position as NodePosition;
-						const applyModification = props.model.context.applyModifications;
-						applyModification([{
-							type: "INSERT",
-							config: {
-								"STATEMENT": querySrc,
-							},
-							endColumn: position.endColumn,
-							endLine: position.endLine,
-							startColumn: position.startColumn,
-							startLine: position.startLine
-						}]);
+			if (targetPort instanceof STNodePortModel) {
+				if (STKindChecker.isRecordField(targetPort.field)
+					&& STKindChecker.isArrayTypeDesc(targetPort.field.typeName)
+					&& STKindChecker.isRecordTypeDesc(targetPort.field.typeName.memberTypeDesc)
+				) {
+					targetTypeDesc = targetPort.field.typeName.memberTypeDesc;
+				} else if (STKindChecker.isSpecificField(targetPort.field)) {
+					const targetType = await getTypeDescForFieldName(targetPort.field.fieldName, props.model.context);
+					if (STKindChecker.isRecordTypeDesc(targetType)) {
+						targetTypeDesc = targetType;
 					}
 				}
-			} else if (sourcePort instanceof FormFieldPortModel) {
-				const field = sourcePort.field;
+				if (link.value && targetTypeDesc) {
+					const querySrc = generateQueryExpressionFromTypeDesc(link.value.source, targetTypeDesc);
+					const position = link.value.position as NodePosition;
+					const applyModification = props.model.context.applyModifications;
+					applyModification([{
+						type: "INSERT",
+						config: {
+							"STATEMENT": querySrc,
+						},
+						endColumn: position.endColumn,
+						endLine: position.endLine,
+						startColumn: position.startColumn,
+						startLine: position.startLine
+					}]);
+				}
+			} else if (targetPort instanceof FormFieldPortModel) {
+				const field = targetPort.field;
 				if (field.typeName === 'array' && field.memberType.typeName === 'record') {
 					const querySrc = generateQueryExpressionFromFormField(link.value.source, field.memberType);
 					if (link.value) {
@@ -95,7 +115,6 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 					}
 				}
 			}
-
 		}
 	};
 
@@ -149,7 +168,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 				/>
 			}
 			<S.ActionsContainer>
-				<span style={{display: "flex", alignItems: "center"}}>
+				<span style={{display: "flex"}}>
 					<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}</div>
 					<div>{!editable && linkSelected && canUseQueryExpr &&
 							(
@@ -159,6 +178,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 							)}
 					</div>
 					<div>{!editable && linkSelected && <DeleteIcon onClick={() => onClickDelete()} />}</div>
+					{!editable && linkSelected && codeActions.length > 0 && <CodeActionWidget codeActions={codeActions} context={props.model.context} />}
 
 				</span>
 			</S.ActionsContainer>

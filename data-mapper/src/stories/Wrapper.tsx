@@ -33,11 +33,12 @@ export interface DataMapperWrapperProps {
     updateFileContent: (filePath: string, content: string) => Promise<boolean>;
     filePath: string;
     langClientPromise: () => Promise<BalleriaLanguageClient>;
+    getLangClient: () => Promise<BalleriaLanguageClient>;
     lastUpdatedAt: string;
 }
 
 export function DataMapperWrapper(props: DataMapperWrapperProps) {
-    const { langClientPromise, getFileContent, filePath, updateFileContent, lastUpdatedAt } = props;
+    const { langClientPromise, getFileContent, filePath, updateFileContent, lastUpdatedAt, getLangClient } = props;
     const [didOpen, setDidOpen] = React.useState(false);
     const [fileContent, setFileContent] = React.useState("");
     const [lastUpdated, setLastUpdated] = React.useState(lastUpdatedAt);

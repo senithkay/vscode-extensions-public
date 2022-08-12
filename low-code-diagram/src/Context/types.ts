@@ -30,6 +30,7 @@ export interface LowCodeDiagramProperties {
     performanceData?: Map<string, PerformanceData>;
     zoomStatus?: ZoomStatus;
     experimentalEnabled?: boolean;
+    onDiagramDoubleClick?: () => void,
 }
 
 export interface LowCodeDiagramState {

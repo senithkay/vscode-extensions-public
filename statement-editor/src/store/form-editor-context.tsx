@@ -15,17 +15,12 @@ import React from 'react';
 
 import {
     ExpressionEditorLangClientInterface,
-    LibraryKind,
     STModification,
-    STSymbolInfo,
-    SymbolInfoResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import {ModulePart, NodePosition, ServiceDeclaration, STNode} from "@wso2-enterprise/syntax-tree";
+    STSymbolInfo} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {NodePosition, STNode} from "@wso2-enterprise/syntax-tree";
 
-import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
-import {CurrentModel, EditorModel, EmptySymbolInfo, StmtDiagnostic, SuggestionItem} from "../models/definitions";
+import {CurrentModel} from "../models/definitions";
 
-import { InputEditorContextProvider } from "./input-editor-context";
 
 export const FormEditorContext = React.createContext({
     model: null,

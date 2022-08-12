@@ -12,6 +12,8 @@
  */
 
 import {
+    CodeAction,
+    CodeActionParams,
     DocumentSymbol,
     DocumentSymbolParams,
     SymbolInformation,
@@ -140,5 +142,11 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     ) => Thenable<ExecutorPositionsResponse>;
     convert: (
         params: JsonToRecordRequest
-    ) => Thenable<JsonToRecordResponse>
+    ) => Thenable<JsonToRecordResponse>;
+    getDiagnostics: (
+        params: BallerinaProjectParams
+    ) => Thenable<PublishDiagnosticsParams[]>;
+    codeAction: (
+        params: CodeActionParams
+    ) => Thenable<CodeAction[]> ;
 }

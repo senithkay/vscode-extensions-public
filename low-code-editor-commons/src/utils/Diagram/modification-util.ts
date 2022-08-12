@@ -227,7 +227,7 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
     }
 }
 
-export function createResource(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
+export function createResource(method: string, path: string, parameters: string, addReturn: string, targetPosition: NodePosition): STModification {
     const resource: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -237,17 +237,17 @@ export function createResource(method: string, path: string, queryParam: string,
         config: {
             "METHOD": method,
             "PATH": path,
-            "QUERY_PARAM": queryParam,
-            "PAYLOAD": payload,
-            "ADD_CALLER": isCaller,
-            "ADD_REQUEST": isRequest,
+            "PARAMETERS": parameters,
+            // "PAYLOAD": payload,
+            // "ADD_CALLER": isCaller,
+            // "ADD_REQUEST": isRequest,
             "ADD_RETURN": addReturn
         }
     };
     return resource;
 }
 
-export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
+export function updateResourceSignature(method: string, path: string, parameters: string, addReturn: string, targetPosition: NodePosition): STModification {
     const resourceSignature: STModification = {
         startLine: targetPosition.startLine,
         startColumn: targetPosition.startColumn,
@@ -257,10 +257,7 @@ export function updateResourceSignature(method: string, path: string, queryParam
         config: {
             "METHOD": method,
             "PATH": path,
-            "QUERY_PARAM": queryParam,
-            "PAYLOAD": payload,
-            "ADD_CALLER": isCaller,
-            "ADD_REQUEST": isRequest,
+            "PARAMETERS": parameters,
             "ADD_RETURN": addReturn
         }
     };

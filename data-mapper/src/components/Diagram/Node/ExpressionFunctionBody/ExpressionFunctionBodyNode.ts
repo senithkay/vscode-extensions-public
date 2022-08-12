@@ -1,12 +1,12 @@
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    ExpressionFunctionBody,
-    FieldAccess,
-    MappingConstructor,
-    RequiredParam,
-    SimpleNameReference,
-    SpecificField,
-    STKindChecker
+	ExpressionFunctionBody,
+	FieldAccess,
+	MappingConstructor,
+	RequiredParam,
+	SimpleNameReference,
+	SpecificField,
+	STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -15,6 +15,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { FormFieldPortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
+import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 import { RequiredParamNode } from "../RequiredParam";
@@ -62,7 +63,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
         mappings.forEach((mapping) => {
-            const {fields, value, otherVal} = mapping;
+            const { fields, value, otherVal } = mapping;
             if (!value) {
                 console.log("Unsupported mapping.");
                 return;
@@ -73,7 +74,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
                 inPort = this.getInputPortsForExpr(inputNode, value);
             }
             const outPort = this.getOutputPortForField(fields);
-            const lm = new DataMapperLinkModel(value);
+			const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
             lm.addLabel(new ExpressionLabelModel({
                 value: otherVal?.source || value.source,
                 valueNode: otherVal || value,

@@ -22,24 +22,25 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     return false;
 }
 
-export function generateQueryExpressionFromTypeDesc(srcExpr: string, srcType: RecordTypeDesc) {
+export function generateQueryExpression(srcExpr: string, targetType: RecordTypeDesc) {
 
-    const srcFields = srcType.fields.filter((field) => STKindChecker.isRecordField(field)) as RecordField[];
+    const targetFields = targetType.fields.filter((field) => STKindChecker.isRecordField(field)) as RecordField[];
 
+    // TODO: Dynamically generate the identifier name instead of 'item'
     return `from var item in ${srcExpr}
         select {
-            ${srcFields.map((field, index) => `${field.fieldName.value}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
+            ${targetFields.map((field, index) => `${field.fieldName.value}: ${(index !== targetFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
         }
     `
 }
 
-export function generateQueryExpressionFromFormField(srcExpr: string, srcType: FormField) {
+export function generateQueryExpressionFromFormField(srcExpr: string, targetType: FormField) {
 
-    const srcFields = srcType.fields;
+    const srcFields = targetType.fields;
 
     return `from var item in ${srcExpr}
         select {
-            ${srcType.fields.map((field, index) => `${field.name}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
+            ${targetType.fields.map((field, index) => `${field.name}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
         }
     `
 }

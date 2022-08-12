@@ -3,13 +3,18 @@ import { CaptureBindingPattern, QueryExpression, RecordTypeDesc, STKindChecker, 
 import md5 from "blueimp-md5";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { getTypeDescForFieldName } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FormFieldPortModel, IntermediatePortModel, STNodePortModel } from "../../Port";
+import { getParamForName } from "../../utils";
 import { getFieldNames } from "../../utils/dm-utils";
+import { filterDiagnostics } from "../../utils/ls-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 import { RequiredParamNode } from "../RequiredParam";
+import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -20,13 +25,13 @@ export const QUERY_TARGET_PORT_PREFIX = "queryExpr.target";
 export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: FormField;
-    public targetTypeDesc: RecordTypeDesc;
     public sourcePort: FormFieldPortModel;
+    public targetPort: FormFieldPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
 
-	   public sourceBindingPattern: CaptureBindingPattern;
+    public sourceBindingPattern: CaptureBindingPattern;
 
     constructor(
         public context: IDataMapperContext,
@@ -77,34 +82,63 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     private async getSourceType() {
-        const sourceFieldAccess = this.value.queryPipeline.fromClause.expression;
+        const expr = this.value.queryPipeline.fromClause.expression;
         const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
-            if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
-                const fieldNames = getFieldNames(sourceFieldAccess);
-                const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
-                const paramNode = this.getModel().getNodes().find((node) =>
-                    node instanceof RequiredParamNode
-                    && node.value.paramName.value === fieldNames[0]) as RequiredParamNode;
-                let nextRecTypeDesc = paramNode.typeDef;
-                let sourceTypeDesc: FormField;
-                for (let i = 1; i < fieldNames.length; i++) {
-                    const field = nextRecTypeDesc.fields.find((formField) =>
-                        formField.name === fieldNames[i]);
-                    if (i === fieldNames.length - 1) {
-                        if (field.typeName === 'array' && field.memberType.typeName === 'record') {
-                            sourceTypeDesc = field.memberType;
-                        }
-                        this.sourcePort = paramNode.getPort(fieldId + ".OUT") as FormFieldPortModel;
-                    } else if (field.typeName === 'record') {
-                        nextRecTypeDesc = field; // TODO Handle other cases
-                    }
-                }
-                this.sourceTypeDesc = sourceTypeDesc;
+            if (STKindChecker.isFieldAccess(expr)) {
+                this.sourceTypeDesc = await getTypeDescForFieldName(expr.fieldName, this.context);
             }
         }
+
+        const sourceFieldAccess = this.value.queryPipeline.fromClause.expression;
+        if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
+            const fieldNames = getFieldNames(sourceFieldAccess);
+            const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
+
+            this.getModel().getNodes().map((node) => {
+                if (node instanceof RequiredParamNode && node.value.paramName.value === fieldNames[0]) {
+                    this.sourcePort = node.getPort(fieldId + ".OUT") as DataMapperPortModel;
+                } else if (node instanceof FromClauseNode
+                    && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)
+                    && node.value.typedBindingPattern.bindingPattern.source.trim() === fieldNames[0].trim())
+                {
+                    this.sourcePort = node.getPort(
+                        `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as DataMapperPortModel;
+                }
+            });
+        }
     }
+
+    // private async getSourceType() {
+    //     const sourceFieldAccess = this.value.queryPipeline.fromClause.expression;
+    //     const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
+    //     if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+    //         this.sourceBindingPattern = bindingPattern;
+    //         if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
+    //             const fieldNames = getFieldNames(sourceFieldAccess);
+    //             const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
+    //             const paramNode = this.getModel().getNodes().find((node) =>
+    //                 node instanceof RequiredParamNode
+    //                 && node.value.paramName.value === fieldNames[0]) as RequiredParamNode;
+    //             let nextRecTypeDesc = paramNode.typeDef;
+    //             let sourceTypeDesc: FormField;
+    //             for (let i = 1; i < fieldNames.length; i++) {
+    //                 const field = nextRecTypeDesc.fields.find((formField) =>
+    //                     formField.name === fieldNames[i]);
+    //                 if (i === fieldNames.length - 1) {
+    //                     if (field.typeName === 'array' && field.memberType.typeName === 'record') {
+    //                         sourceTypeDesc = field.memberType;
+    //                     }
+    //                     this.sourcePort = paramNode.getPort(fieldId + ".OUT") as FormFieldPortModel;
+    //                 } else if (field.typeName === 'record') {
+    //                     nextRecTypeDesc = field; // TODO Handle other cases
+    //                 }
+    //             }
+    //             this.sourceTypeDesc = sourceTypeDesc;
+    //         }
+    //     }
+    // }
 
     private async getTargetType() {
         // TODO get target type from specific field instead of select clause
@@ -123,7 +157,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const sourcePortId = `${QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
                     const targetPort = this.getPort(targetPortId);
                     const sourcePort = this.getPort(sourcePortId);
-                    const link = new DataMapperLinkModel(value);
+
+                    const link = new DataMapperLinkModel(value, filterDiagnostics( this.context.diagnostics, value.position));
                     link.setSourcePort(sourcePort);
                     link.setTargetPort(targetPort);
                     link.addLabel(new ExpressionLabelModel({
@@ -155,8 +190,10 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     private initQueryLinks() {
         // Currently we create links from "IN" ports and back tracing the inputs.
+
+
         if (this.sourcePort && this.inPort) {
-            const link = new DataMapperLinkModel();
+            const link = new DataMapperLinkModel(undefined);
             link.setSourcePort(this.sourcePort);
             link.setTargetPort(this.inPort);
             link.registerListener({
@@ -176,24 +213,31 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
         // TODO - temp hack to render link
         if (this.outPort) {
-            const targetNode = this.getModel().getNodes().find((node) => node instanceof ExpressionFunctionBodyNode);
-            const ports = Object.entries(targetNode.getPorts());
-            const targetPort = ports.find((entry) => {
-                const port = entry[1];
-                if (port instanceof STNodePortModel) {
-                    if (STKindChecker.isRecordField(port.field)) {
-                        if (port.field.fieldName.value === "Assets") {
-                            return true;
-                        }
+            let targetPort: STNodePortModel;
+            this.getModel().getNodes().map((node) => {
+                    if (node instanceof ExpressionFunctionBodyNode) {
+                        const ports = Object.entries(node.getPorts());
+                        ports.map((entry) => {
+                            const port = entry[1];
+                            if (port instanceof STNodePortModel) {
+                                if (STKindChecker.isRecordField(port.field)) {
+                                    if (port.field.fieldName.value === "Assets") {
+                                        targetPort = port;
+                                    }
+                                }
+                            }
+                        });
+                    } else if (node instanceof SelectClauseNode) {
+                        const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
+                        targetPort = node.getPort(
+                            `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as STNodePortModel;
                     }
-                } else if (port instanceof FormFieldPortModel) {
-                    return port.field.name === 'Assets'
-                }
             });
+
             if (targetPort) {
-                const link = new DataMapperLinkModel();
+                const link = new DataMapperLinkModel(undefined);
                 link.setSourcePort(this.outPort);
-                link.setTargetPort(targetPort[1]);
+                link.setTargetPort(targetPort);
                 link.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {

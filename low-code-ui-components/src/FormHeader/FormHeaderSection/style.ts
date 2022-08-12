@@ -21,7 +21,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             justifyContent: 'space-around',
             borderBottom: '1px solid #d8d8d8',
-            paddingLeft: '25px'
+            paddingLeft: '12px'
         },
         titleIcon: {
             display: 'flex',
@@ -35,6 +35,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            marginLeft: '12px'
         },
         mainTitleWrapper: {
             display: 'inline-flex',

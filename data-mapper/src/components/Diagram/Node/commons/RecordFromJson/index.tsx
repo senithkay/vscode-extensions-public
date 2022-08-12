@@ -146,7 +146,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         if (formState.isLoading) {
             (async () => {
                 const recordName = "TempName";
-                const langClient = await context.getLangClient();
+                const langClient = await context.langClientPromise();
                 const recordResponse = await langClient.convert(
                     {
                         jsonString: formState.jsonValue,

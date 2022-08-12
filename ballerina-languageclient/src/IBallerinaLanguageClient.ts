@@ -1,5 +1,7 @@
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import {
+    CodeAction,
+    CodeActionParams,
     DefinitionParams,
     Diagnostic,
     DidChangeTextDocumentParams,
@@ -850,10 +852,11 @@ export interface IBallerinaLangClient {
 
     definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
 
+    codeAction: (params: CodeActionParams) => Promise<CodeAction[]> ;
+
     getTypeFromExpression: (params: TypeFromExpressionRequest) => Thenable<TypesFromExpressionResponse>;
 
     getTypeFromSymbol: (params: TypeFromSymbolRequest) => Thenable<TypesFromSymbolResponse>;
-
 
     // close: () => void;
 }

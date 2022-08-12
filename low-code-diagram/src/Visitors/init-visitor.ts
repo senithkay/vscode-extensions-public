@@ -528,7 +528,7 @@ export class InitVisitor implements Visitor {
                 if (STKindChecker.isResourceAccessorDefinition(member)) {
                     // TODO check for other functionbody types
                     const body = member.functionBody as FunctionBodyBlock;
-                    const filteredStatements = body.statements.filter(statement => {
+                    const filteredStatements = body.statements?.filter(statement => {
                         if (statement.kind !== "XmlNamespaceDeclaration") {
                             return statement;
                         }

@@ -89,7 +89,7 @@ export class FunctionDiagram {
     }
 
     public getBlockLevelPlusWidget() {
-        return new BlockLevelPlusWidget(this.container);
+        return new BlockLevelPlusWidget();
     }
 
     public clickExistingLogStatement() {
@@ -163,5 +163,13 @@ export class FunctionDiagram {
                     text
                 )
             });
+    }
+
+    public clickEditExistingBlockStatement(targetLine: number) {
+        this.container.within(() => {
+            cy.get(`.diagram-canvas .main-process-wrapper[target-line="${targetLine}"] .process-options-wrapper [data-testid="editBtn"]`)
+                .click({ force: true });
+        })
+        return this;
     }
 }

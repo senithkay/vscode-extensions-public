@@ -24,6 +24,7 @@ export enum PrimitiveBalType {
     String = "string",
     Record = "record",
     Union = "union",
+    Enum = "enum",
     Int = "int",
     Float = "float",
     Boolean = "boolean",
@@ -107,6 +108,8 @@ export interface FormField {
     rightTypeParam?: any;
     initialDiagnostics?: DiagramDiagnostic[];
     documentation?: string;
+    position?: NodePosition;
+    selected?: boolean;
 }
 export interface FormFieldReturnType {
     hasError: boolean;
