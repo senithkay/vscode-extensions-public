@@ -220,4 +220,5 @@ Following end points are provided by the language server to facilitate requireme
     - Because of putting the cell content into the main function in temporary `bal` file completions for module level are not working at the moment. (Ex:- `import`)
 -   Improvements for debugger
     - Support provided by the debugger is very limited now, as we are required to provide a `.bal` file for Ballerina debug adapter. And providing content for that file is tricky. So the main possible improvement for this is to more intelligent way to create the `.bal` file with the associated cell contents from the respective notebook.
+    - Fix breakpoints disabling when running the debug mode. Even though the breakpoints are correctly get hit, the red dot which shows that point as a breakpoint sometimes hidden,or showed as a red circle or a grey circle.
 -   Add Semantic highlighting
