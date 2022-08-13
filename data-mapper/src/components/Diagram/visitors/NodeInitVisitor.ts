@@ -22,7 +22,6 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { SelectClauseNode } from "../Node/SelectClause";
-import { isPositionsEquals } from "../utils";
 
 const draftFunctionName = 'XChoreoLCReturnType';
 

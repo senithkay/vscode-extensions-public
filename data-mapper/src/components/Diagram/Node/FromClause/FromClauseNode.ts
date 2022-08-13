@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { PortModel } from "@projectstorm/react-diagrams-core";
 import {
     CaptureBindingPattern,
     FromClause,
@@ -19,7 +20,7 @@ import {
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getTypeDescForFieldName } from "../../../../utils/st-utils";
-import { DataMapperPortModel } from "../../Port";
+// import { DataMapperPortModel } from "../../Port";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
@@ -29,7 +30,7 @@ export class FromClauseNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
     public sourceBindingPattern: CaptureBindingPattern;
-    public sourcePort: DataMapperPortModel;
+    public sourcePort: PortModel;
 
     constructor(
         public context: IDataMapperContext,
@@ -46,7 +47,7 @@ export class FromClauseNode extends DataMapperNodeModel {
             const parentId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
             this.sourceTypeDesc.fields.forEach((field) => {
                 if (STKindChecker.isRecordField(field)) {
-                    this.addPorts(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
+                    // this.addPorts(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
                 }
             });
         }

@@ -14,8 +14,8 @@ import {
 	generateQueryExpressionFromFormField,
 	generateQueryExpressionFromTypeDesc
 } from '../Link/link-utils';
-import { FormFieldPortModel } from '../Port';
-import { STNodePortModel } from "../Port/model/STNodePortModel";
+import { FormFieldPortModel, STNodePortModel } from '../Port';
+import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 

@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+import { PortModel } from "@projectstorm/react-diagrams-core";
 import {
     FromClause,
     MappingConstructor,
@@ -20,10 +21,10 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { isPositionsEquals } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { DataMapperPortModel } from "../../Port";
-import { getFieldNames, isPositionsEquals } from "../../utils";
+import { getFieldNames } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 
@@ -74,9 +75,10 @@ export class SelectClauseNode extends DataMapperNodeModel {
                     const sourcePortId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
                     const targetPort = this.getPort(targetPortId);
                     const sourceNode = this.getInputNodeExpr();
-                    let sourcePort: DataMapperPortModel;
+                    let sourcePort: PortModel;
                     if (sourceNode) {
-                        sourcePort = sourceNode.getPort(sourcePortId) as DataMapperPortModel;
+                        // sourcePort = sourceNode.getPort(sourcePortId) as DataMapperPortModel;
+                        sourcePort = undefined;
                     }
                     const link = new DataMapperLinkModel(value);
                     link.setSourcePort(sourcePort);

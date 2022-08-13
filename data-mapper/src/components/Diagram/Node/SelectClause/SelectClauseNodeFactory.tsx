@@ -14,12 +14,11 @@
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
-import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import {DiagramEngine, PortModel} from '@projectstorm/react-diagrams-core';
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
-import { DataMapperPortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { MappingConstructorWidget } from "../commons/MappingConstructorWidget/MappingConstructorWidget";
 
@@ -40,7 +39,8 @@ export class SelectClauseFactory extends AbstractReactFactory<SelectClauseNode, 
                         engine={this.engine}
                         id={EXPANDED_QUERY_TARGET_PORT_PREFIX}
                         value={event.model.value.expression}
-                        getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
+                        // getPort={(portId: string) => event.model.getPort(portId) as PortModel}
+                        getPort={undefined}
                     />
                 )}
             </>
