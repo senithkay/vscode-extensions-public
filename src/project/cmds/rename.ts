@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,7 +21,7 @@ import { commands, Uri, TextDocument, workspace, Position } from "vscode";
 
 function activateRenameCommand() {
     // register ballerina rename command
-    commands.registerCommand("ballerina.action.rename",async (url:string, pos:number) => {
+    commands.registerCommand("ballerina.action.rename", async (url:string, pos:number) => {
         try {
             const uri: Uri = Uri.parse(url);
             const document: TextDocument = await workspace.openTextDocument(uri);
