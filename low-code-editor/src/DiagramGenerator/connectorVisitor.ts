@@ -31,7 +31,6 @@ export function haveConnectors(stNode: STNode): boolean {
 }
 
 export class ConnectorVisitor implements Visitor {
-    constructor() { }
 
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
         haveConnector = true;

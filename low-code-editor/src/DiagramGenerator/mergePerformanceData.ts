@@ -18,7 +18,8 @@
  */
 
 import { ANALYZE_TYPE, TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { BlockStatement, IfElseStatement, NamedWorkerDeclaration, NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, IfElseStatement, NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+
 import { haveConnectors } from "./connectorVisitor";
 
 export interface ConnectorLatency {
@@ -80,7 +81,7 @@ export class AnalysisDetailMerger implements Visitor {
             node.elseBody.elseBody.controlFlow = { isReached: false };
         }
         this.updateStatements(node.ifBody.statements, false);
-        if (node.elseBody?.elseBody && 
+        if (node.elseBody?.elseBody &&
             STKindChecker.isBlockStatement(node.elseBody.elseBody)) this.updateStatements(node.elseBody.elseBody.statements, false);
     }
 
