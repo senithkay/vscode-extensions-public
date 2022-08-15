@@ -7,6 +7,9 @@
 ### Improved
 - The low-code diagram editor - New statement editor introduced.
 
+### Fixed
+- Swagger client send an invalid Content type header.
+
 ## **3.0.2**
 ### Improved
 - The low-code diagram editor.
