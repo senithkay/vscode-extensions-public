@@ -20,13 +20,12 @@
 import { ViewColumn, window, WebviewPanel, Uri, Disposable } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { render } from './render';
-import { updatePerfPath } from ".";
+// import { updatePerfPath } from ".";
 import { BallerinaExtension, ExtendedLangClient, WEBVIEW_TYPE } from "../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { refreshDiagramForPerformanceConcurrencyChanges as updateDiagramPerfPath } from "../diagram";
 import { PerformanceGraphRequest } from "./model";
 import { join } from "path";
-import { sendTelemetryEvent, CMP_PERF_ANALYZER, TM_EVENT_CLICK_PERF_GRAPH } from "../telemetry";
 
 export class DefaultWebviewPanel {
     public static currentPanel: DefaultWebviewPanel | undefined;
@@ -77,13 +76,13 @@ export class DefaultWebviewPanel {
             message => {
                 switch (message.command) {
                     case 'updatePerfPath':
-                        sendTelemetryEvent(extension, TM_EVENT_CLICK_PERF_GRAPH, CMP_PERF_ANALYZER, { 'concurrency': `${message.text}` });
-                        for (let editor of window.visibleTextEditors) {
-                            if (editor.document.uri.path === currentFileUri.path) {
-                                updatePerfPath(message.text, editor.viewColumn);
-                                break;
-                            }
-                        }
+                        // sendTelemetryEvent(extension, TM_EVENT_CLICK_PERF_GRAPH, CMP_PERF_ANALYZER, { 'concurrency': `${message.text}` });
+                        // for (let editor of window.visibleTextEditors) {
+                        //     if (editor.document.uri.path === currentFileUri.path) {
+                        //         updatePerfPath(message.text, editor.viewColumn);
+                        //         break;
+                        //     }
+                        // }
 
                         updateDiagramPerfPath(message.text);
                         return;
