@@ -23,6 +23,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
+import { Endpoint } from "../../../Types/type";
 import {
   initializeViewState,
   recalculateSizingAndPositioning,
@@ -34,7 +35,6 @@ import { FunctionExpand } from "../../RenderingComponents/FunctionExpand";
 import { HideFunctionSVG } from "./HideFunctionSVG";
 import { ShowFunctionSVG } from "./ShowFunctionSVG";
 import "./style.scss";
-import { Endpoint } from "../../../Types/type";
 
 export interface ShowFunctionBtnProps {
   x: number;
@@ -118,7 +118,6 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
           },
         };
         const funDef = await getFunctionDef(range, model.viewState.functionNodeFilePath);
-        
         const expandST = funDef.syntaxTree as FunctionDefinition;
         // const childVP = expandST.functionBody.VisibleEndpoints;
         // if (childVP.length > 0) {

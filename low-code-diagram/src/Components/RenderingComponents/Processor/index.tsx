@@ -41,13 +41,13 @@ import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
 import { ShowFunctionBtn } from "../../DiagramActions/ShowFunctionBtn";
 import { Assignment } from "../Assignment";
+import { FunctionExpand } from "../FunctionExpand";
 import { MethodCall } from "../MethodCall";
 import { StatementTypes } from "../StatementTypes";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
-import { FunctionExpand } from "../FunctionExpand";
 
 
 export interface ProcessorProps {

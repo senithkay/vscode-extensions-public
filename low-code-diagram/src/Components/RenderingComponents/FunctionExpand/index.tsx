@@ -23,15 +23,15 @@ import cn from "classnames";
 import { Context } from "../../../Context/diagram";
 import { useOverlayRef, useSelectedStatus } from "../../../hooks";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
+import { DefaultConfig } from "../../../Visitors";
 import ControlFlowArrow from "../ControlFlowArrow";
 import { End } from "../End";
+import { PROCESS_SVG_HEIGHT } from "../Processor/ProcessSVG";
 import { StartButton } from "../Start";
 import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
 import "./style.scss";
-import { PROCESS_SVG_HEIGHT } from "../Processor/ProcessSVG";
-import { DefaultConfig } from "../../../Visitors";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -152,7 +152,7 @@ export function FunctionExpand(props: FunctionProps) {
         y={model.viewState.bBox.cy - (arrowSpaceX + arrowSpaceY)}
       > */}
       <rect
-        y={PROCESS_SVG_HEIGHT + PROCESS_SVG_HEIGHT/2}
+        y={PROCESS_SVG_HEIGHT + PROCESS_SVG_HEIGHT / 2}
         x="40"
         width={blockWidth}
         height={blockHeight - (PROCESS_SVG_HEIGHT * 2 + DefaultConfig.dotGap * 2 + DefaultConfig.dotGap / 2)}
