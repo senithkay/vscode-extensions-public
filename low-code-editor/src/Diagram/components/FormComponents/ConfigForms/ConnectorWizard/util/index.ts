@@ -34,7 +34,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { isEndpointNode } from "../../../../../utils";
-import { getFormattedModuleName } from "../../../../Portals/utils";
+import { getFieldName, getFormattedModuleName } from "../../../../Portals/utils";
 import { isAllDefaultableFields, isAnyFieldSelected, isDependOnDriver } from "../../../Utils";
 
 const EXPR_PLACEHOLDER = "EXPRESSION";
@@ -127,6 +127,7 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 draftParameter = getFieldValuePair(parameter, "xml ``", depth, valueOnly);
                 break;
             case PrimitiveBalType.Nil:
+            case "anydata":
             case "()":
                 draftParameter = getFieldValuePair(parameter, `()`, depth, true);
                 break;
@@ -200,12 +201,12 @@ function getFieldValuePair(
     }
     if (depth === 1 && !valueOnly) {
         // Handle named args
-        return `${parameter.name} = ${value}`;
+        return `${getFieldName(parameter.name)} = ${defaultValue}`;
     }
     if (depth > 1 && !valueOnly) {
-        return `${parameter.name}: ${value}`;
+        return `${getFieldName(parameter.name)}: ${defaultValue}`;
     }
-    return value;
+    return defaultValue;
 }
 
 export function getUnionFormFieldName(field: FormField): string {

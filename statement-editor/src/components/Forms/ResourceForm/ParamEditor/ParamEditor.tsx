@@ -192,11 +192,16 @@ export function ParamEditor(props: ParamProps) {
                                     || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange
                                     || []
                                 }
-                                defaultValue={(STKindChecker.isDefaultableParam(model) && model.expression?.source.trim()) || ""}
+                                defaultValue={
+                                    (STKindChecker.isDefaultableParam(model) && model.expression?.source.trim())
+                                    || ""
+                                }
                                 onChange={debouncedDefaultValueChange}
                                 onFocus={onDefaultValueEditorFocus}
                                 disabled={false}
-                                completions={currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && completions}
+                                completions={
+                                    currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && completions
+                                }
                             />
                         </div>
                     )
@@ -214,7 +219,7 @@ export function ParamEditor(props: ParamProps) {
                     text={"Save"}
                     disabled={
                         (syntaxDiagnostics && syntaxDiagnostics.length > 0)
-                        || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange.length > 0
+                        || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange?.length > 0
                         || model.paramName?.viewState?.diagnosticsInRange?.length > 0
                         || model.typeName?.viewState?.diagnosticsInRange?.length > 0
                     }

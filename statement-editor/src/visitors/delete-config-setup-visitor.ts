@@ -13,17 +13,20 @@
 import {
     AssignmentStatement,
     BinaryExpression,
+    FunctionCall,
     IdentifierToken,
     KeySpecifier,
     LetVarDecl,
     LimitClause,
     ListConstructor,
     MappingConstructor,
+    MethodCall,
     OrderKey,
     QueryExpression,
     QueryPipeline,
     RecordField,
     RecordFieldWithDefaultValue,
+    ReturnStatement,
     SimpleNameReference,
     STNode,
     TupleTypeDesc,
@@ -62,6 +65,12 @@ class DeleteConfigSetupVisitor implements Visitor {
         (node.varRef.viewState as StatementEditorViewState).exprNotDeletable = true;
     }
 
+    public beginVisitReturnStatement(node: ReturnStatement) {
+        if (node.expression) {
+            (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
+        }
+    }
+
     public beginVisitTupleTypeDesc(node: TupleTypeDesc) {
         if (node.memberTypeDesc.length === 1) {
             (node.memberTypeDesc[0].viewState as StatementEditorViewState).exprNotDeletable = true;
@@ -82,6 +91,18 @@ class DeleteConfigSetupVisitor implements Visitor {
                 (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
             });
         }
+    }
+
+    public beginVisitMethodCall(node: MethodCall) {
+        node.arguments.map((args: STNode) => {
+            (args.viewState as StatementEditorViewState).templateExprDeletable = true;
+        });
+    }
+
+    public beginVisitFunctionCall(node: FunctionCall) {
+        node.arguments.map((args: STNode) => {
+            (args.viewState as StatementEditorViewState).templateExprDeletable = true;
+        });
     }
 
     public beginVisitOrderKey(node: OrderKey) {

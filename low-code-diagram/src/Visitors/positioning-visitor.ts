@@ -196,8 +196,15 @@ export class PositioningVisitor implements Visitor {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
 
-        viewState.trigger.cx = DefaultConfig.canvas.childPaddingX;
-        viewState.trigger.cy = DefaultConfig.startingY + DefaultConfig.canvas.childPaddingY;
+        viewState.wrapper.cx = viewState.bBox.x;
+        viewState.wrapper.cy = viewState.bBox.y;
+
+        const topOffSet = viewState.bBox.offsetFromTop * 7;
+        viewState.bBox.cx = viewState.bBox.x + viewState.bBox.lw;
+        viewState.bBox.cy = viewState.bBox.y + topOffSet;
+
+        viewState.trigger.cx = viewState.bBox.cx;
+        viewState.trigger.cy = viewState.bBox.cy;
 
         viewState.workerLine.x = viewState.trigger.cx;
         viewState.workerLine.y = viewState.trigger.cy + (viewState.trigger.h / 2);
@@ -205,8 +212,10 @@ export class PositioningVisitor implements Visitor {
         bodyViewState.bBox.cx = viewState.workerLine.x;
         bodyViewState.bBox.cy = viewState.workerLine.y + viewState.trigger.offsetFromBottom;
 
-        viewState.end.bBox.cx = DefaultConfig.canvas.childPaddingX;
-        viewState.end.bBox.cy = DefaultConfig.startingY + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+        viewState.end.bBox.cx = viewState.bBox.cx;
+        viewState.end.bBox.cy = viewState.trigger.cy + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
+
+        this.currentWorker.push('function');
         plusHolderHeight = 0;
     }
 
@@ -380,28 +389,37 @@ export class PositioningVisitor implements Visitor {
         // If body has no statements and doesn't have a end component
         // Add the plus button to show up on the start end
         if (!bodyViewState.isEndComponentAvailable && body.statements.length <= 0
-            && !body.namedWorkerDeclarator) {
+            && (!body.namedWorkerDeclarator)) {
             const plusBtnViewState: PlusViewState = viewState.initPlus;
             if (bodyViewState.draft === undefined && plusBtnViewState) {
                 plusBtnViewState.bBox.cx = viewState.trigger.cx;
-                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom + (START_SVG_SHADOW_OFFSET / 4);
+                plusBtnViewState.bBox.cy = viewState.trigger.cy + (viewState.trigger.h / 2) + viewState.trigger.offsetFromBottom;
             }
         }
 
-        // Calculate the plus widget height diff and increase function
-        // height accordingly.
+        let widthOfWorkers = 0;
+
+        if (bodyViewState.hasWorkerDecl) {
+            body.namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDecl => {
+                widthOfWorkers += (workerDecl.viewState as WorkerDeclarationViewState).bBox.w;
+            })
+        }
+
+        // Update Function container height if plus is open.
+        // TODO: try to move this to the sizing visitor with a different approach.
         if ((viewState.workerLine.h + viewState.workerLine.y) < plusHolderHeight) {
             const plusHolderHeightDiff = plusHolderHeight - (viewState.workerLine.h + viewState.workerLine.y);
             viewState.bBox.h += plusHolderHeightDiff;
-
-            // Reset the plus holder height diff.
             plusHolderHeight = 0;
         }
 
-        updateConnectorCX(bodyViewState.bBox.rw, bodyViewState.bBox.cx, this.allEndpoints);
+        updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy);
 
         // Update First Control Flow line
         this.updateFunctionEdgeControlFlow(viewState, body);
+        this.currentWorker.pop();
+        this.updateSendArrowPositions(node);
+        this.cleanMaps();
     }
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
