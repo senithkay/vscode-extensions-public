@@ -67,7 +67,7 @@ export class EditorPane {
     static clickMinusButton() {
         cy.contains(`[data-testid="minus-button"]`,`-`)
             .click();
-        cy.wait(500);
+        cy.wait(1000);
         return this;
     }
 
