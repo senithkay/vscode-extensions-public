@@ -60,7 +60,7 @@ export class EditorPane {
     static clickPlusButton() {
         cy.contains(`[data-testid="plus-button"]`,`+`)
             .click();
-        cy.wait(500);
+        cy.wait(1000);
         return this;
     }
 
