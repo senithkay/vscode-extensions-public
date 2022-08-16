@@ -1,6 +1,6 @@
 import ballerina/http;
 
-service / on new http:Listener(9090) {
+service /hello on new http:Listener(8080) {
     resource function get .() returns error? {
     }
 }

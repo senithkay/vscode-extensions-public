@@ -154,6 +154,7 @@ export function ParamEditor(props: ParamProps) {
                         <div className={classes.paramDataTypeWrapper}>
                             <FieldTitle title='Type' optional={false} />
                             <LiteExpressionEditor
+                                testId="param-type"
                                 diagnostics={
                                     (currentComponentName === ParamEditorInputTypes.TYPE && syntaxDiagnostics) ||
                                     model.typeName?.viewState?.diagnosticsInRange
@@ -169,6 +170,7 @@ export function ParamEditor(props: ParamProps) {
                 <div className={classes.paramNameWrapper}>
                     <FieldTitle title='Param Name' optional={false} />
                     <LiteExpressionEditor
+                        testId="param-name"
                         diagnostics={
                             (currentComponentName === ParamEditorInputTypes.PARAM_NAME && syntaxDiagnostics) ||
                             model.paramName?.viewState?.diagnosticsInRange
@@ -187,6 +189,7 @@ export function ParamEditor(props: ParamProps) {
                         <div className={classes.paramNameWrapper}>
                             <FieldTitle title='Default Value' optional={false} />
                             <LiteExpressionEditor
+                                testId="param-default-val"
                                 diagnostics={
                                     (currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && syntaxDiagnostics)
                                     || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange

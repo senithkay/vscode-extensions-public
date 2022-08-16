@@ -11,12 +11,8 @@
  * associated services.
  */
 import { Canvas } from "../../utils/components/canvas"
-import { SourceCode } from "../../utils/components/code-view"
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget"
-import { getCurrentSpecFolder } from "../../utils/file-utils"
-import { HttpForm } from "../../utils/forms/connectors/http-form"
-import { LogForm } from "../../utils/forms/log-form"
-import { ResourceForm } from "../../utils/forms/resource-form"
+import { ResourceForm } from "../../utils/forms/resource-form";
 import { ServiceForm } from "../../utils/forms/service-form"
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
@@ -27,40 +23,34 @@ describe('add a http service to an empty file', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it.skip('Add a resource with advanced config', () => {
+    it('Add a resource with advanced config', () => {
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
-        TopLevelPlusWidget.clickOption("Service");
+
+        TopLevelPlusWidget
+            .clickOption('Service');
+
         ServiceForm
-            .selectServiceType("HTTP")
-            .typeServicePath("/wso2")
-            .clickDefineListenerline()
+            .typeServicePath('/hello')
             .typeListenerPort(8080)
             .save();
-        Canvas.clickTopLevelPlusButton(5);
-        TopLevelPlusWidget.clickOption("Resource");
+
+        Canvas
+            .getService('/hello')
+            .getResourceFunction('GET', '/')
+            .deleteResource();
+
+        Canvas.getService('/hello')
+            .clickPlusIcon(4);
+
         ResourceForm
-            .selectMethod("GET")
-            .selectAdvancedConfig()
-            .clickAddPathSegments()
-            .addPathParam("path1")
-            .clickAddPathSegments()
-            .addPathParam("path2")
-            .clickAddQueryParam()
-            .addQueryParam("query")
-            .togglePayload()
-            .typePayloadType("string")
-            .typePayloadName("reqPayload")
-            .clickRequestCheckBox()
-            .clickCallerCheckBox()
-            .save()
-
-        Canvas.getService("/wso2")
-            .shouldHaveResources(2)
-
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-advanced-resource.expected.bal");
+            .selectMethod('POST')
+            .typePathName('test/[string user]')
+            .typeReturnValue('error|int?')
+            .addResourceParam('QUERY', 'string', 'test')
+            .addPayload()
+            .save();
     })
 
 })
