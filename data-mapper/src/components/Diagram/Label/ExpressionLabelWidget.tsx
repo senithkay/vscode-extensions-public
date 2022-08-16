@@ -55,7 +55,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			const actions = (await handleCodeActions(props.model.context.filePath, props.model.link?.diagnostics, props.model.context.langClientPromise))
 			setCodeActions(actions)
         }
-  genModel();
+		genModel();
 	}, [props.model]);
 
 	const onClickConvertToQuery = async () => {

@@ -24,6 +24,7 @@ export function generateQueryExpression(srcExpr: string, targetType: FormField) 
 
     const srcFields = targetType.fields;
 
+    // TODO: Dynamically generate the identifier name instead of 'item'
     return `from var item in ${srcExpr}
         select {
             ${targetType.fields.map((field, index) => `${field.name}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
