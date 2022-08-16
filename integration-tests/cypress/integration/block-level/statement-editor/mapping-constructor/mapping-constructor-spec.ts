@@ -79,7 +79,7 @@ describe('Test mapping constructor functionality', () => {
         EditorPane
             .clickPlusButton();
 
-            EditorPane
+        EditorPane
             .getExpression("IdentifierToken")
             .doubleClickExpressionContent(`key`);
 

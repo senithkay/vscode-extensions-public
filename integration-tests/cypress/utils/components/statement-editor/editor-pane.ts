@@ -64,6 +64,13 @@ export class EditorPane {
         return this;
     }
 
+    static clickMinusButton() {
+        cy.contains(`[data-testid="minus-button"]`,`-`)
+            .click();
+        cy.wait(500);
+        return this;
+    }
+
     static validateNewExpression(modelType:string, text:string){
         cy.contains(`[data-testid="${modelType}"]`,text,{timeout:20000}).should('exist');
         return this;
