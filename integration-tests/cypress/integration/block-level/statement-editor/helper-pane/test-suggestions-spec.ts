@@ -236,4 +236,52 @@ describe('Test helper pane functionality', () => {
             .checkForDiagnostics();
 
     });
+
+    it('Test Library-suggestions and filtering of libraries with dropdown', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(2);
+
+        BlockLevelPlusWidget.clickOption("Variable");
+
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent(`<add-expression>`);
+
+        SuggestionsPane
+            .clickSuggestionsTab("Libraries")
+            .clickLibrarySuggestion('lang.int')
+            .clickSearchedLibSuggestion('lang.int:abs')
+
+        EditorPane
+            .validateNewExpression("FunctionCall", "int0:abs(n)")
+            .getExpression("IdentifierToken")
+            .doubleClickExpressionContent('n');
+
+        InputEditor
+            .typeInput("285");
+
+        SuggestionsPane
+            .clickSuggestionsTab("Libraries")
+            .clickOnLibraryDropdown("Standard")
+            .validateFilteredLib("lang.int")
+            .clickSuggestionsTab("Libraries")
+            .clickOnLibraryDropdown("Language")
+            .validateFilteredLib("auth");
+
+        StatementEditor
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "lib-suggestion.expected.bal");
+
+    });
 })

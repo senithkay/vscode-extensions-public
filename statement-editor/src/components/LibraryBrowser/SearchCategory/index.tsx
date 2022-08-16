@@ -40,7 +40,7 @@ export function SearchCategory(props: SearchCategoryProps) {
             >
                 {label}
             </div>
-            <List className={stmtEditorHelperClasses.libraryElementBlockContent}>
+            <List className={stmtEditorHelperClasses.libraryElementBlockContent} data-testid="library-element-block-content">
                 {searchResult.map((property: ModuleProperty, index: number) => (
                     <ModuleElement
                         moduleProperty={property}
