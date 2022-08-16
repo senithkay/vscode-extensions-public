@@ -100,7 +100,7 @@ export class EditorPane {
 
     static checkForSyntaxDiagnosticsHighlighting() {
         cy.get(`[data-testid="syntax-error-highlighting"]`)
-            .should("be.visible");
+            .should("be.visible", { timeout: 20000 });
         return this;
     }
 }
