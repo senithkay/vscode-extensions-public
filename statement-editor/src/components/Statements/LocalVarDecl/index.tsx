@@ -21,6 +21,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
+import { KeywordComponent } from "../../Keyword";
 import { useStatementRendererStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
@@ -135,6 +136,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
     return (
         <>
+            {model.finalKeyword && <KeywordComponent model={model.finalKeyword}/>}
             {typedBindingComponent}
             {model.initializer && <TokenComponent model={model.equalsToken} className="operator" />}
             {expressionComponent}
