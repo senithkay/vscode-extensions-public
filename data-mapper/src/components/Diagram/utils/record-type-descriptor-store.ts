@@ -26,14 +26,9 @@ import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperC
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { RecordTypeFindingVisitor } from "../visitors/RecordTypeFindingVisitor";
 
-export interface TypeIdentifier {
-    name: string;
-    position: NodePosition;
-}
-
 export class RecordTypeDescriptorStore {
 
-    recordTypeDescriptors: Map<TypeIdentifier, FormField>
+    recordTypeDescriptors: Map<NodePosition, FormField>
     static instance : RecordTypeDescriptorStore;
 
     private constructor() {
@@ -56,8 +51,8 @@ export class RecordTypeDescriptorStore {
         const expressionNodesRanges = visitor.getExpressionNodesRanges();
         const symbolNodesPositions = visitor.getSymbolNodesPositions();
 
-        await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges);
         await this.setTypesForSymbol(langClient, fileUri, symbolNodesPositions);
+        await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges);
     }
 
     async setTypesForExpressions(langClient: ExpressionEditorLangClientInterface,
@@ -91,21 +86,18 @@ export class RecordTypeDescriptorStore {
     }
 
     async setTypeDescriptors(type: FormField, startPosition: LinePosition, endPosition?: LinePosition) {
-        const identifier: TypeIdentifier = {
-            name: type?.name || "",
-            position: {
-                startLine: startPosition.line,
-                startColumn: startPosition.offset,
-                endLine: endPosition ? endPosition.line : startPosition.line,
-                endColumn: endPosition ? endPosition.offset : startPosition.offset,
-            }
+        const position: NodePosition = {
+            startLine: startPosition.line,
+            startColumn: startPosition.offset,
+            endLine: endPosition ? endPosition.line : startPosition.line,
+            endColumn: endPosition ? endPosition.offset : startPosition.offset,
         };
-        this.recordTypeDescriptors.set(identifier, type);
+        this.recordTypeDescriptors.set(position, type);
     }
 
-    public getTypeDescriptor(identifier : TypeIdentifier) : FormField {
+    public getTypeDescriptor(position : NodePosition) : FormField {
         for (const [key, value] of this.recordTypeDescriptors) {
-            if (key.name === identifier.name && isPositionsEquals(key.position, identifier.position)) {
+            if (isPositionsEquals(key, position)) {
                 return value;
             }
         }

@@ -23,13 +23,10 @@ export class RequiredParamNode extends DataMapperNodeModel {
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            name: this.value.typeName.source.trim(),
-            position: {
-                startLine: this.value.typeName.position.startLine,
-                startColumn: this.value.typeName.position.startColumn,
-                endLine: this.value.typeName.position.startLine,
-                endColumn: this.value.typeName.position.startColumn
-            }
+            startLine: this.value.typeName.position.startLine,
+            startColumn: this.value.typeName.position.startColumn,
+            endLine: this.value.typeName.position.startLine,
+            endColumn: this.value.typeName.position.startColumn
         });
 
         if (this.typeDef && this.typeDef.typeName === 'record') {

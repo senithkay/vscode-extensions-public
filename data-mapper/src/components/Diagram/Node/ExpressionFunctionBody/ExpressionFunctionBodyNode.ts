@@ -39,13 +39,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            name: this.typeDesc.source.trim(),
-            position: {
-                startLine: this.typeDesc.position.startLine,
-                startColumn: this.typeDesc.position.startColumn,
-                endLine: this.typeDesc.position.startLine,
-                endColumn: this.typeDesc.position.startColumn
-            }
+            startLine: this.typeDesc.position.startLine,
+            startColumn: this.typeDesc.position.startColumn,
+            endLine: this.typeDesc.position.startLine,
+            endColumn: this.typeDesc.position.startColumn
         });
 
         if (this.typeDef && this.typeDef.typeName === 'record') {
