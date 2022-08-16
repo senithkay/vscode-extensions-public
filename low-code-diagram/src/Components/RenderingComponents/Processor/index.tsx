@@ -310,10 +310,7 @@ export function DataProcessor(props: ProcessorProps) {
         )
     }
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const textWidthFixed = functionName?.value.length >= 16 ? functionName?.value?.slice(0, 16).length * 9 : functionName?.value.length * 10;
     const haveFunctionExpand = (haveFunction && !!functionName);
-    const alignX = cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3);
-    const alignY = (cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2);
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -334,7 +331,7 @@ export function DataProcessor(props: ProcessorProps) {
                                     <>
                                         <StatementTypes
                                             statementType={statmentTypeText}
-                                            x={haveFunctionExpand ? cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset) - 20 : cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                            x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                                             y={cy + PROCESS_SVG_HEIGHT / 4 + leftTextOffset}
                                             key_id={getRandomInt(1000)}
                                         />
@@ -343,7 +340,7 @@ export function DataProcessor(props: ProcessorProps) {
                                 <VariableName
                                     processType={processType}
                                     variableName={processName}
-                                    x={haveFunctionExpand ? cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset) - 20 : cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
+                                    x={cx - (VARIABLE_NAME_WIDTH + DefaultConfig.textAlignmentOffset)}
                                     y={cy + PROCESS_SVG_HEIGHT / 4 + leftTextOffset}
                                     key_id={getRandomInt(1000)}
                                 />
@@ -358,19 +355,19 @@ export function DataProcessor(props: ProcessorProps) {
                             diagnostics={errorSnippet}
                             componentSTNode={model}
                             openInCodeView={!isReadOnly && model && model.position && onClickOpenInCodeView}
-                            haveFunctionExpand={haveFunctionExpand}
+                            haveFunctionExpand={false}
                         />
                         <Assignment
-                            x={haveFunctionExpand ? alignX - (PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW - 15) : alignX}
-                            y={haveFunctionExpand ? alignY + 5 : alignY}
+                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
+                            y={haveFunctionExpand ? (cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2) : (prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3))}
                             assignment={assignmentText}
                             className={assignmentTextStyles}
                             key_id={getRandomInt(1000)}
                         />
                         {sendTextComponent}
                         <MethodCall
-                            x={haveFunctionExpand ? alignX - (PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW + 10) : alignX}
-                            y={haveFunctionExpand ? alignY - 5 : alignY}
+                            x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
+                            y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
                             methodCall={methodCallText}
                             key_id={getRandomInt(1000)}
                         />
@@ -400,7 +397,7 @@ export function DataProcessor(props: ProcessorProps) {
                                 <ShowFunctionBtn
                                     model={model}
                                     functionName={functionName}
-                                    x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3) + 5}
+                                    x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap / 2) + 3}
                                     y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2) + 5}
                                     setConfirmDialogActive={setConfirmDialogActive}
                                     isConfirmDialogActive={isConfirmDialogActive}

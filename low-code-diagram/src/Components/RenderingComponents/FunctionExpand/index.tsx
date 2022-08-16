@@ -78,6 +78,7 @@ export function FunctionExpand(props: FunctionProps) {
           model={model.functionBody}
           viewState={viewState.end}
           isExpressionFunction={true}
+          expandReadonly={true}
         />
       </g>
     );
@@ -100,15 +101,13 @@ export function FunctionExpand(props: FunctionProps) {
         </>
 
         {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
-        {/* {isInitPlusAvailable && <StartButton model={model} />}
-        {!isInitPlusAvailable && <StartButton model={model} />} */}
         {!isInitPlusAvailable && (
           <WorkerBody model={block} viewState={block.viewState} expandReadonly={true} />
         )}
         {!isInitPlusAvailable &&
           isStatementsAvailable &&
           (!bodyViewState?.isEndComponentInMain ||
-            bodyViewState?.collapseView) && <End viewState={viewState.end} />}
+            bodyViewState?.collapseView) && <End viewState={viewState.end} expandReadonly={true}/>}
       </g>
     );
   }

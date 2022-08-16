@@ -44,7 +44,7 @@ export function initializeViewState(st: STNode, parentConnectors?: Map<string, E
     return clone;
 }
 
-export function getSTComponents(nodeArray: any, viewState?: any, model?: FunctionBodyBlock): React.ReactNode[] {
+export function getSTComponents(nodeArray: any, viewState?: any, model?: FunctionBodyBlock, expandReadonly?: boolean): React.ReactNode[] {
     // Convert to array
     if (!(nodeArray instanceof Array)) {
         nodeArray = [nodeArray];
@@ -60,7 +60,7 @@ export function getSTComponents(nodeArray: any, viewState?: any, model?: Functio
         if (!ChildComp) {
             children.push(<Statement model={node} />);
         } else {
-            children.push(<ChildComp model={node} />);
+            children.push(<ChildComp model={node} expandReadonly={expandReadonly} />);
         }
     });
 

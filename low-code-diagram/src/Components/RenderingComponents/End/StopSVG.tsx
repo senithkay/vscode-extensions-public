@@ -32,7 +32,7 @@ export function StopSVG(props: { x: number, y: number, text: string, codeSnippet
             <g transform="matrix(1, 0, 0, 1, -7, -5)" filter="url(#StopFilter)">
                 <rect id="EndRect" width="48" height="32" rx="16" transform="translate(6 5)" />
             </g>
-            <g id="EndRectangleContent" stroke="rgba(85,103,213,0.95)" strokeMiterlimit="10" strokeWidth="1" fill="url(#linear-gradient)">
+            <g id="EndRectangleContent" stroke="rgba(85,103,213,0.95)" strokeMiterlimit="10" strokeWidth="1">
                 <rect width="48" height="32" rx="16" stroke="none" />
                 <rect x="0.5" y="0.5" width="47" height="31" rx="15.5" fill="none" />
             </g>
