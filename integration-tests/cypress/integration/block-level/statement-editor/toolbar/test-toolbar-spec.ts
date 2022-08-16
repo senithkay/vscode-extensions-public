@@ -141,7 +141,7 @@ describe('Test statement editor toolbar functionality', () => {
 
     });
 
-    it.skip('Delete expression type', () => {
+    it('Delete expression type', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -174,7 +174,7 @@ describe('Test statement editor toolbar functionality', () => {
 
     });
 
-    it.skip('Delete expression value', () => {
+    it('Delete expression value', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
