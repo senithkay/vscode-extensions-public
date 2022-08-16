@@ -48,31 +48,9 @@ describe('add a http service to an empty file', () => {
             .selectMethod('POST')
             .typePathName('test/[string user]')
             .typeReturnValue('error|int?')
+            .addResourceParam('QUERY', 'string', 'test')
+            .addPayload()
             .save();
-        // Canvas.getService('/wso2')
-        // Canvas.clickTopLevelPlusButton(5);
-        // TopLevelPlusWidget.clickOption("Resource");
-        // ResourceForm
-        //     .selectMethod("GET")
-        //     .selectAdvancedConfig()
-        //     .clickAddPathSegments()
-        //     .addPathParam("path1")
-        //     .clickAddPathSegments()
-        //     .addPathParam("path2")
-        //     .clickAddQueryParam()
-        //     .addQueryParam("query")
-        //     .togglePayload()
-        //     .typePayloadType("string")
-        //     .typePayloadName("reqPayload")
-        //     .clickRequestCheckBox()
-        //     .clickCallerCheckBox()
-        //     .save()
-
-        // Canvas.getService("/wso2")
-        //     .shouldHaveResources(2)
-
-        // SourceCode.shouldBeEqualTo(
-        //     getCurrentSpecFolder() + "add-advanced-resource.expected.bal");
     })
 
 })
