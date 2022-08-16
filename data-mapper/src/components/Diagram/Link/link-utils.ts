@@ -1,15 +1,13 @@
 import { PortModel } from "@projectstorm/react-diagrams-core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { RecordField, RecordTypeDesc, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { FormFieldPortModel } from "../Port/model/FormFieldPortModel";
-import { STNodePortModel } from "../Port/model/STNodePortModel";
+import { FormFieldPortModel, STNodePortModel } from "../Port";
 
 import { DataMapperLinkModel } from "./model/DataMapperLink";
 
 export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     const sourcePort = link.getSourcePort() as PortModel;
-    const targetPort = link.getTargetPort() as PortModel;
 
     if (sourcePort instanceof STNodePortModel && STKindChecker.isRecordField(sourcePort.field)) {
         const fieldType = sourcePort.field.typeName;
@@ -22,19 +20,7 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     return false;
 }
 
-export function generateQueryExpressionFromTypeDesc(srcExpr: string, targetType: RecordTypeDesc) {
-
-    const targetFields = targetType.fields.filter((field) => STKindChecker.isRecordField(field)) as RecordField[];
-
-    // TODO: Dynamically generate the identifier name instead of 'item'
-    return `from var item in ${srcExpr}
-        select {
-            ${targetFields.map((field, index) => `${field.fieldName.value}: ${(index !== targetFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
-        }
-    `
-}
-
-export function generateQueryExpressionFromFormField(srcExpr: string, targetType: FormField) {
+export function generateQueryExpression(srcExpr: string, targetType: FormField) {
 
     const srcFields = targetType.fields;
 

@@ -8,9 +8,10 @@ import { DataMapperLinkModel } from "../../Link";
 import { FormFieldPortModel, IntermediatePortModel, STNodePortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
-import { FromClauseNode } from "../FromClause";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 import { RequiredParamNode } from "../RequiredParam";
 import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
 
@@ -85,87 +86,35 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
             if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
+                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                const type = recordTypeDescriptors.getTypeDescriptor({
+                    startLine: sourceFieldAccess.position.startLine,
+                    startColumn: sourceFieldAccess.position.startColumn,
+                    endLine: sourceFieldAccess.position.endLine,
+                    endColumn: sourceFieldAccess.position.endColumn
+                });
+
+                if (type && type.typeName === 'array') {
+                    this.sourceTypeDesc = type.memberType;
+                }
+
                 const fieldNames = getFieldNames(sourceFieldAccess);
                 const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
 
-                const paramNode = this.getModel().getNodes().find((node) =>
-                    (node instanceof RequiredParamNode && node.value.paramName.value === fieldNames[0])
-                    || (node instanceof FromClauseNode
+                this.getModel().getNodes().map((node) => {
+                    if (node instanceof RequiredParamNode && node.value.paramName.value === fieldNames[0]) {
+                        this.sourcePort = node.getPort(fieldId + ".OUT") as FormFieldPortModel;
+                    } else if (node instanceof FromClauseNode
                         && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)
-                        && node.value.typedBindingPattern.bindingPattern.variableName.value === fieldNames[0])
-                );
-                if (paramNode instanceof RequiredParamNode) {
-                    let nextRecTypeDesc = paramNode.typeDef;
-                    let sourceTypeDesc: FormField;
-                    for (let i = 1; i < fieldNames.length; i++) {
-                        const field = nextRecTypeDesc.fields.find((formField) =>
-                            formField.name === fieldNames[i]);
-                        if (i === fieldNames.length - 1) {
-                            if (field.typeName === 'array' && field.memberType.typeName === 'record') {
-                                sourceTypeDesc = field.memberType;
-                            }
-                            this.sourcePort = paramNode.getPort(fieldId + ".OUT") as FormFieldPortModel;
-                        } else if (field.typeName === 'record') {
-                            nextRecTypeDesc = field; // TODO Handle other cases
-                        }
+                        && node.value.typedBindingPattern.bindingPattern.source.trim() === fieldNames[0].trim())
+                    {
+                        this.sourcePort = node.getPort(
+                            `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as FormFieldPortModel;
                     }
-                    this.sourceTypeDesc = sourceTypeDesc;
-                } else if (paramNode instanceof FromClauseNode) {
-
-                }
-
-                // #####################################
-                // // this.sourceTypeDesc = await getTypeDescForFieldName(sourceFieldAccess.fieldName, this.context);
-                // this.sourceTypeDesc = undefined;
-                //
-                // this.getModel().getNodes().map((node) => {
-                //     if (node instanceof RequiredParamNode && node.value.paramName.value === fieldNames[0]) {
-                //         // this.sourcePort = node.getPort(fieldId + ".OUT") as PortModel;
-                //         this.sourcePort = undefined;
-                //     } else if (node instanceof FromClauseNode
-                //         && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)
-                //         && node.value.typedBindingPattern.bindingPattern.source.trim() === fieldNames[0].trim())
-                //     {
-                //         // this.sourcePort = node.getPort(
-                //         //     `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as PortModel;
-                //         this.sourcePort = undefined;
-                //     }
-                // });
-
-                // #####################################
+                });
             }
         }
     }
-
-    // private async getSourceType() {
-    //     const sourceFieldAccess = this.value.queryPipeline.fromClause.expression;
-    //     const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
-    //     if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-    //         this.sourceBindingPattern = bindingPattern;
-    //         if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
-    //             const fieldNames = getFieldNames(sourceFieldAccess);
-    //             const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
-    //             const paramNode = this.getModel().getNodes().find((node) =>
-    //                 node instanceof RequiredParamNode
-    //                 && node.value.paramName.value === fieldNames[0]) as RequiredParamNode;
-    //             let nextRecTypeDesc = paramNode.typeDef;
-    //             let sourceTypeDesc: FormField;
-    //             for (let i = 1; i < fieldNames.length; i++) {
-    //                 const field = nextRecTypeDesc.fields.find((formField) =>
-    //                     formField.name === fieldNames[i]);
-    //                 if (i === fieldNames.length - 1) {
-    //                     if (field.typeName === 'array' && field.memberType.typeName === 'record') {
-    //                         sourceTypeDesc = field.memberType;
-    //                     }
-    //                     this.sourcePort = paramNode.getPort(fieldId + ".OUT") as FormFieldPortModel;
-    //                 } else if (field.typeName === 'record') {
-    //                     nextRecTypeDesc = field; // TODO Handle other cases
-    //                 }
-    //             }
-    //             this.sourceTypeDesc = sourceTypeDesc;
-    //         }
-    //     }
-    // }
 
     private async getTargetType() {
         // TODO get target type from specific field instead of select clause

@@ -5,17 +5,18 @@ import { Tooltip } from '@material-ui/core';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
-import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
-import { getTypeDescForFieldName } from "../../../utils/st-utils";
 import { CodeActionWidget } from '../CodeAction/CodeAction';
+import { DataMapperLinkModel } from "../Link";
 import {
 	canConvertLinkToQueryExpr,
-	generateQueryExpressionFromFormField,
-	generateQueryExpressionFromTypeDesc
+	generateQueryExpression
 } from '../Link/link-utils';
 import { FormFieldPortModel, STNodePortModel } from '../Port';
 import { handleCodeActions } from "../utils/ls-utils";
+import { RecordTypeDescriptorStore } from "../utils/record-type-descriptor-store";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 
@@ -60,59 +61,27 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const onClickConvertToQuery = async () => {
 		if (canUseQueryExpr) {
 			const link = props.model.link;
-			const sourcePort = link.getSourcePort() instanceof FormFieldPortModel
-				? link.getSourcePort() as FormFieldPortModel
-				: link.getSourcePort() as STNodePortModel;
 			const targetPort = link.getTargetPort() instanceof FormFieldPortModel
 				? link.getTargetPort() as FormFieldPortModel
 				: link.getTargetPort() as STNodePortModel;
-			let targetTypeDesc;
 
 			if (targetPort instanceof STNodePortModel) {
-				if (STKindChecker.isRecordField(targetPort.field)
-					&& STKindChecker.isArrayTypeDesc(targetPort.field.typeName)
-					&& STKindChecker.isRecordTypeDesc(targetPort.field.typeName.memberTypeDesc)
-				) {
-					targetTypeDesc = targetPort.field.typeName.memberTypeDesc;
-				} else if (STKindChecker.isSpecificField(targetPort.field)) {
-					const targetType = await getTypeDescForFieldName(targetPort.field.fieldName, props.model.context);
-					if (STKindChecker.isRecordTypeDesc(targetType)) {
-						targetTypeDesc = targetType;
-					}
-				}
-				if (link.value && targetTypeDesc) {
-					const querySrc = generateQueryExpressionFromTypeDesc(link.value.source, targetTypeDesc);
-					const position = link.value.position as NodePosition;
-					const applyModification = props.model.context.applyModifications;
-					applyModification([{
-						type: "INSERT",
-						config: {
-							"STATEMENT": querySrc,
-						},
-						endColumn: position.endColumn,
-						endLine: position.endLine,
-						startColumn: position.startColumn,
-						startLine: position.startLine
-					}]);
+				const fieldNamePosition = targetPort.field.fieldName.position;
+				const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+				const targetType = recordTypeDescriptors.getTypeDescriptor({
+					startLine: fieldNamePosition.startLine,
+					startColumn: fieldNamePosition.startColumn,
+					endLine: fieldNamePosition.startLine,
+					endColumn: fieldNamePosition.startColumn
+				});
+				if (targetType && targetType.typeName === 'array' && targetType.memberType.typeName === 'record')
+				{
+					applyQueryExpression(link, targetType.memberType);
 				}
 			} else if (targetPort instanceof FormFieldPortModel) {
 				const field = targetPort.field;
 				if (field.typeName === 'array' && field.memberType.typeName === 'record') {
-					const querySrc = generateQueryExpressionFromFormField(link.value.source, field.memberType);
-					if (link.value) {
-						const position = link.value.position as NodePosition;
-						const applyModification = props.model.context.applyModifications;
-						applyModification([{
-							type: "INSERT",
-							config: {
-								"STATEMENT": querySrc,
-							},
-							endColumn: position.endColumn,
-							endLine: position.endLine,
-							startColumn: position.startColumn,
-							startLine: position.startLine
-						}]);
-					}
+					applyQueryExpression(link, field.memberType);
 				}
 			}
 		}
@@ -120,6 +89,24 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 	const onClickDelete = () => {
 		// TODO implement the delete link logic
+	};
+
+	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: FormField) => {
+		if (link.value) {
+			const querySrc = generateQueryExpression(link.value.source, targetRecord);
+			const position = link.value.position as NodePosition;
+			const applyModification = props.model.context.applyModifications;
+			applyModification([{
+				type: "INSERT",
+				config: {
+					"STATEMENT": querySrc,
+				},
+				endColumn: position.endColumn,
+				endLine: position.endLine,
+				startColumn: position.startColumn,
+				startLine: position.startLine
+			}]);
+		}
 	};
 
 	React.useEffect(() => {

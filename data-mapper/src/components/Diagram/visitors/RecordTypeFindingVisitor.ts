@@ -14,6 +14,7 @@ import { ExpressionRange, LinePosition } from "@wso2-enterprise/ballerina-low-co
 import {
     FromClause,
     FunctionSignature,
+    SpecificField,
     STKindChecker,
     STNode,
     Visitor
@@ -58,6 +59,14 @@ export class RecordTypeFindingVisitor implements Visitor {
                 line: typePosition.endLine,
                 offset: typePosition.endColumn
             }
+        });
+    }
+
+    public beginVisitSpecificField(node: SpecificField, parent?: STNode) {
+        const fieldNamePosition = node.fieldName.position;
+        this.symbolNodesPositions.push({
+            line: fieldNamePosition.startLine,
+            offset: fieldNamePosition.startColumn
         });
     }
 

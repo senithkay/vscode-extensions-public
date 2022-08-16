@@ -43,6 +43,7 @@ export class RecordTypeDescriptorStore {
     }
 
     public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext){
+        this.recordTypeDescriptors.clear();
         const langClient = await context.getEELangClient();
         const fileUri = `file://${context.currentFile.path}`;
         const visitor = new RecordTypeFindingVisitor();
@@ -86,13 +87,15 @@ export class RecordTypeDescriptorStore {
     }
 
     async setTypeDescriptors(type: FormField, startPosition: LinePosition, endPosition?: LinePosition) {
-        const position: NodePosition = {
-            startLine: startPosition.line,
-            startColumn: startPosition.offset,
-            endLine: endPosition ? endPosition.line : startPosition.line,
-            endColumn: endPosition ? endPosition.offset : startPosition.offset,
-        };
-        this.recordTypeDescriptors.set(position, type);
+        if (type) {
+            const position: NodePosition = {
+                startLine: startPosition.line,
+                startColumn: startPosition.offset,
+                endLine: endPosition ? endPosition.line : startPosition.line,
+                endColumn: endPosition ? endPosition.offset : startPosition.offset,
+            };
+            this.recordTypeDescriptors.set(position, type);
+        }
     }
 
     public getTypeDescriptor(position : NodePosition) : FormField {
