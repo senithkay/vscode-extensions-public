@@ -72,7 +72,6 @@ import { ConflictResolutionVisitor } from "./conflict-resolution-visitor";
 import { DefaultConfig } from "./default";
 import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
 
-
 export interface AsyncSendInfo {
     to: string;
     node: STNode;
@@ -409,23 +408,10 @@ export class SizingVisitor implements Visitor {
             + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
-        if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-            viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
-            if (viewState.bBox.lw < (DefaultConfig.PLUS_HOLDER_WIDTH / 2)) {
-                viewState.bBox.lw = (DefaultConfig.PLUS_HOLDER_WIDTH / 2);
-            }
-            if (viewState.bBox.rw < (DefaultConfig.PLUS_HOLDER_WIDTH / 2)) {
-                viewState.bBox.rw = (DefaultConfig.PLUS_HOLDER_WIDTH / 2);
-            }
-            if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
-                viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
-            }
-        }
-
         const matchedStatements = this.syncAsyncStatements(node);
-
         const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
         const startDate = new Date();
+
         do {
             resolutionVisitor.resetConflictStatus();
             traversNode(node, resolutionVisitor);
@@ -494,19 +480,6 @@ export class SizingVisitor implements Visitor {
 
             if (bodyViewState.bBox.h < maxWorkerFullHeight) {
                 viewState.bBox.h += (maxWorkerFullHeight - bodyViewState.bBox.h);
-            }
-
-            if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
-                viewState.bBox.h += DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT;
-                if (viewState.bBox.lw < (DefaultConfig.PLUS_HOLDER_WIDTH / 2)) {
-                    viewState.bBox.lw = (DefaultConfig.PLUS_HOLDER_WIDTH / 2);
-                }
-                if (viewState.bBox.rw < (DefaultConfig.PLUS_HOLDER_WIDTH / 2)) {
-                    viewState.bBox.rw = (DefaultConfig.PLUS_HOLDER_WIDTH / 2);
-                }
-                if (viewState.bBox.w < DefaultConfig.PLUS_HOLDER_WIDTH) {
-                    viewState.bBox.w = DefaultConfig.PLUS_HOLDER_WIDTH;
-                }
             }
 
             this.currentWorker.pop();
@@ -761,9 +734,13 @@ export class SizingVisitor implements Visitor {
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
 
-        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
-        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h
+            + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw
+            : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw
+            : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding
+            + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -1393,7 +1370,8 @@ export class SizingVisitor implements Visitor {
         return index;
     }
 
-    private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0, index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
+    private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0,
+        index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }
@@ -1427,7 +1405,9 @@ export class SizingVisitor implements Visitor {
             blockViewState.plusButtons.push(plusBtnViewBox);
         }
 
-        ({ index, height, width, leftWidth, rightWidth } = this.calculateStatementSizing(node.statements, index, blockViewState, height, width, lastStatementIndex, leftWidth, rightWidth));
+        ({
+            index, height, width, leftWidth, rightWidth
+        } = this.calculateStatementSizing(node.statements, index, blockViewState, height, width, lastStatementIndex, leftWidth, rightWidth));
 
         if (blockViewState.draft && blockViewState.draft[0] === lastStatementIndex) {
             // Get the draft.
