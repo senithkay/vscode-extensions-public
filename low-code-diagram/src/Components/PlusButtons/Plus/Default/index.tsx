@@ -19,8 +19,8 @@ export const SMALLPLUS_RADIUS = 6.5;
 export const SMALLPLUS_SVG_HEIGHT = SMALLPLUS_RADIUS * 2;
 export const SMALLPLUS_SVG_WIDTH = SMALLPLUS_RADIUS * 2;
 
-export function SmallPlusSVG(props: { x: number, y: number, handlePlusClick: () => void; }) {
-    const {handlePlusClick, ...xyProps } = props;
+export function SmallPlusSVG(props: { x: number, y: number, handlePlusClick: () => void }) {
+    const { handlePlusClick, ...xyProps } = props;
     return (
         <svg {...xyProps} width={SMALLPLUS_SVG_WIDTH_WITH_SHADOW} height={SMALLPLUS_SVG_HEIGHT_WITH_SHADOW} className="plus-holder" >
             <defs>

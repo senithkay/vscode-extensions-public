@@ -16,7 +16,7 @@ import React, { useContext } from "react";
 import { List, ListItemText, Typography } from "@material-ui/core";
 
 import DiagnosticsErrorIcon from "../../assets/icons/DiagnosticsErrorIcon";
-import { StmtDiagnostic } from "../../models/definitions";
+import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { useStatementEditorDiagnosticStyles } from "../styles";
 
@@ -33,7 +33,7 @@ export function Diagnostics() {
         <div className={statementEditorDiagnosticClasses.diagnosticsPane} data-testid="diagnostics-pane">
             <List>
                 {
-                    diagnostics && diagnostics.map((diag: StmtDiagnostic, index: number) => (
+                    diagnostics && diagnostics.map((diag: StatementSyntaxDiagnostics, index: number) => (
                         !diag.isPlaceHolderDiag && (
                             <ListItemText
                                 data-testid="diagnostic-message"

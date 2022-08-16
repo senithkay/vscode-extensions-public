@@ -21,12 +21,14 @@ import {
     BallerinaConnectorInfo,
     ConnectorConfig,
     FormField,
+    genVariableName,
+    getAllVariables,
     LowcodeEvent,
     SAVE_CONNECTOR,
     SAVE_CONNECTOR_INIT,
     SAVE_CONNECTOR_INVOKE,
     STModification,
-    WizardType,
+    WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FormHeaderSection
@@ -43,7 +45,6 @@ import {
 import { DocIcon } from "../../../../../../assets";
 import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { getAllVariables } from "../../../../../utils/mixins";
 import {
     createImportStatement,
     createPropertyStatement,
@@ -51,7 +52,6 @@ import {
 } from "../../../../../utils/modification-util";
 import {
     addAccessModifiers,
-    genVariableName,
     getAccessModifiers,
     getActionReturnType,
     getConnectorComponent,
@@ -66,8 +66,8 @@ import {
     addDbExtraImport,
     addDbExtraStatements,
     addReturnTypeImports,
-    checkDBConnector,
     generateDocUrl,
+    isDependOnDriver,
     updateFunctionSignatureWithError,
 } from "../../../Utils";
 import { ConfigWizardState } from "../../index";
@@ -90,7 +90,7 @@ enum FormStates {
     OperationForm,
     SingleForm,
 }
-export interface ConnectorConfigWizardProps {
+interface ConnectorConfigWizardProps {
     connectorInfo: BallerinaConnectorInfo;
     targetPosition: NodePosition;
     configWizardArgs?: ConfigWizardState;
@@ -244,7 +244,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             const addConnectorInit = createPropertyStatement(endpointStatement, targetPosition);
             modifications.push(addConnectorInit);
             onConnectorAddEvent();
-            if (checkDBConnector(moduleName) && !isModuleEndpoint) {
+            if (isDependOnDriver(moduleName) && !isModuleEndpoint) {
                 const closeStatement = `check ${config.name}.close();`;
                 const addCloseStatement = createPropertyStatement(closeStatement, targetPosition);
                 modifications.push(addCloseStatement);
@@ -264,7 +264,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
         const modifications: STModification[] = [];
         const isInitReturnError = getInitReturnType(functionDefInfo);
         const currentActionReturnType = getActionReturnType(config.action.name, functionDefInfo);
-        if (checkDBConnector(connectorModule) && config.action.returnType) {
+        if (isDependOnDriver(connectorModule) && config.action.returnType) {
             currentActionReturnType.returnType = config.action.returnType;
         }
         const moduleName = getFormattedModuleName(connectorModule);
@@ -311,7 +311,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
             onActionAddEvent();
         }
 
-        if (isNewConnectorInitWizard && checkDBConnector(connectorModule)) {
+        if (isNewConnectorInitWizard && isDependOnDriver(connectorModule)) {
             addDbExtraStatements(modifications, config, stSymbolInfo, targetPosition, isAction);
         }
         if (modifications.length > 0) {

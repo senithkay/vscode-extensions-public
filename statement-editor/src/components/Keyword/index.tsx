@@ -13,7 +13,7 @@
 import React, { useContext } from "react";
 
 import {
-    AscendingKeyword, DescendingKeyword
+    AscendingKeyword, DescendingKeyword, FinalKeyword
 } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
@@ -25,7 +25,8 @@ import { useStatementRendererStyles } from "../styles";
 
 export interface KeywordComponentProps {
     model: AscendingKeyword |
-        DescendingKeyword;
+        DescendingKeyword |
+        FinalKeyword;
 }
 
 export function KeywordComponent(props: KeywordComponentProps) {

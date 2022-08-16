@@ -10,24 +10,24 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js ordered-imports
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
-import { WhileStatement } from "@wso2-enterprise/syntax-tree";
 import { FormControl, Typography } from "@material-ui/core";
-
-import { FormField, ConditionConfig, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { BALLERINA_EXPRESSION_SYNTAX_PATH } from "../../../../../../../utils/constants";
-import { Context } from "../../../../../../../Contexts/Diagram";
-import { createWhileStatement, createWhileStatementWithBlock, getInitialSource } from "../../../../../../utils/modification-util";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
-import { useStyles } from "../../../../DynamicConnectorForm/style";
-import { useStatementEditor } from "@wso2-enterprise/ballerina-statement-editor";
-import { FormElementProps } from "../../../../Types";
+import { ConditionConfig, FormField, } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
+import { WhileStatement } from "@wso2-enterprise/syntax-tree";
+
 import Tooltip from '../../../../../../../components/TooltipV2';
+import { Context } from "../../../../../../../Contexts/Diagram";
+import { createWhileStatement, createWhileStatementWithBlock, getInitialSource } from "../../../../../../utils";
+import { useStyles } from "../../../../DynamicConnectorForm/style";
 import { LowCodeExpressionEditor } from "../../../../FormFieldComponents/LowCodeExpressionEditor";
+import { FormElementProps } from "../../../../Types";
+import { isStatementEditorSupported } from "../../../../Utils";
 
 export interface WhileProps {
     condition: ConditionConfig;
@@ -45,6 +45,7 @@ export function AddWhileForm(props: WhileProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
+            ballerinaVersion,
             experimentalEnabled
         },
         api: {
@@ -71,11 +72,7 @@ export function AddWhileForm(props: WhileProps) {
         setIsInvalid(isInvalidFromField)
     }
 
-    const handleStatementEditorChange = (partialModel: WhileStatement) => {
-        setConditionExpression(partialModel.condition.source.trim());
-    }
-
-
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
     const formField: FormField = {
         name: "condition",
         displayName: "Condition",
@@ -147,78 +144,72 @@ export function AddWhileForm(props: WhileProps) {
     });
 
     const initialSource = formArgs.model ? getInitialSource(createWhileStatementWithBlock(
-                                conditionExpression ? conditionExpression as string : 'EXPRESSION',
-                                (formArgs.model as WhileStatement).whileBody.statements.map(statement => {
-                                    return statement.source
-                                })
-                            )) : getInitialSource(createWhileStatement(
-                                conditionExpression ? conditionExpression as string : 'EXPRESSION'
-                            ));
+        conditionExpression ? conditionExpression as string : 'EXPRESSION',
+        (formArgs.model as WhileStatement).whileBody.statements.map(statement => {
+            return statement.source
+        })
+    )) : getInitialSource(createWhileStatement(
+        conditionExpression ? conditionExpression as string : 'EXPRESSION'
+    ));
 
-    const { handleStmtEditorToggle, stmtEditorComponent } = useStatementEditor(
-        {
-            label: formTitle,
-            initialSource,
-            formArgs: { formArgs },
-            config: condition,
-            onWizardClose,
-            handleStatementEditorChange,
-            onCancel,
-            currentFile,
-            getLangClient: getExpressionEditorLangClient,
-            applyModifications: modifyDiagram,
-            library,
-            syntaxTree,
-            stSymbolInfo,
-            importStatements,
-            experimentalEnabled
-        }
-    );
-
-    if (!stmtEditorComponent) {
-        return (
-            <FormControl data-testid="while-form" className={classes.wizardFormControl}>
-                <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={formTitle}
-                    defaultMessage={"While"}
-                />
-                <div className={classes.formContentWrapper}>
-                    <div className={classes.formCodeBlockWrapper}>
-                        <div className={classes.formCodeExpressionEndWrapper}>
-                            <Typography variant='body2' className={classes.ifStartCode}>while</Typography>
-                            <div className={classes.formCodeExpressionField}>
-                                <LowCodeExpressionEditor {...expElementProps} />
+    return (
+        <>
+            {statementEditorSupported ? (
+                StatementEditorWrapper(
+                    {
+                        label: formTitle,
+                        initialSource,
+                        formArgs: { formArgs },
+                        config: condition,
+                        onWizardClose,
+                        onCancel,
+                        currentFile,
+                        getLangClient: getExpressionEditorLangClient,
+                        applyModifications: modifyDiagram,
+                        library,
+                        syntaxTree,
+                        stSymbolInfo,
+                        importStatements,
+                        experimentalEnabled
+                    }
+                )
+            ) : (
+                <FormControl data-testid="while-form" className={classes.wizardFormControl}>
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={formTitle}
+                        defaultMessage={"While"}
+                    />
+                    <div className={classes.formContentWrapper}>
+                        <div className={classes.formCodeBlockWrapper}>
+                            <div className={classes.formCodeExpressionEndWrapper}>
+                                <Typography variant='body2' className={classes.ifStartCode}>while</Typography>
+                                <div className={classes.formCodeExpressionField}>
+                                    <LowCodeExpressionEditor {...expElementProps} />
+                                </div>
+                                <Typography variant='body2' className={classes.ifStartCode}>{`{`}</Typography>
                             </div>
-                            <Typography variant='body2' className={classes.ifStartCode}>{`{`}</Typography>
+                        </div>
+                        <div className={classes.formCodeExpressionValueRegularField}>
+                            <div className={classes.middleDottedwrapper}>
+                                <Tooltip type='info' text={{ content: whileStatementTooltipMessages.codeBlockTooltip }}>
+                                    <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
+                                </Tooltip>
+                            </div>
+                            <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
                         </div>
                     </div>
-                    <div className={classes.formCodeExpressionValueRegularField}>
-                        <div className={classes.middleDottedwrapper}>
-                            <Tooltip type='info' text={{ content: whileStatementTooltipMessages.codeBlockTooltip }}>
-                                <Typography variant='body2' className={classes.middleCode}>{`...`}</Typography>
-                            </Tooltip>
-                        </div>
-                        <Typography variant='body2' className={classes.endCode}>{`}`}</Typography>
-                    </div>
-                </div>
-                <FormActionButtons
-                    cancelBtn={true}
-                    cancelBtnText={cancelWhileButtonLabel}
-                    saveBtnText={saveWhileButtonLabel}
-                    isMutationInProgress={isMutationInProgress}
-                    validForm={!isInvalid && (conditionExpression as string)?.length > 0}
-                    statementEditor={true}
-                    toggleChecked={false}
-                    experimentalEnabled={experimentalEnabled}
-                    handleStmtEditorToggle={handleStmtEditorToggle}
-                    onSave={handleOnSaveClick}
-                    onCancel={onCancel}
-                />
-            </FormControl>
-        );
-    }
-    else {
-        return stmtEditorComponent;
-    }
+                    <FormActionButtons
+                        cancelBtn={true}
+                        cancelBtnText={cancelWhileButtonLabel}
+                        saveBtnText={saveWhileButtonLabel}
+                        isMutationInProgress={isMutationInProgress}
+                        validForm={!isInvalid && (conditionExpression as string)?.length > 0}
+                        onSave={handleOnSaveClick}
+                        onCancel={onCancel}
+                    />
+                </FormControl>
+            )}
+        </>
+    )
 }

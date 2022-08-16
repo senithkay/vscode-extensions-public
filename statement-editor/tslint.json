@@ -16,7 +16,8 @@
             "@ballerina",
             "components",
             "store",
-            "views"
+            "views",
+            "react-icons"
         ],
         "no-implicit-dependencies": [
             true,

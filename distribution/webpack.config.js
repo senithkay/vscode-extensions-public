@@ -18,6 +18,7 @@ const LOW_CODE_MODULES = [
     path.join(BASE_DIR, "low-code-editor"),
     path.join(BASE_DIR, "low-code-editor-commons"),
     path.join(BASE_DIR, "low-code-ui-components"),
+    path.join(BASE_DIR, "statement-editor"),
 ];
 
 function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChunks = false, isTestArtifact = false) {

@@ -22,9 +22,6 @@ import {
     TypedBindingPattern
 } from "@wso2-enterprise/syntax-tree";
 
-import { getAllModuleVariables } from "../../../../../utils/mixins";
-import { genVariableName } from "../../../../Portals/utils";
-
 export const ModuleVarNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
 
 export interface ConfigurableFormState {

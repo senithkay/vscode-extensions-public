@@ -212,7 +212,15 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
     }
 
     public getSTForModuleMembers(params: PartialSTRequest): Thenable<PartialSTResponse> {
-        return this._clientConnection.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_EXPRESSION, params);
+        return this._clientConnection.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER, params);
+    }
+
+    public getSTForModulePart(params: PartialSTRequest): Thenable<PartialSTResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_MODULE_PART, params);
+    }
+
+    public getSTForResource(params: PartialSTRequest): Thenable<PartialSTResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_RESOURCE, params);
     }
 
     public getTriggers(params: BallerinaTriggersRequest): Thenable<BallerinaTriggersResponse> {

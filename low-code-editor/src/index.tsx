@@ -71,8 +71,6 @@ export { createPropertyStatement } from "./Diagram/utils/modification-util";
 export { renderDiagramEditor } from "./DiagramGenerator/vscode";
 export { updatePerformanceLabels } from "./DiagramGenerator/performanceUtil";
 
-
-
 const LowCodeEditor: React.FC<Props> = (props: Props) => {
     // TODO: Remove these as these are no longer in use
     const modifyTrigger = (

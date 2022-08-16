@@ -11,15 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 
 import CloseIcon from '@material-ui/icons/Close';
 import { PlusViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
 import { OverlayBackground } from "../../../../OverlayBackground";
 import { DiagramOverlay, DiagramOverlayContainer, DiagramOverlayPosition } from '../../../../Portals/Overlay';
+import { FormGeneratorProps } from "../../../FormGenerator";
 import { StatementOptions } from "../PlusElementOptions/StatementOptions";
 import "../style.scss";
 
@@ -53,8 +55,10 @@ export const EXISTING_PLUS_HOLDER_WIDTH = 498;
 export const PLUS_HOLDER_API_HEIGHT_COLLAPSED = 321;
 export const EXISTING_PLUS_HOLDER_API_HEIGHT_COLLAPSED = 660;
 
-export function PlusElements(props: PlusElementsProps) {
-    const { position, onClose, onChange, initPlus, viewState, isResource, isCallerAvailable, overlayId, overlayNode } = props;
+export function PlusElements(props: FormGeneratorProps) {
+
+    const { onCancel } = props;
+    const { onChange, viewState, isResource, isCallerAvailable, hasWorkerDecl } = props.configOverlayFormStatus.formArgs;
 
     const onStatementTypeSelect = (processType: string) => {
         switch (processType) {
@@ -70,42 +74,28 @@ export function PlusElements(props: PlusElementsProps) {
         }
     };
 
-    const plusContainer = initPlus ? "initPlus-container" : "plus-container";
-
     const plusHolder: ReactNode = (
         <div className="holder-wrapper-large">
-            {
-                !initPlus ?
-                    (
-                        <button className="close-button" onClick={onClose}>
-                            <CloseIcon />
-                        </button>
-                    ) : null
-            }
             <div className="element-options">
-                <StatementOptions onSelect={onStatementTypeSelect} viewState={viewState} isResource={isResource} isCallerAvailable={isCallerAvailable} />
+                <StatementOptions
+                    onSelect={onStatementTypeSelect}
+                    viewState={viewState}
+                    isResource={isResource}
+                    isCallerAvailable={isCallerAvailable}
+                    hasWorkerDecl={hasWorkerDecl}
+                />
             </div>
         </div>
     );
 
     return (
         <>
-            {overlayNode && (
-                <DiagramOverlayContainer
-                    divId={overlayId}
-                >
-                    <DiagramOverlay
-                        className={plusContainer}
-                        position={position}
-                    >
-                        <>
-                            {plusHolder}
-                            {!initPlus ? <div className="plus-overlay"><OverlayBackground /></div> : null}
-                            {/* {!initPlus && <OverlayBackground />} */}
-                        </>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
-            )}
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={"lowcode.develop.configForms.plusholder.title"}
+                defaultMessage={"Add Constructs"}
+            />
+            {plusHolder}
         </>
     );
 }

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ReturnStatement } from "@wso2-enterprise/syntax-tree";
+import { ReturnStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
@@ -34,7 +34,9 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     } = stmtCtx;
 
     if (!currentModel.model) {
-        changeCurrentModel(model.expression);
+        if (model.expression){
+            changeCurrentModel(model.expression);
+        }
     }
 
     return (

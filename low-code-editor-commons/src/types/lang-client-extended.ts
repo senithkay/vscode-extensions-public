@@ -112,7 +112,9 @@ export interface Parameter {
     defaultable?: boolean;
 }
 
-export interface DisplayAnnotation { }
+export interface DisplayAnnotation {
+    label?: string;
+}
 
 export interface MemberField {
     typeName?: string;

@@ -15,19 +15,22 @@
     "integration-tests"
   ],
   "scripts": {
-      "prebuild": "npm i --legacy-peer-deps",
-      "build:st": "npm run build --workspace=syntax-tree",
-      "build:blc": "npm run build --workspace=ballerina-languageclient",
-      "build:ls": "npm run build --workspace=lang-service",
-      "build:se": "npm run build --workspace=statement-editor",
-      "build:ce": "npm run build --workspace=configurable-editor",
-      "build:lce": "npm run build --workspace=low-code-editor",
-      "build:lcec": "npm run build --workspace=low-code-editor-commons",
-      "build:ee": "npm run build --workspace=expression-editor",
-      "build:lcd": "npm run build --workspace=low-code-diagram",
-      "build:lcuc": "npm run build --workspace=low-code-ui-components",
-      "build": "npm run build --workspaces",
-      "storybook": "npm run storybook --workspace=low-code-editor",
-      "test": "npm run test --workspace integration-tests && npm run test --workspace configurable-editor"
+    "prebuild": "npm i --legacy-peer-deps",
+    "build:st": "npm run build --workspace=syntax-tree",
+    "build:blc": "npm run build --workspace=ballerina-languageclient",
+    "build:ls": "npm run build --workspace=lang-service",
+    "build:se": "npm run build --workspace=statement-editor",
+    "build:ce": "npm run build --workspace=configurable-editor",
+    "build:lce": "npm run build --workspace=low-code-editor",
+    "build:lcec": "npm run build --workspace=low-code-editor-commons",
+    "build:ee": "npm run build --workspace=expression-editor",
+    "build:lcd": "npm run build --workspace=low-code-diagram",
+    "build:lcuc": "npm run build --workspace=low-code-ui-components",
+    "build": "npm run build --workspaces",
+    "storybook": "npm run storybook --workspace=low-code-editor",
+    "test": "npm run test --workspace integration-tests && npm run test --workspace configurable-editor"
+  },
+  "dependencies": {
+    "@wso2-enterprise/ballerina-low-code-edtior-commons": "file:low-code-editor-commons"
   }
 }

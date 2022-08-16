@@ -22,6 +22,7 @@ import {
 import {
     BINDING_PATTERN_PLACEHOLDER, DEFAULT_INTERMEDIATE_CLAUSE_PLACEHOLDER,
     EXPR_PLACEHOLDER,
+    FUNCTION_CALL_PLACEHOLDER,
     STMT_PLACEHOLDER,
     TYPE_DESC_PLACEHOLDER
 } from "../utils/expressions";
@@ -56,6 +57,7 @@ export const TYPE_DESCRIPTOR = "TypeDescriptor";
 export const BOOLEAN_TYPE_DESC = "BooleanTypeDesc";
 export const OTHER_EXPRESSION = "OtherExpression";
 export const CUSTOM_CONFIG_TYPE = "Custom";
+export const CALL_CONFIG_TYPE = "Call";
 export const ALL_LIBS_IDENTIFIER = "All";
 export const LANG_LIBS_IDENTIFIER = "Language";
 export const STD_LIBS_IDENTIFIER = "Standard";
@@ -67,21 +69,24 @@ export const CONFIGURABLE_TYPE_STRING = "string";
 export const CONFIGURABLE_TYPE_BOOLEAN = "boolean";
 export const ADD_CONFIGURABLE_LABEL = "Add Configurable";
 export const DEFAULT_IDENTIFIER = "identifier";
+export const CONNECTOR = "Connector";
+export const ACTION = "Action";
 
 export const TYPE_DESC_CONSTRUCTOR = "TYPE_DESCRIPTOR";
 export const EXPR_CONSTRUCTOR = "EXPRESSION";
 export const FIELD_DESCRIPTOR = "TYPE_DESCRIPTOR FIELD_NAME";
+export const MAPPING_TYPE_DESCRIPTER = "map<TYPE_DESCRIPTOR>";
 export const MAPPING_CONSTRUCTOR = "key : EXPRESSION";
-export const CONFIGURABLE_NAME_CONSTRUCTOR = "CONF_NAME";
 export const DEFAULT_INTERMEDIATE_CLAUSE = "DEFAULT_INTERMEDIATE_CLAUSE";
 export const DEFAULT_WHERE_INTERMEDIATE_CLAUSE = `where ${DEFAULT_INTERMEDIATE_CLAUSE}`;
+export const FUNCTION_CALL = "FUNCTION_CALL()"
 
 export const CONFIGURABLE_VALUE_REQUIRED_TOKEN = "?";
 export const QUERY_INTERMEDIATE_CLAUSES = "Query Intermediate-Clauses";
 export const BINDING_PATTERN = "BINDING_PATTERN"
 export const LET_VAR_DECL = `var varName = EXPRESSION`;
 export const ELSEIF_CLAUSE = `} else if (EXPRESSION) {\n\n}`;
-export const ELSE_CLAUSE = `} else {\n\n}`;
+export const ELSE_CLAUSE = `\n} else {\n\n}`;
 
 export const BAL_SOURCE = "```ballerina";
 
@@ -97,8 +102,16 @@ const STRUCT_COMPLETION_KIND = 22;
 const OPERATOR_COMPLETION_KIND = 24;
 
 export const PLACEHOLDER_DIAGNOSTICS: string[] = [
-    EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER, BINDING_PATTERN_PLACEHOLDER, DEFAULT_INTERMEDIATE_CLAUSE_PLACEHOLDER
+    EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER, BINDING_PATTERN_PLACEHOLDER,
+    DEFAULT_INTERMEDIATE_CLAUSE_PLACEHOLDER, FUNCTION_CALL_PLACEHOLDER
 ];
+
+export const IGNORABLE_DIAGNOSTICS: string[] = [
+    'expression is not a constant expression'
+];
+
+// The suggestion column size is handled with css (suggestionList -> gridTemplateColumns)
+export const SUGGESTION_COLUMN_SIZE = 3;
 
 // Statement types supported in function-body-block
 export type StatementNodes = ActionStatement

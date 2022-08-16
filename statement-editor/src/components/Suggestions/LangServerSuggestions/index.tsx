@@ -19,15 +19,18 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
+    ACTION,
     FUNCTION_COMPLETION_KIND,
+    MAPPING_TYPE_DESCRIPTER,
     METHOD_COMPLETION_KIND,
-    PROPERTY_COMPLETION_KIND
+    PROPERTY_COMPLETION_KIND, SUGGESTION_COLUMN_SIZE
 } from "../../../constants";
-import { SuggestionItem } from "../../../models/definitions";
+import { Suggestion, SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getExprWithArgs } from "../../../utils";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles} from "../../styles";
+import { getActionExprWithArgs } from "../../Parameters/ParameterTree/utils";
+import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { SuggestionsList } from "./SuggestionsList";
 
@@ -35,7 +38,6 @@ export function LSSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
     const inputEditorCtx = useContext(InputEditorContext);
-    const [selectedListItem, setSelectedItem] = React.useState(0);
 
     const {
         modelCtx: {
@@ -46,29 +48,90 @@ export function LSSuggestions() {
             lsSuggestions,
             lsSecondLevelSuggestions
         },
-        targetPosition
+        formCtx: {
+            formArgs: {
+                connector,
+            }
+        },
+        targetPosition,
+        config
     } = useContext(StatementEditorContext);
     const selectionForSecondLevel = lsSecondLevelSuggestions?.selection;
     const secondLevelSuggestions = lsSecondLevelSuggestions?.secondLevelSuggestions;
     const resourceAccessRegex = /.+\./gm;
-    const [lenghtOfSuggestions, setLength] = useState<number>(lsSuggestions.length)
-    const [Suggestions, setSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
     const [keyword, setKeyword] = useState('');
     const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
     const [filteredSecondLevelSuggestions, setFilteredSecondLevelSuggestions] = useState<SuggestionItem[]>(secondLevelSuggestions);
+    const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(null);
 
 
     useEffect(() => {
-        setLength(lsSuggestions.length);
-        setSuggestions(lsSuggestions);
         setFilteredSuggestions(lsSuggestions);
         setFilteredSecondLevelSuggestions(secondLevelSuggestions);
-    }, [lsSuggestions]);
+    }, [lsSuggestions, lsSecondLevelSuggestions, currentModel.model]);
 
-    const changeSelected = (key: number) => {
-        const newSelected = selectedListItem + key;
-        if (newSelected >= 0 && newSelected < lenghtOfSuggestions){
-            setSelectedItem(newSelected)
+
+    const changeSelectionOnRightLeft = (key: number) => {
+        if (selectedSuggestion) {
+            setSelectedSuggestion((prevState) => {
+                const newSelected = prevState.selectedListItem + key;
+                const newGroup = prevState.selectedGroup;
+                const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
+
+                if (newSelected >= 0 && newSelected < suggestionList?.length) {
+                    return { selectedListItem: newSelected, selectedGroup: newGroup };
+                }
+                return prevState;
+            });
+        }
+    }
+
+    const changeSelectionOnUpDown = (key: number) => {
+        if (selectedSuggestion === null) {
+            setSelectedSuggestion((prevState) => {
+                if (filteredSuggestions?.length >= 0) {
+                    return { selectedListItem: 0, selectedGroup: 0 };
+                } else if (filteredSecondLevelSuggestions?.length >= 0) {
+                    return { selectedListItem: 0, selectedGroup: 1 };
+                }
+                return prevState;
+            });
+        } else if (selectedSuggestion) {
+            setSelectedSuggestion((prevState) => {
+                let newSelected = prevState.selectedListItem + key;
+                let newGroup = prevState.selectedGroup;
+                const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
+
+                if (suggestionList?.length > 0) {
+                    if (newSelected >= 0) {
+                        if (suggestionList.length > SUGGESTION_COLUMN_SIZE && newSelected < suggestionList.length) {
+                            return { selectedListItem: newSelected, selectedGroup: newGroup };
+                        } else if ((selectedSuggestion.selectedListItem === suggestionList.length - 1 ||
+                                newSelected >= suggestionList.length) &&
+                            selectedSuggestion.selectedGroup < 1 &&
+                            filteredSecondLevelSuggestions?.length > 0) {
+                            newGroup = selectedSuggestion.selectedGroup + 1;
+                            newSelected = 0;
+                            return { selectedListItem: newSelected, selectedGroup: newGroup };
+                        }
+                    } else if (newSelected < 0 && newGroup > 0 && filteredSuggestions?.length > 0) {
+                        newGroup = selectedSuggestion.selectedGroup - 1;
+                        newSelected = filteredSuggestions.length - 1;
+                        return { selectedListItem: newSelected, selectedGroup: newGroup };
+                    }
+                }
+                return prevState;
+            });
+        }
+    }
+
+    const enterOnSuggestion = () => {
+        if (selectedSuggestion) {
+            const enteredSuggestion: SuggestionItem = selectedSuggestion.selectedGroup === 0 ?
+                filteredSuggestions[selectedSuggestion.selectedListItem] :
+                filteredSecondLevelSuggestions[selectedSuggestion.selectedListItem];
+            onClickLSSuggestion(enteredSuggestion);
+            setSelectedSuggestion(null);
         }
     }
 
@@ -76,29 +139,33 @@ export function LSSuggestions() {
 
         const client = KeyboardNavigationManager.getClient();
 
-        client.bindNewKey(['right'], changeSelected, 1);
-        client.bindNewKey(['left'], changeSelected, -1);
-        client.bindNewKey(['up'], changeSelected, -2);
-        client.bindNewKey(['down'], changeSelected, 2);
-        client.bindNewKey(['enter'], onClickLSSuggestion, Suggestions[selectedListItem]);
+        client.bindNewKey(['right'], changeSelectionOnRightLeft, 1);
+        client.bindNewKey(['left'], changeSelectionOnRightLeft, -1);
+        client.bindNewKey(['up'], changeSelectionOnUpDown, -SUGGESTION_COLUMN_SIZE);
+        client.bindNewKey(['down'], changeSelectionOnUpDown, SUGGESTION_COLUMN_SIZE);
+        client.bindNewKey(['enter'], enterOnSuggestion);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
-    }, [selectedListItem]);
+    }, [selectedSuggestion, currentModel.model]);
 
     const onClickLSSuggestion = (suggestion: SuggestionItem) => {
         setKeyword('');
         const completionKind = suggestion.completionKind;
         let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
         const prefix = (inputEditorCtx.userInput.includes('.') && resourceAccessRegex.exec(inputEditorCtx.userInput)[0])
-            || suggestion.prefix ;
-        if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
+            || suggestion.prefix;
+        if (config.type === ACTION && completionKind === FUNCTION_COMPLETION_KIND) {
+            value = getActionExprWithArgs(value, connector);
+        } else if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
             value = getExprWithArgs(value, prefix);
         } else if (prefix) {
             value = prefix + value;
         }
-        const nodePosition : NodePosition = currentModel
+
+        if (value === "map") {
+            value = MAPPING_TYPE_DESCRIPTER;
+        }
+
+        const nodePosition: NodePosition = currentModel
             ? (currentModel.stmtPosition
                 ? currentModel.stmtPosition
                 : currentModel.model.position)
@@ -111,8 +178,9 @@ export function LSSuggestions() {
     const searchSuggestions = (e: any) => {
         const searchValue = e.target.value;
         setKeyword(searchValue);
-        setFilteredSuggestions(lsSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())));
-        setFilteredSecondLevelSuggestions(secondLevelSuggestions.filter(suggestion =>  suggestion.value.toLowerCase().includes(searchValue.toLowerCase())))
+        setFilteredSuggestions(lsSuggestions.filter(suggestion => suggestion.value.toLowerCase().includes(searchValue.toLowerCase())));
+        setFilteredSecondLevelSuggestions(secondLevelSuggestions.filter(suggestion => suggestion.value.toLowerCase().includes(searchValue.toLowerCase())))
+        setSelectedSuggestion(null);
     }
 
     return (
@@ -137,14 +205,16 @@ export function LSSuggestions() {
                         {!!filteredSuggestions?.length && (
                             <SuggestionsList
                                 lsSuggestions={filteredSuggestions}
-                                selectedListItem={selectedListItem}
+                                selectedSuggestion={selectedSuggestion}
+                                currentGroup={0}
                                 onClickLSSuggestion={onClickLSSuggestion}
                             />
                         )}
                         {!!filteredSecondLevelSuggestions?.length && (
                             <SuggestionsList
                                 lsSuggestions={filteredSecondLevelSuggestions}
-                                selectedListItem={selectedListItem}
+                                selectedSuggestion={selectedSuggestion}
+                                currentGroup={1}
                                 onClickLSSuggestion={onClickLSSuggestion}
                                 selection={selectionForSecondLevel}
                             />

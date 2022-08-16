@@ -17,11 +17,11 @@ import { ClickAwayListener } from "@material-ui/core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
+import { CALL_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE, FUNCTION_CALL } from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { isPositionsEquals } from "../../utils";
-import { EXPR_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER } from "../../utils/expressions";
+import { EXPR_PLACEHOLDER, FUNCTION_CALL_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER } from "../../utils/expressions";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementRendererStyles } from "../styles";
 
@@ -47,9 +47,11 @@ export function InputEditor(props: InputEditorProps) {
             handleChange,
             hasSyntaxDiagnostics,
             updateSyntaxDiagnostics,
-            currentModel
+            currentModel,
+            updateEditing
         },
         targetPosition,
+        config
     } = useContext(StatementEditorContext);
 
     const inputEditorCtx = useContext(InputEditorContext);
@@ -63,6 +65,8 @@ export function InputEditor(props: InputEditorProps) {
             source = initialSource ? initialSource : '';
         } else if (model?.value) {
             source = model.value;
+        } else if (model.source === FUNCTION_CALL && STKindChecker.isFunctionCall(model)) {
+            source = model.functionName.source;
         } else {
             source = model.source;
         }
@@ -71,11 +75,15 @@ export function InputEditor(props: InputEditorProps) {
     }, [model]);
 
     const [isEditing, setIsEditing] = useState(false);
+    const [isSelectingText, setIsSelectingText] = useState(false);
     const [userInput, setUserInput] = useState<string>(originalValue);
     const [prevUserInput, setPrevUserInput] = useState<string>(userInput);
 
     const placeHolder = useMemo(() => {
-        const trimmedInput = !!userInput ? userInput.trim() : EXPR_PLACEHOLDER;
+        const trimmedInput = !!userInput ?
+                                (config.type === CALL_CONFIG_TYPE && userInput === FUNCTION_CALL) ? FUNCTION_CALL_PLACEHOLDER :
+                                    userInput.trim() :
+                                EXPR_PLACEHOLDER;
         if (statementModel && INPUT_EDITOR_PLACEHOLDERS.has(trimmedInput)) {
             if (isPositionsEquals(statementModel.position, model.position)) {
                 // override the placeholder when the statement is empty
@@ -110,11 +118,21 @@ export function InputEditor(props: InputEditorProps) {
             setIsEditing(false);
             if (currentModel.model === model && suggestion) {
                 setUserInput(suggestion);
+            } else if (STKindChecker.isFunctionCall(currentModel.model)
+                        && currentModel.model.functionName === model && suggestion) {
+                setUserInput(suggestion);
             }
         } else {
             setUserInput(originalValue)
         }
     }, [hasSyntaxDiagnostics]);
+
+    useEffect(() => {
+        if (isEditing === false) {
+            setIsSelectingText(false);
+        }
+        updateEditing(isEditing);
+    }, [isEditing]);
 
     const inputEnterHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter" || event.key === "Tab") {
@@ -127,7 +145,8 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const clickAwayHandler = (event: any) => {
-        if (!event.path[0].className.includes("suggestion")){
+        const path = event.path || (event.composedPath && event.composedPath());
+        if (path && !path[0].className.includes("suggestion")){
             handleEditEnd();
         }
         setIsEditing(false);
@@ -159,8 +178,10 @@ export function InputEditor(props: InputEditorProps) {
 
     const handleDoubleClick = () => {
         if (!notEditable && !hasSyntaxDiagnostics) {
+            setIsSelectingText(true);
             setIsEditing(true);
         } else if (!notEditable && hasSyntaxDiagnostics && (currentModel.model === model)) {
+            setIsSelectingText(true);
             setIsEditing(true);
         }
     };
@@ -177,9 +198,11 @@ export function InputEditor(props: InputEditorProps) {
             if (isIncorrectSyntax) {
                 updateSyntaxDiagnostics(true);
             } else {
-                setUserInput(userInput);
+                setUserInput(userInput) ;
+                const input = (userInput === FUNCTION_CALL_PLACEHOLDER && config.type === CALL_CONFIG_TYPE) ?
+                    FUNCTION_CALL : userInput;
                 // Replace empty interpolation with placeholder value
-                const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+                const codeSnippet = input.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
                 originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
                 updateModel(codeSnippet, model ? model.position : targetPosition);
             }
@@ -193,13 +216,14 @@ export function InputEditor(props: InputEditorProps) {
                 <input
                     data-testid="input-editor"
                     value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
-                    className={statementRendererClasses.inputEditorTemplate + ' ' + classNames}
+                    className={statementRendererClasses.inputEditorEditingState + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
                     size={userInput.length}
                     autoFocus={true}
                     style={{ maxWidth: userInput === '' ? '10px' : 'fit-content' }}
                     spellCheck="false"
+                    onFocus={isSelectingText && (event => {event.target.select(); })}
                 />
             </ClickAwayListener>
         ) : (

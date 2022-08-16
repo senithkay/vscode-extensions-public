@@ -10,10 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
-import { FormattedMessage } from "react-intl";
 
-import { Box, FormControl, FormHelperText, Typography } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
 import { ExpressionEditorProps } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     FormElementProps
@@ -22,16 +22,16 @@ import {
     FormActionButtons,
     FormHeaderSection
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import { ListenerDeclaration, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { ListenerFormIcon } from "../../../../../assets/icons";
-import { PrimaryButton } from "../../../../../components/Buttons/PrimaryButton";
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { createImportStatement, createListenerDeclartion } from "../../../../utils/modification-util";
+import { createImportStatement, createListenerDeclartion } from "../../../../utils";
 import { useStyles as useFormStyles } from "../../DynamicConnectorForm/style";
 import { SelectDropdownWithButton } from "../../FormFieldComponents/DropDown/SelectDropdownWithButton";
 import { LowCodeExpressionEditor } from "../../FormFieldComponents/LowCodeExpressionEditor";
 import { TextLabel } from "../../FormFieldComponents/TextField/TextLabel";
+import { isStatementEditorSupported } from "../../Utils";
 import { VariableNameInput } from "../Components/VariableNameInput";
 
 import { isListenerConfigValid } from "./util";
@@ -46,11 +46,23 @@ interface ListenerConfigFormProps {
     isLastMember?: boolean
 }
 
-// FixMe: show validation messages to listenerName and listenerPort
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const formClasses = useFormStyles();
     const { model, targetPosition, onCancel, onSave, formType, isLastMember } = props;
-    const { api: { code: { modifyDiagram } } } = useDiagramContext();
+    const {
+        api: {
+            code: {
+                modifyDiagram
+            },
+            ls: {
+                getExpressionEditorLangClient
+            }
+        },
+        props: {
+            ballerinaVersion,
+            currentFile
+        },
+    } = useDiagramContext();
     let defaultState: ListenerConfig;
 
     if (model && STKindChecker.isListenerDeclaration(model)
@@ -72,7 +84,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         }
     }
 
-    // const [config, setCofig] = useState<ListenerConfig>(defaultState);
     const [listenerName, setListenerName] = useState<string>(defaultState.listenerName);
     const [listenerPort, setListenerPort] = useState<string>(defaultState.listenerPort);
     const [listenerType, setListenerType] = useState<string>(defaultState.listenerType);
@@ -118,7 +129,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     const updateExpressionValidity = (fieldName: string, isInValid: boolean) => {
-       setExpressionValid(!isInValid);
+        setExpressionValid(!isInValid);
     }
 
     const portNumberExpressionEditorProps: FormElementProps<ExpressionEditorProps>  = {
@@ -152,6 +163,8 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
 
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
+    const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
+
     if (model) {
         namePosition = model.variableName.position;
     } else {
@@ -160,45 +173,61 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     }
 
     return (
-        <FormControl data-testid="listener-form" className={formClasses.wizardFormControl}>
-            <FormHeaderSection
-                onCancel={onCancel}
-                formTitle={"lowcode.develop.connectorForms.HTTP.title"}
-                defaultMessage={"Listener"}
-                formType={formType}
-            />
-            <div className={formClasses.formContentWrapper}>
-                <div className={formClasses.formNameWrapper}>
-                    <TextLabel
-                        required={true}
-                        textLabelId="lowcode.develop.connectorForms.HTTP.listenerType"
-                        defaultMessage="Listener Type :"
+        <>
+            {statementEditorSupported ? (
+                <FormEditor
+                    initialSource={model ? model.source : undefined}
+                    initialModel={model}
+                    targetPosition={model ? model?.position : targetPosition}
+                    onCancel={onCancel}
+                    type={"Listener"}
+                    currentFile={currentFile}
+                    getLangClient={getExpressionEditorLangClient}
+                    applyModifications={modifyDiagram}
+                    topLevelComponent={true} // todo: Remove this
+                />
+            ) : (
+                <FormControl data-testid="listener-form" className={formClasses.wizardFormControl}>
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={"lowcode.develop.connectorForms.HTTP.title"}
+                        defaultMessage={"Listener"}
+                        formType={formType}
                     />
-                    <SelectDropdownWithButton
-                        customProps={{ values: ['HTTP'], disableCreateNew: true }}
-                        defaultValue={listenerType}
-                        placeholder="Select Type"
+                    <div className={formClasses.formContentWrapper}>
+                        <div className={formClasses.formNameWrapper}>
+                            <TextLabel
+                                required={true}
+                                textLabelId="lowcode.develop.connectorForms.HTTP.listenerType"
+                                defaultMessage="Listener Type :"
+                            />
+                            <SelectDropdownWithButton
+                                customProps={{ values: ['HTTP'], disableCreateNew: true }}
+                                defaultValue={listenerType}
+                                placeholder="Select Type"
+                            />
+                            <VariableNameInput
+                                displayName={'Listener Name'}
+                                value={listenerName}
+                                onValueChange={onListenerNameChange}
+                                validateExpression={updateExpressionValidity}
+                                position={namePosition}
+                                isEdit={!!model}
+                                initialDiagnostics={model?.variableName?.typeData?.diagnostics}
+                            />
+                            {listenerPortInputComponent}
+                        </div>
+                    </div>
+                    <FormActionButtons
+                        cancelBtnText="Cancel"
+                        cancelBtn={true}
+                        saveBtnText="Save"
+                        onSave={handleOnSave}
+                        onCancel={onCancel}
+                        validForm={saveBtnEnabled}
                     />
-                    <VariableNameInput
-                        displayName={'Listener Name'}
-                        value={listenerName}
-                        onValueChange={onListenerNameChange}
-                        validateExpression={updateExpressionValidity}
-                        position={namePosition}
-                        isEdit={!!model}
-                        initialDiagnostics={model?.variableName?.typeData?.diagnostics}
-                    />
-                    {listenerPortInputComponent}
-                </div>
-            </div>
-            <FormActionButtons
-                cancelBtnText="Cancel"
-                cancelBtn={true}
-                saveBtnText="Save"
-                onSave={handleOnSave}
-                onCancel={onCancel}
-                validForm={saveBtnEnabled}
-            />
-        </FormControl>
+                </FormControl>
+            )}
+        </>
     )
 }

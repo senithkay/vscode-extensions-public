@@ -59,7 +59,10 @@ import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingCompon
 import { Endpoint } from "../Types/type";
 import { getNodeSignature, initializeViewState, isVarTypeDescriptor, recalculateSizingAndPositioning, sizingAndPositioning } from "../Utils";
 import expandTracker from "../Utils/expand-tracker";
-import { BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState } from "../ViewState";
+import {
+    BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, EndViewState,
+    ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState
+} from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
 import { ServiceViewState } from "../ViewState/service";
@@ -423,15 +426,12 @@ export class SizingVisitor implements Visitor {
         end.bBox.rw = STOP_SVG_WIDTH / 2;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || body.namedWorkerDeclarator) {
-            lifeLine.h += end.bBox.offsetFromTop;
-        }
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
         viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + this.getConnectorGap();
+        
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -506,7 +506,7 @@ export class SizingVisitor implements Visitor {
                 lifeLine.h += (body.statements[body.statements.length - 1].viewState as ViewState).bBox.offsetFromTop;
             }
 
-            if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0 || body.namedWorkerDeclarator) {
+            if (STKindChecker.isExpressionFunctionBody(body) || body.namedWorkerDeclarator) {
                 lifeLine.h += end.bBox.offsetFromTop;
             }
 
@@ -784,11 +784,7 @@ export class SizingVisitor implements Visitor {
         end.bBox.rw = STOP_SVG_WIDTH / 2;
         end.bBox.h = STOP_SVG_HEIGHT;
 
-        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
-
-        if (STKindChecker.isExpressionFunctionBody(body) || body.statements.length > 0) {
-            lifeLine.h += end.bBox.offsetFromTop;
-        }
+        lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
 
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;

@@ -2,9 +2,12 @@ import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { Canvas } from "../../../utils/components/canvas";
 import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-widget";
 import { FunctionForm } from "../../../utils/forms/function-form";
-import { ReturnForm } from "../../../utils/forms/return-form";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
+import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
+import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
+import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
+import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
 
 const BAL_FILE_PATH = "block-level/return/add-return-statement-empty-file.bal";
 
@@ -29,13 +32,27 @@ describe('Add return statement', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .getBlockLevelPlusWidget()
-            .clickOption("Return");
+            .clickDefaultWorkerPlusBtn(0);
 
-        ReturnForm
+        BlockLevelPlusWidget.clickOption("Return");
+
+        StatementEditor
             .shouldBeVisible()
-            .typeExpression('"Hello World!!!"')
-            .save()
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
+
+        InputEditor
+            .typeInput('"Hello World!!!"');
+
+        EditorPane
+            .validateNewExpression("StringLiteral", "Hello World!!!")
+
+        StatementEditor
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-return-statement.expected.bal");
@@ -57,13 +74,24 @@ describe('Add return statement', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .getBlockLevelPlusWidget()
-            .clickOption("Return");
+            .clickDefaultWorkerPlusBtn(0);
 
-        ReturnForm
+        BlockLevelPlusWidget.clickOption("Return");
+
+        StatementEditor
             .shouldBeVisible()
-            .typeExpression('"Hello World!!!"')
-            .cancel()
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
+
+        InputEditor
+            .typeInput('"Hello World!!!"');
+
+        StatementEditor
+            .cancel();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "delete-return-statement.expected.bal");
@@ -85,16 +113,32 @@ describe('Add return statement', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .getBlockLevelPlusWidget()
-            .clickOption("Return");
+            .clickDefaultWorkerPlusBtn(0);
 
-        ReturnForm
+        BlockLevelPlusWidget.clickOption("Return");
+
+        StatementEditor
             .shouldBeVisible()
-            .typeExpression('true')
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
+
+        InputEditor
+            .typeInput('true');
+
+        EditorPane
             .checkForDiagnostics()
-            .clearExpression()
-            .typeExpression('"Hello World!!!"')
-            .save()
+            .getExpression("BooleanLiteral")
+            .doubleClickExpressionContent('true');
+
+        InputEditor
+            .typeInput('"Hello World!!!"');
+
+        StatementEditor
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-return-statement.expected.bal");

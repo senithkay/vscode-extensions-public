@@ -23,7 +23,7 @@ import {
     EditorModel,
     EmptySymbolInfo,
     LSSuggestions,
-    StmtDiagnostic
+    StatementSyntaxDiagnostics
 } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
@@ -42,6 +42,8 @@ export const StatementEditorContext = React.createContext({
         hasRedo: false,
         hasSyntaxDiagnostics: false,
         updateSyntaxDiagnostics: (hasSyntaxIssues: boolean) => {},
+        editing: false,
+        updateEditing: (editing: boolean) => {},
         restArg: (restCheckClicked: boolean) => undefined,
         hasRestArg: false
     },
@@ -86,7 +88,6 @@ export const StatementEditorContext = React.createContext({
     syntaxTree: null,
     stSymbolInfo: null,
     importStatements: [],
-    handleStmtEditorToggle: () => undefined,
     onWizardClose: () => undefined,
     onCancel: () => undefined,
     experimentalEnabled: false
@@ -106,14 +107,15 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     redo?: () => void,
     hasUndo?: boolean,
     hasRedo?: boolean,
-    diagnostics?: StmtDiagnostic[],
+    diagnostics?: StatementSyntaxDiagnostics[],
     lsSuggestions?: LSSuggestions,
     hasSyntaxDiagnostics?: boolean,
     updateSyntaxDiagnostics?: (hasSyntaxIssues: boolean) => void,
+    editing?: boolean,
+    updateEditing?: (editing: boolean) => void,
     documentation?: DocumentationInfo,
     restArg?: (restCheckClicked: boolean) => void,
     hasRestArg?: boolean,
-    handleStmtEditorToggle: () => void,
     editorManager: {
         switchEditor?: (index: number) => void,
         updateEditor?: (index: number, newContent: EditorModel) => void,
@@ -153,6 +155,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         experimentalEnabled,
         hasSyntaxDiagnostics,
         updateSyntaxDiagnostics,
+        editing,
+        updateEditing,
         ...restProps
     } = props;
 
@@ -173,7 +177,9 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     restArg,
                     hasRestArg,
                     hasSyntaxDiagnostics,
-                    updateSyntaxDiagnostics
+                    updateSyntaxDiagnostics,
+                    editing,
+                    updateEditing
                 },
                 statementCtx: {
                     diagnostics

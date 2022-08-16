@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FormField, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FlushStatementConfig, FormField, ReceivestatementConfig, SendStatementConfig, STModification, WaitStatementConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, StringTemplateExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
@@ -391,14 +391,10 @@ export function updateReturnStatement(returnExpr: string, targetPosition: NodePo
 export function createImportStatement(org: string, module: string, targetPosition: NodePosition): STModification {
     const moduleName = module;
     const formattedName = getFormattedModuleName(module);
-    let moduleNameStr = org + "/" + module;
     if (keywords.includes(moduleName)) {
         module = module.replace(moduleName, "'" + moduleName);
-        moduleNameStr = org + "/" + module;
-        if (!moduleName.includes('.') && module !== formattedName) {
-            moduleNameStr = moduleNameStr + " as " + formattedName;
-        }
     }
+    let moduleNameStr = org + "/" + module;
 
     const subModuleName = moduleName.split('.').pop();
     if (moduleName.includes('.') && subModuleName !== formattedName) {
@@ -433,11 +429,12 @@ export function createObjectDeclaration(type: string, variableName: string, para
         config: {
             "TYPE": type,
             "VARIABLE": variableName,
-            "PARAMS": params
+            "PARAMS": params?.join()
         }
     };
     return objectDeclaration;
 }
+
 
 export function updateObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: NodePosition): STModification {
     const objectDeclaration: STModification = {
@@ -450,6 +447,22 @@ export function updateObjectDeclaration(type: string, variableName: string, para
             "TYPE": type,
             "VARIABLE": variableName,
             "PARAMS": params
+        }
+    };
+    return objectDeclaration;
+}
+
+export function createCheckObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: NodePosition): STModification {
+    const objectDeclaration: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "DECLARATION_CHECK",
+        config: {
+            "TYPE": type,
+            "VARIABLE": variableName,
+            "PARAMS": params?.join()
         }
     };
     return objectDeclaration;
@@ -486,7 +499,7 @@ export function updateRemoteServiceCall(type: string, variable: string, callerNa
             "VARIABLE": variable,
             "CALLER": callerName,
             "FUNCTION": functionName,
-            "PARAMS": params
+            "PARAMS": params.join()
         }
     };
 
@@ -505,11 +518,45 @@ export function createCheckedRemoteServiceCall(type: string, variable: string, c
             "VARIABLE": variable,
             "CALLER": callerName,
             "FUNCTION": functionName,
-            "PARAMS": params
+            "PARAMS": params.join()
         }
     };
 
     return checkedRemoteServiceCall;
+}
+
+export function createActionStatement(callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
+    const actionStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "ACTION_STATEMENT",
+        config: {
+            "CALLER": callerName,
+            "FUNCTION": functionName,
+            "PARAMS": params.join()
+        }
+    };
+
+    return actionStatement;
+}
+
+export function createCheckActionStatement(callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
+    const checkActionStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "ACTION_STATEMENT_CHECK",
+        config: {
+            "CALLER": callerName,
+            "FUNCTION": functionName,
+            "PARAMS": params.join()
+        }
+    };
+
+    return checkActionStatement;
 }
 
 export function updateCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
@@ -672,6 +719,64 @@ export function createModuleVarDecl(config: ModuleVariableFormState, targetPosit
             'VAR_TYPE': varType,
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
+        }
+    }
+}
+
+export function createSendStatement(config: SendStatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'ASYNC_SEND_STATEMENT',
+        config: {
+            'EXPRESSION': config.expression,
+            'TARGET_WORKER': config.targetWorker
+        }
+    }
+}
+
+export function createReceiveStatement(config: ReceivestatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'ASYNC_RECEIVE_STATEMENT',
+        config: {
+            'TYPE': config.type,
+            'VAR_NAME': config.varName,
+            'SENDER_WORKER': config.senderWorker
+        }
+    }
+}
+
+export function createWaitStatement(config: WaitStatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'WAIT_STATEMENT',
+        config: {
+            'TYPE': config.type,
+            'VAR_NAME': config.varName,
+            'WORKER_NAME': config.expression
+        }
+    }
+}
+
+export function createFlushStatement(config: FlushStatementConfig, targetPosition?: NodePosition): STModification {
+    return {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: targetPosition ? targetPosition.endColumn : 0,
+        endColumn: targetPosition ? targetPosition.endColumn : 0,
+        type: 'FLUSH_STATEMENT',
+        config: {
+            'VAR_NAME': config.varName,
+            'WORKER_NAME': config.expression
         }
     }
 }
