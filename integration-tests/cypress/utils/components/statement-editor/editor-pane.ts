@@ -57,6 +57,20 @@ export class EditorPane {
         return this;
     }
 
+    static clickPlusButton() {
+        cy.contains(`[data-testid="plus-button"]`,`+`)
+            .click();
+        cy.wait(1000);
+        return this;
+    }
+
+    static clickMinusButton() {
+        cy.contains(`[data-testid="minus-button"]`,`-`)
+            .click();
+        cy.wait(1000);
+        return this;
+    }
+
     static validateNewExpression(modelType:string, text:string){
         cy.contains(`[data-testid="${modelType}"]`,text,{timeout:20000}).should('exist');
         return this;
@@ -81,6 +95,12 @@ export class EditorPane {
     static validateEmptyDiagnostics(){
         cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`)
             .should("not.exist", { timeout: 20000 });
+        return this;
+    }
+
+    static checkForSyntaxDiagnosticsHighlighting() {
+        cy.get(`[data-testid="syntax-error-highlighting"]`)
+            .should("be.visible", { timeout: 20000 });
         return this;
     }
 }
