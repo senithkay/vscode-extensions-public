@@ -45,10 +45,10 @@ export default function TabPanel(props: TabPanelProps) {
         values.forEach((tabValue) => {
 
             let hint;
-            switch(tabValue) {
+            switch (tabValue) {
                 case "Suggestions":
                     hint = "Ctrl+Shift+M";
-                  break;
+                    break;
                 case "Expressions":
                     hint = "Ctrl+Shift+,";
                     break;
@@ -61,14 +61,14 @@ export default function TabPanel(props: TabPanelProps) {
             }
 
             tabs.push(
-                <Tab 
+                <Tab
                     value={tabValue}
                     disableRipple={true}
-                    label={
+                    label={(
                         <StatementEditorHint content={hint} >
                             <span>{tabValue}</span>
                         </StatementEditorHint>
-                    }
+                    )}
                 />
             );
         });
