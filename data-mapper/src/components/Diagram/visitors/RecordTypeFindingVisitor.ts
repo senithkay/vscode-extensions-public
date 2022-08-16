@@ -12,6 +12,7 @@
  */
 import { ExpressionRange, LinePosition } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    FromClause,
     FunctionSignature,
     STKindChecker,
     STNode,
@@ -44,6 +45,20 @@ export class RecordTypeFindingVisitor implements Visitor {
                 offset: typePosition.startColumn
             });
         }
+    }
+
+    public beginVisitFromClause(node: FromClause, parent?: STNode) {
+        const typePosition = node.expression.position;
+        this.expressionNodeRanges.push({
+            startPosition: {
+                line: typePosition.startLine,
+                offset: typePosition.startColumn
+            },
+            endPosition: {
+                line: typePosition.endLine,
+                offset: typePosition.endColumn
+            }
+        });
     }
 
     public getExpressionNodesRanges(){
