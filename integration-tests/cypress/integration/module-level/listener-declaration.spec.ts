@@ -17,15 +17,14 @@ import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { ListenerForm } from "../../utils/forms/listener-form";
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
+import {FunctionForm} from "../../utils/forms/function-form";
 
 const BAL_FILE_PATH = "default/empty-file.bal";
 
 describe('Listener', () => {
-    beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-    });
 
-    it.skip('Add and Edit Listener', () => {
+    it('Add and Edit Listener', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -35,7 +34,7 @@ describe('Listener', () => {
         ListenerForm
             .shouldBeVisible()
             .typeListenerName('testListener')
-            .typeListenerPortValue(8081)
+            .typeListenerPortValue('8081')
             .save();
 
         Canvas
@@ -44,7 +43,7 @@ describe('Listener', () => {
 
         ListenerForm
             .clearPortValue()
-            .typeListenerPortValue(8082)
+            .typeListenerPortValue('8082')
             .clearListenername()
             .typeListenerName('testListener1')
             .save();
@@ -53,7 +52,38 @@ describe('Listener', () => {
             getCurrentSpecFolder() + "add-listener.expected.bal");
     });
 
+    it('Delete Listener', () => {
+        cy.visit(getIntegrationTestPageURL("module-level/listener.bal"));
+        Canvas
+            .getListener('testListener1')
+            .clickDelete();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "delete-listener.expected.bal");
+    });
+
+    it('Check listener diagnostics', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget.clickOption('Listener');
+
+        ListenerForm
+            .shouldBeVisible()
+            .typeListenerName('testListener@')
+            .saveShouldBeDisabled()
+            .typeListenerName('testListener')
+            .saveShouldBeEnabled()
+            .typeListenerPortValue('8000@')
+            .saveShouldBeDisabled()
+            .typeListenerPortValue('8000')
+            .saveShouldBeEnabled()
+    });
+
     it('Open and Cancel Form', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -66,6 +96,7 @@ describe('Listener', () => {
     });
 
     it('Open and Close Form', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
