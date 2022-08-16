@@ -119,16 +119,6 @@ export function ShowFunctionBtn(props: ShowFunctionBtnProps) {
         };
         const funDef = await getFunctionDef(range, model.viewState.functionNodeFilePath);
         const expandST = funDef.syntaxTree as FunctionDefinition;
-        // const childVP = expandST.functionBody.VisibleEndpoints;
-        // if (childVP.length > 0) {
-        //   childVP.forEach(ep => {
-        //      const found = parentConnectors.get(ep.name);
-        //      if (!found || !found.actions.length) {
-        //       found.visibleEndpoint = ep;
-        //      }
-        //   });
-        // }
-        // const offsetValue = model.viewState.bBox.cx;
         const sizedBlock = initializeViewState(expandST, parentConnectors, offsetValue) as FunctionDefinition;
         sizedBlock.viewState.functionNodeFilePath = funDef.defFilePath;
         sizedBlock.viewState.functionNodeSource = sizedBlock.source;

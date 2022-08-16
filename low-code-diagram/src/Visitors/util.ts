@@ -77,54 +77,41 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
         const mainEp: EndpointViewState = visibleEndpoint.viewState;
         mainEp.collapsed = value.firstAction?.collapsed;
 
-        if (haveParent || !value.isExpandedPoint) {
-            if (!foundFirst) {
-                if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
-                    mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-                } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
-                    const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
-                    if (diff < DefaultConfig.epGap) {
-                        mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
-                    }
-                }
-                foundFirst = true;
-            } else {
-                mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-            }
-
-            prevX = mainEp.lifeLine.cx;
-
-            if (mainEp.isExternal) { // Render external endpoints align with the start element
-                mainEp.lifeLine.h += mainEp.lifeLine.cy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2));
-                mainEp.lifeLine.cy = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2);
-                const highCy = getHighestHeight(value.offsetValue, value.actions);
-                if (highCy > mainEp.lifeLine.h) {
-                    mainEp.lifeLine.h = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2) + highCy - (mainEp.lifeLine.cy + (PROCESS_SVG_HEIGHT * 3) + PROCESS_SVG_HEIGHT / 2);
+        if (!foundFirst) {
+            if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
+                mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
+            } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
+                const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
+                if (diff < DefaultConfig.epGap) {
+                    mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
                 }
             }
-
-            updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
+            foundFirst = true;
+        } else {
+            mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
         }
-        // } else {
-        //     // When isExpanded is true
-        //     value.visibleEndpoint.viewState.expandConnectorHeight = getHigestHeight(value.actions);
-        // }
+
+        prevX = mainEp.lifeLine.cx;
+
+        if (mainEp.isExternal) { // Render external endpoints align with the start element
+            mainEp.lifeLine.h += mainEp.lifeLine.cy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2));
+            mainEp.lifeLine.cy = startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2);
+            const highCy = getHighestHeight(value.offsetValue, value.actions, value.firstAction);
+            if (highCy > mainEp.lifeLine.h) {
+                mainEp.lifeLine.h = (highCy - (startCY + (CONNECTOR_PROCESS_SVG_HEIGHT / 2))) + PROCESS_SVG_HEIGHT / 4;
+            }
+        }
+
+        updateActionTriggerCx(mainEp.lifeLine.cx, value.actions);
     });
 }
 
-export function getHighestHeight(offSet: number, actions: StatementViewState[]) {
-    // let maxOffSet = 0;
-    // let maxActionCY = 0;
+export function getHighestHeight(offSet: number, actions: StatementViewState[], firstAction: StatementViewState) {
     let maxValue = 0;
     const offSetValue = offSet;
     actions.forEach((action) => {
-        // if (action.expandOffSet > maxOffSet) {
-        //     maxOffSet = action.expandOffSet;
-        // }
-        // if (action.action.trigger.cy > maxActionCY) {
-        //     maxActionCY = action.action.trigger.cy;
-        // }
-        if (offSetValue && offSetValue > 0) {
+        const isFirstAction = firstAction.action.trigger.cx === action.action.trigger.cx && firstAction.action.trigger.cy === action.action.trigger.cy;
+        if ((offSetValue && offSetValue > 0) && !isFirstAction) {
             const current  = offSetValue + action.action.trigger.cy;
             if (current > maxValue) {
                 maxValue = current;

@@ -547,7 +547,7 @@ export class PositioningVisitor implements Visitor {
             const statementViewState: StatementViewState = statement.viewState;
 
             // Assign cy of the expanded function to each statement
-            // statementViewState.expandOffSet += blockViewState.expandOffSet;
+            statementViewState.expandOffSet = blockViewState.expandOffSet;
 
             statementViewState.bBox.cx = blockViewState.bBox.cx;
             statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;

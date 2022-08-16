@@ -279,13 +279,9 @@ export class InitVisitor implements Visitor {
             if (currentVp && parentEp.visibleEndpoint.moduleName === currentVp.visibleEndpoint.moduleName
                 && parentEp.visibleEndpoint.orgName === currentVp.visibleEndpoint.orgName)
             {
-                node.viewState.expandOffSet = this.offsetValue;
+                // node.viewState.expandOffSet = this.offsetValue;
                 parentEp.isExpandedPoint = true;
-                if (parentEp.offsetValue) {
-                    parentEp.offsetValue += this.offsetValue;
-                } else {
-                    parentEp.offsetValue = this.offsetValue;
-                }
+                parentEp.offsetValue = this.offsetValue;
                 this.allEndpoints.set(key, parentEp);
             }
         })

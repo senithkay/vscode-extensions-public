@@ -1375,14 +1375,10 @@ export class SizingVisitor implements Visitor {
                 recalculateSizingAndPositioning(viewState.functionNode, null, this.allEndpoints);
                 const newHeight = viewState.functionNode.viewState.bBox.h - (PROCESS_SVG_HEIGHT * 2 + DefaultConfig.dotGap * 3);
                 viewState.bBox.h += newHeight;
-                // if (this.getMaxCX(this.allEndpoints) > viewState.bBox.rw) {
-                //     viewState.bBox.rw = viewState.functionNode.viewState.bBox.rw;
-                // }
                 if (viewState.functionNode.viewState.bBox.rw > viewState.bBox.rw) {
                     viewState.bBox.rw = viewState.functionNode.viewState.bBox.rw;
                 }
                 viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
-                // viewState.bBox.rw += viewState.functionNode.viewState.bBox.rw;
             }
         }
     }
