@@ -22,8 +22,8 @@ import { useStyles } from './style';
 
 export interface FunctionParam {
     id: number;
-    type: FormEditorField;
-    name: FormEditorField;
+    type: string;
+    name: string;
 }
 
 interface FunctionParamItemProps {
@@ -37,7 +37,7 @@ export function FunctionParamItem(props: FunctionParamItemProps) {
     const { functionParam, readonly, onDelete, onEditClick } = props;
     const classes = useStyles();
 
-    const segmentLabel = functionParam.type.value + " " + functionParam.name.value;
+    const segmentLabel = functionParam.type + " " + functionParam.name;
     const handleDelete = () => {
         onDelete(functionParam);
     };

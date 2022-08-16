@@ -9,7 +9,7 @@ export class FunctionForm {
             .getForField("function-name", this.selector)
             .clear()
             .type(fnName)
-        this.getForm().wait(1000);
+        this.getForm().wait(4000);
         return this;
     }
 
@@ -18,25 +18,25 @@ export class FunctionForm {
             .getForField("return-type", this.selector)
             .clear()
             .type(retType)
-        this.getForm().wait(5000);
+        this.getForm().wait(4000);
         return this;
     }
 
     static typeParamType(type: string) {
-        const typeInput = `{selectall}${type}`;
-        this.getForm()
-            .get('[data-testid="function-param-type"]')
-            .type(typeInput);
-        this.getForm().wait(1000);
+        ExpressionEditor
+            .getForField("function-param-type", this.selector)
+            .clear()
+            .type(type);
+        this.getForm().wait(4000);
         return this;
     }
 
     static typeParamName(name: string) {
-        const clearKeyStroke = `{selectall}${name}`;
-        this.getForm()
-            .get('[data-testid="function-param-name"]')
-            .type(clearKeyStroke);
-        this.getForm().wait(1000);
+        ExpressionEditor
+            .getForField("function-param-name", this.selector)
+            .clear()
+            .type(name);
+        this.getForm().wait(4000);
         return this;
     }
 

@@ -114,7 +114,7 @@ export function FunctionForm(props: FunctionProps) {
     }
     const onNameChange = async (value: string) => {
         setFunctionName(value);
-        const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        const parametersStr = parameters.map((item) => `${item.type} ${item.name}`).join(", ");
         const currentModel: CurrentModel = {
             model: model?.functionName
         };
@@ -126,7 +126,7 @@ export function FunctionForm(props: FunctionProps) {
     const onReturnTypeChange = async (value: string) => {
         // TODO: remove function return validations
         setReturnType(value);
-        const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        const parametersStr = parameters.map((item) => `${item.type} ${item.name}`).join(", ");
         const codeSnippet = getSource(updateFunctionSignature(functionName, parametersStr,
             value ? `returns ${value}` : "", {
             ...targetPosition, startColumn: model?.functionName?.position?.startColumn
@@ -161,12 +161,18 @@ export function FunctionForm(props: FunctionProps) {
         setCurrentComponentName("Return");
     }
 
-    const debouncedReturnChange = debounce(onReturnTypeChange, 1200);
+    const debouncedReturnChange = debounce(onReturnTypeChange, 1500);
 
     // Param related functions
-    const openNewParamView = () => {
+    const openNewParamView = async () => {
+        setCurrentComponentName("Param");
         setAddingNewParam(true);
         setEditingSegmentId(-1);
+        const newParams = [...parameters, {type: "string", name: "name"}];
+        const parametersStr = newParams
+            .map((item) => `${item.type} ${item.name}`)
+            .join(", ");
+        await functionParamChange(functionName, parametersStr, returnType);
     };
 
     const handleOnEdit = (funcParam: FunctionParam) => {
@@ -200,8 +206,8 @@ export function FunctionForm(props: FunctionProps) {
         setCurrentComponentName("Param");
         const newParams = [...parameters, param];
         const parametersStr = newParams
-            .map((item) => `${item.type.value} ${item.name.value}`)
-            .join(",");
+            .map((item) => `${item.type} ${item.name}`)
+            .join(", ");
         await functionParamChange(functionName, parametersStr, returnType);
     };
     const onUpdateParamChange = async (param: FunctionParam) => {
@@ -209,8 +215,8 @@ export function FunctionForm(props: FunctionProps) {
         const newParams = [...parameters];
         newParams[param.id] = param;
         const parametersStr = newParams
-            .map((item) => `${item.type.value} ${item.name.value}`)
-            .join(",");
+            .map((item) => `${item.type} ${item.name}`)
+            .join(", ");
         await functionParamChange(functionName, parametersStr, returnType);
     };
     const onSaveNewParam = (param: FunctionParam) => {
@@ -220,7 +226,7 @@ export function FunctionForm(props: FunctionProps) {
     };
 
     const handleOnSave = () => {
-        const parametersStr = parameters ? parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",") : "";
+        const parametersStr = parameters ? parameters.map((item) => `${item.type} ${item.name}`).join(", ") : "";
         if (isEdit) {
             applyModifications([
                 updateFunctionSignature(functionName, parametersStr,
@@ -239,7 +245,7 @@ export function FunctionForm(props: FunctionProps) {
 
     const paramElements: React.ReactElement[] = [];
     parameters?.forEach((param, index) => {
-        if (param.name.value) {
+        if (param.name) {
             if (editingSegmentId !== index) {
                 paramElements.push(
                     <FunctionParamItem
@@ -276,8 +282,8 @@ export function FunctionForm(props: FunctionProps) {
                 .filter((param) => STKindChecker.isRequiredParam(param))
                 .map((param: any, index) => ({
                     id: index,
-                    name: { value: param.paramName.value, isInteracted: false },
-                    type: { value: param.typeName.source.trim(), isInteracted: false },
+                    name: param.paramName.value,
+                    type: param.typeName.source.trim(),
                 }));
             setParameters(editParams);
         }
@@ -308,7 +314,7 @@ export function FunctionForm(props: FunctionProps) {
                             focus={true}
                             onChange={debouncedNameChange}
                             onFocus={onNameFocus}
-                            disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                            disabled={addingNewParam || isMainFunction || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                             hideSuggestions={true}
                             // placeholder={"Ex: name"}
                             // defaultValue={(functionName?.isInteracted || isEdit || isMainFunction) ? functionName.value : ""}
