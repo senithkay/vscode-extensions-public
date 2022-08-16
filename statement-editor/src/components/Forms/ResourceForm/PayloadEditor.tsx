@@ -15,7 +15,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Button } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
-import { connectorStyles } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
+import {connectorStyles, TextPreloaderVertical} from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { CommaToken, DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../models/definitions';
@@ -84,7 +84,8 @@ export function PayloadEditor(props: PayloadEditorProps) {
     const onDelete = (param: ParameterConfig) => {
 
         parameters.splice(param.id === 0 ? param.id : param.id - 1, 2)
-        setParamIndex(-1)
+        setParamIndex(-1);
+        setAddingParam(false);
         onChange(getParamString(parameters));
     };
 
@@ -152,6 +153,11 @@ export function PayloadEditor(props: PayloadEditorProps) {
                     onDelete={onDelete}
                     onEditClick={onEdit}
                 />
+            )}
+            {(paramIndex === -1) && addingParam && (
+                <div>
+                    <TextPreloaderVertical position="fixedMargin"/>
+                </div>
             )}
         </div>
     );
