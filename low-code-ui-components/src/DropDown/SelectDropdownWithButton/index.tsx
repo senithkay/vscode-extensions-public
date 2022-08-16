@@ -41,9 +41,12 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
     const formClasses = useFormStyles();
     const dropDownClasses = useTextInputStyles();
     const textFieldClasses = useTextInputStyles();
-    const { onChange, onClick, defaultValue, label, hideLabel, placeholder, customProps = {}, disabled } = props;
-    const { values, disableCreateNew, optional, className, enabledValues,
-            clearSelection, onOpenSelect, onCloseSelect } = customProps;
+    const {
+        onChange, onClick, defaultValue, label, hideLabel, placeholder, customProps = {}, disabled, dataTestId = ''
+    } = props;
+    const {
+        values, disableCreateNew, optional, className, enabledValues, clearSelection, onOpenSelect, onCloseSelect
+    } = customProps;
 
     const handleChange = (event: any) => {
         if (onChange && (optional || event.target.value)) {
@@ -73,10 +76,10 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
         e.stopPropagation();
     }
 
-    const EmptyChevronIcon = () => <span/>;
+    const EmptyChevronIcon = () => <span />;
 
     return (
-        <div data-testid="select-drop-down" data-field-name={label}>
+        <div data-testid="select-drop-down" data-field-name={dataTestId}>
             {label && !hideLabel ?
                 (customProps && optional ?
                     (

@@ -40,6 +40,18 @@ export class StatementEditor {
 
     }
 
+    static add() {
+        this.getStatementEditor()
+            .get('button')
+            .contains("Add")
+            .should('not.be.disabled')
+            .wait(1000)
+            .click()
+            .wait(3000);
+        return this;
+
+    }
+
     static saveDisabled() {
         this.getStatementEditor()
             .get('button')
@@ -62,5 +74,13 @@ export class StatementEditor {
             .get(`[data-testid="close-btn"]`)
             .click();
         return this;
+    }
+
+    static clickStatementEditor() {
+        this.getStatementEditor()
+            .get(this.selector)
+            .click();
+        return this;
+
     }
 }
