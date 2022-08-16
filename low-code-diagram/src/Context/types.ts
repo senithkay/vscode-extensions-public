@@ -1,4 +1,4 @@
-import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorConfigWizardProps, ConnectorWizardProps, DiagramOverlayPosition, FunctionDef, LowcodeEvent, PerformanceData, PlusWidgetProps, Range, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, FunctionDef, LowcodeEvent, PerformanceData, PlusWidgetProps, Range, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { PlusViewState } from "../ViewState";

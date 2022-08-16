@@ -431,7 +431,7 @@ export class SizingVisitor implements Visitor {
         viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
         viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
         viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + this.getConnectorGap();
-        
+
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
