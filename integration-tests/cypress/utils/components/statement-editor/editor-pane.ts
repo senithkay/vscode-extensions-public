@@ -1,3 +1,5 @@
+import { modelTypes } from "../../type-utils";
+
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -18,7 +20,7 @@ export class EditorPane {
         return this;
     }
 
-    static getExpression(modelType?:string){
+    static getExpression(modelType?: modelTypes){
         cy.get(`[data-testid="${modelType}"]`)
         this.parentSelector = `[data-testid="${modelType}"]`;
         return this;
@@ -28,7 +30,7 @@ export class EditorPane {
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
                 .click()
-                .parent('[class*="expressionElementSelected"]',{timeout:20000})
+                // .parent('[class*="expressionElementSelected"]',{timeout:20000})
         });
         return this;
     }

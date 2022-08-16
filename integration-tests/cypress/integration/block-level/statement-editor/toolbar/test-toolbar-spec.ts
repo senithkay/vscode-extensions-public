@@ -140,4 +140,118 @@ describe('Test statement editor toolbar functionality', () => {
             getCurrentSpecFolder() + "toolbar-functionality.expected.bal");
 
     });
+
+    it('Delete expression type', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickEditExistingBlockStatement(2);
+
+        StatementEditor
+            .shouldBeVisible();
+
+        EditorPane
+            .getExpression("IntTypeDesc")
+            .clickExpressionContent('int');
+
+        Toolbar
+            .clickDeleteButton();
+
+        EditorPane
+            .getExpression("IntTypeDesc")
+            .doubleClickExpressionContent(`<add-type>`);
+
+        InputEditor
+            .typeInput("float");
+
+        StatementEditor
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "toolbar-type-delete.expected.bal");
+
+    });
+
+    it('Delete expression value', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickEditExistingBlockStatement(2);
+
+        StatementEditor
+            .shouldBeVisible();
+
+        EditorPane
+            .getExpression("NumericLiteral")
+            .clickExpressionContent('2');
+
+        Toolbar
+            .clickDeleteButton();
+
+        EditorPane
+            .getExpression("NumericLiteral")
+            .doubleClickExpressionContent(`<add-expression>`);
+
+        InputEditor
+            .typeInput("3");
+
+        StatementEditor
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "toolbar-variable-value-delete.expected.bal");
+
+    });
+
+    it('Add Configurable', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(2);
+
+        BlockLevelPlusWidget.clickOption("Variable");
+
+        StatementEditor
+            .shouldBeVisible();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("TypedBindingPattern")
+            .doubleClickExpressionContent('var');
+
+        InputEditor
+            .typeInput("string");
+
+        EditorPane
+            .validateNewExpression("TypedBindingPattern", "string")
+            .getExpression("CaptureBindingPattern")
+            .doubleClickExpressionContent("variable");
+
+        InputEditor
+            .typeInput("var3");
+
+        EditorPane
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent(`<add-expression>`);
+    
+        Toolbar
+            .clickConfigurableButton();
+
+        StatementEditor
+            .add();
+
+        StatementEditor
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "toolbar-add-config.expected.bal");
+
+    });
+
 })
