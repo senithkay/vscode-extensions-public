@@ -108,9 +108,10 @@ export function HelperPane(props: HelperPaneProps) {
                         onSelection={onTabElementSelection}
                         selectedTab={selectedTab}
                     />
-                    <div className={stmtEditorHelperClasses.libraryTypeSelector}>
+                    <div className={stmtEditorHelperClasses.libraryTypeSelector} data-testid="library-type-selector">
                         {selectedTab === TabElements.libraries && (
                             <SelectDropdown
+                                data-testid="library-selector-dropdown"
                                 values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
                                 defaultValue={ALL_LIBS_IDENTIFIER}
                                 onSelection={onLibTypeSelection}

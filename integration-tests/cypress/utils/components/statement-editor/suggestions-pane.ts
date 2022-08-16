@@ -49,6 +49,39 @@ export class SuggestionsPane {
         return this;
     }
 
+    static clickLibrarySuggestion(selectedLib: string) {
+        cy.get(`[data-testid="library-list-block"]`).within(() => {
+            cy.contains(selectedLib)
+                .click({ force: true })
+        })
+        return this;
+    }
+
+    static clickSearchedLibSuggestion(searchedLib: string) {
+        cy.get(`[data-testid="library-element-block-content"]`).within(() => {
+            cy.contains(searchedLib)
+                .click({ force: true })
+        })
+        return this;
+    }
+
+    static clickOnLibraryDropdown(mode: string) {
+        cy.get(`[data-testid="library-type-selector"]`).within(() => {
+            cy.get(`.MuiSelect-select[role="button"]`)
+                .click();
+        });
+        cy.get(`ul.MuiMenu-list li span.TextSpan`)
+            .contains(mode)
+            .click();
+        return this;
+    }
+
+    static validateFilteredLib(clearedLib: string) {
+        cy.get(`[data-testid="library-list-block"]`)
+            .children().should('not.contain', clearedLib)
+        return this;
+    }
+
     static typeExpressionInSearchBar(suggestion:string){
         cy.get(`[data-testid="expr-suggestions-searchbar"]`)
             .children('input')

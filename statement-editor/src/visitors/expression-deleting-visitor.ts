@@ -21,17 +21,21 @@ import {
     LetClause,
     LimitClause,
     ListConstructor,
+    LocalVarDecl,
     MappingConstructor,
     MethodCall,
+    ModuleVarDecl,
     NodePosition,
     OptionalFieldAccess,
-    OptionalTypeDesc, OrderByClause,
+    OptionalTypeDesc,
+    OrderByClause,
     ParenthesisedTypeDesc,
     QueryExpression,
     QueryPipeline,
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
+    SimpleNameReference,
     SpecificField,
     STKindChecker,
     STNode,
@@ -104,8 +108,8 @@ class ExpressionDeletingVisitor implements Visitor {
             if (isPositionsEquals(this.deletePosition, node.expression.position)) {
                 this.setProperties(DEFAULT_EXPR, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.methodName.position)) {
-                this.setProperties(DEFAULT_EXPR, {
-                    ...node.methodName.position,
+                this.setProperties('', {
+                    ...node.dotToken.position,
                     endColumn: node.closeParenToken.position.endColumn
                 });
             } else {
@@ -114,8 +118,27 @@ class ExpressionDeletingVisitor implements Visitor {
                 });
 
                 if (hasArgToBeDeleted) {
-                    this.setProperties(DEFAULT_EXPR, this.deletePosition);
+                    const expressions: string[] = [];
+                    node.arguments.map((expr: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(','), {
+                        ...node.position,
+                        startColumn: node.openParenToken.position.endColumn,
+                        endColumn: node.closeParenToken.position.startColumn
+                    });
                 }
+            }
+        }
+    }
+
+    public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
+        if (!this.isNodeFound) {
+            if (STKindChecker.isReturnStatement(node.parent) && isPositionsEquals(this.deletePosition, node.position)) {
+                this.setProperties("", node.position);
             }
         }
     }
@@ -196,6 +219,24 @@ class ExpressionDeletingVisitor implements Visitor {
         }
     }
 
+    public beginVisitModuleVarDecl(node: ModuleVarDecl) {
+        if (!this.isNodeFound) {
+            node.qualifiers.map((qualifier: STNode) => {
+                if (isPositionsEquals(this.deletePosition, qualifier.position)) {
+                    this.setProperties("", qualifier.position);
+                }
+            });
+        }
+    }
+
+    public beginVisitLocalVarDecl(node: LocalVarDecl) {
+        if (!this.isNodeFound){
+            if (node.finalKeyword && isPositionsEquals(this.deletePosition, node.finalKeyword.position)) {
+                this.setProperties("", node.finalKeyword.position);
+            }
+        }
+    }
+
     public beginVisitSpecificField(node: SpecificField) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.valueExpr.position)) {
             this.setProperties(DEFAULT_EXPR, node.valueExpr.position);
@@ -225,7 +266,18 @@ class ExpressionDeletingVisitor implements Visitor {
             });
 
             if (hasArgToBeDeleted) {
-                this.setProperties(DEFAULT_EXPR, this.deletePosition);
+                const expressions: string[] = [];
+                node.arguments.map((expr: STNode) => {
+                    if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                        expressions.push(expr.source);
+                    }
+                });
+
+                this.setProperties(expressions.join(','), {
+                    ...node.position,
+                    startColumn: node.openParenToken.position.endColumn,
+                    endColumn: node.closeParenToken.position.startColumn
+                });
             }
         }
     }
