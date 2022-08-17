@@ -74,10 +74,10 @@ export function HelperPane(props: HelperPaneProps) {
 
         const client = KeyboardNavigationManager.getClient();
 
-        client.bindNewKey(['ctrl+shift+s', 'command+shift+s'], setSelectedTab, TabElements.suggestions);
-        client.bindNewKey(['ctrl+shift+e', 'command+shift+e'], setSelectedTab, TabElements.expressions);
-        client.bindNewKey(['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries);
-        client.bindNewKey(['ctrl+shift+d', 'command+shift+d'], setSelectedTab, TabElements.parameters);
+        client.bindNewKey(['ctrl+shift+m', 'command+shift+m'], setSelectedTab, TabElements.suggestions);
+        client.bindNewKey(['ctrl+shift+,', 'command+shift+,'], setSelectedTab, TabElements.expressions);
+        client.bindNewKey(['ctrl+shift+.', 'command+shift+.'], setSelectedTab, TabElements.libraries);
+        client.bindNewKey(['ctrl+shift+/', 'command+shift+/'], setSelectedTab, TabElements.parameters);
 
     }, []);
 
