@@ -14,6 +14,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeAction, CodeActionParams, Diagnostic  } from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
+import { Type } from "./data-mapper";
 import { BallerinaProjectParams } from "./lang-client-extended";
 
 export interface CompletionParams {
@@ -125,6 +126,44 @@ export interface SymbolInfoResponse {
     documentation : SymbolDocumentation
 }
 
+export interface ExpressionRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
+    filePath?: string;
+}
+
+export interface TypeFromExpressionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    expressionRanges: ExpressionRange[];
+}
+
+export interface ResolvedTypeForExpression {
+    type: Type;
+    requestedRange: ExpressionRange;
+}
+
+export interface TypesFromExpressionResponse {
+    types: ResolvedTypeForExpression[];
+}
+
+export interface TypeFromSymbolRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    positions: LinePosition[];
+}
+
+export interface ResolvedTypeForSymbol {
+    type: Type;
+    requestedPosition: LinePosition;
+}
+
+export interface TypesFromSymbolResponse {
+    types: ResolvedTypeForSymbol[];
+}
+
 export interface ExpressionEditorLangClientInterface extends BaseLangClientInterface {
     getDiagnostics: (
         params: BallerinaProjectParams
@@ -156,4 +195,10 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     codeAction: (
         params: CodeActionParams
     ) => Thenable<CodeAction[]> ;
+    getTypeFromExpression: (
+        params: TypeFromExpressionRequest
+    ) => Thenable<TypesFromExpressionResponse>;
+    getTypeFromSymbol: (
+        params: TypeFromSymbolRequest
+    ) => Thenable<TypesFromSymbolResponse>;
 }

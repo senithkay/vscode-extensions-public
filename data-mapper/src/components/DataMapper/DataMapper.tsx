@@ -11,19 +11,22 @@ import {
     STNode,
     traversNode,
 } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
+import { handleDiagnostics } from "../Diagram/utils/ls-utils";
+import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
-import { handleDiagnostics } from "../Diagram/utils/ls-utils";
-import { Diagnostic } from "vscode-languageserver-protocol";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
     langClientPromise?: () => Promise<DiagramEditorLangClientInterface>;
+    getLangClient?: () => Promise<DiagramEditorLangClientInterface>;
+    getEELangClient?: () => Promise<ExpressionEditorLangClientInterface>;
     filePath: string;
     currentFile?: {
         content: string,
@@ -58,7 +61,7 @@ const selectionReducer = (state: SelectionState, action: {type: ViewOption, payl
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
+    const { fnST, langClientPromise, getEELangClient, filePath, currentFile, stSymbolInfo, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
@@ -79,6 +82,7 @@ function DataMapperC(props: DataMapperProps) {
                 fnST,
                 selection,
                 langClientPromise,
+                getEELangClient,
                 currentFile,
                 stSymbolInfo,
                 handleSelectedST,
@@ -86,6 +90,8 @@ function DataMapperC(props: DataMapperProps) {
                 diagnostics
             );
 
+            const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+            await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
             const nodeInitVisitor = new NodeInitVisitor(context, selection);
             let selectedST = selection.selectedST;
             const visitor = new SelectedSTFindingVisitor(selectedST);

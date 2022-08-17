@@ -51,7 +51,11 @@ import {
     PerformanceAnalyzerResponse,
     RevealRangeParams,
     SymbolInfoRequest, SymbolInfoResponse,
-    TriggerModifyRequest
+    TriggerModifyRequest,
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromExpressionResponse,
+    TypesFromSymbolResponse
 } from './IBallerinaLanguageClient'
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { LSConnection } from "./LSConnection";
@@ -269,5 +273,13 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public codeAction(params: CodeActionParams): Promise<CodeAction[]> {
         return this._clientConnection.sendRequest("textDocument/codeAction", params);
+    }
+
+    public getTypeFromExpression(params: TypeFromExpressionRequest): Thenable<TypesFromExpressionResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_EXPRESSION, params);
+    }
+
+    public getTypeFromSymbol(params: TypeFromSymbolRequest): Thenable<TypesFromSymbolResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_SYMBOL, params);
     }
 }

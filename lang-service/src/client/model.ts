@@ -93,6 +93,11 @@ export interface SymbolInfoResponse {
     documentation : SymbolDocumentation
 }
 
+export interface LinePosition {
+    line: number;
+    offset: number;
+}
+
 export interface BallerinaExample {
     title: string;
     url: string;
@@ -394,6 +399,100 @@ export interface BallerinaConstruct {
     icon?: string;
 }
 
+export interface DiagramDiagnostic {
+    message: string;
+    diagnosticInfo: {
+        code: string;
+        severity: string;
+    };
+    range: NodePosition;
+}
+
+export interface NonPrimitiveBal {
+    orgName: string;
+    moduleName: string;
+    name: string;
+    version?: string;
+}
+
+export interface Type {
+    typeName: string;
+    name?: string;
+    displayName?: string;
+    memberType?: Type;
+    inclusionType?: Type;
+    paramType?: Type;
+    selectedDataType?: string;
+    description?: string;
+    defaultValue?: any;
+    value?: any;
+    optional?: boolean;
+    defaultable?: boolean;
+    fields?: Type[];
+    members?: Type[];
+    references?: Type[];
+    isReturn?: boolean;
+    isTypeDef?: boolean;
+    isReference?: boolean;
+    isStream?: boolean;
+    typeInfo?: NonPrimitiveBal;
+    hide?: boolean;
+    aiSuggestion?: string;
+    noCodeGen?: boolean;
+    requestName?: string;
+    tooltip?: string;
+    tooltipActionLink?: string;
+    tooltipActionText?: string;
+    isErrorType?: boolean;
+    isRestParam?: boolean;
+    customAutoComplete?: string[];
+    validationRegex?: any;
+    leftTypeParam?: any;
+    rightTypeParam?: any;
+    initialDiagnostics?: DiagramDiagnostic[];
+    documentation?: string;
+    position?: NodePosition;
+    selected?: boolean;
+}
+
+export interface ExpressionRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
+    filePath?: string;
+}
+
+export interface TypeFromExpressionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    expressionRanges: ExpressionRange[];
+}
+
+export interface ResolvedTypeForExpression {
+    type: Type;
+    requestedRange: ExpressionRange;
+}
+
+export interface TypesFromExpressionResponse {
+    types: ResolvedTypeForExpression[];
+}
+
+export interface TypeFromSymbolRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    positions: LinePosition[];
+}
+
+export interface ResolvedTypeForSymbol {
+    type: Type;
+    requestedPosition: LinePosition;
+}
+
+export interface TypesFromSymbolResponse {
+    types: ResolvedTypeForSymbol[];
+}
+
 export interface Connector extends BallerinaConstruct {}
 
 export interface Trigger extends BallerinaConstruct {}
@@ -435,6 +534,10 @@ export interface IBallerinaLangClient {
     revealRange: (params: RevealRangeParams) => void;
 
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>
+
+    getTypeFromExpression: (params: TypeFromExpressionRequest) => Thenable<TypesFromExpressionResponse>
+
+    getTypeFromSymbol: (params: TypeFromSymbolRequest) => Thenable<TypesFromSymbolResponse>
 
     close: () => void;
 }

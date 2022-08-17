@@ -1,29 +1,33 @@
-import { RecordField, RecordTypeDesc, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { PortModel } from "@projectstorm/react-diagrams-core";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { DataMapperPortModel } from "../Port";
+import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
 
 import { DataMapperLinkModel } from "./model/DataMapperLink";
 
 export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
-    const sourcePort = link.getSourcePort() as DataMapperPortModel;
-    const targetPort = link.getTargetPort() as DataMapperPortModel;
+    const sourcePort = link.getSourcePort() as PortModel;
 
-    if (STKindChecker.isRecordField(sourcePort.field)) {
+    if (sourcePort instanceof SpecificFieldPortModel && STKindChecker.isRecordField(sourcePort.field)) {
         const fieldType = sourcePort.field.typeName;
         return STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc);
+    } else if (sourcePort instanceof RecordFieldPortModel) {
+        const type = sourcePort.field;
+        return type.typeName === 'array' && type.memberType.typeName === 'record';
     }
 
     return false;
 }
 
-export function generateQueryExpression(srcExpr: string, targetType: RecordTypeDesc) {
+export function generateQueryExpression(srcExpr: string, targetType: Type) {
 
-    const targetFields = targetType.fields.filter((field) => STKindChecker.isRecordField(field)) as RecordField[];
+    const srcFields = targetType.fields;
 
     // TODO: Dynamically generate the identifier name instead of 'item'
     return `from var item in ${srcExpr}
         select {
-            ${targetFields.map((field, index) => `${field.fieldName.value}: ${(index !== targetFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
+            ${targetType.fields.map((field, index) => `${field.name}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
         }
     `
 }

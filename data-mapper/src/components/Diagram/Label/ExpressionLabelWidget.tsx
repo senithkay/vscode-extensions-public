@@ -5,16 +5,21 @@ import { Tooltip } from '@material-ui/core';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
-import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
-import { getTypeDescForFieldName } from "../../../utils/st-utils";
+import { CodeActionWidget } from '../CodeAction/CodeAction';
+import { DataMapperLinkModel } from "../Link";
+import {
+	canConvertLinkToQueryExpr,
+	generateQueryExpression
+} from '../Link/link-utils';
+import { RecordFieldPortModel, SpecificFieldPortModel } from '../Port';
+import { handleCodeActions } from "../utils/ls-utils";
+import { RecordTypeDescriptorStore } from "../utils/record-type-descriptor-store";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 
-import { canConvertLinkToQueryExpr, generateQueryExpression } from '../Link/link-utils';
-import { DataMapperPortModel } from '../Port';
-import { handleCodeActions } from '../utils/ls-utils';
-import { CodeActionWidget } from '../CodeAction/CodeAction';
 
 export interface FlowAliasLabelWidgetProps {
 	model: ExpressionLabelModel;
@@ -47,49 +52,61 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 	React.useEffect(() => {
 		async function genModel() {
-			const actions = (await handleCodeActions(props.model.context.filePath, props.model.link?.diagnostics,props.model.context.langClientPromise))
+			const actions = (await handleCodeActions(props.model.context.filePath, props.model.link?.diagnostics, props.model.context.langClientPromise))
 			setCodeActions(actions)
         }
-        genModel();
+		genModel();
 	}, [props.model]);
 
 	const onClickConvertToQuery = async () => {
 		if (canUseQueryExpr) {
 			const link = props.model.link;
-			const targetPort = link.getTargetPort() as DataMapperPortModel;
-			let targetTypeDesc;
+			const targetPort = link.getTargetPort() instanceof RecordFieldPortModel
+				? link.getTargetPort() as RecordFieldPortModel
+				: link.getTargetPort() as SpecificFieldPortModel;
 
-			if (STKindChecker.isRecordField(targetPort.field)
-				&& STKindChecker.isArrayTypeDesc(targetPort.field.typeName)
-				&& STKindChecker.isRecordTypeDesc(targetPort.field.typeName.memberTypeDesc)
-			) {
-				targetTypeDesc = targetPort.field.typeName.memberTypeDesc;
-			} else if (STKindChecker.isSpecificField(targetPort.field)) {
-				const targetType = await getTypeDescForFieldName(targetPort.field.fieldName, props.model.context);
-				if (STKindChecker.isRecordTypeDesc(targetType)) {
-					targetTypeDesc = targetType;
+			if (targetPort instanceof SpecificFieldPortModel) {
+				const fieldNamePosition = targetPort.field.fieldName.position;
+				const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+				const targetType = recordTypeDescriptors.getTypeDescriptor({
+					startLine: fieldNamePosition.startLine,
+					startColumn: fieldNamePosition.startColumn,
+					endLine: fieldNamePosition.startLine,
+					endColumn: fieldNamePosition.startColumn
+				});
+				if (targetType && targetType.typeName === 'array' && targetType.memberType.typeName === 'record')
+				{
+					applyQueryExpression(link, targetType.memberType);
 				}
-			}
-			if (link.value && targetTypeDesc) {
-				const querySrc = generateQueryExpression(link.value.source, targetTypeDesc);
-				const position = link.value.position as NodePosition;
-				const applyModification = props.model.context.applyModifications;
-				applyModification([{
-					type: "INSERT",
-					config: {
-						"STATEMENT": querySrc,
-					},
-					endColumn: position.endColumn,
-					endLine: position.endLine,
-					startColumn: position.startColumn,
-					startLine: position.startLine
-				}]);
+			} else if (targetPort instanceof RecordFieldPortModel) {
+				const field = targetPort.field;
+				if (field.typeName === 'array' && field.memberType.typeName === 'record') {
+					applyQueryExpression(link, field.memberType);
+				}
 			}
 		}
 	};
 
 	const onClickDelete = () => {
 		// TODO implement the delete link logic
+	};
+
+	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: FormField) => {
+		if (link.value) {
+			const querySrc = generateQueryExpression(link.value.source, targetRecord);
+			const position = link.value.position as NodePosition;
+			const applyModification = props.model.context.applyModifications;
+			applyModification([{
+				type: "INSERT",
+				config: {
+					"STATEMENT": querySrc,
+				},
+				endColumn: position.endColumn,
+				endLine: position.endLine,
+				startColumn: position.startColumn,
+				startLine: position.startLine
+			}]);
+		}
 	};
 
 	React.useEffect(() => {

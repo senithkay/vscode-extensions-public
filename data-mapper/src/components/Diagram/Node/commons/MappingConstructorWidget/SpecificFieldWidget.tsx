@@ -1,16 +1,13 @@
 import React, { useState } from "react";
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
-// tslint:disable-next-line: no-implicit-dependencies
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-
-import { DataMapperPortWidget } from "../../../Port/view/DataMapperPortWidget";
-import { DataMapperPortModel } from "../../../Port/model/DataMapperPortModel";
-import { getFieldTypeName } from "../../../utils";
+import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
+import { getFieldTypeName } from "../../../utils/dm-utils";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -24,7 +21,7 @@ const useStyles = makeStyles((theme: Theme) =>
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
             border: "1px solid #DEE0E7",
-            display:"flex",
+            display: "flex",
             minHeight: "24px",
             boxShadow: '0 2px 40px 0 rgba(102,103,133,0.15)',
         },
@@ -57,7 +54,7 @@ const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             backgroundColor: "#FFFFFF",
         },
-        group:{
+        group: {
             marginLeft: "0px",
             paddingLeft: "0px",
             paddingBottom: "5px"
@@ -74,14 +71,14 @@ export interface SpecificFieldWidgetProps {
     parentId: string;
     field: SpecificField;
     engine: DiagramEngine;
-    getPort: (portId: string) => DataMapperPortModel;
+    getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
     treeDepth?: number;
 }
 
 export function SpecificFieldWidget(props: SpecificFieldWidgetProps) {
     const { parentId, field, getPort, engine, treeDepth = 0 } = props;
     const classes = useStyles();
-    
+
     const fieldId = `${parentId}.${field.fieldName.value}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
@@ -98,7 +95,7 @@ export function SpecificFieldWidget(props: SpecificFieldWidgetProps) {
     const label = (
         <span style={{ marginRight: "auto"}} >
             <span className={classes.valueLable} style={{marginLeft: indentation}}>
-                { field.fieldName.value}
+                {field.fieldName.value}
                 {typeName && ":"}
             </span>
             {typeName &&
@@ -106,15 +103,15 @@ export function SpecificFieldWidget(props: SpecificFieldWidgetProps) {
                     {typeName}
                 </span>
             }
-            
+
         </span>
     );
 
     const handleExpand = () => {
-        //TODO Enable expand collapse functionality
+        // TODO Enable expand collapse functionality
         // setExpanded(!expanded)
     }
-    
+
     return (
         <>
             <div className={classes.treeLabel}>
@@ -125,10 +122,10 @@ export function SpecificFieldWidget(props: SpecificFieldWidgetProps) {
                 </span>
                 {expandable &&
                     (expanded ? (
-                        <ExpandMoreIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
-                    ):
+                        <ExpandMoreIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                    ) :
                     (
-                        <ChevronRightIcon style={{color:"black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                        <ChevronRightIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                     ))
                 }
                 <span> {label}</span>

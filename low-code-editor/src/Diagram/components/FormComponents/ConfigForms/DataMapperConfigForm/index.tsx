@@ -67,13 +67,15 @@ export function DataMapperConfigForm(props: DataMapperProps) {
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
 
     useEffect(() => {
-        if (model && STKindChecker.isFunctionDefinition(model)) {
-            handleFunctionST(model.functionName.value).then();
-        } else if (!!functionST) {
-            handleFunctionST(functionST.functionName.value).then();
-        } else {
-            createFunctionST().then();
-        }
+        (async () => {
+            if (model && STKindChecker.isFunctionDefinition(model)) {
+                handleFunctionST(model.functionName.value).then();
+            } else if (!!functionST) {
+                handleFunctionST(functionST.functionName.value).then();
+            } else {
+                createFunctionST().then();
+            }
+        })();
     }, [currentFile.content]);
 
     const handleFunctionST = async (funcName: string) => {
@@ -135,6 +137,8 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                 <DataMapper
                     fnST={functionST}
                     langClientPromise={getDiagramEditorLangClient}
+                    getLangClient={getDiagramEditorLangClient}
+                    getEELangClient={getExpressionEditorLangClient}
                     filePath={currentFile.path}
                     currentFile={currentFile}
                     stSymbolInfo={stSymbolInfo}

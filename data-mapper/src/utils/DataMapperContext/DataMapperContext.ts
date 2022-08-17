@@ -1,5 +1,6 @@
 import {
     DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -13,6 +14,7 @@ export interface IDataMapperContext {
     selection: SelectionState;
     filePath: string;
     langClientPromise: () => Promise<DiagramEditorLangClientInterface>;
+    getEELangClient: () => Promise<ExpressionEditorLangClientInterface>;
     currentFile?: {
         content: string,
         path: string,
@@ -31,6 +33,7 @@ export class DataMapperContext implements IDataMapperContext {
         private _functionST: FunctionDefinition,
         private _selection: SelectionState,
         public langClientPromise: () => Promise<DiagramEditorLangClientInterface>,
+        public getEELangClient: () => Promise<ExpressionEditorLangClientInterface>,
         public currentFile: {
             content: string,
             path: string,
