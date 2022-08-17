@@ -1,5 +1,6 @@
 import { Canvas } from "../../utils/components/canvas";
 import { SourceCode } from "../../utils/components/code-view";
+import { ConfirmWindow } from "../../utils/components/confirm-window";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { OtherForm } from "../../utils/forms/other-form";
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
@@ -16,14 +17,9 @@ describe('Test editing and deleting a module level other component', () => {
             .getOtherComponent()
             .edit();
 
-        OtherForm
+        ConfirmWindow
             .shouldBeVisible()
-            .clearStatement();
-
-        OtherForm
-            .shouldBeVisible()
-            .typeStatement(`const annotation AnnotationData MyAnnot2 on function;`)
-            .save();
+            .clickYes();
 
         SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "edit-other.expected.bal");
     });
