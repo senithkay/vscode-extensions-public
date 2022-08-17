@@ -79,7 +79,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const dagreEngine = new DagreEngine({
 		graph: {
 			rankdir: 'LR',
-			ranksep: 500,
+			ranksep: 600,
 			align: 'UL',
 			nodesep: 300,
 			ranker: 'longest-path',

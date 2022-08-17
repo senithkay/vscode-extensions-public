@@ -68,7 +68,6 @@ const styles = (theme: Theme) => createStyles({
     buttonWrapper: {
         border: '1px solid #e6e7ec',
         borderRadius: '8px',
-        position: "absolute",
         right: "35px"
     }
 });
