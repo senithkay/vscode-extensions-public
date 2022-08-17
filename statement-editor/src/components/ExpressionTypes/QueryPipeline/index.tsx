@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { NodePosition, QueryPipeline, STNode } from "@wso2-enterprise/syntax-tree";
@@ -19,6 +20,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
+import { useStatementRendererStyles } from "../../styles";
 
 interface QueryPipelineProps {
     model: QueryPipeline;
@@ -32,6 +34,8 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
             updateModel
         }
     } = useContext(StatementEditorContext);
+
+    const statementRendererClasses = useStatementRendererStyles();
 
     const [isHovered, setHovered] = React.useState(false);
 
@@ -60,11 +64,8 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
         <>
             <span onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
                 <ExpressionComponent model={model.fromClause} />
-                <NewExprAddButton
-                    model={model.fromClause}
-                    onClick={addNewExpression}
-                    classNames={isHovered ? "view" : "hide"}
-                />
+                {(isHovered) ? <NewExprAddButton model={model.fromClause} onClick={addNewExpression}/>
+                             : <span className={statementRendererClasses.plusEmptySpace}>&nbsp;</span>}
             </span>
             <br/>
             <ExpressionArrayComponent

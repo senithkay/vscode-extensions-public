@@ -238,6 +238,14 @@ export const useStatementRendererStyles = makeStyles(() =>
                 display: "none"
             }
         },
+        plusEmptySpace: {
+            boxSizing: 'border-box',
+            borderRadius: '4px',
+            position: 'relative',
+            width: 'fit-content',
+            margin: '0px 2px',
+            padding: '0px 4px'
+        },
         errorHighlight: {
             backgroundImage: `linear-gradient(45deg, transparent 65%, red 80%, transparent 90%),
                 linear-gradient(135deg, transparent 5%, red 15%, transparent 25%),
