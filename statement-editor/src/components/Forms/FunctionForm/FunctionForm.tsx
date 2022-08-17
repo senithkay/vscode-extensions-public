@@ -26,7 +26,6 @@ import {
     dynamicConnectorStyles as connectorStyles,
     FormActionButtons,
     FormHeaderSection,
-    useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     DefaultableParam,
@@ -59,7 +58,6 @@ export function FunctionForm(props: FunctionProps) {
 
     const { targetPosition, isEdit, type, onChange, applyModifications, onCancel, getLangClient } = useContext(FormEditorContext);
 
-    const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();
     const isMainFunction = (type === "Main");
 
@@ -96,7 +94,12 @@ export function FunctionForm(props: FunctionProps) {
             { codeSnippet: updatedContent.trim() }, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {
-            setCurrentComponentSyntaxDiag(undefined);
+            if (/\s+/.test(funcName)) {
+                // This is to check whether function name contains any spaces. If it contains any marks as syntax error
+                setCurrentComponentSyntaxDiag([{message: "Space characters are not allowed"}]);
+            } else {
+                setCurrentComponentSyntaxDiag(undefined);
+            }
             if (newValue && currentModel) {
                 onChange(updatedContent, partialST, undefined, currentModel, newValue, completionKinds);
             } else {
@@ -395,7 +398,7 @@ export function FunctionForm(props: FunctionProps) {
     const contentRenderCondition = functionName || returnType;
 
     return (
-        <FormControl data-testid="function-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="function-form" className={connectorClasses.wizardFormControlExtended}>
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"Function Configuration"}
