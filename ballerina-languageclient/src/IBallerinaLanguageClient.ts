@@ -735,12 +735,60 @@ export interface SymbolInfoResponse {
     documentation : SymbolDocumentation
 }
 
-export interface ExpressionTypeDescRequest {
-    documentIdentifier: {
-        uri: string;
+export interface DiagramDiagnostic {
+    message: string;
+    diagnosticInfo: {
+        code: string;
+        severity: string;
     };
-    startPosition: LinePosition;
-    endPosition: LinePosition;
+    range: NodePosition;
+}
+
+export interface NonPrimitiveBal {
+    orgName: string;
+    moduleName: string;
+    name: string;
+    version?: string;
+}
+
+export interface Type {
+    typeName: string;
+    name?: string;
+    displayName?: string;
+    memberType?: Type;
+    inclusionType?: Type;
+    paramType?: Type;
+    selectedDataType?: string;
+    description?: string;
+    defaultValue?: any;
+    value?: any;
+    optional?: boolean;
+    defaultable?: boolean;
+    fields?: Type[];
+    members?: Type[];
+    references?: Type[];
+    isReturn?: boolean;
+    isTypeDef?: boolean;
+    isReference?: boolean;
+    isStream?: boolean;
+    typeInfo?: NonPrimitiveBal;
+    hide?: boolean;
+    aiSuggestion?: string;
+    noCodeGen?: boolean;
+    requestName?: string;
+    tooltip?: string;
+    tooltipActionLink?: string;
+    tooltipActionText?: string;
+    isErrorType?: boolean;
+    isRestParam?: boolean;
+    customAutoComplete?: string[];
+    validationRegex?: any;
+    leftTypeParam?: any;
+    rightTypeParam?: any;
+    initialDiagnostics?: DiagramDiagnostic[];
+    documentation?: string;
+    position?: NodePosition;
+    selected?: boolean;
 }
 
 export interface ExpressionRange {
@@ -757,7 +805,7 @@ export interface TypeFromExpressionRequest {
 }
 
 export interface ResolvedTypeForExpression {
-    type: FormField;
+    type: Type;
     requestedRange: ExpressionRange;
 }
 

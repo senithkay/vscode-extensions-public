@@ -1,5 +1,5 @@
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
 	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
@@ -54,8 +54,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initLinks(): void;
 	// extend this class to add link init, port init logics
 
-	protected addPortsForSpecificField(field: SpecificField,
-		                                  type: "IN" | "OUT", parentId: string, parent?: SpecificFieldPortModel) {
+	protected addPortsForSpecificField(field: SpecificField, type: "IN" | "OUT", parentId: string,
+									                           parent?: SpecificFieldPortModel) {
 		const fieldId = `${parentId}.${field.fieldName.value}`;
 		if (STKindChecker.isSpecificField(field)) {
 			const fieldPort = new SpecificFieldPortModel(field, type, parentId, "", parent);
@@ -70,15 +70,15 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected addPortsForFormField(field: FormField, type: "IN" | "OUT", parentId: string,
-								                        parentFieldAccessExpr?: string, parent?: RecordFieldPortModel) {
+	protected addPortsForRecordField(field: Type, type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string,
+									                         parent?: RecordFieldPortModel) {
 		const fieldId = `${parentId}.${field.name}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.name}`;
 		const fieldPort = new RecordFieldPortModel(field, type, parentId, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
 		if (field.typeName === 'record') {
 			field.fields.forEach((subField) => {
-				this.addPortsForFormField(subField, type, fieldId, fieldAccessExpr, fieldPort);
+				this.addPortsForRecordField(subField, type, fieldId, fieldAccessExpr, fieldPort);
 			});
 		}
 	}

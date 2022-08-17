@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
     FromClause,
@@ -28,7 +28,7 @@ export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
 export class FromClauseNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
-    public typeDef: FormField;
+    public typeDef: Type;
     public sourceBindingPattern: CaptureBindingPattern;
 
     constructor(
@@ -48,7 +48,7 @@ export class FromClauseNode extends DataMapperNodeModel {
             if (this.typeDef && this.typeDef.typeName === 'record') {
                 const fields = this.typeDef.fields;
                 fields.forEach((subField) => {
-                    this.addPortsForFormField(subField, "OUT", parentId, this.sourceBindingPattern.variableName.value);
+                    this.addPortsForRecordField(subField, "OUT", parentId, this.sourceBindingPattern.variableName.value);
                 });
             }
         }

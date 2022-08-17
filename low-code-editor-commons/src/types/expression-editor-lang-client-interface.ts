@@ -14,7 +14,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeAction, CodeActionParams, Diagnostic  } from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
-import { FormField } from "./config-spec";
+import { Type } from "./data-mapper";
 import { BallerinaProjectParams } from "./lang-client-extended";
 
 export interface CompletionParams {
@@ -140,7 +140,7 @@ export interface TypeFromExpressionRequest {
 }
 
 export interface ResolvedTypeForExpression {
-    type: FormField;
+    type: Type;
     requestedRange: ExpressionRange;
 }
 
@@ -156,7 +156,7 @@ export interface TypeFromSymbolRequest {
 }
 
 export interface ResolvedTypeForSymbol {
-    type: FormField;
+    type: Type;
     requestedPosition: LinePosition;
 }
 

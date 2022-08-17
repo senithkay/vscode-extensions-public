@@ -98,16 +98,6 @@ export interface LinePosition {
     offset: number;
 }
 
-export interface ExpressionTypeRequest {
-    documentIdentifier: { uri: string; };
-    position: LinePosition;
-}
-
-export interface ExpressionTypeResponse {
-    documentIdentifier: { uri: string; };
-    types: string[];
-}
-
 export interface BallerinaExample {
     title: string;
     url: string;
@@ -409,6 +399,62 @@ export interface BallerinaConstruct {
     icon?: string;
 }
 
+export interface DiagramDiagnostic {
+    message: string;
+    diagnosticInfo: {
+        code: string;
+        severity: string;
+    };
+    range: NodePosition;
+}
+
+export interface NonPrimitiveBal {
+    orgName: string;
+    moduleName: string;
+    name: string;
+    version?: string;
+}
+
+export interface Type {
+    typeName: string;
+    name?: string;
+    displayName?: string;
+    memberType?: Type;
+    inclusionType?: Type;
+    paramType?: Type;
+    selectedDataType?: string;
+    description?: string;
+    defaultValue?: any;
+    value?: any;
+    optional?: boolean;
+    defaultable?: boolean;
+    fields?: Type[];
+    members?: Type[];
+    references?: Type[];
+    isReturn?: boolean;
+    isTypeDef?: boolean;
+    isReference?: boolean;
+    isStream?: boolean;
+    typeInfo?: NonPrimitiveBal;
+    hide?: boolean;
+    aiSuggestion?: string;
+    noCodeGen?: boolean;
+    requestName?: string;
+    tooltip?: string;
+    tooltipActionLink?: string;
+    tooltipActionText?: string;
+    isErrorType?: boolean;
+    isRestParam?: boolean;
+    customAutoComplete?: string[];
+    validationRegex?: any;
+    leftTypeParam?: any;
+    rightTypeParam?: any;
+    initialDiagnostics?: DiagramDiagnostic[];
+    documentation?: string;
+    position?: NodePosition;
+    selected?: boolean;
+}
+
 export interface ExpressionRange {
     startLine: LinePosition;
     endLine: LinePosition;
@@ -423,7 +469,7 @@ export interface TypeFromExpressionRequest {
 }
 
 export interface ResolvedTypeForExpression {
-    type: FormField;
+    type: Type;
     requestedRange: ExpressionRange;
 }
 
@@ -439,7 +485,7 @@ export interface TypeFromSymbolRequest {
 }
 
 export interface ResolvedTypeForSymbol {
-    type: FormField;
+    type: Type;
     requestedPosition: LinePosition;
 }
 

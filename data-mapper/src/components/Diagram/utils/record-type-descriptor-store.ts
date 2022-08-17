@@ -13,8 +13,8 @@
 import {
     ExpressionEditorLangClientInterface,
     ExpressionRange,
-    FormField,
-    LinePosition
+    LinePosition,
+    Type
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
@@ -28,7 +28,7 @@ import { RecordTypeFindingVisitor } from "../visitors/RecordTypeFindingVisitor";
 
 export class RecordTypeDescriptorStore {
 
-    recordTypeDescriptors: Map<NodePosition, FormField>
+    recordTypeDescriptors: Map<NodePosition, Type>
     static instance : RecordTypeDescriptorStore;
 
     private constructor() {
@@ -86,7 +86,7 @@ export class RecordTypeDescriptorStore {
         }
     }
 
-    async setTypeDescriptors(type: FormField, startPosition: LinePosition, endPosition?: LinePosition) {
+    async setTypeDescriptors(type: Type, startPosition: LinePosition, endPosition?: LinePosition) {
         if (type) {
             const position: NodePosition = {
                 startLine: startPosition.line,
@@ -98,7 +98,7 @@ export class RecordTypeDescriptorStore {
         }
     }
 
-    public getTypeDescriptor(position : NodePosition) : FormField {
+    public getTypeDescriptor(position : NodePosition) : Type {
         for (const [key, value] of this.recordTypeDescriptors) {
             if (isPositionsEquals(key, position)) {
                 return value;

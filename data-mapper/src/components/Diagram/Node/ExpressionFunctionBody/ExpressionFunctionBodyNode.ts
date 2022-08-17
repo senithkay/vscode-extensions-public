@@ -1,4 +1,4 @@
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	ExpressionFunctionBody,
 	FieldAccess,
@@ -24,7 +24,7 @@ export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 
 export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
-    public typeDef: FormField;
+    public typeDef: Type;
 
     constructor(
         public context: IDataMapperContext,
@@ -48,7 +48,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
         if (this.typeDef && this.typeDef.typeName === 'record') {
             const fields = this.typeDef.fields;
             fields.forEach((subField) => {
-                this.addPortsForFormField(subField, "IN", "exprFunctionBody");
+                this.addPortsForRecordField(subField, "IN", "exprFunctionBody");
             });
         }
     }
@@ -97,7 +97,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
     private getOutputPortForField(fields: SpecificField[]) {
         let nextTypeNode = this.typeDef;
-        let recField: FormField;
+        let recField: Type;
         let portIdBuffer = "exprFunctionBody";
         for (let i = 0; i < fields.length; i++) {
             const specificField = fields[i];
@@ -127,7 +127,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
         if (typeDesc.typeName === 'record') {
             if (STKindChecker.isFieldAccess(expr)) {
                 const fieldNames = getFieldNames(expr);
-                let nextTypeNode: FormField = typeDesc;
+                let nextTypeNode: Type = typeDesc;
                 for (let i = 1; i < fieldNames.length; i++) {
                     const fieldName = fieldNames[i];
                     portIdBuffer += `.${fieldName}`;

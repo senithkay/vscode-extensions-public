@@ -1,5 +1,5 @@
 import { PortModel } from "@projectstorm/react-diagrams-core";
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
@@ -13,14 +13,14 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
         const fieldType = sourcePort.field.typeName;
         return STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc);
     } else if (sourcePort instanceof RecordFieldPortModel) {
-        const formField = sourcePort.field;
-        return formField.typeName === 'array' && formField.memberType.typeName === 'record';
+        const type = sourcePort.field;
+        return type.typeName === 'array' && type.memberType.typeName === 'record';
     }
 
     return false;
 }
 
-export function generateQueryExpression(srcExpr: string, targetType: FormField) {
+export function generateQueryExpression(srcExpr: string, targetType: Type) {
 
     const srcFields = targetType.fields;
 

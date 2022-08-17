@@ -11,21 +11,21 @@
  * associated services.
  */
 import { LinkModel, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperLinkModel } from "../../Link";
 import { createSpecificFieldSource } from "../../utils/dm-utils";
 
-export interface FormFieldNodeModelGenerics {
+export interface RecordFieldNodeModelGenerics {
 	PORT: RecordFieldPortModel;
 }
 
 export const FORM_FIELD_PORT = "form-field-port";
 
-export class RecordFieldPortModel extends PortModel<PortModelGenerics & FormFieldNodeModelGenerics> {
+export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFieldNodeModelGenerics> {
 
 	constructor(
-		public field: FormField,
+		public field: Type,
 		public portType: "IN" | "OUT",
 		public parentId: string,
 		public parentFieldAccess?: string,

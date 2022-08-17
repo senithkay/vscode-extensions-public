@@ -1,4 +1,4 @@
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { RequiredParam } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -8,7 +8,7 @@ import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 export const REQ_PARAM_NODE_TYPE = "datamapper-node-required-param";
 
 export class RequiredParamNode extends DataMapperNodeModel {
-    public typeDef: FormField;
+    public typeDef: Type;
 
     constructor(
         public context: IDataMapperContext,
@@ -32,7 +32,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
         if (this.typeDef && this.typeDef.typeName === 'record') {
             const fields = this.typeDef.fields;
             fields.forEach((subField) => {
-                this.addPortsForFormField(subField, "OUT", this.value.paramName.value, this.value.paramName.value);
+                this.addPortsForRecordField(subField, "OUT", this.value.paramName.value, this.value.paramName.value);
             });
         }
     }

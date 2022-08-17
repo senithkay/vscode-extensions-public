@@ -1,4 +1,4 @@
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { CaptureBindingPattern, QueryExpression, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 
@@ -23,7 +23,7 @@ export const QUERY_TARGET_PORT_PREFIX = "queryExpr.target";
 
 export class QueryExpressionNode extends DataMapperNodeModel {
 
-    public sourceTypeDesc: FormField;
+    public sourceTypeDesc: Type;
     public sourcePort: RecordFieldPortModel;
     public targetPort: RecordFieldPortModel;
 
@@ -64,7 +64,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         if (this.sourceBindingPattern) {
             const parentId = `${QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
             this.sourceTypeDesc.fields.forEach((field) => {
-                this.addPortsForFormField(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
+                this.addPortsForRecordField(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
             });
         }
     }
