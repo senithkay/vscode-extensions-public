@@ -744,8 +744,9 @@ export interface ExpressionTypeDescRequest {
 }
 
 export interface ExpressionRange {
-    startPosition: LinePosition;
-    endPosition: LinePosition;
+    startLine: LinePosition;
+    endLine: LinePosition;
+    filePath?: string;
 }
 
 export interface TypeFromExpressionRequest {

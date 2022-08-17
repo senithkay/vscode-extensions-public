@@ -51,11 +51,11 @@ export class RecordTypeFindingVisitor implements Visitor {
     public beginVisitFromClause(node: FromClause, parent?: STNode) {
         const typePosition = node.expression.position;
         this.expressionNodeRanges.push({
-            startPosition: {
+            startLine: {
                 line: typePosition.startLine,
                 offset: typePosition.startColumn
             },
-            endPosition: {
+            endLine: {
                 line: typePosition.endLine,
                 offset: typePosition.endColumn
             }

@@ -127,8 +127,9 @@ export interface SymbolInfoResponse {
 }
 
 export interface ExpressionRange {
-    startPosition: LinePosition;
-    endPosition: LinePosition;
+    startLine: LinePosition;
+    endLine: LinePosition;
+    filePath?: string;
 }
 
 export interface TypeFromExpressionRequest {

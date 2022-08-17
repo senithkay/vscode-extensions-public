@@ -67,7 +67,7 @@ export class RecordTypeDescriptorStore {
         });
 
         for (const {type, requestedRange} of typesFromExpression.types) {
-            await this.setTypeDescriptors(type, requestedRange.startPosition, requestedRange.endPosition);
+            await this.setTypeDescriptors(type, requestedRange.startLine, requestedRange.endLine);
         }
     }
 
