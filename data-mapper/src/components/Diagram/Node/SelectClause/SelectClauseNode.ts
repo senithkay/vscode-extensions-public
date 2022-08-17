@@ -25,7 +25,7 @@ import { isPositionsEquals } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
-import { FormFieldPortModel } from "../../Port";
+import { RecordFieldPortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
@@ -77,7 +77,7 @@ export class SelectClauseNode extends DataMapperNodeModel {
                 if (sourceNode) {
                     const fieldNames = getFieldNames(value);
                     const sourcePortId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
-                    sourcePort = sourceNode.getPort(sourcePortId) as FormFieldPortModel;
+                    sourcePort = sourceNode.getPort(sourcePortId) as RecordFieldPortModel;
                 }
                 const link = new DataMapperLinkModel(value);
                 link.setSourcePort(sourcePort);

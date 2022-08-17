@@ -11,11 +11,11 @@ import {
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
-import { FormFieldPortModel, SpecificFieldPortModel } from "../../Port";
+import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
 import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
 
 export interface DataMapperNodeModelGenerics {
-	PORT: SpecificFieldPortModel | FormFieldPortModel;
+	PORT: SpecificFieldPortModel | RecordFieldPortModel;
 }
 
 export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | BooleanTypeDesc | ByteTypeDesc | DecimalTypeDesc
@@ -71,10 +71,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForFormField(field: FormField, type: "IN" | "OUT", parentId: string,
-								                        parentFieldAccessExpr?: string, parent?: FormFieldPortModel) {
+								                        parentFieldAccessExpr?: string, parent?: RecordFieldPortModel) {
 		const fieldId = `${parentId}.${field.name}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.name}`;
-		const fieldPort = new FormFieldPortModel(field, type, parentId, parentFieldAccessExpr, parent);
+		const fieldPort = new RecordFieldPortModel(field, type, parentId, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
 		if (field.typeName === 'record') {
 			field.fields.forEach((subField) => {

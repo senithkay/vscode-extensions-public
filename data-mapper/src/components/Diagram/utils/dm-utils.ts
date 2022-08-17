@@ -4,7 +4,7 @@ import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, Reco
 import { DataMapperLinkModel } from "../Link";
 import { ExpressionFunctionBodyNode, QueryExpressionNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { FormFieldPortModel, SpecificFieldPortModel } from "../Port";
+import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
@@ -42,11 +42,11 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	let rhs = "";
 	const modifications: STModification[] = [];
 	if (link.getSourcePort()) {
-		const sourcePort = link.getSourcePort() instanceof FormFieldPortModel
-			? link.getSourcePort() as FormFieldPortModel
+		const sourcePort = link.getSourcePort() instanceof RecordFieldPortModel
+			? link.getSourcePort() as RecordFieldPortModel
 			: link.getSourcePort() as SpecificFieldPortModel;
 
-		rhs = sourcePort instanceof FormFieldPortModel
+		rhs = sourcePort instanceof RecordFieldPortModel
 			? sourcePort.field.name
 			: sourcePort.field.fieldName.value;
 
@@ -56,8 +56,8 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	}
 
 	if (link.getTargetPort()) {
-		const targetPort = link.getTargetPort() instanceof FormFieldPortModel
-			? link.getTargetPort() as FormFieldPortModel
+		const targetPort = link.getTargetPort() instanceof RecordFieldPortModel
+			? link.getTargetPort() as RecordFieldPortModel
 			: link.getTargetPort() as SpecificFieldPortModel;
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
 
@@ -74,7 +74,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				startColumn: targetPos.startColumn,
 				startLine: targetPos.startLine
 			});
-		} else if (targetPort instanceof FormFieldPortModel) {
+		} else if (targetPort instanceof RecordFieldPortModel) {
 			// Inserting a new specific field
 			let mappingConstruct;
 			const parentFieldNames: string[] = [];

@@ -13,7 +13,7 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
-import { FormFieldPortModel } from "../../Port";
+import { RecordFieldPortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -66,7 +66,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
                 return;
             }
             const inputNode = this.getInputNodeExpr(value);
-            let inPort: FormFieldPortModel;
+            let inPort: RecordFieldPortModel;
             if (inputNode) {
                 inPort = this.getInputPortsForExpr(inputNode, value);
             }
@@ -120,7 +120,8 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     }
 
     // Improve to return multiple ports for complex expressions
-    private getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess | SimpleNameReference): FormFieldPortModel {
+    private getInputPortsForExpr(node: RequiredParamNode
+                                 , expr: FieldAccess | SimpleNameReference): RecordFieldPortModel {
         const typeDesc = node.typeDef;
         let portIdBuffer = node.value.paramName.value;
         if (typeDesc.typeName === 'record') {
@@ -135,7 +136,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
                     if (recField) {
                         if (i === fieldNames.length - 1) {
                             const portId = portIdBuffer + ".OUT";
-                            const port = (node.getPort(portId) as FormFieldPortModel);
+                            const port = (node.getPort(portId) as RecordFieldPortModel);
                             return port;
                         } else if (recField.typeName === 'record') {
                             nextTypeNode = recField;

@@ -4,14 +4,14 @@ import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 
-import { DataMapperLinkModel } from "../../Link/model/DataMapperLink"
+import { DataMapperLinkModel } from "../../Link"
 import { IntermediatePortModel } from "../IntermediatePort";
-import { FormFieldPortModel } from "../model/FormFieldPortModel";
+import { RecordFieldPortModel } from "../model/RecordFieldPortModel";
 import { SpecificFieldPortModel } from "../model/SpecificFieldPortModel";
 
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
-	port: IntermediatePortModel | SpecificFieldPortModel | FormFieldPortModel;
+	port: IntermediatePortModel | SpecificFieldPortModel | RecordFieldPortModel;
 }
 
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {

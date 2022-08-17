@@ -4,7 +4,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { MappingConstructor, RecordTypeDesc, SpecificField, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
-import { FormFieldPortModel, SpecificFieldPortModel } from '../../../Port';
+import { RecordFieldPortModel, SpecificFieldPortModel } from '../../../Port';
 
 import { SpecificFieldWidget } from './SpecificFieldWidget';
 
@@ -26,7 +26,7 @@ export interface MappingConstructorWidgetProps {
 	typeDesc?: RecordTypeDesc;
 	value: MappingConstructor;
 	engine: DiagramEngine;
-	getPort: (portId: string) => SpecificFieldPortModel | FormFieldPortModel;
+	getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
 }
 
 

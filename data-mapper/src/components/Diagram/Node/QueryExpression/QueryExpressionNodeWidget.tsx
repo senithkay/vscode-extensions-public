@@ -20,7 +20,7 @@ import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import ExpandIcon from "../../../../assets/icons/ExpandIcon";
 import { ViewOption } from "../../../DataMapper/DataMapper";
-import { DataMapperPortWidget, FormFieldPortModel, SpecificFieldPortModel } from '../../Port';
+import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from '../../Port';
 import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 
@@ -86,11 +86,11 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
         const engine = this.props.engine;
 
         const getSourcePort = (portId: string) => {
-            return node.getPort(portId) as SpecificFieldPortModel | FormFieldPortModel;
+            return node.getPort(portId) as SpecificFieldPortModel | RecordFieldPortModel;
         }
 
         const getTargetPort = (portId: string) => {
-            return node.getPort(portId) as SpecificFieldPortModel | FormFieldPortModel;
+            return node.getPort(portId) as SpecificFieldPortModel | RecordFieldPortModel;
         }
 
         const onClickOnExpand = () => {

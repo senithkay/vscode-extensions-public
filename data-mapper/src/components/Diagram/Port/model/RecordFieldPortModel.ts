@@ -17,19 +17,19 @@ import { DataMapperLinkModel } from "../../Link";
 import { createSpecificFieldSource } from "../../utils/dm-utils";
 
 export interface FormFieldNodeModelGenerics {
-	PORT: FormFieldPortModel;
+	PORT: RecordFieldPortModel;
 }
 
 export const FORM_FIELD_PORT = "form-field-port";
 
-export class FormFieldPortModel extends PortModel<PortModelGenerics & FormFieldNodeModelGenerics> {
+export class RecordFieldPortModel extends PortModel<PortModelGenerics & FormFieldNodeModelGenerics> {
 
 	constructor(
 		public field: FormField,
 		public portType: "IN" | "OUT",
 		public parentId: string,
 		public parentFieldAccess?: string,
-		public parentModel?: FormFieldPortModel) {
+		public parentModel?: RecordFieldPortModel) {
 		super({
 			type: FORM_FIELD_PORT,
 			name: `${parentId}.${field.name}.${portType}`,
@@ -49,7 +49,7 @@ export class FormFieldPortModel extends PortModel<PortModelGenerics & FormFieldN
 		return lm;
 	}
 
-	canLinkToPort(port: FormFieldPortModel): boolean {
+	canLinkToPort(port: RecordFieldPortModel): boolean {
 		return this.portType !== port.portType;
 	}
 }

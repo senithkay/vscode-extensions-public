@@ -5,7 +5,7 @@ import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { FormFieldPortModel, IntermediatePortModel, SpecificFieldPortModel } from "../../Port";
+import { IntermediatePortModel, RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -24,8 +24,8 @@ export const QUERY_TARGET_PORT_PREFIX = "queryExpr.target";
 export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: FormField;
-    public sourcePort: FormFieldPortModel;
-    public targetPort: FormFieldPortModel;
+    public sourcePort: RecordFieldPortModel;
+    public targetPort: RecordFieldPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
@@ -103,13 +103,13 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
                 this.getModel().getNodes().map((node) => {
                     if (node instanceof RequiredParamNode && node.value.paramName.value === fieldNames[0]) {
-                        this.sourcePort = node.getPort(fieldId + ".OUT") as FormFieldPortModel;
+                        this.sourcePort = node.getPort(fieldId + ".OUT") as RecordFieldPortModel;
                     } else if (node instanceof FromClauseNode
                         && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)
                         && node.value.typedBindingPattern.bindingPattern.source.trim() === fieldNames[0].trim())
                     {
                         this.sourcePort = node.getPort(
-                            `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as FormFieldPortModel;
+                            `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
                     }
                 });
             }
@@ -189,7 +189,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
         // TODO - temp hack to render link
         if (this.outPort) {
-            let targetPort: SpecificFieldPortModel | FormFieldPortModel;
+            let targetPort: SpecificFieldPortModel | RecordFieldPortModel;
             this.getModel().getNodes().map((node) => {
                     if (node instanceof ExpressionFunctionBodyNode) {
                         const ports = Object.entries(node.getPorts());
@@ -201,7 +201,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                                         targetPort = port;
                                     }
                                 }
-                            } else if (port instanceof FormFieldPortModel && port.field.name === 'Assets') {
+                            } else if (port instanceof RecordFieldPortModel && port.field.name === 'Assets') {
                                 targetPort = port;
                             }
                         });

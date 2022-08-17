@@ -14,7 +14,7 @@ import {
 	canConvertLinkToQueryExpr,
 	generateQueryExpression
 } from '../Link/link-utils';
-import { FormFieldPortModel, SpecificFieldPortModel } from '../Port';
+import { RecordFieldPortModel, SpecificFieldPortModel } from '../Port';
 import { handleCodeActions } from "../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../utils/record-type-descriptor-store";
 
@@ -61,8 +61,8 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const onClickConvertToQuery = async () => {
 		if (canUseQueryExpr) {
 			const link = props.model.link;
-			const targetPort = link.getTargetPort() instanceof FormFieldPortModel
-				? link.getTargetPort() as FormFieldPortModel
+			const targetPort = link.getTargetPort() instanceof RecordFieldPortModel
+				? link.getTargetPort() as RecordFieldPortModel
 				: link.getTargetPort() as SpecificFieldPortModel;
 
 			if (targetPort instanceof SpecificFieldPortModel) {
@@ -78,7 +78,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 				{
 					applyQueryExpression(link, targetType.memberType);
 				}
-			} else if (targetPort instanceof FormFieldPortModel) {
+			} else if (targetPort instanceof RecordFieldPortModel) {
 				const field = targetPort.field;
 				if (field.typeName === 'array' && field.memberType.typeName === 'record') {
 					applyQueryExpression(link, field.memberType);

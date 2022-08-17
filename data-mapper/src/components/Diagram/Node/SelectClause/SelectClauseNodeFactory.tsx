@@ -19,7 +19,7 @@ import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
-import { FormFieldPortModel, SpecificFieldPortModel } from "../../Port";
+import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { MappingConstructorWidget } from "../commons/MappingConstructorWidget/MappingConstructorWidget";
 
@@ -41,7 +41,7 @@ export class SelectClauseFactory extends AbstractReactFactory<SelectClauseNode, 
                         id={EXPANDED_QUERY_TARGET_PORT_PREFIX}
                         value={event.model.value.expression}
                         getPort={(portId: string) =>
-                            event.model.getPort(portId) as FormFieldPortModel | SpecificFieldPortModel}
+                            event.model.getPort(portId) as RecordFieldPortModel | SpecificFieldPortModel}
                     />
                 )}
             </>
