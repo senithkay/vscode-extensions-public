@@ -4,7 +4,7 @@ import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, Reco
 import { DataMapperLinkModel } from "../Link";
 import { ExpressionFunctionBodyNode, QueryExpressionNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { FormFieldPortModel, STNodePortModel } from "../Port";
+import { FormFieldPortModel, SpecificFieldPortModel } from "../Port";
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
@@ -44,7 +44,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	if (link.getSourcePort()) {
 		const sourcePort = link.getSourcePort() instanceof FormFieldPortModel
 			? link.getSourcePort() as FormFieldPortModel
-			: link.getSourcePort() as STNodePortModel;
+			: link.getSourcePort() as SpecificFieldPortModel;
 
 		rhs = sourcePort instanceof FormFieldPortModel
 			? sourcePort.field.name
@@ -58,10 +58,10 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	if (link.getTargetPort()) {
 		const targetPort = link.getTargetPort() instanceof FormFieldPortModel
 			? link.getTargetPort() as FormFieldPortModel
-			: link.getTargetPort() as STNodePortModel;
+			: link.getTargetPort() as SpecificFieldPortModel;
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
 
-		if (targetPort instanceof STNodePortModel && STKindChecker.isSpecificField(targetPort.field)) {
+		if (targetPort instanceof SpecificFieldPortModel && STKindChecker.isSpecificField(targetPort.field)) {
 			// Inserting just the valueExpr (RHS) to already available specific field in a mapping constructor
 			const targetPos = targetPort.field.valueExpr.position as NodePosition;
 			modifications.push({

@@ -6,7 +6,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { FormFieldPortModel, STNodePortModel } from "../../../Port";
+import { FormFieldPortModel, SpecificFieldPortModel } from "../../../Port";
 import { DataMapperPortWidget } from "../../../Port/view/DataMapperPortWidget";
 import { getFieldTypeName } from "../../../utils/dm-utils";
 
@@ -72,7 +72,7 @@ export interface SpecificFieldWidgetProps {
     parentId: string;
     field: SpecificField;
     engine: DiagramEngine;
-    getPort: (portId: string) => STNodePortModel | FormFieldPortModel;
+    getPort: (portId: string) => SpecificFieldPortModel | FormFieldPortModel;
     treeDepth?: number;
 }
 

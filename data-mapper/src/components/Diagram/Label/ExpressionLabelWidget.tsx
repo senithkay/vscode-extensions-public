@@ -14,7 +14,7 @@ import {
 	canConvertLinkToQueryExpr,
 	generateQueryExpression
 } from '../Link/link-utils';
-import { FormFieldPortModel, STNodePortModel } from '../Port';
+import { FormFieldPortModel, SpecificFieldPortModel } from '../Port';
 import { handleCodeActions } from "../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../utils/record-type-descriptor-store";
 
@@ -63,9 +63,9 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			const link = props.model.link;
 			const targetPort = link.getTargetPort() instanceof FormFieldPortModel
 				? link.getTargetPort() as FormFieldPortModel
-				: link.getTargetPort() as STNodePortModel;
+				: link.getTargetPort() as SpecificFieldPortModel;
 
-			if (targetPort instanceof STNodePortModel) {
+			if (targetPort instanceof SpecificFieldPortModel) {
 				const fieldNamePosition = targetPort.field.fieldName.position;
 				const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
 				const targetType = recordTypeDescriptors.getTypeDescriptor({

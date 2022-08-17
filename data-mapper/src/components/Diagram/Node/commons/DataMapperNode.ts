@@ -11,11 +11,11 @@ import {
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
-import { FormFieldPortModel, STNodePortModel } from "../../Port";
+import { FormFieldPortModel, SpecificFieldPortModel } from "../../Port";
 import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
 
 export interface DataMapperNodeModelGenerics {
-	PORT: STNodePortModel | FormFieldPortModel;
+	PORT: SpecificFieldPortModel | FormFieldPortModel;
 }
 
 export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | BooleanTypeDesc | ByteTypeDesc | DecimalTypeDesc
@@ -55,10 +55,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	// extend this class to add link init, port init logics
 
 	protected addPortsForSpecificField(field: SpecificField,
-		                                  type: "IN" | "OUT", parentId: string, parent?: STNodePortModel) {
+		                                  type: "IN" | "OUT", parentId: string, parent?: SpecificFieldPortModel) {
 		const fieldId = `${parentId}.${field.fieldName.value}`;
 		if (STKindChecker.isSpecificField(field)) {
-			const fieldPort = new STNodePortModel(field, type, parentId, "", parent);
+			const fieldPort = new SpecificFieldPortModel(field, type, parentId, "", parent);
 			this.addPort(fieldPort)
 			if (STKindChecker.isMappingConstructor(field.valueExpr)) {
 				field.valueExpr.fields.forEach((subField) => {

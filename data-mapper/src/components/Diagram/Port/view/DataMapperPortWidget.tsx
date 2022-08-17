@@ -7,11 +7,11 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { DataMapperLinkModel } from "../../Link/model/DataMapperLink"
 import { IntermediatePortModel } from "../IntermediatePort";
 import { FormFieldPortModel } from "../model/FormFieldPortModel";
-import { STNodePortModel } from "../model/STNodePortModel";
+import { SpecificFieldPortModel } from "../model/SpecificFieldPortModel";
 
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
-	port: IntermediatePortModel | STNodePortModel | FormFieldPortModel;
+	port: IntermediatePortModel | SpecificFieldPortModel | FormFieldPortModel;
 }
 
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {

@@ -5,7 +5,7 @@ import md5 from "blueimp-md5";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { FormFieldPortModel, IntermediatePortModel, STNodePortModel } from "../../Port";
+import { FormFieldPortModel, IntermediatePortModel, SpecificFieldPortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -189,13 +189,13 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
         // TODO - temp hack to render link
         if (this.outPort) {
-            let targetPort: STNodePortModel | FormFieldPortModel;
+            let targetPort: SpecificFieldPortModel | FormFieldPortModel;
             this.getModel().getNodes().map((node) => {
                     if (node instanceof ExpressionFunctionBodyNode) {
                         const ports = Object.entries(node.getPorts());
                         ports.map((entry) => {
                             const port = entry[1];
-                            if (port instanceof STNodePortModel) {
+                            if (port instanceof SpecificFieldPortModel) {
                                 if (STKindChecker.isRecordField(port.field)) {
                                     if (port.field.fieldName.value === "Assets") {
                                         targetPort = port;
@@ -208,7 +208,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     } else if (node instanceof SelectClauseNode) {
                         const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
                         targetPort = node.getPort(
-                            `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as STNodePortModel;
+                            `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as SpecificFieldPortModel;
                     }
             });
 

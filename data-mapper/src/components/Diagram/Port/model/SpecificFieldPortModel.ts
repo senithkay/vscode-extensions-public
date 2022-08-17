@@ -17,19 +17,19 @@ import { DataMapperLinkModel } from "../../Link";
 import { createSpecificFieldSource } from "../../utils/dm-utils";
 
 export interface STNodeModelGenerics {
-	PORT: STNodePortModel;
+	PORT: SpecificFieldPortModel;
 }
 
 export const ST_NODE_PORT = "st-node-port";
 
-export class STNodePortModel extends PortModel<PortModelGenerics & STNodeModelGenerics> {
+export class SpecificFieldPortModel extends PortModel<PortModelGenerics & STNodeModelGenerics> {
 
 	constructor(
 		public field: RecordField | SpecificField,
 		public portType: "IN" | "OUT",
 		public parentId: string,
 		public parentFieldAccess?: string,
-		public parentModel?: STNodePortModel) {
+		public parentModel?: SpecificFieldPortModel) {
 		super({
 			type: ST_NODE_PORT,
 			name: `${parentId}.${field.fieldName.value}.${portType}`,
@@ -49,7 +49,7 @@ export class STNodePortModel extends PortModel<PortModelGenerics & STNodeModelGe
 		return lm;
 	}
 
-	canLinkToPort(port: STNodePortModel): boolean {
+	canLinkToPort(port: SpecificFieldPortModel): boolean {
 		return this.portType !== port.portType;
 	}
 }

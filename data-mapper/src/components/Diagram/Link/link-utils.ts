@@ -2,14 +2,14 @@ import { PortModel } from "@projectstorm/react-diagrams-core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { FormFieldPortModel, STNodePortModel } from "../Port";
+import { FormFieldPortModel, SpecificFieldPortModel } from "../Port";
 
 import { DataMapperLinkModel } from "./model/DataMapperLink";
 
 export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     const sourcePort = link.getSourcePort() as PortModel;
 
-    if (sourcePort instanceof STNodePortModel && STKindChecker.isRecordField(sourcePort.field)) {
+    if (sourcePort instanceof SpecificFieldPortModel && STKindChecker.isRecordField(sourcePort.field)) {
         const fieldType = sourcePort.field.typeName;
         return STKindChecker.isArrayTypeDesc(fieldType) && STKindChecker.isRecordTypeDesc(fieldType.memberTypeDesc);
     } else if (sourcePort instanceof FormFieldPortModel) {
