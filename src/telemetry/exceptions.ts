@@ -31,3 +31,6 @@ export const TM_EVENT_ERROR_EXECUTE_PROJECT_DOC = "execute.project.doc.error";
 export const TM_EVENT_ERROR_EXECUTE_PROJECT_CLOUD = "execute.project.cloud.error";
 
 export const TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN = "execute.diagram.open.error";
+
+// notebook create errors
+export const TM_EVENT_ERROR_EXECUTE_CREATE_NOTEBOOK = "execute.notebook.create.error";
