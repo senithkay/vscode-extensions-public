@@ -164,6 +164,7 @@ export class RecordForm {
     }
 
     static cancel() {
+        cy.wait(1000);
         this.getForm()
             .get('button')
             .contains("Cancel")
@@ -172,6 +173,7 @@ export class RecordForm {
     }
 
     static close() {
+        cy.wait(1000);
         this.getForm()
             .get('.close-btn-wrap button')
             .click();
