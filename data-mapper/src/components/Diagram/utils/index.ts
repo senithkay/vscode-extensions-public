@@ -1,14 +1,13 @@
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ExpressionFunctionBody, FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { ExpressionLabelModel } from "../Label";
 
 import { DataMapperLinkModel } from "../Link";
-import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
+import { ExpressionFunctionBodyNode, QueryExpressionNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { LinkConnectorNode, LINK_CONNECTOR_NODE_TYPE } from "../Node/LinkConnector";
 import { SelectClauseNode } from "../Node/SelectClause";
 import { DataMapperPortModel, IntermediatePortModel } from "../Port";
-import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
@@ -201,99 +200,6 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 	}
 
 }
-
-export function getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess|SimpleNameReference) {
-	const typeDesc = node.typeDef.typeDescriptor;
-	let portIdBuffer = node.value.paramName.value;
-	if (STKindChecker.isRecordTypeDesc(typeDesc)) {
-		if (STKindChecker.isFieldAccess(expr)) {
-			const fieldNames = getFieldNames(expr);
-			let nextTypeNode: RecordTypeDesc = typeDesc;
-			for (let i = 1; i < fieldNames.length; i++) { // Note i = 1 as we omit param name
-				const fieldName = fieldNames[i];
-				portIdBuffer += `.${fieldName}`;
-				const recField = nextTypeNode.fields.find(
-					(field) => STKindChecker.isRecordField(field) && field.fieldName.value === fieldName);
-				if (recField) {
-					if (i === fieldNames.length - 1) {
-						const portId = portIdBuffer + ".OUT";
-						const port = (node.getPort(portId) as DataMapperPortModel);
-						return port;
-					} else if (STKindChecker.isRecordTypeDesc(recField.typeName)) {
-						nextTypeNode = recField.typeName;
-					} else if (STKindChecker.isSimpleNameReference(recField.typeName) ){
-						const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-						const typeDef = recordTypeDescriptors.gettypeDescriptor(recField.typeName.name.value)
-						nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
-					}
-				}
-			}
-		} else {
-			// handle this when direct mapping parameters is enabled
-		}
-	}
-}
-
-export function getOutputPortForField(fields: SpecificField[]) {
-	let nextTypeNode = this.typeDef.typeDescriptor as RecordTypeDesc;
-	let recField: RecordField;
-	let portIdBuffer = "exprFunctionBody";
-	for (let i = 0; i < fields.length; i++) {
-		const specificField = fields[i];
-		portIdBuffer += `.${specificField.fieldName.value}`
-		const recFieldTemp = nextTypeNode.fields.find(
-			(recF) => STKindChecker.isRecordField(recF) && recF.fieldName.value === specificField.fieldName.value);
-		if (recFieldTemp) {
-			if (i === fields.length - 1) {
-				recField = recFieldTemp as RecordField;
-			} else if (STKindChecker.isRecordTypeDesc(recFieldTemp.typeName)){
-				nextTypeNode = recFieldTemp.typeName
-			}
-			else if (STKindChecker.isSimpleNameReference(recFieldTemp.typeName) ){
-				const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-				const typeDef = recordTypeDescriptors.gettypeDescriptor(recFieldTemp.typeName.name.value)
-				nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
-			}
-		}
-	}
-	if (recField) {
-		const portId = portIdBuffer + ".IN";
-		const outPort = this.getPort(portId);
-		return outPort;
-	}
-}
-
-export function getInputNodeExpr(expr: FieldAccess|SimpleNameReference) {
-	let nameRef = STKindChecker.isSimpleNameReference(expr) ? expr: undefined;
-	if (!nameRef && STKindChecker.isFieldAccess(expr)) {
-		let valueNodeExpr = expr.expression;
-		while (valueNodeExpr && STKindChecker.isFieldAccess(valueNodeExpr)) {
-			valueNodeExpr = valueNodeExpr.expression;
-		}
-		if (valueNodeExpr && STKindChecker.isSimpleNameReference(valueNodeExpr)) {
-			const paramNode = this.context.functionST.functionSignature.parameters
-				.find((param: STNode) => 
-					STKindChecker.isRequiredParam(param) 
-					&& param.paramName?.value === (valueNodeExpr as  SimpleNameReference).name.value
-				) as RequiredParam;
-			return this.findNodeByValueNode(paramNode);	
-		}
-	}
-}
-
-export function findNodeByValueNode(valueNode: ExpressionFunctionBody | RequiredParam): RequiredParamNode {
-	let foundNode: RequiredParamNode;
-	this.getModel().getNodes().find((node: DataMapperNodeModel) => {
-		if (STKindChecker.isRequiredParam(valueNode)
-			&& node instanceof RequiredParamNode
-			&& STKindChecker.isRequiredParam(node.value)
-			&& valueNode.paramName.value === node.value.paramName.value) {
-				foundNode = node;
-		} 
-	});
-	return foundNode;
-}
-
 
 // TODO: Move below util to low-code-editor-commons
 export function isPositionsEquals(position1: NodePosition, position2: NodePosition): boolean {

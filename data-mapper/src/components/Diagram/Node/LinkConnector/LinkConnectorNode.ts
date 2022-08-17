@@ -1,13 +1,15 @@
-import { FieldAccess,  SpecificField, STNode } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, FieldAccess, RecordTypeDesc, RequiredParam, SimpleNameReference, SpecificField, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { DataMapperPortModel, IntermediatePortModel } from "../../Port";
-import { getInputNodeExpr, getInputPortsForExpr } from "../../utils";
+import { getFieldNames } from "../../utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
+import { RequiredParamNode } from "../RequiredParam";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 
@@ -51,9 +53,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.addPort(this.outPort);
     
         this.fieldAccessNodes.forEach((field) => {
-        const inputNode = getInputNodeExpr(field);
+        const inputNode = this.getInputNodeExpr(field);
 			if (inputNode) {
-				this.sourcePorts.push(getInputPortsForExpr(inputNode, field));
+				this.sourcePorts.push(this.getInputPortsForExpr(inputNode, field));
 			}
         })
 
@@ -118,6 +120,68 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 			this.getModel().addAll(lm);
         }
     }
+    private getInputPortsForExpr(node: RequiredParamNode, expr: FieldAccess|SimpleNameReference) {
+		const typeDesc = node.typeDef.typeDescriptor;
+		let portIdBuffer = node.value.paramName.value;
+		if (STKindChecker.isRecordTypeDesc(typeDesc)) {
+			if (STKindChecker.isFieldAccess(expr)) {
+				const fieldNames = getFieldNames(expr);
+				let nextTypeNode: RecordTypeDesc = typeDesc;
+				for (let i = 1; i < fieldNames.length; i++) { // Note i = 1 as we omit param name
+					const fieldName = fieldNames[i];
+					portIdBuffer += `.${fieldName}`;
+					const recField = nextTypeNode.fields.find(
+						(field) => STKindChecker.isRecordField(field) && field.fieldName.value === fieldName);
+					if (recField) {
+						if (i === fieldNames.length - 1) {
+							const portId = portIdBuffer + ".OUT";
+							const port = (node.getPort(portId) as DataMapperPortModel);
+							return port;
+						} else if (STKindChecker.isRecordTypeDesc(recField.typeName)) {
+							nextTypeNode = recField.typeName;
+						} else if (STKindChecker.isSimpleNameReference(recField.typeName) ){
+							const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+							const typeDef = recordTypeDescriptors.gettypeDescriptor(recField.typeName.name.value)
+							nextTypeNode = typeDef.typeDescriptor as RecordTypeDesc
+						}
+					}
+				}
+			} else {
+				// handle this when direct mapping parameters is enabled
+			}
+		}
+	}
+
+	private getInputNodeExpr(expr: FieldAccess|SimpleNameReference) {
+		let nameRef = STKindChecker.isSimpleNameReference(expr) ? expr: undefined;
+		if (!nameRef && STKindChecker.isFieldAccess(expr)) {
+			let valueNodeExpr = expr.expression;
+			while (valueNodeExpr && STKindChecker.isFieldAccess(valueNodeExpr)) {
+				valueNodeExpr = valueNodeExpr.expression;
+			}
+			if (valueNodeExpr && STKindChecker.isSimpleNameReference(valueNodeExpr)) {
+				const paramNode = this.context.functionST.functionSignature.parameters
+					.find((param) => 
+						STKindChecker.isRequiredParam(param) 
+						&& param.paramName?.value === (valueNodeExpr as  SimpleNameReference).name.value
+					) as RequiredParam;
+				return this.findNodeByValueNode(paramNode);	
+			}
+		}
+	}
+
+    private findNodeByValueNode(valueNode: ExpressionFunctionBody | RequiredParam): RequiredParamNode {
+		let foundNode: RequiredParamNode;
+		this.getModel().getNodes().find((node) => {
+			if (STKindChecker.isRequiredParam(valueNode)
+				&& node instanceof RequiredParamNode
+				&& STKindChecker.isRequiredParam(node.value)
+				&& valueNode.paramName.value === node.value.paramName.value) {
+					foundNode = node;
+			} 
+		});
+		return foundNode;
+	}
 
     async updateSource() {
 		const modifications = [
