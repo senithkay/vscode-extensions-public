@@ -30,7 +30,14 @@ import {
     ExpressionTypeRequest,
     ExpressionTypeResponse,
 } from "@wso2-enterprise/ballerina-low-code-editor-distribution";
-import { BallerinaConnectorsRequest, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    BallerinaConnectorsRequest,
+    BallerinaTriggerRequest,
+    BallerinaTriggerResponse,
+    BallerinaTriggersRequest,
+    BallerinaTriggersResponse,
+    FormField
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showChoreoSigninMessage, Values } from "../forecaster";
@@ -75,7 +82,9 @@ enum EXTENDED_APIS {
     NOTEBOOK_RESTART = "balShell/restartNotebook",
     NOTEBOOK_VARIABLES = "balShell/getVariableValues",
     NOTEBOOK_DELETE_DCLNS = "balShell/deleteDeclarations",
-    SYMBOL_DOC = 'ballerinaSymbol/getSymbol'
+    SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
+    SYMBOL_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
+    SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -412,6 +421,44 @@ export interface SymbolInfoResponse {
     documentation: SymbolDocumentation
 }
 
+export interface ExpressionRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
+    filePath?: string;
+}
+
+export interface TypeFromExpressionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    expressionRanges: ExpressionRange[];
+}
+
+export interface ResolvedTypeForExpression {
+    type: FormField;
+    requestedRange: ExpressionRange;
+}
+
+export interface TypesFromExpressionResponse {
+    types: ResolvedTypeForExpression[];
+}
+
+export interface TypeFromSymbolRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    positions: LinePosition[];
+}
+
+export interface ResolvedTypeForSymbol {
+    type: FormField;
+    requestedPosition: LinePosition;
+}
+
+export interface TypesFromSymbolResponse {
+    types: ResolvedTypeForSymbol[];
+}
+
 interface NOT_SUPPORTED_TYPE {
 
 };
@@ -553,6 +600,20 @@ export class ExtendedLangClient extends LanguageClient {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_DOC);
         return isSupported ? this.sendRequest<SymbolInfoResponse>(EXTENDED_APIS.SYMBOL_DOC, params) :
             Promise.resolve(null);
+    }
+
+    async getTypeFromExpression(params: TypeFromExpressionRequest): Promise<TypesFromExpressionResponse | null> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE_FROM_EXPRESSION);
+        return isSupported
+            ? this.sendRequest<TypesFromExpressionResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_EXPRESSION, params)
+            : Promise.resolve(null);
+    }
+
+    async getTypeFromSymbol(params: TypeFromSymbolRequest): Promise<TypesFromSymbolResponse | null> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL);
+        return isSupported
+            ? this.sendRequest<TypesFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL, params)
+            : Promise.resolve(null);
     }
 
     public getDocumentSymbol(params: DocumentSymbolParams): Thenable<DocumentSymbol[] | SymbolInformation[] | null> {
@@ -740,7 +801,9 @@ export class ExtendedLangClient extends LanguageClient {
                     resolveMissingDependencies: true
                 },
                 { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true },
-                { name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true },
+                {
+                    name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true,
+                    getTypeFromExpression: true, getTypeFromSymbol: true },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true
                 },
@@ -752,9 +815,9 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true, getSTForResource: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
-                { 
-                    name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true, 
-                    getVariableValues: true, deleteDeclarations: true, restartNotebook: true 
+                {
+                    name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true,
+                    getVariableValues: true, deleteDeclarations: true, restartNotebook: true
                 }
             ]
         }).then(response => {
