@@ -261,14 +261,6 @@ export class PositioningVisitor implements Visitor {
             })
         }
 
-        // Update Function container height if plus is open.
-        // TODO: try to move this to the sizing visitor with a different approach.
-        if ((viewState.workerLine.h + viewState.workerLine.y) < plusHolderHeight) {
-            const plusHolderHeightDiff = plusHolderHeight - (viewState.workerLine.h + viewState.workerLine.y);
-            viewState.bBox.h += plusHolderHeightDiff;
-            plusHolderHeight = 0;
-        }
-
         updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy);
 
         // Update First Control Flow line
@@ -403,14 +395,6 @@ export class PositioningVisitor implements Visitor {
             body.namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDecl => {
                 widthOfWorkers += (workerDecl.viewState as WorkerDeclarationViewState).bBox.w;
             })
-        }
-
-        // Update Function container height if plus is open.
-        // TODO: try to move this to the sizing visitor with a different approach.
-        if ((viewState.workerLine.h + viewState.workerLine.y) < plusHolderHeight) {
-            const plusHolderHeightDiff = plusHolderHeight - (viewState.workerLine.h + viewState.workerLine.y);
-            viewState.bBox.h += plusHolderHeightDiff;
-            plusHolderHeight = 0;
         }
 
         updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy);
