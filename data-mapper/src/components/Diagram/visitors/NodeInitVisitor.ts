@@ -3,8 +3,10 @@ import {
     ExpressionFunctionBody,
     FunctionDefinition,
     QueryExpression,
+    SpecificField,
     STKindChecker,
     STNode,
+    traversNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -23,6 +25,8 @@ import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { SelectClauseNode } from "../Node/SelectClause";
 import { isPositionsEquals } from "../utils";
+import { LinkConnectorNode } from "../Node/LinkConnector";
+import { FieldAccessFindingVisitor } from "./FieldAccessFindingVisitor";
 
 const draftFunctionName = 'XChoreoLCReturnType';
 
@@ -31,6 +35,7 @@ export class NodeInitVisitor implements Visitor {
     private inputNodes: DataMapperNodeModel[] = [];
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
+    private specificFields: SpecificField[] =[];
 
     constructor(
         private context: DataMapperContext,
@@ -85,9 +90,6 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitBinaryExpression(node: BinaryExpression, parent?: STNode) {
-        const binaryNode = new BinaryExpressionNode(this.context, node, parent);
-        binaryNode.setPosition(400, 300);
-        this.intermediateNodes.push(binaryNode);
     };
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
@@ -121,6 +123,20 @@ export class NodeInitVisitor implements Visitor {
         }
     };
 
+    beginVisitSpecificField(node: SpecificField, parent?: STNode) {
+        this.specificFields.push(node)
+        if (node.valueExpr && !STKindChecker.isMappingConstructor(node.valueExpr)){
+            const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
+            traversNode(node.valueExpr, fieldAccessFindingVisitor);
+            const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
+            if (fieldAccesseNodes.length > 1){
+                const linkConnectorNode = new LinkConnectorNode(this.context, node, parent, fieldAccesseNodes, this.specificFields.slice(0));
+                linkConnectorNode.setPosition(440,1200);
+                this.intermediateNodes.push(linkConnectorNode);
+            }
+        }
+    }
+
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
 
     };
@@ -132,7 +148,9 @@ export class NodeInitVisitor implements Visitor {
     endVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
     }
 
-
+    endVisitSpecificField(node: SpecificField, parent?: STNode) {
+        this.specificFields.pop()
+    }
 
     getNodes() {
         const nodes = [...this.inputNodes];

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import createEngine, { DefaultDiagramState, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import createEngine, { DagreEngine, DefaultDiagramState, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import "reflect-metadata";
 import {container} from "tsyringe";
 
@@ -21,14 +21,16 @@ import { useDMStore } from '../../store/store';
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
+import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 import * as Labels from "./Label";
 import * as Links from "./Link";
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
+import { LinkConnectorNode } from './Node/LinkConnector';
+import { QueryExpressionNode } from './Node/QueryExpression';
 import * as Ports from "./Port";
-import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -74,6 +76,19 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const fnST = useDMStore((state) => state.functionST);
 
+	const dagreEngine = new DagreEngine({
+		graph: {
+			rankdir: 'LR',
+			ranksep: 500,
+			align: 'UL',
+			nodesep: 300,
+			ranker: 'longest-path',
+			marginx: 30,
+			marginy: 50,
+			fit: true
+		},
+	});
+
 	React.useEffect(() => {
 		async function genModel() {
 			const model = new DiagramModel();
@@ -87,6 +102,15 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			}
 			model.setLocked(true)
 			engine.setModel(model);
+			if (model.getLinks().length > 0){
+				dagreEngine.redistribute(model);
+				engine.repaintCanvas(true);
+				nodes.forEach((node) => {
+					if ( node instanceof LinkConnectorNode || node instanceof QueryExpressionNode){
+						node.updatePosition()
+					}
+				});
+			}
 			setModel(model);
         }
         genModel();

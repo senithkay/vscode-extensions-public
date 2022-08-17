@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Point } from "@projectstorm/geometry";
 import { QueryExpression } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -18,6 +19,10 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 export const EXPANDED_MAPPING_HEADER_NODE_TYPE = "datamapper-node-expanded-mapping-header";
 
 export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
+
+    public x: number;
+    public y: number;
+
     constructor(
         public context: IDataMapperContext,
         public queryExpr: QueryExpression
@@ -34,5 +39,17 @@ export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
 
     initLinks() {
         // Currently we create links from "IN" ports and back tracing the inputs.
+    }
+
+    setPosition(point: Point): void;
+    setPosition(x: number, y: number): void;
+    setPosition(x: unknown, y?: unknown): void {
+        if ( typeof x === 'number' && typeof y === 'number'){
+            if (!this.x || !this.y){
+                this.x = x;
+                this.y = y;
+                super.setPosition(x,y);
+            }
+        }
     }
 }

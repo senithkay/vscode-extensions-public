@@ -33,7 +33,6 @@ import {
 const styles = (theme: Theme) => createStyles({
     root: {
         width: '100%',
-        minWidth: 400,
         backgroundColor: "#fff",
         padding: "5px",
         display: "flex",
@@ -111,7 +110,7 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
                         <div className={classes.header}>
                             <DataMapperPortWidget engine={engine} port={node.inPort}/>
                             <div className={classes.fromClause}>
-                                Query: {node.value.queryPipeline.fromClause.expression.source}
+                                Query
                             </div>
                             <div className={classes.buttonWrapper}>
                                 <IconButton
@@ -124,22 +123,6 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
                                 </IconButton>
                             </div>
                             <DataMapperPortWidget engine={engine} port={node.outPort}/>
-                        </div>
-                        <div className={classes.mappingPane}>
-                            <RecordTypeTreeWidget
-                                engine={engine}
-                                typeDesc={node.sourceTypeDesc}
-                                id={`${QUERY_SOURCE_PORT_PREFIX}.${node.sourceBindingPattern.variableName.value}`}
-                                getPort={getSourcePort}
-                            />
-                            {STKindChecker.isMappingConstructor(node.value.selectClause.expression) && (
-                                <MappingConstructorWidget
-                                    engine={engine}
-                                    value={node.value.selectClause.expression}
-                                    id={QUERY_TARGET_PORT_PREFIX}
-                                    getPort={getTargetPort}
-                                />
-                            )}
                         </div>
                     </div>
                 )}

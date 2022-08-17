@@ -1,4 +1,4 @@
-import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
+import { DiagramEngine, DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
 	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
@@ -113,10 +113,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
 						traversNode(field.valueExpr, fieldAccessFindingVisitor);
 						const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
-						if (fieldAccesseNodes.length > 0){
-							fieldAccesseNodes.forEach((fieldAccesseNode) => {
-								foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], fieldAccesseNode, field.valueExpr));
-							})
+						if (fieldAccesseNodes.length === 1){
+							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], fieldAccesseNodes[1], field.valueExpr));
 						}
 						else{
 							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));

@@ -113,7 +113,27 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     private async getTargetType() {
         // TODO get target type from specific field instead of select clause
-        const selectClause = this.value.selectClause;
+        // TODO - temp hack to render link
+        this.getModel().getNodes().map((node) => {
+                if (node instanceof ExpressionFunctionBodyNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof DataMapperPortModel) {
+                            if (STKindChecker.isRecordField(port.field)) {
+                                if (port.field.fieldName.value === "Assets") {
+                                    this.targetPort = port;
+                                }
+                            }
+                        }
+                    });
+                } else if (node instanceof SelectClauseNode) {
+                    const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
+                    this.targetPort = node.getPort(
+                        `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as DataMapperPortModel;
+                }
+        });
+        
     }
 
     initLinks(): void {
@@ -181,47 +201,33 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             })
             this.getModel().addAll(link);
         }
+        
 
-        // TODO - temp hack to render link
-        if (this.outPort) {
-            let targetPort: DataMapperPortModel;
-            this.getModel().getNodes().map((node) => {
-                    if (node instanceof ExpressionFunctionBodyNode) {
-                        const ports = Object.entries(node.getPorts());
-                        ports.map((entry) => {
-                            const port = entry[1];
-                            if (port instanceof DataMapperPortModel) {
-                                if (STKindChecker.isRecordField(port.field)) {
-                                    if (port.field.fieldName.value === "Assets") {
-                                        targetPort = port;
-                                    }
-                                }
-                            }
-                        });
-                    } else if (node instanceof SelectClauseNode) {
-                        const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
-                        targetPort = node.getPort(
-                            `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as DataMapperPortModel;
+        if (this.outPort && this.targetPort) {
+            const link = new DataMapperLinkModel(undefined);
+            link.setSourcePort(this.outPort);
+            link.setTargetPort(this.targetPort);
+            link.registerListener({
+                selectionChanged(event) {
+                    if (event.isSelected) {
+                        this.targetPort[1].fireEvent({}, "link-selected");
+                        this.outPort.fireEvent({}, "link-selected");
+                    } else {
+                        this.targetPort[1].fireEvent({}, "link-unselected");
+                        this.outPort.fireEvent({}, "link-unselected");
                     }
-            });
-
-            if (targetPort) {
-                const link = new DataMapperLinkModel(undefined);
-                link.setSourcePort(this.outPort);
-                link.setTargetPort(targetPort);
-                link.registerListener({
-                    selectionChanged(event) {
-                        if (event.isSelected) {
-                            targetPort[1].fireEvent({}, "link-selected");
-                            this.outPort.fireEvent({}, "link-selected");
-                        } else {
-                            targetPort[1].fireEvent({}, "link-unselected");
-                            this.outPort.fireEvent({}, "link-unselected");
-                        }
-                    },
-                })
-                this.getModel().addAll(link);
-            }
+                },
+            })
+            this.getModel().addAll(link);
         }
+    
     }
+
+    public updatePosition() {
+        if (this.targetPort){
+            const position = this.targetPort.getPosition()
+            this.setPosition(position.x - 200, position.y - 10)
+        }
+	}
+
 }

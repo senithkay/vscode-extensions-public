@@ -2,7 +2,7 @@ import { LinkModel, PortModel, PortModelGenerics } from '@projectstorm/react-dia
 import { RecordField, SpecificField } from '@wso2-enterprise/syntax-tree';
 
 import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
-import { createSpecificFieldSource } from '../../utils';
+import { createSpecificFieldSource, modifySpecificFieldSource } from '../../utils';
 export interface DataMapperNodeModelGenerics {
 	PORT: DataMapperPortModel;
 }
@@ -29,7 +29,11 @@ export class DataMapperPortModel extends PortModel<PortModelGenerics & DataMappe
 				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
 			},
 			targetPortChanged: async (evt) => {
-				lm.addLabel(await createSpecificFieldSource(lm));
+				if (Object.keys(lm.getTargetPort().links).length === 1){
+					lm.addLabel(await createSpecificFieldSource(lm));
+				} else {
+					await modifySpecificFieldSource(lm);
+				}
 			}
 		});
 		return lm;
