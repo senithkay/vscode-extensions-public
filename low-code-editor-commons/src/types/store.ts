@@ -94,7 +94,7 @@ export interface ExpressionEditorState {
     content?: string;
     uri?: string;
     diagnostic?: Diagnostic[];
-    isDirty?: boolean;
+    isFirstSelect: boolean
 }
 
 export interface STSymbolInfo {

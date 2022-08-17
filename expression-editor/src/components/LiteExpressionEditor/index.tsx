@@ -87,6 +87,7 @@ const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     hover: {
         enabled: false,
     },
+    occurrencesHighlight: false
 };
 
 monaco.editor.defineTheme("exp-theme", {
@@ -197,7 +198,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         content: undefined,
         uri: undefined,
         diagnostic: diagnostics,
-        isDirty: false,
+        isFirstSelect: true
     });
 
     const initialValue = defaultValue;
@@ -469,8 +470,12 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
             monacoRef.current.editor.trigger("exp_editor", "editor.action.triggerSuggest", {});
         }
 
+        if (expressionEditorState.isFirstSelect) {
+            monacoRef.current.editor.setSelection(monacoRef.current.editor.getModel().getFullModelRange());
+            expressionEditorState.isFirstSelect = false;
+        }
+
         if (onFocus) {
-            // dirty
             onFocus();
         }
     };
