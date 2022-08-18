@@ -27,10 +27,10 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Contexts/Diagram";
-import { wizardStyles } from "../FormComponents/ConfigForms/style";
 
 import { dataMapperStyles } from "./style";
 import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 
 export interface DataMapperProps {
     model?: STNode;
@@ -129,9 +129,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
                         <div className={dataMapperClasses.dataMapperContainer}>
                             <DataMapper
                                 fnST={functionST}
-                                langClientPromise={getDiagramEditorLangClient}
-                                getLangClient={getDiagramEditorLangClient}
-                                getEELangClient={getExpressionEditorLangClient}
+                                langClientPromise={getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>}
                                 filePath={currentFile.path}
                                 currentFile={currentFile}
                                 stSymbolInfo={stSymbolInfo}

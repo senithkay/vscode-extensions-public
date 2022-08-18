@@ -1,8 +1,6 @@
 import React, { useEffect, useReducer, useState } from "react";
 
 import {
-    DiagramEditorLangClientInterface,
-    ExpressionEditorLangClientInterface,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -21,12 +19,11 @@ import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
-    langClientPromise?: () => Promise<DiagramEditorLangClientInterface>;
-    getLangClient?: () => Promise<DiagramEditorLangClientInterface>;
-    getEELangClient?: () => Promise<ExpressionEditorLangClientInterface>;
+    langClientPromise: Promise<IBallerinaLangClient>;
     filePath: string;
     currentFile?: {
         content: string,
@@ -61,7 +58,7 @@ const selectionReducer = (state: SelectionState, action: {type: ViewOption, payl
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, getEELangClient, filePath, currentFile, stSymbolInfo, applyModifications } = props;
+    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
@@ -82,7 +79,6 @@ function DataMapperC(props: DataMapperProps) {
                 fnST,
                 selection,
                 langClientPromise,
-                getEELangClient,
                 currentFile,
                 stSymbolInfo,
                 handleSelectedST,
