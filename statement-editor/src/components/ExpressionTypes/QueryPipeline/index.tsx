@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { NodePosition, QueryPipeline, STNode } from "@wso2-enterprise/syntax-tree";
