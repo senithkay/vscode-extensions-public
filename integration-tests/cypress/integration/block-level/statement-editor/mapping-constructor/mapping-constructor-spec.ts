@@ -76,23 +76,6 @@ describe('Test mapping constructor functionality', () => {
         InputEditor
             .typeInput("1");
 
-        EditorPane
-            .clickPlusButton();
-
-        EditorPane
-            .getExpression("IdentifierToken")
-            .doubleClickExpressionContent(`key`);
-
-        InputEditor
-            .typeInput("k2");
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`);
-
-        InputEditor
-            .typeInput("2");
-
         StatementEditor
             .save();
 
