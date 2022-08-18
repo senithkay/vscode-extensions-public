@@ -53,10 +53,10 @@ export class RecordForm {
             cy.contains("Add Field").parent()
                 .click();
             cy.get('[placeholder="Type"]')
-                .type(type, { delay: 100 }).wait(1000);
+                .type(type, { delay: 100 }).wait(2000);
             if (value) {
                 cy.get('[placeholder="Field name"]')
-                    .type(name, { delay: 100 }).wait(1000);
+                    .type(name, { delay: 100 }).wait(2000);
                 cy.get('[placeholder="Value(Optional)"]')
                     .type(value + "{enter}", { delay: 100 });
             } else {
