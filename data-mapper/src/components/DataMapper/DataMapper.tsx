@@ -9,7 +9,6 @@ import {
     STNode,
     traversNode,
 } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
@@ -20,6 +19,7 @@ import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descript
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
@@ -32,6 +32,7 @@ export interface DataMapperProps {
     };
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => void;
+    onClose: () => void;
 }
 
 export enum ViewOption {
@@ -103,6 +104,7 @@ function DataMapperC(props: DataMapperProps) {
             <DataMapperDiagram
                 nodes={nodes}
             />
+            <DataMapperConfigPanel {...props}/>
         </>
     )
 }

@@ -35,13 +35,12 @@ import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient'
 export interface DataMapperProps {
     model?: STNode;
     targetPosition?: NodePosition;
-    onCancel: () => void;
-    onSave: (typeDesc: string, recModel: any) => void;
+    onClose: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
-    const { targetPosition, onCancel, model } = props;
+    const { targetPosition, onClose, model } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
@@ -56,7 +55,6 @@ export function DataMapperOverlay(props: DataMapperProps) {
             },
             ls: {
                 getDiagramEditorLangClient,
-                getExpressionEditorLangClient
             }
         }
     } = useContext(Context);
@@ -134,6 +132,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
                                 currentFile={currentFile}
                                 stSymbolInfo={stSymbolInfo}
                                 applyModifications={modifyDiagram}
+                                onClose={onClose}
                             />
                         </div>
                     </DiagramOverlay>

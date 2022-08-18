@@ -11,8 +11,6 @@ import {
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { SelectionState } from "../../DataMapper/DataMapper";
 import {
-    AddInputTypeNode,
-    AddOutputTypeNode,
     ExpressionFunctionBodyNode,
     QueryExpressionNode,
     RequiredParamNode
@@ -38,25 +36,14 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode){
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
-        const hasDraftOutputTypeDescDefined = STKindChecker.isSimpleNameReference(typeDesc)
-            && STKindChecker.isIdentifierToken(typeDesc.name)
-            && typeDesc.name.value === draftFunctionName;
-
-        // create output node
-        if (hasDraftOutputTypeDescDefined) {
-            this.outputNode = new AddOutputTypeNode(
-                this.context
-            );
-        } else {
+        if (typeDesc && typeDesc.kind === 'record') {
             this.outputNode = new ExpressionFunctionBodyNode(
                 this.context,
                 node.functionBody as ExpressionFunctionBody,
                 typeDesc
             );
+            this.outputNode.setPosition(1000, 100);    
         }
-
-        this.outputNode.setPosition(1000, 100);
-
         // create input nodes
         const params = node.functionSignature.parameters;
         if (!!params.length) {
@@ -74,12 +61,6 @@ export class NodeInitVisitor implements Visitor {
                     // TODO for other param types
                 }
             }
-        } else {
-            const addInputTypeNode = new AddInputTypeNode(
-                this.context
-            );
-            addInputTypeNode.setPosition(100, 100);
-            this.inputNodes.push(addInputTypeNode);
         }
     }
 

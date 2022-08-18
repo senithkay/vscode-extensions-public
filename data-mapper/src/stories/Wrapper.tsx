@@ -2,14 +2,13 @@ import React, { useEffect } from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { BalleriaLanguageClient } from '@wso2-enterprise/ballerina-languageclient';
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { DataMapper } from '../components/DataMapper/DataMapper';
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
-import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient/lib/IBallerinaLanguageClient';
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -132,6 +131,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                         langClientPromise={langClientPromise}
                         filePath={filePath}
                         applyModifications={applyModifications}
+                        onClose={() => { }}
                     />
                 </Grid>
                 <Grid item={true} xs={4}>

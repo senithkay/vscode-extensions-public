@@ -10,9 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient/lib/IBallerinaLanguageClient";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-    ExpressionEditorLangClientInterface,
     ExpressionRange,
     LinePosition,
     Type

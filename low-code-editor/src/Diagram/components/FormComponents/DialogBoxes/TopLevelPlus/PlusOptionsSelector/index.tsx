@@ -138,8 +138,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                         isLoading: false,
                         isLastMember: isLastMember
                     }}
-                    onCancel={handleOnClose}
-                    onSave={handleOnSave}
+                    onClose={handleOnClose}
                 />
             )}
         </>
