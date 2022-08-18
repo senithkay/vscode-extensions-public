@@ -25,11 +25,10 @@ import "./style.scss";
 interface PanelProps {
     children: JSX.Element,
     onClose: () => void;
-    formType: string;
 }
 
 export function Panel(props: PanelProps) {
-    const { children, onClose, formType } = props;
+    const { children, onClose } = props;
     const [isVisible, setIsVisible] = useState(true);
 
     const onCloseEvent = (evt: React.MouseEvent) => {
@@ -45,8 +44,8 @@ export function Panel(props: PanelProps) {
     return (
         <div onClick={onDivClick} >
             <DiagramOverlayContainer>
-                <div className={classnames("panel", isVisible ? 'panel-slide-in' : 'panel-slide-out', formType === "DataMapper" ? 'datamapper-wrapper' : '')}>
-                    <div className={formType === "DataMapper" ?  "datamapper-form-wrapper" : "panel-form-wrapper"}>
+                <div className={classnames("panel", isVisible ? 'panel-slide-in' : 'panel-slide-out')}>
+                    <div className={"panel-form-wrapper"}>
                         {children}
                     </div>
                 </div>

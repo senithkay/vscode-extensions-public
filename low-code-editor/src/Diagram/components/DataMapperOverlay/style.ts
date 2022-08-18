@@ -17,6 +17,10 @@ export const dataMapperStyles = makeStyles((theme: Theme) =>
         dataMapperContainer: {
             height: "100%",
             width: "100%"
+        },
+        overlay: {
+            height: "100%",
+            width: "100%"
         }
     }),
 );

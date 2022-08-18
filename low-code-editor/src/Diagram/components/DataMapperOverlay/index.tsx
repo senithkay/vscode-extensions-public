@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useEffect } from 'react';
 
-import { FormControl } from "@material-ui/core";
 import {
     DataMapper
 } from "@wso2-enterprise/ballerina-data-mapper";
@@ -21,17 +20,17 @@ import {
     ConfigOverlayFormStatus,
     DiagramEditorLangClientInterface
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     FunctionDefinition, ModulePart,
     NodePosition, STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../Contexts/Diagram";
-import { wizardStyles } from "../style";
+import { Context } from "../../../Contexts/Diagram";
+import { wizardStyles } from "../FormComponents/ConfigForms/style";
 
 import { dataMapperStyles } from "./style";
+import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
 export interface DataMapperProps {
     model?: STNode;
@@ -41,7 +40,7 @@ export interface DataMapperProps {
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
-export function DataMapperConfigForm(props: DataMapperProps) {
+export function DataMapperOverlay(props: DataMapperProps) {
     const { targetPosition, onCancel, model } = props;
 
     const dataMapperClasses = dataMapperStyles();
@@ -61,8 +60,6 @@ export function DataMapperConfigForm(props: DataMapperProps) {
             }
         }
     } = useContext(Context);
-
-    const overlayClasses = wizardStyles();
 
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
 
@@ -125,26 +122,23 @@ export function DataMapperConfigForm(props: DataMapperProps) {
         setFunctionST(undefined);
     }
 
-    return (!functionST ? <>Loading...</>
+    return (!functionST ? <></>
             :
-            <FormControl data-testid="record-form" className={overlayClasses.dataMapperWizardFormControl}>
-            <FormHeaderSection
-                formTitle={"lowcode.develop.configForms.DataMapper.title"}
-                defaultMessage={"Data Mapper"}
-                onCancel={onCancel}
-            />
-            <div className={dataMapperClasses.dataMapperContainer}>
-                <DataMapper
-                    fnST={functionST}
-                    langClientPromise={getDiagramEditorLangClient}
-                    getLangClient={getDiagramEditorLangClient}
-                    getEELangClient={getExpressionEditorLangClient}
-                    filePath={currentFile.path}
-                    currentFile={currentFile}
-                    stSymbolInfo={stSymbolInfo}
-                    applyModifications={modifyDiagram}
-                />
-            </div>
-            </FormControl>
+                <DiagramOverlayContainer>
+                    <DiagramOverlay position={{ x: 0, y: 0 }} stylePosition={"absolute"} className={dataMapperClasses.overlay}>
+                        <div className={dataMapperClasses.dataMapperContainer}>
+                            <DataMapper
+                                fnST={functionST}
+                                langClientPromise={getDiagramEditorLangClient}
+                                getLangClient={getDiagramEditorLangClient}
+                                getEELangClient={getExpressionEditorLangClient}
+                                filePath={currentFile.path}
+                                currentFile={currentFile}
+                                stSymbolInfo={stSymbolInfo}
+                                applyModifications={modifyDiagram}
+                            />
+                        </div>
+                    </DiagramOverlay>
+                </DiagramOverlayContainer>
             );
 }
