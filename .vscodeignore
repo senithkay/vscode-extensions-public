@@ -57,6 +57,7 @@ test-resources
 ui-test
 .azure
 code-server-tests
+cypress.json
 **/*.yml
 **/*.ts
 **/*.py
