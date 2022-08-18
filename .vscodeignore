@@ -54,3 +54,10 @@ resources/jslibs/themes/ballerina-default.css
 resources/jslibs/themes/ballerina-default.css.map
 web/
 test-resources
+ui-test
+.azure
+code-server-tests
+**/*.yml
+**/*.ts
+**/*.py
+**/tsconfig.json
