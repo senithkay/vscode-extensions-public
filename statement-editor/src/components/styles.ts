@@ -235,7 +235,7 @@ export const useStatementRendererStyles = makeStyles(() =>
                 display: "inline"
             },
             '&.hide': {
-                display: "none"
+                visibility: "hidden"
             }
         },
         errorHighlight: {
