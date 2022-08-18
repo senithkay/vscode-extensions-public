@@ -182,7 +182,7 @@ describe('Test helper pane functionality', () => {
             .clickExpressionSuggestion('Es | Ex');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int | <add-type>")
+            .validateNewExpression("TypedBindingPattern", "int|<add-type> ")
             .getExpression("UnionTypeDesc")
             .clickSpecificExpression("SimpleNameReference", 0, '<add-type>');
 

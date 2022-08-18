@@ -1,7 +1,5 @@
 import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { Canvas } from "../../../utils/components/canvas";
-import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-widget";
-import { FunctionForm } from "../../../utils/forms/function-form";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
@@ -9,7 +7,7 @@ import { StatementEditor } from "../../../utils/components/statement-editor/stat
 import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
 import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
 
-const BAL_FILE_PATH = "block-level/return/add-return-statement-empty-file.bal";
+const BAL_FILE_PATH = "block-level/return/add-return-statement-to-function.bal";
 
 describe('Add return statement', () => {
     beforeEach(() => {
@@ -17,17 +15,6 @@ describe('Add return statement', () => {
     })
 
     it('Add return statement of type string', () => {
-        Canvas
-            .welcomeMessageShouldBeVisible()
-            .clickTopLevelPlusButton();
-        TopLevelPlusWidget.clickOption("Function");
-
-        FunctionForm
-            .shouldBeVisible()
-            .typeFunctionName("getGreetings")
-            .typeReturnType("string?")
-            .save();
-
         Canvas.getFunction("getGreetings")
             .shouldBeExpanded()
             .getDiagram()
@@ -59,17 +46,6 @@ describe('Add return statement', () => {
     })
 
     it('Type a return statement and Cancel', () => {
-        Canvas
-            .welcomeMessageShouldBeVisible()
-            .clickTopLevelPlusButton();
-        TopLevelPlusWidget.clickOption("Function");
-
-        FunctionForm
-            .shouldBeVisible()
-            .typeFunctionName("getGreetings")
-            .typeReturnType("string?")
-            .save();
-
         Canvas.getFunction("getGreetings")
             .shouldBeExpanded()
             .getDiagram()
@@ -98,17 +74,6 @@ describe('Add return statement', () => {
     })
 
     it('Type invalid return statement and check for diagnostics', () => {
-        Canvas
-            .welcomeMessageShouldBeVisible()
-            .clickTopLevelPlusButton();
-        TopLevelPlusWidget.clickOption("Function");
-
-        FunctionForm
-            .shouldBeVisible()
-            .typeFunctionName("getGreetings")
-            .typeReturnType("string?")
-            .save();
-
         Canvas.getFunction("getGreetings")
             .shouldBeExpanded()
             .getDiagram()
