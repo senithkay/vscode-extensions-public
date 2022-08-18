@@ -20,7 +20,6 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { useStatementRendererStyles } from "../../styles";
 
 interface QueryPipelineProps {
     model: QueryPipeline;
@@ -34,8 +33,6 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
             updateModel
         }
     } = useContext(StatementEditorContext);
-
-    const statementRendererClasses = useStatementRendererStyles();
 
     const [isHovered, setHovered] = React.useState(false);
 
@@ -64,8 +61,11 @@ export function QueryPipelineComponent(props: QueryPipelineProps) {
         <>
             <span onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
                 <ExpressionComponent model={model.fromClause} />
-                {(isHovered) ? <NewExprAddButton model={model.fromClause} onClick={addNewExpression}/>
-                             : <span className={statementRendererClasses.plusEmptySpace}>&nbsp;</span>}
+                <NewExprAddButton
+                    model={model.fromClause}
+                    onClick={addNewExpression}
+                    classNames={isHovered ? "view" : "hide"}
+                />
             </span>
             <br/>
             <ExpressionArrayComponent

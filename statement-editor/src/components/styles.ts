@@ -235,16 +235,8 @@ export const useStatementRendererStyles = makeStyles(() =>
                 display: "inline"
             },
             '&.hide': {
-                display: "none"
+                visibility: "hidden"
             }
-        },
-        plusEmptySpace: {
-            boxSizing: 'border-box',
-            borderRadius: '4px',
-            position: 'relative',
-            width: 'fit-content',
-            margin: '0px 2px',
-            padding: '0px 4px'
         },
         errorHighlight: {
             backgroundImage: `linear-gradient(45deg, transparent 65%, red 80%, transparent 90%),
