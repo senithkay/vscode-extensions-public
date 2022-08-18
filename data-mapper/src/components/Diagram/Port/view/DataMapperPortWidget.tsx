@@ -1,16 +1,17 @@
-import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import React, { useEffect, useState } from "react";
-import { DataMapperLinkModel } from "../../Link/model/DataMapperLink"
-import { DataMapperPortModel } from "./../model/DataMapperPortModel";
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
-import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 
-import Brightness1 from '@material-ui/icons/Brightness1';
+import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+
+import { DataMapperLinkModel } from "../../Link"
 import { IntermediatePortModel } from "../IntermediatePort";
+import { RecordFieldPortModel } from "../model/RecordFieldPortModel";
+import { SpecificFieldPortModel } from "../model/SpecificFieldPortModel";
 
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
-	port: DataMapperPortModel|IntermediatePortModel;
+	port: IntermediatePortModel | SpecificFieldPortModel | RecordFieldPortModel;
 }
 
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {
@@ -19,8 +20,8 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 
 	const hasLinks = Object.entries(port.links).length > 0;
 
-	const hasError = 
-		Object.entries(port.links).some((link) =>{
+	const hasError =
+		Object.entries(port.links).some((link) => {
 			if (link[1] instanceof DataMapperLinkModel){
 				return link[1].hasError();
 			}

@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+import { PortModel } from "@projectstorm/react-diagrams-core";
 import {
     FromClause,
     MappingConstructor,
@@ -20,10 +21,12 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { isPositionsEquals } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { DataMapperPortModel } from "../../Port";
-import { getFieldNames, isPositionsEquals } from "../../utils";
+import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
+import { RecordFieldPortModel } from "../../Port";
+import { getFieldNames } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 
@@ -55,55 +58,52 @@ export class SelectClauseNode extends DataMapperNodeModel {
 
     async initLinks() {
         const mappings = this.genMappings(this.value.expression as MappingConstructor);
-        const hasMapping = mappings.some((entry) => {
-            return !!entry.value;
-        });
-        if (hasMapping) {
-            this.createLinks();
-        }
+        this.createLinks(mappings);
     }
 
-    private createLinks() {
-        if (STKindChecker.isMappingConstructor(this.value.expression)) {
-            const mappings = this.genMappings(this.value.expression);
-            mappings.forEach((mapping) => {
-                const { fields, value, otherVal } = mapping;
+    private createLinks(mappings: FieldAccessToSpecificFied[]) {
+        mappings.forEach((mapping) => {
+            const { fields, value, otherVal } = mapping;
+            if (!value) {
+                // tslint:disable-next-line:no-console
+                console.log("Unsupported mapping.");
+                return;
+            }
+            if (value && STKindChecker.isFieldAccess(value)) {
                 const targetPortId = `${EXPANDED_QUERY_TARGET_PORT_PREFIX}${fields.reduce((pV, cV) => `${pV}.${cV.fieldName.value}`, "")}.IN`;
-                if (value && STKindChecker.isFieldAccess(value)) {
+                const targetPort = this.getPort(targetPortId);
+                const sourceNode = this.getInputNodeExpr();
+                let sourcePort: PortModel;
+                if (sourceNode) {
                     const fieldNames = getFieldNames(value);
                     const sourcePortId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
-                    const targetPort = this.getPort(targetPortId);
-                    const sourceNode = this.getInputNodeExpr();
-                    let sourcePort: DataMapperPortModel;
-                    if (sourceNode) {
-                        sourcePort = sourceNode.getPort(sourcePortId) as DataMapperPortModel;
-                    }
-                    const link = new DataMapperLinkModel(value);
-                    link.setSourcePort(sourcePort);
-                    link.setTargetPort(targetPort);
-                    link.addLabel(new ExpressionLabelModel({
-                        value: otherVal?.source || value.source,
-                        valueNode: otherVal || value,
-                        context: this.context,
-                        link
-                    }));
-                    link.registerListener({
-                        selectionChanged(event) {
-                            if (event.isSelected) {
-                                sourcePort.fireEvent({}, "link-selected");
-                                targetPort.fireEvent({}, "link-selected");
-                            } else {
-                                sourcePort.fireEvent({}, "link-unselected");
-                                targetPort.fireEvent({}, "link-unselected");
-                            }
-                        },
-                    })
-                    this.getModel().addAll(link);
-                } else {
-                    // handle simple name ref case for direct variable mapping
+                    sourcePort = sourceNode.getPort(sourcePortId) as RecordFieldPortModel;
                 }
-            });
-        }
+                const link = new DataMapperLinkModel(value);
+                link.setSourcePort(sourcePort);
+                link.setTargetPort(targetPort);
+                link.addLabel(new ExpressionLabelModel({
+                    value: otherVal?.source || value.source,
+                    valueNode: otherVal || value,
+                    context: this.context,
+                    link
+                }));
+                link.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            sourcePort.fireEvent({}, "link-selected");
+                            targetPort.fireEvent({}, "link-selected");
+                        } else {
+                            sourcePort.fireEvent({}, "link-unselected");
+                            targetPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(link);
+            } else {
+                // handle simple name ref case for direct variable mapping
+            }
+        });
     }
 
     private getInputNodeExpr() {

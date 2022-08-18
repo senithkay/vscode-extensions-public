@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
     FromClause,
@@ -18,8 +19,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { getTypeDescForFieldName } from "../../../../utils/st-utils";
-import { DataMapperPortModel } from "../../Port";
+import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
@@ -28,8 +28,8 @@ export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
 export class FromClauseNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
+    public typeDef: Type;
     public sourceBindingPattern: CaptureBindingPattern;
-    public sourcePort: DataMapperPortModel;
 
     constructor(
         public context: IDataMapperContext,
@@ -44,11 +44,13 @@ export class FromClauseNode extends DataMapperNodeModel {
         await this.getSourceType();
         if (this.sourceBindingPattern) {
             const parentId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
-            this.sourceTypeDesc.fields.forEach((field) => {
-                if (STKindChecker.isRecordField(field)) {
-                    this.addPorts(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
-                }
-            });
+
+            if (this.typeDef && this.typeDef.typeName === 'record') {
+                const fields = this.typeDef.fields;
+                fields.forEach((subField) => {
+                    this.addPortsForRecordField(subField, "OUT", parentId, this.sourceBindingPattern.variableName.value);
+                });
+            }
         }
     }
 
@@ -61,8 +63,16 @@ export class FromClauseNode extends DataMapperNodeModel {
         const bindingPattern = this.value.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
-            if (STKindChecker.isFieldAccess(expr)) {
-                this.sourceTypeDesc = await getTypeDescForFieldName(expr.fieldName, this.context);
+
+            const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+            const type = recordTypeDescriptors.getTypeDescriptor({
+                startLine: expr.position.startLine,
+                startColumn: expr.position.startColumn,
+                endLine: expr.position.endLine,
+                endColumn: expr.position.endColumn
+            });
+            if (type && type.typeName === 'array') {
+                this.typeDef = type.memberType;
             }
         }
     }

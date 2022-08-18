@@ -10,35 +10,72 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { ExpressionRange, LinePosition } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    RecordField,
-    SimpleNameReference,
+    FromClause,
+    FunctionSignature,
+    SpecificField,
     STKindChecker,
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
-
-
 export class RecordTypeFindingVisitor implements Visitor {
-    private simpleNameReferneceNodes: SimpleNameReference[];
-    
-    constructor(
-        private context: IDataMapperContext
-    ) {
-        this.simpleNameReferneceNodes = []
+    private readonly expressionNodeRanges: ExpressionRange[];
+    private readonly symbolNodesPositions: LinePosition[];
+
+    constructor() {
+        this.expressionNodeRanges = []
+        this.symbolNodesPositions = []
     }
 
-    public beginVisitRecordField(node: RecordField, parent?: STNode) {
-        if (STKindChecker.isSimpleNameReference(node.typeName)){
-            this.simpleNameReferneceNodes.push(node.typeName)
+    public beginVisitFunctionSignature(node: FunctionSignature, parent?: STNode) {
+        node.parameters.map((param: STNode) => {
+            if (STKindChecker.isRequiredParam(param)) {
+                const paramPosition = param.position;
+                this.symbolNodesPositions.push({
+                    line: paramPosition.startLine,
+                    offset: paramPosition.startColumn
+                });
+            }
+        });
+        if (node?.returnTypeDesc) {
+            const typePosition = node.returnTypeDesc.type.position;
+            this.symbolNodesPositions.push({
+                line: typePosition.startLine,
+                offset: typePosition.startColumn
+            });
         }
     }
 
-    public getSimpleNameReferenceNodes(){
-        return this.simpleNameReferneceNodes
+    public beginVisitFromClause(node: FromClause, parent?: STNode) {
+        const typePosition = node.expression.position;
+        this.expressionNodeRanges.push({
+            startLine: {
+                line: typePosition.startLine,
+                offset: typePosition.startColumn
+            },
+            endLine: {
+                line: typePosition.endLine,
+                offset: typePosition.endColumn
+            }
+        });
     }
 
+    public beginVisitSpecificField(node: SpecificField, parent?: STNode) {
+        const fieldNamePosition = node.fieldName.position;
+        this.symbolNodesPositions.push({
+            line: fieldNamePosition.startLine,
+            offset: fieldNamePosition.startColumn
+        });
+    }
+
+    public getExpressionNodesRanges(){
+        return this.expressionNodeRanges;
+    }
+
+    public getSymbolNodesPositions(){
+        return this.symbolNodesPositions;
+    }
 }
 

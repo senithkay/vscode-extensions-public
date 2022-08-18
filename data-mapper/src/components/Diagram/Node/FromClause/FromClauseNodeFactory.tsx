@@ -14,11 +14,11 @@
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
-import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams-core';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
-import { DataMapperPortModel } from '../../Port';
+import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 
@@ -40,8 +40,9 @@ export class FromClauseNodeFactory extends AbstractReactFactory<FromClauseNode, 
             <RecordTypeTreeWidget
                 engine={this.engine}
                 id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`}
-                typeDesc={event.model.sourceTypeDesc}
-                getPort={(portId: string) => event.model.getPort(portId) as DataMapperPortModel}
+                typeDesc={event.model.typeDef}
+                getPort={(portId: string) =>
+                    event.model.getPort(portId) as RecordFieldPortModel | SpecificFieldPortModel}
             />
         );
     }

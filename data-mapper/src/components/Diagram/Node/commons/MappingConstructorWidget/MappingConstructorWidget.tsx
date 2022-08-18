@@ -1,13 +1,11 @@
 import * as React from 'react';
+
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { MappingConstructor, RecordTypeDesc, SpecificField, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
-import TreeView from '@material-ui/lab/TreeView';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import { RecordFieldPortModel, SpecificFieldPortModel } from '../../../Port';
 
-import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
-import { MappingConstructor, RecordField, RecordTypeDesc, SpecificField, STKindChecker } from '@wso2-enterprise/syntax-tree';
-import { DataMapperPortModel } from '../../../Port';
 import { SpecificFieldWidget } from './SpecificFieldWidget';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -18,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			color: "white",
 			position: "relative",
 			backgroundColor: " #FFFFFF",
-			padding:"20px"
+			padding: "20px"
 		}
 	}),
 );
@@ -28,12 +26,12 @@ export interface MappingConstructorWidgetProps {
 	typeDesc?: RecordTypeDesc;
 	value: MappingConstructor;
 	engine: DiagramEngine;
-    getPort: (portId: string) => DataMapperPortModel;
+	getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
 }
 
 
 export function MappingConstructorWidget(props: MappingConstructorWidgetProps) {
-	const { engine, typeDesc, id, getPort, value } = props;
+	const { engine, id, getPort, value } = props;
 	const classes = useStyles();
 
 	const getNodeIds = (field: SpecificField, parentId: string) => {
@@ -53,7 +51,7 @@ export function MappingConstructorWidget(props: MappingConstructorWidgetProps) {
 
 	if (STKindChecker.isMappingConstructor(value)) {
 		value.fields.forEach((field) => {
-			if(STKindChecker.isSpecificField(field)) {
+			if (STKindChecker.isSpecificField(field)) {
 				allNodeIds.push(...getNodeIds(field, id));
 			}
 		})
