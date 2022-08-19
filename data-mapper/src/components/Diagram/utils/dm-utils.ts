@@ -1,7 +1,22 @@
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+	keywords,
+	STModification,
+	Type
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+	FieldAccess,
+	FunctionDefinition,
+	MappingConstructor,
+	NodePosition,
+	RecordField,
+	SimpleNameReference,
+	SpecificField,
+	STKindChecker,
+	STNode
+} from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperLinkModel } from "../Link";
+import { TypeWithValue } from "../Mappings/TypeWithValue";
 import { ExpressionFunctionBodyNode, QueryExpressionNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
@@ -146,4 +161,41 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 		targetNode.context.applyModifications(modifications);
 	}
 	return `${lhs} = ${rhs}`;
+}
+
+export function getEnrichedRecordType(type: Type, mappingConstruct?: STNode, parentType?: TypeWithValue,
+									                             childrenTypes?: TypeWithValue[]) {
+	let typeWithValue: TypeWithValue = null;
+	let fields = null;
+	let specificField: SpecificField;
+	let nextNode: STNode;
+	let fieldName = type?.name;
+	if (parentType && mappingConstruct && STKindChecker.isMappingConstructor(mappingConstruct)) {
+		specificField = mappingConstruct.fields.find((val) => {
+			if (keywords.includes(fieldName)) {
+				fieldName = `'${fieldName}`;
+			}
+			return STKindChecker.isSpecificField(val) && val.fieldName.value === fieldName;
+		}) as SpecificField;
+		nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
+	} else if (!parentType) {
+		nextNode = mappingConstruct;
+	}
+
+	typeWithValue = new TypeWithValue(type, specificField, parentType);
+
+	if (type.typeName === 'record') {
+		fields = type.fields;
+	} else if (type.typeName === 'array' && type.memberType.typeName === 'record') {
+		fields = type.memberType.fields;
+	}
+	const children = [...childrenTypes ? childrenTypes : []];
+	if (fields && !!fields.length) {
+		fields.map((field) => {
+			const childType = getEnrichedRecordType(field, nextNode, typeWithValue, childrenTypes);
+			children.push(childType);
+		});
+	}
+	typeWithValue.childrenTypes = children;
+	return typeWithValue;
 }
