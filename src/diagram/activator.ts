@@ -541,8 +541,7 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, experimentalEnabled, this.webviewPanel,
-					ballerinaExtension.extension.extensionUri);
+					diagramElement!.startColumn!, experimentalEnabled);
 			} else {
 				callUpdateDiagramMethod();
 			}

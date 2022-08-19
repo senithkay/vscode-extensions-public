@@ -19,7 +19,7 @@
 import { deflateSync } from "zlib";
 
 import { WebViewMethod, WebViewRPCMessage } from './model';
-import { commands, WebviewPanel } from 'vscode';
+import { commands, WebviewPanel, WebviewView } from 'vscode';
 import { ExtendedLangClient } from 'src/core/extended-language-client';
 import { debug } from '..';
 
@@ -290,6 +290,17 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             });
         }
     }, {
+        methodName: 'getNotebookVariables',
+        handler: () => {
+            const start = new Date().getTime();
+            return langClient.onReady().then(() => {
+                return langClient.getNotebookVariables().then(result => {
+                    consoleLog(start, 'getNotebookVariables');
+                    return Promise.resolve(result);
+                });
+            });
+        }
+    }, {
         methodName: 'getSymbolDocumentation',
         handler: (args: any[]) => {
             const start = new Date().getTime();
@@ -300,7 +311,38 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                 });
             });
         }
-    },
+    }, {
+        methodName: 'codeAction',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.codeAction(args[0]).then(result => {
+                consoleLog(start, 'codeAction');
+                return result;
+            });
+        }
+    }, {
+        methodName: 'getTypeFromExpression',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.onReady().then(() => {
+                return langClient.getTypeFromExpression(args[0]).then(result => {
+                    consoleLog(start, 'getTypeFromExpression');
+                    return Promise.resolve(result);
+                });
+            });
+        }
+    }, {
+        methodName: 'getTypeFromSymbol',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.onReady().then(() => {
+                return langClient.getTypeFromSymbol(args[0]).then(result => {
+                    consoleLog(start, 'getTypeFromSymbol');
+                    return Promise.resolve(result);
+                });
+            });
+        }
+    }
     ];
 };
 
@@ -335,7 +377,7 @@ export class WebViewRPCHandler {
     private _sequence: number = 1;
     private _callbacks: Map<number, Function> = new Map();
 
-    constructor(public methods: Array<WebViewMethod>, public webViewPanel: WebviewPanel) {
+    constructor(public methods: Array<WebViewMethod>, public webViewPanel: WebviewPanel | WebviewView) {
         webViewPanel.webview.onDidReceiveMessage(this._onRemoteMessage.bind(this));
         this.webViewPanel = webViewPanel;
     }
@@ -382,7 +424,7 @@ export class WebViewRPCHandler {
     }
 
     static create(
-        webViewPanel: WebviewPanel,
+        webViewPanel: WebviewPanel | WebviewView,
         langClient: ExtendedLangClient,
         methods: Array<WebViewMethod> = [])
         : WebViewRPCHandler {

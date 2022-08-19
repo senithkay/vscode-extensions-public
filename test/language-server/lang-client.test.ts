@@ -22,7 +22,9 @@ import { expect } from 'chai';
 import { join } from 'path';
 import {
     BallerinaExampleListResponse, BallerinaProject, BallerinaProjectComponents, ExecutorPositionsResponse,
-    ExtendedLangClient, JsonToRecordResponse, OpenAPIConverterResponse, PackageConfigSchemaResponse, PartialSTResponse, PerformanceAnalyzerResponse, SymbolInfoResponse, SyntaxTreeNodeResponse
+    ExtendedLangClient, JsonToRecordResponse, NoteBookCellOutputResponse, NotebookFileSourceResponse, 
+    NotebookVariable, OpenAPIConverterResponse, PackageConfigSchemaResponse, PartialSTResponse, 
+    PerformanceAnalyzerResponse, SymbolInfoResponse, SyntaxTreeNodeResponse
 } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
@@ -584,10 +586,10 @@ suite("Language Server Tests", function () {
 
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
                     assert.equal(response.length, 2, 'Invalid number of code actions.');
-                    assert.equal(response[0].title, 'Create variable', 'Invalid create variable action.');
-                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 0th.");
-                    assert.equal(response[1].title, 'Ignore return value', 'Invalid ignore return value action.');
+                    assert.equal(response[1].title, 'Create variable', 'Invalid create variable action.');
                     assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 1st.");
+                    assert.equal(response[0].title, 'Ignore return value', 'Invalid ignore return value action.');
+                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 0th.");
                     done();
                 });
             });
@@ -1014,6 +1016,87 @@ suite("Language Server Tests", function () {
             const response = res as PackageConfigSchemaResponse;
             expect(response).to.contains.keys("configSchema");
             assert.strictEqual(response.configSchema.$schema, "http://json-schema.org/draft-07/schema#", "Invalid project config");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test.skip("Test notebook support - get result for code snippet", function (done): void {
+        langClient.getBalShellResult({
+            source: "15*15"
+        }).then((res) => {
+            const response = res as NoteBookCellOutputResponse;
+            expect(response).to.contain.keys("shellValue", "errors", "diagnostics", "metaInfo", "consoleOut");
+
+            assert.strictEqual(response.shellValue?.value, "225", "Invalid result from code snippet execution");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test.skip("Test notebook support - get file source", function (done): void {
+        langClient.getShellBufferFilePath().then((res) => {
+            const response = res as NotebookFileSourceResponse;
+            expect(response).to.contain.keys("content", "filePath");
+
+            expect(response.filePath).to.not.equal(null, "Shell file source is empty.");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test.skip("Test notebook support - notebook restart", function (done): void {
+        langClient.restartNotebook().then((res) => {
+            const response = res as boolean;
+            assert.strictEqual(response, true, "Notebook not restarted correctly.");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test.skip("Test notebook support - get variable list", function (done): void {
+        langClient.getBalShellResult({
+            source: "int number = 10; string hello = \"hello world\";"
+        }).then(async () => {
+            const response = await langClient.getNotebookVariables() as NotebookVariable[];
+            expect(response).to.be.an("array");
+            assert.strictEqual(response.length, 2, "Variable list does not contain enough items.");
+            expect(response[0]).to.contain.keys("name", "type", "value");
+            const sorted = response.sort((val1, val2) => val1.name.localeCompare(val2.name));
+            assert.strictEqual(sorted[0].name, "hello", "Variable value does not have correct name");
+            assert.strictEqual(sorted[0].type, "string", "Variable value does not have correct type");
+            assert.strictEqual(sorted[0].value, "\"hello world\"", "Variable value does not have correct value");
+            assert.strictEqual(sorted[1].name, "number", "Variable value does not have correct name");
+            assert.strictEqual(sorted[1].type, "int", "Variable value does not have correct type");
+            assert.strictEqual(sorted[1].value, "10", "Variable value does not have correct value");
+            done();
+        }, error => {
+            done(error);
+        });
+    });
+
+    test.skip("Test notebook support - remove variables from memory", function (done): void {
+        langClient.getBalShellResult({
+            source: "int number = 10; string hello = \"hello world\""
+        }).then(async () => {
+            const response = await langClient.deleteDeclarations({
+                varToDelete: "number"
+            }) as boolean;
+            assert.strictEqual(response, true, "Value has not removed from memory correctly.");
+
+            // calling to get number to ensure it was deleted
+            let res = await langClient.getBalShellResult({
+                source: "number"
+            }) as NoteBookCellOutputResponse;
+            expect(res).to.contain.keys("errors", "diagnostics", "metaInfo", "consoleOut");
+            expect(res).to.not.contain.keys("shellValue");
+
+            assert.notStrictEqual(res.errors, 0, "Invalid result from code snippet execution - should produce errors");
+            assert.notStrictEqual(res.diagnostics, 0, "Invalid result from code snippet execution - should produce diagnostics");
             done();
         }, error => {
             done(error);

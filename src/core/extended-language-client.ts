@@ -30,7 +30,14 @@ import {
     ExpressionTypeRequest,
     ExpressionTypeResponse,
 } from "@wso2-enterprise/ballerina-low-code-editor-distribution";
-import { BallerinaConnectorsRequest, BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    BallerinaConnectorsRequest,
+    BallerinaTriggerRequest,
+    BallerinaTriggerResponse,
+    BallerinaTriggersRequest,
+    BallerinaTriggersResponse,
+    FormField
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showChoreoSigninMessage } from "../forecaster";
@@ -70,7 +77,14 @@ enum EXTENDED_APIS {
     PERF_ANALYZER_RESOURCES_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
-    SYMBOL_DOC = 'ballerinaSymbol/getSymbol'
+    NOTEBOOK_RESULT = "balShell/getResult",
+    NOTEBOOK_FILE_SOURCE = "balShell/getShellFileSource",
+    NOTEBOOK_RESTART = "balShell/restartNotebook",
+    NOTEBOOK_VARIABLES = "balShell/getVariableValues",
+    NOTEBOOK_DELETE_DCLNS = "balShell/deleteDeclarations",
+    SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
+    SYMBOL_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
+    SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -83,7 +97,16 @@ enum EXTENDED_APIS_ORG {
     TRIGGER = 'ballerinaTrigger',
     PERF_ANALYZER = 'performanceAnalyzer',
     PARTIAL_PARSER = 'partialParser',
-    BALLERINA_TO_OPENAPI = 'openAPILSExtension'
+    BALLERINA_TO_OPENAPI = 'openAPILSExtension',
+    NOTEBOOK_SUPPORT = "balShell"
+}
+
+export enum DIAGNOSTIC_SEVERITY {
+    INTERNAL = "INTERNAL",
+    HINT = "HINT",
+    INFO = "INFO",
+    WARNING = "WARNING",
+    ERROR = "ERROR"
 }
 
 export interface ExtendedClientCapabilities extends ClientCapabilities {
@@ -148,6 +171,50 @@ export interface JsonToRecordRequest {
 
 export interface JsonToRecordResponse {
     codeBlock: string;
+    diagnostics?: JsonToRecordMapperDiagnostic[];
+}
+
+export interface JsonToRecordMapperDiagnostic {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
+}
+
+export interface NoteBookCellOutputRequest {
+    source: string;
+}
+
+export interface NoteBookCellOutputValue {
+    value: string;
+    mimeType: string;
+    type: string;
+}
+
+export interface NotebookCellMetaInfo {
+    definedVars: string[];
+    moduleDclns: string[];
+}
+
+export interface NoteBookCellOutputResponse {
+    shellValue?: NoteBookCellOutputValue;
+    errors: string[];
+    diagnostics: string[];
+    metaInfo?: NotebookCellMetaInfo;
+    consoleOut: string;
+}
+
+export interface NotebookFileSourceResponse {
+    content: string;
+    filePath: string;
+}
+
+export interface NotebookVariable {
+    name: string;
+    type: string;
+    value: string;
+}
+
+export interface NotebookDeleteDclnRequest {
+    varToDelete: string;
 }
 
 interface BallerinaInitializeParams {
@@ -323,6 +390,44 @@ export interface SymbolInfoResponse {
     documentation: SymbolDocumentation
 }
 
+export interface ExpressionRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
+    filePath?: string;
+}
+
+export interface TypeFromExpressionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    expressionRanges: ExpressionRange[];
+}
+
+export interface ResolvedTypeForExpression {
+    type: FormField;
+    requestedRange: ExpressionRange;
+}
+
+export interface TypesFromExpressionResponse {
+    types: ResolvedTypeForExpression[];
+}
+
+export interface TypeFromSymbolRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    positions: LinePosition[];
+}
+
+export interface ResolvedTypeForSymbol {
+    type: FormField;
+    requestedPosition: LinePosition;
+}
+
+export interface TypesFromSymbolResponse {
+    types: ResolvedTypeForSymbol[];
+}
+
 interface NOT_SUPPORTED_TYPE {
 
 };
@@ -466,6 +571,20 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(null);
     }
 
+    async getTypeFromExpression(params: TypeFromExpressionRequest): Promise<TypesFromExpressionResponse | null> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE_FROM_EXPRESSION);
+        return isSupported
+            ? this.sendRequest<TypesFromExpressionResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_EXPRESSION, params)
+            : Promise.resolve(null);
+    }
+
+    async getTypeFromSymbol(params: TypeFromSymbolRequest): Promise<TypesFromSymbolResponse | null> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL);
+        return isSupported
+            ? this.sendRequest<TypesFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL, params)
+            : Promise.resolve(null);
+    }
+
     public getDocumentSymbol(params: DocumentSymbolParams): Thenable<DocumentSymbol[] | SymbolInformation[] | null> {
         return this.sendRequest("textDocument/documentSymbol", params);
     }
@@ -537,6 +656,41 @@ export class ExtendedLangClient extends LanguageClient {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT);
         const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async getBalShellResult(params: NoteBookCellOutputRequest): Promise<NoteBookCellOutputResponse | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESULT);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_RESULT, params) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async getShellBufferFilePath(): Promise<NotebookFileSourceResponse | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_FILE_SOURCE) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async restartNotebook(): Promise<boolean | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESTART);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_RESTART) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async getNotebookVariables(): Promise<NotebookVariable[] | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_VARIABLES);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_VARIABLES) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async deleteDeclarations(params: NotebookDeleteDclnRequest): Promise<boolean | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.NOTEBOOK_DELETE_DCLNS, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
@@ -616,7 +770,9 @@ export class ExtendedLangClient extends LanguageClient {
                     resolveMissingDependencies: true
                 },
                 { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true },
-                { name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true },
+                {
+                    name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true,
+                    getTypeFromExpression: true, getTypeFromSymbol: true },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true
                 },
@@ -627,7 +783,11 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true, getSTForResource: true },
-                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true }
+                { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
+                {
+                    name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true,
+                    getVariableValues: true, deleteDeclarations: true, restartNotebook: true
+                }
             ]
         }).then(response => {
             const capabilities: Set<String> = new Set();
