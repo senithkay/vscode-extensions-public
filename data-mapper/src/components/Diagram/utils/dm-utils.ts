@@ -1,9 +1,13 @@
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FieldAccess, FunctionDefinition, MappingConstructor, NodePosition, RecordField, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FieldAccess, FromClause, FunctionDefinition, MappingConstructor, NodePosition, RecordField, RequiredParam, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { isPositionsEquals } from "../../../utils/st-utils";
+import { ExpressionLabelModel } from "../Label";
 
 import { DataMapperLinkModel } from "../Link";
-import { ExpressionFunctionBodyNode, QueryExpressionNode } from "../Node";
+import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
+import { LinkConnectorNode } from "../Node/LinkConnector";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
 
 export function getFieldNames(expr: FieldAccess) {
@@ -146,4 +150,124 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 		targetNode.context.applyModifications(modifications);
 	}
 	return `${lhs} = ${rhs}`;
+}
+
+export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
+	let rhs = "";
+	const modifications: STModification[] = [];
+	if (link.getSourcePort()) {
+		const sourcePort = link.getSourcePort() instanceof RecordFieldPortModel
+			? link.getSourcePort() as RecordFieldPortModel
+			: link.getSourcePort() as SpecificFieldPortModel;
+
+		rhs = sourcePort instanceof RecordFieldPortModel
+			? sourcePort.field.name
+			: sourcePort.field.fieldName.value;
+
+		if (sourcePort.parentFieldAccess) {
+			rhs = sourcePort.parentFieldAccess + "." + rhs;
+		}
+	}
+
+	if (link.getTargetPort()){
+		const targetPort = link.getTargetPort();
+		const targetNode = targetPort.getNode();
+		if (targetNode instanceof LinkConnectorNode){
+			targetNode.value = targetNode.value + " + " + rhs;
+			targetNode.updateSource();
+		}
+		else {
+			let targetPos: NodePosition;
+			Object.keys(targetPort.getLinks()).forEach((linkId) => {
+				if (linkId !== link.getID()){
+					const link = targetPort.getLinks()[linkId]
+					targetPos = (link.getLabels()[0] as ExpressionLabelModel).valueNode.position;
+
+				}
+			})
+			if (targetPos){
+				modifications.push({
+					type: "INSERT",
+					config: {
+						"STATEMENT": " + " + rhs,
+					},
+					endColumn: targetPos.endColumn,
+					endLine: targetPos.endLine,
+					startColumn: targetPos.endColumn,
+					startLine: targetPos.endLine
+				});
+
+				(targetNode as DataMapperNodeModel).context.applyModifications(modifications)
+			}
+		}
+	}
+
+}
+
+export function findNodeByValueNode(value: RequiredParam | FromClause, dmNode: DataMapperNodeModel)
+									: RequiredParamNode | FromClauseNode{
+	let foundNode: RequiredParamNode | FromClauseNode;
+	dmNode.getModel().getNodes().find((node) => {
+		if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
+				&& STKindChecker.isRequiredParam(node.value))
+			||(STKindChecker.isFromClause(value) && node instanceof FromClauseNode
+				&& STKindChecker.isFromClause(node.value)))
+			&& isPositionsEquals(value.position, node.value.position)) {
+			foundNode = node;
+		}
+	});
+	return foundNode;
+}
+
+export function getInputNodeExpr(expr: FieldAccess | SimpleNameReference, dmNode: DataMapperNodeModel) {
+	const nameRef = STKindChecker.isSimpleNameReference(expr) ? expr : undefined;
+	if (!nameRef && STKindChecker.isFieldAccess(expr)) {
+		let valueExpr = expr.expression;
+		while (valueExpr && STKindChecker.isFieldAccess(valueExpr)) {
+			valueExpr = valueExpr.expression;
+		}
+		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
+			let paramNode: RequiredParam | FromClause = 
+					dmNode.context.functionST.functionSignature.parameters.find((param) =>
+					STKindChecker.isRequiredParam(param)
+					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
+				) as RequiredParam;
+			if (STKindChecker.isQueryExpression(dmNode.context.selection.selectedST)){
+				paramNode = dmNode.context.selection.selectedST.queryPipeline.fromClause
+			}
+			return findNodeByValueNode(paramNode, dmNode);
+		}
+	}
+}
+
+export function getInputPortsForExpr(node: RequiredParamNode |FromClauseNode, expr: FieldAccess | SimpleNameReference)
+									: RecordFieldPortModel {
+	const typeDesc = node.typeDef;
+	let portIdBuffer = node instanceof RequiredParamNode ? node.value.paramName.value 
+						: EXPANDED_QUERY_SOURCE_PORT_PREFIX  + "." 
+							+ (node as FromClauseNode).sourceBindingPattern.variableName.value;
+	if (typeDesc.typeName === 'record') {
+		if (STKindChecker.isFieldAccess(expr)) {
+			const fieldNames = getFieldNames(expr);
+			let nextTypeNode: Type = typeDesc;
+			for (let i = 1; i < fieldNames.length; i++) {
+				const fieldName = fieldNames[i];
+				portIdBuffer += `.${fieldName}`;
+				const recField = nextTypeNode.fields.find(
+									(field: any) => field.name === fieldName);
+				if (recField) {
+					if (i === fieldNames.length - 1) {
+						const portId = portIdBuffer + ".OUT";
+						const port = (node.getPort(portId) as RecordFieldPortModel);
+						return port;
+					} else if (recField.typeName === 'record') {
+						nextTypeNode = recField;
+					}
+				}
+			}
+		} else {
+		// handle this when direct mapping parameters is enabled
+		}
+	}
+	return null;
 }

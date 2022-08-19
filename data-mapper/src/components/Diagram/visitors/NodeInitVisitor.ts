@@ -19,12 +19,10 @@ import {
     QueryExpressionNode,
     RequiredParamNode
 } from "../Node";
-import { BinaryExpressionNode } from "../Node/BinaryExpression/BinaryExpressionNode";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { SelectClauseNode } from "../Node/SelectClause";
-import { isPositionsEquals } from "../utils";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { FieldAccessFindingVisitor } from "./FieldAccessFindingVisitor";
 
@@ -36,6 +34,7 @@ export class NodeInitVisitor implements Visitor {
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
     private specificFields: SpecificField[] =[];
+    private isWithinQuery: number = 0;
 
     constructor(
         private context: DataMapperContext,
@@ -120,12 +119,13 @@ export class NodeInitVisitor implements Visitor {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
             queryNode.setPosition(440, 1200);
             this.intermediateNodes.push(queryNode);
+            this.isWithinQuery += 1;
         }
     };
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         this.specificFields.push(node)
-        if (node.valueExpr && !STKindChecker.isMappingConstructor(node.valueExpr)){
+        if (this.isWithinQuery === 0 && node.valueExpr && !STKindChecker.isMappingConstructor(node.valueExpr)){
             const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
             traversNode(node.valueExpr, fieldAccessFindingVisitor);
             const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
@@ -138,6 +138,7 @@ export class NodeInitVisitor implements Visitor {
     }
 
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
+        this.isWithinQuery -= 1;
 
     };
 
