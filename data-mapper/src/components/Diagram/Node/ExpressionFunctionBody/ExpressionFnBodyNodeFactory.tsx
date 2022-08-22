@@ -29,6 +29,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<Expressi
 				typeWithValue={getEnrichedRecordType(event.model.typeDef, event.model.value.expression)}
 				value={event.model.value.expression as MappingConstructor}
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+				context={event.model.context}
 			/>
 		);
 	}

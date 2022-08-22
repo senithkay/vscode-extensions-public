@@ -19,10 +19,12 @@ import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 
+import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { TypeWithValue } from "../../../Mappings/TypeWithValue";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
-import { getBalRecFieldName } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getNewSource } from "../../../utils/dm-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -90,11 +92,13 @@ export interface TypeWithValueItemWidgetProps {
     field: TypeWithValue;
     engine: DiagramEngine;
     getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
+    mappingConstruct: MappingConstructor;
+    context: IDataMapperContext;
     treeDepth?: number;
 }
 
 export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
-    const { parentId, field, getPort, engine, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, mappingConstruct, context, treeDepth = 0 } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.type.name);
@@ -108,7 +112,9 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
         fields = field.childrenTypes;
     }
 
-    const [expanded, setExpanded] = useState<boolean>(true)
+    const [expanded, setExpanded] = useState<boolean>(true);
+    const [editable, setEditable] = useState<boolean>(false);
+    const [str, setStr] = React.useState(hasValue ? field.value.source : "");
 
     const typeName = field.type.typeName
         ? field.type.typeName
@@ -132,12 +138,39 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     );
 
     const handleInitialization = () => {
-        // TODO: Add initialization logic
+        setEditable(true);
     }
 
     const handleExpand = () => {
         // TODO Enable expand collapse functionality
         // setExpanded(!expanded)
+    }
+
+    const onChange = (newVal: string) => {
+        setStr(newVal);
+    }
+
+    const onKeyUp = (key: string) => {
+        if (key === "Escape") {
+            setEditable(false);
+        }
+        if (key === "Enter") {
+            const [newSource, targetMappingConstruct] = getNewSource(field, mappingConstruct, str);
+            const targetPos = targetMappingConstruct.openBrace.position;
+            const modifications = [
+                {
+                    type: "INSERT",
+                    config: {
+                        "STATEMENT": `\n${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`,
+                    },
+                    endColumn: targetPos.endColumn,
+                    endLine: targetPos.endLine,
+                    startColumn: targetPos.endColumn,
+                    startLine: targetPos.endLine
+                }
+            ];
+            context.applyModifications(modifications);
+        }
     }
 
     return (
@@ -176,17 +209,38 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
             {fields &&
                 fields.map((subField) => {
                     return (
-                        <TypeWithValueItemWidget
-                            key={fieldId}
-                            engine={engine}
-                            field={subField}
-                            getPort={getPort}
-                            parentId={fieldId}
-                            treeDepth={treeDepth + 1}
-                        />
+                        <>
+                            <TypeWithValueItemWidget
+                                key={fieldId}
+                                engine={engine}
+                                field={subField}
+                                getPort={getPort}
+                                parentId={fieldId}
+                                mappingConstruct={mappingConstruct}
+                                context={context}
+                                treeDepth={treeDepth + 1}
+                            />
+                        </>
                     );
                 })
             }
+            {editable && (
+                <input
+                    size={str.length}
+                    spellCheck={false}
+                    style={{
+                        padding: "5px",
+                        fontFamily: "monospace",
+                        zIndex: 1000,
+                        border: "1px solid #5567D5"
+                    }}
+                    autoFocus={true}
+                    value={str}
+                    onChange={(event) => onChange(event.target.value)}
+                    onKeyUp={(event) => onKeyUp(event.key)}
+                    onBlur={() => setEditable(false)}
+                />
+            )}
         </>
     );
 }

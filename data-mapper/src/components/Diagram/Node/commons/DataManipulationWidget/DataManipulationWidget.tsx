@@ -17,6 +17,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { MappingConstructor } from '@wso2-enterprise/syntax-tree';
 
+import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { TypeWithValue } from "../../../Mappings/TypeWithValue";
 import { RecordFieldPortModel, SpecificFieldPortModel } from '../../../Port';
 
@@ -41,11 +42,12 @@ export interface DataManipulationWidgetProps {
 	value: MappingConstructor;
 	engine: DiagramEngine;
 	getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
+	context: IDataMapperContext;
 }
 
 
 export function DataManipulationWidget(props: DataManipulationWidgetProps) {
-	const { id, typeWithValue, value, engine, getPort } = props;
+	const { id, typeWithValue, value, engine, getPort, context } = props;
 	const classes = useStyles();
 
 	return (
@@ -59,6 +61,8 @@ export function DataManipulationWidget(props: DataManipulationWidgetProps) {
 							field={item}
 							getPort={getPort}
 							parentId={id}
+							mappingConstruct={value}
+							context={context}
 						/>
 					);
 				})

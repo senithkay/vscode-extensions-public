@@ -319,10 +319,37 @@ export function getEnrichedRecordType(type: Type, mappingConstruct?: STNode, par
 	return typeWithValue;
 }
 
+export function getNewSource(field: TypeWithValue, mappingConstruct: MappingConstructor, newValue: string,
+							                      parentFields?: string[]): [string, MappingConstructor] {
+
+	const fieldName = getBalRecFieldName(field.type.name);
+
+	if (field.parentType) {
+		const parent = [...parentFields ? [...parentFields, fieldName] : [fieldName]];
+
+		if (field.parentType.hasValue()) {
+			const valueExpr = field.parentType.value.valueExpr;
+
+			if (STKindChecker.isMappingConstructor(valueExpr)) {
+				return [createSpecificField(parent.reverse()), valueExpr];
+			}
+			// TODO: Implement this to update already existing non-mapping-constructor values
+			return null;
+		}
+		return getNewSource(field.parentType, mappingConstruct, newValue, parent);
+	}
+	return [createSpecificField(parentFields.reverse()), mappingConstruct];
+
+	function createSpecificField(missingFields: string[]): string {
+		return missingFields.length > 1
+			? `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
+			: `\t${missingFields[0]}: ${newValue}`;
+	}
+}
+
 export function getBalRecFieldName(fieldName : string) {
 	if (fieldName) {
 		return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;
 	}
 	return "";
 }
-
