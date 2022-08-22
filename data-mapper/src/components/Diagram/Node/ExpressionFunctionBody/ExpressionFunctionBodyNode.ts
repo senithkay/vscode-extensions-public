@@ -1,12 +1,8 @@
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	ExpressionFunctionBody,
-	FieldAccess,
 	MappingConstructor,
-	RequiredParam,
-	SimpleNameReference,
-	SpecificField,
-	STKindChecker
+	SpecificField
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -14,11 +10,10 @@ import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import { getBalRecFieldName, getFieldNames } from "../../utils/dm-utils";
+import { getBalRecFieldName, getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
-import { RequiredParamNode } from "../RequiredParam";
 
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 
@@ -65,10 +60,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
                 console.log("Unsupported mapping.");
                 return;
             }
-            const inputNode = this.getInputNodeExpr(value);
+            const inputNode = getInputNodeExpr(value, this);
             let inPort: RecordFieldPortModel;
             if (inputNode) {
-                inPort = this.getInputPortsForExpr(inputNode, value);
+                inPort = getInputPortsForExpr(inputNode, value);
             }
             const outPort = this.getOutputPortForField(fields);
 			const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
@@ -117,67 +112,5 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             const outPort = this.getPort(portId);
             return outPort;
         }
-    }
-
-    // Improve to return multiple ports for complex expressions
-    private getInputPortsForExpr(node: RequiredParamNode
-                                 , expr: FieldAccess | SimpleNameReference): RecordFieldPortModel {
-        const typeDesc = node.typeDef;
-        let portIdBuffer = node.value.paramName.value;
-        if (typeDesc.typeName === 'record') {
-            if (STKindChecker.isFieldAccess(expr)) {
-                const fieldNames = getFieldNames(expr);
-                let nextTypeNode: Type = typeDesc;
-                for (let i = 1; i < fieldNames.length; i++) {
-                    const fieldName = fieldNames[i];
-                    portIdBuffer += `.${fieldName}`;
-                    const recField = nextTypeNode.fields.find(
-                        (field) => field.name === fieldName);
-                    if (recField) {
-                        if (i === fieldNames.length - 1) {
-                            const portId = portIdBuffer + ".OUT";
-                            const port = (node.getPort(portId) as RecordFieldPortModel);
-                            return port;
-                        } else if (recField.typeName === 'record') {
-                            nextTypeNode = recField;
-                        }
-                    }
-                }
-            } else {
-                // handle this when direct mapping parameters is enabled
-            }
-        }
-        return null;
-    }
-
-    private getInputNodeExpr(expr: FieldAccess | SimpleNameReference) {
-        const nameRef = STKindChecker.isSimpleNameReference(expr) ? expr : undefined;
-        if (!nameRef && STKindChecker.isFieldAccess(expr)) {
-            let valueExpr = expr.expression;
-            while (valueExpr && STKindChecker.isFieldAccess(valueExpr)) {
-                valueExpr = valueExpr.expression;
-            }
-            if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-                const paramNode = this.context.functionST.functionSignature.parameters
-                    .find((param) =>
-                        STKindChecker.isRequiredParam(param)
-                        && param.paramName?.value === (valueExpr as SimpleNameReference).name.value
-                    ) as RequiredParam;
-                return this.findNodeByValueNode(paramNode);
-            }
-        }
-    }
-
-    private findNodeByValueNode(value: ExpressionFunctionBody | RequiredParam): RequiredParamNode {
-        let foundNode: RequiredParamNode;
-        this.getModel().getNodes().find((node) => {
-            if (STKindChecker.isRequiredParam(value)
-                && node instanceof RequiredParamNode
-                && STKindChecker.isRequiredParam(node.value)
-                && value.paramName.value === node.value.paramName.value) {
-                foundNode = node;
-            }
-        });
-        return foundNode;
     }
 }
