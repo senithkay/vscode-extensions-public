@@ -40,11 +40,9 @@ export class RecordForm {
     }
 
     static typeRecordName(name: string) {
-        ExpressionEditor
-        .getForField("Record name", this.selector)
-        .clear()
-        .type(name)
-        .waitForValidations();
+        cy.get('[field-name="Record name"]')
+            .type('{ctrl}a{del}', { delay: 100 }).wait(2000)
+            .type(name, { delay: 100 }).wait(2000);
     return this;
     }
 
