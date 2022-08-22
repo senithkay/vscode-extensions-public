@@ -35,12 +35,12 @@ import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient'
 export interface DataMapperProps {
     model?: STNode;
     targetPosition?: NodePosition;
-    onClose: () => void;
+    onCancel?: () => void;
     configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
-    const { targetPosition, onClose, model } = props;
+    const { targetPosition, onCancel: onClose, model } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
@@ -120,7 +120,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
         setFunctionST(undefined);
     }
 
-    return (    <DiagramOverlayContainer>
+    return (<DiagramOverlayContainer>
                     <DiagramOverlay position={{ x: 0, y: 0 }} stylePosition={"absolute"} className={dataMapperClasses.overlay}>
                         <div className={dataMapperClasses.dataMapperContainer}>
                             <DataMapper

@@ -3,6 +3,8 @@ import { FormHeaderSection, Panel, useStyles as useFormStyles } from "@wso2-ente
 import React from "react";
 import { AddIOTypeNodeWidget } from "../../Diagram/Node/commons/AddIOTypeNodeWidget";
 import { DataMapperProps } from "../DataMapper";
+import { FunctionNameEditor } from "./FunctionNameEditor";
+import { InputConfigWidget } from "./InputConfigPanel";
 
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
@@ -17,10 +19,9 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     formTitle={"lowcode.develop.configForms.dataMapper.title"}
                     defaultMessage={"Data Mapper"}
                 />
-                <AddIOTypeNodeWidget
-                    title="Input"
-                    {...{fnST, langClientPromise, applyModifications, stSymbolInfo}}
-                />
+                <FunctionNameEditor/>
+                <InputConfigWidget/>
+                
 
             </FormControl>
         </Panel>
