@@ -13,7 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { IconButton } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
@@ -75,8 +77,11 @@ const useStyles = makeStyles((theme: Theme) =>
             borderTopRightRadius: theme.spacing(2),
             borderBottomRightRadius: theme.spacing(2),
             paddingRight: theme.spacing(1),
+        },
+        addIcon: {
+            color: "#5567D5",
+            padding: "5px"
         }
-
     }),
 );
 
@@ -96,6 +101,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const fieldId = `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
+    const hasValue = field.hasValue();
     let fields: TypeWithValue[];
 
     if (field.type.typeName === 'record') {
@@ -125,6 +131,10 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
         </span>
     );
 
+    const handleInitialization = () => {
+        // TODO: Add initialization logic
+    }
+
     const handleExpand = () => {
         // TODO Enable expand collapse functionality
         // setExpanded(!expanded)
@@ -148,6 +158,15 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
                 }
 
                 <span> {label}</span>
+                {!hasValue && (
+                    <IconButton
+                        aria-label="add"
+                        className={classes.addIcon}
+                        onClick={handleInitialization}
+                    >
+                        <AddIcon />
+                    </IconButton>
+                )}
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut}/>
