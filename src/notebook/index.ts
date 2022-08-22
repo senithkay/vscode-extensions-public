@@ -18,4 +18,5 @@
  */
 
 export { activate } from './activator';
+export { getTempFile } from './debugger';
 export * from './constants';

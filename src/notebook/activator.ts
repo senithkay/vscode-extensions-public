@@ -17,7 +17,7 @@
  *
  */
 
-import { workspace, ExtensionContext, commands, Disposable, window, Uri } from 'vscode';
+import { workspace, ExtensionContext, commands, Disposable, window, Uri, debug } from 'vscode';
 import { existsSync } from 'fs';
 import { sep } from 'path';
 import { BallerinaExtension, ExtendedLangClient } from '../core';
@@ -31,12 +31,17 @@ import { BallerinaNotebookController } from "./notebookController";
 import { registerLanguageProviders } from './languageProvider';
 import { VariableViewProvider } from './variableView';
 import {
-    BAL_NOTEBOOK, CREATE_NOTEBOOK_COMMAND, NOTEBOOK_TYPE, OPEN_OUTLINE_VIEW_COMMAND, OPEN_VARIABLE_VIEW_COMMAND,
-    RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND
+    BAL_NOTEBOOK, CREATE_NOTEBOOK_COMMAND, DEBUG_NOTEBOOK_COMMAND, NOTEBOOK_TYPE, OPEN_OUTLINE_VIEW_COMMAND,
+    OPEN_VARIABLE_VIEW_COMMAND, RESTART_NOTEBOOK_COMMAND, UPDATE_VARIABLE_VIEW_COMMAND
 } from './constants';
 import { createFile } from './utils';
+import { BallerinaDebugAdapterTrackerFactory, NotebookDebuggerController } from './debugger';
 
 const update2RegEx = /^2201.[2-9].[0-9]/g;
+const CLEAR_ALL_CELLS_OUTPUT_COMMAND = 'notebook.clearAllCellsOutputs';
+const FOCUS_TO_OUTLINE_COMMAND = 'outline.focus';
+const FOCUS_VARIABLE_VIEW_COMMAND = 'ballerinaViewVariables.focus';
+const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
@@ -62,11 +67,19 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         registerRestartNotebook(ballerinaExtInstance, notebookController),
         window.registerWebviewViewProvider(VariableViewProvider.viewType, variableViewProvider)
     ]);
+
+    if (ballerinaExtInstance.enabledNotebookDebugMode()) {
+        ballerinaExtInstance.setNotebookDebugModeEnabled(true);
+        context.subscriptions.push(...[
+            registerDebug(new NotebookDebuggerController(ballerinaExtInstance)),
+            debug.registerDebugAdapterTrackerFactory('ballerina', new BallerinaDebugAdapterTrackerFactory())
+        ]);
+    }
 }
 
 function registerFocusToOutline(): Disposable {
     return commands.registerCommand(OPEN_OUTLINE_VIEW_COMMAND, () => {
-        commands.executeCommand('outline.focus');
+        commands.executeCommand(FOCUS_TO_OUTLINE_COMMAND);
     });
 }
 
@@ -74,7 +87,7 @@ function registerVariableView(ballerinaExtInstance: BallerinaExtension): Disposa
     return commands.registerCommand(OPEN_VARIABLE_VIEW_COMMAND, () => {
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_VARIABLE_VIEW, CMP_NOTEBOOK);
         ballerinaExtInstance.setNotebookVariableViewEnabled(true);
-        commands.executeCommand('ballerinaViewVariables.focus');
+        commands.executeCommand(FOCUS_VARIABLE_VIEW_COMMAND);
     });
 }
 
@@ -94,7 +107,7 @@ function registerRestartNotebook(ballerinaExtInstance: BallerinaExtension,
         }
         await langClient.restartNotebook();
         notebookController.resetController();
-        await commands.executeCommand('notebook.clearAllCellsOutputs');
+        await commands.executeCommand(CLEAR_ALL_CELLS_OUTPUT_COMMAND);
     });
 }
 
@@ -125,5 +138,12 @@ function registerCreateNotebook(ballerinaExtInstance: BallerinaExtension): Dispo
                 window.showErrorMessage("Unkown error occurred.");
             }
         }
+    });
+}
+
+function registerDebug(debugController: NotebookDebuggerController): Disposable {
+    return commands.registerCommand(DEBUG_NOTEBOOK_COMMAND, (cell) => {
+        commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
+        debugController.startDebugging(cell);
     });
 }

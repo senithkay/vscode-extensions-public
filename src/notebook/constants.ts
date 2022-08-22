@@ -23,6 +23,9 @@ export const BAL_NOTEBOOK = ".balnotebook";
 /* Notebook type */
 export const NOTEBOOK_TYPE = "ballerina-notebook";
 
+/* Notebook cell scheme */
+export const NOTEBOOK_CELL_SCHEME = 'vscode-notebook-cell'
+
 /* Available mime type to render */
 export const MIME_TYPE_TABLE = "ballerina-notebook/table-view";
 export const MIME_TYPE_JSON = "ballerina-notebook/json-view";
@@ -39,3 +42,4 @@ export const OPEN_OUTLINE_VIEW_COMMAND = "ballerina.notebook.openOutlineView";
 export const OPEN_VARIABLE_VIEW_COMMAND = "ballerina.notebook.openVariableView";
 export const UPDATE_VARIABLE_VIEW_COMMAND = "ballerina.notebook.refreshVariableView";
 export const CREATE_NOTEBOOK_COMMAND = "ballerina.notebook.createNotebook";
+export const DEBUG_NOTEBOOK_COMMAND = "ballerina.notebook.debug";

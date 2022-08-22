@@ -260,6 +260,15 @@ Notebook cells can be executed using the Run button available at the left side o
 </details>
 
 <details>
+<summary>Debugging</summary>
+
+It is required to enable notebook debug mode to debug the notebook.
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/notebook-debug.gif?raw=true" width="100%" />
+
+</details>
+
+<details>
 <summary>Commands</summary>
 
 - **Create Notebook**: This command creates a notebook with the given filename.
@@ -281,6 +290,7 @@ Notebook cells can be executed using the Run button available at the left side o
 - **Ballerina: Plugin Dev Mode**: It enables the plugin development mode and is disabled by default. If it is disabled, the extension picks up the Ballerina runtime installed in the environment. Also, if it is enabled, the extension picks up the Ballerina runtime defined in the **Home** configuration above.
 - **Enable Language Server Debug**: It enables the Language Server debug mode and is disabled by default. It is only applicable if the **Plugin Dev Mode** is enabled.
 - **Enable Configurable Editor**: It enables the configurable editor in code view when the run button flow is executed. By default, this is enabled only in the low code view.
+- **Enable Notebook Debug**: It enables the notebook debug mode which provides a button in the dropdown near cell execution button, and is disabled by default.
 
 ---
 ## Troubleshooting
