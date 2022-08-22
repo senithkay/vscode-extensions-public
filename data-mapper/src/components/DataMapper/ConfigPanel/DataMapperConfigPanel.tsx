@@ -1,11 +1,12 @@
 import FormControl from "@material-ui/core/FormControl/FormControl";
 import { FormHeaderSection, Panel, useStyles as useFormStyles } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import React from "react";
+import { AddIOTypeNodeWidget } from "../../Diagram/Node/commons/AddIOTypeNodeWidget";
 import { DataMapperProps } from "../DataMapper";
 
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
-    const { onClose } = props;
+    const { onClose, fnST, langClientPromise, applyModifications, stSymbolInfo } = props;
     const formClasses = useFormStyles();
 
     return (
@@ -15,6 +16,10 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     onCancel={onClose}
                     formTitle={"lowcode.develop.configForms.dataMapper.title"}
                     defaultMessage={"Data Mapper"}
+                />
+                <AddIOTypeNodeWidget
+                    title="Input"
+                    {...{fnST, langClientPromise, applyModifications, stSymbolInfo}}
                 />
 
             </FormControl>

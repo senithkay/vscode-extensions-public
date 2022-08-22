@@ -68,7 +68,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
             } else if (!!functionST) {
                 handleFunctionST(functionST.functionName.value).then();
             } else {
-                createFunctionST().then();
+                // createFunctionST().then();
             }
         })();
     }, [currentFile.content]);
@@ -120,12 +120,11 @@ export function DataMapperOverlay(props: DataMapperProps) {
         setFunctionST(undefined);
     }
 
-    return (!functionST ? <></>
-            :
-                <DiagramOverlayContainer>
+    return (    <DiagramOverlayContainer>
                     <DiagramOverlay position={{ x: 0, y: 0 }} stylePosition={"absolute"} className={dataMapperClasses.overlay}>
                         <div className={dataMapperClasses.dataMapperContainer}>
                             <DataMapper
+                                targetPosition={targetPosition}
                                 fnST={functionST}
                                 langClientPromise={getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>}
                                 filePath={currentFile.path}

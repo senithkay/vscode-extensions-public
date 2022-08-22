@@ -6,6 +6,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FunctionDefinition,
+    NodePosition,
     STNode,
     traversNode,
 } from "@wso2-enterprise/syntax-tree";
@@ -22,6 +23,7 @@ import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient"
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
 export interface DataMapperProps {
+    targetPosition?: NodePosition;
     fnST: FunctionDefinition;
     langClientPromise: Promise<IBallerinaLangClient>;
     filePath: string;
@@ -73,29 +75,31 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
-            const diagnostics=  await handleDiagnostics(filePath, langClientPromise)
+           if (fnST && selection) {
+                const diagnostics=  await handleDiagnostics(filePath, langClientPromise)
 
-            const context = new DataMapperContext(
-                filePath,
-                fnST,
-                selection,
-                langClientPromise,
-                currentFile,
-                stSymbolInfo,
-                handleSelectedST,
-                applyModifications,
-                diagnostics
-            );
+                const context = new DataMapperContext(
+                    filePath,
+                    fnST,
+                    selection,
+                    langClientPromise,
+                    currentFile,
+                    stSymbolInfo,
+                    handleSelectedST,
+                    applyModifications,
+                    diagnostics
+                );
 
-            const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-            await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
-            const nodeInitVisitor = new NodeInitVisitor(context, selection);
-            let selectedST = selection.selectedST;
-            const visitor = new SelectedSTFindingVisitor(selectedST);
-            traversNode(fnST, visitor);
-            selectedST = visitor.getST();
-            traversNode(selectedST, nodeInitVisitor);
-            setNodes(nodeInitVisitor.getNodes());
+                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
+                const nodeInitVisitor = new NodeInitVisitor(context, selection);
+                let selectedST = selection.selectedST;
+                const visitor = new SelectedSTFindingVisitor(selectedST);
+                traversNode(fnST, visitor);
+                selectedST = visitor.getST();
+                traversNode(selectedST, nodeInitVisitor);
+                setNodes(nodeInitVisitor.getNodes());
+           }
         })();
     }, [selection, fnST]);
 
