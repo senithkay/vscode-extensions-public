@@ -56,6 +56,7 @@ export const DEFAULT_EXPR = "EXPRESSION";
 export const DEFAULT_FUNCTION_CALL = "FUNCTION_CALL()";
 export const DEFAULT_TYPE_DESC = "TYPE_DESCRIPTOR";
 export const DEFAULT_BINDING_PATTERN = "BINDING_PATTERN";
+export const DEFAULT_FIELD_NAME = "FIELD_NAME";
 
 class ExpressionDeletingVisitor implements Visitor {
     private deletePosition: NodePosition;
@@ -384,8 +385,8 @@ class ExpressionDeletingVisitor implements Visitor {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeName.position)){
             this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
         } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)){
-            this.setProperties(DEFAULT_BINDING_PATTERN, node.fieldName.position);
-        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.readonlyKeyword.position)){
+            this.setProperties(DEFAULT_FIELD_NAME, node.fieldName.position);
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.readonlyKeyword?.position)){
 
             this.setProperties(node.typeName.source, {
             ...node.position,
