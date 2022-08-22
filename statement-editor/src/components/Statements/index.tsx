@@ -22,8 +22,8 @@ import { MatchStatementC } from "./MatchStatement";
 import { ModuleVarDeclC } from './ModuleVarDecl';
 import { OtherStatementTypes } from "./OtherStatement";
 import { ReturnStatementC } from "./ReturnStatement";
+import { TypeDefinitionC } from "./TypeDefinition";
 import { WhileStatementC } from "./WhileStatement";
-
 
 export { LocalVarDeclC as LocalVarDecl };
 export { ModuleVarDeclC as ModuleVarDecl };
@@ -38,3 +38,4 @@ export { AssignmentStatementComponent as AssignmentStatement };
 export { ActionStatementC as ActionStatement };
 export { ConstantDeclC as ConstDeclaration }
 export { MatchStatementC as MatchStatement }
+export { TypeDefinitionC as TypeDefinition }
