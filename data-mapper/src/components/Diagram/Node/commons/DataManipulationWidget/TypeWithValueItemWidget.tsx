@@ -101,7 +101,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const { parentId, field, getPort, engine, mappingConstruct, context, treeDepth = 0 } = props;
     const classes = useStyles();
 
-    const fieldName = getBalRecFieldName(field.type.name);
+    let fieldName = getBalRecFieldName(field.type.name);
     const fieldId = `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
@@ -110,15 +110,17 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
 
     if (field.type.typeName === 'record') {
         fields = field.childrenTypes;
+    } else if (field.type.typeName === 'array') {
+        fieldName += '[]';
     }
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [editable, setEditable] = useState<boolean>(false);
     const [str, setStr] = React.useState(hasValue ? field.value.source : "");
 
-    const typeName = field.type.typeName
-        ? field.type.typeName
-        : "record";
+    const typeName = field.type.typeName === 'array'
+        ? field.type.memberType.typeName
+        : field.type.typeName;
 
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
