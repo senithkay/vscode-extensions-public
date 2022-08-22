@@ -62,7 +62,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			: link.getSourcePort() as SpecificFieldPortModel;
 
 		rhs = sourcePort instanceof RecordFieldPortModel
-			? sourcePort.field.name
+			? getBalRecFieldName(sourcePort.field.name)
 			: sourcePort.field.fieldName.value;
 
 		if (sourcePort.parentFieldAccess) {
@@ -94,7 +94,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			let mappingConstruct;
 			const parentFieldNames: string[] = [];
 
-			lhs = targetPort.field.name;
+			lhs = getBalRecFieldName(targetPort.field.name);
 			if (targetNode instanceof ExpressionFunctionBodyNode && STKindChecker.isMappingConstructor(targetNode.value.expression)) {
 				mappingConstruct = targetNode.value.expression as MappingConstructor;
 			} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
@@ -169,14 +169,10 @@ export function getEnrichedRecordType(type: Type, mappingConstruct?: STNode, par
 	let fields = null;
 	let specificField: SpecificField;
 	let nextNode: STNode;
-	let fieldName = type?.name;
 	if (parentType && mappingConstruct && STKindChecker.isMappingConstructor(mappingConstruct)) {
-		specificField = mappingConstruct.fields.find((val) => {
-			if (keywords.includes(fieldName)) {
-				fieldName = `'${fieldName}`;
-			}
-			return STKindChecker.isSpecificField(val) && val.fieldName.value === fieldName;
-		}) as SpecificField;
+		specificField = mappingConstruct.fields.find((val) =>
+			STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+		) as SpecificField;
 		nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
 	} else if (!parentType) {
 		nextNode = mappingConstruct;
@@ -198,4 +194,11 @@ export function getEnrichedRecordType(type: Type, mappingConstruct?: STNode, par
 	}
 	typeWithValue.childrenTypes = children;
 	return typeWithValue;
+}
+
+export function getBalRecFieldName(fieldName : string) {
+	if (fieldName) {
+		return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;
+	}
+	return "";
 }

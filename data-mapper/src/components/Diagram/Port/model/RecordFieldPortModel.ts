@@ -14,7 +14,7 @@ import { LinkModel, PortModel, PortModelGenerics } from "@projectstorm/react-dia
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperLinkModel } from "../../Link";
-import { createSpecificFieldSource } from "../../utils/dm-utils";
+import { createSpecificFieldSource, getBalRecFieldName } from "../../utils/dm-utils";
 
 export interface RecordFieldNodeModelGenerics {
 	PORT: RecordFieldPortModel;
@@ -32,7 +32,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public parentModel?: RecordFieldPortModel) {
 		super({
 			type: FORM_FIELD_PORT,
-			name: `${parentId}.${field.name}.${portType}`,
+			name: `${parentId}.${getBalRecFieldName(field.name)}.${portType}`,
 		});
 	}
 

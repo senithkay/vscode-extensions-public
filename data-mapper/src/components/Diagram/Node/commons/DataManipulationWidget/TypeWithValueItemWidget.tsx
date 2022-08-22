@@ -20,6 +20,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 
 import { TypeWithValue } from "../../../Mappings/TypeWithValue";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
+import { getBalRecFieldName } from "../../../utils/dm-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -91,7 +92,8 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const { parentId, field, getPort, engine, treeDepth = 0 } = props;
     const classes = useStyles();
 
-    const fieldId = `${parentId}.${field.type.name}`;
+    const fieldName = getBalRecFieldName(field.type.name);
+    const fieldId = `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
     let fields: TypeWithValue[];
@@ -111,7 +113,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const label = (
         <span style={{marginRight: "auto"}}>
             <span className={classes.valueLabel} style={{marginLeft: indentation}}>
-                {field.type.name}
+                {fieldName}
                 {typeName && ":"}
             </span>
             {typeName && (

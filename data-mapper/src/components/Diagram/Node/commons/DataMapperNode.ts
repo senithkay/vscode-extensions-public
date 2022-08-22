@@ -12,6 +12,7 @@ import {
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
+import { getBalRecFieldName } from "../../utils/dm-utils";
 import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
 
 export interface DataMapperNodeModelGenerics {
@@ -72,8 +73,9 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	protected addPortsForRecordField(field: Type, type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string,
 									                         parent?: RecordFieldPortModel) {
-		const fieldId = `${parentId}.${field.name}`;
-		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.name}`;
+		const fieldName = getBalRecFieldName(field.name);
+		const fieldId = `${parentId}.${fieldName}`;
+		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
 		const fieldPort = new RecordFieldPortModel(field, type, parentId, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
 		if (field.typeName === 'record') {
