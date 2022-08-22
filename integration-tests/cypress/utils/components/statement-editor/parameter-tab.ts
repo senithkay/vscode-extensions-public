@@ -78,83 +78,143 @@ export class ParameterTab {
 
     static shouldHaveRecordArg(name: string) {
         cy.get(`[data-testid="record-arg"]`)
-            .should('be.visible')
-            .first()
-            .within(() => {
-                cy.get(`[data-testid="arg-name"]`)
-                    .contains(name)
-                    .should('be.visible');
-            });
+            .children()
+            .children(`[data-testid="arg-name"]`)
+            .contains(name)
+            .scrollIntoView();
+        return this;
+    }
+
+    static toggleRecordArgs(name: string) {
+        cy.get(`[data-testid="record-arg"]`)
+            .children()
+            .children(`[data-testid="arg-name"]`)
+            .contains(name)
+            .parent()
+            .scrollIntoView()
+            .siblings(`[data-testid="arg-check"]`)
+            .click({ force: true })
+            .wait(500);
+        return this;
+    }
+
+    static toggleRecordOptionalArgs(name: string) {
+        cy.get(`[data-testid="record-arg"]`)
+            .children()
+            .children(`[data-testid="arg-name"]`)
+            .contains(name)
+            .parent()
+            .parent()
+            .parent()
+            .scrollIntoView()
+            .children()
+            .children(`[data-testid="parameter-branch"]`)
+            .scrollIntoView()
+            .children()
+            .children(`[data-testid="optional-toggle-button"]`)
+            .scrollIntoView()
+            .click({ force: true })
+            .wait(500);
+        return this;
+    }
+
+    static shouldHaveInclusionArg(name: string) {
+        cy.get(`[data-testid="inclusion-arg"]`)
+            .children()
+            .children(`[data-testid="arg-name"]`)
+            .contains(name)
+            .scrollIntoView();
+        return this;
+    }
+
+    static toggleInclusionArg(name: string) {
+        cy.get(`[data-testid="inclusion-arg"]`)
+            .children()
+            .children(`[data-testid="arg-name"]`)
+            .contains(name)
+            .parent()
+            .scrollIntoView()
+            .siblings(`[data-testid="arg-check"]`)
+            .click({ force: true })
+            .wait(500);
+        return this;
+    }
+
+    static toggleInclusionOptionalArgs(name: string) {
+        cy.get(`[data-testid="inclusion-arg"]`)
+            .children()
+            .children(`[data-testid="arg-name"]`)
+            .contains(name)
+            .parent()
+            .parent()
+            .parent()
+            .scrollIntoView()
+            .children()
+            .children(`[data-testid="parameter-branch"]`)
+            .children()
+            .children(`[data-testid="optional-toggle-button"]`)
+            .click({ force: true })
+            .wait(500);
         return this;
     }
 
     static shouldHaveUnionArg(name: string) {
         cy.get(`[data-testid="union-arg"]`)
-            .should('be.visible')
-            .first()
-            .within(() => {
-                cy.get(`[data-testid="arg-name"]`)
-                    .contains(name)
-                    .should('be.visible');
-            });
+            .children()
+            .children(`[data-testid="arg-name"]`)
+            .contains(name)
+            .scrollIntoView();
         return this;
     }
 
     static selectUnionArg(name: string, selector: string) {
         cy.get(`[data-testid="union-arg"]`)
-            .should('be.visible')
-            .first()
-            .within(() => {
-                cy.get(`[data-testid="arg-name"]`)
-                    .contains(name)
-                    .should('be.visible')
-                    .parent().parent()
-                    .get(`[data-testid="arg-dropdown"]`)
-                    .click({ force: true })
-                    .get(`ul > li[data-value="${selector}"]`)
-                    .click();
-            });
+            .children()
+            .children(`[data-testid="arg-name"]`)
+            .contains(name)
+            .parent()
+            .scrollIntoView()
+            .siblings(`[data-testid="arg-dropdown"]`)
+            .children(`[data-testid="select-dropdown"]`)
+            .children(`[data-testid="select-dropdown-data"]`)
+            .click({ force: true }); // FIXME: Fix mui select menu item selection
+        cy.get(`ul > li[data-value="${selector}"]`)
+            .click({ force: true });
+        return this;
+    }
+
+    static toggleUnionArg(name: string) {
+        cy.get(`[data-testid="union-arg"]`)
+            .children()
+            .children(`[data-testid="arg-name"]`)
+            .contains(name)
+            .parent()
+            .scrollIntoView()
+            .siblings(`[data-testid="arg-check"]`)
+            .click({ force: true })
+            .wait(500);
         return this;
     }
 
     static shouldHaveCustomArg(name: string) {
-        // cy.get(`[data-testid="custom-arg"]`)
-        //     .should('be.visible')
-        //     .first()
-        //     .within(() => {
-        //         cy.get(`[data-testid="arg-name"]`)
-        //             .contains(name)
-        //             .should('be.visible');
-        //     });
         cy.get(`[data-testid="custom-arg"]`)
-            .should('be.visible')
+            .children()
             .children(`[data-testid="arg-name"]`)
             .contains(name)
-            .should('be.visible');
+            .scrollIntoView();
         return this;
     }
 
     static toggleCustomArg(name: string) {
-        // cy.get(`[data-testid="optional-arg"]`)
-        //     .should('be.visible')
-        //     .children()
-        //     .contains(name)
-        //     .should('be.visible')
-        //     .parent().parent()
-        //     .within(() => {
-        //         cy.get(`[data-testid="arg-check"]`)
-        //             .click();
-        //     });
         cy.get(`[data-testid="custom-arg"]`)
-            .should('be.visible')
-            .get(`[data-testid="arg-name"]`)
+            .children()
+            .children(`[data-testid="arg-name"]`)
             .contains(name)
-            .should('be.visible').parent().parent()
-            .within(() => {
-                cy.get(`[data-testid="arg-check"]`)
-                    .click();
-            });
-
+            .parent()
+            .scrollIntoView()
+            .siblings(`[data-testid="arg-check"]`)
+            .click({ force: true })
+            .wait(500);
         return this;
     }
 }
