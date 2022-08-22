@@ -106,11 +106,13 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
     const hasValue = field.hasValue();
+    const isArray = field.type.typeName === 'array';
+    const isRecord = field.type.typeName === 'record';
     let fields: TypeWithValue[];
 
-    if (field.type.typeName === 'record') {
+    if (isRecord) {
         fields = field.childrenTypes;
-    } else if (field.type.typeName === 'array') {
+    } else if (isArray) {
         fieldName += '[]';
     }
 
@@ -118,9 +120,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const [editable, setEditable] = useState<boolean>(false);
     const [str, setStr] = React.useState(hasValue ? field.value.source : "");
 
-    const typeName = field.type.typeName === 'array'
-        ? field.type.memberType.typeName
-        : field.type.typeName;
+    const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
 
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
@@ -139,18 +139,27 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
         </span>
     );
 
-    const handleInitialization = () => {
-        setEditable(true);
-    }
+    const handleEditable = () => {
+        if (isArray) {
+            handleArrayInitialization();
+        } else {
+            setEditable(true);
+        }
+    };
 
     const handleExpand = () => {
         // TODO Enable expand collapse functionality
         // setExpanded(!expanded)
-    }
+    };
+
+    const handleArrayInitialization = () => {
+        const [newSource, targetMappingConstruct] = getNewSource(field, mappingConstruct, '[]');
+        updateSource(newSource, targetMappingConstruct);
+    };
 
     const onChange = (newVal: string) => {
         setStr(newVal);
-    }
+    };
 
     const onKeyUp = (key: string) => {
         if (key === "Escape") {
@@ -158,22 +167,26 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
         }
         if (key === "Enter") {
             const [newSource, targetMappingConstruct] = getNewSource(field, mappingConstruct, str);
-            const targetPos = targetMappingConstruct.openBrace.position;
-            const modifications = [
-                {
-                    type: "INSERT",
-                    config: {
-                        "STATEMENT": `\n${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`,
-                    },
-                    endColumn: targetPos.endColumn,
-                    endLine: targetPos.endLine,
-                    startColumn: targetPos.endColumn,
-                    startLine: targetPos.endLine
-                }
-            ];
-            context.applyModifications(modifications);
+            updateSource(newSource, targetMappingConstruct);
         }
-    }
+    };
+
+    const updateSource = (newSource: string, targetMappingConstruct: MappingConstructor) => {
+        const targetPos = targetMappingConstruct.openBrace.position;
+        const modifications = [
+            {
+                type: "INSERT",
+                config: {
+                    "STATEMENT": `\n${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`,
+                },
+                endColumn: targetPos.endColumn,
+                endLine: targetPos.endLine,
+                startColumn: targetPos.endColumn,
+                startLine: targetPos.endLine
+            }
+        ];
+        context.applyModifications(modifications);
+    };
 
     return (
         <>
@@ -197,7 +210,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
                     <IconButton
                         aria-label="add"
                         className={classes.addIcon}
-                        onClick={handleInitialization}
+                        onClick={handleEditable}
                     >
                         <AddIcon />
                     </IconButton>
@@ -208,6 +221,21 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
                     }
                 </span>
             </div>
+            {editable && isArray && (
+                <div className={classes.treeLabel}>
+                    <span>[</span>
+                    {!hasValue && (
+                        <IconButton
+                            aria-label="add"
+                            className={classes.addIcon}
+                            onClick={handleArrayInitialization}
+                        >
+                            <AddIcon />
+                        </IconButton>
+                    )}
+                    <span>]</span>
+                </div>
+            )}
             {fields &&
                 fields.map((subField) => {
                     return (
@@ -226,7 +254,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
                     );
                 })
             }
-            {editable && (
+            {editable && !isArray && (
                 <input
                     size={str.length}
                     spellCheck={false}
