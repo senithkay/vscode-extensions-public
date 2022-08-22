@@ -28,35 +28,23 @@ describe('edit a http advanced resource', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it.skip('Edit service and add statements', () => {
+  it('Edit service and add statements', () => {
 
     // cy.on('uncaught:exception', () => false); //Need to fix this
 
     Canvas.getService("/wso2")
-      .getResourceFunction("GET", "path1/path2")
+      .getResourceFunction("POST", "path1/path2")
       .editDiagram();
 
     ResourceForm
       .shouldBeVisible()
-      .selectAdvancedConfig()
-      .removePathParam("path1")
-      .removePathParam("path2")
-      .clickAddPathSegments()
-      .addPathParam("path3")
-      .clickPathParam("path3")
-      .typePathParam("p3")
-      .clickIsParam()
-      .typePathParamType("int")
-      .savePathParamBtn()
-      .removeQueryParam("query")
-      .clickAddQueryParam()
-      .addQueryParam("query2")
-      .clickQueryParam("query2")
-      .typeQueryParamType("int")
-      .addQueryParam("q3")
-      .togglePayload()
-      .clickCallerCheckBox()
-      .clickRequestCheckBox()
+      .typePathName('[int p3]')
+      .addResourceParam('QUERY', 'int', 'q3')
+      .removeParameter("http:Caller", "caller")
+      .removeParameter("http:Request", "request")
+      .removeParameter("string", "query")
+      .removeParameter("string", "payload")
+      .selectMethod('GET')
       .save()
 
     SourceCode.shouldBeEqualTo(
