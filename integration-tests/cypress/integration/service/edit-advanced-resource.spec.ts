@@ -28,17 +28,16 @@ describe('edit a http advanced resource', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it.skip('Edit service and add statements', () => {
+    it('Edit service and add statements', () => {
         Canvas.getService("/wso2")
-            .getResourceFunction("GET", "path1/path2")
+            .getResourceFunction("POST", "path1/path2")
             .editDiagram();
 
         ResourceForm
             .shouldBeVisible()
-            .selectAdvancedConfig()
-            .removePathParam("path1")
-            .togglePayload()
-            .clickCallerCheckBox()
+            .typePathName("path2")
+            .removeParameter("http:Caller", "caller")
+            .selectMethod("GET")
             .save()
 
         SourceCode.shouldBeEqualTo(
