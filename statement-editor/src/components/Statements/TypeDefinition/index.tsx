@@ -11,17 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {ReactNode, useContext} from "react";
+import React, { ReactNode } from "react";
 
 import {
     TypeDefinition
 } from "@wso2-enterprise/syntax-tree";
 
-import { CUSTOM_CONFIG_TYPE } from "../../../constants";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
-import { KeywordComponent } from "../../Keyword";
-import { TokenComponent } from "../../Token";
 
 interface TypeDefProps {
     model: TypeDefinition;
@@ -29,32 +25,7 @@ interface TypeDefProps {
 
 export function TypeDefinitionC(props: TypeDefProps) {
     const { model } = props;
-    const {
-        modelCtx: {
-            currentModel,
-            changeCurrentModel
-        },
-        config
-    } = useContext(StatementEditorContext);
 
-    // if (!currentModel.model) {
-    //     if (model.initializer) {
-    //         changeCurrentModel(model.initializer);
-    //     } else if (config.type === CUSTOM_CONFIG_TYPE) {
-    //         changeCurrentModel(model);
-    //     }
-    // }
-
-    // const qualifiers = model.qualifiers.map((qualifier: ConfigurableKeyword | FinalKeyword) => {
-    //     return (
-    //         <>
-    //             {STKindChecker.isFinalKeyword(qualifier) ?
-    //                 <KeywordComponent model={qualifier}/> :
-    //                 <TokenComponent model={qualifier} className={"keyword"} />
-    //             }
-    //         </>
-    //     )
-    // });
     let typeDescriptor: ReactNode;
     if (model?.typeDescriptor) {
         typeDescriptor = (
@@ -66,14 +37,6 @@ export function TypeDefinitionC(props: TypeDefProps) {
 
     return (
         <>
-            {/*{model?.metadata && <TokenComponent model={model.metadata} className={"keyword"} />}*/}
-            {/*{qualifiers}*/}
-            {/*<ExpressionComponent model={model.typedBindingPattern} />*/}
-            {/*<TokenComponent model={model.equalsToken} className={"operator"} />*/}
-            {/*<ExpressionComponent model={model.initializer}/>*/}
-            {/*/!* TODO: use model.semicolonToken.isMissing when the ST interface is supporting *!/*/}
-            {/*{model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&*/}
-            {/*    <TokenComponent model={model.semicolonToken} />}*/}
             <span style={{color: "blue", marginRight: 5}}>
                 {model?.visibilityQualifier}
             </span>
@@ -86,9 +49,9 @@ export function TypeDefinitionC(props: TypeDefProps) {
             <span>
                 {typeDescriptor}
             </span>
-            <div>
+            <span>
                 {model?.semicolonToken?.value}
-            </div>
+            </span>
         </>
     );
 }
