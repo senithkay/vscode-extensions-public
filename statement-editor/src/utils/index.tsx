@@ -302,6 +302,11 @@ export function getUpdatedSource(statement: string, currentFileContent: string,
     return updatedContent;
 }
 
+export function isModuleMember(model: STNode): boolean {
+    return (STKindChecker.isModuleVarDecl(model) || STKindChecker.isConstDeclaration(model) ||
+        STKindChecker.isTypeDefinition(model));
+}
+
 export function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {
 
     const splitContent: string[] = currentContent.split(/\n/g) || [];
