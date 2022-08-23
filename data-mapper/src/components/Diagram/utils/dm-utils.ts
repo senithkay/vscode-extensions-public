@@ -14,6 +14,7 @@ import {
 	STKindChecker,
 	STNode
 } from "@wso2-enterprise/syntax-tree"; import { isPositionsEquals } from "../../../utils/st-utils";
+
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { TypeWithValue } from "../Mappings/TypeWithValue";
@@ -286,19 +287,35 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 }
 
 
-export function getEnrichedRecordType(type: Type, mappingConstruct?: STNode, parentType?: TypeWithValue,
+export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: TypeWithValue,
 									                             childrenTypes?: TypeWithValue[]) {
 	let typeWithValue: TypeWithValue = null;
 	let fields = null;
 	let specificField: SpecificField;
 	let nextNode: STNode;
-	if (parentType && mappingConstruct && STKindChecker.isMappingConstructor(mappingConstruct)) {
-		specificField = mappingConstruct.fields.find((val) =>
-			STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
-		) as SpecificField;
-		nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
-	} else if (!parentType) {
-		nextNode = mappingConstruct;
+
+	if (parentType) {
+		if (node && STKindChecker.isMappingConstructor(node)) {
+			specificField = node.fields.find((val) =>
+				STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+			) as SpecificField;
+			nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
+		} else if (node && STKindChecker.isListConstructor(node)) {
+			const mappingConstructors = node.expressions.filter((val) =>
+				STKindChecker.isMappingConstructor(val)
+			);
+			for (const expr of mappingConstructors) {
+				if (STKindChecker.isMappingConstructor(expr)) {
+					specificField = expr.fields.find((val) =>
+						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+					) as SpecificField;
+					nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
+				}
+			}
+			// TODO: Add support for other types as well
+		}
+	} else {
+		nextNode = node;
 	}
 
 	typeWithValue = new TypeWithValue(type, specificField, parentType);
@@ -332,6 +349,14 @@ export function getNewSource(field: TypeWithValue, mappingConstruct: MappingCons
 
 			if (STKindChecker.isMappingConstructor(valueExpr)) {
 				return [createSpecificField(parent.reverse()), valueExpr];
+			} else if (STKindChecker.isListConstructor(valueExpr)
+				&& STKindChecker.isMappingConstructor(valueExpr.expressions[0])) {
+				for (const expr of valueExpr.expressions) {
+					if (STKindChecker.isMappingConstructor(expr)
+						&& isPositionsEquals(expr.position, mappingConstruct.position)) {
+						return [createSpecificField(parent.reverse()), expr];
+					}
+				}
 			}
 			// TODO: Implement this to update already existing non-mapping-constructor values
 			return null;

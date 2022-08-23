@@ -215,7 +215,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                 <>
                     {
                         listConstructor?.expressions.map((expr) => {
-                            if (!STKindChecker.isCommaToken(expr)) {
+                            if (STKindChecker.isMappingConstructor(expr)) {
                                 return (
                                     <>
                                         <div className={classes.treeLabel}>
@@ -232,7 +232,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                                                                 field={subField}
                                                                 getPort={getPort}
                                                                 parentId={fieldId}
-                                                                mappingConstruct={mappingConstruct}
+                                                                mappingConstruct={expr}
                                                                 context={context}
                                                                 treeDepth={treeDepth + 1}
                                                             />
@@ -247,7 +247,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                                                                 field={subField}
                                                                 getPort={getPort}
                                                                 parentId={fieldId}
-                                                                mappingConstruct={mappingConstruct}
+                                                                mappingConstruct={expr}
                                                                 context={context}
                                                                 treeDepth={treeDepth + 1}
                                                             />
@@ -261,6 +261,8 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                                         </div>
                                     </>
                                 );
+                            } else {
+                                // TODO: Handle other cases
                             }
                         })
                     }
