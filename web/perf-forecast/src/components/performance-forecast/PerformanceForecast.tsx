@@ -23,22 +23,6 @@ import "./graph-styles.css";
 import { DataGrid } from '@mui/x-data-grid';
 import { ConnectorPosition, GraphPoint, PerformanceForecastProps, Values, VSCode } from './model';
 
-const columns = [
-    {
-        field: "LATENCY (User Count 1 - 50)",
-        minWidth: 170,
-        maxWidth: 180,
-        flex: 0.2,
-        sortable: false,
-    },
-    {
-        field: "PATH",
-        minWidth: 700,
-        flex: 1,
-        sortable: false
-    }
-];
-
 declare const vscode: VSCode;
 export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) => {
     const criticalPathId = data.criticalPath;
@@ -124,6 +108,22 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
             </div></>
     );
 
+    const columns = [
+        {
+            field: `LATENCY`,
+            headerName: `LATENCY (User Count 1 - ${paths[criticalPathId].sequenceDiagramData.concurrency.max})`,
+            minWidth: 215,
+            flex: 0.2,
+            sortable: false,
+        },
+        {
+            field: "PATH",
+            minWidth: 700,
+            flex: 1,
+            sortable: false
+        }
+    ];
+
     return (
         <div className="performance-forcast">
             <h1 className="center">Performance Graph - {name}</h1>
@@ -182,7 +182,7 @@ const getXAxis = () =>
     >
     </XAxis>;
 
-function createData(id: number, connectors: string[], positions: Record<string, ConnectorPosition>,  latency: string) {
+function createData(id: number, connectors: string[], positions: Record<string, ConnectorPosition>, latency: string) {
     let pathName = "Start";
 
     connectors.forEach((connectorId) => {
@@ -199,7 +199,7 @@ function getPerfValuesWithUnit(latencies: Values): string {
 }
 
 function getResponseTime(responseTime: number) {
-    return responseTime > 1000 ? (responseTime / 1000).toFixed(2) : responseTime.toFixed(2)
+    return responseTime > 1000 ? (responseTime / 1000).toFixed(2) : responseTime
 }
 
 function getResponseUnit(responseTime: number) {
