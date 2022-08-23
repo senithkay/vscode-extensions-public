@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { IconButton } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -19,7 +19,7 @@ import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { TypeWithValue } from "../../../Mappings/TypeWithValue";
@@ -101,28 +101,41 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const { parentId, field, getPort, engine, mappingConstruct, context, treeDepth = 0 } = props;
     const classes = useStyles();
 
-    let fieldName = getBalRecFieldName(field.type.name);
+    const fieldName = getBalRecFieldName(field.type.name);
     const fieldId = `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
     const hasValue = field.hasValue();
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';
-    let fields: TypeWithValue[];
-
-    if (isRecord) {
-        fields = field.childrenTypes;
-    } else if (isArray) {
-        fieldName += '[]';
-    }
+    const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [editable, setEditable] = useState<boolean>(false);
-    const [str, setStr] = React.useState(hasValue ? field.value.source : "");
-
-    const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
+    const [arrayEditable, setArrayEditable] = useState<boolean>(false);
+    const [showArrayElements, setShowArrayElements] = useState<boolean>(false);
+    const [str, setStr] = useState(hasValue ? field.value.source : "");
+    const [fields, setFields] = useState<TypeWithValue[]>(isRecord ? field.childrenTypes : []);
 
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
+
+    useEffect(() => {
+        if (showArrayElements) {
+            setFields(prevState => {
+                return [...prevState, ...field.childrenTypes];
+            });
+        }
+    }, [showArrayElements]);
+
+    useEffect(() => {
+        if (hasValue) {
+            if (STKindChecker.isListConstructor(field.value.valueExpr)) {
+                setArrayEditable(!field.value.valueExpr.expressions.length);
+            } else {
+                setArrayEditable(false);
+            }
+        }
+    }, [mappingConstruct]);
 
     const label = (
         <span style={{marginRight: "auto"}}>
@@ -155,6 +168,10 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const handleArrayInitialization = () => {
         const [newSource, targetMappingConstruct] = getNewSource(field, mappingConstruct, '[]');
         updateSource(newSource, targetMappingConstruct);
+    };
+
+    const handleAddArrayElement = () => {
+        setShowArrayElements(true);
     };
 
     const onChange = (newVal: string) => {
@@ -221,18 +238,16 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
                     }
                 </span>
             </div>
-            {editable && isArray && (
+            {isArray && hasValue && arrayEditable && (
                 <div className={classes.treeLabel}>
                     <span>[</span>
-                    {!hasValue && (
                         <IconButton
                             aria-label="add"
                             className={classes.addIcon}
-                            onClick={handleArrayInitialization}
+                            onClick={handleAddArrayElement}
                         >
                             <AddIcon />
                         </IconButton>
-                    )}
                     <span>]</span>
                 </div>
             )}
