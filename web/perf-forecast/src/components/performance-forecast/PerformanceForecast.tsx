@@ -21,7 +21,7 @@ import React, { useState } from 'react';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart } from 'recharts';
 import "./graph-styles.css";
 import { DataGrid } from '@mui/x-data-grid';
-import { ConnectorPosition, GraphPoint, PerformanceForecastProps, Values, VSCode } from './model';
+import { ConnectorPosition, PerformanceForecastProps, Values, VSCode } from './model';
 
 declare const vscode: VSCode;
 export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) => {
@@ -39,71 +39,81 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
         rows.push(createData(Number(key), pathMaps[key], positions, getPerfValuesWithUnit(latency)))
     }
 
+    const isGraphDataAvailable = graphData.length === 0;
     const graph = (
-        <><div className="diagram">
-            <div className="y-label">
-
+        <>
+            <div className="diagram-wrapper">
+                {isGraphDataAvailable && <div className="overlay"></div>}
+                {isGraphDataAvailable && <div className="no-data-dialog">Insufficient data to plot performance curves for the selected path</div>}
+                <div className="diagram">
+                    <div className="y-label">
+                    </div>
+                    <ResponsiveContainer height={250}>
+                        <LineChart
+                            width={500}
+                            height={300}
+                            data={graphData}
+                            syncId="performance"
+                            margin={{
+                                top: 5,
+                                right: 30,
+                                left: 20,
+                                bottom: 5
+                            }}
+                        >
+                            {getXAxis()}
+                            <YAxis
+                                tick={{ strokeWidth: 0, fontSize: 10 }}
+                                axisLine={false}
+                                tickSize={0}
+                                tickMargin={15}
+                                label={{ value: 'Throughput (req/s)', angle: -90, position: 'insideBottomLeft' }} />
+                            <YAxis />
+                            <Tooltip cursor={{ strokeWidth: 2 }} />
+                            <CartesianGrid strokeDasharray="0" />
+                            <Line type="monotone" dataKey="tps" baseLine={8}
+                                stroke="#5567D5" strokeWidth="2" fillOpacity={1} fill="url(#colorThroughput)" />
+                        </LineChart>
+                    </ResponsiveContainer>
+                    <div className="x-label">
+                        User Count
+                    </div>
+                </div>
             </div>
-            <ResponsiveContainer height={250}>
-                <LineChart
-                    width={500}
-                    height={300}
-                    data={graphData}
-                    syncId="performance"
-                    margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5
-                    }}
-                >
-                    {getXAxis()}
-                    <YAxis
-                        tick={{ strokeWidth: 0, fontSize: 10 }}
-                        axisLine={false}
-                        tickSize={0}
-                        tickMargin={15}
-                        label={{ value: 'Throughput (req/s)', angle: -90, position: 'insideBottomLeft' }} />
-                    <YAxis />
-                    <Tooltip cursor={{ strokeWidth: 2 }} />
-                    <CartesianGrid strokeDasharray="0" />
-                    <Line type="monotone" dataKey="tps" baseLine={8}
-                        stroke="#5567D5" strokeWidth="2" fillOpacity={1} fill="url(#colorThroughput)" />
-                </LineChart>
-            </ResponsiveContainer>
-            <div className="x-label">
-                User Count
-            </div>
-        </div><div className="diagram latency">
-                <ResponsiveContainer width="100%" height={250}>
-                    <LineChart
-                        width={500}
-                        height={300}
-                        data={graphData}
-                        syncId="performance"
-                        margin={{
-                            top: 5,
-                            right: 30,
-                            left: 20,
-                            bottom: 5
-                        }}
-                    >
-                        {getXAxis()}
-                        <YAxis
-                            tick={{ strokeWidth: 0, fontSize: 10 }}
-                            axisLine={false}
-                            tickSize={0}
-                            tickMargin={15}
-                            label={{ value: 'Latency (ms)', angle: -90, position: 'insideBottomLeft' }} />
-                        <YAxis />
-                        <Tooltip cursor={{ strokeWidth: 2 }} />
-                        <CartesianGrid strokeDasharray="0" />
-                        <Line type="monotone" dataKey="latency"
-                            stroke="#EA4C4D" strokeWidth="2" fillOpacity={1} fill="url(#colorLatency)" />
-                    </LineChart>
-                </ResponsiveContainer>
-                <div className="x-label">
-                    User Count
+            <div className="diagram-wrapper">
+                {isGraphDataAvailable && <div className="overlay"></div>}
+                {isGraphDataAvailable && <div className="no-data-dialog">Insufficient data to plot performance curves for the selected path</div>}
+                <div className="diagram latency">
+                    <ResponsiveContainer width="100%" height={250}>
+                        <LineChart
+                            width={500}
+                            height={300}
+                            data={graphData}
+                            syncId="performance"
+                            margin={{
+                                top: 5,
+                                right: 30,
+                                left: 20,
+                                bottom: 5
+                            }}
+                        >
+                            {getXAxis()}
+                            <YAxis
+                                tick={{ strokeWidth: 0, fontSize: 10 }}
+                                axisLine={false}
+                                tickSize={0}
+                                tickMargin={15}
+                                label={{ value: 'Latency (ms)', angle: -90, position: 'insideBottomLeft' }} />
+                            <YAxis />
+                            <Tooltip cursor={{ strokeWidth: 2 }} />
+                            <CartesianGrid strokeDasharray="0" />
+                            <Line type="monotone" dataKey="latency"
+                                stroke="#EA4C4D" strokeWidth="2" fillOpacity={1} fill="url(#colorLatency)" />
+                        </LineChart>
+                    </ResponsiveContainer>
+                    <div className="x-label">
+                        User Count
+                    </div>
                 </div>
             </div></>
     );
@@ -150,9 +160,11 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
 
             {graphData && graph}
 
-            <a href="https://wso2.com/choreo/docs/references/performance-analysis/">
-                How Performance Analyzer Works
-            </a>
+            <div className="link">
+                <a href="https://wso2.com/choreo/docs/references/performance-analysis/">
+                    How Performance Analyzer Works
+                </a>
+            </div>
         </div>
     );
 };
