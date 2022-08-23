@@ -26,6 +26,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { ConnectorLatency, mergeAnalysisDetails } from "./mergePerformanceData";
 
 const SUCCESS = "Success";
+const NO_DATA = "NO_DATA";
 let syntaxTree: any;
 let langClient: DiagramEditorLangClientInterface;
 let filePath: string;
@@ -130,9 +131,9 @@ async function addRealtimeData() {
             if (resource.type === SUCCESS) {
 
                 const realtimeData = await getDataFromChoreo(resource, ANALYZE_TYPE.REALTIME) as PerformanceAnalyzerRealtimeResponse;
-                if (!realtimeData) {
-                    return;
-                }
+                if (!realtimeData) continue;
+                if (realtimeData.message === NO_DATA) continue;
+
                 const pos = resource.resourcePos;
                 const position = `${pos.start.line},${pos.start.character},${pos.end.line},${pos.end.character}`;
                 endpoints.set(position, resource);
@@ -153,7 +154,7 @@ function updateDiagram(realtimeData: PerformanceAnalyzerRealtimeResponse, analyz
     const tps = realtimeData.tps;
 
     const topBarData: TopBarData = {
-        concurrency: `${concurrency.min} - ${concurrency.max}`,
+        concurrency: concurrency.min === concurrency.max ? `1` : `${concurrency.min} - ${concurrency.max}`,
         latency: getPerfValuesWithUnit(latency),
         tps: `${tps.min} - ${tps.max}`,
         analyzeType
@@ -200,7 +201,7 @@ async function showPerformanceChart(data: PerformanceGraphRequest) {
 export async function updatePerfPath(pathId: string) {
     if (pathId === '-1') {
         await addRealtimeData();
-    } else{
+    } else {
         updateDiagram({ ...advancedData.paths[pathId].sequenceDiagramData, positions: advancedData.positions }, ANALYZE_TYPE.ADVANCED);
     }
 
@@ -213,7 +214,7 @@ function getPerfValuesWithUnit(latencies: Values): string {
 }
 
 function getResponseTime(responseTime: number) {
-    return responseTime > 1000 ? (responseTime / 1000).toFixed(2) : responseTime.toFixed(2)
+    return responseTime > 1000 ? (responseTime / 1000).toFixed(2) : responseTime
 }
 
 function getResponseUnit(responseTime: number) {
