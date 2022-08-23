@@ -56,3 +56,11 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 2;
 }
+
+.MuiDataGrid-cell:focus {
+    outline: none !important;
+}
+
+.MuiDataGrid-cellContent {
+    cursor: pointer;
+}
