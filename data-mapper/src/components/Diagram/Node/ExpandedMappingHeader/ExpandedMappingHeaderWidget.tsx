@@ -25,7 +25,7 @@ const useStyles = makeStyles(() =>
     createStyles({
         root: {
             width: '100%',
-            minWidth: 400,
+            minWidth: 200,
             backgroundColor: "#fff",
             padding: "5px",
             display: "flex",
@@ -57,7 +57,6 @@ const useStyles = makeStyles(() =>
         buttonWrapper: {
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
-            position: "absolute",
             right: "35px"
         }
     })
