@@ -11,6 +11,10 @@ const data =
         "0": [
             "0",
             "1"
+        ],
+        "1": [
+            "0",
+            "1"
         ]
     },
     "paths": {
@@ -58,8 +62,35 @@ const data =
                     }
                 },
                 "latency": {
-                    "max": 39.26156997680664,
-                    "min": 24.138883590698242
+                    "max": 3900,
+                    "min": 24
+                },
+                "tps": {
+                    "max": 15.77,
+                    "min": 11.74
+                }
+            }
+        },
+        "1": {
+            "graphData": [],
+            "sequenceDiagramData": {
+                "concurrency": {
+                    "max": 25,
+                    "min": 1
+                },
+                "connectorLatencies": {
+                    "0": {
+                        "max": 2129,
+                        "min": 39
+                    },
+                    "1": {
+                        "max": 2129,
+                        "min": 24
+                    }
+                },
+                "latency": {
+                    "max": 39,
+                    "min": 24
                 },
                 "tps": {
                     "max": 15.77,
