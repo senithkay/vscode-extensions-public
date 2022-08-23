@@ -26,6 +26,8 @@ import { TypeWithValue } from "../../../Mappings/TypeWithValue";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getNewSource } from "../../../utils/dm-utils";
 
+import { TypeWithValueArrayItemWidget } from "./TypeWithValueArrayItemWidget";
+
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         treeLabel: {
@@ -109,33 +111,12 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';
     const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
+    const fields = isRecord ? field.childrenTypes : [];
+    const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [editable, setEditable] = useState<boolean>(false);
-    const [arrayEditable, setArrayEditable] = useState<boolean>(false);
-    const [showArrayElements, setShowArrayElements] = useState<boolean>(false);
     const [str, setStr] = useState(hasValue ? field.value.source : "");
-    const [fields, setFields] = useState<TypeWithValue[]>(isRecord ? field.childrenTypes : []);
-
-    const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
-
-    useEffect(() => {
-        if (showArrayElements) {
-            setFields(prevState => {
-                return [...prevState, ...field.childrenTypes];
-            });
-        }
-    }, [showArrayElements]);
-
-    useEffect(() => {
-        if (hasValue) {
-            if (STKindChecker.isListConstructor(field.value.valueExpr)) {
-                setArrayEditable(!field.value.valueExpr.expressions.length);
-            } else {
-                setArrayEditable(false);
-            }
-        }
-    }, [mappingConstruct]);
 
     const label = (
         <span style={{marginRight: "auto"}}>
@@ -153,25 +134,12 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     );
 
     const handleEditable = () => {
-        if (isArray) {
-            handleArrayInitialization();
-        } else {
-            setEditable(true);
-        }
+        setEditable(true);
     };
 
     const handleExpand = () => {
         // TODO Enable expand collapse functionality
         // setExpanded(!expanded)
-    };
-
-    const handleArrayInitialization = () => {
-        const [newSource, targetMappingConstruct] = getNewSource(field, mappingConstruct, '[]');
-        updateSource(newSource, targetMappingConstruct);
-    };
-
-    const handleAddArrayElement = () => {
-        setShowArrayElements(true);
     };
 
     const onChange = (newVal: string) => {
@@ -207,49 +175,52 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
 
     return (
         <>
-            <div className={classes.treeLabel}>
+            {!isArray && (
+                <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
-                {fields &&
-                    (expanded ? (
-                            <ExpandMoreIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
-                        ) :
-                        (
-                            <ChevronRightIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
-                        ))
-                }
+                    {fields &&
+                        (expanded ? (
+                                <ExpandMoreIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                            ) :
+                            (
+                                <ChevronRightIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                            ))
+                    }
 
-                <span> {label}</span>
-                {!hasValue && (
-                    <IconButton
-                        aria-label="add"
-                        className={classes.addIcon}
-                        onClick={handleEditable}
-                    >
-                        <AddIcon />
-                    </IconButton>
-                )}
-                <span className={classes.treeLabelOutPort}>
+                    <span> {label}</span>
+                    {!hasValue && (
+                        <IconButton
+                            aria-label="add"
+                            className={classes.addIcon}
+                            onClick={handleEditable}
+                        >
+                            <AddIcon />
+                        </IconButton>
+                    )}
+                    <span className={classes.treeLabelOutPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut}/>
                     }
                 </span>
-            </div>
-            {isArray && hasValue && arrayEditable && (
-                <div className={classes.treeLabel}>
-                    <span>[</span>
-                        <IconButton
-                            aria-label="add"
-                            className={classes.addIcon}
-                            onClick={handleAddArrayElement}
-                        >
-                            <AddIcon />
-                        </IconButton>
-                    <span>]</span>
                 </div>
+            )}
+            {isArray && (
+                <>
+                    <TypeWithValueArrayItemWidget
+                        key={fieldId}
+                        engine={engine}
+                        field={field}
+                        getPort={getPort}
+                        parentId={fieldId}
+                        mappingConstruct={mappingConstruct}
+                        context={context}
+                        treeDepth={treeDepth + 1}
+                    />
+                </>
             )}
             {fields &&
                 fields.map((subField) => {
