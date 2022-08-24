@@ -1,0 +1,149 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+import React, { useState } from "react";
+
+import { Grid } from "@material-ui/core";
+import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { DataMapperInputParam } from "./types";
+import styled from "@emotion/styled";
+import { TypeBrowser } from "../TypeBrowser";
+
+interface InputParamEditorProps {
+    id?: number;
+    param?: DataMapperInputParam,
+    onSave?: (segment: DataMapperInputParam) => void;
+    onUpdate?: (segment: DataMapperInputParam) => void;
+    onCancel?: () => void;
+    validateParams?: (paramName: string) => { error: boolean, message: string };
+}
+
+export function InputParamEditor(props: InputParamEditorProps) {
+
+    const { param, onSave, onUpdate, id, onCancel, validateParams } = props;
+
+    const initValue: DataMapperInputParam = param ? { ...param } : {
+        name: "",
+        type: "",
+    };
+
+    const [paramType, setParamType] = useState<string>(param?.type || "");
+    const [paramName, setParamName] = useState<string>(param?.name || "");
+    const [pramError, setParamError] = useState<string>("");
+    const [isValidParam, setIsValidParam] = useState(false);
+
+    const validateNameValue = (value: string) => {
+        if (value) {
+            const varValidationResponse = validateParams(value);
+            if (varValidationResponse?.error && (param?.name !== value)) {
+                setParamError(varValidationResponse.message);
+                return false;
+            }
+        }
+        setParamError("");
+        return true;
+    };
+
+    const handleOnSave = () => {
+        onSave({
+            ...initValue,
+            name: paramName,
+            type: paramType,
+        });
+    };
+
+    const handleOnUpdate = () => {
+        onUpdate({
+            ...initValue,
+            name: paramName,
+            type: paramType,
+        });
+    };
+
+    const validateParamType = (fieldName: string, isInvalid: boolean) => {
+        setIsValidParam(!isInvalid);
+    };
+
+    return (
+        <ParamEditorContainer>
+            <div>
+                <Grid container={true} spacing={1}>
+                    <Grid item={true} xs={5}>
+                        <IputLabel>
+                            Type
+                        </IputLabel>
+                    </Grid>
+                    <Grid item={true} xs={7}>
+                        <IputLabel>
+                            Name
+                        </IputLabel>
+                    </Grid>
+                </Grid>
+                <Grid container={true} item={true} spacing={2}>
+                    <Grid item={true} xs={5}>
+                        <TypeBrowser type={paramType} onChange={setParamType} />
+                    </Grid>
+                    <Grid item={true} xs={7}>
+                        <FormTextInput
+                            defaultValue={paramName}
+                            customProps={{validate: validateNameValue}}
+                            onChange={setParamName}
+                            errorMessage={pramError}
+                        />
+                    </Grid>
+
+                </Grid>
+                <Grid container={true} item={true} spacing={2}>
+                    <Grid item={true} xs={12}>
+                        <ButtonContainer>
+                            <SecondaryButton
+                                text="Cancel"
+                                fullWidth={false}
+                                onClick={onCancel}
+                            />
+                            <PrimaryButton
+                                text={onUpdate ? "Update" : " Add"}
+                                disabled={!paramName || !paramType || pramError !== "" || !isValidParam}
+                                fullWidth={false}
+                                onClick={onUpdate ? handleOnUpdate : handleOnSave}
+                            />
+                        </ButtonContainer>
+                    </Grid>
+                </Grid>
+            </div>
+        </ParamEditorContainer>
+    );
+}
+
+
+const ParamEditorContainer = styled.div(() => ({
+    boxSizing: "border-box",
+    height: "153px",
+    width: "100%",
+    border: "1px solid #EEEEEE",
+    backgroundColor: "#F7F8FB"
+}));
+
+const IputLabel = styled.div(() => ({
+    height: "24px",
+    width: "38px",
+    color: "#1D2028",
+    fontSize: "13px",
+    letterSpacing: "0",
+    lineHeight: "24px"
+}));
+
+const ButtonContainer = styled.div(() => ({
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: "1px"
+}))

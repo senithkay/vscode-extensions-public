@@ -1,15 +1,23 @@
+import styled from "@emotion/styled";
+import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
 import { FormHeaderSection, Panel, useStyles as useFormStyles } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import React from "react";
-import { AddIOTypeNodeWidget } from "../../Diagram/Node/commons/AddIOTypeNodeWidget";
+import React, { useEffect } from "react";
 import { DataMapperProps } from "../DataMapper";
-import { FunctionNameEditor } from "./FunctionNameEditor";
-import { InputConfigWidget } from "./InputConfigPanel";
-
+import { FunctionNameEditor, getFnNameFromST } from "./FunctionNameEditor";
+import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
     const { onClose, fnST, langClientPromise, applyModifications, stSymbolInfo } = props;
     const formClasses = useFormStyles();
+
+    const [fnName, setFnName] = React.useState("transform");
+
+    useEffect(() => {
+        if (fnST) {
+            setFnName(getFnNameFromST(fnST));
+        }
+    }, [fnST]);
 
     return (
         <Panel onClose={onClose}>
@@ -19,11 +27,22 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     formTitle={"lowcode.develop.configForms.dataMapper.title"}
                     defaultMessage={"Data Mapper"}
                 />
-                <FunctionNameEditor/>
-                <InputConfigWidget/>
-                
-
+                <FormBody>
+                    <FunctionNameEditor value={fnName} onChange={setFnName} />
+                    <InputDivider />
+                    <InputParamsPanel />
+                </FormBody>
             </FormControl>
         </Panel>
     );
 }
+
+const FormBody = styled.div`
+    width: 100%;
+    flexDirection: row;
+    padding: 15px 20px;
+`;
+
+const InputDivider = styled(Divider)`
+    margin: 1.5rem 0
+`;
