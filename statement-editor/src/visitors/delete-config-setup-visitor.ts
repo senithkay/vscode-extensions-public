@@ -28,6 +28,7 @@ import {
     RecordFieldWithDefaultValue,
     ReturnStatement,
     SimpleNameReference,
+    STKindChecker,
     STNode,
     TupleTypeDesc,
     TypedBindingPattern,
@@ -57,7 +58,12 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         (node.bindingPattern.viewState as StatementEditorViewState).exprNotDeletable = true;
-        (node.typeDescriptor.viewState as StatementEditorViewState).templateExprDeletable = true;
+        if (STKindChecker.isFromClause(node.parent)) {
+            (node.bindingPattern.viewState as StatementEditorViewState).templateExprDeletable = false;
+            (node.typeDescriptor.viewState as StatementEditorViewState).templateExprDeletable = false;
+        } else {
+            (node.typeDescriptor.viewState as StatementEditorViewState).templateExprDeletable = true;
+        }
     }
 
 
