@@ -18,7 +18,7 @@ import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/synta
 import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";
-import { HeaderActions } from "../../../HeaderActions";
+import { HeaderActions, HeaderActionsWithMenu } from "../../../HeaderActions";
 import { HeaderWrapper } from "../../../HeaderWrapper";
 import { getDiagnosticInfo } from "../../../Utils";
 
@@ -95,6 +95,9 @@ export function ResourceHeader(props: ResourceHeaderProps) {
                 />
                 <ResourceOtherParams parameters={model.functionSignature.parameters} />
             </div>
+            <div className="return-type">
+                {model.functionSignature.returnTypeDesc?.source}
+            </div>
             {diagnosticMsgs ?
                 (
                     <div>
@@ -104,12 +107,13 @@ export function ResourceHeader(props: ResourceHeaderProps) {
                 : null
             }
 
-            <HeaderActions
+            <HeaderActionsWithMenu
                 model={model}
                 deleteText="Are you sure you want to delete resource?"
                 isExpanded={isExpanded}
                 onExpandClick={onExpandClick}
                 onConfirmDelete={onDeleteClick}
+                isResource={true}
             />
         </HeaderWrapper >
     );

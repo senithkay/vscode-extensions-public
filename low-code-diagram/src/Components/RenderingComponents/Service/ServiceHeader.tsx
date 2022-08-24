@@ -22,7 +22,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context as DiagramContext } from "../../../Context/diagram";
-import { HeaderActions } from "../../../HeaderActions";
+import { HeaderActionsWithMenu } from "../../../HeaderActions";
 import { HeaderWrapper } from "../../../HeaderWrapper";
 
 import "./style.scss";
@@ -46,10 +46,12 @@ export interface ServiceHeaderProps {
     model: ServiceDeclaration;
     isExpanded: boolean;
     onExpandClick: () => void;
+    onClickTryIt: () => void;
+    onClickRun: () => void;
 }
 
 export function ServiceHeader(props: ServiceHeaderProps) {
-    const { model, isExpanded, onExpandClick } = props;
+    const { model, isExpanded, onExpandClick, onClickTryIt, onClickRun } = props;
     const diagramContext = useContext(DiagramContext);
     const { stSymbolInfo } = diagramContext.props;
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
@@ -104,13 +106,15 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                     {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ""}
                 </div>
             </div>
-            <HeaderActions
+            <HeaderActionsWithMenu
                 model={model}
                 deleteText="Delete this Service?"
                 isExpanded={isExpanded}
                 onExpandClick={onExpandClick}
                 onConfirmDelete={handleDeleteConfirm}
                 unsupportedType={isUnsupportedType}
+                onClickTryIt={onClickTryIt}
+                onClickRun={onClickRun}
             />
         </HeaderWrapper >
     );
