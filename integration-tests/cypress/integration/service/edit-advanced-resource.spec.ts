@@ -37,11 +37,12 @@ describe('edit a http advanced resource', () => {
             .shouldBeVisible()
             .typePathName("path2")
             .removeParameter("http:Caller", "caller")
-            .selectMethod("GET")
             .save()
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "edit-advanced-resource.expected.bal");
     })
+
+    // TODO: once the issue https://github.com/wso2-enterprise/choreo/issues/14987 is fixed, add a test to check change in http:Method
 
 })
