@@ -16,7 +16,7 @@ import React, { useContext } from "react";
 import { ConfigOverlayFormStatus, EndConfig, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 
 import { AddRespondForm } from "./AddRespondForm";
@@ -34,6 +34,7 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
     STKindChecker.isExpressionFunctionBody(config.model) : false;
+    const targetPosition = formArgs.targetPosition;
     const {
         api: {
             panNZoom: {
@@ -43,13 +44,32 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
         }
     } = useContext(Context);
 
+    const {
+        props: { syntaxTree }
+    } = useDiagramContext();
+
     if (formType === "Return") {
         config.expression = "";
     } else if (formType === "Respond") {
+        let callerName = "";
+        const caller = STKindChecker.isModulePart(syntaxTree) && syntaxTree.members
+                        .filter((service => STKindChecker.isServiceDeclaration(service)
+                            && service.position.startLine < targetPosition.startLine
+                            && service.position.endLine > targetPosition.startLine
+                            && service.members
+                        .forEach(resource => {
+                            if (resource.position.startLine < targetPosition.startLine
+                                && resource.position.endLine >= targetPosition.startLine) {
+                                    callerName = STKindChecker.isResourceAccessorDefinition(resource)
+                                                 && STKindChecker.isRequiredParam(resource.functionSignature.parameters[0])
+                                                 && resource.functionSignature.parameters[0].paramName.value;
+                            }
+                        })));
+
         config.expression = {
             respondExpression: "",
             variable: "",
-            caller: "caller",
+            caller: callerName,
             genType: ""
         };
     }
