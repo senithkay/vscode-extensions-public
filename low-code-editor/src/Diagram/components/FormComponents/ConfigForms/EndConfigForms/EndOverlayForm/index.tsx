@@ -16,7 +16,7 @@ import React, { useContext } from "react";
 import { ConfigOverlayFormStatus, EndConfig, RespondConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ActionStatement, ExpressionFunctionBody, RemoteMethodCallAction, ReturnStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { Context, useDiagramContext } from "../../../../../../Contexts/Diagram";
+import { Context} from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 
 import { AddRespondForm } from "./AddRespondForm";
@@ -36,6 +36,7 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     STKindChecker.isExpressionFunctionBody(config.model) : false;
     const targetPosition = formArgs.targetPosition;
     const {
+        props: { syntaxTree },
         api: {
             panNZoom: {
                 pan,
@@ -43,10 +44,6 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
             }
         }
     } = useContext(Context);
-
-    const {
-        props: { syntaxTree }
-    } = useDiagramContext();
 
     if (formType === "Return") {
         config.expression = "";
