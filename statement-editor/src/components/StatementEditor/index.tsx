@@ -246,6 +246,10 @@ export function StatementEditor(props: StatementEditorProps) {
         })();
     }, [currentFile.content]);
 
+    useEffect(() => {
+        setStmtModel(editorModel);
+    }, [editorModel]);
+
     const restArg = (restCheckClicked: boolean) => {
         setRestArg(restCheckClicked);
     }

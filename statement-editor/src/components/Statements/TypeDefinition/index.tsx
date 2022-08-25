@@ -34,6 +34,14 @@ export function TypeDefinitionC(props: TypeDefProps) {
             />
         )
     }
+    let typeName: ReactNode;
+    if (model?.typeName) {
+        typeName = (
+            <ExpressionComponent
+                model={model?.typeName}
+            />
+        )
+    }
 
     return (
         <>
@@ -44,7 +52,7 @@ export function TypeDefinitionC(props: TypeDefProps) {
                 {model?.typeKeyword?.value}
             </span>
             <span style={{color: "green", marginRight: 5}}>
-                {model?.typeName?.value}
+                {typeName}
             </span>
             <span>
                 {typeDescriptor}

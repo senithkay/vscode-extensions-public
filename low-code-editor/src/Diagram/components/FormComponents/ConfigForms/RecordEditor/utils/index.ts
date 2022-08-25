@@ -24,14 +24,14 @@ import { isLiteral } from "../../../../../utils";
 import { Field, RecordModel, SimpleField } from "../types";
 
 export async function convertToRecord(json: string, name: string, isClosed: boolean,
-                                      lsUrl: string, ls?: any): Promise<string> {
+                                      lsUrl: string, isSeparateDefinitions: boolean, ls?: any): Promise<string> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient();
     const resp: JsonToRecordResponse = await langClient.convert(
         {
             jsonString: json,
             recordName: name,
             isClosed,
-            isRecordTypeDesc: true,
+            isRecordTypeDesc: !isSeparateDefinitions,
         }
     )
     return resp.codeBlock;
@@ -40,6 +40,13 @@ export async function convertToRecord(json: string, name: string, isClosed: bool
 export async function getRecordST(partialSTRequest: PartialSTRequest,
                                   lsUrl: string,
                                   ls?: any): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
+
+    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
+    return resp.syntaxTree;
+}
+
+export async function getModulePartST(partialSTRequest: PartialSTRequest, lsUrl: string, ls?: any): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
 
     const resp = await langClient.getSTForModuleMembers(partialSTRequest);

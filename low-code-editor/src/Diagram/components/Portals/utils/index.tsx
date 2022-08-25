@@ -1129,8 +1129,8 @@ function convertToCamelCase(variableName: string): string {
         });
 }
 
-export function genVariableName(defaultName: string, variables: string[]): string {
-    const baseName: string = convertToCamelCase(defaultName);
+export function genVariableName(defaultName: string, variables: string[], skipCamelCase?: boolean): string {
+    const baseName: string = skipCamelCase ? defaultName : convertToCamelCase(defaultName);
     let varName: string = baseName.includes('.') ? baseName.split('.').pop() : baseName;
     let index = 0;
     while (variables.includes(varName)) {
