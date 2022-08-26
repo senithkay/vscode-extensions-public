@@ -488,7 +488,8 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                     );
                     nextValueIndex++;
                 }
-                formField.selected = isAnyFieldSelected(formField.inclusionType?.fields);
+                formField.inclusionType.selected = isAnyFieldSelected(formField.inclusionType?.fields);
+                formField.selected = formField.inclusionType.selected;
             } else if (formField.typeName === "union") {
                 formField.value = positionalArg.expression?.source;
                 formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
@@ -628,7 +629,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                             mappingField.fields as SpecificField[],
                                             subFields
                                         );
-                                        let allFieldsFilled = true;
+                                        let allFieldsFilled = true; // FIXME: fix this union type selection
                                         subFields.forEach((field) => {
                                             if (
                                                 field.optional === false &&
