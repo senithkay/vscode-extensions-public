@@ -5,7 +5,9 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	FieldAccess,
-	FromClause, FunctionDefinition,
+	FromClause,
+	FunctionDefinition,
+	ListConstructor,
 	MappingConstructor,
 	NodePosition,
 	RecordField,
@@ -146,6 +148,9 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				source = `${lhs}: ${rhs}`;
 			}
 
+			if (STKindChecker.isListConstructor(targetMappingConstruct) && STKindChecker.isMappingConstructor(targetMappingConstruct.expressions[0])) {
+				targetMappingConstruct = targetMappingConstruct.expressions[0];
+			}
 			const targetPos = targetMappingConstruct.openBrace.position as NodePosition;
 			if (targetMappingConstruct.fields.length > 0) {
 				source += ",";
@@ -286,7 +291,6 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 	return null;
 }
 
-
 export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: TypeWithValue,
 									                             childrenTypes?: TypeWithValue[]) {
 	let typeWithValue: TypeWithValue = null;
@@ -309,7 +313,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ty
 					specificField = expr.fields.find((val) =>
 						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
 					) as SpecificField;
-					nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
+					// nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
 				}
 			}
 			// TODO: Add support for other types as well
@@ -322,19 +326,98 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ty
 
 	if (type.typeName === 'record') {
 		fields = type.fields;
+		const children = [...childrenTypes ? childrenTypes : []];
+		if (fields && !!fields.length) {
+			fields.map((field) => {
+				const childType = getEnrichedRecordType(field, nextNode, typeWithValue, childrenTypes);
+				children.push(childType);
+			});
+		}
+		typeWithValue.childrenTypes = children;
 	} else if (type.typeName === 'array' && type.memberType.typeName === 'record') {
-		fields = type.memberType.fields;
+		if (nextNode && STKindChecker.isListConstructor(nextNode)) {
+			typeWithValue.memberType = getEnrichedArrayType(type, nextNode, typeWithValue);
+		}
 	}
-	const children = [...childrenTypes ? childrenTypes : []];
-	if (fields && !!fields.length) {
-		fields.map((field) => {
-			const childType = getEnrichedRecordType(field, nextNode, typeWithValue, childrenTypes);
-			children.push(childType);
-		});
-	}
-	typeWithValue.childrenTypes = children;
+
 	return typeWithValue;
 }
+
+export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentType?: TypeWithValue, childrenTypes?: TypeWithValue[]) {
+	let fields: Type[] = [];
+	const members: TypeWithValue[][] = [];
+
+	if (type.typeName === 'array' && type.memberType.typeName === 'record') {
+		fields = type.memberType.fields;
+	}
+
+	node.expressions.forEach((expr) => {
+		const member: TypeWithValue[] = [];
+		if (STKindChecker.isMappingConstructor(expr)) {
+			if (fields && !!fields.length) {
+				fields.map((field) => {
+					const childType = getEnrichedRecordType(field, expr, parentType, childrenTypes);
+					member.push(childType);
+				});
+			}
+		}
+		if (!!member.length) {
+			members.push(member);
+		}
+	});
+
+	return members;
+}
+
+
+// export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: TypeWithValue,
+// 									                             childrenTypes?: TypeWithValue[]) {
+// 	let typeWithValue: TypeWithValue = null;
+// 	let fields = null;
+// 	let specificField: SpecificField;
+// 	let nextNode: STNode;
+//
+// 	if (parentType) {
+// 		if (node && STKindChecker.isMappingConstructor(node)) {
+// 			specificField = node.fields.find((val) =>
+// 				STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+// 			) as SpecificField;
+// 			nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
+// 		} else if (node && STKindChecker.isListConstructor(node)) {
+// 			const mappingConstructors = node.expressions.filter((val) =>
+// 				STKindChecker.isMappingConstructor(val)
+// 			);
+// 			for (const expr of mappingConstructors) {
+// 				if (STKindChecker.isMappingConstructor(expr)) {
+// 					specificField = expr.fields.find((val) =>
+// 						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+// 					) as SpecificField;
+// 					nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
+// 				}
+// 			}
+// 			// TODO: Add support for other types as well
+// 		}
+// 	} else {
+// 		nextNode = node;
+// 	}
+//
+// 	typeWithValue = new TypeWithValue(type, specificField, parentType);
+//
+// 	if (type.typeName === 'record') {
+// 		fields = type.fields;
+// 	} else if (type.typeName === 'array' && type.memberType.typeName === 'record') {
+// 		fields = type.memberType.fields;
+// 	}
+// 	const children = [...childrenTypes ? childrenTypes : []];
+// 	if (fields && !!fields.length) {
+// 		fields.map((field) => {
+// 			const childType = getEnrichedRecordType(field, nextNode, typeWithValue, childrenTypes);
+// 			children.push(childType);
+// 		});
+// 	}
+// 	typeWithValue.childrenTypes = children;
+// 	return typeWithValue;
+// }
 
 export function getNewSource(field: TypeWithValue, mappingConstruct: MappingConstructor, newValue: string,
 							                      parentFields?: string[]): [string, MappingConstructor] {
@@ -377,4 +460,15 @@ export function getBalRecFieldName(fieldName : string) {
 		return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;
 	}
 	return "";
+}
+
+export function getFieldIndex(parentNode: STNode, node: STNode) {
+	if (parentNode && STKindChecker.isListConstructor(parentNode)) {
+		for (const [key, expr] of parentNode.expressions.entries()) {
+			if (expr && node && isPositionsEquals(expr.position, node.position)) {
+				return key;
+			}
+		}
+	}
+	return 0;
 }

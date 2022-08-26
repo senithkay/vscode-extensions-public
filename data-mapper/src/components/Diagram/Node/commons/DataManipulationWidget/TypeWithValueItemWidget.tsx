@@ -24,7 +24,7 @@ import { MappingConstructor, STKindChecker } from "@wso2-enterprise/syntax-tree"
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { TypeWithValue } from "../../../Mappings/TypeWithValue";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getNewSource } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getFieldIndex, getNewSource } from "../../../utils/dm-utils";
 
 import { TypeWithValueArrayItemWidget } from "./TypeWithValueArrayItemWidget";
 
@@ -104,7 +104,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.type.name);
-    const fieldId = `${parentId}.${fieldName}`;
+    const fieldId = `${parentId}.${fieldName}.${getFieldIndex(field?.parentType?.value?.valueExpr, field?.value?.valueExpr)}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
     const hasValue = field.hasValue();
@@ -215,7 +215,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
                         engine={engine}
                         field={field}
                         getPort={getPort}
-                        parentId={fieldId}
+                        parentId={parentId}
                         mappingConstruct={mappingConstruct}
                         context={context}
                         treeDepth={treeDepth + 1}

@@ -18,7 +18,8 @@ export class TypeWithValue {
 		public type: Type,
 		public value?: SpecificField,
 		public parentType?: TypeWithValue,
-		public childrenTypes?: TypeWithValue[]
+		public childrenTypes?: TypeWithValue[],
+		public memberType?: TypeWithValue[][]
 	){}
 
 	public hasValue() {

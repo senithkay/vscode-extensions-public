@@ -24,7 +24,7 @@ import { ListConstructor, MappingConstructor, NodePosition, STKindChecker } from
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { TypeWithValue } from "../../../Mappings/TypeWithValue";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getNewSource } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getFieldIndex, getNewSource } from "../../../utils/dm-utils";
 
 import { TypeWithValueItemWidget } from "./TypeWithValueItemWidget";
 
@@ -105,7 +105,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.type.name);
-    const fieldId = `${parentId}.${fieldName}`;
+    const fieldId = `${parentId}.${fieldName}.${getFieldIndex(field?.parentType?.value?.valueExpr, field?.value?.valueExpr)}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
     const hasValue = field.hasValue();

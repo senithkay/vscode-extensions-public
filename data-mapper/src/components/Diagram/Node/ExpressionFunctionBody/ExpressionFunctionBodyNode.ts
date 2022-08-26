@@ -40,11 +40,18 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             endColumn: this.typeDesc.position.startColumn
         });
 
-        if (this.typeDef && this.typeDef.typeName === 'record') {
-            const fields = this.typeDef.fields;
-            fields.forEach((subField) => {
-                this.addPortsForRecordField(subField, "IN", "exprFunctionBody");
-            });
+        if (this.typeDef) {
+            let fields: Type[] = [];
+            if (this.typeDef.typeName === 'record') {
+                fields = this.typeDef.fields;
+            } else if (this.typeDef.typeName === 'array' && this.typeDef.memberType.typeName === 'record') {
+                fields = this.typeDef.memberType.fields;
+            }
+            if (!!fields.length) {
+                fields.forEach((subField) => {
+                    this.addPortsForRecordField(subField, "IN", "exprFunctionBody");
+                });
+            }
         }
     }
 
