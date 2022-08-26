@@ -7,7 +7,7 @@
 ### Improved
 - The low-code diagram editor - New statement editor introduced.
 
-    - Statement-editor compacts with a Helper-pane which will help users to easily find Ballerina libraries and use predefined expression templates along with the context based suggestions to build statements even without having a vast knowledge on Ballerina syntaxes.
+    - Statement-editor allows users to easily discover Ballerina libraries and use predefined expression templates along with the context based suggestions to build statements even without having a prior knowledge on Ballerina syntaxes.
 
 ### Fixed
 - Swagger client send an invalid Content type header.
