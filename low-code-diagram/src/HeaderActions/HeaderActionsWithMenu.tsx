@@ -63,7 +63,10 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
 
     const deleteBtnRef = useRef(null);
     const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
-    const handleDeleteBtnClick = () => onConfirmDelete();
+    const handleDeleteBtnClick = (e: any) => { 
+        e.stopPropagation();
+        onConfirmDelete();
+    }
     // const handleCancelDeleteBtn = () => setIsDeleteViewVisible(false);
 
     const [isEditViewVisible, setIsEditViewVisible] = useState(false);
@@ -71,8 +74,18 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
 
     const [isMenuVisible, setIsMenuVisible] = useState(false);
 
+    const catMenu = useRef(null);
 
-    const handleEditBtnClick = () => {
+    const closeOpenMenus = (e: any)=>{
+        if(catMenu.current && isMenuVisible && !catMenu.current.contains(e.target)){
+            setIsMenuVisible(false)
+        }
+    }
+
+    document.addEventListener('mousedown',closeOpenMenus);
+
+    const handleEditBtnClick = (e: any) => {
+        e.stopPropagation();
         if (unsupportedType) {
             if (renderDialogBox) {
                 renderDialogBox("Unsupported", unsupportedEditConfirm, unSupportedEditCancel);
@@ -141,8 +154,9 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
     </g>
 </svg>)
 
-const showMenuClick = () => {
+const showMenuClick = (e: any) => {
     setIsMenuVisible(!isMenuVisible);
+    e.stopPropagation();
 }
 
 const showMenu = ( <svg id="menu-button" x="0px" y="0px" width="13px" height="15px" 
@@ -190,17 +204,26 @@ const editBtn = ( <svg id="edit-button" width="13px" height="15px" >
 </g>
 </svg>)
 
+const handleOnClickRun = (e: any) => {
+    e.stopPropagation();
+    onClickRun();
+}
+
+const handleOnClickTryIt = (e: any) => {
+    e.stopPropagation();
+    onClickTryIt();
+}
 
 const optionMenu = (
-    <div className={"rectangle-menu"}>
+    <div ref={catMenu} className={"rectangle-menu"}>
         <>
-            <div onClick={onClickRun} className={classNames("menu-option", "line-vertical", "left")}>
+            <div onClick={handleOnClickRun} className={classNames("menu-option", "line-vertical", "left")}>
                 <div className="icon">
                     {run} 
                 </div>
                 <div className="other">Run</div> 
             </div>
-            <div onClick={onClickTryIt} className={classNames("menu-option", "line-vertical", "middle")}>
+            <div onClick={handleOnClickTryIt} className={classNames("menu-option", "line-vertical", "middle")}>
                 <div className="icon">
                     {tryIt} 
                 </div>
@@ -223,7 +246,7 @@ const optionMenu = (
 )
 
 const resourceOptionMenu = (
-    <div className={"rectangle-menu-resource"}>
+    <div ref={catMenu} className={"rectangle-menu-resource"}>
         <>
             <div onClick={handleEditBtnClick} className={classNames("menu-option", "line-vertical", "left")}>
                 <div className={classNames("icon", "icon-adjust")}>
@@ -244,7 +267,7 @@ const resourceOptionMenu = (
     return (
         <>
             {isMenuVisible && (!isResource ? optionMenu : resourceOptionMenu)}
-            <div className={"header-amendment-options"}>
+            <div ref={catMenu} className={"header-amendment-options"}>
                 {!isReadOnly && (
                     <>
                         <div className={classNames("amendment-option")}>

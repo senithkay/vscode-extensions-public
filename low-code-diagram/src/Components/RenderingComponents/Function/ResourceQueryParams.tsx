@@ -50,13 +50,13 @@ export function ResourceQueryParams(props: ResourceQueryParamsProps) {
                 return (
                     <>
                         [<span className={'type-descriptor'}>
-                            {`${(relativePath as any).typeDescriptor?.name?.value} `}
+                            /{`${(relativePath as any).typeDescriptor?.name?.value} `}
                         </span>
                         {(relativePath as any).paramName?.value}]
                     </>
                 );
             default:
-                return relativePath.value
+                return `/${relativePath.value}`
         }
     });
 
