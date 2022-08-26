@@ -282,6 +282,16 @@ export class ResourceForm {
         return this;
     }
 
+    static removeParameter(paramType: string, paramName: string) {
+        this.getForm()
+            .get(`[data-testid="${paramType}  ${paramName}-item"]`)
+            .within(() => {
+                cy.get('#delete-button')
+                    .click();
+            })
+        return this;
+    }
+
     static save() {
         this.getForm()
             .get('button')
