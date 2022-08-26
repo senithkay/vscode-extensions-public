@@ -21,6 +21,13 @@ export class SuggestionsPane {
         return this;
     }
 
+    static tabShouldFocused(selectedTab: string) {
+        cy.get(`[data-testid="tab-panel-wrapper"]`).within(() => {
+            cy.contains(selectedTab).should('have.attr', 'aria-selected').and('eq', 'true')
+        });
+        return this;
+    }
+
     static clickLsSuggestion(selectedSuggestion: string) {
         cy.wait(500)
         cy.get(`[data-testid="suggestion-list"]`).within(() => {

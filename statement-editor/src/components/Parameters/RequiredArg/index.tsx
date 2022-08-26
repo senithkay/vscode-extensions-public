@@ -40,6 +40,7 @@ export function RequiredArg(props : RequiredArgProps){
             key={value}
             className={statementEditorHelperClasses.requiredArgList}
             style={getParamHighlight(currentModel.model, param)}
+            data-testid="required-arg"
         >
             <Checkbox
                 classes={{
