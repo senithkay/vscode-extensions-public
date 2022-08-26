@@ -25,7 +25,6 @@ import {
 // import { createPerformanceGraphAndCodeLenses } from './activator';
 import { DataLabel } from './model';
 import path from 'path';
-import { ANALYZETYPE } from './model';
 import { SHOW_GRAPH_COMMAND } from './activator';
 import { DefaultWebviewPanel } from './performanceGraphPanel';
 

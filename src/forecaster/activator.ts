@@ -36,12 +36,10 @@ export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
     `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/4.0` :
     "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0";
 
-const SUCCESS = "Success";
 const maxRetries = 5;
 const https = require('https');
 
 let langClient: ExtendedLangClient;
-let uiData: PerformanceGraphRequest;
 let extension: BallerinaExtension;
 let retryAttempts = 0;
 const cachedResponses = new Map<any, PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse>();
