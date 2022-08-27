@@ -11,7 +11,12 @@
 * associated services.
 */
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { SpecificField } from "@wso2-enterprise/syntax-tree";
+import { SpecificField, STNode } from "@wso2-enterprise/syntax-tree";
+
+export interface Elements {
+	members: TypeWithValue[];
+	node: STNode;
+}
 
 export class TypeWithValue {
 	constructor(
@@ -19,7 +24,7 @@ export class TypeWithValue {
 		public value?: SpecificField,
 		public parentType?: TypeWithValue,
 		public childrenTypes?: TypeWithValue[],
-		public memberType?: TypeWithValue[][]
+		public memberType?: Elements[]
 	){}
 
 	public hasValue() {

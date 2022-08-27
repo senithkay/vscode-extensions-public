@@ -110,12 +110,12 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
     const portOut = getPort(fieldId + ".OUT");
     const hasValue = field.hasValue();
     const typeName = field.type.memberType.typeName;
-    const fields = field.childrenTypes;
+    const members = field.memberType;
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [listConstructor, setListConstructor] = useState<ListConstructor>(null);
 
-    const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
+    const indentation = !!members ? 0 : ((treeDepth + 1) * 16) + 8;
 
     useEffect(() => {
         if (hasValue) {
@@ -181,7 +181,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
-                {fields &&
+                {members &&
                     (expanded ? (
                             <ExpandMoreIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                         ) :
@@ -211,59 +211,38 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                     <span>[</span>
                 </div>
             )}
-            {fields && (
+            {members && (
                 <>
                     {
-                        listConstructor?.expressions.map((expr) => {
-                            if (STKindChecker.isMappingConstructor(expr)) {
-                                return (
-                                    <>
-                                        <div className={classes.treeLabel}>
-                                            <span>{`{`}</span>
-                                        </div>
-                                        {
-                                            fields.map((subField) => {
-                                                if (subField.type.typeName === 'array') {
-                                                    return (
-                                                        <>
-                                                            <TypeWithValueArrayItemWidget
-                                                                key={fieldId}
-                                                                engine={engine}
-                                                                field={subField}
-                                                                getPort={getPort}
-                                                                parentId={fieldId}
-                                                                mappingConstruct={expr}
-                                                                context={context}
-                                                                treeDepth={treeDepth + 1}
-                                                            />
-                                                        </>
-                                                    );
-                                                } else {
-                                                    return (
-                                                        <>
-                                                            <TypeWithValueItemWidget
-                                                                key={fieldId}
-                                                                engine={engine}
-                                                                field={subField}
-                                                                getPort={getPort}
-                                                                parentId={fieldId}
-                                                                mappingConstruct={expr}
-                                                                context={context}
-                                                                treeDepth={treeDepth + 1}
-                                                            />
-                                                        </>
-                                                    );
-                                                }
-                                            })
-                                        }
-                                        <div className={classes.treeLabel}>
-                                            <span>{`}`}</span>
-                                        </div>
-                                    </>
-                                );
-                            } else {
-                                // TODO: Handle other cases
-                            }
+                        members.map((member) => {
+                            return (
+                                <>
+                                    <div className={classes.treeLabel}>
+                                        <span>{'{'}</span>
+                                    </div>
+                                    {
+                                        member.members.map((typeWithVal) => {
+                                            return (
+                                                <>
+                                                    <TypeWithValueItemWidget
+                                                        key={fieldId}
+                                                        engine={engine}
+                                                        field={typeWithVal}
+                                                        getPort={getPort}
+                                                        parentId={fieldId}
+                                                        mappingConstruct={member.node as MappingConstructor}
+                                                        context={context}
+                                                        treeDepth={treeDepth + 1}
+                                                    />
+                                                </>
+                                            );
+                                        })
+                                    }
+                                    <div className={classes.treeLabel}>
+                                        <span>{'}'}</span>
+                                    </div>
+                                </>
+                            );
                         })
                     }
                 </>

@@ -50,6 +50,7 @@ export function DataManipulationWidget(props: DataManipulationWidgetProps) {
 	const { id, typeWithValue, value, engine, getPort, context } = props;
 	const classes = useStyles();
 
+	// TODO: Handle root level arrays
 	return (
 		<div className={classes.root}>
 			{
