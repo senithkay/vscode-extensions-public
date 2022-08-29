@@ -233,6 +233,13 @@ class ExpressionDeletingVisitor implements Visitor {
         if (!this.isNodeFound){
             if (node.finalKeyword && isPositionsEquals(this.deletePosition, node.finalKeyword.position)) {
                 this.setProperties("", node.finalKeyword.position);
+            } else if (node.initializer && isPositionsEquals(this.deletePosition, node.initializer.position)) {
+                this.setProperties("", {
+                    startLine: node.equalsToken.position.startLine,
+                    startColumn: node.equalsToken.position.startColumn,
+                    endLine: node.initializer.position.endLine,
+                    endColumn: node.initializer.position.endColumn
+                })
             }
         }
     }
