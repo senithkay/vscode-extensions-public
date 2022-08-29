@@ -78,6 +78,7 @@ export function Constant(props: ConstantProps) {
             <div
                 className={"const-container"}
                 data-test-id="const"
+                data-const-name={varName}
             >
                 <div className={"const-wrapper"}>
                     <div className={"const-icon"}>
@@ -102,4 +103,3 @@ export function Constant(props: ConstantProps) {
         </div>
     );
 }
-
