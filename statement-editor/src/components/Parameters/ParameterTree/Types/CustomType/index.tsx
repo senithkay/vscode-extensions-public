@@ -24,9 +24,7 @@ export default function CustomType(props: TypeProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
 
-    const [paramSelected, setParamSelected] = useState<boolean>(
-        param.selected || requiredParam
-    );
+    const [paramSelected, setParamSelected] = useState<boolean>(param.selected || requiredParam);
 
     const toggleParamCheck = () => {
         if (!requiredParam) {
@@ -38,7 +36,7 @@ export default function CustomType(props: TypeProps) {
 
     return (
         <ListItem className={stmtEditorHelperClasses.docListDefault}>
-            <div className={stmtEditorHelperClasses.listItemMultiLine}>
+            <div className={stmtEditorHelperClasses.listItemMultiLine} data-testid="custom-arg">
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <Checkbox
                         classes={{
@@ -50,10 +48,16 @@ export default function CustomType(props: TypeProps) {
                         checked={paramSelected}
                         disabled={requiredParam}
                         onClick={toggleParamCheck}
+                        data-testid="arg-check"
                     />
-                    <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={param.name} />
+                    <ListItemText
+                        className={stmtEditorHelperClasses.docListItemText}
+                        primary={param.name}
+                        data-testid="arg-name"
+                    />
                     <ListItemText
                         className={stmtEditorHelperClasses.paramDataType}
+                        data-testid="arg-type"
                         primary={(
                             <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                 {param.optional || param.defaultable ? param.typeName + " (Optional)" : param.typeName}
@@ -64,6 +68,7 @@ export default function CustomType(props: TypeProps) {
                         <ListItemText
                             className={stmtEditorHelperClasses.paramTreeDescriptionText}
                             primary={" : " + param.documentation}
+                            data-testid="arg-documentation"
                         />
                     )}
                 </div>

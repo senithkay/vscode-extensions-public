@@ -79,7 +79,7 @@ export function ParameterTree(props: ParameterTreeProps) {
     };
 
     return (
-        <>
+        <div data-testid="parameter-tree">
             {parameters?.length > 0 && (
                 <>
                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
@@ -100,6 +100,6 @@ export function ParameterTree(props: ParameterTreeProps) {
                     )}
                 </>
             )}
-        </>
+        </div>
     );
 }
