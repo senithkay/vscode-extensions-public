@@ -96,17 +96,18 @@ export interface TypeWithValueItemWidgetProps {
     getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
     mappingConstruct: MappingConstructor;
     context: IDataMapperContext;
+    fieldIndex?: number;
     treeDepth?: number;
 }
 
 export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex = 0, treeDepth = 0 } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.type.name);
-    const fieldId = `${parentId}.${fieldName}.${getFieldIndex(field?.parentType?.value?.valueExpr, field?.value?.valueExpr)}`;
-    const portIn = getPort(fieldId + ".IN");
-    const portOut = getPort(fieldId + ".OUT");
+    const fieldId = `${parentId}.${fieldName}`;
+    const portIn = getPort(`${fieldId}.${fieldIndex}.IN`);
+    const portOut = getPort(`${fieldId}.${fieldIndex}.OUT`);
     const hasValue = field.hasValue();
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';

@@ -9,8 +9,14 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
+import { Elements, TypeWithValue } from "../../Mappings/TypeWithValue";
 import { RecordFieldPortModel } from "../../Port";
-import { getBalRecFieldName, getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
+import {
+    getBalRecFieldName,
+    getEnrichedRecordType,
+    getInputNodeExpr,
+    getInputPortsForExpr
+} from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
@@ -41,18 +47,37 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
         });
 
         if (this.typeDef) {
-            let fields: Type[] = [];
-            if (this.typeDef.typeName === 'record') {
-                fields = this.typeDef.fields;
+            const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
+            if (valueEnrichedType.type.typeName === 'record') {
+                const fields: TypeWithValue[] = valueEnrichedType.childrenTypes;
+                if (!!fields.length) {
+                    fields.forEach((subField) => {
+                        this.addPortsForRecordFieldNew(subField, "IN", "exprFunctionBody");
+                    });
+                }
             } else if (this.typeDef.typeName === 'array' && this.typeDef.memberType.typeName === 'record') {
-                fields = this.typeDef.memberType.fields;
-            }
-            if (!!fields.length) {
-                fields.forEach((subField) => {
-                    this.addPortsForRecordField(subField, "IN", "exprFunctionBody");
-                });
+                const fields: Elements[] = valueEnrichedType.memberType;
+                if (!!fields.length) {
+                    fields.forEach((subField) => {
+                        this.addPortsForArrayElement(subField, "IN", "exprFunctionBody", 0);
+                    });
+                }
             }
         }
+
+        // if (this.typeDef) {
+        //     let fields: Type[] = [];
+        //     if (this.typeDef.typeName === 'record') {
+        //         fields = this.typeDef.fields;
+        //     } else if (this.typeDef.typeName === 'array' && this.typeDef.memberType.typeName === 'record') {
+        //         fields = this.typeDef.memberType.fields;
+        //     }
+        //     if (!!fields.length) {
+        //         fields.forEach((subField) => {
+        //             this.addPortsForRecordField(subField, "IN", "exprFunctionBody");
+        //         });
+        //     }
+        // }
     }
 
     async initLinks() {

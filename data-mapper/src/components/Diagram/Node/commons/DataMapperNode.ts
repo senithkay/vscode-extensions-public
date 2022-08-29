@@ -11,6 +11,7 @@ import {
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
+import { Elements, TypeWithValue } from "../../Mappings/TypeWithValue";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
 import { getBalRecFieldName } from "../../utils/dm-utils";
 import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
@@ -71,42 +72,46 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	// protected addPortsForRecordFieldNew(field: TypeWithValue, type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string, parent?: RecordFieldPortModel) {
-	// 	const fieldName = getBalRecFieldName(field.type.name);
-	// 	const fieldId = `${parentId}.${fieldName}`;
-	// 	const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
-	// 	const index = getFieldIndex(field?.parentType?.value?.valueExpr, field?.value?.valueExpr);
-	// 	const fieldPort = new RecordFieldPortModel(field.type, type, parentId, index, parentFieldAccessExpr, parent);
-	// 	this.addPort(fieldPort)
-	//
-	// 	// const fields: TypeWithValue[] = field.childrenTypes;
-	//
-	// 	let fields: TypeWithValue[] = [];
-	// 	if (field.type.typeName === 'record') {
-	// 		fields = field.childrenTypes;
-	// 	} else if (field.type.typeName === 'array' && field.type.memberType.typeName === 'record' && field.value) {
-	// 		if (STKindChecker.isListConstructor(field.value.valueExpr)) {
-	// 			field.value.valueExpr.expressions.forEach((expr) => {
-	// 				fields.push(...field.childrenTypes);
-	// 			});
-	// 		}
-	// 	}
-	// 	// else if (field.typeName === 'array' && field.memberType.typeName === 'record') {
-	// 	// 	fields = field.memberType.fields;
-	// 	// }
-	// 	if (!!fields.length) {
-	// 		fields.forEach((subField) => {
-	// 			this.addPortsForRecordFieldNew(subField, type, fieldId, fieldAccessExpr, fieldPort);
-	// 		});
-	// 	}
-	// }
+	protected addPortsForRecordFieldNew(field: TypeWithValue, type: "IN" | "OUT",
+										                           parentId: string, index?: number,
+										                           parentFieldAccessExpr?: string,
+										                           parent?: RecordFieldPortModel) {
+		const fieldName = getBalRecFieldName(field.type.name);
+		const fieldId = `${parentId}.${fieldName}`;
+		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
+		const fieldIndex = index ? index : 0;
+		const fieldPort = new RecordFieldPortModel(field.type, type, parentId, fieldIndex, parentFieldAccessExpr, parent);
+		this.addPort(fieldPort);
+
+		if (field.type.typeName === 'record') {
+			const fields: TypeWithValue[] = field.childrenTypes;
+			if (fields && !!fields.length) {
+				fields.forEach((subField) => {
+					this.addPortsForRecordFieldNew(subField, type, fieldId, fieldIndex, fieldAccessExpr, fieldPort);
+				});
+			}
+		} else if (field.type.typeName === 'array' && field.type.memberType.typeName === 'record') {
+			const fields: Elements[] = field?.memberType;
+			if (fields && !!fields.length) {
+				fields.forEach((subField, index) => {
+					this.addPortsForArrayElement(subField, type, fieldId, index, fieldAccessExpr, fieldPort);
+				});
+			}
+		}
+	}
+
+	protected addPortsForArrayElement(elements: Elements, type: "IN" | "OUT", parentId: string, index: number, parentFieldAccessExpr?: string, parent?: RecordFieldPortModel) {
+		elements.members.forEach((subField) => {
+			this.addPortsForRecordFieldNew(subField, type, parentId, index, parentFieldAccessExpr, parent);
+		});
+	}
 
 	protected addPortsForRecordField(field: Type, type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string,
 									                         parent?: RecordFieldPortModel) {
 		const fieldName = getBalRecFieldName(field.name);
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
-		const fieldPort = new RecordFieldPortModel(field, type, parentId, parentFieldAccessExpr, parent);
+		const fieldPort = new RecordFieldPortModel(field, type, parentId, 0, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
 		let fields: Type[] = [];
 		if (field.typeName === 'record') {

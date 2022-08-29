@@ -97,17 +97,18 @@ export interface TypeWithValueArrayItemWidgetProps {
     getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
     mappingConstruct: MappingConstructor;
     context: IDataMapperContext;
+    fieldIndex?: number;
     treeDepth?: number;
 }
 
 export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex = 0, treeDepth = 0 } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.type.name);
-    const fieldId = `${parentId}.${fieldName}.${getFieldIndex(field?.parentType?.value?.valueExpr, field?.value?.valueExpr)}`;
-    const portIn = getPort(fieldId + ".IN");
-    const portOut = getPort(fieldId + ".OUT");
+    const fieldId = `${parentId}.${fieldName}`;
+    const portIn = getPort(`${fieldId}.${fieldIndex}.IN`);
+    const portOut = getPort(`${fieldId}.${fieldIndex}.OUT`);
     const hasValue = field.hasValue();
     const typeName = field.type.memberType.typeName;
     const members = field.memberType;
@@ -214,7 +215,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
             {members && (
                 <>
                     {
-                        members.map((member) => {
+                        members.map((member, index) => {
                             return (
                                 <>
                                     <div className={classes.treeLabel}>
@@ -232,6 +233,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                                                         parentId={fieldId}
                                                         mappingConstruct={member.node as MappingConstructor}
                                                         context={context}
+                                                        fieldIndex={index}
                                                         treeDepth={treeDepth + 1}
                                                     />
                                                 </>
