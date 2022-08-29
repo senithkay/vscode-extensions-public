@@ -63,6 +63,11 @@ export default function SelectDropdown(props: SelectDropdownProps) {
                     horizontal: "left",
                 }
             }}
+            SelectDisplayProps={{
+                // @ts-ignore
+                "data-testid": `select-dropdown-data`
+              }}
+            data-testid="select-dropdown"
         >
             {menuItems}
         </Select>

@@ -51,7 +51,7 @@ describe('Add connector to function via Low Code', () => {
             getCurrentSpecFolder() + "add-http-connector-to-function.expected.bal");
     });
 
-    it('Add google sheet connector to function', () => {
+    it.skip('Add google sheet connector to function', () => {
 
         cy.exec('bal pull ballerinax/googleapis.sheets', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
