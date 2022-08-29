@@ -323,13 +323,6 @@ describe('Test helper pane functionality', () => {
         EditorPane
             .validateNewExpression("TypedBindingPattern", "int");
 
-        SuggestionsPane
-            .clickSuggestionsTab("Expressions");
-
-        EditorPane
-            .getExpression("TypedBindingPattern")
-            .clickExpressionContent('int');
-
         EditorPane
             .validateEmptyDiagnostics();
 
