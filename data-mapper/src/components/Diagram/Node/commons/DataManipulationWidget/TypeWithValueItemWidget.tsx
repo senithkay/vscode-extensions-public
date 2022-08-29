@@ -23,7 +23,7 @@ import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { TypeWithValue } from "../../../Mappings/TypeWithValue";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getFieldIndex, getNewSource } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getDefaultLiteralValue, getFieldIndex, getNewSource } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
 import { TypeWithValueArrayItemWidget } from "./TypeWithValueArrayItemWidget";
@@ -52,6 +52,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const isRecord = field.type.typeName === 'record';
     const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
     const fields = isRecord ? field.childrenTypes : [];
+    const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const [expanded, setExpanded] = useState<boolean>(true);
@@ -67,6 +68,11 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
             {typeName && (
                 <span className={classes.typeLabel}>
                     {typeName}
+                </span>
+            )}
+            {value && (
+                <span className={classes.value}>
+                    {value}
                 </span>
             )}
 

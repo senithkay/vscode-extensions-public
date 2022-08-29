@@ -414,6 +414,16 @@ export function getBalRecFieldName(fieldName : string) {
 	return "";
 }
 
+export function getDefaultLiteralValue(typeName : string, valueExpr: STNode) {
+	if (valueExpr && typeName !== 'array' && typeName !== 'record' && (
+		STKindChecker.isStringLiteral(valueExpr)
+		|| STKindChecker.isNumericLiteral(valueExpr)
+		|| STKindChecker.isBooleanLiteral(valueExpr)
+	)) {
+		return valueExpr.literalToken.value;
+	}
+}
+
 export function getFieldIndex(parentNode: STNode, node: STNode) {
 	if (parentNode && STKindChecker.isListConstructor(parentNode)) {
 		for (const [key, expr] of parentNode.expressions.entries()) {
