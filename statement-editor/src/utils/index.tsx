@@ -88,12 +88,13 @@ import { ModelType, StatementEditorViewState } from "./statement-editor-viewstat
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
 export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
-                                 modulesToBeImported?: string[]): STModification[] {
+                                 modulesToBeImported?: string[], isExpressionMode?: boolean): STModification[] {
 
     const modifications: STModification[] = [];
     let source = model.source;
 
-    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model) && source.trim().slice(-1) !== ';') {
+    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model) 
+            && source.trim().slice(-1) !== ';' && !isExpressionMode) {
         source += ';';
     }
     modifications.push(getStatementModification(source, targetPosition));
@@ -108,7 +109,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
 }
 
 export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition): ReactNode {
-    let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
+    let ExprTypeComponent = (expressionTypeComponents as any)[expression?.kind];
 
     if (!ExprTypeComponent) {
         ExprTypeComponent = (expressionTypeComponents as any)[OTHER_EXPRESSION];

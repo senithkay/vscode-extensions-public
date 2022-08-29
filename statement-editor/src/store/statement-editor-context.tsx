@@ -90,7 +90,8 @@ export const StatementEditorContext = React.createContext({
     importStatements: [],
     onWizardClose: () => undefined,
     onCancel: () => undefined,
-    experimentalEnabled: false
+    experimentalEnabled: false,
+    isExpressionMode: false
 });
 
 export interface CtxProviderProps extends LowCodeEditorProps {
@@ -157,6 +158,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         updateSyntaxDiagnostics,
         editing,
         updateEditing,
+        isExpressionMode,
         ...restProps
     } = props;
 
@@ -206,6 +208,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 targetPosition,
                 importStatements,
                 experimentalEnabled,
+                isExpressionMode,
                 ...restProps
             }}
         >
