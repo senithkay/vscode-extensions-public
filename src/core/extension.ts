@@ -159,14 +159,14 @@ export class BallerinaExtension {
         this.documentContext = new DocumentContext();
         this.choreoSession = { loginStatus: false };
         this.codeServerContext = {
-            codeServerEnv: process.env.CODE_SERVER_ENV === 'true',
+            codeServerEnv: this.isCodeServerEnv(),
             manageChoreoRedirectUri: process.env.VSCODE_CHOREO_DEPLOY_URI,
             infoMessageStatus: {
                 sourceControlMessage: true,
                 messageFirstEdit: true
             }
         };
-        if (this.getCodeServerContext().codeServerEnv) {
+        if (this.isCodeServerEnv()) {
             commands.executeCommand('workbench.action.closeAllEditors');
             this.getCodeServerContext().telemetryTracker = new TelemetryTracker();
         }
@@ -560,6 +560,10 @@ export class BallerinaExtension {
             process.env.LOW_CODE_MODE === 'true';
     }
 
+    public isCodeServerEnv(): boolean {
+        return process.env.CODE_SERVER_ENV === 'true';
+    }
+
     public enableLSDebug(): boolean {
         return this.overrideBallerinaHome() && <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
     }
@@ -569,7 +573,7 @@ export class BallerinaExtension {
     }
 
     public isConfigurableEditorEnabled(): boolean {
-        return process.env.CODE_SERVER_ENV === 'true' ||
+        return this.isCodeServerEnv() ||
             <boolean>workspace.getConfiguration().get(ENABLE_CONFIGURABLE_EDITOR);
     }
 
