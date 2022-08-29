@@ -48,6 +48,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#FFFFFF",
             marginRight: "24px"
         },
+        value: {
+            verticalAlign: "middle",
+            padding: "5px",
+            backgroundColor: "#f5f1fb",
+            borderRadius: "5px"
+        },
         valueLabel: {
             verticalAlign: "middle",
             padding: "5px",

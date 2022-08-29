@@ -378,3 +378,13 @@ export function getBalRecFieldName(fieldName : string) {
 	}
 	return "";
 }
+
+export function getDefaultLiteralValue(typeName : string, valueExpr: STNode) {
+	if (valueExpr && typeName !== 'array' && typeName !== 'record' && (
+		STKindChecker.isStringLiteral(valueExpr)
+		|| STKindChecker.isNumericLiteral(valueExpr)
+		|| STKindChecker.isBooleanLiteral(valueExpr)
+	)) {
+		return valueExpr.literalToken.value;
+	}
+}
