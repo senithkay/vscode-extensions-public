@@ -49,12 +49,12 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
     const portOut = getPort(`${fieldId}.${fieldIndex}.OUT`);
     const hasValue = field.hasValue();
     const typeName = field.type.memberType.typeName;
-    const members = field.memberType;
+    const elements = field.elements;
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [listConstructor, setListConstructor] = useState<ListConstructor>(null);
 
-    const indentation = !!members ? 0 : ((treeDepth + 1) * 16) + 8;
+    const indentation = !!elements ? 0 : ((treeDepth + 1) * 16) + 8;
 
     useEffect(() => {
         if (hasValue) {
@@ -120,7 +120,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
-                {members &&
+                {elements &&
                     (expanded ? (
                             <ExpandMoreIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
                         ) :
@@ -150,18 +150,19 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                     <span>[</span>
                 </div>
             )}
-            {members && (
+            {elements && (
                 <>
                     {
-                        members.map((member, index) => {
+                        elements.map((element, index) => {
                             return (
                                 <>
                                     <div className={classes.treeLabel}>
                                         <span>{'{'}</span>
                                     </div>
                                     {
-                                        member.members.map((typeWithVal) => {
-                                            return (
+                                        element.members.map((typeWithVal) => {
+                                            // TODO: Add support to render array elements other than the mapping constructors
+                                            return STKindChecker.isMappingConstructor(element.elementNode) && (
                                                 <>
                                                     <TypeWithValueItemWidget
                                                         key={fieldId}
@@ -169,7 +170,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                                                         field={typeWithVal}
                                                         getPort={getPort}
                                                         parentId={fieldId}
-                                                        mappingConstruct={member.node as MappingConstructor}
+                                                        mappingConstruct={element.elementNode}
                                                         context={context}
                                                         fieldIndex={index}
                                                         treeDepth={treeDepth + 1}

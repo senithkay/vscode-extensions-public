@@ -51,7 +51,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';
     const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
-    const fields = isRecord ? field.childrenTypes : [];
+    const fields = isRecord && field.childrenTypes;
     const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 

@@ -9,7 +9,7 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
-import { Elements, TypeWithValue } from "../../Mappings/TypeWithValue";
+import { TypeWithValue } from "../../Mappings/TypeWithValue";
 import { RecordFieldPortModel } from "../../Port";
 import {
     getBalRecFieldName,
@@ -55,29 +55,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
                         this.addPortsForRecordFieldNew(subField, "IN", "exprFunctionBody");
                     });
                 }
-            } else if (this.typeDef.typeName === 'array' && this.typeDef.memberType.typeName === 'record') {
-                const fields: Elements[] = valueEnrichedType.memberType;
-                if (!!fields.length) {
-                    fields.forEach((subField) => {
-                        this.addPortsForArrayElement(subField, "IN", "exprFunctionBody", 0);
-                    });
-                }
+            } else {
+                // TODO: Add support for other return type descriptors
             }
         }
-
-        // if (this.typeDef) {
-        //     let fields: Type[] = [];
-        //     if (this.typeDef.typeName === 'record') {
-        //         fields = this.typeDef.fields;
-        //     } else if (this.typeDef.typeName === 'array' && this.typeDef.memberType.typeName === 'record') {
-        //         fields = this.typeDef.memberType.fields;
-        //     }
-        //     if (!!fields.length) {
-        //         fields.forEach((subField) => {
-        //             this.addPortsForRecordField(subField, "IN", "exprFunctionBody");
-        //         });
-        //     }
-        // }
     }
 
     async initLinks() {

@@ -13,9 +13,9 @@
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { SpecificField, STNode } from "@wso2-enterprise/syntax-tree";
 
-export interface Elements {
+export interface ArrayElement {
 	members: TypeWithValue[];
-	node: STNode;
+	elementNode: STNode;
 }
 
 export class TypeWithValue {
@@ -24,7 +24,7 @@ export class TypeWithValue {
 		public value?: SpecificField,
 		public parentType?: TypeWithValue,
 		public childrenTypes?: TypeWithValue[],
-		public memberType?: Elements[]
+		public elements?: ArrayElement[]
 	){}
 
 	public hasValue() {

@@ -19,7 +19,7 @@ import {
 
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
-import { Elements, TypeWithValue } from "../Mappings/TypeWithValue";
+import { ArrayElement, TypeWithValue } from "../Mappings/TypeWithValue";
 import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
@@ -336,7 +336,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ty
 		typeWithValue.childrenTypes = children;
 	} else if (type.typeName === 'array' && type.memberType.typeName === 'record') {
 		if (nextNode && STKindChecker.isListConstructor(nextNode)) {
-			typeWithValue.memberType = getEnrichedArrayType(type, nextNode, typeWithValue);
+			typeWithValue.elements = getEnrichedArrayType(type, nextNode, typeWithValue);
 		}
 	}
 
@@ -345,7 +345,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ty
 
 export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentType?: TypeWithValue, childrenTypes?: TypeWithValue[]) {
 	let fields: Type[] = [];
-	const members: Elements[] = [];
+	const members: ArrayElement[] = [];
 
 	if (type.typeName === 'array' && type.memberType.typeName === 'record') {
 		fields = type.memberType.fields;
@@ -361,7 +361,7 @@ export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentT
 				});
 				if (!!member.length) {
 					members.push({
-						members: member, node: expr
+						members: member, elementNode: expr
 					});
 				}
 			}

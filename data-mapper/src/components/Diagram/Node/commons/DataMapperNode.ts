@@ -11,7 +11,7 @@ import {
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
-import { Elements, TypeWithValue } from "../../Mappings/TypeWithValue";
+import { ArrayElement, TypeWithValue } from "../../Mappings/TypeWithValue";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
 import { getBalRecFieldName } from "../../utils/dm-utils";
 import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
@@ -73,14 +73,14 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForRecordFieldNew(field: TypeWithValue, type: "IN" | "OUT",
-										                           parentId: string, index?: number,
+										                           parentId: string, fieldIndex?: number,
 										                           parentFieldAccessExpr?: string,
 										                           parent?: RecordFieldPortModel) {
 		const fieldName = getBalRecFieldName(field.type.name);
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
-		const fieldIndex = index ? index : 0;
-		const fieldPort = new RecordFieldPortModel(field.type, type, parentId, fieldIndex, parentFieldAccessExpr, parent);
+		const fIndex = fieldIndex || 0;
+		const fieldPort = new RecordFieldPortModel(field.type, type, parentId, fIndex, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort);
 
 		if (field.type.typeName === 'record') {
@@ -91,19 +91,15 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				});
 			}
 		} else if (field.type.typeName === 'array' && field.type.memberType.typeName === 'record') {
-			const fields: Elements[] = field?.memberType;
-			if (fields && !!fields.length) {
-				fields.forEach((subField, index) => {
-					this.addPortsForArrayElement(subField, type, fieldId, index, fieldAccessExpr, fieldPort);
+			const elements: ArrayElement[] = field?.elements;
+			if (elements && !!elements.length) {
+				elements.forEach((element, index) => {
+					element.members.forEach((subField) => {
+						this.addPortsForRecordFieldNew(subField, type, fieldId, index, fieldAccessExpr, fieldPort);
+					});
 				});
 			}
 		}
-	}
-
-	protected addPortsForArrayElement(elements: Elements, type: "IN" | "OUT", parentId: string, index: number, parentFieldAccessExpr?: string, parent?: RecordFieldPortModel) {
-		elements.members.forEach((subField) => {
-			this.addPortsForRecordFieldNew(subField, type, parentId, index, parentFieldAccessExpr, parent);
-		});
 	}
 
 	protected addPortsForRecordField(field: Type, type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string,
