@@ -26,6 +26,8 @@ import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromC
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
 
+export const INPUT_RECORD_FIELD_INDEX = 0; // Always 0 since no array initialization in input side
+
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
 	let nextExp: FieldAccess = expr;
@@ -276,7 +278,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 									(field: any) => field.name === fieldName);
 				if (recField) {
 					if (i === fieldNames.length - 1) {
-						const portId = portIdBuffer + ".OUT";
+						const portId = `${portIdBuffer}.${INPUT_RECORD_FIELD_INDEX}.OUT`;
 						const port = (node.getPort(portId) as RecordFieldPortModel);
 						return port;
 					} else if (recField.typeName === 'record') {

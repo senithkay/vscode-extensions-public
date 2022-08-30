@@ -2,10 +2,12 @@ import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	ExpressionFunctionBody,
 	MappingConstructor,
-	SpecificField
+	SpecificField,
+    STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { isPositionsEquals } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
@@ -26,6 +28,7 @@ export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
     public typeDef: Type;
+    public enrichedTypeDef: TypeWithValue;
 
     constructor(
         public context: IDataMapperContext,
@@ -48,11 +51,12 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
+            this.enrichedTypeDef = valueEnrichedType;
             if (valueEnrichedType.type.typeName === 'record') {
                 const fields: TypeWithValue[] = valueEnrichedType.childrenTypes;
                 if (!!fields.length) {
                     fields.forEach((subField) => {
-                        this.addPortsForRecordFieldNew(subField, "IN", "exprFunctionBody");
+                        this.addPortsForOutputRecordField(subField, "IN", "exprFunctionBody");
                     });
                 }
             } else {
@@ -104,26 +108,128 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     }
 
     private getOutputPortForField(fields: SpecificField[]) {
-        let nextTypeNode = this.typeDef;
-        let recField: Type;
+        let nextTypeNode = this.enrichedTypeDef?.childrenTypes;
+        let recField: TypeWithValue;
         let portIdBuffer = "exprFunctionBody";
+        let fieldIndex = 0;
         for (let i = 0; i < fields.length; i++) {
             const specificField = fields[i];
             portIdBuffer += `.${specificField.fieldName.value}`
-            const recFieldTemp = nextTypeNode.fields.find(
-                (recF) => getBalRecFieldName(recF.name) === specificField.fieldName.value);
+            const recFieldTemp = nextTypeNode.find(
+                (recF) => getBalRecFieldName(recF.type.name) === specificField.fieldName.value);
             if (recFieldTemp) {
                 if (i === fields.length - 1) {
                     recField = recFieldTemp;
-                } else if (recFieldTemp.typeName === 'record') {
-                    nextTypeNode = recFieldTemp
+                } else if (recFieldTemp.type.typeName === 'record') {
+                    nextTypeNode = recFieldTemp?.childrenTypes;
+                } else if (recFieldTemp.type.typeName === 'array' && recFieldTemp.type.memberType.typeName === 'record') {
+                    recFieldTemp.elements.forEach((element, index) => {
+                        if (STKindChecker.isListConstructor(specificField.valueExpr)) {
+                            specificField.valueExpr.expressions.forEach((expr) => {
+                                if (isPositionsEquals(element.elementNode.position, expr.position)) {
+                                    element.members.forEach((member) => {
+                                        // if (member?.value && member.value.fieldName.value === fields[i + 1].fieldName.value) {
+                                        if (member?.value
+                                            && isPositionsEquals(member.value.fieldName.position,
+                                                fields[i + 1].fieldName.position)) {
+                                            fieldIndex = index;
+                                            return;
+                                        }
+                                    });
+                                }
+                            })
+                        }
+                    })
+                    nextTypeNode = recFieldTemp.elements[fieldIndex]?.members;
                 }
             }
         }
         if (recField) {
-            const portId = portIdBuffer + ".IN";
+            const portId = `${portIdBuffer}.${fieldIndex}.IN`;
             const outPort = this.getPort(portId);
             return outPort;
         }
     }
+
+
+    // private getOutputPortForField(fields: SpecificField[]) {
+    //     let nextTypeNode = this.enrichedTypeDef;
+    //     let recField: TypeWithValue;
+    //     let portIdBuffer = "exprFunctionBody";
+    //     let fieldIndex = 0;
+    //     for (let i = 0; i < fields.length; i++) {
+    //         const specificField = fields[i];
+    //         portIdBuffer += `.${specificField.fieldName.value}`
+    //         const recFieldTemp = nextTypeNode.childrenTypes.find(
+    //             (recF) => getBalRecFieldName(recF.type.name) === specificField.fieldName.value);
+    //         if (recFieldTemp) {
+    //             if (i === fields.length - 1) {
+    //                 recField = recFieldTemp;
+    //             } else if (recFieldTemp.type.typeName === 'record') {
+    //                 nextTypeNode = recFieldTemp
+    //             } else if (recFieldTemp.type.typeName === 'array' && recFieldTemp.type.memberType.typeName === 'record') {
+    //                 fieldIndex = recFieldTemp.elements.findIndex((element) => {
+    //                     if (STKindChecker.isListConstructor(specificField.valueExpr)) {
+    //                         return specificField.valueExpr.expressions.some((expr) =>
+    //                             isPositionsEquals(element.elementNode.position, expr.position)
+    //                         )
+    //                     }
+    //                 })
+    //                 // recFieldTemp.elements.forEach((element, index) => {
+    //                 //     if (STKindChecker.isListConstructor(specificField.valueExpr)) {
+    //                 //         specificField.valueExpr.expressions.forEach((expr) => {
+    //                 //             if (isPositionsEquals(element.elementNode.position, expr.position)) {
+    //                 //                 fieldIndex = index;
+    //                 //                 nextTypeNode = expr;
+    //                 //             }
+    //                 //         })
+    //                 //     }
+    //                 // })
+    //                 nextTypeNode = recFieldTemp.elements[fieldIndex].members.find((member) => {
+    //                     return member.type.name === fields[i + 1].fieldName.value
+    //                     // if (STKindChecker.isListConstructor(specificField.valueExpr)) {
+    //                     //     const matchedNode = specificField.valueExpr.expressions[fieldIndex];
+    //                     //     if (STKindChecker.isMappingConstructor(matchedNode)) {
+    //                     //         return matchedNode.fields.some((field) =>
+    //                     //             STKindChecker.isSpecificField(field) && field.fieldName.value === member.type.name
+    //                     //         )
+    //                     //     }
+    //                     // }
+    //                 })
+    //                 console.log(nextTypeNode);
+    //             }
+    //         }
+    //     }
+    //     if (recField) {
+    //         const portId = `${portIdBuffer}.${fieldIndex}.IN`;
+    //         const outPort = this.getPort(portId);
+    //         return outPort;
+    //     }
+    // }
+
+    // private getOutputPortForField(fields: SpecificField[]) {
+    //     let nextTypeNode = this.typeDef;
+    //     let recField: Type;
+    //     let portIdBuffer = "exprFunctionBody";
+    //     for (let i = 0; i < fields.length; i++) {
+    //         const specificField = fields[i];
+    //         portIdBuffer += `.${specificField.fieldName.value}`
+    //         const recFieldTemp = nextTypeNode.fields.find(
+    //             (recF) => getBalRecFieldName(recF.name) === specificField.fieldName.value);
+    //         if (recFieldTemp) {
+    //             if (i === fields.length - 1) {
+    //                 recField = recFieldTemp;
+    //             } else if (recFieldTemp.typeName === 'record') {
+    //                 nextTypeNode = recFieldTemp
+    //             } else if (recFieldTemp.typeName === 'array' && recFieldTemp.memberType.typeName === 'record') {
+    //                 nextTypeNode = recFieldTemp.memberType
+    //             }
+    //         }
+    //     }
+    //     if (recField) {
+    //         const portId = portIdBuffer + ".0" + ".IN";
+    //         const outPort = this.getPort(portId);
+    //         return outPort;
+    //     }
+    // }
 }
