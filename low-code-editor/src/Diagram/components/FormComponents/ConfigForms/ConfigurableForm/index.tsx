@@ -67,7 +67,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             currentFile,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -237,7 +238,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isConfigurableStmt: true
+                        isConfigurableStmt: true,
+                        isCodeServerInstance
                     }
                 )
             ) : (

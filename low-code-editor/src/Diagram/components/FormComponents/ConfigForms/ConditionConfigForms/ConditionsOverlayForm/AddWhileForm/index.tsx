@@ -46,7 +46,8 @@ export function AddWhileForm(props: WhileProps) {
             stSymbolInfo,
             importStatements,
             ballerinaVersion,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -170,7 +171,8 @@ export function AddWhileForm(props: WhileProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        isCodeServerInstance
                     }
                 )
             ) : (

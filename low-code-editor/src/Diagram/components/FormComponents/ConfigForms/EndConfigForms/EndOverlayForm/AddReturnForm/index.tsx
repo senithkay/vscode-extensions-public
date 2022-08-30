@@ -43,7 +43,8 @@ export function AddReturnForm(props: ReturnFormProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -144,7 +145,8 @@ export function AddReturnForm(props: ReturnFormProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        isCodeServerInstance
                     }
                 )
             ) : (

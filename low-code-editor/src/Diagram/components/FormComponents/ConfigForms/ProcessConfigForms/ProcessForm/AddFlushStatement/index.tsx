@@ -38,7 +38,8 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             stSymbolInfo,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -77,7 +78,8 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         }
     );
 

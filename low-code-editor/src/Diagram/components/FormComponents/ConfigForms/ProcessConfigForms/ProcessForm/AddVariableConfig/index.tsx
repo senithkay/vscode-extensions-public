@@ -66,7 +66,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             stSymbolInfo,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -312,7 +313,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        isCodeServerInstance
                     }
                 )
             ) : (

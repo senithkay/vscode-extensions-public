@@ -58,7 +58,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             syntaxTree,
             importStatements,
             experimentalEnabled,
-            stSymbolInfo
+            stSymbolInfo,
+            isCodeServerInstance
         },
         api: {
             code: { modifyDiagram },
@@ -200,7 +201,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isModuleVar: true
+                        isModuleVar: true,
+                        isCodeServerInstance
                     }
                 )
             ) : (

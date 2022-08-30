@@ -146,6 +146,7 @@ export interface LowCodeEditorProperties {
     lowCodeResourcesVersion?: string;
     ballerinaVersion?: string;
     environment?: string;
+    isCodeServerInstance?: boolean;
 }
 
 export interface SelectedPosition {

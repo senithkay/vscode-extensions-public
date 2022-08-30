@@ -65,7 +65,8 @@ export function AddIfForm(props: IfProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
-            ballerinaVersion
+            ballerinaVersion,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -308,7 +309,8 @@ export function AddIfForm(props: IfProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        isCodeServerInstance
                     }
                 )
             ) : (

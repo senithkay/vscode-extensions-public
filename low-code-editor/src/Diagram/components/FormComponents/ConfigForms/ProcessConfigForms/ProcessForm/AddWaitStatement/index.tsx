@@ -38,7 +38,8 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
             stSymbolInfo,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -76,7 +77,8 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         }
     );
 

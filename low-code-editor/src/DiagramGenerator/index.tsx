@@ -97,6 +97,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
+    const [isCodeServer, setCodeServer] = React.useState<boolean>(false);
     const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
@@ -138,6 +139,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         (async () => {
             const version: string = await getBalVersion();
             setBalVersion(version);
+            const isCodeServerInstance : string = await getEnv("CODE_SERVER_ENV");
+            setCodeServer(isCodeServerInstance === "true");
             const sentryConfig: SentryConfig = await getSentryConfig();
             if (sentryConfig) {
                 init(sentryConfig);
@@ -290,6 +293,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             experimentalEnabled={experimentalEnabled}
                             lowCodeResourcesVersion={lowCodeResourcesVersion}
                             ballerinaVersion={balVersion}
+                            isCodeServerInstance={isCodeServer}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {

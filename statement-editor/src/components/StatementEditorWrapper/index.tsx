@@ -61,6 +61,7 @@ export interface LowCodeEditorProps {
     isConfigurableStmt?: boolean;
     isModuleVar?: boolean;
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
+    isCodeServerInstance?: boolean;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
@@ -89,7 +90,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         isConfigurableStmt,
         isModuleVar,
         extraModules,
-        runBackgroundTerminalCommand
+        runBackgroundTerminalCommand,
+        isCodeServerInstance
     } = props;
 
     const {
@@ -230,6 +232,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             extraModules={extraModules}
                             experimentalEnabled={experimentalEnabled}
                             runBackgroundTerminalCommand={runBackgroundTerminalCommand}
+                            isCodeServerInstance={isCodeServerInstance}
                         />
                     </>
                 )}

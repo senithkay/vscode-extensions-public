@@ -47,7 +47,8 @@ export function AddRespondForm(props: RespondFormProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -208,7 +209,8 @@ export function AddRespondForm(props: RespondFormProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        isCodeServerInstance
                     }
                 )
             ) : (

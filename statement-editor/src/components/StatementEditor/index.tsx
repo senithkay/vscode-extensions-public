@@ -90,7 +90,8 @@ export function StatementEditor(props: StatementEditorProps) {
         importStatements,
         experimentalEnabled,
         extraModules,
-        runBackgroundTerminalCommand
+        runBackgroundTerminalCommand,
+        isCodeServerInstance
     } = props;
 
     const {
@@ -531,6 +532,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     updateSyntaxDiagnostics={updateSyntaxDiagnostics}
                     editing={isEditing}
                     updateEditing={updateEditing}
+                    isCodeServerInstance={isCodeServerInstance}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

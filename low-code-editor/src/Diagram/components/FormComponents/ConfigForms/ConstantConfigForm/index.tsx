@@ -57,7 +57,8 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
             currentFile,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -194,7 +195,8 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isModuleVar: true
+                        isModuleVar: true,
+                        isCodeServerInstance
                     }
                 )
             ) : (

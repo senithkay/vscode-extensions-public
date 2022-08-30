@@ -38,7 +38,8 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             stSymbolInfo,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -88,7 +89,8 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         }
     );
 
