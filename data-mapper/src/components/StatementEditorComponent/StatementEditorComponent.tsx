@@ -27,7 +27,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
 const stmtEditorComponent = StatementEditorWrapper(
         {
             formArgs: { formArgs: {
-                targetPosition: model.position
+                targetPosition: model.valueExpr.position
                 } },
             config: {
                 type: "Custom",
@@ -37,13 +37,13 @@ const stmtEditorComponent = StatementEditorWrapper(
             syntaxTree: null,
             stSymbolInfo: null,
             getLangClient: getEELangClient,
-    library,
-    label: model.fieldName.value,
-    initialSource:  model.valueExpr.source,
-    applyModifications,
-    currentFile,
-    onCancel: onCancel,
-    isExpressionMode: true
+            library,
+            label: model.fieldName.value,
+            initialSource:  model.valueExpr.source,
+            applyModifications,
+            currentFile,
+            onCancel: onCancel,
+            isExpressionMode: true
         }
     );
 
