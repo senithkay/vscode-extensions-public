@@ -18,6 +18,8 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
+import { IdentifierToken } from "../../ExpressionTypes";
+import { TokenComponent } from "../../Token";
 
 interface TypeDefProps {
     model: TypeDefinition;
@@ -34,26 +36,16 @@ export function TypeDefinitionC(props: TypeDefProps) {
             />
         )
     }
-    let typeName: ReactNode;
-    if (model?.typeName) {
-        typeName = (
-            <ExpressionComponent
-                model={model?.typeName}
-            />
-        )
-    }
 
     return (
         <>
-            <span style={{color: "blue", marginRight: 5}}>
-                {model?.visibilityQualifier}
-            </span>
-            <span style={{color: "blue", marginRight: 5}}>
-                {model?.typeKeyword?.value}
-            </span>
-            <span style={{color: "green", marginRight: 5}}>
-                {typeName}
-            </span>
+            {model?.visibilityQualifier && (
+                <TokenComponent model={model?.visibilityQualifier} className={"keyword"}/>
+            )}
+            <TokenComponent model={model?.typeKeyword} className={"keyword"}/>
+            {model?.typeName && (
+                <IdentifierToken model={model?.typeName}/>
+            )}
             <span>
                 {typeDescriptor}
             </span>
