@@ -21,6 +21,8 @@ import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
+import { LSClientContext } from "./Context/ls-client-context";
+import { CurrentFileContext } from "./Context/current-file-context";
 
 export interface DataMapperProps {
     targetPosition?: NodePosition;
@@ -105,10 +107,14 @@ function DataMapperC(props: DataMapperProps) {
 
     return (
         <>
-            <DataMapperDiagram
-                nodes={nodes}
-            />
-            <DataMapperConfigPanel {...props}/>
+            <LSClientContext.Provider value={langClientPromise}>
+                <CurrentFileContext.Provider value={currentFile}>
+                    <DataMapperDiagram
+                        nodes={nodes}
+                    />
+                    <DataMapperConfigPanel {...props}/>
+                </CurrentFileContext.Provider>
+            </LSClientContext.Provider>
         </>
     )
 }
