@@ -93,7 +93,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
     const modifications: STModification[] = [];
     let source = model.source;
 
-    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model) 
+    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model)
             && source.trim().slice(-1) !== ';' && !isExpressionMode) {
         source += ';';
     }
