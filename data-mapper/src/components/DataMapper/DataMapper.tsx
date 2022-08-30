@@ -96,7 +96,7 @@ function DataMapperC(props: DataMapperProps) {
 
     const { fnST, langClientPromise, getEELangClient, filePath, currentFile, stSymbolInfo, applyModifications, library } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
-    const [currentModel, setCurrentModel] = useState<SpecificField>(null);
+    const [currentEditableField, setCurrentEditableField] = useState<SpecificField>(null);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
         prevST: []
@@ -110,11 +110,11 @@ function DataMapperC(props: DataMapperProps) {
 
 
 	const enableStamentEditor = (model: SpecificField) => {
-        setCurrentModel(model)
+        setCurrentEditableField(model)
 	}
 
     const closeStamentEditor = () => {
-        setCurrentModel(null)
+        setCurrentEditableField(null)
 	}
 
     useEffect(() => {
@@ -148,23 +148,23 @@ function DataMapperC(props: DataMapperProps) {
     }, [selection, fnST]);
 
     return (
-<       div className={classes.root}>
+        <div className={classes.root}>
             <Grid container={true} spacing={3} className={classes.gridContainer} >
-                <Grid item={true} xs={currentModel ? 7 : 12}>
+                <Grid item={true} xs={currentEditableField ? 7 : 12}>
                     <DataMapperDiagram
                         nodes={nodes}
                     />
                 </Grid>
-                { !! currentModel &&
+                {!!currentEditableField &&
                     <Grid item={true} xs={5} style={{width:"fit-content"}}>
                         <StatementEditorComponent 
-                            model ={currentModel}
+                            model ={currentEditableField}
                             getEELangClient = {getEELangClient}
                             applyModifications= {applyModifications}
                             currentFile ={currentFile}
                             library={library}
                             onCancel={closeStamentEditor}
-                    />
+                        />
                     </Grid>
                 }
             </Grid>
