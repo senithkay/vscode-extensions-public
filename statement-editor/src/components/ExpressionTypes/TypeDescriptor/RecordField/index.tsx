@@ -19,10 +19,11 @@ import { TokenComponent } from "../../../Token";
 
 interface RecordFieldProps {
     model: RecordField;
+    onPlusClick?: (evt: any) => void;
 }
 
 export function RecordFieldComponent(props: RecordFieldProps) {
-    const { model } = props;
+    const { model, onPlusClick } = props;
 
     return (
         <>
@@ -30,7 +31,7 @@ export function RecordFieldComponent(props: RecordFieldProps) {
             <ExpressionComponent model={model.typeName} />
             <ExpressionComponent model={model.fieldName} />
             {model.questionMarkToken && <TokenComponent model={model.questionMarkToken}/>}
-            <TokenComponent model={model.semicolonToken} />
+            <TokenComponent model={model.semicolonToken} onPlusClick={onPlusClick}/>
         </>
     );
 }

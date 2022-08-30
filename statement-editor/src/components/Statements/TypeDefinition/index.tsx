@@ -57,9 +57,6 @@ export function TypeDefinitionC(props: TypeDefProps) {
             <span>
                 {typeDescriptor}
             </span>
-            <span>
-                {model?.semicolonToken?.value}
-            </span>
         </>
     );
 }

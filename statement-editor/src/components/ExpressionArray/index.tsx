@@ -23,11 +23,12 @@ import { TokenComponent } from "../Token";
 export interface ExpressionArrayProps {
     expressions: STNode[];
     modifiable?: boolean;
-    arrayType?: ArrayType
+    arrayType?: ArrayType;
+    onPlusClick?: (evt: any) => void;
 }
 
 export function ExpressionArrayComponent(props: ExpressionArrayProps) {
-    const { expressions, modifiable, arrayType } = props;
+    const { expressions, modifiable, arrayType, onPlusClick } = props;
 
     const [hoverIndex, setHoverIndex] = React.useState(null);
 
@@ -59,10 +60,18 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                         onMouseEnterCallback={onMouseEnter}
                         isHovered={hoverIndex === index}
                     >
-                        <ExpressionComponent
-                            key={index}
-                            model={expression}
-                        />
+                        {(index === (expressions.length - 1)) ? (
+                            <ExpressionComponent
+                                key={index}
+                                model={expression}
+                                onPlusClick={onPlusClick}
+                            />
+                        ) : (
+                            <ExpressionComponent
+                                key={index}
+                                model={expression}
+                            />
+                        )}
                     </ExpressionArrayElementComponent>
                 )
             })}

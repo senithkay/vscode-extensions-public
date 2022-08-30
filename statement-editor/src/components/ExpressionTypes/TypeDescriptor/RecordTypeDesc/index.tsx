@@ -10,9 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
+import { RecordTypeDesc, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { FIELD_DESCRIPTOR } from "../../../../constants";
 import { StatementEditorContext } from "../../../../store/statement-editor-context";
@@ -53,16 +54,18 @@ export function RecordTypeDescComponent(props: RecordTypeDescProps) {
     return (
         <>
             <TokenComponent model={model.recordKeyword} />
-            <TokenComponent model={model.bodyStartDelimiter} />
-            <ExpressionArrayComponent expressions={model.fields} />
-            <span
-                className={statementRendererClasses.plusIcon}
-                onClick={onClickOnPlusIcon}
-            >
-                +
+            {(model.fields.length === 0) ? (
+                // Add plus button when there are no fields
+                <TokenComponent model={model.bodyStartDelimiter} onPlusClick={onClickOnPlusIcon} />
+            ) : (
+                <TokenComponent model={model.bodyStartDelimiter} />
+            )}
+            <ExpressionArrayComponent expressions={model.fields} onPlusClick={onClickOnPlusIcon} />
+            {model.recordRestDescriptor && <ExpressionComponent model={model.recordRestDescriptor} />}
+            <span>
+                <TokenComponent model={model?.bodyEndDelimiter} />
+                {STKindChecker.isTypeDefinition(model?.parent) && model?.parent?.semicolonToken?.value}
             </span>
-            {model.recordRestDescriptor && <ExpressionComponent model={model.recordRestDescriptor}/>}
-            <TokenComponent model={model.bodyEndDelimiter} />
         </>
     );
 }
