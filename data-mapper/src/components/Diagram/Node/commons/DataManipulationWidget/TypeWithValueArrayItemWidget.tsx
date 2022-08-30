@@ -40,13 +40,15 @@ export interface TypeWithValueArrayItemWidgetProps {
 }
 
 export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex = 0, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0 } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.type.name);
-    const fieldId = `${parentId}.${fieldName}`;
-    const portIn = getPort(`${fieldId}.${fieldIndex}.IN`);
-    const portOut = getPort(`${fieldId}.${fieldIndex}.OUT`);
+    const fieldId = fieldIndex !== undefined
+        ? `${parentId}.${fieldIndex}.${fieldName}`
+        : `${parentId}.${fieldName}`;
+    const portIn = getPort(`${fieldId}.IN`);
+    const portOut = getPort(`${fieldId}.OUT`);
     const hasValue = field.hasValue();
     const typeName = field.type.memberType.typeName;
     const elements = field.elements;

@@ -28,12 +28,12 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public field: Type,
 		public portType: "IN" | "OUT",
 		public parentId: string,
-		public index: number,
+		public index?: number,
 		public parentFieldAccess?: string,
 		public parentModel?: RecordFieldPortModel) {
 		super({
 			type: FORM_FIELD_PORT,
-			name: `${parentId}.${getBalRecFieldName(field.name)}.${index}.${portType}`,
+			name: `${parentId}.${getBalRecFieldName(field.name)}.${portType}`,
 		});
 	}
 

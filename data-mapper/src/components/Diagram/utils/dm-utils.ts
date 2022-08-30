@@ -278,7 +278,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 									(field: any) => field.name === fieldName);
 				if (recField) {
 					if (i === fieldNames.length - 1) {
-						const portId = `${portIdBuffer}.${INPUT_RECORD_FIELD_INDEX}.OUT`;
+						const portId = `${portIdBuffer}.OUT`;
 						const port = (node.getPort(portId) as RecordFieldPortModel);
 						return port;
 					} else if (recField.typeName === 'record') {

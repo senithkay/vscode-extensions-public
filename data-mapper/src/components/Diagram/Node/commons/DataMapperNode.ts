@@ -13,7 +13,7 @@ import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapp
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 import { ArrayElement, TypeWithValue } from "../../Mappings/TypeWithValue";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
-import { getBalRecFieldName, INPUT_RECORD_FIELD_INDEX } from "../../utils/dm-utils";
+import { getBalRecFieldName } from "../../utils/dm-utils";
 import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
 
 export interface DataMapperNodeModelGenerics {
@@ -79,7 +79,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
 		const fieldPort = new RecordFieldPortModel(
-			field, type, parentId, INPUT_RECORD_FIELD_INDEX, parentFieldAccessExpr, parent);
+			field, type, parentId, undefined, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
 
 		if (field.typeName === 'record') {
@@ -92,22 +92,24 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected addPortsForOutputRecordField(field: TypeWithValue, type: "IN" | "OUT", parentId: string,
-										                              fieldIndex?: number,
+	protected addPortsForOutputRecordField(field: TypeWithValue, type: "IN" | "OUT",
+										                              parentId: string, elementIndex?: number,
 										                              parentFieldAccessExpr?: string,
 										                              parent?: RecordFieldPortModel) {
 		const fieldName = getBalRecFieldName(field.type.name);
+		parentId = elementIndex !== undefined
+			? `${parentId}.${elementIndex}`
+			: parentId;
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
-		const fIndex = fieldIndex || 0;
-		const fieldPort = new RecordFieldPortModel(field.type, type, parentId, fIndex, parentFieldAccessExpr, parent);
+		const fieldPort = new RecordFieldPortModel(field.type, type, parentId, elementIndex, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort);
 
 		if (field.type.typeName === 'record') {
 			const fields = field?.childrenTypes;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
-					this.addPortsForOutputRecordField(subField, type, fieldId, fieldIndex, fieldAccessExpr, fieldPort);
+					this.addPortsForOutputRecordField(subField, type, fieldId, undefined, fieldAccessExpr, fieldPort);
 				});
 			}
 		} else if (field.type.typeName === 'array' && field.type.memberType.typeName === 'record') {
