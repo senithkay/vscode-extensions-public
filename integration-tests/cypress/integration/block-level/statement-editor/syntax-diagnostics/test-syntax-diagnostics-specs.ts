@@ -38,14 +38,6 @@ describe('Test statement editor syntax diagnostics highlights', () => {
             .shouldBeVisible();
 
         EditorPane
-            .getStatementRenderer()
-            .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var');
-
-        InputEditor
-            .typeInput("int");
-
-        EditorPane
             .getExpression("SimpleNameReference")
             .doubleClickExpressionContent(`<add-expression>`);
 

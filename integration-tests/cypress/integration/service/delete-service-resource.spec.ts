@@ -15,19 +15,20 @@ describe('delete resource after adding it', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it.skip('Delete after adding service', () => {
+  it('Delete after adding service', () => {
     Canvas
       .welcomeMessageShouldBeVisible()
       .clickTopLevelPlusButton();
     TopLevelPlusWidget.clickOption("Service");
+
     ServiceForm
-      .selectServiceType("HTTP")
       .typeServicePath("/hello")
-      .clickDefineListenerline()
       .typeListenerPort(9090)
       .save();
-    Canvas.clickTopLevelPlusButton(5);
-    TopLevelPlusWidget.clickOption("Resource");
+
+    Canvas.getService('/hello')
+        .clickPlusIcon(3);
+
     ResourceForm
       .selectMethod("GET")
       .typePathName("world")
@@ -35,21 +36,6 @@ describe('delete resource after adding it', () => {
 
     Canvas.getService("/hello")
       .shouldHaveResources(2)
-
-    Canvas.getService("/hello")
-      .getResourceFunction("GET", "world")
-      // .expand()
-      .shouldBeExpanded()
-      .getDiagram()
-      .shouldBeRenderedProperly()
-      .getBlockLevelPlusWidget()
-      .clickOption("Log")
-
-    LogForm
-      .shouldBeVisible()
-      .selectType("Debug")
-      .typeExpression(`"This is a debug message."`)
-      .save();
 
     Canvas.getService("/hello")
       .getResourceFunction("GET", "world")

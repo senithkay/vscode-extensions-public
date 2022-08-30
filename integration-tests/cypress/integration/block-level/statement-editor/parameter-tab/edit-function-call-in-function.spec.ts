@@ -18,69 +18,62 @@ import { InputEditor } from "../../../../utils/components/statement-editor/input
 import { SourceCode } from "../../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
 import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
+import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
+import { ParameterTab } from "../../../../utils/components/statement-editor/parameter-tab";
 
-const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
+const BAL_FILE_PATH = "block-level/statement-editor/edit-function-call-in-function.bal";
 
-describe('Test mapping constructor functionality', () => {
+describe('Test helper plane parameter tab functionality', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-    })
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+    });
 
-    it('Add Mapping Constructor With Input-Editor And Add New Fields', () => {
-        Canvas.getFunction("testStatementEditorComponents")
-            .nameShouldBe("testStatementEditorComponents")
+    it('Edit functions form in function', () => {
+        Canvas.getFunction("main")
+            .nameShouldBe("main")
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2);
-
-        BlockLevelPlusWidget.clickOption("Variable");
+            .clickEditExistingBlockStatement(20);
 
         StatementEditor
-            .shouldBeVisible()
-            .getEditorPane();
+            .shouldBeVisible();
 
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var');
-
-        InputEditor
-            .typeInput("map<int>");
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`);
-
-        InputEditor
-            .typeInput("{}");
-
-        EditorPane
-            .validateNewExpression("MappingConstructor", "+")
-            .validateEmptyDiagnostics();
-
-        EditorPane
-            .clickPlusButton();
-
-        EditorPane
-            .getExpression("IdentifierToken")
-            .doubleClickExpressionContent(`key`);
-
-        InputEditor
-            .typeInput("k1");
+        ParameterTab
+            .shouldBeFocused()
+            .shouldHaveParameterList()
+            .shouldHaveRequiredArg("str")
+            .shouldHaveOptionalArg("n")
+            .shouldHaveOptionalArg("student")
+            .toggleOptionalArg("student");
 
         EditorPane
             .getExpression("SimpleNameReference")
             .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput("1");
+            .typeInput('{}');
 
         StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "mapping-constructor.expected.bal");
-
+            getCurrentSpecFolder() + "edit-function-call-in-function.expected.bal");
     });
-})
+
+    it('Edit function call and cancel', () => {
+        Canvas.getFunction("main")
+            .nameShouldBe("main")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickEditExistingBlockStatement(19);
+
+        StatementEditor
+            .shouldBeVisible()
+            .cancel();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-function-call-to-function.expected.bal");
+    });
+});

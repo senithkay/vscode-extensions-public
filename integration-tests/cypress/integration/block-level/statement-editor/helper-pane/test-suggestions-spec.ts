@@ -182,7 +182,7 @@ describe('Test helper pane functionality', () => {
             .clickExpressionSuggestion('Es | Ex');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int | <add-type>")
+            .validateNewExpression("TypedBindingPattern", "int|<add-type> ")
             .getExpression("UnionTypeDesc")
             .clickSpecificExpression("SimpleNameReference", 0, '<add-type>');
 
@@ -283,5 +283,87 @@ describe('Test helper pane functionality', () => {
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "lib-suggestion.expected.bal");
 
+    });
+
+    it('Test a suggestion for partially typed value', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(2);
+
+        BlockLevelPlusWidget.clickOption("Variable");
+
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent(`<add-expression>`);
+
+        SuggestionsPane
+            .clickSuggestionsTab("Suggestions")
+            .clickLsSuggestion('var1');
+
+        EditorPane
+            .validateNewExpression("SimpleNameReference", "var1")
+            .getExpression("TypedBindingPattern")
+            .doubleClickExpressionContent('var');
+
+        InputEditor
+            .typeInput("in");
+
+        SuggestionsPane
+            .clickSuggestionsTab("Suggestions")
+            .clickLsTypeSuggestion('int');
+
+        EditorPane
+            .validateNewExpression("TypedBindingPattern", "int");
+
+        EditorPane
+            .validateEmptyDiagnostics();
+
+        StatementEditor
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "partial-type-suggestion.expected.bal");
+    });
+
+    it('Test second level suggestions', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(2);
+
+        BlockLevelPlusWidget.clickOption("Variable");
+
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent(`<add-expression>`);
+
+        SuggestionsPane
+            .clickSuggestionsTab("Suggestions")
+            .clickLsTypeSuggestion('var2')
+            .clickLsTypeSuggestion('toString()', 1000);
+
+        EditorPane
+            .validateEmptyDiagnostics();
+
+        StatementEditor
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "second-level-suggestion.expected.bal");
     });
 })

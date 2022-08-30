@@ -235,7 +235,7 @@ export const useStatementRendererStyles = makeStyles(() =>
                 display: "inline"
             },
             '&.hide': {
-                display: "none"
+                visibility: "hidden"
             }
         },
         errorHighlight: {
@@ -681,7 +681,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         paramList: {
-            maxHeight: '40%',
+            maxHeight: '40vh',
             overflowY: 'scroll',
         },
         includedRecordHeaderList: {
