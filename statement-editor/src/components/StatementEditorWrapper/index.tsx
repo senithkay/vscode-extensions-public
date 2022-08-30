@@ -118,7 +118,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                         : (isExpressionMode ? await getPartialSTForExpression({codeSnippet: initialSource.trim()}, getLangClient)
                         : await getPartialSTForStatement({ codeSnippet: initialSource.trim()}, getLangClient));
 
-                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE)  {
+                if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     model = partialST;
                 }
             }
