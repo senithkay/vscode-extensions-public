@@ -150,9 +150,13 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				source = `${lhs}: ${rhs}`;
 			}
 
-			if (STKindChecker.isListConstructor(targetMappingConstruct) && STKindChecker.isMappingConstructor(targetMappingConstruct.expressions[0])) {
-				targetMappingConstruct = targetMappingConstruct.expressions[0];
+			if (STKindChecker.isListConstructor(targetMappingConstruct) && targetPort.index !== undefined) {
+				const targetExpr = targetMappingConstruct.expressions[targetPort.index * 2];
+				if (STKindChecker.isMappingConstructor(targetExpr)) {
+					targetMappingConstruct = targetExpr;
+				}
 			}
+
 			const targetPos = targetMappingConstruct.openBrace.position as NodePosition;
 			if (targetMappingConstruct.fields.length > 0) {
 				source += ",";
