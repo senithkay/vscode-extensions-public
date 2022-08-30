@@ -943,6 +943,14 @@ export const useStatementEditorStyles = makeStyles(() =>
                 paddingRight: '12.5px'
             },
             ...removePadding
+        },
+        help: {
+            marginRight: '129px',
+            display: "flex"
+        },
+        helpLink: {
+            marginLeft: '8px',
+            color: '#5567D5'
         }
     }),
 );
