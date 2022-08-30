@@ -527,11 +527,11 @@ const typeDescriptors : ExpressionGroup = {
             example: "(Es)"
         }, {
             name: "Inclusive Record",
-            template: `record{${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACEHOLDER};}`,
+            template: `record{\n${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACEHOLDER};\n}`,
             example: "record{Es Ex;}"
         }, {
             name: "Exclusive Record",
-            template: `record{|${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACEHOLDER};|}`,
+            template: `record{|\n${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACEHOLDER};|\n}`,
             example: "record{|Es Ex;|}"
         }
     ],

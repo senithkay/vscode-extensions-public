@@ -53,7 +53,7 @@ export function RecordTypeDescComponent(props: RecordTypeDescProps) {
 
     return (
         <>
-            <TokenComponent model={model.recordKeyword} />
+            <TokenComponent model={model.recordKeyword} className="keyword" />
             {(model.fields.length === 0) ? (
                 // Add plus button when there are no fields
                 <TokenComponent model={model.bodyStartDelimiter} onPlusClick={onClickOnPlusIcon} />
