@@ -13,11 +13,12 @@
 import { DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, JsonToRecordResponse,
     PartialSTRequest, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    ModulePart,
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
     STKindChecker,
-    STNode
+    STNode, TypeDefinition
 } from "@wso2-enterprise/syntax-tree";
 
 import { isLiteral } from "../../../../../utils";
@@ -46,10 +47,15 @@ export async function getRecordST(partialSTRequest: PartialSTRequest,
     return resp.syntaxTree;
 }
 
+export function getRootRecord(modulePartSt: ModulePart, name: string): TypeDefinition {
+    return (modulePartSt.members.find(record => (STKindChecker.isTypeDefinition(record)
+        && (record.typeName.value === name)))) as TypeDefinition;
+}
+
 export async function getModulePartST(partialSTRequest: PartialSTRequest, lsUrl: string, ls?: any): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
 
-    const resp = await langClient.getSTForModuleMembers(partialSTRequest);
+    const resp = await langClient.getSTForModulePart(partialSTRequest);
     return resp.syntaxTree;
 }
 

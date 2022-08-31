@@ -19,7 +19,7 @@ import {
     FormHeaderSection,
     FormTextInput
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
+import { NodePosition, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
@@ -29,7 +29,7 @@ import { FormActionButtons } from "../../../FormFieldComponents/FormActionButton
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
 import { checkDiagnostics, getUpdatedSource } from "../../../Utils";
 import { RecordEditor } from "../index";
-import { convertToRecord, getRecordST } from "../utils";
+import { convertToRecord, getModulePartST, getRecordST, getRootRecord } from "../utils";
 
 interface RecordState {
     isLoading?: boolean;
@@ -131,13 +131,30 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
             (async () => {
                 const recordResponse = await convertToRecord(formState.jsonValue, formState.recordName,
                     false, langServerURL, formState.isSeparateDef, ls);
-                const recordST: STNode = await getRecordST({ codeSnippet: recordResponse.trim()},
-                    langServerURL, ls);
-                const newPosition: NodePosition = {
-                    startLine: targetPosition.startLine,
-                    startColumn: targetPosition.startColumn,
-                    endLine: targetPosition.startLine + recordST.position.endLine,
-                    endColumn: recordST.position.endColumn,
+                let recordST: STNode;
+                let newPosition: NodePosition;
+                if (formState.isSeparateDef) {
+                    // Uses module part since we receive multiple records
+                    const modulePart = await getModulePartST({ codeSnippet: recordResponse.trim()},
+                        langServerURL, ls);
+                    if (STKindChecker.isModulePart(modulePart)) {
+                        recordST = getRootRecord(modulePart, formState.recordName);
+                        newPosition = {
+                            startLine: targetPosition.startLine + recordST.position.startLine,
+                            startColumn: targetPosition.startColumn,
+                            endLine: targetPosition.startLine + recordST.position.endLine,
+                            endColumn: recordST.position.endColumn,
+                        }
+                    }
+                } else {
+                    recordST = await getRecordST({ codeSnippet: recordResponse.trim()},
+                        langServerURL, ls);
+                    newPosition = {
+                        startLine: targetPosition.startLine,
+                        startColumn: targetPosition.startColumn,
+                        endLine: targetPosition.startLine + recordST.position.endLine,
+                        endColumn: recordST.position.endColumn,
+                    }
                 }
                 dispatchFromState({type: 'jsonConversionSuccess', payload: {importedRecord: recordST,
                                                                             modifiedPosition: newPosition}});

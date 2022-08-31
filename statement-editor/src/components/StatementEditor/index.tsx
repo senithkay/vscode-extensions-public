@@ -247,8 +247,15 @@ export function StatementEditor(props: StatementEditorProps) {
     }, [currentFile.content]);
 
     useEffect(() => {
-        setStmtModel(editorModel);
-    }, [editorModel]);
+        (async () => {
+            if (editorModel) {
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
+                sendDidChange(fileURI, updatedContent, getLangClient).then();
+                const diagnostics = await handleDiagnostics(source);
+                setStmtModel(editorModel, diagnostics);
+            }
+        })();
+    }, [editorModel, currentFile.content]);
 
     const restArg = (restCheckClicked: boolean) => {
         setRestArg(restCheckClicked);
