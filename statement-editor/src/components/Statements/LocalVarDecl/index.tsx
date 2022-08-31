@@ -75,6 +75,8 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             changeCurrentModel(model.initializer);
         } else if (config.type === CUSTOM_CONFIG_TYPE) {
             changeCurrentModel(model);
+        } else if (!model.initializer && model.typedBindingPattern?.typeDescriptor){
+            changeCurrentModel(model.typedBindingPattern.typeDescriptor);
         }
     }
 
