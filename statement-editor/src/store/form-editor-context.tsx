@@ -16,10 +16,11 @@ import React from 'react';
 import {
     ExpressionEditorLangClientInterface,
     STModification,
-    STSymbolInfo} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import {NodePosition, STNode} from "@wso2-enterprise/syntax-tree";
+    STSymbolInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-import {CurrentModel} from "../models/definitions";
+import { CurrentModel } from "../models/definitions";
 
 
 export const FormEditorContext = React.createContext({
@@ -38,10 +39,11 @@ export const FormEditorContext = React.createContext({
     onCancel: () => undefined,
     onSave: () => undefined,
     onChange: (code: string, partialST: STNode, moduleList?: Set<string>, currentModel?: CurrentModel,
-               newValue?: string, completionKinds?: number[], offsetLineCount?: number,
-               diagnosticOffSet?: NodePosition) => undefined,
+        newValue?: string, completionKinds?: number[], offsetLineCount?: number,
+        diagnosticOffSet?: NodePosition) => undefined,
     getLangClient: () => (Promise.resolve({} as any)),
-    applyModifications: (modifications: STModification[]) => undefined
+    applyModifications: (modifications: STModification[]) => undefined,
+    changeInProgress: false
 });
 
 export interface FormEditorProps {
@@ -57,14 +59,15 @@ export interface FormEditorProps {
     isEdit?: boolean;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     onChange: (code: string, partialST: STNode, moduleList?: Set<string>, currentModel?: CurrentModel,
-               newValue?: string, completionKinds?: number[], offsetLineCount?: number,
-               diagnosticOffSet?: NodePosition) => void;
+        newValue?: string, completionKinds?: number[], offsetLineCount?: number,
+        diagnosticOffSet?: NodePosition) => void;
     currentFile: {
         content: string,
         path: string,
         size: number
     };
     applyModifications: (modifications: STModification[]) => void;
+    changeInProgress: boolean;
 }
 
 export const FormEditorContextProvider = (props: FormEditorProps) => {
@@ -82,7 +85,8 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
         onCancel,
         onSave,
         onChange,
-        getLangClient
+        getLangClient,
+        changeInProgress
     } = props;
 
     return (
@@ -100,7 +104,8 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
                 onCancel,
                 onSave,
                 onChange,
-                getLangClient
+                getLangClient,
+                changeInProgress
             }}
         >
             {children}
