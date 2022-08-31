@@ -15,6 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { FormControl, Input, InputAdornment, List, ListItem, ListItemText, Typography } from "@material-ui/core";
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
@@ -210,15 +211,16 @@ export function ExpressionSuggestions() {
                                                         { selectedGroup: groupIndex, selectedListItem: index })}
                                                     disableRipple={true}
                                                 >
+                                                    <StatementEditorHint content={expression.name}>
                                                     <ListItemText
                                                         data-testid="expression-title"
-                                                        title={expression.name}
                                                         primary={(
                                                             <Typography style={{ fontFamily: 'monospace' }}>
                                                                 {expression.example}
                                                             </Typography>
                                                         )}
                                                     />
+                                                    </StatementEditorHint>
                                                 </ListItem>
                                             ))
                                         }
