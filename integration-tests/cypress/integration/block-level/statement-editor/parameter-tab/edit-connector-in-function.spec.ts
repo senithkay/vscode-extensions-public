@@ -12,8 +12,7 @@ describe('Edit connector with custom configurations via Low Code', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     });
 
-    // TODO: Skip this test until fixing https://github.com/wso2-enterprise/choreo/issues/14988 issue
-    it.skip('Edit http endpoint with custom configurations', () => {
+    it('Edit http endpoint with custom configurations', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
