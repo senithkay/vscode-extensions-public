@@ -10,8 +10,8 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { isPositionsEquals } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
+import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
-import { TypeWithValue } from "../../Mappings/TypeWithValue";
 import { RecordFieldPortModel } from "../../Port";
 import {
     getBalRecFieldName,
@@ -28,7 +28,7 @@ export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
     public typeDef: Type;
-    public enrichedTypeDef: TypeWithValue;
+    public enrichedTypeDef: EditableRecordField;
 
     constructor(
         public context: IDataMapperContext,
@@ -53,7 +53,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
             this.enrichedTypeDef = valueEnrichedType;
             if (valueEnrichedType.type.typeName === 'record') {
-                const fields: TypeWithValue[] = valueEnrichedType.childrenTypes;
+                const fields: EditableRecordField[] = valueEnrichedType.childrenTypes;
                 if (!!fields.length) {
                     fields.forEach((subField) => {
                         this.addPortsForOutputRecordField(subField, "IN", "exprFunctionBody");
@@ -109,7 +109,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
     private getOutputPortForField(fields: SpecificField[]) {
         let nextTypeNode = this.enrichedTypeDef?.childrenTypes;
-        let recField: TypeWithValue;
+        let recField: EditableRecordField;
         let portIdBuffer = "exprFunctionBody";
         let fieldIndex;
         for (let i = 0; i < fields.length; i++) {

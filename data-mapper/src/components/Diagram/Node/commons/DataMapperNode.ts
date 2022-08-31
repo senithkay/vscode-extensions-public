@@ -10,8 +10,8 @@ import {
 } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
+import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
-import { ArrayElement, TypeWithValue } from "../../Mappings/TypeWithValue";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
 import { getBalRecFieldName } from "../../utils/dm-utils";
 import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
@@ -92,7 +92,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected addPortsForOutputRecordField(field: TypeWithValue, type: "IN" | "OUT",
+	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
 										                              parentId: string, elementIndex?: number,
 										                              parentFieldAccessExpr?: string,
 										                              parent?: RecordFieldPortModel) {
