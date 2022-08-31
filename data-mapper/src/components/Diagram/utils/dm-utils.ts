@@ -14,7 +14,8 @@ import {
 	RequiredParam, SimpleNameReference,
 	SpecificField,
 	STKindChecker,
-	STNode
+	STNode,
+	traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { isPositionsEquals } from "../../../utils/st-utils";
@@ -26,6 +27,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
+import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
@@ -439,4 +441,11 @@ export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 		fieldIndexes.push(...getFieldIndexes(parentPort));
 	}
 	return fieldIndexes;
+}
+
+export function isConnectedViaLink(field: SpecificField) {
+	const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
+	traversNode(field.valueExpr, fieldAccessFindingVisitor);
+	const fieldAccessNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
+	return !!fieldAccessNodes.length;
 }

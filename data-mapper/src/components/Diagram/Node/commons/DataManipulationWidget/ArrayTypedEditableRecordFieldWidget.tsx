@@ -118,7 +118,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <>
             <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
-                    {portIn &&
+                    {portIn && !listConstructor &&
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>

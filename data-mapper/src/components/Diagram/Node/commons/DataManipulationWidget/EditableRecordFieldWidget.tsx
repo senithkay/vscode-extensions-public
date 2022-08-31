@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { IconButton } from "@material-ui/core";
 import { default as AddIcon } from  "@material-ui/icons/Add";
@@ -23,7 +23,7 @@ import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getDefaultLiteralValue, getNewSource } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -56,6 +56,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const fields = isRecord && field.childrenTypes;
     const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
+
+    const connectedViaLink = useMemo(() => {
+        if (field?.value) {
+            return isConnectedViaLink(field?.value);
+        }
+        return false;
+    }, [field]);
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [editable, setEditable] = useState<boolean>(false);
@@ -126,7 +133,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {!isArray && (
                 <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
-                    {portIn &&
+                    {portIn && (!hasValue || connectedViaLink) &&
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
