@@ -36,7 +36,7 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode){
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
-        if (typeDesc && typeDesc.kind === 'record') {
+        if (typeDesc) {
             this.outputNode = new ExpressionFunctionBodyNode(
                 this.context,
                 node.functionBody as ExpressionFunctionBody,
