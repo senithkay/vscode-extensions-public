@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import React, { useContext, useState } from 'react';
 
 import { Box, CircularProgress, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
@@ -20,6 +19,7 @@ import {
     LibraryFunction,
     ModuleProperty
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { InputEditorContext } from '../../../store/input-editor-context';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
