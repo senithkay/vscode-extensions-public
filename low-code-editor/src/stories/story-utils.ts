@@ -121,61 +121,80 @@ export async function getLibraryData(orgName: string, moduleName: string, versio
 
 export function generatePerfData(data: any, analyzeType: ANALYZE_TYPE): Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse> {
   if (analyzeType === ANALYZE_TYPE.REALTIME) {
-    if (data.resourcePos.start.line === 20) {
+    if (data.resourcePos.start.line === 24) {
       return Promise.resolve({
-        concurrency: { max: 50, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 },
-        connectorLatencies: { "0": { max: 1, min: 1 }, "1": { max: 1, min: 1 } },
+        concurrency: { max: 1, min: 1 },
+        latency: { max: 3738, min: 46 },
+        tps: { max: 21.66, min: 8.28 },
+        connectorLatencies: { "0": { "max": 18, "min": 19 }, "1": { "max": 7258.92, "min": 106 }, "2": { "max": 7258.92, "min": 116 } },
         positions: {
           "0": {
             "name": "Client",
             "pkgID": "ballerina/http",
-            "pos": "main.bal/(15:38,15:84)"
+            "pos": "main.bal/(26:33,26:67)"
           },
           "1": {
             "name": "Client",
             "pkgID": "ballerina/http",
-            "pos": "main.bal/(15:38,15:84)"
+            "pos": "main.bal/(28:34,28:68)"
+          },
+          "2": {
+            "name": "Client",
+            "pkgID": "ballerina/http",
+            "pos": "main.bal/(29:34,29:68)"
           }
         },
         message: undefined, type: undefined
       });
     }
     return Promise.resolve({
-      concurrency: { max: 1, min: 1 }, latency: { max: 3738, min: 46 }, tps: { max: 21.66, min: 8.28 },
-      connectorLatencies: { "0": { max: 1, min: 1 }, "1": { max: 1, min: 1 } },
-      positions: {
-        "0": {
-          "name": "Client",
-          "pkgID": "ballerina/http",
-          "pos": "main.bal/(15:38,15:84)"
-        },
-        "1": {
-          "name": "Client",
-          "pkgID": "ballerina/http",
-          "pos": "main.bal/(15:38,15:84)"
-        }
+      "concurrency": { "max": 50, "min": 1 },
+      "connectorLatencies": { "0": { "max": 5276.18, "min": 256 } },
+      "latency": { "max": 7276, "min": 107 },
+      "positions": {
+        "0": { "name": "Client", "pkgID": "ballerina/http", "pos": "main.bal/(40:42,40:88)" },
+        "1": { "name": "Client", "pkgID": "ballerina/http", "pos": "main.bal/(43:42,43:88)" }
       },
-      message: undefined, type: undefined
+      "tps": { "max": 9.39, "min": 4.56 }
     });
 
   } else {
-    // return Promise.resolve({
-    //   graphData: [
-    //     { concurrency: "1", latency: "137", tps: "7.28" },
-    //     { concurrency: "25", latency: "2399", tps: "10.42" },
-    //     { concurrency: "50", latency: "4366", tps: "11.45" },
-    //     { concurrency: "75", latency: "6638", tps: "11.3" },
-    //     { concurrency: "100", latency: "9213", tps: "10.85" }
-    //   ],
-    //   sequenceDiagramData: [
-    //     { concurrency: "1", values: [{ latency: 46, name: "sample.bal/(22:33,22:67)", tps: 7.28 }, { latency: 45, name: "sample.bal/(24:34,24:68)", tps: 7.28 }, { latency: 47, name: "sample.bal/(25:34,25:68)", tps: 7.28 }] },
-    //     { concurrency: "25", values: [{ latency: 800, name: "sample.bal/(22:33,22:67)", tps: 10.42 }, { latency: 800, name: "sample.bal/(24:34,24:68)", tps: 10.42 }, { latency: 800, name: "sample.bal/(25:34,25:68)", tps: 10.42 }] },
-    //     { concurrency: "50", values: [{ latency: 1455, name: "sample.bal/(22:33,22:67)", tps: 11.45 }, { latency: 1455, name: "sample.bal/(24:34,24:68)", tps: 11.45 }, { latency: 1455, name: "sample.bal/(25:34,25:68)", tps: 11.45 }] },
-    //     { concurrency: "75", values: [{ latency: 2213, name: "sample.bal/(22:33,22:67)", tps: 11.3 }, { latency: 2213, name: "sample.bal/(24:34,24:68)", tps: 11.3 }, { latency: 2213, name: "sample.bal/(25:34,25:68)", tps: 11.3 }] },
-    //     { concurrency: "100", values: [{ latency: 3071, name: "sample.bal/(22:33,22:67)", tps: 10.85 }, { latency: 3071, name: "sample.bal/(24:34,24:68)", tps: 10.85 }, { latency: 3071, name: "sample.bal/(25:34,25:68)", tps: 10.85 }] }
-    //   ],
-    //   message: undefined,
-    //   type: undefined
-    // });
+    return Promise.resolve({
+      "criticalPath": 1,
+      "pathmaps": { "0": ["0"], "1": ["1"] },
+      "paths": {
+        "0": {
+          "graphData": [
+            { "concurrency": 1, "latency": 107, "tps": 9.39 },
+            { "concurrency": 25, "latency": 4001, "tps": 6.25 },
+            { "concurrency": 50, "latency": 7276, "tps": 6.87 },
+            { "concurrency": 75, "latency": 10878, "tps": 6.89 },
+            { "concurrency": 100, "latency": 14807, "tps": 6.75 }
+          ],
+          "sequenceDiagramData": {
+            "concurrency": { "max": 50, "min": 1 },
+            "connectorLatencies": { "0": { "max": 7276.18, "min": 106 } },
+            "latency": { "max": 7276, "min": 107 }, "tps": { "max": 9.39, "min": 6.25 }
+          }
+        },
+        "1": {
+          "graphData": [
+            { "concurrency": 1, "latency": 107, "tps": 9.39 },
+            { "concurrency": 25, "latency": 4001, "tps": 6.25 },
+            { "concurrency": 50, "latency": 7276, "tps": 6.87 },
+            { "concurrency": 75, "latency": 10878, "tps": 6.89 },
+            { "concurrency": 100, "latency": 14807, "tps": 6.75 }],
+          "sequenceDiagramData": {
+            "concurrency": { "max": 50, "min": 1 },
+            "connectorLatencies": { "1": { "max": 7276.18, "min": 106 } },
+            "latency": { "max": 7276, "min": 107 }, "tps": { "max": 9.39, "min": 6.25 }
+          }
+        }
+      },
+      "positions": {
+        "0": { "name": "Client", "pkgID": "ballerina/http", "pos": "main.bal/(40:42,40:88)" },
+        "1": { "name": "Client", "pkgID": "ballerina/http", "pos": "main.bal/(43:42,43:88)" }
+      }
+    });
   }
 }

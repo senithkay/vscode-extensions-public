@@ -1,4 +1,5 @@
 import { Canvas } from "../../utils/components/canvas"
+import { FunctionDiagram } from "../../utils/components/diagram";
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "service/perf-analyzer.bal";
@@ -9,52 +10,40 @@ describe('Test Performance Analyzer', () => {
   })
 
   it('Test Performance Analyzer', () => {
-    Canvas.getService("/")
+    const diagram = Canvas.getService("/")
       .getResourceFunction("GET", "hello")
-      .getDiagram()
+      .getDiagram();
+
+    diagram
       .shouldBeRenderedProperly()
       .shouldHavePerfBar()
-      .assertPerfText("Forecasted performance for concurrency 1 - 50 | Latency: 46  ms - 3.738  s | Tps: 8.28 - 21.66 req/s");
+      .assertPerfText("Forecasted performance of the critical path: Concurrency 1 | Latency: 46  ms - 3.74  s | Tps: 8.28 - 21.66");
 
-    Canvas.getService("/")
-      .getResourceFunction("GET", "hello")
-      .getDiagram()
-      .getAdvancedPerfData()
-      .assertPerfText("Forecasted performance for concurrency 1 | Latency: 137  ms | Tps: 7.28 req/s");
 
-    Canvas.getService("/")
-      .getResourceFunction("GET", "hello")
-      .getDiagram()
-      .assertPerfLabel(0, "46 ms");
+    diagram.assertPerfLabel(0, "19  ms - 18  ms");
 
-    Canvas.getService("/")
-      .getResourceFunction("GET", "hello")
-      .getDiagram()
-      .assertPerfLabel(1, "45 ms");
+    diagram.assertPerfLabel(1, "106  ms - 7.26  s");
 
-    Canvas.getService("/")
-      .getResourceFunction("GET", "hello")
-      .getDiagram()
-      .assertPerfLabel(2, "47 ms");
+    diagram.assertPerfLabel(2, "116  ms - 7.26  s");
 
-    Canvas.getService("/")
-      .getResourceFunction("GET", "hello2/fxx")
+    const diagram2 = Canvas.getService("/")
+      .getResourceFunction("GET", "stats/[string shortCountryName]")
       .expand()
-      .getDiagram()
+      .getDiagram();
+
+    diagram2
       .shouldBeRenderedProperly()
       .shouldHavePerfBar()
-      .assertPerfText("Forecasted performance for a single user: Latency: 3.738  s | Tps: 21.66 req/s");
+      .assertPerfText("Forecasted performance of the critical path: Concurrency 1 - 50 | Latency: 107  ms - 7.28  s | Tps: 4.56 - 9.39");
 
-    Canvas.getService("/")
-      .getResourceFunction("GET", "hello2/fxx")
-      .getDiagram()
-      .assertPerfButton("Insufficient data to provide detailed estimations");
+    diagram2.assertPerfLabel(0, "256  ms - 5.28  s");
 
-    Canvas.getService("/")
-      .getResourceFunction("GET", "hello2/fxx")
-      .getDiagram()
+    diagram2
       .getAdvancedPerfData()
-      .assertPerfText("Forecasted performance for a single user: Latency: 3.738  s | Tps: 21.66 req/s");
+      .assertPerfText("Forecasted performance of the selected path: Concurrency 1 - 50 | Latency: 107  ms - 7.28  s | Tps: 6.25 - 9.39");
+
+    diagram2.assertPerfLabel(0, "106  ms - 7.28  s");
+    diagram2.assertControlFlowLineCount(14);
 
   })
 })

@@ -172,4 +172,14 @@ export class FunctionDiagram {
         })
         return this;
     }
+
+
+    public assertControlFlowLineCount(count: number) {
+        this.container.within(() => {
+            return cy.get('.control-flow-line').should(
+                "have.length",
+                count
+            )
+        })
+    }
 }

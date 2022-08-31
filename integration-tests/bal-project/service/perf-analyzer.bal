@@ -13,8 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/http;
+
+type Stats record {|
+    string country;
+    decimal totalCasesPerMillion;
+|};
 
 // Service declaration specifies base path for the resource names. The base path is `/` in this example.
 service / on new http:Listener(9095) {
@@ -25,13 +29,24 @@ service / on new http:Listener(9095) {
         json getResponse2 = check httpEndpoint->get("/jokes/random");
         json getResponse3 = check httpEndpoint->get("/jokes/random");
 
-        return "Hello, "+name;
+        return "Hello, " + name;
     }
 
-    resource function get hello2/fxx(string name) returns json|error? {
-        http:Client googleClient = check new ("google.lk"); string googleResponse = check googleClient->get("/");
-        json getResponse = check googleClient->get("/");
-        
-        return "Hello,i " + name;
+    resource function get stats/[string shortCountryName]() returns Stats|error {
+
+        http:Client httpEp = check new (url = "");
+        decimal totalCases;
+
+        if (shortCountryName == "LK") {
+            record {} getResponse = check httpEp->get(path = "https://postman-echo.com");
+            totalCases = <decimal>getResponse.get("/get");
+        } else {
+            record {} getResponse = check httpEp->get(path = "https://postman-echo.com");
+            totalCases = <decimal>getResponse.get("/post");
+        }
+
+        decimal totalCasesPerMillion = totalCases / <decimal>100;
+        Stats payload = {country: shortCountryName, totalCasesPerMillion: totalCasesPerMillion};
+        return payload;
     }
 }
