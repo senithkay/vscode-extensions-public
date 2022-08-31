@@ -4,11 +4,15 @@ import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";
 
-export interface InputConfigWidgetProps {}
+export interface InputConfigWidgetProps {
+    inputParams: DataMapperInputParam[];
+    onUpdateParams: (newParams: DataMapperInputParam[]) => void;
+}
 
-export function InputParamsPanel()  {
+export function InputParamsPanel(props: InputConfigWidgetProps)  {
 
-    const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
+    const { inputParams, onUpdateParams } = props;
+
     const [editingIndex, setEditingIndex] = useState(-1);
     const [isAddingNew, setAddingNew] = useState(false);
 
@@ -21,15 +25,15 @@ export function InputParamsPanel()  {
     }
 
     const onAddNew = (param: DataMapperInputParam) => {
-        setInputParams([...inputParams, param]);
+        onUpdateParams([...inputParams, param]);
         setAddingNew(false);
     }
 
     const onUpdate = (index: number, param: DataMapperInputParam) => {
-        setInputParams([
+        onUpdateParams([
                 ...inputParams.slice(0, index),
                 param,
-                ...inputParams.slice(0, index + 1)
+                ...inputParams.slice(index + 1)
         ]);
         setEditingIndex(-1);
     }
@@ -43,7 +47,7 @@ export function InputParamsPanel()  {
     }
 
     const onDeleteClick= (index: number, param: DataMapperInputParam) => {
-       setInputParams([
+        onUpdateParams([
             ...inputParams.filter((item, i) => (index !== i))
        ])
     }
@@ -53,7 +57,7 @@ export function InputParamsPanel()  {
                 <div>Inputs</div>
                 {inputParams.map((param, index) => (
                     editingIndex === index
-                    ? <InputParamEditor param={param} onUpdate={onUpdate} onCancel={onUpdateCancel} />
+                    ? <InputParamEditor index={editingIndex} param={param} onUpdate={onUpdate} onCancel={onUpdateCancel} />
                     : <InputParamItem index={index} inputParam={param} onEditClick={onEditClick} onDelete={onDeleteClick} />
                 ))}
                 {isAddingNew && <InputParamEditor onSave={onAddNew} onCancel={disableAddNew} />}
