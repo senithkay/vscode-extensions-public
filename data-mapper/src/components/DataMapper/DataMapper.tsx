@@ -36,6 +36,7 @@ export interface DataMapperProps {
     };
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => void;
+    onSave: (fnName: string) => void;
     onClose: () => void;
 }
 
@@ -95,7 +96,7 @@ function DataMapperC(props: DataMapperProps) {
                 const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
                 await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
                 const nodeInitVisitor = new NodeInitVisitor(context, selection);
-                let selectedST = selection.selectedST;
+                let selectedST = selection.selectedST || fnST;
                 const visitor = new SelectedSTFindingVisitor(selectedST);
                 traversNode(fnST, visitor);
                 selectedST = visitor.getST();
@@ -112,7 +113,7 @@ function DataMapperC(props: DataMapperProps) {
                     <DataMapperDiagram
                         nodes={nodes}
                     />
-                    <DataMapperConfigPanel {...props}/>
+                    {!fnST && <DataMapperConfigPanel {...props}/>}
                 </CurrentFileContext.Provider>
             </LSClientContext.Provider>
         </>

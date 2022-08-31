@@ -132,6 +132,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                         filePath={filePath}
                         applyModifications={applyModifications}
                         onClose={() => { }}
+                        onSave={() => { }}
                     />
                 </Grid>
                 <Grid item={true} xs={4}>

@@ -1,7 +1,9 @@
 import styled from "@emotion/styled";
 import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
+import { createFunctionSignature, STModification, updateFunctionSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection, Panel, useStyles as useFormStyles } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import React, { useEffect, useState } from "react";
 import { DataMapperProps } from "../DataMapper";
 import { FunctionNameEditor, getFnNameFromST } from "./FunctionNameEditor";
@@ -10,7 +12,7 @@ import { DataMapperInputParam } from "./InputParamsPanel/types";
 import { TypeBrowser } from "./TypeBrowser";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
-    const { onClose, fnST, applyModifications } = props;
+    const { onClose, fnST, applyModifications, targetPosition, onSave } = props;
     const formClasses = useFormStyles();
 
     const [fnName, setFnName] = useState("transform");
@@ -20,7 +22,38 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const isValidConfig = fnName && inputParams.length > 0 && outputType !== "";
 
     const onSaveForm = () => {
+        const parametersStr = inputParams
+            .map((item) => `${item.type} ${item.name}`)
+            .join(",");
 
+        const returnTypeStr = `returns ${outputType}`;
+
+        const modifications: STModification[] = [];
+        if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
+            modifications.push(
+                updateFunctionSignature(
+                    fnName,
+                    parametersStr,
+                    returnTypeStr,
+                    {
+                        ...fnST?.functionSignature?.position,
+                        startColumn: fnST?.functionName?.position?.startColumn,
+                    }
+                )
+            );
+        } else {
+            modifications.push(
+                createFunctionSignature(
+                    "public",
+                    fnName,
+                    parametersStr,
+                    returnTypeStr,
+                    targetPosition
+                )
+            );
+        }
+        onSave(fnName);
+        applyModifications(modifications);
     };
 
     useEffect(() => {

@@ -60,6 +60,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
     } = useContext(Context);
 
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
+    const [newFnName, setNewFnName] = React.useState("");
 
     useEffect(() => {
         (async () => {
@@ -68,7 +69,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
             } else if (!!functionST) {
                 handleFunctionST(functionST.functionName.value).then();
             } else {
-                // createFunctionST().then();
+                handleFunctionST(newFnName).then();
             }
         })();
     }, [currentFile.content]);
@@ -89,36 +90,9 @@ export function DataMapperOverlay(props: DataMapperProps) {
         setFunctionST(undefined);
     }
 
-    const createFunctionST = async () => {
-        const functionName = 'transform';
-        const draftFunction = `function ${functionName}() returns XChoreoLCReturnType => {};`
-        const langClientD: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
-        const modifications = [
-            {
-                type: "INSERT",
-                config: {
-                    "STATEMENT": draftFunction,
-                },
-                endColumn: targetPosition.startColumn,
-                endLine: targetPosition.startLine,
-                startColumn: targetPosition.startColumn,
-                startLine: targetPosition.startLine
-            }
-        ];
-        const { parseSuccess, syntaxTree: newST } = await langClientD.stModify({
-            astModifications: modifications,
-            documentIdentifier: {
-                uri: `file://${currentFile.path}`
-            }
-        });
-        if (parseSuccess) {
-            const modPart = newST as ModulePart;
-            const fns = modPart.members.filter((mem) => STKindChecker.isFunctionDefinition(mem)) as FunctionDefinition[];
-            setFunctionST(fns.find((mem) => mem.functionName.value === functionName));
-            return;
-        }
-        setFunctionST(undefined);
-    }
+    const onSave = (fnName: string) => {
+        setNewFnName(fnName);
+    };
 
     return (<DiagramOverlayContainer>
                     <DiagramOverlay position={{ x: 0, y: 0 }} stylePosition={"absolute"} className={dataMapperClasses.overlay}>
@@ -132,6 +106,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
                                 stSymbolInfo={stSymbolInfo}
                                 applyModifications={modifyDiagram}
                                 onClose={onClose}
+                                onSave={onSave}
                             />
                         </div>
                     </DiagramOverlay>
