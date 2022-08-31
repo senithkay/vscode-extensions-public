@@ -114,9 +114,12 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
         let fieldIndex;
         for (let i = 0; i < fields.length; i++) {
             const specificField = fields[i];
-            portIdBuffer = fieldIndex !== undefined
-                ? `${portIdBuffer}.${fieldIndex}.${specificField.fieldName.value}`
-                : `${portIdBuffer}.${specificField.fieldName.value}`;
+            if (fieldIndex !== undefined) {
+                portIdBuffer = `${portIdBuffer}.${fieldIndex}.${specificField.fieldName.value}`;
+                fieldIndex = undefined;
+            } else {
+                portIdBuffer = `${portIdBuffer}.${specificField.fieldName.value}`
+            }
             const recFieldTemp = nextTypeNode.find(
                 (recF) => getBalRecFieldName(recF.type.name) === specificField.fieldName.value);
             if (recFieldTemp) {

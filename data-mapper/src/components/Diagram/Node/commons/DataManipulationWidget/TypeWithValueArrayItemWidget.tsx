@@ -23,7 +23,7 @@ import { ListConstructor, MappingConstructor, NodePosition, STKindChecker } from
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { TypeWithValue } from "../../../Mappings/TypeWithValue";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getFieldIndex, getNewSource } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getNewSource } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
 import { TypeWithValueItemWidget } from "./TypeWithValueItemWidget";

@@ -15,8 +15,9 @@ import {
 	SpecificField,
 	STKindChecker,
 	STNode
-} from "@wso2-enterprise/syntax-tree"; import { isPositionsEquals } from "../../../utils/st-utils";
+} from "@wso2-enterprise/syntax-tree";
 
+import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, TypeWithValue } from "../Mappings/TypeWithValue";
@@ -25,8 +26,6 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
-
-export const INPUT_RECORD_FIELD_INDEX = 0; // Always 0 since no array initialization in input side
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
@@ -64,9 +63,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	let rhs = "";
 	const modifications: STModification[] = [];
 	if (link.getSourcePort()) {
-		const sourcePort = link.getSourcePort() instanceof RecordFieldPortModel
-			? link.getSourcePort() as RecordFieldPortModel
-			: link.getSourcePort() as SpecificFieldPortModel;
+		const sourcePort = link.getSourcePort() as RecordFieldPortModel | SpecificFieldPortModel;
 
 		rhs = sourcePort instanceof RecordFieldPortModel
 			? getBalRecFieldName(sourcePort.field.name)
@@ -78,10 +75,9 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	}
 
 	if (link.getTargetPort()) {
-		const targetPort = link.getTargetPort() instanceof RecordFieldPortModel
-			? link.getTargetPort() as RecordFieldPortModel
-			: link.getTargetPort() as SpecificFieldPortModel;
+		const targetPort = link.getTargetPort() as RecordFieldPortModel | SpecificFieldPortModel;
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
+		const fieldIndexes = targetPort instanceof RecordFieldPortModel && getFieldIndexes(targetPort);
 
 		if (targetPort instanceof SpecificFieldPortModel && STKindChecker.isSpecificField(targetPort.field)) {
 			// Inserting just the valueExpr (RHS) to already available specific field in a mapping constructor
@@ -103,7 +99,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 
 			lhs = getBalRecFieldName(targetPort.field.name);
 			if (targetNode instanceof ExpressionFunctionBodyNode && STKindChecker.isMappingConstructor(targetNode.value.expression)) {
-				mappingConstruct = targetNode.value.expression as MappingConstructor;
+				mappingConstruct = targetNode.value.expression;
 			} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
 				mappingConstruct = targetNode.value.selectClause.expression;
 			}
@@ -123,7 +119,16 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 					const specificField = mappingConstruct.fields.find((val) =>
 						STKindChecker.isSpecificField(val) && val.fieldName.value === fieldName) as SpecificField;
 					if (specificField && specificField.valueExpr) {
-						mappingConstruct = specificField.valueExpr as MappingConstructor;
+						if (STKindChecker.isMappingConstructor(specificField.valueExpr)) {
+							mappingConstruct = specificField.valueExpr;
+						} else if (STKindChecker.isListConstructor(specificField.valueExpr)
+							&& fieldIndexes !== undefined && !!fieldIndexes.length) {
+							const targetExpr = specificField.valueExpr.expressions[fieldIndexes.pop() * 2];
+							if (STKindChecker.isMappingConstructor(targetExpr)) {
+								mappingConstruct = targetExpr;
+							}
+						}
+						// constructorNode = specificField.valueExpr as MappingConstructor;
 						if (i === fieldNames.length - 1) {
 							targetMappingConstruct = mappingConstruct;
 						}
@@ -148,13 +153,6 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				}
 			} else {
 				source = `${lhs}: ${rhs}`;
-			}
-
-			if (STKindChecker.isListConstructor(targetMappingConstruct) && targetPort.index !== undefined) {
-				const targetExpr = targetMappingConstruct.expressions[targetPort.index * 2];
-				if (STKindChecker.isMappingConstructor(targetExpr)) {
-					targetMappingConstruct = targetExpr;
-				}
 			}
 
 			const targetPos = targetMappingConstruct.openBrace.position as NodePosition;
@@ -430,13 +428,14 @@ export function getDefaultLiteralValue(typeName : string, valueExpr: STNode) {
 	}
 }
 
-export function getFieldIndex(parentNode: STNode, node: STNode) {
-	if (parentNode && STKindChecker.isListConstructor(parentNode)) {
-		for (const [key, expr] of parentNode.expressions.entries()) {
-			if (expr && node && isPositionsEquals(expr.position, node.position)) {
-				return key;
-			}
-		}
+export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
+	const fieldIndexes = [];
+	if (targetPort?.index !== undefined) {
+		fieldIndexes.push(targetPort.index);
 	}
-	return 0;
+	const parentPort = targetPort?.parentModel;
+	if (parentPort) {
+		fieldIndexes.push(...getFieldIndexes(parentPort));
+	}
+	return fieldIndexes;
 }

@@ -23,7 +23,7 @@ import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { TypeWithValue } from "../../../Mappings/TypeWithValue";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getDefaultLiteralValue, getFieldIndex, getNewSource } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getDefaultLiteralValue, getNewSource } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
 import { TypeWithValueArrayItemWidget } from "./TypeWithValueArrayItemWidget";
@@ -166,6 +166,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
                         parentId={parentId}
                         mappingConstruct={mappingConstruct}
                         context={context}
+                        fieldIndex={fieldIndex}
                         treeDepth={treeDepth + 1}
                     />
                 </>
