@@ -21,16 +21,16 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { TypeWithValue } from "../../../Mappings/TypeWithValue";
+import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getDefaultLiteralValue, getNewSource } from "../../../utils/dm-utils";
 
+import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
-import { TypeWithValueArrayItemWidget } from "./TypeWithValueArrayItemWidget";
 
-export interface TypeWithValueItemWidgetProps {
+export interface EditableRecordFieldWidgetProps {
     parentId: string;
-    field: TypeWithValue;
+    field: EditableRecordField;
     engine: DiagramEngine;
     getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
     mappingConstruct: MappingConstructor;
@@ -39,7 +39,7 @@ export interface TypeWithValueItemWidgetProps {
     treeDepth?: number;
 }
 
-export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
+export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
     const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0 } = props;
     const classes = useStyles();
 
@@ -47,8 +47,8 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}.${fieldName}`
         : `${parentId}.${fieldName}`;
-    const portIn = getPort(`${fieldId}.IN`);
-    const portOut = getPort(`${fieldId}.OUT`);
+    const portIn = getPort(fieldId + ".IN");
+    const portOut = getPort(fieldId + ".OUT");
     const hasValue = field.hasValue();
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';
@@ -158,7 +158,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
             )}
             {isArray && (
                 <>
-                    <TypeWithValueArrayItemWidget
+                    <ArrayTypedEditableRecordFieldWidget
                         key={fieldId}
                         engine={engine}
                         field={field}
@@ -175,7 +175,7 @@ export function TypeWithValueItemWidget(props: TypeWithValueItemWidgetProps) {
                 fields.map((subField) => {
                     return (
                         <>
-                            <TypeWithValueItemWidget
+                            <EditableRecordFieldWidget
                                 key={fieldId}
                                 engine={engine}
                                 field={subField}

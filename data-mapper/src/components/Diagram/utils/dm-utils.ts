@@ -20,7 +20,7 @@ import {
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
-import { ArrayElement, TypeWithValue } from "../Mappings/TypeWithValue";
+import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
@@ -280,7 +280,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 									(field: any) => field.name === fieldName);
 				if (recField) {
 					if (i === fieldNames.length - 1) {
-						const portId = `${portIdBuffer}.OUT`;
+						const portId = portIdBuffer + ".OUT";
 						const port = (node.getPort(portId) as RecordFieldPortModel);
 						return port;
 					} else if (recField.typeName === 'record') {
@@ -295,9 +295,9 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 	return null;
 }
 
-export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: TypeWithValue,
-									                             childrenTypes?: TypeWithValue[]) {
-	let typeWithValue: TypeWithValue = null;
+export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: EditableRecordField,
+									                             childrenTypes?: EditableRecordField[]) {
+	let editableRecordField: EditableRecordField = null;
 	let fields = null;
 	let specificField: SpecificField;
 	let nextNode: STNode;
@@ -326,28 +326,29 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ty
 		nextNode = node;
 	}
 
-	typeWithValue = new TypeWithValue(type, specificField, parentType);
+	editableRecordField = new EditableRecordField(type, specificField, parentType);
 
 	if (type.typeName === 'record') {
 		fields = type.fields;
 		const children = [...childrenTypes ? childrenTypes : []];
 		if (fields && !!fields.length) {
 			fields.map((field) => {
-				const childType = getEnrichedRecordType(field, nextNode, typeWithValue, childrenTypes);
+				const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
 				children.push(childType);
 			});
 		}
-		typeWithValue.childrenTypes = children;
+		editableRecordField.childrenTypes = children;
 	} else if (type.typeName === 'array' && type.memberType.typeName === 'record') {
 		if (nextNode && STKindChecker.isListConstructor(nextNode)) {
-			typeWithValue.elements = getEnrichedArrayType(type, nextNode, typeWithValue);
+			editableRecordField.elements = getEnrichedArrayType(type, nextNode, editableRecordField);
 		}
 	}
 
-	return typeWithValue;
+	return editableRecordField;
 }
 
-export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentType?: TypeWithValue, childrenTypes?: TypeWithValue[]) {
+export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentType?: EditableRecordField,
+									                            childrenTypes?: EditableRecordField[]) {
 	let fields: Type[] = [];
 	const members: ArrayElement[] = [];
 
@@ -358,7 +359,7 @@ export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentT
 	node.expressions.forEach((expr) => {
 		if (STKindChecker.isMappingConstructor(expr)) {
 			if (fields && !!fields.length) {
-				const member: TypeWithValue[] = [];
+				const member: EditableRecordField[] = [];
 				fields.map((field) => {
 					const childType = getEnrichedRecordType(field, expr, parentType, childrenTypes);
 					member.push(childType);
@@ -375,7 +376,7 @@ export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentT
 	return members;
 }
 
-export function getNewSource(field: TypeWithValue, mappingConstruct: MappingConstructor, newValue: string,
+export function getNewSource(field: EditableRecordField, mappingConstruct: MappingConstructor, newValue: string,
 							                      parentFields?: string[]): [string, MappingConstructor] {
 
 	const fieldName = getBalRecFieldName(field.type.name);
