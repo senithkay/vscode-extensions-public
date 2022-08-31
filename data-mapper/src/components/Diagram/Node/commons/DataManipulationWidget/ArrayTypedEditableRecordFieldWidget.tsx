@@ -21,16 +21,16 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { ListConstructor, MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { TypeWithValue } from "../../../Mappings/TypeWithValue";
+import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getNewSource } from "../../../utils/dm-utils";
 
+import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { useStyles } from "./styles";
-import { TypeWithValueItemWidget } from "./TypeWithValueItemWidget";
 
-export interface TypeWithValueArrayItemWidgetProps {
+export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
-    field: TypeWithValue;
+    field: EditableRecordField;
     engine: DiagramEngine;
     getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
     mappingConstruct: MappingConstructor;
@@ -38,7 +38,7 @@ export interface TypeWithValueArrayItemWidgetProps {
     treeDepth?: number;
 }
 
-export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidgetProps) {
+export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRecordFieldWidgetProps) {
     const { parentId, field, getPort, engine, mappingConstruct, context, treeDepth = 0 } = props;
     const classes = useStyles();
 
@@ -164,7 +164,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                                                 if (subField.type.typeName === 'array') {
                                                     return (
                                                         <>
-                                                            <TypeWithValueArrayItemWidget
+                                                            <ArrayTypedEditableRecordFieldWidget
                                                                 key={fieldId}
                                                                 engine={engine}
                                                                 field={subField}
@@ -179,7 +179,7 @@ export function TypeWithValueArrayItemWidget(props: TypeWithValueArrayItemWidget
                                                 } else {
                                                     return (
                                                         <>
-                                                            <TypeWithValueItemWidget
+                                                            <EditableRecordFieldWidget
                                                                 key={fieldId}
                                                                 engine={engine}
                                                                 field={subField}

@@ -13,12 +13,12 @@
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { SpecificField } from "@wso2-enterprise/syntax-tree";
 
-export class TypeWithValue {
+export class EditableRecordField {
 	constructor(
 		public type: Type,
 		public value?: SpecificField,
-		public parentType?: TypeWithValue,
-		public childrenTypes?: TypeWithValue[]
+		public parentType?: EditableRecordField,
+		public childrenTypes?: EditableRecordField[]
 	){}
 
 	public hasValue() {

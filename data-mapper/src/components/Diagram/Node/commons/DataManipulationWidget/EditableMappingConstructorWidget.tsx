@@ -18,10 +18,10 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { MappingConstructor } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { TypeWithValue } from "../../../Mappings/TypeWithValue";
+import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { RecordFieldPortModel, SpecificFieldPortModel } from '../../../Port';
 
-import { TypeWithValueItemWidget } from "./TypeWithValueItemWidget";
+import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -36,9 +36,9 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-export interface DataManipulationWidgetProps {
+export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-	typeWithValue?: TypeWithValue;
+	editableRecordField?: EditableRecordField;
 	value: MappingConstructor;
 	engine: DiagramEngine;
 	getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
@@ -46,16 +46,16 @@ export interface DataManipulationWidgetProps {
 }
 
 
-export function DataManipulationWidget(props: DataManipulationWidgetProps) {
-	const { id, typeWithValue, value, engine, getPort, context } = props;
+export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
+	const { id, editableRecordField, value, engine, getPort, context } = props;
 	const classes = useStyles();
 
 	return (
 		<div className={classes.root}>
 			{
-				typeWithValue.childrenTypes.map((item) => {
+				editableRecordField.childrenTypes.map((item) => {
 					return (
-						<TypeWithValueItemWidget
+						<EditableRecordFieldWidget
 							key={id}
 							engine={engine}
 							field={item}

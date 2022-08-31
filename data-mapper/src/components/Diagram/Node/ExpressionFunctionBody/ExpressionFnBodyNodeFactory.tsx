@@ -9,7 +9,7 @@ import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
 import { getEnrichedRecordType } from "../../utils/dm-utils";
-import { DataManipulationWidget } from "../commons/DataManipulationWidget/DataManipulationWidget";
+import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import { ExpressionFunctionBodyNode, EXPR_FN_BODY_NODE_TYPE } from './ExpressionFunctionBodyNode';
@@ -23,10 +23,10 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<Expressi
 
 	generateReactWidget(event: { model: ExpressionFunctionBodyNode; }): JSX.Element {
 		return (
-			<DataManipulationWidget
+			<EditableMappingConstructorWidget
 				engine={this.engine}
 				id="exprFunctionBody"
-				typeWithValue={getEnrichedRecordType(event.model.typeDef, event.model.value.expression)}
+				editableRecordField={getEnrichedRecordType(event.model.typeDef, event.model.value.expression)}
 				value={event.model.value.expression as MappingConstructor}
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 				context={event.model.context}
