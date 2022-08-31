@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
-import { FormHeaderSection, Panel, useStyles as useFormStyles } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { FormActionButtons, FormHeaderSection, Panel, useStyles as useFormStyles } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import React, { useEffect, useState } from "react";
 import { DataMapperProps } from "../DataMapper";
 import { FunctionNameEditor, getFnNameFromST } from "./FunctionNameEditor";
@@ -10,12 +10,18 @@ import { DataMapperInputParam } from "./InputParamsPanel/types";
 import { TypeBrowser } from "./TypeBrowser";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
-    const { onClose, fnST, langClientPromise, applyModifications, stSymbolInfo } = props;
+    const { onClose, fnST, applyModifications } = props;
     const formClasses = useFormStyles();
 
     const [fnName, setFnName] = useState("transform");
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
     const [outputType, setOutputType] = useState("");
+
+    const isValidConfig = fnName && inputParams.length > 0 && outputType !== "";
+
+    const onSaveForm = () => {
+
+    };
 
     useEffect(() => {
         if (fnST) {
@@ -25,7 +31,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     return (
         <Panel onClose={onClose}>
-            <FormControl data-testid="data-mapper-form" className={formClasses.wizardFormControl}  >
+            <FormControl variant="outlined" data-testid="data-mapper-form" className={formClasses.wizardFormControl}  >
                 <FormHeaderSection
                     onCancel={onClose}
                     formTitle={"lowcode.develop.configForms.dataMapper.title"}
@@ -36,8 +42,20 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     <FormDivider />
                     <InputParamsPanel inputParams={inputParams} onUpdateParams={setInputParams} />
                     <FormDivider />
-                    <TypeBrowser type={outputType} onChange={setOutputType} />
+                    <OutputTypeConfigPanel>
+                        <Title>Output Type</Title>
+                        <TypeBrowser type={outputType} onChange={setOutputType} />
+                    </OutputTypeConfigPanel>
                 </FormBody>
+                <FormActionButtons
+                    isMutationInProgress={false}
+                    cancelBtn={true}
+                    saveBtnText="Save"
+                    cancelBtnText="Cancel"
+                    validForm={isValidConfig}
+                    onSave={onSaveForm}
+                    onCancel={onClose}
+                />
             </FormControl>
         </Panel>
     );
@@ -47,8 +65,24 @@ const FormBody = styled.div`
     width: 100%;
     flexDirection: row;
     padding: 15px 20px;
+    fontFamily: Gilmer;
 `;
 
 const FormDivider = styled(Divider)`
     margin: 1.5rem 0
 `;
+
+const OutputTypeConfigPanel = styled.div`
+    width: 100%;
+`;
+
+export const Title = styled.div(() => ({
+    fontSize: '13px',
+    letterSpacing: 'normal',
+    textTransform: 'capitalize',
+    margin: '0 0 8px',
+    fontFamily: 'Gilmer',
+    lineHeight: '1rem',
+    paddingBottom: '0.6rem',
+    fontWeight: 500
+}));

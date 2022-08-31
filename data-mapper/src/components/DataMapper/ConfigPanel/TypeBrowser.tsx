@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import { CompletionResponse } from "@wso2-enterprise/ballerina-languageclient";
@@ -50,13 +51,20 @@ export function TypeBrowser(props: TypeBrowserProps) {
     }, [content]);
     
     return (
-        <Select
+        <TypeSelect
           value={selectedType}
           onChange={handleChange}
         >
           {recordCompletions.map((item) => (
             <MenuItem value={item.insertText}>{item.label}</MenuItem>
           ))}
-        </Select>
+        </TypeSelect>
     );
 }
+
+const TypeSelect = styled(Select)`
+    width: 100%;
+    border: 1px solid #EEEEEE;
+    border-radius: 5px;
+    padding: 2px 6px;
+`;

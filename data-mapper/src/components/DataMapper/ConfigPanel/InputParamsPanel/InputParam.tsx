@@ -27,7 +27,10 @@ interface InputParamItemProps {
 export function InputParamItem(props: InputParamItemProps) {
     const { index, inputParam, onDelete, onEditClick } = props;
 
-    const label = inputParam.type + " " + inputParam.name;
+    const label = <>
+        <TypeName>{inputParam.type}</TypeName>
+        <span>{" " + inputParam.name}</span>
+    </>;
 
     const handleDelete = () => {
         onDelete(index, inputParam);
@@ -68,3 +71,7 @@ const InputParamContainer = styled.div((props) => ({
     width: '100%',
     alignItems: 'center'
 }));
+
+const TypeName = styled.span`
+    fontWeight: 500;
+`;

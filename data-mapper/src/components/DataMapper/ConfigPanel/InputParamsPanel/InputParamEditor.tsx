@@ -126,7 +126,10 @@ const ParamEditorContainer = styled.div(() => ({
     height: "153px",
     width: "100%",
     border: "1px solid #EEEEEE",
-    backgroundColor: "#F7F8FB"
+    borderRadius: "5px",
+    backgroundColor: "#F7F8FB",
+    padding: "10px",
+    margin: "5px"
 }));
 
 const IputLabel = styled.div(() => ({

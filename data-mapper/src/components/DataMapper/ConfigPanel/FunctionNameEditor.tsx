@@ -23,7 +23,7 @@ export function FunctionNameEditor(props: FunctionNameEditorProps)  {
             defaultValue={value}
             label="Name"
             placeholder="Data Mapper Name"
-            errorMessage={"err"}
+            errorMessage={""}
 
         />
     );

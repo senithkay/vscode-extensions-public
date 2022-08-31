@@ -1,5 +1,8 @@
 import styled from "@emotion/styled";
+import Button from "@material-ui/core/Button";
+import AddIcon from '@material-ui/icons/Add'
 import React, { useState } from "react";
+import { Title } from "../DataMapperConfigPanel";
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";
@@ -54,14 +57,21 @@ export function InputParamsPanel(props: InputConfigWidgetProps)  {
 
     return (
         <InputParamsContainer>
-                <div>Inputs</div>
+                <Title>Inputs</Title>
                 {inputParams.map((param, index) => (
                     editingIndex === index
                     ? <InputParamEditor index={editingIndex} param={param} onUpdate={onUpdate} onCancel={onUpdateCancel} />
                     : <InputParamItem index={index} inputParam={param} onEditClick={onEditClick} onDelete={onDeleteClick} />
                 ))}
                 {isAddingNew && <InputParamEditor onSave={onAddNew} onCancel={disableAddNew} />}
-                {!isAddingNew && editingIndex === -1 && <button onClick={enableAddNew}>Add New</button>}
+                {!isAddingNew && editingIndex === -1 && 
+                                    <Button
+                                        onClick={enableAddNew}
+                                        startIcon={<AddIcon />}
+                                        color="primary"
+                                    >
+                                        Add Input
+                                    </Button>}
         </InputParamsContainer>
     );
 }
