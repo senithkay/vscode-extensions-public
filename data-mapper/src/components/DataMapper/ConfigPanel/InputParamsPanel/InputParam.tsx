@@ -18,20 +18,22 @@ import { DataMapperInputParam } from "./types";
 import styled from "@emotion/styled";
 
 interface InputParamItemProps {
+    index: number;
     inputParam: DataMapperInputParam;
-    onDelete?: (inputParam: DataMapperInputParam) => void;
-    onEditClick?: (inputParam: DataMapperInputParam) => void;
+    onDelete?: (index: number, inputParam: DataMapperInputParam) => void;
+    onEditClick?: (index: number, inputParam: DataMapperInputParam) => void;
 }
 
 export function InputParamItem(props: InputParamItemProps) {
-    const { inputParam, onDelete, onEditClick } = props;
+    const { index, inputParam, onDelete, onEditClick } = props;
 
     const label = inputParam.type + " " + inputParam.name;
+
     const handleDelete = () => {
-        onDelete(inputParam);
+        onDelete(index, inputParam);
     };
     const handleEdit = () => {
-        onEditClick(inputParam);
+        onEditClick(index, inputParam);
     };
     return (
         <InputParamContainer>

@@ -19,17 +19,17 @@ import styled from "@emotion/styled";
 import { TypeBrowser } from "../TypeBrowser";
 
 interface InputParamEditorProps {
-    id?: number;
+    index?: number;
     param?: DataMapperInputParam,
-    onSave?: (segment: DataMapperInputParam) => void;
-    onUpdate?: (segment: DataMapperInputParam) => void;
+    onSave?: (param: DataMapperInputParam) => void;
+    onUpdate?: (index: number, param: DataMapperInputParam) => void;
     onCancel?: () => void;
-    validateParams?: (paramName: string) => { error: boolean, message: string };
+    validateParamName?: (paramName: string) => { isValid: boolean, message: string };
 }
 
 export function InputParamEditor(props: InputParamEditorProps) {
 
-    const { param, onSave, onUpdate, id, onCancel, validateParams } = props;
+    const { param, onSave, onUpdate, index, onCancel, validateParamName } = props;
 
     const initValue: DataMapperInputParam = param ? { ...param } : {
         name: "",
@@ -39,14 +39,14 @@ export function InputParamEditor(props: InputParamEditorProps) {
     const [paramType, setParamType] = useState<string>(param?.type || "");
     const [paramName, setParamName] = useState<string>(param?.name || "");
     const [pramError, setParamError] = useState<string>("");
-    const [isValidParam, setIsValidParam] = useState(false);
+    const [isValidParam, setIsValidParam] = useState(true);
 
     const validateNameValue = (value: string) => {
-        if (value) {
-            const varValidationResponse = validateParams(value);
-            if (varValidationResponse?.error && (param?.name !== value)) {
-                setParamError(varValidationResponse.message);
-                return false;
+        if (value && validateParamName) {
+            const { isValid, message } = validateParamName(value);
+            setIsValidParam(isValid);
+            if (!isValid) {
+                setParamError(message);
             }
         }
         setParamError("");
@@ -62,15 +62,11 @@ export function InputParamEditor(props: InputParamEditorProps) {
     };
 
     const handleOnUpdate = () => {
-        onUpdate({
+        onUpdate(index, {
             ...initValue,
             name: paramName,
             type: paramType,
         });
-    };
-
-    const validateParamType = (fieldName: string, isInvalid: boolean) => {
-        setIsValidParam(!isInvalid);
     };
 
     return (
