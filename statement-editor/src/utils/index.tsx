@@ -88,7 +88,7 @@ import { ModelType, StatementEditorViewState } from "./statement-editor-viewstat
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
 export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
-    modulesToBeImported?: string[]): STModification[] {
+                                 modulesToBeImported?: string[]): STModification[] {
 
     const modifications: STModification[] = [];
     let source = model.source;
@@ -259,7 +259,7 @@ export function getDocDescription(doc: string): string[] {
 }
 
 export function getFilteredDiagnosticMessages(statement: string, targetPosition: NodePosition,
-    diagnostics: Diagnostic[]): StatementSyntaxDiagnostics[] {
+                                              diagnostics: Diagnostic[]): StatementSyntaxDiagnostics[] {
 
     const stmtDiagnostics: StatementSyntaxDiagnostics[] = [];
     const diag = getFilteredDiagnostics(diagnostics, false);
@@ -290,8 +290,8 @@ export function isPlaceHolderExists(statement: string): boolean {
 }
 
 export function getUpdatedSource(statement: string, currentFileContent: string,
-    targetPosition: NodePosition, moduleList?: Set<string>,
-    skipSemiColon?: boolean): string {
+                                 targetPosition: NodePosition, moduleList?: Set<string>,
+                                 skipSemiColon?: boolean): string {
 
     const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
