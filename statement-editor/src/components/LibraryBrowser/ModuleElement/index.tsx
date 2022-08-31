@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import React, { useContext, useState } from 'react';
 
 import { Box, CircularProgress, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
@@ -103,9 +104,11 @@ export function ModuleElement(props: ModuleElementProps) {
             <SuggestIcon
                 style={{ minWidth: '12%', textAlign: 'left', color }}
             />
+            <StatementEditorHint content={`${moduleId}:${id}`}>
             <ListItemText
                 primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
             />
+            </StatementEditorHint>
             {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
         </ListItem>
     );
