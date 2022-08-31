@@ -130,7 +130,6 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 								mappingConstruct = targetExpr;
 							}
 						}
-						// constructorNode = specificField.valueExpr as MappingConstructor;
 						if (i === fieldNames.length - 1) {
 							targetMappingConstruct = mappingConstruct;
 						}
@@ -151,10 +150,10 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 					const missingFields = fieldNames.slice(fromFieldIdx);
 					source = createSpecificField(missingFields);
 				} else {
-					source = `${lhs}: ${rhs}`;
+					source = `\n${lhs}: ${rhs}`;
 				}
 			} else {
-				source = `${lhs}: ${rhs}`;
+				source = `\n${lhs}: ${rhs}`;
 			}
 
 			const targetPos = targetMappingConstruct.openBrace.position as NodePosition;
