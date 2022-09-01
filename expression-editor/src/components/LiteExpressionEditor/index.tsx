@@ -50,7 +50,7 @@ import {
     truncateDiagnosticMsg,
 } from "./utils";
 
-const DEBOUNCE_DELAY = 1000;
+const DEBOUNCE_DELAY = 300;
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     scrollbar: {

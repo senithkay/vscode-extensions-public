@@ -480,8 +480,8 @@ export function isNodeDeletable(selectedNode: STNode, formType: string): boolean
 
     let exprDeletable = !stmtViewState.exprNotDeletable;
     if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
-        exprDeletable =  stmtViewState.templateExprDeletable;
-    }else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
+        exprDeletable = stmtViewState.templateExprDeletable;
+    } else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
         exprDeletable = false;
     }
 
