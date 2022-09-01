@@ -45,6 +45,7 @@ import {
 import {
     getCompletions,
     getDiagnostics,
+    getPartialSTForExpression,
     getPartialSTForModuleMembers,
     getPartialSTForStatement,
     getSymbolDocumentation,
@@ -90,7 +91,8 @@ export function StatementEditor(props: StatementEditorProps) {
         importStatements,
         experimentalEnabled,
         extraModules,
-        runBackgroundTerminalCommand
+        runBackgroundTerminalCommand,
+        isExpressionMode
     } = props;
 
     const {
@@ -280,7 +282,8 @@ export function StatementEditor(props: StatementEditorProps) {
             }
             partialST = (STKindChecker.isModuleVarDecl(existingModel) || STKindChecker.isConstDeclaration(existingModel))
                 ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, getLangClient)
-                : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient);
+                : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: existingModel.source , stModification }, getLangClient)
+                : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient));
         } else {
             partialST = (isConfigurableStmt || isModuleVar)
                 ? await getPartialSTForModuleMembers({ codeSnippet }, getLangClient)
@@ -531,6 +534,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     updateSyntaxDiagnostics={updateSyntaxDiagnostics}
                     editing={isEditing}
                     updateEditing={updateEditing}
+                    isExpressionMode={isExpressionMode}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

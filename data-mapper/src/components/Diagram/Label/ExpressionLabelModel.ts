@@ -1,6 +1,6 @@
 import { BaseModelOptions, DeserializeEvent } from '@projectstorm/react-canvas-core';
 import { LabelModel } from '@projectstorm/react-diagrams';
-import { STNode } from '@wso2-enterprise/syntax-tree';
+import { SpecificField, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../Link';
@@ -10,6 +10,7 @@ export interface ExpressionLabelOptions extends BaseModelOptions {
 	valueNode?: STNode;
 	context?: IDataMapperContext;
 	link?: DataMapperLinkModel;
+	specificField?: SpecificField;	
 }
 
 export class ExpressionLabelModel extends LabelModel {
@@ -17,6 +18,7 @@ export class ExpressionLabelModel extends LabelModel {
 	valueNode: STNode;
 	context: IDataMapperContext;
 	link?: DataMapperLinkModel;
+	specificField?: SpecificField;
 
 	constructor(options: ExpressionLabelOptions = {}) {
 		super({
@@ -27,6 +29,7 @@ export class ExpressionLabelModel extends LabelModel {
 		this.valueNode = options.valueNode;
 		this.context = options.context;
 		this.link = options.link;
+		this.specificField = options.specificField;
 		this.updateSource = this.updateSource.bind(this);
 	}
 

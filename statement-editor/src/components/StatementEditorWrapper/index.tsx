@@ -28,7 +28,7 @@ import * as monaco from "monaco-editor";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
-import { getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
+import { getPartialSTForExpression, getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { StatementEditor } from "../StatementEditor";
@@ -61,6 +61,7 @@ export interface LowCodeEditorProps {
     isConfigurableStmt?: boolean;
     isModuleVar?: boolean;
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
+    isExpressionMode?: boolean;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
@@ -89,7 +90,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         isConfigurableStmt,
         isModuleVar,
         extraModules,
-        runBackgroundTerminalCommand
+        runBackgroundTerminalCommand,
+        isExpressionMode
     } = props;
 
     const {
@@ -113,7 +115,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 const partialST =
                     isConfigurableStmt || isModuleVar
                         ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
-                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, getLangClient);
+                        : (isExpressionMode ? await getPartialSTForExpression({codeSnippet: initialSource.trim()}, getLangClient)
+                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim()}, getLangClient));
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     model = partialST;
@@ -230,6 +233,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             extraModules={extraModules}
                             experimentalEnabled={experimentalEnabled}
                             runBackgroundTerminalCommand={runBackgroundTerminalCommand}
+                            isExpressionMode={isExpressionMode}
                         />
                     </>
                 )}
