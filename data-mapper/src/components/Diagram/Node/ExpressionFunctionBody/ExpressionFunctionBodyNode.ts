@@ -34,10 +34,10 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-          startLine: this.typeDesc.position.startLine,
-          startColumn: this.typeDesc.position.startColumn,
-          endLine: this.typeDesc.position.startLine,
-          endColumn: this.typeDesc.position.startColumn
+            startLine: this.typeDesc.position.startLine,
+            startColumn: this.typeDesc.position.startColumn,
+            endLine: this.typeDesc.position.startLine,
+            endColumn: this.typeDesc.position.startColumn
         });
 
         if (this.typeDef && this.typeDef.typeName === 'record') {
@@ -69,25 +69,25 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 			const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
             if (inPort && outPort) {
                 lm.addLabel(new ExpressionLabelModel({
-                  value: otherVal?.source || value.source,
-                  valueNode: otherVal || value,
-                  context: this.context,
-                  link: lm
+                    value: otherVal?.source || value.source,
+                    valueNode: otherVal || value,
+                    context: this.context,
+                    link: lm
                 }));
-              lm.setTargetPort(outPort);
-              lm.setSourcePort(inPort);
-              lm.registerListener({
-                selectionChanged(event) {
-                  if (event.isSelected) {
-                    inPort.fireEvent({}, "link-selected");
-                    outPort.fireEvent({}, "link-selected");
-                  } else {
-                    inPort.fireEvent({}, "link-unselected");
-                    outPort.fireEvent({}, "link-unselected");
-                  }
-                },
-              })
-              this.getModel().addAll(lm);
+                lm.setTargetPort(outPort);
+                lm.setSourcePort(inPort);
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            inPort.fireEvent({}, "link-selected");
+                            outPort.fireEvent({}, "link-selected");
+                        } else {
+                            inPort.fireEvent({}, "link-unselected");
+                            outPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(lm);
             }
         });
     }
