@@ -89,8 +89,8 @@ export function CreateRecord(props: CreateRecordProps) {
                     }
                 },
                 config: { type: "RecordEditor" },
-                onWizardClose: onCancel,
-                onCancel,
+                onWizardClose: handleBackClick,
+                onCancel: handleBackClick,
                 currentFile,
                 getLangClient: getExpressionEditorLangClient,
                 applyModifications: modifyDiagram,
@@ -117,9 +117,8 @@ export function CreateRecord(props: CreateRecordProps) {
                 {(editorState === ConfigState.IMPORT_FROM_JSON) && (
                     <RecordFromJson
                         targetPosition={targetPosition}
-                        onCancel={onCancel}
+                        onCancel={handleBackClick}
                         onSave={handleImportJsonSave}
-                        onBack={handleBackClick}
                     />
                 )}
                 {(editorState === ConfigState.CREATE_FROM_SCRATCH) && (

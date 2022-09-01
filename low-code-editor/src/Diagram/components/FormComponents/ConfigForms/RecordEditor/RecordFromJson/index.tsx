@@ -44,7 +44,6 @@ interface RecordState {
 
 interface RecordFromJsonProps {
     targetPosition?: NodePosition;
-    onBack: () => void;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
     onCancel: () => void;
 }
@@ -75,7 +74,7 @@ const reducer = (state: RecordState, action: {type: string, payload: any }) => {
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     const classes = useStyles();
 
-    const { targetPosition, onSave, onBack, onCancel } = recordFromJsonProps;
+    const { targetPosition, onSave, onCancel } = recordFromJsonProps;
 
     const { props, api } = useContext(Context);
 
@@ -225,7 +224,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             isMutationInProgress={false}
                             validForm={isSaveButtonEnabled}
                             onSave={convertToJSon}
-                            onCancel={onBack}
+                            onCancel={onCancel}
                         />
                     </div>
                 </FormControl>
