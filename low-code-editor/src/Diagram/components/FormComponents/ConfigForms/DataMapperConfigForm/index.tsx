@@ -58,7 +58,8 @@ export function DataMapperConfigForm(props: DataMapperProps) {
             ls: {
                 getDiagramEditorLangClient,
                 getExpressionEditorLangClient
-            }
+            },
+            library
         }
     } = useContext(Context);
 
@@ -143,6 +144,7 @@ export function DataMapperConfigForm(props: DataMapperProps) {
                     currentFile={currentFile}
                     stSymbolInfo={stSymbolInfo}
                     applyModifications={modifyDiagram}
+                    library={library}
                 />
             </div>
             </FormControl>

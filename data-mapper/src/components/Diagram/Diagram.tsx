@@ -31,6 +31,7 @@ import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { LinkConnectorNode } from './Node/LinkConnector';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import * as Ports from "./Port";
+import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -100,7 +101,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				await node.initLinks();
 				engine.repaintCanvas();
 			}
-			model.setLocked(true)
+			model.setLocked(true);
 			engine.setModel(model);
 			if (model.getLinks().length > 0){
 				dagreEngine.redistribute(model);
