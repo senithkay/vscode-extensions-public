@@ -18,7 +18,6 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
-import { IdentifierToken } from "../../ExpressionTypes";
 import { TokenComponent } from "../../Token";
 
 interface TypeDefProps {
@@ -44,7 +43,7 @@ export function TypeDefinitionC(props: TypeDefProps) {
             )}
             <TokenComponent model={model?.typeKeyword} className={"keyword"}/>
             {model?.typeName && (
-                <IdentifierToken model={model?.typeName}/>
+                <ExpressionComponent model={model?.typeName}/>
             )}
             <span>
                 {typeDescriptor}
