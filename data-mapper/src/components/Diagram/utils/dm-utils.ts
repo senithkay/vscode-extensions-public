@@ -1,9 +1,23 @@
-import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FieldAccess, FromClause, FunctionDefinition, MappingConstructor, NodePosition, RecordField, RequiredParam, SimpleNameReference, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { isPositionsEquals } from "../../../utils/st-utils";
-import { ExpressionLabelModel } from "../Label";
+import {
+	keywords,
+	STModification,
+	Type
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+	FieldAccess,
+	FromClause, FunctionDefinition,
+	MappingConstructor,
+	NodePosition,
+	RecordField,
+	RequiredParam, SimpleNameReference,
+	SpecificField,
+	STKindChecker,
+	STNode
+} from "@wso2-enterprise/syntax-tree"; import { isPositionsEquals } from "../../../utils/st-utils";
 
+import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
+import { EditableRecordField } from "../Mappings/EditableRecordField";
 import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
@@ -51,7 +65,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			: link.getSourcePort() as SpecificFieldPortModel;
 
 		rhs = sourcePort instanceof RecordFieldPortModel
-			? sourcePort.field.name
+			? getBalRecFieldName(sourcePort.field.name)
 			: sourcePort.field.fieldName.value;
 
 		if (sourcePort.parentFieldAccess) {
@@ -83,7 +97,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			let mappingConstruct;
 			const parentFieldNames: string[] = [];
 
-			lhs = targetPort.field.name;
+			lhs = getBalRecFieldName(targetPort.field.name);
 			if (targetNode instanceof ExpressionFunctionBodyNode && STKindChecker.isMappingConstructor(targetNode.value.expression)) {
 				mappingConstruct = targetNode.value.expression as MappingConstructor;
 			} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
@@ -210,7 +224,7 @@ export function findNodeByValueNode(value: RequiredParam | FromClause, dmNode: D
 	dmNode.getModel().getNodes().find((node) => {
 		if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
 				&& STKindChecker.isRequiredParam(node.value))
-			||(STKindChecker.isFromClause(value) && node instanceof FromClauseNode
+			|| (STKindChecker.isFromClause(value) && node instanceof FromClauseNode
 				&& STKindChecker.isFromClause(node.value)))
 			&& isPositionsEquals(value.position, node.value.position)) {
 			foundNode = node;
@@ -227,7 +241,7 @@ export function getInputNodeExpr(expr: FieldAccess | SimpleNameReference, dmNode
 			valueExpr = valueExpr.expression;
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-			let paramNode: RequiredParam | FromClause = 
+			let paramNode: RequiredParam | FromClause =
 					dmNode.context.functionST.functionSignature.parameters.find((param) =>
 					STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
@@ -240,11 +254,11 @@ export function getInputNodeExpr(expr: FieldAccess | SimpleNameReference, dmNode
 	}
 }
 
-export function getInputPortsForExpr(node: RequiredParamNode |FromClauseNode, expr: FieldAccess | SimpleNameReference)
+export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, expr: FieldAccess | SimpleNameReference)
 									: RecordFieldPortModel {
 	const typeDesc = node.typeDef;
-	let portIdBuffer = node instanceof RequiredParamNode ? node.value.paramName.value 
-						: EXPANDED_QUERY_SOURCE_PORT_PREFIX  + "." 
+	let portIdBuffer = node instanceof RequiredParamNode ? node.value.paramName.value
+						: EXPANDED_QUERY_SOURCE_PORT_PREFIX  + "."
 							+ (node as FromClauseNode).sourceBindingPattern.variableName.value;
 	if (typeDesc.typeName === 'record') {
 		if (STKindChecker.isFieldAccess(expr)) {
@@ -270,4 +284,107 @@ export function getInputPortsForExpr(node: RequiredParamNode |FromClauseNode, ex
 		}
 	}
 	return null;
+}
+
+
+export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: EditableRecordField,
+									                             childrenTypes?: EditableRecordField[]) {
+	let editableRecordField: EditableRecordField = null;
+	let fields = null;
+	let specificField: SpecificField;
+	let nextNode: STNode;
+
+	if (parentType) {
+		if (node && STKindChecker.isMappingConstructor(node)) {
+			specificField = node.fields.find((val) =>
+				STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+			) as SpecificField;
+			nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
+		} else if (node && STKindChecker.isListConstructor(node)) {
+			const mappingConstructors = node.expressions.filter((val) =>
+				STKindChecker.isMappingConstructor(val)
+			);
+			for (const expr of mappingConstructors) {
+				if (STKindChecker.isMappingConstructor(expr)) {
+					specificField = expr.fields.find((val) =>
+						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+					) as SpecificField;
+					nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
+				}
+			}
+			// TODO: Add support for other types as well
+		}
+	} else {
+		nextNode = node;
+	}
+
+	editableRecordField = new EditableRecordField(type, specificField, parentType);
+
+	if (type.typeName === 'record') {
+		fields = type.fields;
+	} else if (type.typeName === 'array' && type.memberType.typeName === 'record') {
+		fields = type.memberType.fields;
+	}
+	const children = [...childrenTypes ? childrenTypes : []];
+	if (fields && !!fields.length) {
+		fields.map((field) => {
+			const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
+			children.push(childType);
+		});
+	}
+	editableRecordField.childrenTypes = children;
+	return editableRecordField;
+}
+
+export function getNewSource(field: EditableRecordField, mappingConstruct: MappingConstructor, newValue: string,
+							                      parentFields?: string[]): [string, MappingConstructor] {
+
+	const fieldName = getBalRecFieldName(field.type.name);
+
+	if (field.parentType) {
+		const parent = [...parentFields ? [...parentFields, fieldName] : [fieldName]];
+
+		if (field.parentType.hasValue()) {
+			const valueExpr = field.parentType.value.valueExpr;
+
+			if (STKindChecker.isMappingConstructor(valueExpr)) {
+				return [createSpecificField(parent.reverse()), valueExpr];
+			} else if (STKindChecker.isListConstructor(valueExpr)
+				&& STKindChecker.isMappingConstructor(valueExpr.expressions[0])) {
+				for (const expr of valueExpr.expressions) {
+					if (STKindChecker.isMappingConstructor(expr)
+						&& isPositionsEquals(expr.position, mappingConstruct.position)) {
+						return [createSpecificField(parent.reverse()), expr];
+					}
+				}
+			}
+			// TODO: Implement this to update already existing non-mapping-constructor values
+			return null;
+		}
+		return getNewSource(field.parentType, mappingConstruct, newValue, parent);
+	}
+	return [createSpecificField(parentFields.reverse()), mappingConstruct];
+
+	function createSpecificField(missingFields: string[]): string {
+		return missingFields.length > 1
+			? `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
+			: `\t${missingFields[0]}: ${newValue}`;
+	}
+}
+
+export function getBalRecFieldName(fieldName : string) {
+	if (fieldName) {
+		return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;
+	}
+	return "";
+}
+
+export function getDefaultLiteralValue(typeName : string, valueExpr: STNode) {
+	if (valueExpr && typeName !== 'array' && typeName !== 'record' && (
+		STKindChecker.isStringLiteral(valueExpr)
+		|| STKindChecker.isNumericLiteral(valueExpr)
+		|| STKindChecker.isBooleanLiteral(valueExpr)
+	)) {
+		return valueExpr.literalToken.value;
+	}
 }

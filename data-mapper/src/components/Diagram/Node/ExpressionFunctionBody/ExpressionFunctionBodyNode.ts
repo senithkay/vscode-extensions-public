@@ -10,7 +10,7 @@ import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import { getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
+import { getBalRecFieldName, getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
@@ -99,7 +99,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             const specificField = fields[i];
             portIdBuffer += `.${specificField.fieldName.value}`
             const recFieldTemp = nextTypeNode.fields.find(
-                (recF) => recF.name === specificField.fieldName.value);
+                (recF) => getBalRecFieldName(recF.name) === specificField.fieldName.value);
             if (recFieldTemp) {
                 if (i === fields.length - 1) {
                     recField = recFieldTemp;
