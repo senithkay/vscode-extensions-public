@@ -74,7 +74,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                             const portName = entry[0];
                             if (portName === targetPortName) {
                                 if (entry[1] instanceof RecordFieldPortModel || entry[1] instanceof SpecificFieldPortModel)
-                                this.targetPort = entry[1]
+                                    this.targetPort = entry[1]
                              }
                         });
                     } 

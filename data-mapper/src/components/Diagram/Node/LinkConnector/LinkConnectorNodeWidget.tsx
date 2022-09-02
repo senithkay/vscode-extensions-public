@@ -65,44 +65,17 @@ export function LinkConnectorNodeWidget (props: LinkConnectorNodeWidgetProps){
 		const [editable, setEditable] = React.useState(false);
 		const [str, setStr] = React.useState(node.value);
 
+        const onClickEdit = () => {
+            props.node.context.enableStamentEditor(props.node.valueNode);
+        };
 
 		return (
 			<div className={classes.root}>
                 <div className={classes.header}>
                     <DataMapperPortWidget engine={engine} port={node.inPort}/>
-                    {editable &&
-                        <input
-                            size={str.length}
-                            spellCheck={false}
-                            style={{
-                                padding: "5px",
-                                fontFamily: "monospace",
-                                zIndex: 1000,
-                                border: "1px solid #5567D5",
-                                maxWidth: "400px"
-                            }}
-                            autoFocus={true}
-                            value={str}
-                            onChange={(event) => {
-                                const newVal = event.target.value;
-                                setStr(newVal);
-                                node.value = newVal;
-                            }}
-                            onKeyUp={(evt) => {
-                                    if (evt.key === "Escape") {
-                                        setEditable(false);
-                                    }
-                                    if (evt.key === "Enter") {
-                                        node.updateSource();
-                                    }
-                                }
-                            }
-                            onBlur={() => setEditable(false)}
-                        />
-                    }
-                    <span style={{display: "flex"}}>
-					    <div>{!editable && <CodeOutlinedIcon onClick={() => setEditable(true)} style={{color: hasError && 'red'}} />}</div>
-					</span>
+                        <span style={{display: "flex"}}>
+                            <div>{!editable && <CodeOutlinedIcon onClick={onClickEdit} style={{color: hasError && 'red'}} />}</div>
+                        </span>
                     <DataMapperPortWidget engine={engine} port={node.outPort}/>
                 </div>
 			</div>

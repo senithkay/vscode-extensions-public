@@ -318,7 +318,6 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 					specificField = expr.fields.find((val) =>
 						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
 					) as SpecificField;
-					// nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
 				}
 			}
 			// TODO: Add support for other types as well

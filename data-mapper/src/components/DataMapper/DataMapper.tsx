@@ -3,11 +3,15 @@ import React, { useEffect, useReducer, useState } from "react";
 import {
     DiagramEditorLangClientInterface,
     ExpressionEditorLangClientInterface,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibrarySearchResponse,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FunctionDefinition,
+    SpecificField,
     STNode,
     traversNode,
 } from "@wso2-enterprise/syntax-tree";
@@ -21,6 +25,30 @@ import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
+import { StatementEditorComponent } from "../StatementEditorComponent/StatementEditorComponent"
+import Grid from "@material-ui/core/Grid";
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      flexGrow: 1,
+      height: "100%"
+    },
+    gridContainer: {
+      height: "100%",
+      gridTemplateColumns: "1fr fit-content(200px)"
+    },
+    paper: {
+      padding: theme.spacing(2),
+      textAlign: 'center',
+      color: theme.palette.text.secondary,
+    },
+  }),
+);
+
 
 export interface DataMapperProps {
     fnST: FunctionDefinition;
@@ -35,6 +63,11 @@ export interface DataMapperProps {
     };
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => void;
+    library?: {
+        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
+        getLibrariesData: () => Promise<LibrarySearchResponse>;
+        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
+    };
 }
 
 export enum ViewOption {
@@ -61,17 +94,28 @@ const selectionReducer = (state: SelectionState, action: {type: ViewOption, payl
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, getEELangClient, filePath, currentFile, stSymbolInfo, applyModifications } = props;
+    const { fnST, langClientPromise, getEELangClient, filePath, currentFile, stSymbolInfo, applyModifications, library } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
-
+    const [currentEditableField, setCurrentEditableField] = useState<SpecificField>(null);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
         prevST: []
     });
 
+    const classes = useStyles();
+
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState) => {
         dispatchSelection({type: mode, payload: selectionState});
     }
+
+
+	const enableStamentEditor = (model: SpecificField) => {
+        setCurrentEditableField(model)
+	}
+
+    const closeStamentEditor = () => {
+        setCurrentEditableField(null)
+	}
 
     useEffect(() => {
         (async () => {
@@ -87,7 +131,8 @@ function DataMapperC(props: DataMapperProps) {
                 stSymbolInfo,
                 handleSelectedST,
                 applyModifications,
-                diagnostics
+                diagnostics,
+                enableStamentEditor
             );
 
             const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
@@ -103,11 +148,27 @@ function DataMapperC(props: DataMapperProps) {
     }, [selection, fnST]);
 
     return (
-        <>
-            <DataMapperDiagram
-                nodes={nodes}
-            />
-        </>
+        <div className={classes.root}>
+            <Grid container={true} spacing={3} className={classes.gridContainer} >
+                <Grid item={true} xs={currentEditableField ? 7 : 12}>
+                    <DataMapperDiagram
+                        nodes={nodes}
+                    />
+                </Grid>
+                {!!currentEditableField &&
+                    <Grid item={true} xs={5} style={{width:"fit-content"}}>
+                        <StatementEditorComponent 
+                            model ={currentEditableField}
+                            getEELangClient = {getEELangClient}
+                            applyModifications= {applyModifications}
+                            currentFile ={currentFile}
+                            library={library}
+                            onCancel={closeStamentEditor}
+                        />
+                    </Grid>
+                }
+            </Grid>
+        </div>
     )
 }
 

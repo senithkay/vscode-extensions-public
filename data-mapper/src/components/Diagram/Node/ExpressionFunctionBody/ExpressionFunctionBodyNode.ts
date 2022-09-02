@@ -88,7 +88,8 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
                 value: otherVal?.source || value.source,
                 valueNode: otherVal || value,
                 context: this.context,
-                link: lm
+                link: lm,
+                specificField: fields[fields.length - 1]
             }));
             lm.setTargetPort(outPort);
             lm.setSourcePort(inPort);

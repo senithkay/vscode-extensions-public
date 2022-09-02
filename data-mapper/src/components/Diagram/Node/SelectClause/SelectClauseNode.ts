@@ -86,7 +86,8 @@ export class SelectClauseNode extends DataMapperNodeModel {
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,
                     context: this.context,
-                    link
+                    link,
+                    specificField: fields[fields.length - 1]
                 }));
                 link.registerListener({
                     selectionChanged(event) {
