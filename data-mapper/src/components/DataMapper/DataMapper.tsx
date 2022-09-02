@@ -135,13 +135,15 @@ function DataMapperC(props: DataMapperProps) {
                 enableStamentEditor
             );
 
+            let selectedST = selection.selectedST;
+            const selectedSTFindingVisitor = new SelectedSTFindingVisitor(selectedST);
+            traversNode(fnST, selectedSTFindingVisitor);
+            selectedST = selectedSTFindingVisitor.getST();
+
             const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
             await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
+
             const nodeInitVisitor = new NodeInitVisitor(context, selection);
-            let selectedST = selection.selectedST;
-            const visitor = new SelectedSTFindingVisitor(selectedST);
-            traversNode(fnST, visitor);
-            selectedST = visitor.getST();
             traversNode(selectedST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
         })();
