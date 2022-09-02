@@ -13,11 +13,16 @@
 import { useContext } from 'react';
 import { useIntl } from 'react-intl';
 
-import { FlushStatementConfig, ProcessConfig } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import {
+    FlushStatementConfig,
+    getAllVariables,
+    ProcessConfig
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from '../../../../../../../Contexts/Diagram';
 import { createFlushStatement, getInitialSource } from '../../../../../../utils';
+import { genVariableName } from "../../../../../Portals/utils";
 
 interface AddFlushStatementProps {
     config: ProcessConfig;
@@ -59,7 +64,7 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
     flushStatementConfig.expression = flushStatementConfig.expression === '' ?
         'EXPRESSION' : flushStatementConfig.expression;
     flushStatementConfig.varName = flushStatementConfig.varName === '' ?
-        'EXPRESSION' : flushStatementConfig.varName;
+        genVariableName("variable", getAllVariables(stSymbolInfo)) : flushStatementConfig.varName;
 
     const initialSource = getInitialSource(createFlushStatement(flushStatementConfig));
     const stmtEditorComponent = StatementEditorWrapper(
