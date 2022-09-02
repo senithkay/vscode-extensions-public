@@ -189,7 +189,9 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                     />
                     <div id="json-input-container" test-id="json-input-container" className={classes.formWrapper}>
                         <FormTextInput
-                            dataTestId="api-function-param-name"
+                            label="Record Name"
+                            dataTestId="import-record-name"
+                            placeholder="Enter Record Name"
                             defaultValue={formState.recordName}
                             customProps={{ readonly: false, isErrored: formState?.recordNameDiag}}
                             onChange={onNameChange}
@@ -201,6 +203,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             </div>
                         </div>
                         <FormTextArea
+                            rowsMax={6.3}
                             dataTestId="json-input"
                             placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
                             onChange={onJsonChange}
