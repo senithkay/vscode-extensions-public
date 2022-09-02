@@ -28,6 +28,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public field: Type,
 		public portType: "IN" | "OUT",
 		public parentId: string,
+		public index?: number,
 		public parentFieldAccess?: string,
 		public parentModel?: RecordFieldPortModel) {
 		super({

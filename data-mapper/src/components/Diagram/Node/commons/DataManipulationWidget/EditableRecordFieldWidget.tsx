@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { IconButton } from "@material-ui/core";
 import { default as AddIcon } from  "@material-ui/icons/Add";
@@ -23,7 +23,7 @@ import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getDefaultLiteralValue, getNewSource } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -35,24 +35,34 @@ export interface EditableRecordFieldWidgetProps {
     getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
     mappingConstruct: MappingConstructor;
     context: IDataMapperContext;
+    fieldIndex?: number;
     treeDepth?: number;
 }
 
 export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0 } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.type.name);
-    const fieldId = `${parentId}.${fieldName}`;
+    const fieldId = fieldIndex !== undefined
+        ? `${parentId}.${fieldIndex}.${fieldName}`
+        : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
     const hasValue = field.hasValue();
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';
     const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
-    const fields = isRecord ? field.childrenTypes : [];
+    const fields = isRecord && field.childrenTypes;
     const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
+
+    const connectedViaLink = useMemo(() => {
+        if (field?.value) {
+            return isConnectedViaLink(field?.value);
+        }
+        return false;
+    }, [field]);
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [editable, setEditable] = useState<boolean>(false);
@@ -123,7 +133,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {!isArray && (
                 <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
-                    {portIn &&
+                    {portIn && (!hasValue || connectedViaLink) &&
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
@@ -160,9 +170,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         engine={engine}
                         field={field}
                         getPort={getPort}
-                        parentId={fieldId}
+                        parentId={parentId}
                         mappingConstruct={mappingConstruct}
                         context={context}
+                        fieldIndex={fieldIndex}
                         treeDepth={treeDepth + 1}
                     />
                 </>
