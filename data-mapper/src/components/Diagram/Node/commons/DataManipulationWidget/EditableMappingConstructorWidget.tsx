@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-	editableRecordField?: EditableRecordField;
+	editableRecordFields: EditableRecordField[];
 	value: MappingConstructor;
 	engine: DiagramEngine;
 	getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
@@ -47,14 +47,14 @@ export interface EditableMappingConstructorWidgetProps {
 
 
 export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
-	const { id, editableRecordField, value, engine, getPort, context } = props;
+	const { id, editableRecordFields, value, engine, getPort, context } = props;
 	const classes = useStyles();
 
 	// TODO: Handle root level arrays
 	return (
 		<div className={classes.root}>
 			{
-				editableRecordField.childrenTypes.map((item) => {
+				editableRecordFields.map((item) => {
 					return (
 						<EditableRecordFieldWidget
 							key={id}

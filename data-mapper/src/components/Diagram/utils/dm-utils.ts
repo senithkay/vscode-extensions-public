@@ -22,10 +22,11 @@ import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
-import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
+import { ExpressionFunctionBodyNode, QueryExprAsSFVNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
+import { SelectClauseNodeNew } from "../Node/SelectClause";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
@@ -100,9 +101,11 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			const parentFieldNames: string[] = [];
 
 			lhs = getBalRecFieldName(targetPort.field.name);
-			if (targetNode instanceof ExpressionFunctionBodyNode && STKindChecker.isMappingConstructor(targetNode.value.expression)) {
+			if ((targetNode instanceof ExpressionFunctionBodyNode || targetNode instanceof SelectClauseNodeNew)
+				&& STKindChecker.isMappingConstructor(targetNode.value.expression)
+			) {
 				mappingConstruct = targetNode.value.expression;
-			} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
+			} else if (targetNode instanceof QueryExprAsSFVNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
 				mappingConstruct = targetNode.value.selectClause.expression;
 			}
 
@@ -256,8 +259,9 @@ export function getInputNodeExpr(expr: FieldAccess | SimpleNameReference, dmNode
 					STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
 				) as RequiredParam;
-			if (STKindChecker.isQueryExpression(dmNode.context.selection.selectedST)){
-				paramNode = dmNode.context.selection.selectedST.queryPipeline.fromClause
+			if (STKindChecker.isSpecificField(dmNode.context.selection.selectedST)
+				&& STKindChecker.isQueryExpression(dmNode.context.selection.selectedST.valueExpr)){
+				paramNode = dmNode.context.selection.selectedST.valueExpr.queryPipeline.fromClause
 			}
 			return findNodeByValueNode(paramNode, dmNode);
 		}
@@ -339,8 +343,24 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 		}
 		editableRecordField.childrenTypes = children;
 	} else if (type.typeName === 'array' && type.memberType.typeName === 'record') {
-		if (nextNode && STKindChecker.isListConstructor(nextNode)) {
-			editableRecordField.elements = getEnrichedArrayType(type, nextNode, editableRecordField);
+		if (nextNode) {
+			if (STKindChecker.isListConstructor(nextNode)) {
+				editableRecordField.elements = getEnrichedArrayType(type, nextNode, editableRecordField);
+			} else if (STKindChecker.isMappingConstructor(nextNode)) {
+				fields = type.memberType.fields;
+				const children = [...childrenTypes ? childrenTypes : []];
+				if (fields && !!fields.length) {
+					fields.map((field) => {
+						const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
+						children.push(childType);
+					});
+				}
+				// Create only a single element as there is only one mapping constructor
+				editableRecordField.elements = [{
+					members: children,
+					elementNode: nextNode
+				}];
+			}
 		}
 	}
 
@@ -445,5 +465,9 @@ export function isConnectedViaLink(field: SpecificField) {
 	const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
 	traversNode(field.valueExpr, fieldAccessFindingVisitor);
 	const fieldAccessNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
-	return !!fieldAccessNodes.length;
+
+	const isMappingConstruct = STKindChecker.isMappingConstructor(field.valueExpr);
+	const isListConstruct = STKindChecker.isListConstructor(field.valueExpr);
+
+	return !!fieldAccessNodes.length && !isMappingConstruct && !isListConstruct;
 }

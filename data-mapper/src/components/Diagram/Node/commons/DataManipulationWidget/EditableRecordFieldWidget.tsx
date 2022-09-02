@@ -18,7 +18,7 @@ import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -49,7 +49,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
-    const hasValue = field.hasValue();
+    const hasValue = field.hasValue() && !!field.value.valueExpr.source;
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';
     const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
@@ -58,7 +58,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const connectedViaLink = useMemo(() => {
-        if (field?.value) {
+        if (hasValue) {
             return isConnectedViaLink(field?.value);
         }
         return false;
@@ -106,23 +106,36 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             setEditable(false);
         }
         if (key === "Enter") {
-            const [newSource, targetMappingConstruct] = getNewSource(field, mappingConstruct, str);
-            updateSource(newSource, targetMappingConstruct);
+            let src;
+            let targetPosition;
+            if (field.hasValue() && !field.value.valueExpr.source) {
+                src = str;
+                targetPosition = field.value.valueExpr.position;
+            } else {
+                const [newSource, targetMappingConstruct]  = getNewSource(field, mappingConstruct, str);
+                src = `\n${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`;
+                targetPosition = {
+                    endColumn: targetMappingConstruct.openBrace.position.endColumn,
+                    endLine: targetMappingConstruct.openBrace.position.endLine,
+                    startColumn: targetMappingConstruct.openBrace.position.endColumn,
+                    startLine: targetMappingConstruct.openBrace.position.endLine
+                };
+            }
+            updateSource(src, targetPosition);
         }
     };
 
-    const updateSource = (newSource: string, targetMappingConstruct: MappingConstructor) => {
-        const targetPos = targetMappingConstruct.openBrace.position;
+    const updateSource = (newSource: string, targetPosition: NodePosition) => {
         const modifications = [
             {
                 type: "INSERT",
                 config: {
-                    "STATEMENT": `\n${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`,
+                    "STATEMENT": newSource,
                 },
-                endColumn: targetPos.endColumn,
-                endLine: targetPos.endLine,
-                startColumn: targetPos.endColumn,
-                startLine: targetPos.endLine
+                endColumn: targetPosition.endColumn,
+                endLine: targetPosition.endLine,
+                startColumn: targetPosition.endColumn,
+                startLine: targetPosition.endLine
             }
         ];
         context.applyModifications(modifications);

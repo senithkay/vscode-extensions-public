@@ -141,7 +141,7 @@ function DataMapperC(props: DataMapperProps) {
             selectedST = selectedSTFindingVisitor.getST();
 
             const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-            await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
+            await recordTypeDescriptors.storeTypeDescriptors(selectedST, context);
 
             const nodeInitVisitor = new NodeInitVisitor(context, selection);
             traversNode(selectedST, nodeInitVisitor);

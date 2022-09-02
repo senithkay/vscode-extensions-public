@@ -14,37 +14,34 @@
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
-import {DiagramEngine, PortModel} from '@projectstorm/react-diagrams-core';
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
-import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
+import { RecordFieldPortModel } from "../../Port";
+import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
-import { MappingConstructorWidget } from "../commons/MappingConstructorWidget/MappingConstructorWidget";
 
-import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode, SELECT_CLAUSE_NODE_TYPE } from './SelectClauseNode';
+import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNodeNew, SELECT_CLAUSE_NODE_TYPE } from './SelectClauseNodeNew';
 
 @injectable()
 @singleton()
-export class SelectClauseFactory extends AbstractReactFactory<SelectClauseNode, DiagramEngine> implements IDataMapperNodeFactory {
+export class SelectClauseFactory extends AbstractReactFactory<SelectClauseNodeNew, DiagramEngine> implements IDataMapperNodeFactory {
     constructor() {
         super(SELECT_CLAUSE_NODE_TYPE);
     }
 
-    generateReactWidget(event: { model: SelectClauseNode; }): JSX.Element {
+    generateReactWidget(event: { model: SelectClauseNodeNew; }): JSX.Element {
         return (
-            <>
-                {STKindChecker.isMappingConstructor(event.model.value.expression) && (
-                    <MappingConstructorWidget
-                        engine={this.engine}
-                        id={EXPANDED_QUERY_TARGET_PORT_PREFIX}
-                        value={event.model.value.expression}
-                        getPort={(portId: string) =>
-                            event.model.getPort(portId) as RecordFieldPortModel | SpecificFieldPortModel}
-                    />
-                )}
-            </>
+            <EditableMappingConstructorWidget
+                engine={this.engine}
+                id={EXPANDED_QUERY_TARGET_PORT_PREFIX}
+                editableRecordFields={event.model.enrichedTypeDefs}
+                value={event.model.value.expression as MappingConstructor}
+                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                context={event.model.context}
+            />
         );
     }
 

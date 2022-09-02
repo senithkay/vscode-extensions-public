@@ -11,4 +11,4 @@
  * associated services.
  */
 export * from "./SelectClauseNodeFactory";
-export * from "./SelectClauseNode";
+export * from "./SelectClauseNodeNew";

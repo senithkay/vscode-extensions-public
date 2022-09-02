@@ -1,6 +1,7 @@
 import { FieldAccess, SpecificField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
+
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
@@ -8,7 +9,8 @@ import { getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
-import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
+import { EXPANDED_QUERY_TARGET_PORT_PREFIX } from "../SelectClause";
+import { SelectClauseNodeNew } from "../SelectClause/SelectClauseNodeNew";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 
@@ -68,7 +70,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             })
             targetPortName = targetPortName +".IN"
             this.getModel().getNodes().map((node) => {
-                    if (node instanceof ExpressionFunctionBodyNode || node instanceof SelectClauseNode ) {
+                    if (node instanceof ExpressionFunctionBodyNode || node instanceof SelectClauseNodeNew) {
                         const ports = Object.entries(node.getPorts());
                         ports.forEach((entry) => {
                             const portName = entry[0];

@@ -29,9 +29,8 @@ import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { LinkConnectorNode } from './Node/LinkConnector';
-import { QueryExpressionNode } from './Node/QueryExpression';
+import { QueryExprAsSFVNode } from './Node/QueryExprAsSpecificFieldValue';
 import * as Ports from "./Port";
-import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -107,7 +106,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				dagreEngine.redistribute(model);
 				engine.repaintCanvas(true);
 				nodes.forEach((node) => {
-					if ( node instanceof LinkConnectorNode || node instanceof QueryExpressionNode){
+					if ( node instanceof LinkConnectorNode || node instanceof QueryExprAsSFVNode){
 						node.updatePosition()
 					}
 				});

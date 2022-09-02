@@ -1,8 +1,22 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-	ExpressionFunctionBody,
-	MappingConstructor,
-	SpecificField,
+    IdentifierToken,
+    MappingConstructor,
+    SelectClause,
+    SpecificField,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
@@ -21,46 +35,46 @@ import {
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
-import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
+import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
-export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
+export const SELECT_CLAUSE_NODE_TYPE = "datamapper-node-select-clause";
+export const EXPANDED_QUERY_TARGET_PORT_PREFIX = "expandedQueryExpr.target";
 
-export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
+export class SelectClauseNodeNew extends DataMapperNodeModel {
 
     public typeDef: Type;
-    public enrichedTypeDef: EditableRecordField;
+    public enrichedTypeDefs: EditableRecordField[];
 
     constructor(
         public context: IDataMapperContext,
-        public value: ExpressionFunctionBody,
-        public typeDesc: TypeDescriptor) {
+        public value: SelectClause,
+        public fieldName: IdentifierToken
+    ) {
         super(
             context,
-            EXPR_FN_BODY_NODE_TYPE
+            SELECT_CLAUSE_NODE_TYPE
         );
     }
 
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: this.typeDesc.position.startLine,
-            startColumn: this.typeDesc.position.startColumn,
-            endLine: this.typeDesc.position.startLine,
-            endColumn: this.typeDesc.position.startColumn
+            startLine: this.fieldName.position.startLine,
+            startColumn: this.fieldName.position.startColumn,
+            endLine: this.fieldName.position.startLine,
+            endColumn: this.fieldName.position.startColumn
         });
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
-            this.enrichedTypeDef = valueEnrichedType;
-            if (valueEnrichedType.type.typeName === 'record') {
-                const fields: EditableRecordField[] = valueEnrichedType.childrenTypes;
-                if (!!fields.length) {
-                    fields.forEach((subField) => {
-                        this.addPortsForOutputRecordField(subField, "IN", "exprFunctionBody");
+            if (valueEnrichedType.type.typeName === 'array') {
+                // valueEnrichedType only contains a single element as it is being used within the select clause
+                this.enrichedTypeDefs = valueEnrichedType.elements[0].members;
+                if (!!this.enrichedTypeDefs.length) {
+                    this.enrichedTypeDefs.forEach((field) => {
+                        this.addPortsForOutputRecordField(field, "IN", EXPANDED_QUERY_TARGET_PORT_PREFIX);
                     });
                 }
-            } else {
-                // TODO: Add support for other return type descriptors
             }
         }
     }
@@ -83,13 +97,12 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
             const outPort = this.getOutputPortForField(fields);
-			const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
+            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
             lm.addLabel(new ExpressionLabelModel({
                 value: otherVal?.source || value.source,
                 valueNode: otherVal || value,
                 context: this.context,
-                link: lm,
-                specificField: fields[fields.length - 1]
+                link: lm
             }));
             lm.setTargetPort(outPort);
             lm.setSourcePort(inPort);
@@ -109,9 +122,9 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     }
 
     private getOutputPortForField(fields: SpecificField[]) {
-        let nextTypeNode = this.enrichedTypeDef?.childrenTypes;
+        let nextTypeNode = this.enrichedTypeDefs;
         let recField: EditableRecordField;
-        let portIdBuffer = "exprFunctionBody";
+        let portIdBuffer = EXPANDED_QUERY_TARGET_PORT_PREFIX;
         let fieldIndex;
         for (let i = 0; i < fields.length; i++) {
             const specificField = fields[i];

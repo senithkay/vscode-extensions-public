@@ -1,5 +1,10 @@
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CaptureBindingPattern, QueryExpression, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import {
+    CaptureBindingPattern,
+    QueryExpression,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -13,7 +18,8 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 import { RequiredParamNode } from "../RequiredParam";
-import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
+import { EXPANDED_QUERY_TARGET_PORT_PREFIX } from "../SelectClause";
+import { SelectClauseNodeNew } from "../SelectClause/SelectClauseNodeNew";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -21,7 +27,7 @@ export const QUERY_SOURCE_PORT_PREFIX = "queryExpr.source";
 
 export const QUERY_TARGET_PORT_PREFIX = "queryExpr.target";
 
-export class QueryExpressionNode extends DataMapperNodeModel {
+export class QueryExprAsSFVNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: Type;
     public sourcePort: RecordFieldPortModel;
@@ -133,7 +139,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             this.targetPort = port;
                         }
                     });
-                } else if (node instanceof SelectClauseNode) {
+                } else if (node instanceof SelectClauseNodeNew) {
                     const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
                     this.targetPort = node.getPort(
                         `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as SpecificFieldPortModel;
