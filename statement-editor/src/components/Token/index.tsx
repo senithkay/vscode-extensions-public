@@ -23,11 +23,12 @@ import { useStatementRendererStyles } from "../styles";
 export interface TokenComponentProps {
     model: STNode;
     className?: string;
+    isHovered?: boolean;
     onPlusClick?: (evt: any) => void;
 }
 
 export function TokenComponent(props: TokenComponentProps) {
-    const { model, className, onPlusClick } = props;
+    const { model, className, isHovered, onPlusClick } = props;
 
     const statementRendererClasses = useStatementRendererStyles();
 
@@ -51,7 +52,7 @@ export function TokenComponent(props: TokenComponentProps) {
             {model.value}
             {onPlusClick && (
                 <span
-                    className={statementRendererClasses.plusIcon}
+                    className={`${statementRendererClasses.plusIcon} ${isHovered ? "view" : "hide"}`}
                     onClick={onPlusClick}
                 >
                 +

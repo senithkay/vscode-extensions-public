@@ -24,11 +24,10 @@ export interface ExpressionArrayProps {
     expressions: STNode[];
     modifiable?: boolean;
     arrayType?: ArrayType;
-    onPlusClick?: (evt: any) => void;
 }
 
 export function ExpressionArrayComponent(props: ExpressionArrayProps) {
-    const { expressions, modifiable, arrayType, onPlusClick } = props;
+    const { expressions, modifiable, arrayType } = props;
 
     const [hoverIndex, setHoverIndex] = React.useState(null);
 
@@ -64,12 +63,13 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                             <ExpressionComponent
                                 key={index}
                                 model={expression}
-                                onPlusClick={onPlusClick}
+                                isHovered={true} // Always we need to show the last plus
                             />
                         ) : (
                             <ExpressionComponent
                                 key={index}
                                 model={expression}
+                                isHovered={hoverIndex === index}
                             />
                         )}
                     </ExpressionArrayElementComponent>

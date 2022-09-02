@@ -108,7 +108,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
 }
 
 export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition,
-                                           onPlusClick?: (evt: any) => void): ReactNode {
+                                           isHovered?: boolean): ReactNode {
     let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
 
     if (!ExprTypeComponent) {
@@ -119,7 +119,7 @@ export function getExpressionTypeComponent(expression: STNode, stmtPosition?: No
         <ExprTypeComponent
             model={expression}
             stmtPosition={stmtPosition}
-            onPlusClick={onPlusClick}
+            isHovered={isHovered}
         />
     );
 }
