@@ -831,7 +831,12 @@ export function getFilteredExpressions(expression: ExpressionGroup[], currentMod
 
 export function eligibleForLevelTwoSuggestions(selectedModel: STNode, selection: string): boolean {
     return (selectedModel.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
-        && selection !== '?';
+        && selection !== '?' && getModelContent(selectedModel) !== EXPR_CONSTRUCTOR;
+}
+
+function getModelContent(selectedModel: STNode) : string {
+     const content: string = selectedModel.source ? selectedModel.source : selectedModel.value;
+     return content.trim();
 }
 
 function getModelParamSourceList(currentModel: STNode): string[] {
