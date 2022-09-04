@@ -71,16 +71,18 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForRecordField(field: Type, type: "IN" | "OUT", parentId: string, parentFieldAccessExpr?: string,
-									                         parent?: RecordFieldPortModel) {
+									                         parent?: RecordFieldPortModel) : number {
 		const fieldId = `${parentId}.${field.name}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${field.name}`;
 		const fieldPort = new RecordFieldPortModel(field, type, parentId, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
+		let numberOfFields =1;
 		if (field.typeName === 'record') {
 			field.fields.forEach((subField) => {
-				this.addPortsForRecordField(subField, type, fieldId, fieldAccessExpr, fieldPort);
+				numberOfFields += this.addPortsForRecordField(subField, type, fieldId, fieldAccessExpr, fieldPort);
 			});
 		}
+		return numberOfFields;
 	}
 
 	protected genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
@@ -99,7 +101,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						traversNode(field.valueExpr, fieldAccessFindingVisitor);
 						const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
 						if (fieldAccesseNodes.length === 1){
-							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], fieldAccesseNodes[1], field.valueExpr));
+							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], fieldAccesseNodes[0], field.valueExpr));
 						}
 						else {
 							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));

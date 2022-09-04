@@ -114,4 +114,8 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             return outPort;
         }
     }
+
+    public updatePosition() {
+        this.setPosition(1000, this.position.y)
+    }
 }

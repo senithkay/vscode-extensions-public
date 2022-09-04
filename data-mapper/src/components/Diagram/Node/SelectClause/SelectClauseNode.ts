@@ -125,4 +125,8 @@ export class SelectClauseNode extends DataMapperNodeModel {
         });
         return foundNode;
     }
+
+    public updatePosition() {
+        this.setPosition(1000, this.position.y);
+    }
 }
