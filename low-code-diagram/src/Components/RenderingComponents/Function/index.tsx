@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import {
     FunctionBodyBlock,
@@ -32,7 +32,7 @@ import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
 import { FunctionHeader } from "./FunctionHeader";
-import PanAndZoom from "./PanAndZoom";
+import PanAndZoom, { ViewMode } from "./PanAndZoom";
 import { PerformanceBar } from "./perBar/PerformanceBar";
 import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
@@ -45,6 +45,7 @@ export interface FunctionProps {
     model: FunctionDefinition;
     hideHeader?: boolean;
 }
+
 
 export function Function(props: FunctionProps) {
     const [overlayId] = useState(`function-overlay-${uuid()}`);
@@ -63,10 +64,19 @@ export function Function(props: FunctionProps) {
     const containerRef = useRef(null);
     const [diagramExpanded, setDiagramExpanded] = useSelectedStatus(model, containerRef);
     const [overlayNode, overlayRef] = useOverlayRef();
+    const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.STATEMENT);
+
+    useEffect(() => {
+        console.log('>>>', viewMode);
+    }, [viewMode]);
 
     const onExpandClick = () => {
         setDiagramExpanded(!diagramExpanded);
     };
+
+    const toggleViewMode = () => {
+        setViewMode(viewMode === ViewMode.INTERACTION ? ViewMode.STATEMENT : ViewMode.INTERACTION);
+    }
 
     let component: JSX.Element;
 
@@ -119,7 +129,10 @@ export function Function(props: FunctionProps) {
                 functionNode={model}
                 hasWorker={!!(model.functionBody as FunctionBodyBlock).namedWorkerDeclarator}
             >
-                <PanAndZoom>
+                <PanAndZoom
+                    viewMode={viewMode}
+                    toggleViewMode={toggleViewMode}
+                >
                     <div ref={overlayRef} id={overlayId} className={"function-overlay-container"} />
                     <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w}>
                         {component}
