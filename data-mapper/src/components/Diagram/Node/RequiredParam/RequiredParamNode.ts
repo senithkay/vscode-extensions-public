@@ -36,9 +36,8 @@ export class RequiredParamNode extends DataMapperNodeModel {
         if (this.typeDef && this.typeDef.typeName === 'record') {
             const fields = this.typeDef.fields;
             fields.forEach((subField) => {
-                this.numberOfFields += this.addPortsForRecordField(subField, "OUT", this.value.paramName.value, this.value.paramName.value);
+                this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, this.value.paramName.value);
             });
-            
         }
     }
 

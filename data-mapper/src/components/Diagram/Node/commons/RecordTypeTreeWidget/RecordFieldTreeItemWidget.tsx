@@ -93,8 +93,8 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const classes = useStyles();
 
     const fieldId = `${parentId}.${field.name}`;
-    const portIn = getPort(fieldId + ".IN");
-    const portOut = getPort(fieldId + ".OUT");
+    const portIn = getPort(`${fieldId}.IN`);
+    const portOut = getPort(`${fieldId}.OUT`);
     let fields: FormField[];
 
     if (field.typeName === 'record') {

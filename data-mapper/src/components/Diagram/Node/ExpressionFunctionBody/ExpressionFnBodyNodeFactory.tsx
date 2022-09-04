@@ -3,12 +3,14 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import { MappingConstructor } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
+import { getEnrichedRecordType } from "../../utils/dm-utils";
+import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
-import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
 
 import { ExpressionFunctionBodyNode, EXPR_FN_BODY_NODE_TYPE } from './ExpressionFunctionBodyNode';
 
@@ -21,11 +23,13 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<Expressi
 
 	generateReactWidget(event: { model: ExpressionFunctionBodyNode; }): JSX.Element {
 		return (
-			<RecordTypeTreeWidget
+			<EditableMappingConstructorWidget
 				engine={this.engine}
 				id="exprFunctionBody"
-				typeDesc={event.model.typeDef}
+				editableRecordField={getEnrichedRecordType(event.model.typeDef, event.model.value.expression)}
+				value={event.model.value.expression as MappingConstructor}
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+				context={event.model.context}
 			/>
 		);
 	}

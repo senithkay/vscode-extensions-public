@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, RecordTypeDesc, SpecificField, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { RecordFieldPortModel, SpecificFieldPortModel } from '../../../Port';
@@ -23,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface MappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-	typeDesc?: RecordTypeDesc;
+	typeDesc?: Type;
 	value: MappingConstructor;
 	engine: DiagramEngine;
 	getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
@@ -31,7 +32,7 @@ export interface MappingConstructorWidgetProps {
 
 
 export function MappingConstructorWidget(props: MappingConstructorWidgetProps) {
-	const { engine, id, getPort, value } = props;
+	const { id, typeDesc, value, engine, getPort } = props;
 	const classes = useStyles();
 
 	const getNodeIds = (field: SpecificField, parentId: string) => {

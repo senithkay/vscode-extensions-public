@@ -125,7 +125,11 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         this.specificFields.push(node)
-        if (this.isWithinQuery === 0 && node.valueExpr && !STKindChecker.isMappingConstructor(node.valueExpr)){
+        if (this.isWithinQuery === 0
+            && node.valueExpr
+            && !STKindChecker.isMappingConstructor(node.valueExpr)
+            && !STKindChecker.isListConstructor(node.valueExpr)
+        ) {
             const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
             traversNode(node.valueExpr, fieldAccessFindingVisitor);
             const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
