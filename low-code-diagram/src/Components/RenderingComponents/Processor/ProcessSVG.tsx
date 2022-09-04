@@ -36,9 +36,10 @@ export function ProcessSVG(props: {
     openInCodeView?: () => void,
     processType: string,
     diagnostics?: ErrorSnippet,
-    componentSTNode: STNode
+    componentSTNode: STNode,
+    haveFunctionExpand?: boolean
 }) {
-    const { varName, processType, openInCodeView, diagnostics, componentSTNode, ...xyProps } = props;
+    const { varName, processType, openInCodeView, diagnostics, componentSTNode, haveFunctionExpand, ...xyProps } = props;
     const processTypeIndicator: JSX.Element[] = [];
     const logIcon: ReactElement = (
         <g className="log-icon" transform="translate(242 522)">
@@ -65,7 +66,7 @@ export function ProcessSVG(props: {
         case 'Call':
             processTypeIndicator.push(
                 <g>
-                    {processType === 'Log' ? logIcon : callIcon}
+                    {processType === 'Log' ? logIcon : (!haveFunctionExpand && callIcon)}
                     <text id="new" transform="translate(242 548)" className="process-icon-text">
                         <tspan x="1" y="1">{processType.toLowerCase()}</tspan>
                     </text>
@@ -94,7 +95,7 @@ export function ProcessSVG(props: {
     }
 
     return (
-        <svg {...xyProps} width={PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process-rect" >
+        <svg {...xyProps} width={haveFunctionExpand ? PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW * 2 : PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW} height={PROCESS_SVG_HEIGHT_WITH_HOVER_SHADOW} className="process-rect" >
             <defs>
                 <linearGradient id="ProcessLinearGradient" x1=" " x2="0" y2="1" gradientUnits="objectBoundingBox">
                     <stop offset="0" stopColor="#fcfcfd" />
@@ -122,6 +123,7 @@ export function ProcessSVG(props: {
                     model={componentSTNode}
                     diagnostic={diagnostics}
                     processTypeIndicator={processTypeIndicator}
+                    haveFunctionExpand={haveFunctionExpand}
                 />
                 )
             </g>

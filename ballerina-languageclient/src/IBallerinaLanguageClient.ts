@@ -24,6 +24,7 @@ export enum EXTENDED_APIS {
     DOCUMENT_ST = 'ballerinaDocument/syntaxTree',
     DOCUMENT_AST_MODIFY = 'ballerinaDocument/astModify',
     DOCUMENT_TRIGGER_MODIFY = 'ballerinaDocument/triggerModify',
+    DOCUMENT_ST_FUNCTION_FIND = 'ballerinaDocument/syntaxTreeByName',
     SYMBOL_TYPE = 'ballerinaSymbol/type',
     CONNECTOR_CONNECTORS = 'ballerinaConnector/connectors',
     TRIGGER_TRIGGERS = 'ballerinaTrigger/triggers',
@@ -559,6 +560,7 @@ export interface STModification {
 
 export interface BallerinaSTModifyResponse {
     source: string;
+    defFilePath: string;
     syntaxTree: STNode;
     parseSuccess: boolean;
 }
@@ -730,6 +732,11 @@ export interface SymbolInfoResponse {
     documentation : SymbolDocumentation
 }
 
+export interface BallerinaFunctionSTRequest {
+    lineRange: RRange;
+    documentIdentifier: DocumentIdentifier;
+}
+
 export interface IBallerinaLangClient {
 
     didOpen: (Params: DidOpenTextDocumentParams) => void;
@@ -797,6 +804,8 @@ export interface IBallerinaLangClient {
     resolveMissingDependencies: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
 
     getExecutorPositions: (params: GetBallerinaProjectParams) => Thenable<ExecutorPositionsResponse>;
+
+    getSTForFunction: (params: BallerinaFunctionSTRequest) => Thenable<BallerinaSTModifyResponse>;
 
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>;
 

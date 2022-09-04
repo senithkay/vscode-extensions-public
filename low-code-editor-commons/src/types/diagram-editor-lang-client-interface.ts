@@ -11,6 +11,7 @@
  * associated services.
  */
 
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import {
     DocumentSymbol,
     DocumentSymbolParams,
@@ -25,6 +26,7 @@ import {
     BallerinaConnectorResponse,
     BallerinaConnectorsRequest,
     BallerinaConnectorsResponse,
+    BallerinaFunctionSTRequest,
     BallerinaProjectParams,
     BallerinaRecordRequest,
     BallerinaRecordResponse,
@@ -96,6 +98,11 @@ export interface PerformanceAnalyzerResponse {
     name: string;
 }
 
+export interface FunctionDef {
+    syntaxTree: STNode;
+    defFilePath: string;
+}
+
 export interface CommandResponse {
     error: boolean;
     message: string;
@@ -140,5 +147,8 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     ) => Thenable<ExecutorPositionsResponse>;
     convert: (
         params: JsonToRecordRequest
-    ) => Thenable<JsonToRecordResponse>
+    ) => Thenable<JsonToRecordResponse>;
+    getSTForFunction: (
+        params: BallerinaFunctionSTRequest
+    ) => Thenable<BallerinaSTModifyResponse>;
 }

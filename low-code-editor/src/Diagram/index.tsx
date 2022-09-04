@@ -38,7 +38,8 @@ export function Diagram() {
                 gotoSource,
                 isMutationInProgress,
                 isModulePullInProgress,
-                loaderText
+                loaderText,
+                getFunctionDef
             },
             webView: {
                 showSwaggerView,
@@ -346,7 +347,8 @@ export function Diagram() {
                             },
                             code: {
                                 gotoSource,
-                                modifyDiagram
+                                modifyDiagram,
+                                getFunctionDef
                             },
                             webView: {
                                 showDocumentationView,

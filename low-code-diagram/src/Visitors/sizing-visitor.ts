@@ -41,6 +41,7 @@ import { ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/Assignm
 import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../Components/RenderingComponents/Collapse/CollapseSVG";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/ConditionAssignment";
 import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
+import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
 import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../Components/RenderingComponents/End/StopSVG";
 import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../Components/RenderingComponents/ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ThreeDotsSVG";
@@ -56,10 +57,10 @@ import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../Components/RenderingCompon
 import { VARIABLE_NAME_WIDTH } from "../Components/RenderingComponents/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingComponents/While/WhileSVG";
 import { Endpoint } from "../Types/type";
-import { getNodeSignature, isVarTypeDescriptor } from "../Utils";
+import { getNodeSignature, initializeViewState, isVarTypeDescriptor, recalculateSizingAndPositioning, sizingAndPositioning } from "../Utils";
 import expandTracker from "../Utils/expand-tracker";
 import {
-    BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndViewState,
+    BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, EndViewState,
     ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
@@ -117,15 +118,43 @@ export class SizingVisitor implements Visitor {
     private currentWorker: string[];
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
+    private allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
     private experimentalEnabled: boolean;
-    private allEndpoints: Map<string, Endpoint>;
     private conflictResolutionFailed = false;
 
-    constructor(experimentalEnabled: boolean = false) {
+    private parentConnectors: Map<string, Endpoint> = new Map<string, Endpoint>();
+    private foundParentConnectors: Map<string, Endpoint> = new Map<string, Endpoint>();
+
+    constructor(experimentalEnabled: boolean = false, parentConnectors?: Map<string, Endpoint>) {
         this.currentWorker = [];
         this.senderReceiverInfo = new Map();
         this.workerMap = new Map();
         this.experimentalEnabled = experimentalEnabled;
+        this.parentConnectors = parentConnectors;
+    }
+
+    private getConnectorSize() {
+        let size = 0;
+        this.allEndpoints.forEach((value: Endpoint, key: string) => {
+            const found = this.parentConnectors?.get(key);
+            if (!found && !value.isParent) {
+                size++;
+            } else {
+                this.foundParentConnectors.set(key, found);
+                value.isParent = true;
+            }
+        })
+        return size;
+    }
+
+    private getConnectorGap() {
+        // const rw = (this.getConnectorSize() * (DefaultConfig.connectorEPWidth)) + (this.foundParentConnectors.size > 0 ? (this.getConnectorSize() === 1 ? DefaultConfig.epGap : 0) : DefaultConfig.epGap);
+        const rw = this.getConnectorSize() * DefaultConfig.connectorEPWidth + DefaultConfig.epGap;
+        if (this.getConnectorSize() > 0) {
+            return rw;
+        } else {
+            return 0;
+        }
     }
 
     public getConflictResulutionFailureStatus() {
@@ -399,13 +428,10 @@ export class SizingVisitor implements Visitor {
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
 
-        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2)
-            + DefaultConfig.functionHeaderHeight;
-        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw)
-            + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw)
-            + DefaultConfig.serviceRearPadding
-            + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + (DefaultConfig.serviceVerticalPadding * 2) + DefaultConfig.functionHeaderHeight;
+        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + this.getConnectorGap();
+
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         const matchedStatements = this.syncAsyncStatements(node);
@@ -473,7 +499,7 @@ export class SizingVisitor implements Visitor {
 
             viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
             viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+            viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (this.getConnectorSize() * (DefaultConfig.connectorEPWidth)) + DefaultConfig.epGap;
             viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
             const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
@@ -734,13 +760,9 @@ export class SizingVisitor implements Visitor {
 
         lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
 
-        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h
-            + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
-        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw
-            : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
-        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw
-            : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding
-            + (this.allEndpoints.size * (DefaultConfig.connectorEPWidth + DefaultConfig.epGap));
+        viewState.bBox.h = lifeLine.h + trigger.h + end.bBox.h + DefaultConfig.serviceVerticalPadding * 2 + DefaultConfig.functionHeaderHeight;
+        viewState.bBox.lw = (trigger.lw > bodyViewState.bBox.lw ? trigger.lw : bodyViewState.bBox.lw) + DefaultConfig.serviceFrontPadding;
+        viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + this.getConnectorGap();
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         if (viewState.initPlus && viewState.initPlus.selectedComponent === "PROCESS") {
@@ -1318,8 +1340,28 @@ export class SizingVisitor implements Visitor {
                 // }
             }
         }
+        if (viewState.functionNode) {
+            if (viewState.functionNodeExpanded) {
+                recalculateSizingAndPositioning(viewState.functionNode, null, this.allEndpoints);
+                const newHeight = viewState.functionNode.viewState.bBox.h - (PROCESS_SVG_HEIGHT * 2 + DefaultConfig.dotGap * 3);
+                viewState.bBox.h += newHeight;
+                if (viewState.functionNode.viewState.bBox.rw > viewState.bBox.rw) {
+                    viewState.bBox.rw = viewState.functionNode.viewState.bBox.rw;
+                }
+                viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
+            }
+        }
     }
 
+    private getMaxCX(endpoints: Map<string, Endpoint>) {
+        let max = 0;
+        endpoints.forEach((ep: Endpoint, key: string) => {
+            if (ep.visibleEndpoint.viewState.lifeLine.cx > max) {
+                max = ep.visibleEndpoint.viewState.lifeLine.cx;
+            }
+        });
+        return max;
+    }
     private beginSizingBlock(node: BlockStatement, index: number = 0) {
         if (!node.viewState) {
             return;
@@ -1699,6 +1741,7 @@ export class SizingVisitor implements Visitor {
                     if ((rightWidth < stmtViewState.bBox.rw) && !stmtViewState.collapsed) {
                         rightWidth = stmtViewState.bBox.rw;
                     }
+
                 }
             }
 

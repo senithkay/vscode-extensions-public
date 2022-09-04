@@ -16,19 +16,18 @@ import React, { useEffect, useState } from 'react';
 import { Story } from '@storybook/react/types-6-0';
 import { ForeachStatement, FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { FunctionExpand, FunctionProps  } from "..";
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
 import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
-import { Function, FunctionProps  } from "./../";
-
 export default {
-    title: 'Diagram/Component/Function',
-    component: Function,
+    title: 'Diagram/Component/FunctionExpand',
+    component: FunctionExpand,
 };
 
-const componentName = "Function";
+const componentName = "FunctionExpand";
 const samplefile1 = "sample1.bal";
 
 const Template: Story<{ f1: string }> = (args: { f1: string }) => {
@@ -64,7 +63,7 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
     // tslint:disable-next-line: jsx-wrap-multiline
     <>
         <Provider {...providerProps}>
-            <Function model={visitedST} />
+            {/* <FunctionExpand model={visitedST} /> */}
         </Provider>
     </>;
 }

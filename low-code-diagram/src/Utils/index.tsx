@@ -1,7 +1,7 @@
 import React from "react";
 
 import { BallerinaConnectorInfo, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, DiagnosticMsgSeverity, DiagramDiagnostic, STSymbolInfo, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, IfElseStatement, IsolatedKeyword, ListenerDeclaration, LocalVarDecl, NodePosition, PublicKeyword, QualifiedNameReference, RemoteMethodCallAction, ServiceDeclaration, STKindChecker, STNode, traversNode, TypeCastExpression } from "@wso2-enterprise/syntax-tree";
+import { ActionStatement, CallStatement, CaptureBindingPattern, CheckAction, ElseBlock, FunctionBodyBlock, IfElseStatement, IsolatedKeyword, ListenerDeclaration, LocalVarDecl, NodePosition, PublicKeyword, QualifiedNameReference, RemoteMethodCallAction, ServiceDeclaration, STKindChecker, STNode, traversNode, TypeCastExpression } from "@wso2-enterprise/syntax-tree";
 
 import * as stComponents from '../Components/RenderingComponents';
 import { ActionProcessor } from "../Components/RenderingComponents/ActionInvocation/ActionProcess";
@@ -10,6 +10,7 @@ import { IfElse } from "../Components/RenderingComponents/IfElse";
 import { DataProcessor } from "../Components/RenderingComponents/Processor";
 import { Respond } from "../Components/RenderingComponents/Respond";
 import { Statement } from "../Components/RenderingComponents/Statement";
+import { Endpoint } from "../Types/type";
 import { BlockViewState, FunctionViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { InitVisitor } from "../Visitors/init-visitor";
@@ -25,8 +26,8 @@ export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean):
     return clone;
 }
 
-export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?: boolean): STNode {
-    traversNode(st, new SizingVisitor(experimentalEnabled));
+export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?: boolean, parentConnectors?: Map<string, Endpoint>): STNode {
+    traversNode(st, new SizingVisitor(experimentalEnabled, parentConnectors));
     traversNode(st, new PositioningVisitor());
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
         const viewState = st.viewState as FunctionViewState;
@@ -37,19 +38,29 @@ export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?
     return clone;
 }
 
-export function getSTComponents(nodeArray: any): React.ReactNode[] {
+export function initializeViewState(st: STNode, parentConnectors?: Map<string, Endpoint>, offsetValue?: number): STNode {
+    traversNode(st, new InitVisitor(parentConnectors, offsetValue));
+    const clone = { ...st };
+    return clone;
+}
+
+export function getSTComponents(nodeArray: any, viewState?: any, model?: FunctionBodyBlock, expandReadonly?: boolean): React.ReactNode[] {
     // Convert to array
     if (!(nodeArray instanceof Array)) {
         nodeArray = [nodeArray];
     }
 
     const children: any = [];
+
     nodeArray.forEach((node: any) => {
         const ChildComp = (stComponents as any)[node.kind];
+        node.viewState.functionNodeFilePath = viewState.functionNodeFilePath;
+        node.viewState.functionNodeSource = viewState.functionNodeSource;
+        node.viewState.parentBlock = model;
         if (!ChildComp) {
             children.push(<Statement model={node} />);
         } else {
-            children.push(<ChildComp model={node} />);
+            children.push(<ChildComp model={node} expandReadonly={expandReadonly} />);
         }
     });
 

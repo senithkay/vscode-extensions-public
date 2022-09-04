@@ -20,6 +20,7 @@ import { CommandResponse, ConditionConfig,
     Connector,
     DiagramDiagnostic,
     DIAGRAM_MODIFIED,
+    FunctionDef,
     getImportStatements,
     KeyboardNavigationManager,
     LibraryDataResponse,
@@ -45,7 +46,7 @@ import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
 import {
-    getDefaultSelectedPosition, getLowcodeST, getSelectedPosition, getSyntaxTree, isDeleteModificationAvailable,
+    getDefaultSelectedPosition, getFunctionSyntaxTree, getLowcodeST, getSelectedPosition, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
 } from "./generatorUtil";
 import { addPerformanceData } from "./performanceUtil";
@@ -385,6 +386,18 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     setCodeLocationToHighlight: (position: NodePosition) => undefined,
                                     gotoSource: (position: { startLine: number, startColumn: number }) => {
                                         props.gotoSource(filePath, position);
+                                    },
+                                    getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
+                                        const langClient = await langClientPromise;
+                                        setMutationInProgress(true);
+                                        setLoaderText('Fetching...');
+                                        const res: FunctionDef = await getFunctionSyntaxTree(
+                                            defFilePath ? defFilePath : monaco.Uri.file(filePath).toString(),
+                                            lineRange,
+                                            langClient
+                                        );
+                                        setMutationInProgress(false);
+                                        return res;
                                     },
                                     isMutationInProgress,
                                     isModulePullInProgress,

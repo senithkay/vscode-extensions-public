@@ -11,12 +11,32 @@
  * associated services.
  */
 
-.control-flow-line-expand {
-    .arrow-head {
-        fill: #32324d !important;
+.action-invocation {
+    .trigger-group {
+        .trigger-rect {
+            stroke: #32324d;
+            stroke-miterlimit: 10;
+            stroke-width: 1;
+            fill: url(#TriggerLinearGradient);
+        }
     }
 
-    .line-dashed {
+    user-select: none;
+
+    .method-text {
+        fill: #32324d;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        font-size: 12px !important;
+        font-family: Droid Sans Mono, sans-serif;
+    }
+
+    .leftline {
+        stroke: #32324d !important;
+        stroke-width: 1;
+    }
+
+    .dashedLine {
         stroke: #32324d !important;
         stroke-width: 1;
         stroke-dasharray: 5;

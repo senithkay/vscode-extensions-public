@@ -57,6 +57,13 @@ let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 
 export class InitVisitor implements Visitor {
     private allEndpoints: Map<string, Endpoint> = new Map();
+    private parentConnectors: Map<string, Endpoint>;
+    private offsetValue: number;
+
+    constructor(parentConnectors?: Map<string, Endpoint>, offsetValue: number = 0) {
+        this.parentConnectors = parentConnectors;
+        this.offsetValue = offsetValue;
+    }
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         node.viewState = new ViewState();
@@ -209,6 +216,9 @@ export class InitVisitor implements Visitor {
 
     public beginVisitTypeCastExpression(node: TypeCastExpression, parent?: STNode) {
         node.viewState = new StatementViewState();
+    }
+
+    public endVisitTypeCastExpression(node: TypeCastExpression, parent?: STNode) {
         if (isSTActionInvocation(node) && node.expression) {
             if (STKindChecker.isRemoteMethodCallAction(node.expression)) {
                 const remoteCall = node.expression;
@@ -233,8 +243,23 @@ export class InitVisitor implements Visitor {
         }
     }
 
+    private mapParentEndpointsWithCurrentEndpoints(node: FunctionBodyBlock) {
+        this.parentConnectors?.forEach((parentEp: Endpoint, key: string) => {
+            // TODO: Check all the conditions to map the correct endpoint
+            const currentVp = this.allEndpoints?.get(key);
+            if (currentVp && parentEp.visibleEndpoint.moduleName === currentVp.visibleEndpoint.moduleName
+                && parentEp.visibleEndpoint.orgName === currentVp.visibleEndpoint.orgName) {
+                // node.viewState.expandOffSet = this.offsetValue;
+                parentEp.isExpandedPoint = true;
+                parentEp.offsetValue = this.offsetValue;
+                this.allEndpoints.set(key, parentEp);
+            }
+        })
+    }
+
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
+        this.mapParentEndpointsWithCurrentEndpoints(node);
         blockViewState.connectors = this.allEndpoints;
         blockViewState.hasWorkerDecl = !!node.namedWorkerDeclarator;
         currentFnBody = undefined;
@@ -330,7 +355,9 @@ export class InitVisitor implements Visitor {
     }
 
     private initStatement(node: STNode, parent?: STNode) {
-        node.viewState = new StatementViewState();
+        if (!node.viewState) {
+            node.viewState = new StatementViewState();
+        }
         const stmtViewState: StatementViewState = node.viewState;
         // todo: In here we need to catch only the action invocations.
         if (isSTActionInvocation(node) && !haveBlockStatement(node)) {
