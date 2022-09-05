@@ -30,6 +30,8 @@ import { SelectClauseNodeNew } from "../Node/SelectClause";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
+import { getModification } from "./modifications";
+
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
 	let nextExp: FieldAccess = expr;
@@ -116,9 +118,12 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 			}
 
 			let targetMappingConstruct = mappingConstruct;
+			let targetPosition : NodePosition = mappingConstruct.openBrace.position;
+			let isSingleField = false;
 			let fromFieldIdx = -1;
 			if (parentFieldNames.length > 0) {
 				const fieldNames = parentFieldNames.reverse();
+				let isFieldNameAvailable = false;
 				for (let i = 0; i < fieldNames.length; i++) {
 					const fieldName = fieldNames[i];
 					const specificField = mappingConstruct.fields.find((val) =>
@@ -132,13 +137,34 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 							if (STKindChecker.isMappingConstructor(targetExpr)) {
 								mappingConstruct = targetExpr;
 							}
+						} else if (!specificField.valueExpr.source) {
+							isFieldNameAvailable = true;
+							source = createValueExpr(lhs, rhs, fieldNames, i);
+							targetPosition = {
+								startLine: specificField.colon.position.endLine,
+								startColumn: specificField.colon.position.endColumn,
+								...specificField.colon.position
+							};
+							break;
 						}
 						if (i === fieldNames.length - 1) {
 							targetMappingConstruct = mappingConstruct;
+							targetPosition = {
+								startLine: mappingConstruct.openBrace.position.endLine,
+								startColumn: mappingConstruct.openBrace.position.endColumn,
+								...mappingConstruct.openBrace.position
+							};
+							isSingleField = !!mappingConstruct.fields.length;
 						}
 					} else {
 						fromFieldIdx = i;
 						targetMappingConstruct = mappingConstruct;
+						targetPosition = {
+							startLine: mappingConstruct.openBrace.position.endLine,
+							startColumn: mappingConstruct.openBrace.position.endColumn,
+							...mappingConstruct.openBrace.position
+						};
+						isSingleField = !!mappingConstruct.fields.length;
 						break;
 					}
 				}
@@ -149,34 +175,111 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 						: `\t${lhs}: ${rhs}`;
 				}
 
-				if (fromFieldIdx >= 0 && fromFieldIdx <= fieldNames.length) {
-					const missingFields = fieldNames.slice(fromFieldIdx);
-					source = createSpecificField(missingFields);
+				if (!isFieldNameAvailable) {
+					if (fromFieldIdx >= 0 && fromFieldIdx <= fieldNames.length) {
+						const missingFields = fieldNames.slice(fromFieldIdx);
+						source = createSpecificField(missingFields);
+					} else {
+						const specificField = targetMappingConstruct.fields.find((val) =>
+							STKindChecker.isSpecificField(val)
+							&& val.fieldName.value === lhs
+							&& !val.valueExpr.source
+						) as SpecificField;
+						if (specificField) {
+							source = rhs;
+							targetPosition = {
+								startLine: specificField.colon.position.endLine,
+								startColumn: specificField.colon.position.endColumn,
+								...specificField.colon.position
+							};
+						} else {
+							source = `\n${lhs}: ${rhs}`;
+						}
+					}
+				}
+			} else {
+				const specificField = targetMappingConstruct.fields.find((val) =>
+					STKindChecker.isSpecificField(val)
+					&& val.fieldName.value === lhs
+					&& !val.valueExpr.source
+				) as SpecificField;
+				if (specificField) {
+					source = rhs;
+					targetPosition = {
+						startLine: specificField.colon.position.endLine,
+						startColumn: specificField.colon.position.endColumn,
+						...specificField.colon.position
+					};
 				} else {
 					source = `\n${lhs}: ${rhs}`;
 				}
-			} else {
-				source = `\n${lhs}: ${rhs}`;
 			}
 
-			const targetPos = targetMappingConstruct.openBrace.position as NodePosition;
-			if (targetMappingConstruct.fields.length > 0) {
-				source += ",";
-			}
-			modifications.push({
-				type: "INSERT",
-				config: {
-					"STATEMENT": source,
-				},
-				endColumn: targetPos.endColumn,
-				endLine: targetPos.endLine,
-				startColumn: targetPos.endColumn,
-				startLine: targetPos.endLine
-			});
+			modifications.push(getModification(isSingleField ? source + "," : source, {
+				endColumn: targetPosition.endColumn,
+				endLine: targetPosition.endLine,
+				startColumn: targetPosition.endColumn,
+				startLine: targetPosition.endLine
+			}));
 		}
 		targetNode.context.applyModifications(modifications);
 	}
 	return `${lhs} = ${rhs}`;
+}
+
+function createValueExpr(lhs: string, rhs: string, fieldNames: string[], fieldIndex: number) {
+	let source = "";
+
+	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
+		const missingFields = fieldNames.slice(fieldIndex);
+		source = createSpecificField(missingFields, true);
+	} else {
+		source = rhs;
+	}
+
+	function createSpecificField(missingFields: string[], isRoot?: boolean): string {
+		return missingFields.length > 0
+			? isRoot
+				? `{\n${createSpecificField(missingFields.slice(1))}}`
+				: `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
+			: isRoot
+				? rhs
+				: `\t${lhs}: ${rhs}`;
+	}
+
+	return source;
+}
+
+export async function addSpecificFieldValExpr(link: DataMapperLinkModel, field: EditableRecordField) {
+	const targetPos = field?.value.valueExpr.position;
+	const sourcePort = link.getSourcePort() as RecordFieldPortModel | SpecificFieldPortModel;
+
+	let rhs = sourcePort instanceof RecordFieldPortModel
+		? getBalRecFieldName(sourcePort.field instanceof EditableRecordField
+			? sourcePort.field.type.name
+			: sourcePort.field.name)
+		: sourcePort.field.fieldName.value;
+
+	if (sourcePort.parentFieldAccess) {
+		rhs = sourcePort.parentFieldAccess + "." + rhs;
+	}
+
+	if (link.getTargetPort()) {
+		const modifications = [{
+			type: "INSERT",
+			config: {
+				"STATEMENT": rhs,
+			},
+			endColumn: targetPos.endColumn,
+			endLine: targetPos.endLine,
+			startColumn: targetPos.endColumn,
+			startLine: targetPos.endLine
+		}];
+		const targetPort = link.getTargetPort() as RecordFieldPortModel | SpecificFieldPortModel;
+		const targetNode = targetPort.getNode() as DataMapperNodeModel;
+		targetNode.context.applyModifications(modifications);
+	}
+	return `${field.value.fieldName.source}: ${rhs}`;
 }
 
 export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
