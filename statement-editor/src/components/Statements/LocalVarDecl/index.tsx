@@ -71,6 +71,12 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             } else {
                 changeCurrentModel(model.initializer.expression);
             }
+        } else if (model.initializer && STKindChecker.isReceiveAction(model.initializer)) {
+            changeCurrentModel(model.initializer.receiveWorkers);
+        } else if (model.initializer && STKindChecker.isWaitAction(model.initializer)) {
+            changeCurrentModel(model.initializer.waitFutureExpr);
+        } else if (model.initializer && STKindChecker.isFlushAction(model.initializer)) {
+            changeCurrentModel(model.initializer.peerWorker);
         } else if (model.initializer) {
             changeCurrentModel(model.initializer);
         } else if (config.type === CUSTOM_CONFIG_TYPE) {
