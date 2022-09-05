@@ -16,7 +16,7 @@ import {
     AddInputTypeNode,
     AddOutputTypeNode,
     ExpressionFunctionBodyNode,
-    QueryExprAsSFVNode,
+    QueryExpressionNode,
     RequiredParamNode
 } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
@@ -121,7 +121,7 @@ export class NodeInitVisitor implements Visitor {
                 this.intermediateNodes.push(queryNode);
             }
         } else {
-            const queryNode = new QueryExprAsSFVNode(this.context, node, parent);
+            const queryNode = new QueryExpressionNode(this.context, node, parent);
             queryNode.setPosition(440, 1200);
             this.intermediateNodes.push(queryNode);
             this.isWithinQuery += 1;

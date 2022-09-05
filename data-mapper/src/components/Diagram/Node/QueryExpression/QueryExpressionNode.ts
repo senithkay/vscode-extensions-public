@@ -27,7 +27,7 @@ export const QUERY_SOURCE_PORT_PREFIX = "queryExpr.source";
 
 export const QUERY_TARGET_PORT_PREFIX = "queryExpr.target";
 
-export class QueryExprAsSFVNode extends DataMapperNodeModel {
+export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: Type;
     public sourcePort: RecordFieldPortModel;

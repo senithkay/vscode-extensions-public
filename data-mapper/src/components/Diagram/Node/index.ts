@@ -14,6 +14,6 @@
 export * from "./ExpressionFunctionBody";
 export * from "./RequiredParam";
 export * from "./BinaryExpression";
-export * from "./QueryExprAsSpecificFieldValue";
+export * from "./QueryExpression";
 export * from "./AddInputType";
 export * from "./AddOutputType";

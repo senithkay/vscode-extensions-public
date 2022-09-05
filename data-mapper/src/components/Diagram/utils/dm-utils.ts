@@ -22,7 +22,7 @@ import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
-import { ExpressionFunctionBodyNode, QueryExprAsSFVNode, RequiredParamNode } from "../Node";
+import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
@@ -107,7 +107,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 				&& STKindChecker.isMappingConstructor(targetNode.value.expression)
 			) {
 				mappingConstruct = targetNode.value.expression;
-			} else if (targetNode instanceof QueryExprAsSFVNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
+			} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
 				mappingConstruct = targetNode.value.selectClause.expression;
 			}
 

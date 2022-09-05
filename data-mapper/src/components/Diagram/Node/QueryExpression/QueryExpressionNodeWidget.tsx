@@ -22,10 +22,10 @@ import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from '../../Port';
 
 import {
-    QueryExprAsSFVNode,
+    QueryExpressionNode,
     QUERY_SOURCE_PORT_PREFIX,
     QUERY_TARGET_PORT_PREFIX
-} from './QueryExprAsSFVNode';
+} from './QueryExpressionNode';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -70,7 +70,7 @@ const styles = (theme: Theme) => createStyles({
 });
 
 export interface QueryExprAsSFVNodeWidgetProps extends WithStyles<typeof styles> {
-    node: QueryExprAsSFVNode;
+    node: QueryExpressionNode;
     engine: DiagramEngine;
 }
 
@@ -127,4 +127,4 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
     }
 }
 
-export const QueryExprAsSFVNodeWidget = withStyles(styles, {withTheme: true})(QueryExprAsSFVNodeWidgetC);
+export const QueryExpressionNodeWidget = withStyles(styles, {withTheme: true})(QueryExprAsSFVNodeWidgetC);

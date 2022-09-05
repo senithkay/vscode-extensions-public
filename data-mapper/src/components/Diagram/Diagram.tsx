@@ -29,7 +29,7 @@ import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { LinkConnectorNode } from './Node/LinkConnector';
-import { QueryExprAsSFVNode } from './Node/QueryExprAsSpecificFieldValue';
+import { QueryExpressionNode } from './Node/QueryExpression';
 import * as Ports from "./Port";
 
 interface DataMapperDiagramProps {
@@ -106,7 +106,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				dagreEngine.redistribute(model);
 				engine.repaintCanvas(true);
 				nodes.forEach((node) => {
-					if ( node instanceof LinkConnectorNode || node instanceof QueryExprAsSFVNode){
+					if ( node instanceof LinkConnectorNode || node instanceof QueryExpressionNode){
 						node.updatePosition()
 					}
 				});
