@@ -112,6 +112,7 @@ function DataMapperC(props: DataMapperProps) {
                 <CurrentFileContext.Provider value={currentFile}>
                     <DataMapperDiagram
                         nodes={nodes}
+                        hideCanvas={!fnST}
                     />
                     {!fnST && <DataMapperConfigPanel {...props}/>}
                 </CurrentFileContext.Provider>
