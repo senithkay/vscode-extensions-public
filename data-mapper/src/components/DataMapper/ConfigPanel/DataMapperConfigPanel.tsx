@@ -48,7 +48,9 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     fnName,
                     parametersStr,
                     returnTypeStr,
-                    targetPosition
+                    targetPosition,
+                    false,
+                    true
                 )
             );
         }
