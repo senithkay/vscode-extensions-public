@@ -22,7 +22,7 @@ import { ListConstructor, MappingConstructor, NodePosition, STKindChecker } from
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getNewSource } from "../../../utils/dm-utils";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
@@ -32,7 +32,7 @@ export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
     field: EditableRecordField;
     engine: DiagramEngine;
-    getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
+    getPort: (portId: string) => RecordFieldPortModel;
     mappingConstruct: MappingConstructor;
     context: IDataMapperContext;
     fieldIndex?: number;

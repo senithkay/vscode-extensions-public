@@ -26,8 +26,8 @@ import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } fr
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
-import { SelectClauseNodeNew } from "../Node/SelectClause";
-import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
+import { SelectClauseNode } from "../Node/SelectClause";
+import { RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
 import { getModification } from "./modifications";
@@ -68,11 +68,9 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	let rhs = "";
 	const modifications: STModification[] = [];
 	if (link.getSourcePort()) {
-		const sourcePort = link.getSourcePort() as RecordFieldPortModel | SpecificFieldPortModel;
+		const sourcePort = link.getSourcePort() as RecordFieldPortModel;
 
-		rhs = sourcePort instanceof RecordFieldPortModel
-			? getBalRecFieldName(sourcePort.field.name)
-			: sourcePort.field.fieldName.value;
+		rhs = getBalRecFieldName(sourcePort.field.name);
 
 		if (sourcePort.parentFieldAccess) {
 			rhs = sourcePort.parentFieldAccess + "." + rhs;
@@ -80,30 +78,17 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	}
 
 	if (link.getTargetPort()) {
-		const targetPort = link.getTargetPort() as RecordFieldPortModel | SpecificFieldPortModel;
+		const targetPort = link.getTargetPort() as RecordFieldPortModel;
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
 		const fieldIndexes = targetPort instanceof RecordFieldPortModel && getFieldIndexes(targetPort);
 
-		if (targetPort instanceof SpecificFieldPortModel && STKindChecker.isSpecificField(targetPort.field)) {
-			// Inserting just the valueExpr (RHS) to already available specific field in a mapping constructor
-			const targetPos = targetPort.field.valueExpr.position as NodePosition;
-			modifications.push({
-				type: "INSERT",
-				config: {
-					"STATEMENT": rhs,
-				},
-				endColumn: targetPos.endColumn,
-				endLine: targetPos.endLine,
-				startColumn: targetPos.startColumn,
-				startLine: targetPos.startLine
-			});
-		} else if (targetPort instanceof RecordFieldPortModel) {
+		if (targetPort instanceof RecordFieldPortModel) {
 			// Inserting a new specific field
 			let mappingConstruct;
 			const parentFieldNames: string[] = [];
 
 			lhs = getBalRecFieldName(targetPort.field.name);
-			if ((targetNode instanceof ExpressionFunctionBodyNode || targetNode instanceof SelectClauseNodeNew)
+			if ((targetNode instanceof ExpressionFunctionBodyNode || targetNode instanceof SelectClauseNode)
 				&& STKindChecker.isMappingConstructor(targetNode.value.expression)
 			) {
 				mappingConstruct = targetNode.value.expression;
@@ -250,49 +235,13 @@ function createValueExpr(lhs: string, rhs: string, fieldNames: string[], fieldIn
 	return source;
 }
 
-export async function addSpecificFieldValExpr(link: DataMapperLinkModel, field: EditableRecordField) {
-	const targetPos = field?.value.valueExpr.position;
-	const sourcePort = link.getSourcePort() as RecordFieldPortModel | SpecificFieldPortModel;
-
-	let rhs = sourcePort instanceof RecordFieldPortModel
-		? getBalRecFieldName(sourcePort.field instanceof EditableRecordField
-			? sourcePort.field.type.name
-			: sourcePort.field.name)
-		: sourcePort.field.fieldName.value;
-
-	if (sourcePort.parentFieldAccess) {
-		rhs = sourcePort.parentFieldAccess + "." + rhs;
-	}
-
-	if (link.getTargetPort()) {
-		const modifications = [{
-			type: "INSERT",
-			config: {
-				"STATEMENT": rhs,
-			},
-			endColumn: targetPos.endColumn,
-			endLine: targetPos.endLine,
-			startColumn: targetPos.endColumn,
-			startLine: targetPos.endLine
-		}];
-		const targetPort = link.getTargetPort() as RecordFieldPortModel | SpecificFieldPortModel;
-		const targetNode = targetPort.getNode() as DataMapperNodeModel;
-		targetNode.context.applyModifications(modifications);
-	}
-	return `${field.value.fieldName.source}: ${rhs}`;
-}
-
 export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 	let rhs = "";
 	const modifications: STModification[] = [];
 	if (link.getSourcePort()) {
-		const sourcePort = link.getSourcePort() instanceof RecordFieldPortModel
-			? link.getSourcePort() as RecordFieldPortModel
-			: link.getSourcePort() as SpecificFieldPortModel;
+		const sourcePort = link.getSourcePort() as RecordFieldPortModel;
 
-		rhs = sourcePort instanceof RecordFieldPortModel
-			? sourcePort.field.name
-			: sourcePort.field.fieldName.value;
+		rhs = getBalRecFieldName(sourcePort.field.name);
 
 		if (sourcePort.parentFieldAccess) {
 			rhs = sourcePort.parentFieldAccess + "." + rhs;

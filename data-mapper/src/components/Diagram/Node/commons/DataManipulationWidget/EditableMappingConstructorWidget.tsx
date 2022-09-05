@@ -19,7 +19,7 @@ import { MappingConstructor } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { RecordFieldPortModel, SpecificFieldPortModel } from '../../../Port';
+import { RecordFieldPortModel } from '../../../Port';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 
@@ -41,7 +41,7 @@ export interface EditableMappingConstructorWidgetProps {
 	editableRecordFields: EditableRecordField[];
 	value: MappingConstructor;
 	engine: DiagramEngine;
-	getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
+	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
 }
 

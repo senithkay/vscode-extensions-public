@@ -8,18 +8,16 @@ import {
 import md5 from "blueimp-md5";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { IntermediatePortModel, RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
+import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
-import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
 import { RequiredParamNode } from "../RequiredParam";
 import { EXPANDED_QUERY_TARGET_PORT_PREFIX } from "../SelectClause";
-import { SelectClauseNodeNew } from "../SelectClause/SelectClauseNodeNew";
+import { SelectClauseNode } from "../SelectClause/SelectClauseNode";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -31,7 +29,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: Type;
     public sourcePort: RecordFieldPortModel;
-    public targetPort: RecordFieldPortModel | SpecificFieldPortModel;
+    public targetPort: RecordFieldPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
@@ -61,29 +59,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             , "OUT"
         );
         this.addPort(this.outPort);
-        this.initSourcePorts();
-        this.initTargetPorts();
-    }
-
-    private initSourcePorts() {
-        // TODO - only supporting single capture binding pattern in from clause yet
-        if (this.sourceBindingPattern) {
-            const parentId = `${QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
-            this.sourceTypeDesc.fields.forEach((field) => {
-                this.addPortsForInputRecordField(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
-            });
-        }
-    }
-
-    private initTargetPorts() {
-        const selectClause = this.value.selectClause;
-        if (STKindChecker.isMappingConstructor(selectClause.expression)) {
-            selectClause.expression.fields.forEach((field) => {
-                if (STKindChecker.isSpecificField(field)) {
-                    this.addPortsForSpecificField(field, "IN", QUERY_TARGET_PORT_PREFIX);
-                }
-            });
-        }
     }
 
     private async getSourceType() {
@@ -129,72 +104,20 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];
-                        if (port instanceof SpecificFieldPortModel) {
-                            if (STKindChecker.isRecordField(port.field)) {
-                                if (port.field.fieldName.value === "Assets") {
-                                    this.targetPort = port;
-                                }
-                            }
-                        } else if (port instanceof RecordFieldPortModel && port.field.name === 'Assets') {
+                        if (port instanceof RecordFieldPortModel && port.field.name === 'Assets') {
                             this.targetPort = port;
                         }
                     });
-                } else if (node instanceof SelectClauseNodeNew) {
+                } else if (node instanceof SelectClauseNode) {
                     const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
                     this.targetPort = node.getPort(
-                        `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as SpecificFieldPortModel;
+                        `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as RecordFieldPortModel;
                 }
         });
     }
 
     initLinks(): void {
-        this.initQueryLinks();
-        if (STKindChecker.isMappingConstructor(this.value.selectClause.expression)) {
-            const mappings = this.genMappings(this.value.selectClause.expression);
-            mappings.forEach((mapping) => {
-                const { fields, value, otherVal } = mapping;
-                const targetPortId = `${QUERY_TARGET_PORT_PREFIX}${fields.reduce((pV, cV) => `${pV}.${cV.fieldName.value}`, "")}.IN`;
-                if (value && STKindChecker.isFieldAccess(value)) {
-                    const fieldNames = getFieldNames(value);
-                    const sourcePortId = `${QUERY_SOURCE_PORT_PREFIX}${fieldNames.reduce((pV, cV) => `${pV}.${cV}`, "")}.OUT`;
-                    const targetPort = this.getPort(targetPortId);
-                    const sourcePort = this.getPort(sourcePortId);
-
-                    const link = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
-                    link.setSourcePort(sourcePort);
-                    link.setTargetPort(targetPort);
-                    link.addLabel(new ExpressionLabelModel({
-                        value: otherVal?.source || value.source,
-                        valueNode: otherVal || value,
-                        context: this.context,
-                        link,
-                        specificField: fields[fields.length - 1]
-                    }));
-                    link.registerListener({
-                        selectionChanged(event) {
-                            if (event.isSelected) {
-                                sourcePort.fireEvent({}, "link-selected");
-                                targetPort.fireEvent({}, "link-selected");
-                            } else {
-                                sourcePort.fireEvent({}, "link-unselected");
-                                targetPort.fireEvent({}, "link-unselected");
-                            }
-                        },
-                    })
-                    this.getModel().addAll(link);
-                } else {
-                    // handle simple name ref case for direct variable mapping
-                }
-            });
-        } else {
-            // TODO: handle returning singlular values from select
-        }
-    }
-
-    private initQueryLinks() {
-        // Currently we create links from "IN" ports and back tracing the inputs.
-
-
+        // Currently, we create links from "IN" ports and back tracing the inputs.
         if (this.sourcePort && this.inPort) {
             const link = new DataMapperLinkModel(undefined);
             link.setSourcePort(this.sourcePort);

@@ -19,7 +19,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import ExpandIcon from "../../../../assets/icons/ExpandIcon";
 import { ViewOption } from "../../../DataMapper/DataMapper";
-import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from '../../Port';
+import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 
 import {
     QueryExpressionNode,
@@ -81,11 +81,11 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
         const engine = this.props.engine;
 
         const getSourcePort = (portId: string) => {
-            return node.getPort(portId) as SpecificFieldPortModel | RecordFieldPortModel;
+            return node.getPort(portId) as RecordFieldPortModel;
         }
 
         const getTargetPort = (portId: string) => {
-            return node.getPort(portId) as SpecificFieldPortModel | RecordFieldPortModel;
+            return node.getPort(portId) as RecordFieldPortModel;
         }
 
         const onClickOnExpand = () => {

@@ -22,7 +22,7 @@ import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
@@ -32,7 +32,7 @@ export interface EditableRecordFieldWidgetProps {
     parentId: string;
     field: EditableRecordField;
     engine: DiagramEngine;
-    getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
+    getPort: (portId: string) => RecordFieldPortModel;
     mappingConstruct: MappingConstructor;
     context: IDataMapperContext;
     fieldIndex?: number;

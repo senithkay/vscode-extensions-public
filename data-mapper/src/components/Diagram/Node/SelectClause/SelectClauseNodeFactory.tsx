@@ -23,16 +23,16 @@ import { RecordFieldPortModel } from "../../Port";
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
-import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNodeNew, SELECT_CLAUSE_NODE_TYPE } from './SelectClauseNodeNew';
+import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode, SELECT_CLAUSE_NODE_TYPE } from './SelectClauseNode';
 
 @injectable()
 @singleton()
-export class SelectClauseFactory extends AbstractReactFactory<SelectClauseNodeNew, DiagramEngine> implements IDataMapperNodeFactory {
+export class SelectClauseFactory extends AbstractReactFactory<SelectClauseNode, DiagramEngine> implements IDataMapperNodeFactory {
     constructor() {
         super(SELECT_CLAUSE_NODE_TYPE);
     }
 
-    generateReactWidget(event: { model: SelectClauseNodeNew; }): JSX.Element {
+    generateReactWidget(event: { model: SelectClauseNode; }): JSX.Element {
         return (
             <EditableMappingConstructorWidget
                 engine={this.engine}

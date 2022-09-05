@@ -4,20 +4,20 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
-import { IntermediatePortModel, RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
+import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import { getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { EXPANDED_QUERY_TARGET_PORT_PREFIX } from "../SelectClause";
-import { SelectClauseNodeNew } from "../SelectClause/SelectClauseNodeNew";
+import { SelectClauseNode } from "../SelectClause/SelectClauseNode";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 
 export class LinkConnectorNode extends DataMapperNodeModel {
 
     public sourcePorts: RecordFieldPortModel[] = [];
-    public targetPort: RecordFieldPortModel | SpecificFieldPortModel;
+    public targetPort: RecordFieldPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
@@ -70,12 +70,12 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             })
             targetPortName = targetPortName +".IN"
             this.getModel().getNodes().map((node) => {
-                    if (node instanceof ExpressionFunctionBodyNode || node instanceof SelectClauseNodeNew) {
+                    if (node instanceof ExpressionFunctionBodyNode || node instanceof SelectClauseNode) {
                         const ports = Object.entries(node.getPorts());
                         ports.forEach((entry) => {
                             const portName = entry[0];
                             if (portName === targetPortName) {
-                                if (entry[1] instanceof RecordFieldPortModel || entry[1] instanceof SpecificFieldPortModel)
+                                if (entry[1] instanceof RecordFieldPortModel)
                                     this.targetPort = entry[1]
                              }
                         });

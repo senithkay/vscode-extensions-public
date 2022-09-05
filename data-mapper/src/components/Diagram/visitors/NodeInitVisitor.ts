@@ -23,7 +23,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
-import { SelectClauseNodeNew } from "../Node/SelectClause/SelectClauseNodeNew";
+import { SelectClauseNode } from "../Node/SelectClause/SelectClauseNode";
 
 import { FieldAccessFindingVisitor } from "./FieldAccessFindingVisitor";
 
@@ -100,7 +100,7 @@ export class NodeInitVisitor implements Visitor {
         {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
                 // create output node
-                this.outputNode = new SelectClauseNodeNew(
+                this.outputNode = new SelectClauseNode(
                     this.context,
                     node.selectClause,
                     parent.fieldName
