@@ -1,3 +1,4 @@
+import { PortModel } from "@projectstorm/react-diagrams";
 import {
 	keywords,
 	STModification,
@@ -67,185 +68,115 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	let lhs = "";
 	let rhs = "";
 	const modifications: STModification[] = [];
-	if (link.getSourcePort()) {
-		const sourcePort = link.getSourcePort() as RecordFieldPortModel;
 
-		rhs = getBalRecFieldName(sourcePort.field.name);
-
-		if (sourcePort.parentFieldAccess) {
-			rhs = sourcePort.parentFieldAccess + "." + rhs;
-		}
+	if (!link.getSourcePort() || !link.getTargetPort()) {
+		return;
 	}
 
-	if (link.getTargetPort()) {
-		const targetPort = link.getTargetPort() as RecordFieldPortModel;
-		const targetNode = targetPort.getNode() as DataMapperNodeModel;
-		const fieldIndexes = targetPort instanceof RecordFieldPortModel && getFieldIndexes(targetPort);
+	const targetPort = link.getTargetPort() as RecordFieldPortModel;
+	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
+	rhs = getRHSFromSourcePort(link.getSourcePort());
+	lhs = getBalRecFieldName(targetPort.field.name);
 
-		if (targetPort instanceof RecordFieldPortModel) {
-			// Inserting a new specific field
-			let mappingConstruct;
-			const parentFieldNames: string[] = [];
+	// Inserting a new specific field
+	let mappingConstruct;
+	const parentFieldNames: string[] = [];
+	let parent = targetPort.parentModel;
+	let fromFieldIdx = -1;
 
-			lhs = getBalRecFieldName(targetPort.field.name);
-			if ((targetNode instanceof ExpressionFunctionBodyNode || targetNode instanceof SelectClauseNode)
-				&& STKindChecker.isMappingConstructor(targetNode.value.expression)
-			) {
-				mappingConstruct = targetNode.value.expression;
-			} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
-				mappingConstruct = targetNode.value.selectClause.expression;
-			}
+	while (parent != null) {
+		parentFieldNames.push(parent.field.name);
+		parent = parent.parentModel;
+	}
 
-			let parent = targetPort.parentModel;
-			while (parent != null) {
-				parentFieldNames.push(parent.field.name);
-				parent = parent.parentModel;
-			}
+	const targetNode = targetPort.getNode() as DataMapperNodeModel;
+	if ((targetNode instanceof ExpressionFunctionBodyNode || targetNode instanceof SelectClauseNode)
+		&& STKindChecker.isMappingConstructor(targetNode.value.expression)
+	) {
+		mappingConstruct = targetNode.value.expression;
+	} else {
+		return;
+	}
 
-			let targetMappingConstruct = mappingConstruct;
-			let targetPosition : NodePosition = mappingConstruct.openBrace.position;
-			let isSingleField = false;
-			let fromFieldIdx = -1;
-			if (parentFieldNames.length > 0) {
-				const fieldNames = parentFieldNames.reverse();
-				let isFieldNameAvailable = false;
-				for (let i = 0; i < fieldNames.length; i++) {
-					const fieldName = fieldNames[i];
-					const specificField = mappingConstruct.fields.find((val) =>
-						STKindChecker.isSpecificField(val) && val.fieldName.value === fieldName) as SpecificField;
-					if (specificField && specificField.valueExpr) {
-						if (STKindChecker.isMappingConstructor(specificField.valueExpr)) {
-							mappingConstruct = specificField.valueExpr;
-						} else if (STKindChecker.isListConstructor(specificField.valueExpr)
-							&& fieldIndexes !== undefined && !!fieldIndexes.length) {
-							const targetExpr = specificField.valueExpr.expressions[fieldIndexes.pop() * 2];
-							if (STKindChecker.isMappingConstructor(targetExpr)) {
-								mappingConstruct = targetExpr;
-							}
-						} else if (!specificField.valueExpr.source) {
-							isFieldNameAvailable = true;
-							source = createValueExpr(lhs, rhs, fieldNames, i);
-							targetPosition = {
-								startLine: specificField.colon.position.endLine,
-								startColumn: specificField.colon.position.endColumn,
-								...specificField.colon.position
-							};
-							break;
-						}
-						if (i === fieldNames.length - 1) {
-							targetMappingConstruct = mappingConstruct;
-							targetPosition = {
-								startLine: mappingConstruct.openBrace.position.endLine,
-								startColumn: mappingConstruct.openBrace.position.endColumn,
-								...mappingConstruct.openBrace.position
-							};
-							isSingleField = !!mappingConstruct.fields.length;
-						}
-					} else {
-						fromFieldIdx = i;
-						targetMappingConstruct = mappingConstruct;
-						targetPosition = {
-							startLine: mappingConstruct.openBrace.position.endLine,
-							startColumn: mappingConstruct.openBrace.position.endColumn,
-							...mappingConstruct.openBrace.position
-						};
-						isSingleField = !!mappingConstruct.fields.length;
-						break;
+	let targetMappingConstruct = mappingConstruct;
+
+	if (parentFieldNames.length > 0) {
+		const fieldNames = parentFieldNames.reverse();
+
+		for (let i = 0; i < fieldNames.length; i++) {
+			const fieldName = fieldNames[i];
+			const specificField = getSpecificField(mappingConstruct, fieldName);
+
+			if (specificField && specificField.valueExpr) {
+				const valueExpr = specificField.valueExpr;
+
+				if (!valueExpr.source) {
+					return createValueExprSource(lhs, rhs, fieldNames, i, specificField.colon.position, targetNode);
+				}
+
+				if (STKindChecker.isMappingConstructor(valueExpr)) {
+					mappingConstruct = valueExpr;
+				} else if (STKindChecker.isListConstructor(valueExpr)
+					&& fieldIndexes !== undefined && !!fieldIndexes.length)
+				{
+					const targetExpr = valueExpr.expressions[fieldIndexes.pop() * 2];
+					if (STKindChecker.isMappingConstructor(targetExpr)) {
+						mappingConstruct = targetExpr;
 					}
 				}
 
-				function createSpecificField(missingFields: string[]): string {
-					return missingFields.length > 0
-						? `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
-						: `\t${lhs}: ${rhs}`;
-				}
-
-				if (!isFieldNameAvailable) {
-					if (fromFieldIdx >= 0 && fromFieldIdx <= fieldNames.length) {
-						const missingFields = fieldNames.slice(fromFieldIdx);
-						source = createSpecificField(missingFields);
-					} else {
-						const specificField = targetMappingConstruct.fields.find((val) =>
-							STKindChecker.isSpecificField(val)
-							&& val.fieldName.value === lhs
-							&& !val.valueExpr.source
-						) as SpecificField;
-						if (specificField) {
-							source = rhs;
-							targetPosition = {
-								startLine: specificField.colon.position.endLine,
-								startColumn: specificField.colon.position.endColumn,
-								...specificField.colon.position
-							};
-						} else {
-							source = `\n${lhs}: ${rhs}`;
-						}
-					}
+				if (i === fieldNames.length - 1) {
+					targetMappingConstruct = mappingConstruct;
 				}
 			} else {
-				const specificField = targetMappingConstruct.fields.find((val) =>
-					STKindChecker.isSpecificField(val)
-					&& val.fieldName.value === lhs
-					&& !val.valueExpr.source
-				) as SpecificField;
-				if (specificField) {
-					source = rhs;
-					targetPosition = {
-						startLine: specificField.colon.position.endLine,
-						startColumn: specificField.colon.position.endColumn,
-						...specificField.colon.position
-					};
-				} else {
-					source = `\n${lhs}: ${rhs}`;
-				}
+				fromFieldIdx = i;
+				targetMappingConstruct = mappingConstruct;
+				break;
 			}
-
-			modifications.push(getModification(isSingleField ? source + "," : source, {
-				endColumn: targetPosition.endColumn,
-				endLine: targetPosition.endLine,
-				startColumn: targetPosition.endColumn,
-				startLine: targetPosition.endLine
-			}));
 		}
-		targetNode.context.applyModifications(modifications);
-	}
-	return `${lhs} = ${rhs}`;
-}
 
-function createValueExpr(lhs: string, rhs: string, fieldNames: string[], fieldIndex: number) {
-	let source = "";
-
-	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
-		const missingFields = fieldNames.slice(fieldIndex);
-		source = createSpecificField(missingFields, true);
+		if (fromFieldIdx >= 0 && fromFieldIdx <= fieldNames.length) {
+			const missingFields = fieldNames.slice(fromFieldIdx);
+			source = createSpecificField(missingFields);
+		} else {
+			const specificField = getSpecificField(targetMappingConstruct, lhs);
+			if (specificField && !specificField.valueExpr.source) {
+				return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position, targetNode);
+			}
+			source = `\n${lhs}: ${rhs}`;
+		}
 	} else {
-		source = rhs;
+		const specificField = getSpecificField(targetMappingConstruct, lhs);
+		if (specificField && !specificField.valueExpr.source) {
+			return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position, targetNode);
+		}
+		source = `\n${lhs}: ${rhs}`;
 	}
 
-	function createSpecificField(missingFields: string[], isRoot?: boolean): string {
+	const targetPosition = targetMappingConstruct.openBrace.position;
+	source = !!targetMappingConstruct.fields.length ? source + "," : source;
+
+	modifications.push(getModification(source, {
+		...targetPosition,
+		startColumn: targetPosition.endColumn,
+		startLine: targetPosition.endLine
+	}));
+	targetNode.context.applyModifications(modifications);
+
+	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 0
-			? isRoot
-				? `{\n${createSpecificField(missingFields.slice(1))}}`
-				: `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
-			: isRoot
-				? rhs
-				: `\t${lhs}: ${rhs}`;
+			? `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
+			: `\t${lhs}: ${rhs}`;
 	}
 
-	return source;
+	return `${lhs} = ${rhs}`;
 }
 
 export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 	let rhs = "";
 	const modifications: STModification[] = [];
 	if (link.getSourcePort()) {
-		const sourcePort = link.getSourcePort() as RecordFieldPortModel;
-
-		rhs = getBalRecFieldName(sourcePort.field.name);
-
-		if (sourcePort.parentFieldAccess) {
-			rhs = sourcePort.parentFieldAccess + "." + rhs;
-		}
+		rhs = getRHSFromSourcePort(link.getSourcePort());
 	}
 
 	if (link.getTargetPort()){
@@ -522,4 +453,52 @@ export function isConnectedViaLink(field: SpecificField) {
 	const isListConstruct = STKindChecker.isListConstructor(field.valueExpr);
 
 	return !!fieldAccessNodes.length && !isMappingConstruct && !isListConstruct;
+}
+
+
+function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
+							                        fieldIndex: number,
+							                        targetPosition: NodePosition,
+							                        targetNode: ExpressionFunctionBodyNode | SelectClauseNode) {
+	let source = "";
+
+	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
+		const missingFields = fieldNames.slice(fieldIndex);
+		source = createValueExpr(missingFields, true);
+	} else {
+		source = rhs;
+	}
+
+	targetNode.context.applyModifications([getModification(source, {
+		...targetPosition,
+		startLine: targetPosition.endLine,
+		startColumn: targetPosition.endColumn
+	})]);
+
+	function createValueExpr(missingFields: string[], isRoot?: boolean): string {
+		return !!missingFields.length
+			? isRoot
+				? `{\n${createValueExpr(missingFields.slice(1))}}`
+				: `\t${missingFields[0]}: {\n${createValueExpr(missingFields.slice(1))}}`
+			: isRoot
+				? rhs
+				: `\t${lhs}: ${rhs}`;
+	}
+
+	return `${rhs}: ${lhs}`;
+}
+
+function getRHSFromSourcePort(port: PortModel) {
+	const sourcePort = port as RecordFieldPortModel;
+	let rhs = getBalRecFieldName(sourcePort.field.name);
+	if (sourcePort.parentFieldAccess) {
+		rhs = sourcePort.parentFieldAccess + "." + rhs;
+	}
+	return rhs;
+}
+
+function getSpecificField(mappingConstruct: MappingConstructor, targetFieldName: string) {
+	return mappingConstruct.fields.find((val) =>
+		STKindChecker.isSpecificField(val) && val.fieldName.value === targetFieldName
+	) as SpecificField;
 }
