@@ -15,6 +15,7 @@ import React, { useContext } from 'react';
 
 import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import LibraryModuleIcon from "../../../assets/icons/LibraryModuleIcon";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -58,9 +59,11 @@ export function Library(props: LibraryProps) {
             <ListItemIcon style={{ minWidth: 'fit-content', textAlign: 'left', marginRight: '6.25px'}}>
                 <LibraryModuleIcon/>
             </ListItemIcon>
+            <StatementEditorHint content={id}>
             <ListItemText
                 primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{id}</Typography>}
             />
+            </StatementEditorHint>
         </ListItem>
     );
 }
