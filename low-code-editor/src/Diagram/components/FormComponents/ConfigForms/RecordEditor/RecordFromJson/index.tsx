@@ -39,7 +39,7 @@ interface RecordState {
     importedRecord?: TypeDefinition;
     modifiedPosition?: NodePosition;
     isSeparateDef?: boolean;
-    isValidRecord?: boolean;
+    jsonDiagnostics?: string;
 }
 
 interface RecordFromJsonProps {
@@ -52,10 +52,10 @@ const reducer = (state: RecordState, action: {type: string, payload: any }) => {
     switch (action.type) {
         case 'jsonConversionStart':
             return {...state, isLoading: action.payload};
-        case 'setJsonValidity':
-            return {...state, isValidRecord: action.payload};
+        case 'setJsonDiagnostics':
+            return {...state, jsonDiagnostics: action.payload, isLoading: false};
         case 'setJsonValue':
-            return {...state, jsonValue: action.payload};
+            return {...state, jsonValue: action.payload, jsonDiagnostics: ""};
         case 'recordNameChange':
             return {...state, recordName: action.payload.recordName, recordNameDiag: action.payload.recordNameDiag};
         case 'setRecordNameDiag':
@@ -63,9 +63,7 @@ const reducer = (state: RecordState, action: {type: string, payload: any }) => {
         case 'checkSeparateDef':
             return {...state, isSeparateDef: action.payload};
         case 'jsonConversionSuccess':
-            return {...state, importedRecord: action.payload.importedRecord, modifiedPosition: action.payload.modifiedPosition, jsonValue: "", isLoading: false, isValidRecord: true};
-        case 'jsonConversionFailure':
-            return {jsonValue: "", isLoading: false, isValidRecord: false};
+            return {...state, importedRecord: action.payload.importedRecord, modifiedPosition: action.payload.modifiedPosition, jsonValue: "", isLoading: false, jsonDiagnostics: ""};
         default:
             break;
     }
@@ -85,10 +83,10 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         recordName: "",
         jsonValue: "",
         isLoading: false,
-        isValidRecord: true,
+        jsonDiagnostics: "",
         isSeparateDef: false,
         recordNameDiag: "",
-        importedRecord: undefined
+        importedRecord: undefined,
     });
 
     const convertToJSon = () => {
@@ -97,12 +95,6 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
 
     const onJsonChange = (jsonText: string) => {
         dispatchFromState({type: 'setJsonValue', payload: jsonText});
-        try {
-            JSON.parse(jsonText);
-            dispatchFromState({type: 'setJsonValidity', payload: (JSON.stringify(jsonText) !== `"{}"`)});
-        } catch (e) {
-            dispatchFromState({type: 'setJsonValidity', payload: false});
-        }
     };
 
     const onNameChange = async (name: string) => {
@@ -132,40 +124,44 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                     false, langServerURL, formState.isSeparateDef, ls);
                 let recordST: STNode;
                 let newPosition: NodePosition;
-                if (formState.isSeparateDef) {
-                    // Uses module part since we receive multiple records
-                    const modulePart = await getModulePartST({ codeSnippet: recordResponse.trim()},
-                        langServerURL, ls);
-                    if (STKindChecker.isModulePart(modulePart)) {
-                        recordST = getRootRecord(modulePart, formState.recordName);
+                if (recordResponse?.diagnostics?.length === 0) {
+                    if (formState.isSeparateDef) {
+                        // Uses module part since we receive multiple records
+                        const modulePart = await getModulePartST({
+                            codeSnippet: recordResponse.codeBlock.trim()
+                        }, langServerURL, ls);
+                        if (STKindChecker.isModulePart(modulePart)) {
+                            recordST = getRootRecord(modulePart, formState.recordName);
+                            newPosition = {
+                                startLine: targetPosition.startLine + recordST.position.startLine,
+                                startColumn: targetPosition.startColumn,
+                                endLine: targetPosition.startLine + recordST.position.endLine,
+                                endColumn: recordST.position.endColumn,
+                            }
+                        }
+                    } else {
+                        recordST = await getRecordST({ codeSnippet: recordResponse.codeBlock.trim()},
+                            langServerURL, ls);
                         newPosition = {
-                            startLine: targetPosition.startLine + recordST.position.startLine,
+                            startLine: targetPosition.startLine,
                             startColumn: targetPosition.startColumn,
                             endLine: targetPosition.startLine + recordST.position.endLine,
                             endColumn: recordST.position.endColumn,
                         }
                     }
+                    dispatchFromState({type: 'jsonConversionSuccess', payload: {
+                        importedRecord: recordST, modifiedPosition: newPosition
+                    }});
+                    onSave(recordResponse.codeBlock, newPosition);
                 } else {
-                    recordST = await getRecordST({ codeSnippet: recordResponse.trim()},
-                        langServerURL, ls);
-                    newPosition = {
-                        startLine: targetPosition.startLine,
-                        startColumn: targetPosition.startColumn,
-                        endLine: targetPosition.startLine + recordST.position.endLine,
-                        endColumn: recordST.position.endColumn,
-                    }
+                    dispatchFromState({type: 'setJsonDiagnostics', payload: recordResponse?.diagnostics[0].message});
                 }
-                dispatchFromState({type: 'jsonConversionSuccess', payload: {importedRecord: recordST,
-                                                                            modifiedPosition: newPosition}});
-                onSave(recordResponse, newPosition);
             })();
         }
     }, [formState.isLoading]);
 
-    const isSaveButtonEnabled = !isMutationProgress && formState.isValidRecord && (formState.jsonValue !== "") &&
-        !formState.recordNameDiag && formState.recordName;
-
-    const jsonError = "Please enter a valid JSON";
+    const isSaveButtonEnabled = !isMutationProgress && formState.jsonDiagnostics === ""
+        && (formState.jsonValue !== "") && !formState.recordNameDiag && formState.recordName;
 
     return (
         <>
@@ -208,8 +204,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
                             onChange={onJsonChange}
                             customProps={{
-                                isInvalid: !formState.isValidRecord,
-                                text: jsonError
+                                isInvalid: formState.jsonDiagnostics !== "",
+                                text: formState.jsonDiagnostics
                             }}
                             defaultValue={formState.jsonValue}
                         />

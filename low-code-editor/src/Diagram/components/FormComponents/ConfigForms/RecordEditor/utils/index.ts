@@ -25,7 +25,8 @@ import { isLiteral } from "../../../../../utils";
 import { Field, RecordModel, SimpleField } from "../types";
 
 export async function convertToRecord(json: string, name: string, isClosed: boolean,
-                                      lsUrl: string, isSeparateDefinitions: boolean, ls?: any): Promise<string> {
+                                      lsUrl: string, isSeparateDefinitions: boolean,
+                                      ls?: any): Promise<JsonToRecordResponse> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient();
     const resp: JsonToRecordResponse = await langClient.convert(
         {
@@ -34,8 +35,8 @@ export async function convertToRecord(json: string, name: string, isClosed: bool
             isClosed,
             isRecordTypeDesc: !isSeparateDefinitions,
         }
-    )
-    return resp.codeBlock;
+    );
+    return resp;
 }
 
 export async function getRecordST(partialSTRequest: PartialSTRequest,
