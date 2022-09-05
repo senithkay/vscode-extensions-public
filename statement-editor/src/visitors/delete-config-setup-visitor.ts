@@ -19,6 +19,7 @@ import {
     LetVarDecl,
     LimitClause,
     ListConstructor,
+    LocalVarDecl,
     MappingConstructor,
     MethodCall,
     OrderKey,
@@ -58,11 +59,9 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         (node.bindingPattern.viewState as StatementEditorViewState).exprNotDeletable = true;
+        (node.typeDescriptor.viewState as StatementEditorViewState).templateExprDeletable = false;
         if (STKindChecker.isFromClause(node.parent)) {
             (node.bindingPattern.viewState as StatementEditorViewState).templateExprDeletable = false;
-            (node.typeDescriptor.viewState as StatementEditorViewState).templateExprDeletable = false;
-        } else {
-            (node.typeDescriptor.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }
 
@@ -74,6 +73,12 @@ class DeleteConfigSetupVisitor implements Visitor {
     public beginVisitReturnStatement(node: ReturnStatement) {
         if (node.expression) {
             (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
+        }
+    }
+
+    public beginVisitLocalVarDecl(node: LocalVarDecl, parent?: STNode) {
+        if (node.initializer){
+            (node.initializer.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }
 

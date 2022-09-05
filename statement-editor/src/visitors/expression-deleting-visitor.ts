@@ -230,9 +230,17 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
-        if (!this.isNodeFound){
+        if (!this.isNodeFound) {
             if (node.finalKeyword && isPositionsEquals(this.deletePosition, node.finalKeyword.position)) {
                 this.setProperties("", node.finalKeyword.position);
+            } else if (node.initializer && isPositionsEquals(this.deletePosition, node.initializer.position) &&
+                node.initializer.source.trim() === DEFAULT_EXPR) {
+                this.setProperties("", {
+                    startLine: node.equalsToken.position.startLine,
+                    startColumn: node.equalsToken.position.startColumn,
+                    endLine: node.initializer.position.endLine,
+                    endColumn: node.initializer.position.endColumn
+                })
             }
         }
     }
