@@ -8,9 +8,7 @@ import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import { getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
-import { EXPANDED_QUERY_TARGET_PORT_PREFIX } from "../SelectClause";
-import { SelectClauseNode } from "../SelectClause/SelectClauseNode";
+import { MappingConstructorNode, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX} from "../MappingConstructor";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 
@@ -63,14 +61,14 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         if (this.outPort) {
             let targetPortName = "exprFunctionBody"
             if (STKindChecker.isQueryExpression(this.context.selection.selectedST)){
-                targetPortName = EXPANDED_QUERY_TARGET_PORT_PREFIX
+                targetPortName = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
             }
-            this.specificFields.forEach((specificField) =>{
-                targetPortName = targetPortName +"."+specificField.fieldName.value
+            this.specificFields.forEach((specificField) => {
+                targetPortName = targetPortName + "." + specificField.fieldName.value
             })
-            targetPortName = targetPortName +".IN"
+            targetPortName = targetPortName + ".IN"
             this.getModel().getNodes().map((node) => {
-                    if (node instanceof ExpressionFunctionBodyNode || node instanceof SelectClauseNode) {
+                    if (node instanceof MappingConstructorNode) {
                         const ports = Object.entries(node.getPorts());
                         ports.forEach((entry) => {
                             const portName = entry[0];
@@ -79,7 +77,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                                     this.targetPort = entry[1]
                              }
                         });
-                    } 
+                    }
             });
         }
     }

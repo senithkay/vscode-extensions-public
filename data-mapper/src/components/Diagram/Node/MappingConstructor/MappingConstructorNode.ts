@@ -10,12 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    IdentifierToken,
-    MappingConstructor,
-    SelectClause,
+    ExpressionFunctionBody, IdentifierToken,
+    MappingConstructor, NodePosition, SelectClause,
     SpecificField,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
@@ -35,46 +33,54 @@ import {
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
-import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
-export const SELECT_CLAUSE_NODE_TYPE = "datamapper-node-select-clause";
-export const EXPANDED_QUERY_TARGET_PORT_PREFIX = "expandedQueryExpr.target";
+export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
+export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
 
-export class SelectClauseNode extends DataMapperNodeModel {
+export class MappingConstructorNode extends DataMapperNodeModel {
 
     public typeDef: Type;
-    public enrichedTypeDefs: EditableRecordField[];
+    public recordFields: EditableRecordField[];
 
     constructor(
         public context: IDataMapperContext,
-        public value: SelectClause,
-        public fieldName: IdentifierToken
-    ) {
+        public value: ExpressionFunctionBody | SelectClause,
+        public typeIdentifier: TypeDescriptor | IdentifierToken) {
         super(
             context,
-            SELECT_CLAUSE_NODE_TYPE
+            MAPPING_CONSTRUCTOR_NODE_TYPE
         );
     }
 
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: this.fieldName.position.startLine,
-            startColumn: this.fieldName.position.startColumn,
-            endLine: this.fieldName.position.startLine,
-            endColumn: this.fieldName.position.startColumn
+            startLine: this.typeIdentifier.position.startLine,
+            startColumn: this.typeIdentifier.position.startColumn,
+            endLine: this.typeIdentifier.position.startLine,
+            endColumn: this.typeIdentifier.position.startColumn
         });
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
-            if (valueEnrichedType.type.typeName === 'array') {
-                // valueEnrichedType only contains a single element as it is being used within the select clause
-                this.enrichedTypeDefs = valueEnrichedType.elements[0].members;
-                if (!!this.enrichedTypeDefs.length) {
-                    this.enrichedTypeDefs.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", EXPANDED_QUERY_TARGET_PORT_PREFIX);
+            if (valueEnrichedType.type.typeName === 'record') {
+                this.recordFields = valueEnrichedType.childrenTypes;
+                if (!!this.recordFields.length) {
+                    this.recordFields.forEach((field) => {
+                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX);
                     });
                 }
+            } else if (valueEnrichedType.type.typeName === 'array' && STKindChecker.isSelectClause(this.value)) {
+                // valueEnrichedType only contains a single element as it is being used within the select clause
+                this.recordFields = valueEnrichedType.elements[0].members;
+                if (!!this.recordFields.length) {
+                    this.recordFields.forEach((field) => {
+                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX);
+                    });
+                }
+            } else {
+                // TODO: Add support for other return type descriptors
             }
         }
     }
@@ -88,7 +94,7 @@ export class SelectClauseNode extends DataMapperNodeModel {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
             if (!value || !value.source) {
-                console.log("Unsupported mapping.");
+                // Unsupported mapping
                 return;
             }
             const inputNode = getInputNodeExpr(value, this);
@@ -102,7 +108,8 @@ export class SelectClauseNode extends DataMapperNodeModel {
                 value: otherVal?.source || value.source,
                 valueNode: otherVal || value,
                 context: this.context,
-                link: lm
+                link: lm,
+                specificField: fields[fields.length - 1]
             }));
             lm.setTargetPort(outPort);
             lm.setSourcePort(inPort);
@@ -122,9 +129,9 @@ export class SelectClauseNode extends DataMapperNodeModel {
     }
 
     private getOutputPortForField(fields: SpecificField[]) {
-        let nextTypeNode = this.enrichedTypeDefs;
+        let nextTypeNode = this.recordFields;
         let recField: EditableRecordField;
-        let portIdBuffer = EXPANDED_QUERY_TARGET_PORT_PREFIX;
+        let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
         let fieldIndex;
         for (let i = 0; i < fields.length; i++) {
             const specificField = fields[i];
@@ -164,8 +171,7 @@ export class SelectClauseNode extends DataMapperNodeModel {
         }
         if (recField) {
             const portId = `${portIdBuffer}.IN`;
-            const outPort = this.getPort(portId);
-            return outPort;
+            return this.getPort(portId);
         }
     }
 }

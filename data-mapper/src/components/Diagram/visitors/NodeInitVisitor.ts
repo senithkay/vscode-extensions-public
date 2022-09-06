@@ -15,7 +15,6 @@ import { SelectionState } from "../../DataMapper/DataMapper";
 import {
     AddInputTypeNode,
     AddOutputTypeNode,
-    ExpressionFunctionBodyNode,
     QueryExpressionNode,
     RequiredParamNode
 } from "../Node";
@@ -23,7 +22,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
-import { SelectClauseNode } from "../Node/SelectClause/SelectClauseNode";
+import { MappingConstructorNode } from "../Node/MappingConstructor";
 
 import { FieldAccessFindingVisitor } from "./FieldAccessFindingVisitor";
 
@@ -54,7 +53,7 @@ export class NodeInitVisitor implements Visitor {
                 this.context
             );
         } else {
-            this.outputNode = new ExpressionFunctionBodyNode(
+            this.outputNode = new MappingConstructorNode(
                 this.context,
                 node.functionBody as ExpressionFunctionBody,
                 typeDesc
@@ -100,7 +99,7 @@ export class NodeInitVisitor implements Visitor {
         {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
                 // create output node
-                this.outputNode = new SelectClauseNode(
+                this.outputNode = new MappingConstructorNode(
                     this.context,
                     node.selectClause,
                     parent.fieldName

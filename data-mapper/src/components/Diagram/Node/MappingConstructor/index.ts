@@ -10,5 +10,5 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./SelectClauseNodeFactory";
-export * from "./SelectClauseNode";
+export * from "./MappingConstructorNodeFactory";
+export * from "./MappingConstructorNode";

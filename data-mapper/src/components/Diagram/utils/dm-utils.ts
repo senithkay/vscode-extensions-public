@@ -23,11 +23,11 @@ import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
-import { ExpressionFunctionBodyNode, RequiredParamNode } from "../Node";
+import { RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
-import { SelectClauseNode } from "../Node/SelectClause";
+import { MappingConstructorNode } from "../Node/MappingConstructor";
 import { RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
@@ -90,7 +90,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
-	if ((targetNode instanceof ExpressionFunctionBodyNode || targetNode instanceof SelectClauseNode)
+	if ((targetNode instanceof MappingConstructorNode)
 		&& STKindChecker.isMappingConstructor(targetNode.value.expression)
 	) {
 		mappingConstruct = targetNode.value.expression;
@@ -490,7 +490,6 @@ export function isConnectedViaLink(field: SpecificField) {
 
 	return !!fieldAccessNodes.length && !isMappingConstruct && !isListConstruct;
 }
-
 
 function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 							                        fieldIndex: number,

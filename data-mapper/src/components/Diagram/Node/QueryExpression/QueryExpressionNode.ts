@@ -8,16 +8,15 @@ import {
 import md5 from "blueimp-md5";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
+import { MappingConstructorNode } from "../MappingConstructor";
 import { RequiredParamNode } from "../RequiredParam";
-import { EXPANDED_QUERY_TARGET_PORT_PREFIX } from "../SelectClause";
-import { SelectClauseNode } from "../SelectClause/SelectClauseNode";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -98,21 +97,23 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     private async getTargetType() {
-        // TODO get target type from specific field instead of select clause
+        const fieldNamePosition = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.position;
+        if (!fieldNamePosition) {
+            return;
+        }
         this.getModel().getNodes().map((node) => {
-                if (node instanceof ExpressionFunctionBodyNode) {
-                    const ports = Object.entries(node.getPorts());
-                    ports.map((entry) => {
-                        const port = entry[1];
-                        if (port instanceof RecordFieldPortModel && port.field.name === 'Assets') {
-                            this.targetPort = port;
-                        }
-                    });
-                } else if (node instanceof SelectClauseNode) {
-                    const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
-                    this.targetPort = node.getPort(
-                        `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as RecordFieldPortModel;
-                }
+            if (node instanceof MappingConstructorNode) {
+                const ports = Object.entries(node.getPorts());
+                ports.map((entry) => {
+                    const port = entry[1];
+                    if (port instanceof RecordFieldPortModel
+                        && port?.editableRecordField && port.editableRecordField?.value
+                        && isPositionsEquals(port.editableRecordField.value.fieldName.position, fieldNamePosition)
+                    ) {
+                        this.targetPort = port;
+                    }
+                });
+            }
         });
     }
 

@@ -63,7 +63,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
 		const fieldPort = new RecordFieldPortModel(
-			field, type, parentId, undefined, parentFieldAccessExpr, parent);
+			field, type, parentId, undefined, undefined, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
 
 		if (field.typeName === 'record') {
@@ -86,7 +86,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			: parentId;
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
-		const fieldPort = new RecordFieldPortModel(field.type, type, parentId, elementIndex, parentFieldAccessExpr, parent);
+		const fieldPort = new RecordFieldPortModel(
+			field.type, type, parentId, elementIndex, field, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort);
 
 		if (field.type.typeName === 'record') {
