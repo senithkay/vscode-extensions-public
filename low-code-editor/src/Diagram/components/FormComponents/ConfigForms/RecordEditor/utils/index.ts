@@ -14,6 +14,7 @@ import { DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, 
     PartialSTRequest, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ModulePart,
+    NodePosition,
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
@@ -68,6 +69,49 @@ export function getActualRecordST(syntaxTree: STNode, recordName: string): TypeD
             .find(record => record.typeName.value === recordName);
     }
     return typeDef;
+}
+
+export function getCreatedRecordRange(recordNames: string[], syntaxTree: STNode): NodePosition {
+    let recordRange: NodePosition;
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        const typeDefs: TypeDefinition[] = syntaxTree.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+        const createdRecords = typeDefs.filter(record => recordNames.includes(record.typeName.value));
+        if (createdRecords.length > 0) {
+            createdRecords.forEach((record, index) => {
+                if (index === 0) {
+                    recordRange = record.position;
+                } else {
+                    if (recordRange.startLine >= record.position.startLine) {
+                        recordRange = {
+                            ...recordRange,
+                            startLine: record.position.startLine,
+                            startColumn: record.position.startColumn
+                        }
+                    } else if (recordRange.startLine === record.position.startLine &&
+                        (recordRange.startColumn >= record.position.startLine)) {
+                        recordRange = {
+                            ...recordRange,
+                            startColumn: record.position.startColumn
+                        }
+                    } else if (recordRange.endLine <= record.position.endLine) {
+                        recordRange = {
+                            ...recordRange,
+                            endLine: record.position.endLine,
+                            endColumn: record.position.endColumn
+                        }
+                    } else if (recordRange.startLine === record.position.startLine &&
+                        (recordRange.endLine <= record.position.endColumn)) {
+                        recordRange = {
+                            ...recordRange,
+                            endColumn: record.position.endColumn
+                        }
+                    }
+                }
+            })
+        }
+    }
+    return recordRange;
 }
 
 export function getRootRecord(modulePartSt: ModulePart, name: string): TypeDefinition {

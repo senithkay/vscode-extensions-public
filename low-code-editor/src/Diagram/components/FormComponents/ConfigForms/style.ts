@@ -522,6 +522,8 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         recordFormWrapper: {
             width: '100%',
+            maxHeight: 720,
+            overflowY: 'scroll',
             flexDirection: "row",
             padding: '15px 0',
         },

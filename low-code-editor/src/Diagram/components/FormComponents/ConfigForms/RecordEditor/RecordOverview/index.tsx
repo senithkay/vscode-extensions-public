@@ -23,7 +23,7 @@ import { removeStatement}  from "../../../../../utils";
 import { wizardStyles } from "../../style";
 import { RecordEditor } from "../index";
 import { recordStyles } from "../style";
-import { extractImportedRecordNames, getActualRecordST } from "../utils";
+import { extractImportedRecordNames, getActualRecordST, getCreatedRecordRange } from "../utils";
 
 import { RecordItem } from "./RecordItem";
 
@@ -68,6 +68,11 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
         }
     }
 
+    const onDeleteAllClick = () => {
+        modifyDiagram([removeStatement(getCreatedRecordRange(recordNames, syntaxTree))]);
+        onCancel();
+    }
+
     const [recordNames, setRecordNames] = useState<string[]>(extractImportedRecordNames(definitions));
     const records: ReactNode[] = [];
     if (STKindChecker.isModulePart(definitions)) {
@@ -91,16 +96,19 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                         defaultMessage={"Record"}
                         onCancel={onCancel}
                     />
-                    {records}
                     <div className={overlayClasses.recordFormWrapper}>
-                        <div className={recordClasses.doneButtonWrapper}>
-                            <PrimaryButtonSquare
-                                testId="done-btn"
-                                text={doneButtonText}
-                                fullWidth={false}
-                                onClick={onComplete}
-                            />
-                        </div>
+                        {records}
+                    </div>
+                    <div className={recordClasses.doneButtonWrapper}>
+                        <PrimaryButtonSquare
+                            testId="done-btn"
+                            text={doneButtonText}
+                            fullWidth={false}
+                            onClick={onComplete}
+                        />
+                    </div>
+                    <div style={{color: "red"}} onClick={onDeleteAllClick}>
+                        HI
                     </div>
                 </>
             ) : (
