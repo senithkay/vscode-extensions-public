@@ -5,24 +5,29 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	FieldAccess,
-	FromClause, FunctionDefinition,
+	FromClause,
+	FunctionDefinition,
+	ListConstructor,
 	MappingConstructor,
 	NodePosition,
 	RecordField,
 	RequiredParam, SimpleNameReference,
 	SpecificField,
 	STKindChecker,
-	STNode
-} from "@wso2-enterprise/syntax-tree"; import { isPositionsEquals } from "../../../utils/st-utils";
+	STNode,
+	traversNode
+} from "@wso2-enterprise/syntax-tree";
 
+import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
-import { EditableRecordField } from "../Mappings/EditableRecordField";
+import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { ExpressionFunctionBodyNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { RecordFieldPortModel, SpecificFieldPortModel } from "../Port";
+import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
 export function getFieldNames(expr: FieldAccess) {
 	const fieldNames: string[] = [];
@@ -60,9 +65,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	let rhs = "";
 	const modifications: STModification[] = [];
 	if (link.getSourcePort()) {
-		const sourcePort = link.getSourcePort() instanceof RecordFieldPortModel
-			? link.getSourcePort() as RecordFieldPortModel
-			: link.getSourcePort() as SpecificFieldPortModel;
+		const sourcePort = link.getSourcePort() as RecordFieldPortModel | SpecificFieldPortModel;
 
 		rhs = sourcePort instanceof RecordFieldPortModel
 			? getBalRecFieldName(sourcePort.field.name)
@@ -74,10 +77,9 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 	}
 
 	if (link.getTargetPort()) {
-		const targetPort = link.getTargetPort() instanceof RecordFieldPortModel
-			? link.getTargetPort() as RecordFieldPortModel
-			: link.getTargetPort() as SpecificFieldPortModel;
+		const targetPort = link.getTargetPort() as RecordFieldPortModel | SpecificFieldPortModel;
 		const targetNode = targetPort.getNode() as DataMapperNodeModel;
+		const fieldIndexes = targetPort instanceof RecordFieldPortModel && getFieldIndexes(targetPort);
 
 		if (targetPort instanceof SpecificFieldPortModel && STKindChecker.isSpecificField(targetPort.field)) {
 			// Inserting just the valueExpr (RHS) to already available specific field in a mapping constructor
@@ -99,7 +101,7 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 
 			lhs = getBalRecFieldName(targetPort.field.name);
 			if (targetNode instanceof ExpressionFunctionBodyNode && STKindChecker.isMappingConstructor(targetNode.value.expression)) {
-				mappingConstruct = targetNode.value.expression as MappingConstructor;
+				mappingConstruct = targetNode.value.expression;
 			} else if (targetNode instanceof QueryExpressionNode && STKindChecker.isMappingConstructor(targetNode.value.selectClause.expression)) {
 				mappingConstruct = targetNode.value.selectClause.expression;
 			}
@@ -119,7 +121,15 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 					const specificField = mappingConstruct.fields.find((val) =>
 						STKindChecker.isSpecificField(val) && val.fieldName.value === fieldName) as SpecificField;
 					if (specificField && specificField.valueExpr) {
-						mappingConstruct = specificField.valueExpr as MappingConstructor;
+						if (STKindChecker.isMappingConstructor(specificField.valueExpr)) {
+							mappingConstruct = specificField.valueExpr;
+						} else if (STKindChecker.isListConstructor(specificField.valueExpr)
+							&& fieldIndexes !== undefined && !!fieldIndexes.length) {
+							const targetExpr = specificField.valueExpr.expressions[fieldIndexes.pop() * 2];
+							if (STKindChecker.isMappingConstructor(targetExpr)) {
+								mappingConstruct = targetExpr;
+							}
+						}
 						if (i === fieldNames.length - 1) {
 							targetMappingConstruct = mappingConstruct;
 						}
@@ -140,10 +150,10 @@ export async function createSpecificFieldSource(link: DataMapperLinkModel) {
 					const missingFields = fieldNames.slice(fromFieldIdx);
 					source = createSpecificField(missingFields);
 				} else {
-					source = `${lhs}: ${rhs}`;
+					source = `\n${lhs}: ${rhs}`;
 				}
 			} else {
-				source = `${lhs}: ${rhs}`;
+				source = `\n${lhs}: ${rhs}`;
 			}
 
 			const targetPos = targetMappingConstruct.openBrace.position as NodePosition;
@@ -286,7 +296,6 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 	return null;
 }
 
-
 export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: EditableRecordField,
 									                             childrenTypes?: EditableRecordField[]) {
 	let editableRecordField: EditableRecordField = null;
@@ -309,7 +318,6 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 					specificField = expr.fields.find((val) =>
 						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
 					) as SpecificField;
-					nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
 				}
 			}
 			// TODO: Add support for other types as well
@@ -322,18 +330,50 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 
 	if (type.typeName === 'record') {
 		fields = type.fields;
+		const children = [...childrenTypes ? childrenTypes : []];
+		if (fields && !!fields.length) {
+			fields.map((field) => {
+				const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
+				children.push(childType);
+			});
+		}
+		editableRecordField.childrenTypes = children;
 	} else if (type.typeName === 'array' && type.memberType.typeName === 'record') {
+		if (nextNode && STKindChecker.isListConstructor(nextNode)) {
+			editableRecordField.elements = getEnrichedArrayType(type, nextNode, editableRecordField);
+		}
+	}
+
+	return editableRecordField;
+}
+
+export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentType?: EditableRecordField,
+									                            childrenTypes?: EditableRecordField[]) {
+	let fields: Type[] = [];
+	const members: ArrayElement[] = [];
+
+	if (type.typeName === 'array' && type.memberType.typeName === 'record') {
 		fields = type.memberType.fields;
 	}
-	const children = [...childrenTypes ? childrenTypes : []];
-	if (fields && !!fields.length) {
-		fields.map((field) => {
-			const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
-			children.push(childType);
-		});
-	}
-	editableRecordField.childrenTypes = children;
-	return editableRecordField;
+
+	node.expressions.forEach((expr) => {
+		if (STKindChecker.isMappingConstructor(expr)) {
+			if (fields && !!fields.length) {
+				const member: EditableRecordField[] = [];
+				fields.map((field) => {
+					const childType = getEnrichedRecordType(field, expr, parentType, childrenTypes);
+					member.push(childType);
+				});
+				if (!!member.length) {
+					members.push({
+						members: member, elementNode: expr
+					});
+				}
+			}
+		}
+	});
+
+	return members;
 }
 
 export function getNewSource(field: EditableRecordField, mappingConstruct: MappingConstructor, newValue: string,
@@ -387,4 +427,23 @@ export function getDefaultLiteralValue(typeName : string, valueExpr: STNode) {
 	)) {
 		return valueExpr.literalToken.value;
 	}
+}
+
+export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
+	const fieldIndexes = [];
+	if (targetPort?.index !== undefined) {
+		fieldIndexes.push(targetPort.index);
+	}
+	const parentPort = targetPort?.parentModel;
+	if (parentPort) {
+		fieldIndexes.push(...getFieldIndexes(parentPort));
+	}
+	return fieldIndexes;
+}
+
+export function isConnectedViaLink(field: SpecificField) {
+	const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
+	traversNode(field.valueExpr, fieldAccessFindingVisitor);
+	const fieldAccessNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
+	return !!fieldAccessNodes.length;
 }

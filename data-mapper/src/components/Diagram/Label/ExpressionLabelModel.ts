@@ -11,6 +11,7 @@ export interface ExpressionLabelOptions extends BaseModelOptions {
 	context?: IDataMapperContext;
 	link?: DataMapperLinkModel;
 	specificField?: SpecificField;	
+	deleteLink?: () => void;
 }
 
 export class ExpressionLabelModel extends LabelModel {
@@ -19,6 +20,7 @@ export class ExpressionLabelModel extends LabelModel {
 	context: IDataMapperContext;
 	link?: DataMapperLinkModel;
 	specificField?: SpecificField;
+	deleteLink?: () => void;
 
 	constructor(options: ExpressionLabelOptions = {}) {
 		super({
@@ -31,6 +33,7 @@ export class ExpressionLabelModel extends LabelModel {
 		this.link = options.link;
 		this.specificField = options.specificField;
 		this.updateSource = this.updateSource.bind(this);
+		this.deleteLink = options.deleteLink;
 	}
 
 	serialize() {

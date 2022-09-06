@@ -50,6 +50,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const { id, editableRecordField, value, engine, getPort, context } = props;
 	const classes = useStyles();
 
+	// TODO: Handle root level arrays
 	return (
 		<div className={classes.root}>
 			{
