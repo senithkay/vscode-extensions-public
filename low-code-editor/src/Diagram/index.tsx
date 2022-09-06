@@ -29,6 +29,7 @@ import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/F
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
+import { DataMapperOverlay } from "./components/DataMapperOverlay";
 
 export function Diagram() {
     const {
@@ -82,6 +83,8 @@ export function Diagram() {
     const [activeDialog, setActiveDialog] = useState(undefined);
     const [activePlusWidget, setActivePlusWidget] = useState(undefined);
     const [isPlusWidgetActive, setIsPlusWidgetActive] = useState(false);
+
+    const isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
 
     // React.useEffect(() => {
     //     setIsErrorStateDialogOpen(diagramErrors);
@@ -360,8 +363,13 @@ export function Diagram() {
                             }
                         }}
                     />
-                    {isFormOpen && !isConnectorConfigWizardOpen && (
+                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && (
                         <FormGenerator {...formConfig} />
+                    )}
+                    {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
+                         <DataMapperOverlay
+                            {...formConfig}
+                        />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (
                         <ConnectorWizard {...connectorWizardProps} />

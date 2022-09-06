@@ -17,6 +17,7 @@ import {
     RecordTypeDesc,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
+import { Point } from "@projectstorm/geometry";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -30,6 +31,7 @@ export class FromClauseNode extends DataMapperNodeModel {
     public sourceTypeDesc: RecordTypeDesc;
     public typeDef: Type;
     public sourceBindingPattern: CaptureBindingPattern;
+    public x: number;
 
     constructor(
         public context: IDataMapperContext,
@@ -74,6 +76,17 @@ export class FromClauseNode extends DataMapperNodeModel {
             if (type && type.typeName === 'array') {
                 this.typeDef = type.memberType;
             }
+        }
+    }
+
+    setPosition(point: Point): void;
+    setPosition(x: number, y: number): void;
+    setPosition(x: unknown, y?: unknown): void {
+        if ( typeof x === 'number' && typeof y === 'number'){
+            if (!this.x){
+                this.x = x;
+            }
+            super.setPosition(this.x,y);
         }
     }
 }

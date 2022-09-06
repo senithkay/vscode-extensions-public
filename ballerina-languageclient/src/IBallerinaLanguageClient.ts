@@ -907,5 +907,7 @@ export interface IBallerinaLangClient {
 
     getTypeFromSymbol: (params: TypeFromSymbolRequest) => Thenable<TypesFromSymbolResponse>;
 
+    convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
+
     // close: () => void;
 }

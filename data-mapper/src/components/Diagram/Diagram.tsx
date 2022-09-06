@@ -14,6 +14,7 @@
 import * as React from 'react';
 
 import createEngine, { DagreEngine, DefaultDiagramState, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import {container} from "tsyringe";
 
@@ -27,14 +28,17 @@ import * as Links from "./Link";
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
+import { RequiredParamNode } from './Node';
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { LinkConnectorNode } from './Node/LinkConnector';
+import { MappingConstructorNode } from './Node/MappingConstructor';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import * as Ports from "./Port";
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
 	links?: DataMapperLinkModel[];
+	hideCanvas?: boolean;
 }
 
 function initDiagramEngine() {
@@ -69,7 +73,7 @@ function initDiagramEngine() {
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
-	const { nodes } = props;
+	const { nodes, hideCanvas } = props;
 
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
 	const [model, setModel] = React.useState(new DiagramModel());
@@ -105,21 +109,30 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			if (model.getLinks().length > 0){
 				dagreEngine.redistribute(model);
 				engine.repaintCanvas(true);
-				nodes.forEach((node) => {
-					if ( node instanceof LinkConnectorNode || node instanceof QueryExpressionNode){
-						node.updatePosition()
-					}
-				});
 			}
+			let requiredParamFields = 0;
+			let numberOfRequiredParamNodes = 0;
+			nodes.forEach((node) => {
+				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode
+					|| node instanceof MappingConstructorNode)
+				{
+						node.updatePosition();
+				}
+				if (node instanceof RequiredParamNode) {
+					node.setPosition(100, (requiredParamFields * 40) + 100 * (numberOfRequiredParamNodes + 1));
+					requiredParamFields = requiredParamFields + node.numberOfFields;
+					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+				}
+			});
 			setModel(model);
         }
-        genModel();
+  genModel();
 	}, [nodes]);
 
 	return (
 		<>
 			{engine && engine.getModel() && (
-				<DataMapperCanvasContainerWidget>
+				<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
 					<DataMapperCanvasWidget engine={engine} />
 				</DataMapperCanvasContainerWidget>
 			)}

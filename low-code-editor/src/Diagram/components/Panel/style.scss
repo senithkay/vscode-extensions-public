@@ -29,10 +29,6 @@
         animation: panel-slide-in-keyframe 0.5s forwards;
         overflow-x: hidden;
     }
-
-    &.datamapper-wrapper{
-        width: 100vw;
-    }
     
     @-webkit-keyframes panel-slide-in-keyframe {
         100% { right: 0; }

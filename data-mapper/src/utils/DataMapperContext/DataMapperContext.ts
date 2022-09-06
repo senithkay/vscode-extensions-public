@@ -1,6 +1,4 @@
 import {
-    DiagramEditorLangClientInterface,
-    ExpressionEditorLangClientInterface,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -8,13 +6,13 @@ import { FunctionDefinition, STKindChecker, STNode } from "@wso2-enterprise/synt
 
 import { SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
 import { Diagnostic } from "vscode-languageserver-protocol";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
     selection: SelectionState;
     filePath: string;
-    langClientPromise: () => Promise<DiagramEditorLangClientInterface>;
-    getEELangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    langClientPromise: Promise<IBallerinaLangClient>;
     currentFile?: {
         content: string,
         path: string,
@@ -33,8 +31,7 @@ export class DataMapperContext implements IDataMapperContext {
         public filePath: string,
         private _functionST: FunctionDefinition,
         private _selection: SelectionState,
-        public langClientPromise: () => Promise<DiagramEditorLangClientInterface>,
-        public getEELangClient: () => Promise<ExpressionEditorLangClientInterface>,
+        public langClientPromise: Promise<IBallerinaLangClient>,
         public currentFile: {
             content: string,
             path: string,

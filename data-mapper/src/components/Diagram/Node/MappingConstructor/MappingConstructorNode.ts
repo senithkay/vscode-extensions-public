@@ -12,10 +12,14 @@
  */
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    ExpressionFunctionBody, IdentifierToken,
-    MappingConstructor, NodePosition, SelectClause,
+    ExpressionFunctionBody,
+    IdentifierToken,
+    MappingConstructor,
+    NodePosition,
+    SelectClause,
     SpecificField,
-    STKindChecker
+    STKindChecker,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -33,6 +37,7 @@ import {
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
@@ -93,6 +98,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
+            const specificField = fields[fields.length - 1];
             if (!value || !value.source) {
                 // Unsupported mapping
                 return;
@@ -104,27 +110,30 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             }
             const outPort = this.getOutputPortForField(fields);
             const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
-            lm.addLabel(new ExpressionLabelModel({
-                value: otherVal?.source || value.source,
-                valueNode: otherVal || value,
-                context: this.context,
-                link: lm,
-                specificField: fields[fields.length - 1]
-            }));
-            lm.setTargetPort(outPort);
-            lm.setSourcePort(inPort);
-            lm.registerListener({
-                selectionChanged(event) {
-                    if (event.isSelected) {
-                        inPort.fireEvent({}, "link-selected");
-                        outPort.fireEvent({}, "link-selected");
-                    } else {
-                        inPort.fireEvent({}, "link-unselected");
-                        outPort.fireEvent({}, "link-unselected");
-                    }
-                },
-            })
-            this.getModel().addAll(lm);
+            if (inPort && outPort) {
+                lm.addLabel(new ExpressionLabelModel({
+                    value: otherVal?.source || value.source,
+                    valueNode: otherVal || value,
+                    context: this.context,
+                    link: lm,
+                    specificField: specificField,
+                    deleteLink: () => this.deleteLink(specificField),
+                }));
+                lm.setTargetPort(outPort);
+                lm.setSourcePort(inPort);
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            inPort.fireEvent({}, "link-selected");
+                            outPort.fireEvent({}, "link-selected");
+                        } else {
+                            inPort.fireEvent({}, "link-unselected");
+                            outPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(lm);
+            }
         });
     }
 
@@ -173,5 +182,20 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const portId = `${portIdBuffer}.IN`;
             return this.getPort(portId);
         }
+    }
+
+    private deleteLink(field: SpecificField) {
+        const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
+        traversNode(this.value.expression, linkDeleteVisitor);
+        const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+
+        this.context.applyModifications([{
+            type: "DELETE",
+            ...nodePositionsToDelete
+        }]);
+    }
+
+    public updatePosition() {
+        this.setPosition(1000, this.position.y)
     }
 }
