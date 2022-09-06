@@ -36,6 +36,7 @@ import PanAndZoom, { ViewMode } from "./PanAndZoom";
 import { PerformanceBar } from "./perBar/PerformanceBar";
 import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
+import { initializeCollapseView } from "../../../Utils";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
@@ -50,7 +51,8 @@ export interface FunctionProps {
 export function Function(props: FunctionProps) {
     const [overlayId] = useState(`function-overlay-${uuid()}`);
     const diagramContext = useContext(Context);
-    const { isReadOnly } = diagramContext.props;
+    const { isReadOnly, syntaxTree, experimentalEnabled } = diagramContext.props;
+    const { diagramRedraw, diagramCleanDraw } = diagramContext.actions;
     const run = diagramContext?.api?.project?.run;
 
     const { model, hideHeader } = props;
@@ -67,7 +69,11 @@ export function Function(props: FunctionProps) {
     const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.STATEMENT);
 
     useEffect(() => {
-        console.log('>>>', viewMode);
+        if (viewMode === ViewMode.INTERACTION) {
+            diagramRedraw(initializeCollapseView(syntaxTree, model.position));
+        } else {
+            diagramCleanDraw(syntaxTree);
+        }
     }, [viewMode]);
 
     const onExpandClick = () => {

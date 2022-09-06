@@ -1,47 +1,49 @@
 import {
-    BlockStatement, ForeachStatement, FunctionBodyBlock, IfElseStatement, STKindChecker, STNode, Visitor, WhileStatement
+    BlockStatement, FunctionBodyBlock, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-import { BlockViewState, StatementViewState } from "../ViewState";
+import { StatementViewState } from "../ViewState";
 
 export class CollapseInitVisitor implements Visitor {
-
-    beginVisitFunctionBodyBlock(node: FunctionBodyBlock): void {
-        this.visitBlock(node);
+    private position: NodePosition;
+    constructor(position: NodePosition) {
+        this.position = position;
     }
 
-    beginVisitIfElseStatement(node: IfElseStatement): void {
-        this.visitBlock(node.ifBody);
-        if (node.elseBody && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
-            this.visitBlock(node.elseBody.elseBody);
+    beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
+        this.beginVisitBlock(node);
+    }
+
+    beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
+        this.beginVisitBlock(node.ifBody);
+        if (node.elseBody && STKindChecker.isElseBlock(node.elseBody)
+            && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
+            this.beginVisitBlock(node.elseBody.elseBody)
         }
     }
 
-    beginVisitForeachStatement(node: ForeachStatement): void {
-        this.visitBlock(node.blockStatement);
+    beginVisitBlockStatement(node: BlockStatement): void {
+        this.beginVisitBlock(node);
     }
 
-    beginVisitWhileStatement(node: WhileStatement): void {
-        this.visitBlock(node.whileBody);
-    }
-
-    beginVisitBlockStatement(node: BlockStatement) {
-        this.visitBlock(node);
-    }
-
-    private visitBlock(node: BlockStatement) {
-        const viewState = node.viewState as BlockViewState;
-        // const collapseRanges =
-        node.statements.forEach((statement: STNode) => {
-            if (!(STKindChecker.isIfElseStatement(statement)
-                || STKindChecker.isForeachStatement(statement)
-                || STKindChecker.isWhileStatement(statement))) {
-                const statementVS = statement.viewState as StatementViewState;
-
-                if (!statementVS.isAction || !statementVS.isEndpoint) {
-                    statementVS.collapsed = true;
-                }
+    beginVisitBlock(node: BlockStatement) {
+        node.statements.forEach(statement => {
+            const viewState = statement.viewState as StatementViewState;
+            if (this.isNodeWithinPosition(statement) && !(viewState.isAction || viewState.isEndpoint)) {
+                console.log('satisfied condition >>>', statement)
+                viewState.collapsed = true;
             }
         })
-    };
+    }
+
+    private isNodeWithinPosition(node: STNode): boolean {
+        const nodePosition: NodePosition = node.position as NodePosition;
+        if (nodePosition.startLine > this.position.startLine
+            && nodePosition.endLine < this.position.endLine) {
+            return true;
+        }
+
+        // todo: handle other scenarios 
+        return false;
+    }
 }

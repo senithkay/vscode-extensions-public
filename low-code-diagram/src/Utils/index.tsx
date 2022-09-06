@@ -13,6 +13,7 @@ import { Statement } from "../Components/RenderingComponents/Statement";
 import { Endpoint } from "../Types/type";
 import { BlockViewState, FunctionViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
+import { CollapseInitVisitor } from "../Visitors/collapse-init-visitor";
 import { InitVisitor } from "../Visitors/init-visitor";
 import { PositioningVisitor } from "../Visitors/positioning-visitor";
 import { SizingVisitor } from "../Visitors/sizing-visitor";
@@ -26,7 +27,9 @@ export function sizingAndPositioning(st: STNode, experimentalEnabled?: boolean):
     return clone;
 }
 
-export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?: boolean, parentConnectors?: Map<string, Endpoint>): STNode {
+export function recalculateSizingAndPositioning(
+    st: STNode, experimentalEnabled?: boolean, parentConnectors?: Map<string, Endpoint>
+): STNode {
     traversNode(st, new SizingVisitor(experimentalEnabled, parentConnectors));
     traversNode(st, new PositioningVisitor());
     if (STKindChecker.isFunctionDefinition(st) && st?.viewState?.onFail) {
@@ -35,6 +38,13 @@ export function recalculateSizingAndPositioning(st: STNode, experimentalEnabled?
         traversNode(viewState.onFail, new PositioningVisitor());
     }
     const clone = { ...st };
+    return clone;
+}
+
+export function initializeCollapseView(st: STNode, targetPosition: NodePosition) {
+    traversNode(st, new CollapseInitVisitor(targetPosition));
+    console.log('>>> after visiting', st);
+    const clone = { ...st }
     return clone;
 }
 
@@ -54,9 +64,11 @@ export function getSTComponents(nodeArray: any, viewState?: any, model?: Functio
 
     nodeArray.forEach((node: any) => {
         const ChildComp = (stComponents as any)[node.kind];
-        node.viewState.functionNodeFilePath = viewState.functionNodeFilePath;
-        node.viewState.functionNodeSource = viewState.functionNodeSource;
-        node.viewState.parentBlock = model;
+        if (viewState) {
+            node.viewState.functionNodeFilePath = viewState.functionNodeFilePath;
+            node.viewState.functionNodeSource = viewState.functionNodeSource;
+            node.viewState.parentBlock = model;
+        }
         if (!ChildComp) {
             children.push(<Statement model={node} />);
         } else {

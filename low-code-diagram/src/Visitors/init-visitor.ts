@@ -66,7 +66,7 @@ export class InitVisitor implements Visitor {
     }
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        node.viewState = new ViewState();
+        // node.viewState = new ViewState();
         this.initStatement(node, this.removeXMLNameSpaces(parent));
     }
 

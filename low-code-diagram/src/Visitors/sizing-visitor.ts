@@ -265,10 +265,6 @@ export class SizingVisitor implements Visitor {
         viewState.bBox.h = MODULE_VAR_HEIGHT;
     }
 
-    public beginVisitTypeDefinition(node: TypeDefinition) {
-        const viewState = node.viewState as ModuleMemberViewState;
-    }
-
     public beginVisitFunctionDefinition(node: FunctionDefinition) {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
@@ -1385,19 +1381,19 @@ export class SizingVisitor implements Visitor {
             const stmtViewState: StatementViewState = element.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
-            if (plusForIndex && plusForIndex.collapsedClicked) {
-                // setting up collapse view once the collapse button is clicked
-                const collapsedView = new CollapseViewState();
-                blockViewState.collapseView = collapsedView;
-                blockViewState.collapsedFrom = index;
-                stmtViewState.collapsed = true;
-            } else if (blockViewState.collapsed
-                || (blockViewState.collapsedFrom <= index && blockViewState.collapseView)) {
-                stmtViewState.collapsed = true;
-            } else if (!blockViewState.collapsed
-                || (blockViewState.collapsedFrom <= index && blockViewState.collapseView)) {
-                stmtViewState.collapsed = false;
-            }
+            // if (plusForIndex && plusForIndex.collapsedClicked) {
+            //     // setting up collapse view once the collapse button is clicked
+            //     const collapsedView = new CollapseViewState();
+            //     blockViewState.collapseView = collapsedView;
+            //     blockViewState.collapsedFrom = index;
+            //     stmtViewState.collapsed = true;
+            // } else if (blockViewState.collapsed
+            //     || (blockViewState.collapsedFrom <= index && blockViewState.collapseView)) {
+            //     stmtViewState.collapsed = true;
+            // } else if (!blockViewState.collapsed
+            //     || (blockViewState.collapsedFrom <= index && blockViewState.collapseView)) {
+            //     stmtViewState.collapsed = false;
+            // }
 
             if (isSTActionInvocation(element)
                 && !haveBlockStatement(element)
