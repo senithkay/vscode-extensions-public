@@ -66,7 +66,7 @@ export interface DataMapperProps {
     applyModifications: (modifications: STModification[]) => void;
     onSave: (fnName: string) => void;
     onClose: () => void;
-    library?: {
+    library: {
         getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;

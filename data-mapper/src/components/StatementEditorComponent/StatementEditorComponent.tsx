@@ -3,6 +3,8 @@ import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-edi
 import { LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import React from "react";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { Panel } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import FormControl from "@material-ui/core/FormControl";
 
 
 export interface StatementEditorComponentProps {
@@ -24,8 +26,7 @@ export interface StatementEditorComponentProps {
 function StatementEditorC(props: StatementEditorComponentProps) {
     const {model, langClientPromise, currentFile, applyModifications, library, onCancel} = props;
 
-
-const stmtEditorComponent = StatementEditorWrapper(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             formArgs: { formArgs: {
                 targetPosition: model.valueExpr.position
@@ -48,6 +49,11 @@ const stmtEditorComponent = StatementEditorWrapper(
         }
     );
 
-    return  (stmtEditorComponent)
+    return  (
+    <Panel onClose={onCancel}>
+        <FormControl variant="outlined" data-testid="data-mapper-stmt-editor-form" >
+            {stmtEditorComponent}
+        </FormControl>
+    </Panel>)
 }
 export const StatementEditorComponent = React.memo(StatementEditorC);

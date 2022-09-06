@@ -55,7 +55,8 @@ export function DataMapperOverlay(props: DataMapperProps) {
             },
             ls: {
                 getDiagramEditorLangClient,
-            }
+            },
+            library
         }
     } = useContext(Context);
 
@@ -98,6 +99,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
                     <DiagramOverlay position={{ x: 0, y: 0 }} stylePosition={"absolute"} className={dataMapperClasses.overlay}>
                         <div className={dataMapperClasses.dataMapperContainer}>
                             <DataMapper
+                                library={library}
                                 targetPosition={targetPosition}
                                 fnST={functionST}
                                 langClientPromise={getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>}
