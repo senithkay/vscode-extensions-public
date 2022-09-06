@@ -3,7 +3,8 @@ import {
 	ExpressionFunctionBody,
 	MappingConstructor,
 	SpecificField,
-    STKindChecker
+    STKindChecker,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -21,6 +22,7 @@ import {
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
@@ -73,6 +75,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
+            const specificField = fields[fields.length - 1];
             if (!value) {
                 console.log("Unsupported mapping.");
                 return;
@@ -89,7 +92,8 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
                 valueNode: otherVal || value,
                 context: this.context,
                 link: lm,
-                specificField: fields[fields.length - 1]
+                specificField: specificField,
+                deleteLink: () => this.deleteLink(specificField),
             }));
             lm.setTargetPort(outPort);
             lm.setSourcePort(inPort);
@@ -154,5 +158,16 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             const outPort = this.getPort(portId);
             return outPort;
         }
+    }
+
+    private deleteLink(field: SpecificField) {
+        const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
+        traversNode(this.value.expression, linkDeleteVisitor);
+        const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+
+        this.context.applyModifications([{
+            type: "DELETE",
+            ...nodePositionsToDelete
+        }]);
     }
 }

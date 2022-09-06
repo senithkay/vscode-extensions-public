@@ -88,7 +88,9 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	};
 
 	const onClickDelete = () => {
-		// TODO implement the delete link logic
+		if (props.model.deleteLink) {
+			props.model.deleteLink();
+		}
 	};
 
 	const onClickEdit = () => {
