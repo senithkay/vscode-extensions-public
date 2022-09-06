@@ -1,11 +1,13 @@
-import { FieldAccess, SpecificField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
 import { getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
 import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
@@ -54,7 +56,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.fieldAccessNodes.forEach((field) => {
         const inputNode = getInputNodeExpr(field, this);
 			if (inputNode) {
-				this.sourcePorts.push(getInputPortsForExpr(inputNode, field));
+                this.sourcePorts.push(getInputPortsForExpr(inputNode, field));
 			}
         })
 
@@ -83,12 +85,23 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
-        this.sourcePorts.forEach((sourcePort) => {
+        this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
 
         const lm = new DataMapperLinkModel();
 			lm.setTargetPort(this.inPort);
 			lm.setSourcePort(sourcePort);
-			lm.registerListener({
+
+            const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
+
+            lm.addLabel(new ExpressionLabelModel({
+                context: this.context,
+                link: lm,
+                deleteLink: () => this.deleteLink(fieldAccessNode),
+            }));
+
+            // TODO: need to fix the following event listener
+            /*
+            lm.registerListener({
 				selectionChanged(event) {
 					if (event.isSelected) {
 						this.inPort.fireEvent({}, "link-selected");
@@ -99,6 +112,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 					}
 				},
 			})
+            */
 			this.getModel().addAll(lm);
         })
 
@@ -107,6 +121,15 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             const lm = new DataMapperLinkModel();
 			lm.setTargetPort(this.targetPort);
 			lm.setSourcePort(this.outPort);
+
+            lm.addLabel(new ExpressionLabelModel({
+                context: this.context,
+                link: lm,
+                deleteLink: () => this.deleteLink(this.valueNode),
+            }));
+
+            // TODO: need to fix the following event listener
+            /*
 			lm.registerListener({
 				selectionChanged(event) {
 					if (event.isSelected) {
@@ -118,6 +141,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 					}
 				},
 			})
+            */
+
 			this.getModel().addAll(lm);
         }
     }
@@ -146,5 +171,16 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 	public hasError(): boolean {
 		return this.diagnostics.length > 0 ;
 	}
+
+    private deleteLink(specificField: SpecificField | FieldAccess) {
+        const linkDeleteVisitor = new LinkDeletingVisitor(specificField.position, this.parentNode);
+        traversNode(this.parentNode, linkDeleteVisitor);
+        const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+
+        this.context.applyModifications([{
+            type: "DELETE",
+            ...nodePositionsToDelete
+        }]);
+    }
     
 }
