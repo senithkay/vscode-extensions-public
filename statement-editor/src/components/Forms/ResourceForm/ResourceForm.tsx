@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
@@ -63,10 +63,11 @@ export interface FunctionProps {
 
 export function ResourceForm(props: FunctionProps) {
     const { model, completions } = props;
-
     const {
-        targetPosition, isEdit, onChange, onCancel, getLangClient, applyModifications
+        targetPosition, isEdit, onChange, onCancel, getLangClient, applyModifications,
+        changeInProgress
     } = useContext(FormEditorContext);
+
     const classes = useStyles();
     const connectorClasses = connectorStyles();
     const intl = useIntl();
@@ -76,6 +77,7 @@ export function ResourceForm(props: FunctionProps) {
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
     const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
+    const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
 
     const resourceConfigTitle = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
@@ -131,7 +133,6 @@ export function ResourceForm(props: FunctionProps) {
         returnStr: string,
         stModel?: STNode,
         currentValue?: string) => {
-
         const pathString = pathStr ? pathStr : ".";
         const codeSnippet = getSource(
             updateResourceSignature(resMethod, pathString, paramStr, returnStr, targetPosition));
@@ -167,14 +168,15 @@ export function ResourceForm(props: FunctionProps) {
             .map(pathSegment => STKindChecker.isResourcePathSegmentParam(pathSegment)
                 || STKindChecker.isResourcePathRestParam(pathSegment) ? pathSegment?.paramName.value : "");
         let newPath = '';
-        if (model.relativeResourcePath.length === 1 && STKindChecker.isDotToken(model.relativeResourcePath[0])) {
+        if (resourcePath.length === 1 && resourcePath === '.') {
             newPath = `[string ${genParamName("param", variables)}]`;
         } else {
-            const genPath = (model.relativeResourcePath.length > 0) ?
+            const genPath = (resourcePath.charAt(resourcePath.length - 1) !== '/') ?
                 `/[string ${genParamName("param", variables)}]`
                 : `[string ${genParamName("param", variables)}]`;
-            newPath = getResourcePath(model.relativeResourcePath) + genPath;
+            newPath = resourcePath + genPath;
         }
+        setResourcePath(newPath);
         await handleResourceParamChange(
             model?.functionName?.value,
             newPath,
@@ -196,11 +198,8 @@ export function ResourceForm(props: FunctionProps) {
     }
 
     const handlePathChange = async (value: string) => {
-        // if (!avoidValueCommit) {
-        //     setPath(value);
-        // }
-        // setCurrentComponentName("Path");
         setShouldUpdatePath(false);
+        setResourcePath(value);
         await handleResourceParamChange(
             model.functionName.value,
             value,
@@ -208,8 +207,6 @@ export function ResourceForm(props: FunctionProps) {
             model.functionSignature?.returnTypeDesc?.type?.source,
         );
     };
-    const debouncedPathChange = debounce(handlePathChange, 800);
-
 
     const handleParamEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
         // if (!avoidValueCommit) {
@@ -232,6 +229,7 @@ export function ResourceForm(props: FunctionProps) {
     }
 
     const onReturnTypeChange = (value: string) => {
+        // setIsEditInProgress(true);
         handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
@@ -241,7 +239,6 @@ export function ResourceForm(props: FunctionProps) {
             value
         );
     }
-    const debouncedReturnTypeChange = debounce(onReturnTypeChange, 800);
 
     const handleOnSave = () => {
         if (isEdit) {
@@ -302,10 +299,10 @@ export function ResourceForm(props: FunctionProps) {
                                     }
                                     defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
                                     externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}
-                                    onChange={debouncedPathChange}
+                                    onChange={handlePathChange}
                                     completions={completions}
                                     onFocus={onPathFocus}
-                                    disabled={false}
+                                    disabled={currentComponentName !== "Path" && isEditInProgress}
                                 />
                             </div>
                             <div className={connectorClasses.advancedToggleWrapper}>
@@ -372,9 +369,9 @@ export function ResourceForm(props: FunctionProps) {
                             diagnostics={(currentComponentName === "Return" && currentComponentSyntaxDiag) ||
                                 model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange}
                             defaultValue={model?.functionSignature?.returnTypeDesc?.type?.source.trim()}
-                            onChange={debouncedReturnTypeChange}
+                            onChange={onReturnTypeChange}
                             onFocus={onReturnFocus}
-                            disabled={isEditInProgress}
+                            disabled={currentComponentName !== "Return" && isEditInProgress}
                             completions={completions}
                         />
                         <div className={classes.serviceFooterWrapper}>
@@ -392,7 +389,8 @@ export function ResourceForm(props: FunctionProps) {
                                     disabled={currentComponentSyntaxDiag?.length > 0
                                         || getResourcePathDiagnostics().length > 0
                                         || model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange?.length > 0
-                                        || isEditInProgress}
+                                        || isEditInProgress
+                                        || changeInProgress}
                                 />
                             </div>
                         </div>

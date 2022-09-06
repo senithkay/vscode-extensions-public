@@ -67,6 +67,7 @@ export function FormEditor(props: FormEditorProps) {
 
     const [model, setModel] = useState<STNode>(null);
     const [completions, setCompletions] = useState([]);
+    const [changeInProgress, setChangeInProgress] = useState<boolean>(false);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
@@ -81,6 +82,7 @@ export function FormEditor(props: FormEditorProps) {
         diagnosticOffSet: NodePosition = { startLine: 0, startColumn: 0 }
     ) => {
         // Offset line position is to add some extra line if we do multiple code generations
+        setChangeInProgress(true);
         const newModuleList = new Set<string>();
         moduleList?.forEach(module => {
             if (!currentFile.content.includes(module)) {
@@ -134,6 +136,7 @@ export function FormEditor(props: FormEditorProps) {
         if (currentModel && currentModel.model && newValue && completionKinds) {
             handleCompletions(newValue, currentModel, completionKinds, newTargetPosition);
         }
+        setChangeInProgress(false);
     };
 
     const handleCompletions = async (newValue: string, currentModel: CurrentModel, completionKinds: number[], newTargetPosition: NodePosition) => {
@@ -206,6 +209,7 @@ export function FormEditor(props: FormEditorProps) {
                 isEdit={initialSource !== undefined}
                 isLastMember={isLastMember}
                 applyModifications={applyModifications}
+                changeInProgress={changeInProgress}
             >
                 {
                     model && (
@@ -222,6 +226,7 @@ export function FormEditor(props: FormEditorProps) {
                             currentFile={currentFile}
                             isEdit={initialSource !== undefined}
                             applyModifications={applyModifications}
+                            changeInProgress={changeInProgress}
                         />
                     )
                 }

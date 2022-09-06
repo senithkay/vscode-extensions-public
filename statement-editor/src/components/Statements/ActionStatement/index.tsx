@@ -44,6 +44,8 @@ export function ActionStatementC(props: ReturnStatementProps) {
             } else {
                 changeCurrentModel(model.expression.expression);
             }
+        } else if (model && STKindChecker.isAsyncSendAction(model.expression)) {
+            changeCurrentModel(model.expression.peerWorker);
         } else {
             changeCurrentModel(model.expression);
         }
