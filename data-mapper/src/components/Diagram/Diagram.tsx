@@ -32,6 +32,8 @@ import { LinkConnectorNode } from './Node/LinkConnector';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import * as Ports from "./Port";
 import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
+import { ExpressionFunctionBodyNode, RequiredParamNode } from './Node';
+import { SelectClauseNode } from './Node/SelectClause';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -107,12 +109,20 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			if (model.getLinks().length > 0){
 				dagreEngine.redistribute(model);
 				engine.repaintCanvas(true);
-				nodes.forEach((node) => {
-					if ( node instanceof LinkConnectorNode || node instanceof QueryExpressionNode){
-						node.updatePosition()
-					}
-				});
 			}
+			let requiredParamFields = 0;
+			let numberOfRequiredParamNodes = 0;
+			nodes.forEach((node) => {
+				if ( node instanceof LinkConnectorNode || node instanceof QueryExpressionNode 
+					|| node instanceof ExpressionFunctionBodyNode || node instanceof SelectClauseNode){
+						node.updatePosition()
+				}
+				if ( node instanceof RequiredParamNode ){
+					node.setPosition(100, (requiredParamFields* 40) + 100 * (numberOfRequiredParamNodes + 1));
+					requiredParamFields = requiredParamFields + node.numberOfFields;
+					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+				}
+			});
 			setModel(model);
         }
         genModel();

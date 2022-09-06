@@ -83,7 +83,7 @@ export class NodeInitVisitor implements Visitor {
                 node.selectClause
             );
 
-            this.outputNode.setPosition(800, 100);
+            this.outputNode.setPosition(1000, 100);
 
             // create input nodes
             const fromClauseNode = new FromClauseNode(
