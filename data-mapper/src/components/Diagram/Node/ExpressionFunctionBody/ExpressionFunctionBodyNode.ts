@@ -87,28 +87,30 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             }
             const outPort = this.getOutputPortForField(fields);
 			const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
-            lm.addLabel(new ExpressionLabelModel({
-                value: otherVal?.source || value.source,
-                valueNode: otherVal || value,
-                context: this.context,
-                link: lm,
-                specificField: specificField,
-                deleteLink: () => this.deleteLink(specificField),
-            }));
-            lm.setTargetPort(outPort);
-            lm.setSourcePort(inPort);
-            lm.registerListener({
-                selectionChanged(event) {
-                    if (event.isSelected) {
-                        inPort.fireEvent({}, "link-selected");
-                        outPort.fireEvent({}, "link-selected");
-                    } else {
-                        inPort.fireEvent({}, "link-unselected");
-                        outPort.fireEvent({}, "link-unselected");
-                    }
-                },
-            })
-            this.getModel().addAll(lm);
+            if (inPort && outPort) {
+                lm.addLabel(new ExpressionLabelModel({
+                    value: otherVal?.source || value.source,
+                    valueNode: otherVal || value,
+                    context: this.context,
+                    link: lm,
+                    specificField: specificField,
+                    deleteLink: () => this.deleteLink(specificField),
+                }));
+                lm.setTargetPort(outPort);
+                lm.setSourcePort(inPort);
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            inPort.fireEvent({}, "link-selected");
+                            outPort.fireEvent({}, "link-selected");
+                        } else {
+                            inPort.fireEvent({}, "link-unselected");
+                            outPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(lm);
+            }
         });
     }
 
