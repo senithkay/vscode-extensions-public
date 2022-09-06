@@ -167,7 +167,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
         this.context.applyModifications([{
             type: "DELETE",
-		    ...nodePositionsToDelete
+            ...nodePositionsToDelete
         }]);
     }
 }
