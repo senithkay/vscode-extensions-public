@@ -258,6 +258,9 @@ export const useStatementRendererStyles = makeStyles(() =>
 export const useStatementEditorDiagnosticStyles = makeStyles(() =>
     createStyles({
         diagnosticsPane: {
+            maxHeight: '150px',
+            overflowY: 'scroll',
+            marginRight: '-25px',
             color: '#ea4c4d',
             paddingTop: '13px',
             "& .MuiList-padding": {
