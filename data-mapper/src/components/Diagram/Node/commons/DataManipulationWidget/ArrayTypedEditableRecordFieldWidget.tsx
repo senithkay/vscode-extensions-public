@@ -50,7 +50,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         : `${parentId}.${fieldName}`;
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
-    const hasValue = field.hasValue();
+    const hasValue = field.hasValue() && !!field.value.valueExpr.source;
     const typeName = field.type.memberType.typeName;
     const elements = field.elements;
 
