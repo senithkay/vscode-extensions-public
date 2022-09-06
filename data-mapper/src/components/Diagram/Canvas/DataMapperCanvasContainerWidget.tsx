@@ -9,7 +9,7 @@ namespace S {
 		height: 100%;
 		background-image: url('${background}');
 		background-repeat: repeat;
-		display: flex;
+		display: ${props => (props.hidden ? 'none' : 'flex')};
 		font-family: 'GilmerRegular';
 		> * {
 			height: 100%;
@@ -27,12 +27,12 @@ namespace S {
 	`;
 }
 
-export class DataMapperCanvasContainerWidget extends React.Component {
+export class DataMapperCanvasContainerWidget extends React.Component<{ hideCanvas: boolean }> {
 	render() {
 		return (
 			<>
 				<Global styles={S.Expand} />
-				<S.Container className='dotted-background'>
+				<S.Container className='dotted-background' hidden={this.props.hideCanvas}>
 					{this.props.children}
 				</S.Container>
 			</>

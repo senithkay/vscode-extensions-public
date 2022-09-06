@@ -36,6 +36,7 @@ import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
 	links?: DataMapperLinkModel[];
+	hideCanvas?: boolean;
 }
 
 function initDiagramEngine() {
@@ -70,7 +71,7 @@ function initDiagramEngine() {
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
-	const { nodes } = props;
+	const { nodes, hideCanvas } = props;
 
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
 	const [model, setModel] = React.useState(new DiagramModel());
@@ -120,7 +121,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	return (
 		<>
 			{engine && engine.getModel() && (
-				<DataMapperCanvasContainerWidget>
+				<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
 					<DataMapperCanvasWidget engine={engine} />
 				</DataMapperCanvasContainerWidget>
 			)}

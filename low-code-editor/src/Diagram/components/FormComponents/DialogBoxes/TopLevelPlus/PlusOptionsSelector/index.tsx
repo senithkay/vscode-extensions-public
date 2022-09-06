@@ -18,6 +18,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { FormGenerator } from "../../../FormGenerator";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
+import { DataMapperOverlay } from "../../../../DataMapperOverlay";
 
 export interface PlusOptionsProps {
     kind: string
@@ -115,7 +116,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     />
                 )
             }
-            {selectedOption && (
+            {selectedOption && selectedOption.type !== "DataMapper"  && (
                 <FormGenerator
                     targetPosition={targetPosition}
                     configOverlayFormStatus={{
@@ -126,6 +127,18 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     }}
                     onCancel={handleOnClose}
                     onSave={handleOnSave}
+                />
+            )}
+            {selectedOption && selectedOption.type === "DataMapper"  && (
+                <DataMapperOverlay
+                    targetPosition={targetPosition}
+                    configOverlayFormStatus={{
+                        formType: selectedOption.type,
+                        formName: selectedOption.name,
+                        isLoading: false,
+                        isLastMember: isLastMember
+                    }}
+                    onCancel={handleOnClose}
                 />
             )}
         </>

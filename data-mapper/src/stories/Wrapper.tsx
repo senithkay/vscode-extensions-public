@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { BalleriaLanguageClient } from '@wso2-enterprise/ballerina-languageclient';
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { DataMapper } from '../components/DataMapper/DataMapper';
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,13 +32,12 @@ export interface DataMapperWrapperProps {
     getFileContent: (url: string) => Promise<string>;
     updateFileContent: (filePath: string, content: string) => Promise<boolean>;
     filePath: string;
-    langClientPromise: () => Promise<BalleriaLanguageClient>;
-    getLangClient: () => Promise<BalleriaLanguageClient>;
+    langClientPromise: Promise<IBallerinaLangClient>;
     lastUpdatedAt: string;
 }
 
 export function DataMapperWrapper(props: DataMapperWrapperProps) {
-    const { langClientPromise, getFileContent, filePath, updateFileContent, lastUpdatedAt, getLangClient } = props;
+    const { langClientPromise, getFileContent, filePath, lastUpdatedAt } = props;
     const [didOpen, setDidOpen] = React.useState(false);
     const [fileContent, setFileContent] = React.useState("");
     const [lastUpdated, setLastUpdated] = React.useState(lastUpdatedAt);
@@ -53,7 +52,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
     }
 
     const applyModifications = async (modifications: STModification[]) => {
-        const langClient = await langClientPromise();
+        const langClient = await langClientPromise;
         const stModifyResp = await langClient.stModify({
             documentIdentifier: {
                 uri: `file://${filePath}`
@@ -72,7 +71,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
     useEffect(() => {
         async function getSyntaxTree() {
             if (didOpen) {
-                const langClient = await langClientPromise();
+                const langClient = await langClientPromise;
                 const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
                     documentIdentifier: {
                         uri: `file://${filePath}`
@@ -93,7 +92,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
     useEffect(() => {
         async function openFileInLS() {
             const text = await getFileContent(filePath);
-            const langClient = await langClientPromise();
+            const langClient = await langClientPromise;
             langClient.didOpen({
                 textDocument: {
                     languageId: "ballerina",
@@ -107,7 +106,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         }
 
         async function closeFileInLS() {
-            const langClient = await langClientPromise();
+            const langClient = await langClientPromise;
             langClient.didClose({
                 textDocument: {
                     uri: `file://${filePath}`,
@@ -132,6 +131,8 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                         langClientPromise={langClientPromise}
                         filePath={filePath}
                         applyModifications={applyModifications}
+                        onClose={() => { }}
+                        onSave={() => { }}
                     />
                 </Grid>
                 <Grid item={true} xs={4}>
@@ -143,7 +144,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                             // tslint:disable-next-line: jsx-no-lambda
                             (fPath, newContent) => {
                                 updateFileContentOverride(fPath, newContent);
-                                langClientPromise().then((langClient) => {
+                                langClientPromise.then((langClient) => {
                                     langClient.didChange({
                                         textDocument: {
                                             uri: `file://${filePath}`,

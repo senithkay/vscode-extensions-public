@@ -10,8 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-    ExpressionEditorLangClientInterface,
     ExpressionRange,
     LinePosition,
     Type
@@ -44,7 +44,7 @@ export class RecordTypeDescriptorStore {
 
     public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext){
         this.recordTypeDescriptors.clear();
-        const langClient = await context.getEELangClient();
+        const langClient = await context.langClientPromise;
         const fileUri = `file://${context.currentFile.path}`;
         const visitor = new RecordTypeFindingVisitor();
         traversNode(stNode, visitor);
@@ -56,7 +56,7 @@ export class RecordTypeDescriptorStore {
         await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges);
     }
 
-    async setTypesForExpressions(langClient: ExpressionEditorLangClientInterface,
+    async setTypesForExpressions(langClient: IBallerinaLangClient,
                                  fileUri: string, expressionNodesRanges: ExpressionRange[]) {
 
         const typesFromExpression = await langClient.getTypeFromExpression({
@@ -71,7 +71,7 @@ export class RecordTypeDescriptorStore {
         }
     }
 
-    async setTypesForSymbol(langClient: ExpressionEditorLangClientInterface,
+    async setTypesForSymbol(langClient: IBallerinaLangClient,
                             fileUri: string, symbolNodesPositions: LinePosition[]) {
 
         const typesFromSymbol = await langClient.getTypeFromSymbol({

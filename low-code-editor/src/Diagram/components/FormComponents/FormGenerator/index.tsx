@@ -76,7 +76,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             { formType === "ClassDefinition" || formType === "Custom" ? (
                 <UnsupportedConfirmButtons onConfirm={handleConfirm} onCancel={onCancel} />
             ) : (
-                <Panel formType={formType} onClose={onCancel}>
+                <Panel onClose={onCancel}>
                     <>
                         { showLoader && isLoading && (
                             <Box display="flex" justifyContent="center" alignItems="center" height="80vh" width="600px">

@@ -31,12 +31,7 @@ export class AddInputTypeNodeFactory extends AbstractReactFactory<AddInputTypeNo
 
 	generateReactWidget(event: { model: AddInputTypeNode; }): JSX.Element {
 		return (
-			<AddIOTypeNodeWidget
-				engine={this.engine}
-				node={event.model}
-				title={"Input"}
-				context={event.model.context}
-			/>
+			<></>
 		);
 	}
 
