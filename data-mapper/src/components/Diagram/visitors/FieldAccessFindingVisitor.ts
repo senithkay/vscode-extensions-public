@@ -28,7 +28,7 @@ export class FieldAccessFindingVisitor implements Visitor {
     }
 
     public beginVisitFieldAccess(node: FieldAccess, parent?: STNode) {
-        if (!STKindChecker.isFieldAccess(parent) && this.queryExpressionDepth == 0){
+        if ((!parent || !STKindChecker.isFieldAccess(parent)) && this.queryExpressionDepth == 0){
             this.fieldAccesseNodes.push(node)
         }
     }

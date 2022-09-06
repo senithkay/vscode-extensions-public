@@ -67,7 +67,8 @@ export function ViewContainer(props: ViewContainerProps) {
             activeEditorId
         },
         targetPosition,
-        syntaxTree
+        syntaxTree,
+        isExpressionMode
     } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
@@ -132,7 +133,7 @@ export function ViewContainer(props: ViewContainerProps) {
         await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
         const imports = addImports ? Array.from(modulesToBeImported) as string[] : [];
         if (statementModel){
-            const modifications = getModifications(statementModel, config.type, targetPosition, imports);
+            const modifications = getModifications(statementModel, config.type, targetPosition, imports, isExpressionMode);
             applyModifications(modifications);
         }
     };

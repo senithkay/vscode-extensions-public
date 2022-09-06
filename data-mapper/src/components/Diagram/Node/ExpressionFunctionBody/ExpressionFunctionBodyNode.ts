@@ -1,30 +1,36 @@
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	ExpressionFunctionBody,
-	FieldAccess,
 	MappingConstructor,
-	RequiredParam,
-	SimpleNameReference,
 	SpecificField,
-	STKindChecker
+    STKindChecker,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { isPositionsEquals } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
+import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import { getFieldNames } from "../../utils/dm-utils";
+import {
+    getBalRecFieldName,
+    getEnrichedRecordType,
+    getInputNodeExpr,
+    getInputPortsForExpr
+} from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
-import { RequiredParamNode } from "../RequiredParam";
 
 export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
 
 export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
 
     public typeDef: Type;
+    public enrichedTypeDef: EditableRecordField;
 
     constructor(
         public context: IDataMapperContext,
@@ -45,11 +51,19 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             endColumn: this.typeDesc.position.startColumn
         });
 
-        if (this.typeDef && this.typeDef.typeName === 'record') {
-            const fields = this.typeDef.fields;
-            fields.forEach((subField) => {
-                this.addPortsForRecordField(subField, "IN", "exprFunctionBody");
-            });
+        if (this.typeDef) {
+            const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
+            this.enrichedTypeDef = valueEnrichedType;
+            if (valueEnrichedType.type.typeName === 'record') {
+                const fields: EditableRecordField[] = valueEnrichedType.childrenTypes;
+                if (!!fields.length) {
+                    fields.forEach((subField) => {
+                        this.addPortsForOutputRecordField(subField, "IN", "exprFunctionBody");
+                    });
+                }
+            } else {
+                // TODO: Add support for other return type descriptors
+            }
         }
     }
 
@@ -61,123 +75,101 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
+            const specificField = fields[fields.length - 1];
             if (!value) {
                 console.log("Unsupported mapping.");
                 return;
             }
-            const inputNode = this.getInputNodeExpr(value);
+            const inputNode = getInputNodeExpr(value, this);
             let inPort: RecordFieldPortModel;
             if (inputNode) {
-                inPort = this.getInputPortsForExpr(inputNode, value);
+                inPort = getInputPortsForExpr(inputNode, value);
             }
             const outPort = this.getOutputPortForField(fields);
 			const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
-            lm.addLabel(new ExpressionLabelModel({
-                value: otherVal?.source || value.source,
-                valueNode: otherVal || value,
-                context: this.context,
-                link: lm
-            }));
-            lm.setTargetPort(outPort);
-            lm.setSourcePort(inPort);
-            lm.registerListener({
-                selectionChanged(event) {
-                    if (event.isSelected) {
-                        inPort.fireEvent({}, "link-selected");
-                        outPort.fireEvent({}, "link-selected");
-                    } else {
-                        inPort.fireEvent({}, "link-unselected");
-                        outPort.fireEvent({}, "link-unselected");
-                    }
-                },
-            })
-            this.getModel().addAll(lm);
+            if (inPort && outPort) {
+                lm.addLabel(new ExpressionLabelModel({
+                    value: otherVal?.source || value.source,
+                    valueNode: otherVal || value,
+                    context: this.context,
+                    link: lm,
+                    specificField: specificField,
+                    deleteLink: () => this.deleteLink(specificField),
+                }));
+                lm.setTargetPort(outPort);
+                lm.setSourcePort(inPort);
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            inPort.fireEvent({}, "link-selected");
+                            outPort.fireEvent({}, "link-selected");
+                        } else {
+                            inPort.fireEvent({}, "link-unselected");
+                            outPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(lm);
+            }
         });
     }
 
     private getOutputPortForField(fields: SpecificField[]) {
-        let nextTypeNode = this.typeDef;
-        let recField: Type;
+        let nextTypeNode = this.enrichedTypeDef?.childrenTypes;
+        let recField: EditableRecordField;
         let portIdBuffer = "exprFunctionBody";
+        let fieldIndex;
         for (let i = 0; i < fields.length; i++) {
             const specificField = fields[i];
-            portIdBuffer += `.${specificField.fieldName.value}`
-            const recFieldTemp = nextTypeNode.fields.find(
-                (recF) => recF.name === specificField.fieldName.value);
+            if (fieldIndex !== undefined) {
+                portIdBuffer = `${portIdBuffer}.${fieldIndex}.${specificField.fieldName.value}`;
+                fieldIndex = undefined;
+            } else {
+                portIdBuffer = `${portIdBuffer}.${specificField.fieldName.value}`
+            }
+            const recFieldTemp = nextTypeNode.find(
+                (recF) => getBalRecFieldName(recF.type.name) === specificField.fieldName.value);
             if (recFieldTemp) {
                 if (i === fields.length - 1) {
                     recField = recFieldTemp;
-                } else if (recFieldTemp.typeName === 'record') {
-                    nextTypeNode = recFieldTemp
+                } else if (recFieldTemp.type.typeName === 'record') {
+                    nextTypeNode = recFieldTemp?.childrenTypes;
+                } else if (recFieldTemp.type.typeName === 'array' && recFieldTemp.type.memberType.typeName === 'record') {
+                    recFieldTemp.elements.forEach((element, index) => {
+                        if (STKindChecker.isListConstructor(specificField.valueExpr)) {
+                            specificField.valueExpr.expressions.forEach((expr) => {
+                                if (isPositionsEquals(element.elementNode.position, expr.position)) {
+                                    element.members.forEach((member) => {
+                                        if (member?.value
+                                            && isPositionsEquals(member.value.fieldName.position,
+                                                fields[i + 1].fieldName.position)) {
+                                            nextTypeNode = element?.members;
+                                            fieldIndex = index;
+                                            return;
+                                        }
+                                    });
+                                }
+                            })
+                        }
+                    })
                 }
             }
         }
         if (recField) {
-            const portId = portIdBuffer + ".IN";
+            const portId = `${portIdBuffer}.IN`;
             const outPort = this.getPort(portId);
             return outPort;
         }
     }
 
-    // Improve to return multiple ports for complex expressions
-    private getInputPortsForExpr(node: RequiredParamNode
-                                 , expr: FieldAccess | SimpleNameReference): RecordFieldPortModel {
-        const typeDesc = node.typeDef;
-        let portIdBuffer = node.value.paramName.value;
-        if (typeDesc.typeName === 'record') {
-            if (STKindChecker.isFieldAccess(expr)) {
-                const fieldNames = getFieldNames(expr);
-                let nextTypeNode: Type = typeDesc;
-                for (let i = 1; i < fieldNames.length; i++) {
-                    const fieldName = fieldNames[i];
-                    portIdBuffer += `.${fieldName}`;
-                    const recField = nextTypeNode.fields.find(
-                        (field) => field.name === fieldName);
-                    if (recField) {
-                        if (i === fieldNames.length - 1) {
-                            const portId = portIdBuffer + ".OUT";
-                            const port = (node.getPort(portId) as RecordFieldPortModel);
-                            return port;
-                        } else if (recField.typeName === 'record') {
-                            nextTypeNode = recField;
-                        }
-                    }
-                }
-            } else {
-                // handle this when direct mapping parameters is enabled
-            }
-        }
-        return null;
-    }
+    private deleteLink(field: SpecificField) {
+        const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
+        traversNode(this.value.expression, linkDeleteVisitor);
+        const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
 
-    private getInputNodeExpr(expr: FieldAccess | SimpleNameReference) {
-        const nameRef = STKindChecker.isSimpleNameReference(expr) ? expr : undefined;
-        if (!nameRef && STKindChecker.isFieldAccess(expr)) {
-            let valueExpr = expr.expression;
-            while (valueExpr && STKindChecker.isFieldAccess(valueExpr)) {
-                valueExpr = valueExpr.expression;
-            }
-            if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-                const paramNode = this.context.functionST.functionSignature.parameters
-                    .find((param) =>
-                        STKindChecker.isRequiredParam(param)
-                        && param.paramName?.value === (valueExpr as SimpleNameReference).name.value
-                    ) as RequiredParam;
-                return this.findNodeByValueNode(paramNode);
-            }
-        }
-    }
-
-    private findNodeByValueNode(value: ExpressionFunctionBody | RequiredParam): RequiredParamNode {
-        let foundNode: RequiredParamNode;
-        this.getModel().getNodes().find((node) => {
-            if (STKindChecker.isRequiredParam(value)
-                && node instanceof RequiredParamNode
-                && STKindChecker.isRequiredParam(node.value)
-                && value.paramName.value === node.value.paramName.value) {
-                foundNode = node;
-            }
-        });
-        return foundNode;
+        this.context.applyModifications([{
+            type: "DELETE",
+            ...nodePositionsToDelete
+        }]);
     }
 }

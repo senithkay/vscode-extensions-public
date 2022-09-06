@@ -88,7 +88,13 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	};
 
 	const onClickDelete = () => {
-		// TODO implement the delete link logic
+		if (props.model.deleteLink) {
+			props.model.deleteLink();
+		}
+	};
+
+	const onClickEdit = () => {
+		props.model.context.enableStamentEditor(props.model.specificField);
 	};
 
 	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: FormField) => {
@@ -121,42 +127,9 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 	return (
 		<S.Label>
-			{editable &&
-				<input
-
-					size={str.length}
-					spellCheck={false}
-					style={{
-						padding: "5px",
-						fontFamily: "monospace",
-						zIndex: 1000,
-						border: "1px solid #5567D5"
-					}}
-					autoFocus={true}
-					value={str}
-					onChange={(event) => {
-						const newVal = event.target.value;
-
-						// update value both in internal component state
-						setStr(newVal);
-						// and in model object
-						props.model.value = newVal;
-					}}
-					onKeyUp={(evt) => {
-							if (evt.key === "Escape") {
-								setEditable(false);
-							}
-							if (evt.key === "Enter") {
-								props.model.updateSource();
-							}
-						}
-					}
-					onBlur={() => setEditable(false)}
-				/>
-			}
 			<S.ActionsContainer>
 				<span style={{display: "flex"}}>
-					<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={() => setEditable(true)} />}</div>
+					<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={onClickEdit} />}</div>
 					<div>{!editable && linkSelected && canUseQueryExpr &&
 							(
 						        <Tooltip title={"Make Query"} placement="top" arrow={true}>

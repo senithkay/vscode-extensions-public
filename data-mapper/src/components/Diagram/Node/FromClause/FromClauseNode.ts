@@ -48,7 +48,7 @@ export class FromClauseNode extends DataMapperNodeModel {
             if (this.typeDef && this.typeDef.typeName === 'record') {
                 const fields = this.typeDef.fields;
                 fields.forEach((subField) => {
-                    this.addPortsForRecordField(subField, "OUT", parentId, this.sourceBindingPattern.variableName.value);
+                    this.addPortsForInputRecordField(subField, "OUT", parentId, this.sourceBindingPattern.variableName.value);
                 });
             }
         }

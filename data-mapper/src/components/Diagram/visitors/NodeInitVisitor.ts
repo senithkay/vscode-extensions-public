@@ -3,8 +3,10 @@ import {
     ExpressionFunctionBody,
     FunctionDefinition,
     QueryExpression,
+    SpecificField,
     STKindChecker,
     STNode,
+    traversNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -15,11 +17,12 @@ import {
     QueryExpressionNode,
     RequiredParamNode
 } from "../Node";
-import { BinaryExpressionNode } from "../Node/BinaryExpression/BinaryExpressionNode";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { SelectClauseNode } from "../Node/SelectClause";
+import { LinkConnectorNode } from "../Node/LinkConnector";
+import { FieldAccessFindingVisitor } from "./FieldAccessFindingVisitor";
 
 const draftFunctionName = 'XChoreoLCReturnType';
 
@@ -28,6 +31,8 @@ export class NodeInitVisitor implements Visitor {
     private inputNodes: DataMapperNodeModel[] = [];
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
+    private specificFields: SpecificField[] =[];
+    private isWithinQuery: number = 0;
 
     constructor(
         private context: DataMapperContext,
@@ -65,9 +70,6 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitBinaryExpression(node: BinaryExpression, parent?: STNode) {
-        const binaryNode = new BinaryExpressionNode(this.context, node, parent);
-        binaryNode.setPosition(400, 300);
-        this.intermediateNodes.push(binaryNode);
     };
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
@@ -98,10 +100,30 @@ export class NodeInitVisitor implements Visitor {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
             queryNode.setPosition(440, 1200);
             this.intermediateNodes.push(queryNode);
+            this.isWithinQuery += 1;
         }
     };
 
+    beginVisitSpecificField(node: SpecificField, parent?: STNode) {
+        this.specificFields.push(node)
+        if (this.isWithinQuery === 0
+            && node.valueExpr
+            && !STKindChecker.isMappingConstructor(node.valueExpr)
+            && !STKindChecker.isListConstructor(node.valueExpr)
+        ) {
+            const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
+            traversNode(node.valueExpr, fieldAccessFindingVisitor);
+            const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
+            if (fieldAccesseNodes.length > 1){
+                const linkConnectorNode = new LinkConnectorNode(this.context, node, parent, fieldAccesseNodes, this.specificFields.slice(0));
+                linkConnectorNode.setPosition(440,1200);
+                this.intermediateNodes.push(linkConnectorNode);
+            }
+        }
+    }
+
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
+        this.isWithinQuery -= 1;
 
     };
 
@@ -112,7 +134,9 @@ export class NodeInitVisitor implements Visitor {
     endVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
     }
 
-
+    endVisitSpecificField(node: SpecificField, parent?: STNode) {
+        this.specificFields.pop()
+    }
 
     getNodes() {
         const nodes = [...this.inputNodes];

@@ -25,7 +25,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: Type;
     public sourcePort: RecordFieldPortModel;
-    public targetPort: RecordFieldPortModel;
+    public targetPort: RecordFieldPortModel | SpecificFieldPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
@@ -64,7 +64,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         if (this.sourceBindingPattern) {
             const parentId = `${QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
             this.sourceTypeDesc.fields.forEach((field) => {
-                this.addPortsForRecordField(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
+                this.addPortsForInputRecordField(field, "OUT", parentId, this.sourceBindingPattern.variableName.value);
             });
         }
     }
@@ -118,7 +118,27 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     private async getTargetType() {
         // TODO get target type from specific field instead of select clause
-        const selectClause = this.value.selectClause;
+        this.getModel().getNodes().map((node) => {
+                if (node instanceof ExpressionFunctionBodyNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof SpecificFieldPortModel) {
+                            if (STKindChecker.isRecordField(port.field)) {
+                                if (port.field.fieldName.value === "Assets") {
+                                    this.targetPort = port;
+                                }
+                            }
+                        } else if (port instanceof RecordFieldPortModel && port.field.name === 'Assets') {
+                            this.targetPort = port;
+                        }
+                    });
+                } else if (node instanceof SelectClauseNode) {
+                    const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
+                    this.targetPort = node.getPort(
+                        `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as SpecificFieldPortModel;
+                }
+        });
     }
 
     initLinks(): void {
@@ -141,7 +161,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         value: otherVal?.source || value.source,
                         valueNode: otherVal || value,
                         context: this.context,
-                        link
+                        link,
+                        specificField: fields[fields.length - 1]
                     }));
                     link.registerListener({
                         selectionChanged(event) {
@@ -188,47 +209,29 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         }
 
         // TODO - temp hack to render link
-        if (this.outPort) {
-            let targetPort: SpecificFieldPortModel | RecordFieldPortModel;
-            this.getModel().getNodes().map((node) => {
-                    if (node instanceof ExpressionFunctionBodyNode) {
-                        const ports = Object.entries(node.getPorts());
-                        ports.map((entry) => {
-                            const port = entry[1];
-                            if (port instanceof SpecificFieldPortModel) {
-                                if (STKindChecker.isRecordField(port.field)) {
-                                    if (port.field.fieldName.value === "Assets") {
-                                        targetPort = port;
-                                    }
-                                }
-                            } else if (port instanceof RecordFieldPortModel && port.field.name === 'Assets') {
-                                targetPort = port;
-                            }
-                        });
-                    } else if (node instanceof SelectClauseNode) {
-                        const specificField = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.value;
-                        targetPort = node.getPort(
-                            `${EXPANDED_QUERY_TARGET_PORT_PREFIX}.${specificField}.IN`) as SpecificFieldPortModel;
+        if (this.outPort && this.targetPort) {
+            const link = new DataMapperLinkModel(undefined);
+            link.setSourcePort(this.outPort);
+            link.setTargetPort(this.targetPort);
+            link.registerListener({
+                selectionChanged(event) {
+                    if (event.isSelected) {
+                        this.targetPort[1].fireEvent({}, "link-selected");
+                        this.outPort.fireEvent({}, "link-selected");
+                    } else {
+                        this.targetPort[1].fireEvent({}, "link-unselected");
+                        this.outPort.fireEvent({}, "link-unselected");
                     }
-            });
+                },
+            })
+            this.getModel().addAll(link);
+        }
+    }
 
-            if (targetPort) {
-                const link = new DataMapperLinkModel(undefined);
-                link.setSourcePort(this.outPort);
-                link.setTargetPort(targetPort);
-                link.registerListener({
-                    selectionChanged(event) {
-                        if (event.isSelected) {
-                            targetPort[1].fireEvent({}, "link-selected");
-                            this.outPort.fireEvent({}, "link-selected");
-                        } else {
-                            targetPort[1].fireEvent({}, "link-unselected");
-                            this.outPort.fireEvent({}, "link-unselected");
-                        }
-                    },
-                })
-                this.getModel().addAll(link);
-            }
+    public updatePosition() {
+        if (this.targetPort){
+            const position = this.targetPort.getPosition()
+            this.setPosition(position.x - 200, position.y - 10)
         }
     }
 }

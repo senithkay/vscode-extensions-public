@@ -22,6 +22,7 @@ export interface IDataMapperContext {
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
     applyModifications: (modifications: STModification[]) => void;
     diagnostics: Diagnostic[];
+    enableStamentEditor: (model: STNode) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -39,7 +40,8 @@ export class DataMapperContext implements IDataMapperContext {
         public stSymbolInfo: STSymbolInfo,
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
         public applyModifications: (modifications: STModification[]) => void,
-        public diagnostics: Diagnostic[]
+        public diagnostics: Diagnostic[],
+        public enableStamentEditor: (model: STNode) => void
     ){}
 
     public get functionST(): FunctionDefinition {

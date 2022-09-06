@@ -1,12 +1,16 @@
 import React, { useEffect, useReducer, useState } from "react";
 
 import {
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibrarySearchResponse,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FunctionDefinition,
     NodePosition,
+    SpecificField,
     STNode,
     traversNode,
 } from "@wso2-enterprise/syntax-tree";
@@ -24,6 +28,29 @@ import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { LSClientContext } from "./Context/ls-client-context";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
+import { StatementEditorComponent } from "../StatementEditorComponent/StatementEditorComponent"
+import Grid from "@material-ui/core/Grid";
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      flexGrow: 1,
+      height: "100%"
+    },
+    gridContainer: {
+      height: "100%",
+      gridTemplateColumns: "1fr fit-content(200px)"
+    },
+    paper: {
+      padding: theme.spacing(2),
+      textAlign: 'center',
+      color: theme.palette.text.secondary,
+    },
+  }),
+);
+
 
 export interface DataMapperProps {
     targetPosition?: NodePosition;
@@ -39,6 +66,11 @@ export interface DataMapperProps {
     applyModifications: (modifications: STModification[]) => void;
     onSave: (fnName: string) => void;
     onClose: () => void;
+    library?: {
+        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
+        getLibrariesData: () => Promise<LibrarySearchResponse>;
+        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
+    };
 }
 
 export enum ViewOption {
@@ -65,14 +97,18 @@ const selectionReducer = (state: SelectionState, action: {type: ViewOption, payl
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, onClose } = props;
+
+    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose } = props;
+
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
-
+    const [currentEditableField, setCurrentEditableField] = useState<SpecificField>(null);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
         prevST: []
     });
+
+    const classes = useStyles();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState) => {
         dispatchSelection({type: mode, payload: selectionState});
@@ -89,22 +125,31 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
+	const enableStamentEditor = (model: SpecificField) => {
+        setCurrentEditableField(model)
+	}
+
+    const closeStamentEditor = () => {
+        setCurrentEditableField(null)
+	}
+
     useEffect(() => {
         (async () => {
            if (fnST && selection) {
                 const diagnostics=  await handleDiagnostics(filePath, langClientPromise)
 
-                const context = new DataMapperContext(
-                    filePath,
-                    fnST,
-                    selection,
-                    langClientPromise,
-                    currentFile,
-                    stSymbolInfo,
-                    handleSelectedST,
-                    applyModifications,
-                    diagnostics
-                );
+            const context = new DataMapperContext(
+                filePath,
+                fnST,
+                selection,
+                langClientPromise,
+                currentFile,
+                stSymbolInfo,
+                handleSelectedST,
+                applyModifications,
+                diagnostics,
+                enableStamentEditor
+            );
 
                 const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
                 await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
@@ -124,18 +169,33 @@ function DataMapperC(props: DataMapperProps) {
         onClose: onConfigClose
     }
     return (
-        <>
-            <LSClientContext.Provider value={langClientPromise}>
-                <CurrentFileContext.Provider value={currentFile}>
-                    {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
-                    <DataMapperDiagram
-                        nodes={nodes}
-                        hideCanvas={!fnST}
-                    />
-                    {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps }/>}
-                </CurrentFileContext.Provider>
-            </LSClientContext.Provider>
-        </>
+        <LSClientContext.Provider value={langClientPromise}>
+            <CurrentFileContext.Provider value={currentFile}>
+                <div className={classes.root}>
+                    <Grid container={true} spacing={3} className={classes.gridContainer} >
+                        <Grid item={true} xs={currentEditableField ? 7 : 12}>
+                            {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
+                            <DataMapperDiagram
+                                nodes={nodes}
+                            />
+                            {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
+                        </Grid>
+                        {!!currentEditableField &&
+                            <Grid item={true} xs={5} style={{ width: "fit-content" }}>
+                                <StatementEditorComponent
+                                    model={currentEditableField}
+                                    langClientPromise={langClientPromise}
+                                    applyModifications={applyModifications}
+                                    currentFile={currentFile}
+                                    library={library}
+                                    onCancel={closeStamentEditor}
+                                />
+                            </Grid>
+                        }
+                    </Grid>
+                </div>
+            </CurrentFileContext.Provider>
+        </LSClientContext.Provider>
     )
 }
 
