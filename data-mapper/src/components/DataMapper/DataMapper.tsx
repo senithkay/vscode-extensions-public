@@ -23,6 +23,7 @@ import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient"
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { LSClientContext } from "./Context/ls-client-context";
 import { CurrentFileContext } from "./Context/current-file-context";
+import { DataMapperHeader } from "./Header/DataMapperHeader";
 
 export interface DataMapperProps {
     targetPosition?: NodePosition;
@@ -64,8 +65,9 @@ const selectionReducer = (state: SelectionState, action: {type: ViewOption, payl
 
 function DataMapperC(props: DataMapperProps) {
 
-    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications } = props;
+    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, onClose } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
+    const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
 
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
@@ -74,6 +76,17 @@ function DataMapperC(props: DataMapperProps) {
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState) => {
         dispatchSelection({type: mode, payload: selectionState});
+    }
+
+    const onConfigOpen = () => {
+        setConfigPanelOpen(true);
+    }
+
+    const onConfigClose = () => {
+        setConfigPanelOpen(false);
+        if (!fnST) {
+            onClose();
+        }
     }
 
     useEffect(() => {
@@ -106,15 +119,20 @@ function DataMapperC(props: DataMapperProps) {
         })();
     }, [selection, fnST]);
 
+    const cPanelProps = {
+        ...props,
+        onClose: onConfigClose
+    }
     return (
         <>
             <LSClientContext.Provider value={langClientPromise}>
                 <CurrentFileContext.Provider value={currentFile}>
+                    {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
                     <DataMapperDiagram
                         nodes={nodes}
                         hideCanvas={!fnST}
                     />
-                    {!fnST && <DataMapperConfigPanel {...props}/>}
+                    {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps }/>}
                 </CurrentFileContext.Provider>
             </LSClientContext.Provider>
         </>
