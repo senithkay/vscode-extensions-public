@@ -34,21 +34,21 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 
 const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1,
-      height: "100%"
-    },
-    gridContainer: {
-      height: "100%",
-      gridTemplateColumns: "1fr fit-content(200px)"
-    },
-    paper: {
-      padding: theme.spacing(2),
-      textAlign: 'center',
-      color: theme.palette.text.secondary,
-    },
-  }),
+    createStyles({
+        root: {
+            flexGrow: 1,
+            height: "100%"
+        },
+        gridContainer: {
+            height: "100%",
+            gridTemplateColumns: "1fr fit-content(200px)"
+        },
+        paper: {
+            padding: theme.spacing(2),
+            textAlign: 'center',
+            color: theme.palette.text.secondary,
+        },
+    }),
 );
 
 
@@ -83,7 +83,7 @@ export interface SelectionState {
     prevST?: STNode[];
 }
 
-const selectionReducer = (state: SelectionState, action: {type: ViewOption, payload: SelectionState }) => {
+const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload: SelectionState }) => {
     if (action.type === ViewOption.EXPAND) {
         const previousST = !!state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
         return { selectedST: action.payload.selectedST, prevST: previousST };
@@ -92,7 +92,7 @@ const selectionReducer = (state: SelectionState, action: {type: ViewOption, payl
         const prevSelection = state.prevST.pop();
         return { selectedST: prevSelection, prevST: [...state.prevST] };
     }
-    return { selectedST: action.payload.selectedST };
+    return { selectedST: action.payload.selectedST, prevST: action.payload.prevST };
 };
 
 function DataMapperC(props: DataMapperProps) {
@@ -111,7 +111,7 @@ function DataMapperC(props: DataMapperProps) {
     const classes = useStyles();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState) => {
-        dispatchSelection({type: mode, payload: selectionState});
+        dispatchSelection({ type: mode, payload: selectionState });
     }
 
     const onConfigOpen = () => {
@@ -125,44 +125,55 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
-	const enableStamentEditor = (model: SpecificField) => {
+    const enableStamentEditor = (model: SpecificField) => {
         setCurrentEditableField(model)
-	}
+    }
 
     const closeStamentEditor = () => {
         setCurrentEditableField(null)
-	}
+    }
 
     useEffect(() => {
         (async () => {
-           if (fnST && selection) {
-                const diagnostics=  await handleDiagnostics(filePath, langClientPromise)
+            if (fnST && selection.selectedST) {
+                const diagnostics = await handleDiagnostics(filePath, langClientPromise)
 
-            const context = new DataMapperContext(
-                filePath,
-                fnST,
-                selection,
-                langClientPromise,
-                currentFile,
-                stSymbolInfo,
-                handleSelectedST,
-                applyModifications,
-                diagnostics,
-                enableStamentEditor
-            );
-
+                const context = new DataMapperContext(
+                    filePath,
+                    fnST,
+                    selection,
+                    langClientPromise,
+                    currentFile,
+                    stSymbolInfo,
+                    handleSelectedST,
+                    applyModifications,
+                    diagnostics,
+                    enableStamentEditor
+                );
                 const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
                 await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
                 const nodeInitVisitor = new NodeInitVisitor(context, selection);
-                let selectedST = selection.selectedST || fnST;
+                let selectedST = selection.selectedST;
                 const visitor = new SelectedSTFindingVisitor(selectedST);
                 traversNode(fnST, visitor);
                 selectedST = visitor.getST();
                 traversNode(selectedST, nodeInitVisitor);
                 setNodes(nodeInitVisitor.getNodes());
-           }
+            }
         })();
     }, [selection, fnST]);
+
+    useEffect(() => {
+        if (!selection.selectedST) {
+            dispatchSelection({
+                type: undefined,
+                payload: {
+                    prevST: [],
+                    selectedST: fnST
+                }
+            })
+        }
+    }, [fnST]);
 
     const cPanelProps = {
         ...props,
