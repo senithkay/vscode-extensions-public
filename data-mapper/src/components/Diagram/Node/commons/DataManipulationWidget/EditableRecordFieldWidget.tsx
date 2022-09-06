@@ -129,7 +129,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     }
 
                     <span> {label}</span>
-                    {!hasValue && (
+                    {!hasValue && !isRecord && (
                         <IconButton
                             aria-label="add"
                             className={classes.addIcon}
