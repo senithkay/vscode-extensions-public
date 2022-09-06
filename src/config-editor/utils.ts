@@ -58,7 +58,7 @@ export function generateExistingValues(tomlContent: object, orgName: string, pac
     // Iterate the root level configurable values.
     configInputs.properties.forEach((configObject: any) => {
         const configProperty: ConfigProperty = {
-            id: "1",
+            id: configObject.id,
             configs: [],
             headerNames: [],
         };
