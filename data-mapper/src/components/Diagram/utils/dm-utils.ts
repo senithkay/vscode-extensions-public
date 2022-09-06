@@ -226,6 +226,11 @@ export function createSourceForUserInput(field: EditableRecordField, mappingCons
 	}
 
 	if (!source) {
+		const specificField = getSpecificField(targetMappingConstructor, field.type.name);
+		if (specificField && !specificField.valueExpr.source) {
+			return createValueExprSource(field.type.name, newValue, parentFields, 1,
+				specificField.colon.position, applyModifications);
+		}
 		source = createSpecificField(parentFields.reverse());
 	}
 	source = !!targetMappingConstructor.fields.length ? source + "," : source;
