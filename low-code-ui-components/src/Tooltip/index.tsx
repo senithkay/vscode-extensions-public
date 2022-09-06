@@ -238,9 +238,9 @@ export function StatementEditorHint(props: Partial<TooltipPropsExtended>) {
     return (
         <Tooltip
             {...restProps}
-            interactive={true}
+            interactive={false}
             componentModel={componentModel}
-            placement="bottom-start"
+            placement="bottom-end"
             arrow={false}
             toolTipContent={content}
             stmtEditorHint={true}
