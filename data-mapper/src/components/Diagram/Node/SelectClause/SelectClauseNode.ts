@@ -88,6 +88,7 @@ export class SelectClauseNode extends DataMapperNodeModel {
                     context: this.context,
                     link,
                     specificField: fields[fields.length - 1]
+                    // TODO: add delete callback
                 }));
                 link.registerListener({
                     selectionChanged(event) {
