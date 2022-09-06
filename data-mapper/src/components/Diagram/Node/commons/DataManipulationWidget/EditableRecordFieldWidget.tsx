@@ -23,7 +23,7 @@ import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
+import { createSourceForUserInput, getBalRecFieldName, getDefaultLiteralValue, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -106,39 +106,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             setEditable(false);
         }
         if (key === "Enter") {
-            let src;
-            let targetPosition;
-            if (field.hasValue() && !field.value.valueExpr.source) {
-                src = str;
-                targetPosition = field.value.valueExpr.position;
-            } else {
-                const [newSource, targetMappingConstruct]  = getNewSource(field, mappingConstruct, str);
-                src = `\n${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`;
-                targetPosition = {
-                    endColumn: targetMappingConstruct.openBrace.position.endColumn,
-                    endLine: targetMappingConstruct.openBrace.position.endLine,
-                    startColumn: targetMappingConstruct.openBrace.position.endColumn,
-                    startLine: targetMappingConstruct.openBrace.position.endLine
-                };
-            }
-            updateSource(src, targetPosition);
+            createSourceForUserInput(field, mappingConstruct, str, context.applyModifications);
         }
-    };
-
-    const updateSource = (newSource: string, targetPosition: NodePosition) => {
-        const modifications = [
-            {
-                type: "INSERT",
-                config: {
-                    "STATEMENT": newSource,
-                },
-                endColumn: targetPosition.endColumn,
-                endLine: targetPosition.endLine,
-                startColumn: targetPosition.endColumn,
-                startLine: targetPosition.endLine
-            }
-        ];
-        context.applyModifications(modifications);
     };
 
     return (

@@ -23,7 +23,8 @@ import { ListConstructor, MappingConstructor, NodePosition, STKindChecker } from
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getNewSource } from "../../../utils/dm-utils";
+import { createSourceForUserInput, getBalRecFieldName } from "../../../utils/dm-utils";
+import { getModification } from "../../../utils/modifications";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -87,31 +88,18 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     const handleArrayInitialization = () => {
-        const [newSource, targetMappingConstruct] = getNewSource(field, mappingConstruct, '[]');
-        const fieldsAvailable = !!targetMappingConstruct.fields.length;
-        updateSource(newSource, targetMappingConstruct.openBrace.position, fieldsAvailable);
+        createSourceForUserInput(field, mappingConstruct, '[]', context.applyModifications);
     };
 
     const handleAddArrayElement = () => {
         const targetPosition = listConstructor.openBracket.position;
         const fieldsAvailable = !!listConstructor.expressions.length;
-        updateSource('{}', targetPosition, fieldsAvailable);
-    };
-
-    const updateSource = (newSource: string, targetPosition: NodePosition, fieldsAvailable: boolean) => {
-        const modifications = [
-            {
-                type: "INSERT",
-                config: {
-                    "STATEMENT": `\n${fieldsAvailable ? `${newSource},` : newSource}`,
-                },
-                endColumn: targetPosition.endColumn,
-                endLine: targetPosition.endLine,
-                startColumn: targetPosition.endColumn,
-                startLine: targetPosition.endLine
-            }
-        ];
-        context.applyModifications(modifications);
+        const modification = [getModification(`\n${fieldsAvailable ? "{}," : "{}"}`, {
+            ...targetPosition,
+            startLine: targetPosition.endLine,
+            startColumn: targetPosition.endColumn
+        })];
+        context.applyModifications(modification);
     };
 
     return (
