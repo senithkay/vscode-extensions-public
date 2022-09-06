@@ -48,6 +48,28 @@ export async function getRecordST(partialSTRequest: PartialSTRequest,
     return resp.syntaxTree;
 }
 
+export function extractImportedRecordNames(definitions: ModulePart | TypeDefinition): string[] {
+    const recordName: string[] = [];
+    if (STKindChecker.isModulePart(definitions)) {
+        const typeDefs: TypeDefinition[] = definitions.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+        typeDefs.forEach(typeDef => recordName.push(typeDef?.typeName?.value));
+    } else if (STKindChecker.isTypeDefinition(definitions)) {
+        recordName.push(definitions.typeName.value);
+    }
+    return recordName;
+}
+
+export function getActualRecordST(syntaxTree: STNode, recordName: string): TypeDefinition {
+    let typeDef: TypeDefinition;
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        typeDef = (syntaxTree.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[])
+            .find(record => record.typeName.value === recordName);
+    }
+    return typeDef;
+}
+
 export function getRootRecord(modulePartSt: ModulePart, name: string): TypeDefinition {
     return (modulePartSt.members.find(record => (STKindChecker.isTypeDefinition(record)
         && (record.typeName.value === name)))) as TypeDefinition;

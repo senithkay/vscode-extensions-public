@@ -402,6 +402,49 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginLeft: 15,
             flexDirection: "column",
             alignItems: "flex-start"
+        },
+        headerWrapper: {
+            background: "white",
+            padding: 10,
+            borderRadius: 5,
+            cursor: "pointer",
+            border: "1px solid #dee0e7",
+            marginTop: 15,
+            marginLeft: 20,
+            justifyContent: "space-between",
+            display: "flex",
+            flexDirection: 'row',
+            height: 40,
+            width: '50%',
+            alignItems: 'center'
+        },
+        contentSection: {
+            display: "flex",
+            width: "75%",
+            justifyContent: "flex-start"
+        },
+        iconSection: {
+            display: "flex",
+            flexDirection: "row",
+            width: "25%",
+            justifyContent: "flex-end"
+        },
+        editIconWrapper: {
+            cursor: "pointer",
+            height: 14,
+            width: 14
+        },
+        deleteIconWrapper: {
+            cursor: "pointer",
+            marginLeft: 10,
+            marginTop: -1,
+            height: 14,
+            width: 14
+        },
+        doneButtonWrapper: {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            marginRight: 20
         }
     }),
 );

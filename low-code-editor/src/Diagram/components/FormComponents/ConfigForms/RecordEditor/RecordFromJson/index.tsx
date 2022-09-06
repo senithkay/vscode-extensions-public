@@ -19,7 +19,7 @@ import {
     FormHeaderSection,
     FormTextInput
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
+import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
@@ -28,7 +28,7 @@ import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormActionButtons } from "../../../FormFieldComponents/FormActionButtons";
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
 import { checkDiagnostics, getUpdatedSource } from "../../../Utils";
-import { RecordEditor } from "../index";
+import { RecordOverview } from "../RecordOverview";
 import { convertToRecord, getModulePartST, getRecordST, getRootRecord } from "../utils";
 
 interface RecordState {
@@ -36,7 +36,7 @@ interface RecordState {
     jsonValue?: string;
     recordName?: string;
     recordNameDiag?: string;
-    importedRecord?: TypeDefinition;
+    importedRecord?: TypeDefinition | ModulePart;
     modifiedPosition?: NodePosition;
     isSeparateDef?: boolean;
     jsonDiagnostics?: string;
@@ -123,11 +123,12 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 const recordResponse = await convertToRecord(formState.jsonValue, formState.recordName,
                     false, langServerURL, formState.isSeparateDef, ls);
                 let recordST: STNode;
+                let modulePart: STNode;
                 let newPosition: NodePosition;
                 if (recordResponse?.diagnostics?.length === 0) {
                     if (formState.isSeparateDef) {
                         // Uses module part since we receive multiple records
-                        const modulePart = await getModulePartST({
+                        modulePart = await getModulePartST({
                             codeSnippet: recordResponse.codeBlock.trim()
                         }, langServerURL, ls);
                         if (STKindChecker.isModulePart(modulePart)) {
@@ -139,6 +140,9 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                                 endColumn: recordST.position.endColumn,
                             }
                         }
+                        dispatchFromState({type: 'jsonConversionSuccess', payload: {
+                                importedRecord: modulePart, modifiedPosition: newPosition
+                        }});
                     } else {
                         recordST = await getRecordST({ codeSnippet: recordResponse.codeBlock.trim()},
                             langServerURL, ls);
@@ -148,10 +152,10 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             endLine: targetPosition.startLine + recordST.position.endLine,
                             endColumn: recordST.position.endColumn,
                         }
+                        dispatchFromState({type: 'jsonConversionSuccess', payload: {
+                                importedRecord: recordST, modifiedPosition: newPosition
+                        }});
                     }
-                    dispatchFromState({type: 'jsonConversionSuccess', payload: {
-                        importedRecord: recordST, modifiedPosition: newPosition
-                    }});
                     onSave(recordResponse.codeBlock, newPosition);
                 } else {
                     dispatchFromState({type: 'setJsonDiagnostics', payload: recordResponse?.diagnostics[0].message});
@@ -166,15 +170,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     return (
         <>
             {formState.importedRecord ? (
-                <RecordEditor
-                    name={formState.importedRecord.typeName.value}
-                    targetPosition={formState.modifiedPosition}
-                    onSave={null}
-                    model={formState.importedRecord}
-                    isTypeDefinition={true}
-                    formType={""}
-                    onCancel={onCancel}
-                />
+                <RecordOverview definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel}/>
             ) : (
                 <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
                     <FormHeaderSection
