@@ -39,6 +39,7 @@ export interface FormRendererProps {
     onCancel: () => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     applyModifications: (modifications: STModification[]) => void;
+    changeInProgress: boolean;
 }
 
 export function FormRenderer(props: FormRendererProps) {
@@ -47,8 +48,8 @@ export function FormRenderer(props: FormRendererProps) {
     const component = getFormComponent(type, model, completions);
 
     return (
-       <>
+        <>
             {component}
-       </>
+        </>
     );
 }

@@ -14,6 +14,7 @@
 import React from "react";
 
 import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { acceptedCompletionKindForTypes } from "../../../../constants";
 import { Suggestion, SuggestionItem } from "../../../../models/definitions";
@@ -49,9 +50,9 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                 <SuggestIcon
                     style={{ minWidth: '22px', textAlign: 'left', color }}
                 />
+                <StatementEditorHint content={suggestion.value}>
                 <ListItemText
                     data-testid="suggestion-value"
-                    title={suggestion.value}
                     style={{ flex: 'none', maxWidth: '80%' }}
                     primary={(
                         <Typography className={stmtEditorHelperClasses.suggestionValue}>
@@ -59,6 +60,7 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                         </Typography>
                     )}
                 />
+                </StatementEditorHint>
                 {!acceptedCompletionKindForTypes.includes(suggestion.completionKind) && (
                     <ListItemText
                         style={{ minWidth: '10%', marginLeft: '8px' }}

@@ -117,9 +117,9 @@ export function ParamEditor(props: ParamProps) {
         );
     }
 
-    const debouncedTypeChange = debounce(handleTypeChange, 800);
-    const debouncedNameChange = debounce(handleNameChange, 800);
-    const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
+    // const debouncedTypeChange = debounce(handleTypeChange, 800);
+    // const debouncedNameChange = debounce(handleNameChange, 800);
+    // const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
 
     const handleOnSelect = (value: string) => {
         const newParamString = value === PARAM_TYPES.HEADER ?
@@ -160,7 +160,7 @@ export function ParamEditor(props: ParamProps) {
                                     model.typeName?.viewState?.diagnosticsInRange
                                 }
                                 defaultValue={model?.typeName?.source.trim()}
-                                onChange={debouncedTypeChange}
+                                onChange={handleTypeChange}
                                 onFocus={onTypeEditorFocus}
                                 disabled={false}
                                 completions={currentComponentName === ParamEditorInputTypes.TYPE && completions}
@@ -176,7 +176,7 @@ export function ParamEditor(props: ParamProps) {
                             model.paramName?.viewState?.diagnosticsInRange
                         }
                         defaultValue={model?.paramName?.value.trim()}
-                        onChange={debouncedNameChange}
+                        onChange={handleNameChange}
                         onFocus={onNameEditorFocus}
                         disabled={false}
                         completions={currentComponentName === ParamEditorInputTypes.PARAM_NAME && completions}
@@ -199,7 +199,7 @@ export function ParamEditor(props: ParamProps) {
                                     (STKindChecker.isDefaultableParam(model) && model.expression?.source.trim())
                                     || ""
                                 }
-                                onChange={debouncedDefaultValueChange}
+                                onChange={handleDefaultValueChange}
                                 onFocus={onDefaultValueEditorFocus}
                                 disabled={false}
                                 completions={

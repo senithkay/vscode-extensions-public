@@ -480,8 +480,8 @@ export function isNodeDeletable(selectedNode: STNode, formType: string): boolean
 
     let exprDeletable = !stmtViewState.exprNotDeletable;
     if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
-        exprDeletable =  stmtViewState.templateExprDeletable;
-    }else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
+        exprDeletable = stmtViewState.templateExprDeletable;
+    } else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
         exprDeletable = false;
     }
 
@@ -831,7 +831,12 @@ export function getFilteredExpressions(expression: ExpressionGroup[], currentMod
 
 export function eligibleForLevelTwoSuggestions(selectedModel: STNode, selection: string): boolean {
     return (selectedModel.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
-        && selection !== '?';
+        && selection !== '?' && getModelContent(selectedModel) !== EXPR_CONSTRUCTOR;
+}
+
+function getModelContent(selectedModel: STNode) : string {
+     const content: string = selectedModel.source ? selectedModel.source : selectedModel.value;
+     return content.trim();
 }
 
 function getModelParamSourceList(currentModel: STNode): string[] {
