@@ -45,7 +45,8 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             applyModifications,
             currentFile,
             onCancel: onCancel,
-            isExpressionMode: true
+            isExpressionMode: true,
+            importStatements: []
         }
     );
 
