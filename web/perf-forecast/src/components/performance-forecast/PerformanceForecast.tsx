@@ -118,10 +118,11 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
             </div></>
     );
 
+    const maxUsers = paths[criticalPathId].sequenceDiagramData.concurrency.max;
     const columns = [
         {
             field: `LATENCY`,
-            headerName: `LATENCY (User Count 1 - ${paths[criticalPathId].sequenceDiagramData.concurrency.max})`,
+            headerName: `LATENCY (User Count ${maxUsers === 1 ? `1` : `1 - ${maxUsers}`})`,
             minWidth: 215,
             flex: 0.2,
             sortable: false,
@@ -206,8 +207,9 @@ function createData(id: number, connectors: string[], positions: Record<string, 
 }
 
 function getPerfValuesWithUnit(latencies: Values): string {
-
-    return `${getResponseTime(latencies.min!)} ${getResponseUnit(latencies.min!)} - ${getResponseTime(latencies.max)} ${getResponseUnit(latencies.max)}`;
+    const min = `${getResponseTime(latencies.min!)} ${getResponseUnit(latencies.min!)}`;
+    const max = `${getResponseTime(latencies.max)} ${getResponseUnit(latencies.max)}`;
+    return min === max ? max : `${min} - ${max}`;
 }
 
 function getResponseTime(responseTime: number) {
