@@ -154,9 +154,9 @@ function updateDiagram(realtimeData: PerformanceAnalyzerRealtimeResponse, analyz
     const tps = realtimeData.tps;
 
     const topBarData: TopBarData = {
-        concurrency: concurrency.min === concurrency.max ? `1` : `${concurrency.min} - ${concurrency.max}`,
+        concurrency: concurrency.min === concurrency.max ? `${concurrency.max}` : `${concurrency.min} - ${concurrency.max}`,
         latency: getPerfValuesWithUnit(latency),
-        tps: `${tps.min} - ${tps.max}`,
+        tps: tps.min === tps.max ? `${tps.max}` : `${tps.min} - ${tps.max}`,
         analyzeType
     };
 
@@ -210,7 +210,9 @@ export async function updatePerfPath(pathId: string) {
 }
 
 function getPerfValuesWithUnit(latencies: Values): string {
-    return `${getResponseTime(latencies.min)} ${getResponseUnit(latencies.min)} - ${getResponseTime(latencies.max)} ${getResponseUnit(latencies.max)}`;
+    const min = `${getResponseTime(latencies.min)} ${getResponseUnit(latencies.min)}`;
+    const max = `${getResponseTime(latencies.max)} ${getResponseUnit(latencies.max)}`;
+    return min === max ? max : `${min} - ${max}`;
 }
 
 function getResponseTime(responseTime: number) {
