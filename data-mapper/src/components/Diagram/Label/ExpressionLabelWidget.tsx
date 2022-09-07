@@ -143,7 +143,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 						</Tooltip>
 					)}
 					{linkSelected && (
-						<DeleteIcon onClick={() => onClickDelete()} />
+						<DeleteIcon onClick={onClickDelete} />
 					)}
 					{linkSelected && codeActions.length > 0 && (
 						<CodeActionWidget
