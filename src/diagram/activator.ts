@@ -23,9 +23,7 @@ import {
 } from 'vscode';
 import { render } from './renderer';
 import {
-	BallerinaProjectComponents,
 	CONNECTOR_LIST_CACHE,
-	DocumentIdentifier,
 	ExtendedLangClient,
 	HTTP_CONNECTOR_LIST_CACHE,
 	NOT_SUPPORTED
@@ -36,7 +34,6 @@ import { join } from "path";
 import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, getMessageObject } from '../telemetry';
 import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
-import { Module } from '../tree-view';
 import { sep } from "path";
 import { CommandResponse, DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -582,7 +579,7 @@ export async function refreshDiagramForEditorChange(change: Change) {
 	callUpdateDiagramMethod();
 }
 
-function callUpdateDiagramMethod() {
+export function callUpdateDiagramMethod() {
 	performDidOpen();
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
 	const fileName: string | undefined = getCurrentFileName();
@@ -699,92 +696,6 @@ function getCurrentFileName(): string | undefined {
 	return diagramElement!.fileUri!.fsPath.split(sep).pop();
 }
 
-export async function renderFirstDiagramElement(client: ExtendedLangClient) {
-	const folder = workspace.workspaceFolders![0];
-	const tomlPath = folder.uri.fsPath + sep + 'Ballerina.toml';
-	const currentFileUri = Uri.file(tomlPath).toString();
-	if (!existsSync(tomlPath)) {
-		return;
-	}
-
-	client.onReady().then(async () => {
-		client.sendNotification('textDocument/didOpen', {
-			textDocument: {
-				uri: currentFileUri,
-				languageId: 'ballerina',
-				version: 1,
-				text: readFileSync(tomlPath, { encoding: 'utf-8' })
-			}
-		});
-
-		const documentIdentifiers: DocumentIdentifier[] = [{ uri: currentFileUri }];
-		let projectResponse;
-		let i = 0;
-		do {
-			projectResponse = await client.getBallerinaProjectComponents({ documentIdentifiers });
-			if (projectResponse === NOT_SUPPORTED) {
-				await new Promise(resolve => setTimeout(resolve, 300));
-			}
-		} while (i++ < 5 && projectResponse === NOT_SUPPORTED);
-
-		const response = projectResponse as BallerinaProjectComponents;
-		if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
-			return;
-		}
-		const defaultModules: Module[] = response.packages[0].modules.filter(module => {
-			return !module.name;
-		});
-		if (defaultModules.length == 0) {
-			return;
-		}
-		if ((defaultModules[0].functions && defaultModules[0].functions.length > 0) ||
-			(defaultModules[0].services && defaultModules[0].services.length > 0)) {
-			const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
-				return fn.name === 'main';
-			});
-			if (mainFunctionNodes.length > 0) {
-				const path = join(folder.uri.path, mainFunctionNodes[0].filePath);
-				await showDiagramEditor(0, 0, path);
-				diagramElement = {
-					isDiagram: true,
-					fileUri: Uri.file(path),
-					startLine: mainFunctionNodes[0].endLine,
-					startColumn: mainFunctionNodes[0].endColumn - 1
-				};
-				callUpdateDiagramMethod();
-			} else if (defaultModules[0].services && defaultModules[0].services.length > 0) {
-				const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
-				for (let i = 0; i < defaultModules[0].services.length; i++) {
-					await showDiagramEditor(0, 0, path);
-					let startLine: number;
-					let startColumn: number;
-					if (defaultModules[0].services[i].resources && defaultModules[0].services[i].resources.length > 0) {
-						startLine = defaultModules[0].services[i].resources[0].startLine;
-						startColumn = defaultModules[0].services[i].resources[0].startColumn;
-					} else {
-						startLine = defaultModules[0].services[i].startLine;
-						startColumn = defaultModules[0].services[i].startColumn;
-					}
-					diagramElement = {
-						isDiagram: true,
-						fileUri: Uri.file(path),
-						startLine,
-						startColumn
-					};
-					callUpdateDiagramMethod();
-					break;
-				}
-			} else if (defaultModules[0].functions.length > 0) {
-				const path = join(folder.uri.path, defaultModules[0].functions[0].filePath);
-				await showDiagramEditor(0, 0, path);
-				diagramElement = {
-					isDiagram: true,
-					fileUri: Uri.file(path),
-					startLine: defaultModules[0].functions[0].endLine,
-					startColumn: defaultModules[0].functions[0].endColumn - 1
-				};
-				callUpdateDiagramMethod();
-			}
-		}
-	});
+export function updateDiagramElement(element: DiagramOptions | undefined) {
+	diagramElement = element;
 }
