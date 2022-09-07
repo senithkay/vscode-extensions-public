@@ -138,6 +138,9 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
         (node.fieldName.viewState as StatementEditorViewState).templateExprDeletable = false;
+        if (node.expression){
+            (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
+        }
     }
 
     public beginVisitQueryExpression(node: QueryExpression) {

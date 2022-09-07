@@ -34,7 +34,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     Minutiae,
-    NodePosition,
+    NodePosition, RecordField,
     STKindChecker,
     STNode,
     traversNode
@@ -914,4 +914,8 @@ export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
                     "rgba(204,209,242,0.61)" : 'inherit'
             } : undefined
     );
+}
+
+export function getRecordFieldSource(model: RecordField): string {
+    return `${model.typeName.source}${model.fieldName.value}`;
 }

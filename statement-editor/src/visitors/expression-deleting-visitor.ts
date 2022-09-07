@@ -409,6 +409,14 @@ class ExpressionDeletingVisitor implements Visitor {
             this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
         } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)){
             this.setProperties(DEFAULT_BINDING_PATTERN, node.fieldName.position);
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.expression.position) &&
+            node.expression.source.trim() === DEFAULT_EXPR) {
+            this.setProperties("", {
+                startLine: node.equalsToken.position.startLine,
+                startColumn: node.equalsToken.position.startColumn,
+                endLine: node.expression.position.endLine,
+                endColumn: node.expression.position.endColumn
+            })
         }
     }
 

@@ -531,7 +531,7 @@ const typeDescriptors : ExpressionGroup = {
             example: "record{Es Ex;}"
         }, {
             name: "Exclusive Record",
-            template: `record{|\n${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACEHOLDER};|\n}`,
+            template: `record{|\n${SELECTED_EXPRESSION} ${BINDING_PATTERN_PLACEHOLDER};\n|}`,
             example: "record{|Es Ex;|}"
         }
     ],
@@ -545,6 +545,18 @@ const remoteMethodCall: ExpressionGroup = {
             name: "Remote Method Call",
             template: `${SELECTED_EXPRESSION}->${EXPR_PLACEHOLDER}()`,
             example: "Es->m()"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+
+export const recordFiledOptions: ExpressionGroup = {
+    name: "Record Field",
+    expressions: [
+        {
+            name: "Default Value",
+            template: ` ${SELECTED_EXPRESSION} = ${EXPR_PLACEHOLDER};`,
+            example: "Es = Ex;"
         }
     ],
     relatedModelType: ModelType.EXPRESSION

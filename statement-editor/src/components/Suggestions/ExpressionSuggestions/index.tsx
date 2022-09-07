@@ -28,15 +28,15 @@ import {
 import { Suggestion } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getFilteredExpressions } from "../../../utils";
+import { getFilteredExpressions, getRecordFieldSource } from "../../../utils";
 import {
     Expression,
     ExpressionGroup,
     expressions,
     EXPR_PLACEHOLDER,
+    recordFiledOptions,
     SELECTED_EXPRESSION
 } from "../../../utils/expressions";
-import { ModelType } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 export function ExpressionSuggestions() {
@@ -68,9 +68,14 @@ export function ExpressionSuggestions() {
     const updateModelWithSuggestion = (expression: Expression) => {
         const currentModelSource = STKindChecker.isOrderKey(currentModel.model) ? currentModel.model.expression.source :
             (currentModel.model.source ? currentModel.model.source.trim() : currentModel.model.value.trim());
-        const text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
-            ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
-            : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
+        let text;
+        if (STKindChecker.isRecordField(currentModel.model)) {
+            text = expression.template.replace(SELECTED_EXPRESSION, getRecordFieldSource(currentModel.model));
+        } else {
+            text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
+                ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
+                : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
+        }
         updateModel(text, currentModel.model.position)
         inputEditorCtx.onInputChange('');
         inputEditorCtx.onSuggestionSelection(text);
@@ -84,6 +89,8 @@ export function ExpressionSuggestions() {
                     (exprGroup) => exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             } else if ((config.type === CALL_CONFIG_TYPE) && STKindChecker.isFunctionCall(currentModel.model)) {
                 filteredGroups = []
+            } else if (STKindChecker.isRecordField(currentModel.model)) {
+                filteredGroups = [recordFiledOptions]
             }
             setFilteredExpressions(filteredGroups);
         }
