@@ -163,10 +163,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.context.applyModifications(modifications);
     }
 
-    public updatePosition() {
-        const position = this.targetPort.getPosition()
-        this.setPosition(position.x - 200, position.y - 10)
-    }
+	public updatePosition() {
+		const position = this.targetPort.getPosition()
+		this.setPosition(800, position.y - 10)
+	}
 
     public hasError(): boolean {
         return this.diagnostics.length > 0;

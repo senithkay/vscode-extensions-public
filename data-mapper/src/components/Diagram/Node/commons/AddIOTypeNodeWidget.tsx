@@ -24,13 +24,15 @@ import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { default as AddIcon } from  "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { AddOutputTypeNode } from "../AddOutputType";
 
 import { RecordFromJson } from "./RecordFromJson";
 import { RecordItem } from "./RecordItem";
+import { STModification, STSymbolInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 
 const useStyles = makeStyles(() =>
 	createStyles({
@@ -63,14 +65,15 @@ const useStyles = makeStyles(() =>
 );
 
 export interface AddOutputTypeNodeWidgetProps {
-	node: AddOutputTypeNode;
-	engine: DiagramEngine;
 	title: string;
-	context: IDataMapperContext;
+	applyModifications: (modifications: STModification[]) => void;
+    langClientPromise: Promise<IBallerinaLangClient>;
+    stSymbolInfo: STSymbolInfo;
+    functionST?: FunctionDefinition;
 }
 
 export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
-	const { title, context } = props;
+	const { title, stSymbolInfo, functionST, applyModifications, langClientPromise } = props;
 	const classes = useStyles();
 
 	const [selection, setSelection] = React.useState('');
@@ -78,7 +81,7 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 
 	const handleSelectClicked = () => {
 		const records: React.ReactNode[] = [];
-		const recordTypeDescMap = context.stSymbolInfo.recordTypeDescriptions;
+		const recordTypeDescMap = stSymbolInfo.recordTypeDescriptions;
 		for (const st of recordTypeDescMap.values()) {
 			const recordName = (st as RecordTypeDesc)?.typeData.typeSymbol.name;
 			records.push(
@@ -101,7 +104,7 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 				startLine: 0
 			}
 		];
-		context.applyModifications(modifications);
+		applyModifications(modifications);
 		// TODO: Update the parameters and the return type in the draft function
 	}
 
@@ -113,7 +116,7 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 		if (selection !== '') {
 			if (title === 'Input') {
 				(async () => {
-					const position = context.functionST.functionSignature.openParenToken.position;
+					const position = functionST?.functionSignature.openParenToken.position;
 					const modifications = [
 						{
 							type: "INSERT",
@@ -126,11 +129,11 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 							startLine: position.endLine
 						}
 					];
-					context.applyModifications(modifications);
+					applyModifications(modifications);
 				})();
 			} else {
 				(async () => {
-					const position = context.functionST.functionSignature.returnTypeDesc.type.position;
+					const position = functionST.functionSignature.returnTypeDesc.type.position;
 					const modifications = [
 						{
 							type: "INSERT",
@@ -143,7 +146,7 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 							startLine: position.startLine
 						}
 					];
-					context.applyModifications(modifications);
+					applyModifications(modifications);
 				})();
 			}
 		}
@@ -163,7 +166,7 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 					<Typography className={classes.label}>Import From JSON</Typography>
 				</AccordionSummary>
 				<AccordionDetails>
-					<RecordFromJson onSave={handleImportFormSave} context={context} />
+					<RecordFromJson onSave={handleImportFormSave} langClientPromise={langClientPromise} />
 				</AccordionDetails>
 			</Accordion>
 			<Accordion>

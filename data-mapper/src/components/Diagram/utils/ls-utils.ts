@@ -10,8 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-	DiagramEditorLangClientInterface,
     PublishDiagnosticsParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
@@ -19,8 +19,8 @@ import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 export async function getDiagnostics(
     docUri: string,
-    getLangClient: () => Promise<DiagramEditorLangClientInterface>): Promise<PublishDiagnosticsParams[]> {
-    const langClient = await getLangClient();
+    langClientPromise: Promise<IBallerinaLangClient>): Promise<PublishDiagnosticsParams[]> {
+    const langClient = await langClientPromise;
     const diagnostics = await langClient.getDiagnostics({
         documentIdentifier: {
             uri: docUri,
@@ -31,9 +31,9 @@ export async function getDiagnostics(
 }
 
 export const handleDiagnostics = async (fileURI: string,
-                                        getLangClient: () => Promise<DiagramEditorLangClientInterface>):
+                                        langClientPromise: Promise<IBallerinaLangClient>):
     Promise<Diagnostic[]> => {
-    const diagResp = await getDiagnostics(`file://${fileURI}`, getLangClient);
+    const diagResp = await getDiagnostics(`file://${fileURI}`, langClientPromise);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
     return diag;
 }
@@ -58,7 +58,7 @@ export function isDiagInRange(nodePosition: NodePosition, diagPosition: NodePosi
 }
 
 
-export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langClient: DiagramEditorLangClientInterface): Promise<CodeAction[]> {
+export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langClient: IBallerinaLangClient): Promise<CodeAction[]> {
     const codeAction = await langClient.codeAction({
 		context: {
 			diagnostics: [{
@@ -97,10 +97,10 @@ export async function getCodeAction(filePath: string, diagnostic: Diagnostic, la
 }
 
 export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic[],
-	getLangClient: () => Promise<DiagramEditorLangClientInterface>):
+	langClientPromise: Promise<IBallerinaLangClient>):
 	Promise<CodeAction[]> => {
 
-	const langClient = await getLangClient();
+	const langClient = await langClientPromise;
 	let codeActions: any[] = []
 
 	for (const diagnostic of diagnostics) {

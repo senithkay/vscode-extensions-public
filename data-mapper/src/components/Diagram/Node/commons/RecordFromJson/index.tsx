@@ -23,6 +23,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 
 interface JsonToRecordState {
     isLoading?: boolean;
@@ -33,7 +34,7 @@ interface JsonToRecordState {
 interface RecordFromJsonProps {
     onCancel?: () => void;
     onSave?: (recordName: string, recordString: string) => void;
-    context: IDataMapperContext;
+    langClientPromise: Promise<IBallerinaLangClient>;
 }
 
 const useStyles = makeStyles(() =>
@@ -119,7 +120,7 @@ const reducer = (state: JsonToRecordState, action: {type: string, payload: any }
 }
 
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
-    const { onSave, onCancel, context } = recordFromJsonProps;
+    const { onSave, onCancel, langClientPromise } = recordFromJsonProps;
     const classes = useStyles();
 
     const [formState, dispatchFromState] = useReducer(reducer, {
@@ -146,7 +147,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         if (formState.isLoading) {
             (async () => {
                 const recordName = "TempName";
-                const langClient = await context.langClientPromise();
+                const langClient = await langClientPromise;
                 const recordResponse = await langClient.convert(
                     {
                         jsonString: formState.jsonValue,

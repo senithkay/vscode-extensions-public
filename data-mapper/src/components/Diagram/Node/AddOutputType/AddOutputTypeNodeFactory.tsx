@@ -31,12 +31,7 @@ export class AddOutputTypeNodeFactory extends AbstractReactFactory<AddOutputType
 
 	generateReactWidget(event: { model: AddOutputTypeNode; }): JSX.Element {
 		return (
-			<AddIOTypeNodeWidget
-				engine={this.engine}
-				node={event.model}
-				title={"Output"}
-				context={event.model.context}
-			/>
+			<></>
 		);
 	}
 

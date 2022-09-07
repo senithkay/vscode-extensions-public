@@ -172,4 +172,8 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
             ...nodePositionsToDelete
         }]);
     }
+
+    public updatePosition() {
+        this.setPosition(1000, this.position.y)
+    }
 }
