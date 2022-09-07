@@ -29,8 +29,10 @@ export class CollapseInitVisitor implements Visitor {
     beginVisitBlock(node: BlockStatement) {
         node.statements.forEach(statement => {
             const viewState = statement.viewState as StatementViewState;
-            if (this.isNodeWithinPosition(statement) && !(viewState.isAction || viewState.isEndpoint)) {
-                console.log('satisfied condition >>>', statement)
+            // debugger;
+            if (this.isNodeWithinPosition(statement)
+                && !this.isSkippedConstruct(statement)
+                && !(viewState.isAction || viewState.isEndpoint)) {
                 viewState.collapsed = true;
             }
         })
@@ -45,5 +47,9 @@ export class CollapseInitVisitor implements Visitor {
 
         // todo: handle other scenarios 
         return false;
+    }
+
+    private isSkippedConstruct(node: STNode): boolean {
+        return STKindChecker.isIfElseStatement(node);
     }
 }

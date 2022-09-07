@@ -41,8 +41,10 @@ export function WorkerBody(props: DiagramProps) {
     const workerIndicatorLine: React.ReactNode[] = [];
 
     if (STKindChecker.isFunctionBodyBlock(model) && viewState.hasWorkerDecl) {
-        children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements, viewState, model, expandReadonly));
-        children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations, viewState, model, expandReadonly))
+        children = children.concat(
+            getSTComponents(model.namedWorkerDeclarator.workerInitStatements, viewState, model, expandReadonly));
+        children = children.concat(
+            getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations, viewState, model, expandReadonly))
     }
     children = children.concat(getSTComponents(model.statements, viewState, model, expandReadonly))
 
@@ -72,8 +74,18 @@ export function WorkerBody(props: DiagramProps) {
     if (viewState.hasWorkerDecl) {
         workerIndicatorLine.push((
             <>
-                <circle cx={viewState.workerIndicatorLine.x} cy={viewState.workerIndicatorLine.y} r="6" style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#fff' }} />
-                <circle cx={viewState.workerIndicatorLine.x} cy={viewState.workerIndicatorLine.y} r="4" style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#5567D5' }} />
+                <circle
+                    cx={viewState.workerIndicatorLine.x}
+                    cy={viewState.workerIndicatorLine.y}
+                    r="6"
+                    style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#fff' }}
+                />
+                <circle
+                    cx={viewState.workerIndicatorLine.x}
+                    cy={viewState.workerIndicatorLine.y}
+                    r="4"
+                    style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#5567D5' }}
+                />
                 <line
                     x1={viewState.workerIndicatorLine.x}
                     y1={viewState.workerIndicatorLine.y}
@@ -91,8 +103,11 @@ export function WorkerBody(props: DiagramProps) {
             controlFlowExecutionTime.push(<ControlFlowExecutionTime x={executionTime.x} y={executionTime.y} value={executionTime.value} h={executionTime.h} />);
         }
     }
-    if (viewState?.collapseView) {
-        children.push(<Collapse blockViewState={viewState} />)
+    // if (viewState?.collapseView) {
+    //     children.push(<Collapse blockViewState={viewState} />)
+    // }
+    if (viewState.collapsedRanges.length > 0) {
+        // TODO: handle collapse ranges rendering
     }
 
     if (viewState?.draft) {

@@ -1597,7 +1597,7 @@ export class SizingVisitor implements Visitor {
                 });
             }
 
-            if (!blockViewState.collapsed) {
+            if (blockViewState.collapsedRanges.length === 0) {
                 // This captures the collapsed statement
                 if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
                     // This captures the collapse button click
@@ -1739,6 +1739,8 @@ export class SizingVisitor implements Visitor {
                     }
 
                 }
+            } else {
+                
             }
 
             if (blockViewState.draft && blockViewState.draft[0] === index) {

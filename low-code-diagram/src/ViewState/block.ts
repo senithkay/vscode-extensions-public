@@ -19,10 +19,20 @@ import { ViewState } from "./view-state";
 export class BlockViewState extends ViewState {
     public plusButtons: PlusViewState[] = [];
     public connectors = new Map();
-    public collapseView: CollapseViewState = undefined;
+    /**
+     * @deprecated This property will be removed with the new fold logic implementation
+     */
+    public collapseView: CollapseViewState = undefined; // TODO: Remove this property
+
+    /**
+     * @deprecated This property will be removed with the new fold logic implementation
+     */
+    public collapsedFrom: number = 0; // TODO: Remove this property
+
+
+    public collapsedRanges: CollapseViewState[] = [];
     public isEndComponentAvailable = false;
     public isEndComponentInMain = false;
-    public collapsedFrom: number = 0;
     public draft: [number, DraftStatementViewState] = undefined;
     public isElseBlock: boolean = false;
     public isDoBlock: boolean = false;
