@@ -110,16 +110,17 @@ export function ParameterList(props: ParameterListProps) {
     }
 
     const addIncludedRecordToModel = (userInput: string) => {
-        if (isDocumentationSupportedModel(model)) {
-            updateModel(getUpdatedContentForNewNamedArg(model, userInput), getParamUpdateModelPosition(model));
-            setPlusButtonClicked(false);
-        }
+        const modelToUpdate : STNode = isDocumentationSupportedModel(model) ? model :
+            getParentFunctionModel((model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                statementModel)
+        updateModel(getUpdatedContentForNewNamedArg(modelToUpdate, userInput), getParamUpdateModelPosition(modelToUpdate));
+        setPlusButtonClicked(false);
     }
 
     return (
         <>
             {!!paramDocumentation.parameters?.length && (
-                <>
+                <div data-testid="parameter-list">
                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                         Configure Parameters
                         <ListItemText
@@ -130,7 +131,7 @@ export function ParameterList(props: ParameterListProps) {
                     {paramDocumentation.parameters?.map((param: ParameterInfo, value: number) => (
                             <>
                                 {param.kind === SymbolParameterType.REQUIRED ? (
-                                    <RequiredArg param={param} value={value}/>
+                                    <RequiredArg param={param} value={value} handleCheckboxClick={handleCheckboxClick}/>
                                 ) : (
                                     <>
                                         {param.kind === SymbolParameterType.INCLUDED_RECORD ? (
@@ -167,6 +168,7 @@ export function ParameterList(props: ParameterListProps) {
                                                         key={value}
                                                         className={stmtEditorHelperClasses.docListDefault}
                                                         style={getParamHighlight(model, param)}
+                                                        data-testid="optional-arg"
                                                     >
                                                         <Checkbox
                                                             classes={{
@@ -175,6 +177,7 @@ export function ParameterList(props: ParameterListProps) {
                                                             }}
                                                             checked={param.modelPosition !== undefined}
                                                             onClick={handleCheckboxClick(param)}
+                                                            data-testid="arg-check"
                                                         />
                                                         <ListItemText
                                                             className={stmtEditorHelperClasses.docListItemText}
@@ -204,7 +207,7 @@ export function ParameterList(props: ParameterListProps) {
                         )
                     )}
                     </div>
-                </>
+                </div>
             )}
         </>
     );

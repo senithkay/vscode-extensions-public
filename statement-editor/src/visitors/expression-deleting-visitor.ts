@@ -21,17 +21,21 @@ import {
     LetClause,
     LimitClause,
     ListConstructor,
+    LocalVarDecl,
     MappingConstructor,
     MethodCall,
+    ModuleVarDecl,
     NodePosition,
     OptionalFieldAccess,
-    OptionalTypeDesc, OrderByClause,
+    OptionalTypeDesc,
+    OrderByClause,
     ParenthesisedTypeDesc,
     QueryExpression,
     QueryPipeline,
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
+    SimpleNameReference,
     SpecificField,
     STKindChecker,
     STNode,
@@ -49,6 +53,7 @@ import { RemainingContent } from "../models/definitions";
 import { isPositionsEquals } from "../utils";
 
 export const DEFAULT_EXPR = "EXPRESSION";
+export const DEFAULT_FUNCTION_CALL = "FUNCTION_CALL()";
 export const DEFAULT_TYPE_DESC = "TYPE_DESCRIPTOR";
 export const DEFAULT_BINDING_PATTERN = "BINDING_PATTERN";
 
@@ -103,8 +108,8 @@ class ExpressionDeletingVisitor implements Visitor {
             if (isPositionsEquals(this.deletePosition, node.expression.position)) {
                 this.setProperties(DEFAULT_EXPR, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.methodName.position)) {
-                this.setProperties(DEFAULT_EXPR, {
-                    ...node.methodName.position,
+                this.setProperties('', {
+                    ...node.dotToken.position,
                     endColumn: node.closeParenToken.position.endColumn
                 });
             } else {
@@ -113,8 +118,27 @@ class ExpressionDeletingVisitor implements Visitor {
                 });
 
                 if (hasArgToBeDeleted) {
-                    this.setProperties(DEFAULT_EXPR, this.deletePosition);
+                    const expressions: string[] = [];
+                    node.arguments.map((expr: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(','), {
+                        ...node.position,
+                        startColumn: node.openParenToken.position.endColumn,
+                        endColumn: node.closeParenToken.position.startColumn
+                    });
                 }
+            }
+        }
+    }
+
+    public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
+        if (!this.isNodeFound) {
+            if (STKindChecker.isReturnStatement(node.parent) && isPositionsEquals(this.deletePosition, node.position)) {
+                this.setProperties("", node.position);
             }
         }
     }
@@ -195,6 +219,32 @@ class ExpressionDeletingVisitor implements Visitor {
         }
     }
 
+    public beginVisitModuleVarDecl(node: ModuleVarDecl) {
+        if (!this.isNodeFound) {
+            node.qualifiers.map((qualifier: STNode) => {
+                if (isPositionsEquals(this.deletePosition, qualifier.position)) {
+                    this.setProperties("", qualifier.position);
+                }
+            });
+        }
+    }
+
+    public beginVisitLocalVarDecl(node: LocalVarDecl) {
+        if (!this.isNodeFound) {
+            if (node.finalKeyword && isPositionsEquals(this.deletePosition, node.finalKeyword.position)) {
+                this.setProperties("", node.finalKeyword.position);
+            } else if (node.initializer && isPositionsEquals(this.deletePosition, node.initializer.position) &&
+                node.initializer.source.trim() === DEFAULT_EXPR) {
+                this.setProperties("", {
+                    startLine: node.equalsToken.position.startLine,
+                    startColumn: node.equalsToken.position.startColumn,
+                    endLine: node.initializer.position.endLine,
+                    endColumn: node.initializer.position.endColumn
+                })
+            }
+        }
+    }
+
     public beginVisitSpecificField(node: SpecificField) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.valueExpr.position)) {
             this.setProperties(DEFAULT_EXPR, node.valueExpr.position);
@@ -224,7 +274,18 @@ class ExpressionDeletingVisitor implements Visitor {
             });
 
             if (hasArgToBeDeleted) {
-                this.setProperties(DEFAULT_EXPR, this.deletePosition);
+                const expressions: string[] = [];
+                node.arguments.map((expr: STNode) => {
+                    if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                        expressions.push(expr.source);
+                    }
+                });
+
+                this.setProperties(expressions.join(','), {
+                    ...node.position,
+                    startColumn: node.openParenToken.position.endColumn,
+                    endColumn: node.closeParenToken.position.startColumn
+                });
             }
         }
     }
@@ -457,6 +518,13 @@ class ExpressionDeletingVisitor implements Visitor {
     getContent(): RemainingContent {
         return {
             code: this.isNodeFound ? this.codeAfterDeletion : DEFAULT_EXPR,
+            position: this.isNodeFound ? this.newPosition : this.deletePosition
+        };
+    }
+
+    getFunctionCallContent(): RemainingContent {
+        return {
+            code: this.isNodeFound ? this.codeAfterDeletion : DEFAULT_FUNCTION_CALL,
             position: this.isNodeFound ? this.newPosition : this.deletePosition
         };
     }

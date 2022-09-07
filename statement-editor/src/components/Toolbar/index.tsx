@@ -25,6 +25,7 @@ import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
 import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import {
     ADD_CONFIGURABLE_LABEL,
+    CALL_CONFIG_TYPE,
     CONFIGURABLE_TYPE_BOOLEAN,
     CONFIGURABLE_TYPE_STRING
 } from "../../constants";
@@ -45,7 +46,7 @@ interface ToolbarProps {
 
 export default function Toolbar(props: ToolbarProps) {
     const statementEditorClasses = useStatementEditorToolbarStyles();
-    const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo } = useContext(StatementEditorContext);
+    const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo, config } = useContext(StatementEditorContext);
     const {
         undo,
         redo,
@@ -71,9 +72,6 @@ export default function Toolbar(props: ToolbarProps) {
         client.bindNewKey(['command+shift+z', 'ctrl+shift+z'], redo);
         client.bindNewKey(['del'], onDelFunction);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
     }, [currentModel]);
 
     const [deletable, configurable] = useMemo(() => {
@@ -81,8 +79,12 @@ export default function Toolbar(props: ToolbarProps) {
         let modelConfigurable = false;
 
         if (currentModel.model) {
-            modelDeletable = isNodeDeletable(currentModel.model);
+            modelDeletable = isNodeDeletable(currentModel.model, config.type);
             modelConfigurable = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION;
+
+            if (STKindChecker.isFunctionCall(currentModel.model) && config.type === CALL_CONFIG_TYPE) {
+                modelConfigurable = false;
+            }
         }
 
         return [modelDeletable, modelConfigurable]
@@ -187,6 +189,7 @@ export default function Toolbar(props: ToolbarProps) {
                         onClick={onClickOnConfigurable}
                         disabled={!configurable || hasSyntaxDiagnostics}
                         className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-configurable"
                     >
                         <ToolbarConfigurableIcon/>
                     </IconButton>

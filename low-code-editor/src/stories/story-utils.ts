@@ -69,11 +69,11 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     showMessage: () => Promise.resolve(false),
     showPerformanceGraph: () => Promise.resolve(false),
     updateFileContent: enableSave ? updateFileContent : () => Promise.resolve(undefined),
-    getLibrariesList: () => Promise.resolve(undefined),
-    getLibrariesData: () => Promise.resolve(undefined),
-    getLibraryData: () => Promise.resolve(undefined),
+    getLibrariesList,
+    getLibrariesData,
+    getLibraryData,
     getSentryConfig: () => Promise.resolve(undefined),
-    getBallerinaVersion: () => Promise.resolve(undefined),
+    getBallerinaVersion: () => Promise.resolve("2201.1.1 (swan lake update 1)"), // Test will check only latest forms
     getEnv: (name: string) => Promise.resolve(undefined),
     experimentalEnabled: true
   }

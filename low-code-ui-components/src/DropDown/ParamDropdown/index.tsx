@@ -18,24 +18,10 @@ import { FormHelperText, MenuItem, Select } from "@material-ui/core";
 import { FormElementProps } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
-import { TooltipIcon } from "../..";
+import { SelectDropdownProps, TooltipIcon } from "../..";
 import { dynamicConnectorStyles as useFormStyles } from "../../dynamicConnectorStyles";
 import { ParamIcons } from "../../ParamEditor/ParamIcon";
 import { useStyles as useTextInputStyles } from "../style";
-
-export interface SelectDropdownProps {
-    values?: string[];
-    enabledValues?: string[];
-    optional?: boolean;
-    className?: string;
-    clearSelection?: boolean;
-    onOpenSelect?: () => void;
-    onCloseSelect?: () => void;
-    tooltipTitle?: any;
-    tooltipActionText?: string;
-    tooltipActionLink?: string;
-    interactive?: boolean;
-}
 
 export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
     const formClasses = useFormStyles();
@@ -57,7 +43,7 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
     if (values) {
         const items: string[] = values;
         items.forEach((value) => {
-            const icon = (<ParamIcons option={value}/>);
+            const icon = (<ParamIcons type={value}/>);
             menuItems.push(
                 <MenuItem
                     disabled={!enabled?.includes(value)}
@@ -90,7 +76,7 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
     }
 
     const renderValue = (value: any) => {
-        const icon = (<ParamIcons option={value}/>);
+        const icon = (<ParamIcons type={value}/>);
         return (
             <div className={dropDownClasses.renderValueWrapper}>
                 <div className={dropDownClasses.itemWrapper}>

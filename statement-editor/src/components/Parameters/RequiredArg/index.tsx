@@ -22,9 +22,10 @@ import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../
 interface RequiredArgProps {
     param : ParameterInfo
     value : number
+    handleCheckboxClick: (param: ParameterInfo) => () => void
 }
 export function RequiredArg(props : RequiredArgProps){
-    const { param, value} = props;
+    const { param, value, handleCheckboxClick} = props;
     const statementEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     const {
@@ -39,14 +40,18 @@ export function RequiredArg(props : RequiredArgProps){
             key={value}
             className={statementEditorHelperClasses.requiredArgList}
             style={getParamHighlight(currentModel.model, param)}
+            data-testid="required-arg"
         >
             <Checkbox
                 classes={{
-                    root : statementEditorHelperClasses.disabledCheckbox,
+                    root : !!param.modelPosition ?
+                        statementEditorHelperClasses.disabledCheckbox :
+                        statementEditorHelperClasses.parameterCheckbox,
                     checked : statementEditorHelperClasses.checked
                 }}
                 checked={param.modelPosition !== undefined}
-                disabled={true}
+                disabled={!!param.modelPosition}
+                onClick={handleCheckboxClick(param)}
             />
             <ListItemText
                 className={statementEditorHelperClasses.docListItemText}

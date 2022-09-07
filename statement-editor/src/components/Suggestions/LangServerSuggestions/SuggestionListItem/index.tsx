@@ -14,23 +14,24 @@
 import React from "react";
 
 import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { acceptedCompletionKindForTypes } from "../../../../constants";
-import { SuggestionItem } from "../../../../models/definitions";
+import { Suggestion, SuggestionItem } from "../../../../models/definitions";
 import { getSuggestionIconStyle } from "../../../../utils";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
 
 export interface SuggestionListItemProps {
     key: number;
     suggestion: SuggestionItem;
-    selectedListItem: number;
+    isSelected: boolean
     onClickLSSuggestion: (suggestion: SuggestionItem) => void;
 }
 
 export function SuggestionListItem(props: SuggestionListItemProps) {
-    const { key, suggestion, selectedListItem, onClickLSSuggestion } = props;
+    const { key, suggestion, onClickLSSuggestion, isSelected } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const { className, color } = getSuggestionIconStyle(suggestion.completionKind);
+    const { SuggestIcon, color } = getSuggestionIconStyle(suggestion.completionKind);
 
     const onClickOnListItem = () => {
         onClickLSSuggestion(suggestion);
@@ -41,18 +42,17 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
             <ListItem
                 button={true}
                 key={key}
-                selected={key === selectedListItem}
+                selected={isSelected}
                 onMouseDown={onClickOnListItem}
                 className={stmtEditorHelperClasses.suggestionListItem}
                 disableRipple={true}
             >
-                <ListItemIcon
-                    className={className}
+                <SuggestIcon
                     style={{ minWidth: '22px', textAlign: 'left', color }}
                 />
+                <StatementEditorHint content={suggestion.value}>
                 <ListItemText
                     data-testid="suggestion-value"
-                    title={suggestion.value}
                     style={{ flex: 'none', maxWidth: '80%' }}
                     primary={(
                         <Typography className={stmtEditorHelperClasses.suggestionValue}>
@@ -60,6 +60,7 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                         </Typography>
                     )}
                 />
+                </StatementEditorHint>
                 {!acceptedCompletionKindForTypes.includes(suggestion.completionKind) && (
                     <ListItemText
                         style={{ minWidth: '10%', marginLeft: '8px' }}

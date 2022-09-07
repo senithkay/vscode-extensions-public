@@ -19,7 +19,6 @@ export class StatementEditor {
     static shouldBeVisible() {
         this.getStatementEditor().should("be.visible");
         return this;
-
     }
 
     private static getStatementEditor() {
@@ -35,7 +34,20 @@ export class StatementEditor {
             .get('button')
             .contains("Save")
             .should('not.be.disabled')
+            .wait(1000)
             .click();
+        return this;
+
+    }
+
+    static add() {
+        this.getStatementEditor()
+            .get('button')
+            .contains("Add")
+            .should('not.be.disabled')
+            .wait(1000)
+            .click()
+            .wait(3000);
         return this;
 
     }
@@ -62,5 +74,13 @@ export class StatementEditor {
             .get(`[data-testid="close-btn"]`)
             .click();
         return this;
+    }
+
+    static clickStatementEditor() {
+        this.getStatementEditor()
+            .get(this.selector)
+            .click();
+        return this;
+
     }
 }

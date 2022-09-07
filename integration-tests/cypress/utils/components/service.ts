@@ -26,6 +26,33 @@ export class Service {
         return this;
     }
 
+
+    public clickEdit() {
+        this.container.within(() => {
+            cy.get('.service-header')
+                .realHover()
+                .get('#edit-button')
+                .click({ force: true });
+        });
+    }
+
+    public clickDelete() {
+        this.container.within(() => {
+            cy.get('.service-header')
+                .realHover()
+                .get('#delete-button')
+                .click({ force: true });
+        });
+    }
+
+    public clickPlusIcon(targetLine: number = 0) {
+        this.container.within(() => {
+            cy.get(`.plus-container[target-line="${targetLine}"]`)
+                .click();
+        });
+        return this;
+    }
+
     public shouldHaveResources(count: number) {
         this.container.within(() => {
             cy.get('.service-member')

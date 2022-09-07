@@ -325,6 +325,42 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: 12,
             marginBottom: 12,
             marginLeft: 17
+        },
+        plusIconWrapper: {
+            height: 16,
+            width: 16,
+            marginTop: 5
+        },
+        advancedParamContent: {
+            display: "flex",
+            marginTop: 5,
+            borderRadius: 5,
+            border: '1px solid #dee0e7',
+            padding: '5px',
+            justifyContent: 'space-between'
+        },
+        advancedItem: {
+            display: "flex",
+            flexDirection: "column",
+            width: "32%"
+        },
+        advancedParamBtn: {
+            textTransform: 'none',
+            minWidth: '32px',
+            color: theme.palette.primary.main
+        },
+        advancedParamWrapper: {
+            display: 'flex',
+            alignItems: 'center',
+            height: '32px',
+            marginTop: '5px'
+        },
+        advancedParamHeader :  {
+            fontSize: '13px',
+            fontWeight: 500,
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
         }
     })
 );

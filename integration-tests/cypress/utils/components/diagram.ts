@@ -75,7 +75,6 @@ export class FunctionDiagram {
         return this;
     }
 
-
     public clickWhileWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
             cy.get(`.diagram-canvas .while-wrapper`).within(() => {
@@ -181,5 +180,13 @@ export class FunctionDiagram {
                 count
             )
         })
+    }
+
+    public clickEditOnExistingEndpointStatement(targetLine: number) {
+        this.container.within(() => {
+            cy.get(`.diagram-canvas .main-connector-process-wrapper[target-line="${targetLine}"] .connector-process-options-wrapper [data-testid="editBtn"]`)
+                .click({ force: true });
+        });
+        return this;
     }
 }

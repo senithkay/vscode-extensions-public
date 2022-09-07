@@ -24,6 +24,8 @@ import { FormGeneratorProps } from "../../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../../style";
 import useStyles from "../style";
 
+import { ActionCard } from "./ActionCard";
+
 interface ActionListProps {
     actions: FunctionDefinitionInfo[];
     onSelect: (action: FunctionDefinitionInfo) => void;
@@ -33,7 +35,7 @@ export function ActionList(props: FormGeneratorProps) {
     const classes = useStyles();
     const formClasses = useFormStyles();
 
-    const { onCancel, configOverlayFormStatus } = props;
+    const { onCancel, onBack, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
     const { actions, onSelect } = formArgs as ActionListProps;
 
@@ -61,37 +63,22 @@ export function ActionList(props: FormGeneratorProps) {
         if (action.name === "init") {
             return;
         }
-        const name = action.displayAnnotation?.label || action.name;
-        const handleOnSelect = () => {
-            onSelect(action);
-        };
-        return (
-            <ListItem
-                key={`action-${action.name.toLowerCase()}`}
-                data-testid={`${action.name.toLowerCase().replaceAll(" ", "-")}`}
-                button={true}
-                onClick={handleOnSelect}
-            >
-                <Box flex={true} flexDirection="column">
-                    <Typography variant="h4">{name}</Typography>
-                    {action.documentation && (
-                        <Typography variant="caption" className={classes.actionSubtitle}>
-                            {action.documentation}
-                        </Typography>
-                    )}
-                </Box>
-            </ListItem>
-        );
+        return <ActionCard key={action.name} action={action} onSelect={onSelect} />;
     });
 
     const handleActionSearch = (e: any) => {
         setKeyword(e.target.value);
     };
 
+    const handleOnBack = () => {
+        onBack();
+    };
+
     return (
-        <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControlExtended}>
+        <FormControl data-testid="action-list-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
+                onBack={handleOnBack}
                 formTitle={"lowcode.develop.configForms.actionList.title"}
                 defaultMessage={"Action"}
             />
@@ -99,7 +86,7 @@ export function ActionList(props: FormGeneratorProps) {
                 <div className={formClasses.formFeilds}>
                     <div className={classes.container}>
                         {isLoading && (
-                            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                            <Box data-testid="action-list-loader" display="flex" justifyContent="center">
                                 <TextPreLoader position="absolute" text="Fetching actions..." />
                             </Box>
                         )}
@@ -127,14 +114,14 @@ export function ActionList(props: FormGeneratorProps) {
                                         defaultMessage="Select an action"
                                     />
                                 </Typography>
-                                <div className={classes.actionList}>
+                                <div data-testid="action-list" className={classes.actionList}>
                                     <List>{actionElementList}</List>
                                 </div>
                             </>
                         )}
-                        {!isLoading && filteredActions?.length === 0 && (
+                        {!isLoading && (filteredActions?.length === 0 || !actions) && (
                             <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                                <Typography className={classes.emptyTitle}>
+                                <Typography className={classes.subTitle}>
                                     <FormattedMessage
                                         id="lowcode.develop.configForms.actionList.empty"
                                         defaultMessage="No actions found"

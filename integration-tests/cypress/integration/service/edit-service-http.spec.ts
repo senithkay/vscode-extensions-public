@@ -1,12 +1,10 @@
+import { BlockLevelPlusWidget } from "../../utils/components/block-level-plus-widget";
 import { Canvas } from "../../utils/components/canvas"
 import { SourceCode } from "../../utils/components/code-view"
-import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget"
+import { EditorPane } from "../../utils/components/statement-editor/editor-pane";
+import { InputEditor } from "../../utils/components/statement-editor/input-editor";
+import { StatementEditor } from "../../utils/components/statement-editor/statement-editor";
 import { getCurrentSpecFolder } from "../../utils/file-utils"
-import { HttpForm } from "../../utils/forms/connectors/http-form"
-import { LogForm } from "../../utils/forms/log-form"
-import { ResourceForm } from "../../utils/forms/resource-form"
-import { ServiceForm } from "../../utils/forms/service-form"
-import { VariableFormBlockLevel } from "../../utils/forms/variable-form-block-level"
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "service/edit-existing-service-file.bal";
@@ -22,18 +20,45 @@ describe('edit a http service', () => {
       .expand()
       .getDiagram()
       .shouldBeRenderedProperly()
+        .clickDefaultWorkerPlusBtn(0)
       .getBlockLevelPlusWidget()
-      .clickOption("Variable");
 
-    VariableFormBlockLevel.shouldBeVisible()
-      .typeVariableType("int")
-      .typeVariableName("foo")
-      .isInitializeVariable()
-      .toggleInitializeVariable()
-      .valueExpressionShouldBeHidden()
-      .toggleInitializeVariable()
-      .typeVariableValue(123)
-      .save();
+    BlockLevelPlusWidget
+        .clickOption("Variable");
+
+    StatementEditor
+        .shouldBeVisible()
+        .getEditorPane();
+
+    EditorPane
+        .getStatementRenderer()
+        .getExpression("SimpleNameReference")
+        .doubleClickExpressionContent(`<add-expression>`);
+
+    InputEditor
+        .typeInput("123");
+
+    EditorPane
+        .validateNewExpression("NumericLiteral", "123")
+        .getExpression("VarTypeDesc")
+        .doubleClickExpressionContent("var");
+
+    InputEditor
+        .typeInput("int");
+
+    EditorPane
+        .validateNewExpression("IntTypeDesc", "int")
+        .getExpression("CaptureBindingPattern")
+        .doubleClickExpressionContent("variable");
+
+    InputEditor
+        .typeInput("foo");
+
+    EditorPane
+        .validateNewExpression("CaptureBindingPattern", "foo")
+
+    StatementEditor
+        .save();
 
     Canvas.getService("/hello")
       .getResourceFunction("POST", "/")
@@ -41,15 +66,24 @@ describe('edit a http service', () => {
       .shouldBeRenderedProperly()
       .clickDefaultWorkerPlusBtn(1)
       .getBlockLevelPlusWidget()
+
+    BlockLevelPlusWidget
       .clickOption("Variable");
 
-    VariableFormBlockLevel.shouldBeVisible()
-      .typeVariableType("string")
-      .typeVariableName("foo_string")
-      .isInitializeVariable()
-      .toggleInitializeVariable()
-      .valueExpressionShouldBeHidden()
-      .save();
+    StatementEditor
+        .shouldBeVisible()
+        .getEditorPane();
+
+    EditorPane
+        .getStatementRenderer()
+        .getExpression("SimpleNameReference")
+        .doubleClickExpressionContent(`<add-expression>`);
+
+    InputEditor
+        .typeInput("456");
+
+    StatementEditor
+        .save();
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "edit-service-http.expected.bal");

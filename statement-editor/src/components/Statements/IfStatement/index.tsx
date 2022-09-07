@@ -64,6 +64,7 @@ export function IfStatementC(props: IfStatementProps) {
             <ExpressionComponent model={model.condition} />
             <TokenComponent model={model.ifBody.openBraceToken} />
             &nbsp;&nbsp;&nbsp;{"..."}
+            {isFinalIfElseStatement && !isElseAvailable && <br />}
             <TokenComponent model={model.ifBody.closeBraceToken} />
             {isFinalIfElseStatement && (
                 isElseAvailable ? (

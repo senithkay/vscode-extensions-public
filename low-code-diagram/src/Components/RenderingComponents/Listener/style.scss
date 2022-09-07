@@ -53,6 +53,7 @@
 
         .listener-amendment-options {
             display: flex;
+            flex-direction: row;
             width: 25%;
             align-items: center;
 
@@ -65,6 +66,15 @@
                 &:hover {
                     cursor: pointer;
                 }
+            }
+        }
+        .show-on-hover {
+            display: none;
+        }
+
+        &:hover {
+            .show-on-hover {
+                display: block;
             }
         }
     }

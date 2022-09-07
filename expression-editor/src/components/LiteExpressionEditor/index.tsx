@@ -50,7 +50,7 @@ import {
     truncateDiagnosticMsg,
 } from "./utils";
 
-const DEBOUNCE_DELAY = 1000;
+const DEBOUNCE_DELAY = 300;
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     scrollbar: {
@@ -87,6 +87,7 @@ const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     hover: {
         enabled: false,
     },
+    occurrencesHighlight: false
 };
 
 monaco.editor.defineTheme("exp-theme", {
@@ -145,6 +146,7 @@ export interface GetCompletionsParams {
 
 export interface LiteExpressionEditorProps {
     defaultValue?: string;
+    externalChangedValue?: string;
     focus?: boolean;
     targetPosition?: any;
     onChange?: (value: string) => void;
@@ -166,7 +168,8 @@ export interface LiteExpressionEditorProps {
         optional?: boolean;
         name?: string;
     },
-    stModel?: STNode
+    stModel?: STNode;
+    testId?: string;
 }
 
 export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
@@ -185,7 +188,9 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         diagnostics,
         model,
         customProps,
-        stModel
+        stModel,
+        testId,
+        externalChangedValue
     } = props;
 
     const [expressionEditorState, setExpressionEditorState] = useState<ExpressionEditorState>({
@@ -193,6 +198,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         content: undefined,
         uri: undefined,
         diagnostic: diagnostics,
+        isFirstSelect: true
     });
 
     const initialValue = defaultValue;
@@ -215,7 +221,12 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     const [validating, setValidating] = useState<boolean>(false);
     const [showConfigurableView, setShowConfigurableView] = useState(false);
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState(""); // getInitialDiagnosticMessage(diagnostics)
-    const [initialLoaded, setInitialLoaded] = useState(false);
+
+    const [editorConfig] = useState({ onChange, diagnostics });
+
+    useEffect(() => {
+        editorConfig.onChange = onChange;
+    }, [onChange])
 
     // Configurable insertion icon will be displayed only when originalValue is empty
     // const [originalValue, setOriginalValue] = useState(model?.value || "");
@@ -275,14 +286,15 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                         ],
                     });
                 } else {
+                    const monacoModel = monacoRef.current.editor.getModel();
                     monaco.editor.setModelMarkers(
-                        monacoRef.current.editor.getModel(),
+                        monacoModel,
                         "expression editor",
-                        diagnostics.map((diagnostic: any) => ({
+                        editorConfig?.diagnostics?.map((diagnostic: any) => ({
                             startLineNumber: 1,
-                            startColumn: diagnostic.range.start.character, // - snippetTargetPosition + 2,
+                            startColumn: diagnostic.range?.start?.character || monacoModel.getFullModelRange().startColumn, // - snippetTargetPosition + 2,
                             endLineNumber: 1,
-                            endColumn: diagnostic.range.end.character, // - snippetTargetPosition + 2,
+                            endColumn: diagnostic.range?.end?.character || monacoModel.getFullModelRange().endColumn, // - snippetTargetPosition + 2,
                             message: diagnostic.message,
                             severity: monaco.MarkerSeverity.Error,
                         }))
@@ -341,6 +353,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                     // event.isFlush()
                     if (!event.isFlush) {
                         debouncedContentChange(monacoModel.getValue(), monacoModel.getEOL(), lastPressedKey);
+                        setValidating(false);
                     } else {
                         setValidating(false);
                     }
@@ -389,12 +402,12 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         }
     }, [focus]);
 
-    // useEffect(() => {
-    //     if (defaultValue) {
-    //         const monacoModel = monacoRef.current.editor.getModel();
-    //         monacoModel.setValue(defaultValue.value);
-    //     }
-    // }, [defaultValue]);
+    useEffect(() => {
+        if (externalChangedValue !== undefined) {
+            const monacoModel = monacoRef.current.editor.getModel();
+            monacoModel.setValue(externalChangedValue);
+        }
+    }, [externalChangedValue]);
 
     useEffect(() => {
         // !hideExpand
@@ -412,7 +425,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                 monacoRef.current.editor.addContentWidget(expandWidget);
             }
         }
-    }, [expand]); // hideExpand
+    }, [expand]); // hideExpand;
 
     useEffect(() => {
         if (monacoRef.current) {
@@ -437,6 +450,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     }, [disabled]);
 
     useEffect(() => {
+        editorConfig.diagnostics = diagnostics;
         if (diagnostics) {
             handleDiagnostic();
             if (diagnostics.length > 0) {
@@ -456,6 +470,11 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
             monacoRef.current.editor.trigger("exp_editor", "editor.action.triggerSuggest", {});
         }
 
+        if (expressionEditorState.isFirstSelect) {
+            monacoRef.current.editor.setSelection(monacoRef.current.editor.getModel().getFullModelRange());
+            expressionEditorState.isFirstSelect = false;
+        }
+
         if (onFocus) {
             onFocus();
         }
@@ -463,8 +482,8 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
 
     // ExpEditor onChange
     const handleContentChange = async (currentContent: string, EOL: string, lastPressedKey?: string) => {
-        if (onChange) {
-            onChange(currentContent);
+        if (editorConfig.onChange && monacoRef?.current?.editor?.hasTextFocus()) {
+            editorConfig.onChange(currentContent);
         }
     };
     const debouncedContentChange = debounce(handleContentChange, DEBOUNCE_DELAY);
@@ -587,7 +606,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
             <div
                 className={classNames("exp-container", { "hide-suggestion": hideSuggestions })}
                 style={{ height: expand ? (superExpand ? "200px" : "100px") : "34px" }}
-                field-name={"fieldName"}
+                field-name={testId}
             >
                 <div className="exp-absolute-wrapper">
                     <div

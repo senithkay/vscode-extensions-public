@@ -2,4 +2,4 @@ type AnnotationData record {|
 
 |};
 
-const annotation AnnotationData MyAnnot2 on function;
+const annotation AnnotationData MyAnnot on service;

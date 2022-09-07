@@ -18,9 +18,7 @@ import { default as AddIcon } from "@material-ui/icons/Add";
 import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createFunctionSignature,
-    ExpressionEditorLangClientInterface,
     getSource,
-    STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -28,27 +26,22 @@ import {
     dynamicConnectorStyles as connectorStyles,
     FormActionButtons,
     FormHeaderSection,
-    FormTextInput,
-    useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     DefaultableParam,
     FunctionDefinition,
     IncludedRecordParam,
-    NodePosition,
     RequiredParam,
     RestParam,
-    STKindChecker,
-    STNode
+    STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { CurrentModel, StmtDiagnostic, SuggestionItem } from "../../../models/definitions";
+import { CurrentModel, StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from '../../InputEditor/constants';
-import { CompletionEditor } from '../components/CompletionEditor/completionEditor';
 import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 import { recalculateItemIds } from "../Utils/FormUtils";
 
@@ -65,7 +58,6 @@ export function FunctionForm(props: FunctionProps) {
 
     const { targetPosition, isEdit, type, onChange, applyModifications, onCancel, getLangClient } = useContext(FormEditorContext);
 
-    const formClasses = useFormStyles();
     const connectorClasses = connectorStyles();
     const isMainFunction = (type === "Main");
 
@@ -76,7 +68,7 @@ export function FunctionForm(props: FunctionProps) {
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StmtDiagnostic[]>(undefined);
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
     const [currentComponentCompletions, setCurrentComponentCompletions] = useState<SuggestionItem[]>(undefined);
 
     // States related parameters
@@ -84,7 +76,6 @@ export function FunctionForm(props: FunctionProps) {
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [addingNewParam, setAddingNewParam] = useState(false);
 
-    const functionBodyBlock = model && STKindChecker.isFunctionBodyBlock(model.functionBody) && model?.functionBody;
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
     const functionParamChange = async (funcName: string, parametersStr: string, returnTypeStr: string,
@@ -103,7 +94,12 @@ export function FunctionForm(props: FunctionProps) {
             { codeSnippet: updatedContent.trim() }, getLangClient
         );
         if (!partialST.syntaxDiagnostics.length) {
-            setCurrentComponentSyntaxDiag(undefined);
+            if (/\s+/.test(funcName)) {
+                // This is to check whether function name contains any spaces. If it contains any marks as syntax error
+                setCurrentComponentSyntaxDiag([{message: "Space characters are not allowed"}]);
+            } else {
+                setCurrentComponentSyntaxDiag(undefined);
+            }
             if (newValue && currentModel) {
                 onChange(updatedContent, partialST, undefined, currentModel, newValue, completionKinds);
             } else {
@@ -121,7 +117,7 @@ export function FunctionForm(props: FunctionProps) {
     }
     const onNameChange = async (value: string) => {
         setFunctionName(value);
-        const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        const parametersStr = parameters.map((item) => `${item.type} ${item.name}`).join(", ");
         const currentModel: CurrentModel = {
             model: model?.functionName
         };
@@ -133,13 +129,13 @@ export function FunctionForm(props: FunctionProps) {
     const onReturnTypeChange = async (value: string) => {
         // TODO: remove function return validations
         setReturnType(value);
-        const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
+        const parametersStr = parameters.map((item) => `${item.type} ${item.name}`).join(", ");
         const codeSnippet = getSource(updateFunctionSignature(functionName, parametersStr,
             value ? `returns ${value}` : "", {
             ...targetPosition, startColumn: model?.functionName?.position?.startColumn
         })
         );
-        const updatedContent = await getUpdatedSource(codeSnippet, model?.source, {
+        const updatedContent = getUpdatedSource(codeSnippet, model?.source, {
             ...model?.functionSignature?.position, startColumn: model?.functionName?.position?.startColumn
         }, undefined, true);
         const partialST = await getPartialSTForModuleMembers(
@@ -161,27 +157,25 @@ export function FunctionForm(props: FunctionProps) {
             }
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
-
-
-        // await functionParamChange(functionName.value, parametersStr, value, currentModel, value, );
     }
 
     const onReturnFocus = async () => {
-        // const parametersStr = parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",");
-        // const currentModel: CurrentModel = {
-        //     model: model.functionSignature?.returnTypeDesc?.type
-        // };
-        // await functionParamChange(functionName.value, parametersStr, returnType.value, currentModel, "");
         setCurrentComponentCompletions([]);
         setCurrentComponentName("Return");
     }
 
-    const debouncedReturnChange = debounce(onReturnTypeChange, 1000);
+    const debouncedReturnChange = debounce(onReturnTypeChange, 1500);
 
     // Param related functions
-    const openNewParamView = () => {
+    const openNewParamView = async () => {
+        setCurrentComponentName("Param");
         setAddingNewParam(true);
         setEditingSegmentId(-1);
+        const newParams = [...parameters, {type: "string", name: "name"}];
+        const parametersStr = newParams
+            .map((item) => `${item.type} ${item.name}`)
+            .join(", ");
+        await functionParamChange(functionName, parametersStr, returnType);
     };
 
     const handleOnEdit = (funcParam: FunctionParam) => {
@@ -215,8 +209,8 @@ export function FunctionForm(props: FunctionProps) {
         setCurrentComponentName("Param");
         const newParams = [...parameters, param];
         const parametersStr = newParams
-            .map((item) => `${item.type.value} ${item.name.value}`)
-            .join(",");
+            .map((item) => `${item.type} ${item.name}`)
+            .join(", ");
         await functionParamChange(functionName, parametersStr, returnType);
     };
     const onUpdateParamChange = async (param: FunctionParam) => {
@@ -224,8 +218,8 @@ export function FunctionForm(props: FunctionProps) {
         const newParams = [...parameters];
         newParams[param.id] = param;
         const parametersStr = newParams
-            .map((item) => `${item.type.value} ${item.name.value}`)
-            .join(",");
+            .map((item) => `${item.type} ${item.name}`)
+            .join(", ");
         await functionParamChange(functionName, parametersStr, returnType);
     };
     const onSaveNewParam = (param: FunctionParam) => {
@@ -235,7 +229,7 @@ export function FunctionForm(props: FunctionProps) {
     };
 
     const handleOnSave = () => {
-        const parametersStr = parameters ? parameters.map((item) => `${item.type.value} ${item.name.value}`).join(",") : "";
+        const parametersStr = parameters ? parameters.map((item) => `${item.type} ${item.name}`).join(", ") : "";
         if (isEdit) {
             applyModifications([
                 updateFunctionSignature(functionName, parametersStr,
@@ -253,13 +247,13 @@ export function FunctionForm(props: FunctionProps) {
     }
 
     const paramElements: React.ReactElement[] = [];
-    parameters?.forEach((value, index) => {
-        if (value.name.value) {
+    parameters?.forEach((param, index) => {
+        if (param.name) {
             if (editingSegmentId !== index) {
                 paramElements.push(
                     <FunctionParamItem
                         key={index}
-                        functionParam={value}
+                        functionParam={param}
                         readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}
                         onDelete={onDeleteParam}
                         onEditClick={handleOnEdit}
@@ -271,7 +265,6 @@ export function FunctionForm(props: FunctionProps) {
                         param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
                             RestParam)}
                         id={editingSegmentId}
-                        segment={value}
                         syntaxDiag={currentComponentSyntaxDiag}
                         onCancel={closeNewParamView}
                         onUpdate={handleOnUpdateParam}
@@ -292,8 +285,8 @@ export function FunctionForm(props: FunctionProps) {
                 .filter((param) => STKindChecker.isRequiredParam(param))
                 .map((param: any, index) => ({
                     id: index,
-                    name: { value: param.paramName.value, isInteracted: false },
-                    type: { value: param.typeName.source.trim(), isInteracted: false },
+                    name: param.paramName.value,
+                    type: param.typeName.source.trim(),
                 }));
             setParameters(editParams);
         }
@@ -315,13 +308,16 @@ export function FunctionForm(props: FunctionProps) {
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title='Name' optional={false} />
                         <LiteExpressionEditor
+                            testId={"function-name"}
                             defaultValue={functionName}
-                            diagnostics={model?.functionName?.viewState?.diagnosticsInRange}
+                            diagnostics={
+                                (currentComponentName === "Name" && currentComponentSyntaxDiag)
+                                || model?.functionName?.viewState?.diagnosticsInRange
+                            }
                             focus={true}
                             onChange={debouncedNameChange}
                             onFocus={onNameFocus}
-                            stModel={model}
-                            disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
+                            disabled={addingNewParam || isMainFunction || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                             hideSuggestions={true}
                             // placeholder={"Ex: name"}
                             // defaultValue={(functionName?.isInteracted || isEdit || isMainFunction) ? functionName.value : ""}
@@ -348,6 +344,7 @@ export function FunctionForm(props: FunctionProps) {
                                     onChange={onParamChange}
                                     onSave={onSaveNewParam}
                                     isEdit={false}
+                                    completions={completions}
                                 />
                             ) : (
                                 <Button
@@ -365,11 +362,11 @@ export function FunctionForm(props: FunctionProps) {
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <FieldTitle title='Return Type' optional={true} />
                         <LiteExpressionEditor
+                            testId={"return-type"}
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             defaultValue={returnType}
                             onChange={debouncedReturnChange}
                             completions={currentComponentCompletions}
-                            stModel={model}
                             onFocus={onReturnFocus}
                             disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
                             customProps={{
@@ -401,7 +398,7 @@ export function FunctionForm(props: FunctionProps) {
     const contentRenderCondition = functionName || returnType;
 
     return (
-        <FormControl data-testid="function-form" className={formClasses.wizardFormControl}>
+        <FormControl data-testid="function-form" className={connectorClasses.wizardFormControlExtended}>
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"Function Configuration"}

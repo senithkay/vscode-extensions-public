@@ -59,12 +59,16 @@ export function ParameterBranch(props: ParameterBranchProps) {
     }
 
     return (
-        <List>
+        <List data-testid="parameter-branch">
             {requiredParams}
             {optionalParams.length > 0 && (
                 <ListItem className={stmtEditorHelperClasses.listOptionalWrapper}>
                     <div className={stmtEditorHelperClasses.listOptionalHeader}>Optional fields </div>
-                    <Button className={stmtEditorHelperClasses.listOptionalBtn} onClick={toggleOptionalParams}>
+                    <Button
+                        data-testid="optional-toggle-button"
+                        className={stmtEditorHelperClasses.listOptionalBtn}
+                        onClick={toggleOptionalParams}
+                    >
                         {showOptionalParams ? "Hide" : "Show"}
                     </Button>
                 </ListItem>

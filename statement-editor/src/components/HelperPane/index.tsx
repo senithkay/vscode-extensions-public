@@ -18,6 +18,7 @@ import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-e
 import {
     ALL_LIBS_IDENTIFIER,
     DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    FUNCTION_CALL,
     LANG_LIBS_IDENTIFIER,
     STD_LIBS_IDENTIFIER
 } from "../../constants";
@@ -73,14 +74,11 @@ export function HelperPane(props: HelperPaneProps) {
 
         const client = KeyboardNavigationManager.getClient();
 
-        client.bindNewKey(['ctrl+shift+s', 'command+shift+s'], setSelectedTab, TabElements.suggestions);
-        client.bindNewKey(['ctrl+shift+e', 'command+shift+e'], setSelectedTab, TabElements.expressions);
-        client.bindNewKey(['ctrl+shift+l', 'command+shift+l'], setSelectedTab, TabElements.libraries);
-        client.bindNewKey(['ctrl+shift+d', 'command+shift+d'], setSelectedTab, TabElements.parameters);
+        client.bindNewKey(['ctrl+shift+m', 'command+shift+m'], setSelectedTab, TabElements.suggestions);
+        client.bindNewKey(['ctrl+shift+,', 'command+shift+,'], setSelectedTab, TabElements.expressions);
+        client.bindNewKey(['ctrl+shift+.', 'command+shift+.'], setSelectedTab, TabElements.libraries);
+        client.bindNewKey(['ctrl+shift+/', 'command+shift+/'], setSelectedTab, TabElements.parameters);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
     }, []);
 
     useEffect(() => {
@@ -89,7 +87,8 @@ export function HelperPane(props: HelperPaneProps) {
             (isFunctionOrMethodCall(currentModel.model) || isInsideConnectorParams(currentModel.model, config.type)) &&
             !isConfigurableEditor(editors, activeEditorId)
         ) {
-            setSelectedTab(TabElements.parameters);
+            (currentModel.model?.source?.trim() === FUNCTION_CALL) ?
+                setSelectedTab(TabElements.libraries) : setSelectedTab(TabElements.parameters);
         } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
             setSelectedTab(TabElements.expressions);
         }
@@ -109,9 +108,10 @@ export function HelperPane(props: HelperPaneProps) {
                         onSelection={onTabElementSelection}
                         selectedTab={selectedTab}
                     />
-                    <div className={stmtEditorHelperClasses.libraryTypeSelector}>
+                    <div className={stmtEditorHelperClasses.libraryTypeSelector} data-testid="library-type-selector">
                         {selectedTab === TabElements.libraries && (
                             <SelectDropdown
+                                data-testid="library-selector-dropdown"
                                 values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
                                 defaultValue={ALL_LIBS_IDENTIFIER}
                                 onSelection={onLibTypeSelection}

@@ -33,11 +33,13 @@ interface CheckBoxGroupProps {
     className?: string;
     checkOptional?: boolean;
     disabled?: boolean;
+    withMargins?: boolean;
     testId?: string;
 }
 
 export function CheckBoxGroup(props: CheckBoxGroupProps) {
-    const { values, className, onChange, label, defaultValues, checkOptional, disabled, testId } = props;
+    const { values, className, onChange, label, defaultValues, checkOptional, withMargins = true, disabled,
+            testId } = props;
     const formClasses = useFormStyles();
     const dropDownClasses = useTextInputStyles();
     const [selected, setSelected] = React.useState(defaultValues);
@@ -68,7 +70,7 @@ export function CheckBoxGroup(props: CheckBoxGroupProps) {
             <FormControl
                 error={error}
                 component="fieldset"
-                className={dropDownClasses.checkFormControl}
+                className={withMargins && dropDownClasses.checkFormControl}
             >
                 {label !== undefined ?
                     (

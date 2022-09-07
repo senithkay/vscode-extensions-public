@@ -53,6 +53,12 @@ const focusColor1 = {
     },
 }
 
+const activeColour = {
+    '&:active': {
+        backgroundColor: 'rgba(204,209,242,0.61)'
+    },
+}
+
 const removePadding = {
     padding: '0px'
 }
@@ -229,7 +235,7 @@ export const useStatementRendererStyles = makeStyles(() =>
                 display: "inline"
             },
             '&.hide': {
-                display: "none"
+                visibility: "hidden"
             }
         },
         errorHighlight: {
@@ -382,7 +388,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 margin: '0'
             },
             ...hoverColor1,
-            ...focusColor1
+            ...activeColour
         },
         suggestionDataType: {
             color: '#05A26B',
@@ -408,7 +414,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             border: '1px #E0E3E9',
             borderRadius: '5px',
             boxShadow: 'inset 0 0 0 1px #DEE0E7, inset 0 2px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07)',
-            color: '#CBCEDB',
+            color: '#8D91A3',
             textIndent: '12px',
             textAlign: 'left',
             marginBottom: '16px',
@@ -419,6 +425,31 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '4px',
             fontWeight: 500,
             paddingLeft: '10px'
+        },
+        selectionWrapper: {
+            display: 'flex',
+            flexDirection: 'row',
+            marginLeft: '14px',
+            marginBottom: '14px'
+        },
+        selectionSubHeader: {
+            height: '24px',
+            width: 'fit-content',
+            color: '#40404B',
+            padding: '0 10px',
+            borderRadius: '5px',
+            backgroundColor: 'rgba(204,209,242,0.61)',
+            display: 'flex',
+            alignItems: 'center',
+            ...statementFontStyles
+        },
+        selectionSeparator: {
+            height: '1px',
+            width: '100%',
+            flex: '1 0',
+            backgroundColor: '#EDEEF1',
+            alignSelf: 'flex-end',
+            marginLeft: '10px'
         },
         expressionList: {
             columnGap: '5%',
@@ -437,7 +468,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                 margin: '0'
             },
             ...hoverColor1,
-            ...focusColor1
+            ...activeColour
         },
         loadingContainer: {
             height: '60vh',
@@ -650,7 +681,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         paramList: {
-            maxHeight: '40%',
+            maxHeight: '40vh',
             overflowY: 'scroll',
         },
         includedRecordHeaderList: {

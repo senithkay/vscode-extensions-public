@@ -12,6 +12,7 @@
  */
 
 import { ReactNode } from "react";
+import { IconType } from "react-icons";
 
 import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -61,7 +62,7 @@ export interface RemainingContent {
     position: NodePosition
 }
 
-export interface StmtDiagnostic {
+export interface StatementSyntaxDiagnostics {
     message: string;
     isPlaceHolderDiag?: boolean;
 }
@@ -101,3 +102,14 @@ export interface DocumentationInfo {
     modelPosition : NodePosition;
     documentation : SymbolInfoResponse | EmptySymbolInfo
 }
+
+export interface Suggestion {
+    selectedGroup?: number,
+    selectedListItem: number
+}
+
+export interface SuggestionIcon {
+    SuggestIcon : IconType,
+    color: string
+}
+

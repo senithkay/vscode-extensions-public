@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { KeyboardNavigationManager, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
@@ -24,7 +24,7 @@ import {
     DocumentationInfo,
     EditorModel,
     LSSuggestions,
-    StmtDiagnostic,
+    StatementSyntaxDiagnostics,
     SuggestionItem
 } from "../../models/definitions";
 import { StatementEditorContextProvider } from "../../store/statement-editor-context";
@@ -118,12 +118,14 @@ export function StatementEditor(props: StatementEditorProps) {
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
-    const [stmtDiagnostics, setStmtDiagnostics] = useState<StmtDiagnostic[]>([]);
+    const [stmtDiagnostics, setStmtDiagnostics] = useState<StatementSyntaxDiagnostics[]>([]);
     const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
     const [documentation, setDocumentation] = useState<DocumentationInfo>(initSymbolInfo);
     const [isRestArg, setRestArg] = useState(false);
     const [isPullingModule, setIsPullingModule] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const pulledModules = useRef<string[]>([]);
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -262,6 +264,10 @@ export function StatementEditor(props: StatementEditorProps) {
         setHasSyntaxDiagnostics(hasSyntaxIssues);
     }
 
+    const updateEditing = (editing: boolean) => {
+        setIsEditing(editing);
+    }
+
     const updateModel = async (codeSnippet: string, position: NodePosition, stmtModel?: STNode) => {
         const existingModel = stmtModel || model;
         let partialST: STNode;
@@ -341,7 +347,9 @@ export function StatementEditor(props: StatementEditorProps) {
         if (config.type === CONNECTOR){
             await pullUnresolvedModules(diag);
         }
-        removeUnusedModules(diag);
+        if (config.type !== CONNECTOR && config.type !== ACTION){
+            removeUnusedModules(diag);
+        }
         const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
         setStmtDiagnostics(messages);
         return diag;
@@ -396,21 +404,27 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList.size && !!extraModules?.size && runBackgroundTerminalCommand && !isPullingModule) {
-            const extraModulesArr = Array.from(extraModules);
-            for (const diagnostic of completeDiagnostic) {
-                if (diagnostic.message?.includes("cannot resolve module '")) {
-                    for (const module of extraModulesArr) {
-                        if (diagnostic.message?.includes(module) && !isPullingModule) {
-                            setIsPullingModule(true);
-                            const response = await runBackgroundTerminalCommand(
-                                `bal pull ${module.replace(" as _", "")}`
-                            );
-                            // TODO: Handle response
-                        }
-                    }
-                }
+        if (!(!!moduleList?.size && runBackgroundTerminalCommand && !isPullingModule)) {
+            return;
+        }
+        let pullCommand = "";
+        for (const diagnostic of completeDiagnostic) {
+            if (!diagnostic.message?.includes("cannot resolve module '")) {
+                continue;
             }
+            moduleList.forEach((module) => {
+                if (diagnostic.message?.includes(module) && !pulledModules.current.includes(module)) {
+                    if (pullCommand !== "") {
+                        pullCommand += ` && `;
+                    }
+                    pullCommand += `bal pull ${module.replace(" as _", "")}`;
+                    pulledModules.current.push(module);
+                }
+            });
+        }
+        if (pullCommand !== "") {
+            setIsPullingModule(true);
+            await runBackgroundTerminalCommand(pullCommand);
             setIsPullingModule(false);
         }
     };
@@ -483,9 +497,6 @@ export function StatementEditor(props: StatementEditorProps) {
         client.bindNewKey(['shift+tab'], previousModelHandler);
         client.bindNewKey(['enter'], enterKeyHandler);
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
     }, [currentModel.model]);
 
     return (
@@ -525,6 +536,8 @@ export function StatementEditor(props: StatementEditorProps) {
                     hasRestArg={isRestArg}
                     hasSyntaxDiagnostics={hasSyntaxDiagnostics}
                     updateSyntaxDiagnostics={updateSyntaxDiagnostics}
+                    editing={isEditing}
+                    updateEditing={updateEditing}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

@@ -5,38 +5,38 @@ export class FunctionForm {
     private static selector = '[data-testid="function-form"]';
 
     static typeFunctionName(fnName: string) {
-        const typeInput = `{selectall}${fnName}`;
-        this.getForm()
-            .get('[data-testid="function-name"]')
-            .type(typeInput);
-        this.getForm().wait(1000);
+        ExpressionEditor
+            .getForField("function-name", this.selector)
+            .clear()
+            .type(fnName)
+        this.getForm().wait(4000);
         return this;
     }
 
     static typeReturnType(retType: string) {
-        const typeInput = `{selectall}${retType}`;
-        this.getForm()
-            .get('[data-testid="return-type"]')
-            .type(typeInput);
-        this.getForm().wait(1000);
+        ExpressionEditor
+            .getForField("return-type", this.selector)
+            .clear()
+            .type(retType)
+        this.getForm().wait(4000);
         return this;
     }
 
     static typeParamType(type: string) {
-        const typeInput = `{selectall}${type}`;
-        this.getForm()
-            .get('[data-testid="function-param-type"]')
-            .type(typeInput);
-        this.getForm().wait(1000);
+        ExpressionEditor
+            .getForField("function-param-type", this.selector)
+            .clear()
+            .type(type);
+        this.getForm().wait(4000);
         return this;
     }
 
     static typeParamName(name: string) {
-        const clearKeyStroke = `{selectall}${name}`;
-        this.getForm()
-            .get('[data-testid="function-param-name"]')
-            .type(clearKeyStroke);
-        this.getForm().wait(1000);
+        ExpressionEditor
+            .getForField("function-param-name", this.selector)
+            .clear()
+            .type(name);
+        this.getForm().wait(4000);
         return this;
     }
 

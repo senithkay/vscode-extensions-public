@@ -112,6 +112,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         if (!metadata) {
             // TODO: Handle error properly
             setWizardStep(WizardStep.EMPTY);
+            onClose();
         }
         setFetchingMetadata(false);
     }
@@ -155,6 +156,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         // TODO: Handle error properly
         setWizardStep(WizardStep.EMPTY);
         setRetrievingAction(false);
+        onClose();
     }
 
     async function fetchMetadata(connector: BallerinaConnectorInfo): Promise<BallerinaConnectorInfo> {
@@ -209,6 +211,10 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         setWizardStep(WizardStep.ACTION_FROM);
     }
 
+    function handleActionBack() {
+        setWizardStep(WizardStep.ENDPOINT_LIST);
+    }
+
     function hasFunctions(connector: BallerinaConnectorInfo) {
         return connector?.functions?.length > 0 ?? false;
     }
@@ -243,6 +249,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                         }}
                         targetPosition={targetPosition}
                         model={model}
+                        showLoader={true}
                     />
                 )}
             {wizardStep === WizardStep.ENDPOINT_FORM &&
@@ -282,6 +289,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
             {wizardStep === WizardStep.ACTION_LIST && showNewForms && (
                 <FormGenerator
                     onCancel={onClose}
+                    onBack={handleActionBack}
                     configOverlayFormStatus={{
                         formType: "ActionList",
                         formArgs: {
@@ -296,7 +304,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                 // TODO: Remove this when cleaning old forms
                 <ConnectorConfigWizard
                     position={diagramPosition}
-                    connectorInfo={selectedConnector?.package ? selectedConnector : connectorInfo}
+                    connectorInfo={selectedConnector}
                     endpointName={selectedEndpoint}
                     targetPosition={targetPosition}
                     model={model}
@@ -317,12 +325,14 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                         formType: "ActionForm",
                         formArgs: {
                             action: selectedAction,
+                            connector: selectedConnector,
                             endpointName: selectedEndpoint,
                         },
                         isLoading,
                     }}
                     targetPosition={targetPosition}
                     model={model}
+                    showLoader={true}
                 />
             )}
         </>

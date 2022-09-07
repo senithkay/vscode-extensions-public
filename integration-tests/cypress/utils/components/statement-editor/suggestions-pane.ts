@@ -21,6 +21,13 @@ export class SuggestionsPane {
         return this;
     }
 
+    static tabShouldFocused(selectedTab: string) {
+        cy.get(`[data-testid="tab-panel-wrapper"]`).within(() => {
+            cy.contains(selectedTab).should('have.attr', 'aria-selected').and('eq', 'true')
+        });
+        return this;
+    }
+
     static clickLsSuggestion(selectedSuggestion: string) {
         cy.wait(500)
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
@@ -30,8 +37,8 @@ export class SuggestionsPane {
         return this;
     }
 
-    static clickLsTypeSuggestion(selectedSuggestion: string) {
-        cy.wait(500)
+    static clickLsTypeSuggestion(selectedSuggestion: string, wait = 500) {
+        cy.wait(wait)
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
             cy.contains(`[data-testid="suggestion-value"]`, selectedSuggestion).should((elem) => {
                 expect(elem.text()).to.equal(selectedSuggestion);
@@ -46,6 +53,39 @@ export class SuggestionsPane {
             cy.contains(selectedExpression)
                 .click({ force: true })
         })
+        return this;
+    }
+
+    static clickLibrarySuggestion(selectedLib: string) {
+        cy.get(`[data-testid="library-list-block"]`).within(() => {
+            cy.contains(selectedLib)
+                .click({ force: true })
+        })
+        return this;
+    }
+
+    static clickSearchedLibSuggestion(searchedLib: string) {
+        cy.get(`[data-testid="library-element-block-content"]`).within(() => {
+            cy.contains(searchedLib)
+                .click({ force: true })
+        })
+        return this;
+    }
+
+    static clickOnLibraryDropdown(mode: string) {
+        cy.get(`[data-testid="library-type-selector"]`).within(() => {
+            cy.get(`.MuiSelect-select[role="button"]`)
+                .click();
+        });
+        cy.get(`ul.MuiMenu-list li span.TextSpan`)
+            .contains(mode)
+            .click();
+        return this;
+    }
+
+    static validateFilteredLib(clearedLib: string) {
+        cy.get(`[data-testid="library-list-block"]`)
+            .children().should('not.contain', clearedLib)
         return this;
     }
 

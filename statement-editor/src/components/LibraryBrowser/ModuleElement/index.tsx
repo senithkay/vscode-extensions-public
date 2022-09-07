@@ -19,6 +19,7 @@ import {
     LibraryFunction,
     ModuleProperty
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { InputEditorContext } from '../../../store/input-editor-context';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -39,7 +40,7 @@ export function ModuleElement(props: ModuleElementProps) {
     const inputEditorCtx = useContext(InputEditorContext);
     const { id, moduleId, moduleOrgName, moduleVersion } = moduleProperty;
     const [clickedModuleElement, setClickedModuleElement] = useState('');
-    const { className, color } = getModuleIconStyle(label);
+    const { SuggestIcon, color } = getModuleIconStyle(label);
 
     const {
         modelCtx: {
@@ -100,13 +101,14 @@ export function ModuleElement(props: ModuleElementProps) {
             className={stmtEditorHelperClasses.suggestionListItem}
             disableRipple={true}
         >
-            <ListItemIcon
-                className={className}
+            <SuggestIcon
                 style={{ minWidth: '12%', textAlign: 'left', color }}
             />
+            <StatementEditorHint content={`${moduleId}:${id}`}>
             <ListItemText
                 primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
             />
+            </StatementEditorHint>
             {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
         </ListItem>
     );

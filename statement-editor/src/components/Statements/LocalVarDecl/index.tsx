@@ -21,6 +21,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
 import { InputEditor } from "../../InputEditor";
+import { KeywordComponent } from "../../Keyword";
 import { useStatementRendererStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
@@ -70,10 +71,18 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             } else {
                 changeCurrentModel(model.initializer.expression);
             }
+        } else if (model.initializer && STKindChecker.isReceiveAction(model.initializer)) {
+            changeCurrentModel(model.initializer.receiveWorkers);
+        } else if (model.initializer && STKindChecker.isWaitAction(model.initializer)) {
+            changeCurrentModel(model.initializer.waitFutureExpr);
+        } else if (model.initializer && STKindChecker.isFlushAction(model.initializer)) {
+            changeCurrentModel(model.initializer.peerWorker);
         } else if (model.initializer) {
             changeCurrentModel(model.initializer);
         } else if (config.type === CUSTOM_CONFIG_TYPE) {
             changeCurrentModel(model);
+        } else if (!model.initializer && model.typedBindingPattern?.typeDescriptor){
+            changeCurrentModel(model.typedBindingPattern.typeDescriptor);
         }
     }
 
@@ -135,6 +144,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
 
     return (
         <>
+            {model.finalKeyword && <KeywordComponent model={model.finalKeyword}/>}
             {typedBindingComponent}
             {model.initializer && <TokenComponent model={model.equalsToken} className="operator" />}
             {expressionComponent}
