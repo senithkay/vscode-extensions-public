@@ -125,7 +125,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             lm.addLabel(new ExpressionLabelModel({
                 context: this.context,
                 link: lm,
-                deleteLink: this.targetLinkDelete,
+                deleteLink: () => this.targetLinkDelete(this.valueNode),
             }));
 
             // TODO: need to fix the following event listener
@@ -183,15 +183,15 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         }]);
     }
 
-    private targetLinkDelete() {
-        if (this.targetPort.parentId === EXPANDED_QUERY_TARGET_PORT_PREFIX) {
+    private targetLinkDelete(specificField: SpecificField) {
+        if (this.targetPort?.parentId === EXPANDED_QUERY_TARGET_PORT_PREFIX) {
             // If query targetPort, should delete only value expression position
             this.context.applyModifications([{
                 type: "DELETE",
-                ...this.valueNode.valueExpr.position
+                ...specificField.valueExpr.position
             }]);
         } else {
-            this.deleteLink(this.valueNode)
+            this.deleteLink(specificField)
         }
     }
 }
