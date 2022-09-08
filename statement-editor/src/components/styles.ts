@@ -681,7 +681,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         paramList: {
-            maxHeight: '40vh',
+            maxHeight: '24vh',
             overflowY: 'scroll',
         },
         includedRecordHeaderList: {
