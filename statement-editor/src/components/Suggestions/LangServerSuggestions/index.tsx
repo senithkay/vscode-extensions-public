@@ -191,6 +191,7 @@ export function LSSuggestions() {
                     className={stmtEditorHelperClasses.librarySearchBox}
                     placeholder={`Search Suggestions`}
                     onChange={searchSuggestions}
+                    value={keyword}
                     endAdornment={(
                         <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
                             <LibrarySearchIcon/>
