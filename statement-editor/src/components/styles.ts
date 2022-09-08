@@ -258,7 +258,7 @@ export const useStatementRendererStyles = makeStyles(() =>
 export const useStatementEditorDiagnosticStyles = makeStyles(() =>
     createStyles({
         diagnosticsPane: {
-            maxHeight: '150px',
+            maxHeight: '125px',
             overflowY: 'scroll',
             marginRight: '-25px',
             color: '#ea4c4d',
@@ -880,7 +880,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             fontWeight: 500
         },
         statementExpressionContent: {
-           ...statementFontStyles
+            maxHeight: '275px',
+            overflowY: 'scroll',
+            marginRight: '-25px',
+            ...statementFontStyles
         },
         footer: {
             height: 'auto',
