@@ -13,11 +13,16 @@
 import { useContext } from 'react';
 import { useIntl } from 'react-intl';
 
-import { ProcessConfig, WaitStatementConfig  } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import {
+    getAllVariables,
+    ProcessConfig,
+    WaitStatementConfig
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from '../../../../../../../Contexts/Diagram';
 import { createWaitStatement, getInitialSource } from '../../../../../../utils';
+import { genVariableName } from "../../../../../Portals/utils";
 
 interface AddWaitStatementProps {
     config: ProcessConfig;
@@ -58,7 +63,7 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
 
     const waitStatementConfig: WaitStatementConfig = config.config as WaitStatementConfig;
     waitStatementConfig.type = waitStatementConfig.type === '' ? 'var' : waitStatementConfig.type;
-    waitStatementConfig.varName = waitStatementConfig.varName === '' ? 'EXPRESSION' : waitStatementConfig.varName;
+    waitStatementConfig.varName = waitStatementConfig.varName === '' ? genVariableName("variable", getAllVariables(stSymbolInfo)) : waitStatementConfig.varName;
     waitStatementConfig.expression = waitStatementConfig.expression === '' ? 'EXPRESSION' : waitStatementConfig.expression;
 
     const initialSource = getInitialSource(createWaitStatement(waitStatementConfig));

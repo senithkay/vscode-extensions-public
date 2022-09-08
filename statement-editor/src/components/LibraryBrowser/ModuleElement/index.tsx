@@ -19,6 +19,7 @@ import {
     LibraryFunction,
     ModuleProperty
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { InputEditorContext } from '../../../store/input-editor-context';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -103,9 +104,11 @@ export function ModuleElement(props: ModuleElementProps) {
             <SuggestIcon
                 style={{ minWidth: '12%', textAlign: 'left', color }}
             />
+            <StatementEditorHint content={`${moduleId}:${id}`}>
             <ListItemText
                 primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
             />
+            </StatementEditorHint>
             {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
         </ListItem>
     );

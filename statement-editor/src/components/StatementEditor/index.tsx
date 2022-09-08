@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { KeyboardNavigationManager, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
@@ -126,6 +126,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [isRestArg, setRestArg] = useState(false);
     const [isPullingModule, setIsPullingModule] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const pulledModules = useRef<string[]>([]);
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -404,21 +405,27 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
-        if (!!moduleList?.size && runBackgroundTerminalCommand && !isPullingModule) {
-            const extraModulesArr = Array.from(moduleList);
-            for (const diagnostic of completeDiagnostic) {
-                if (diagnostic.message?.includes("cannot resolve module '")) {
-                    for (const module of extraModulesArr) {
-                        if (diagnostic.message?.includes(module) && !isPullingModule) {
-                            setIsPullingModule(true);
-                            const response = await runBackgroundTerminalCommand(
-                                `bal pull ${module.replace(" as _", "")}`
-                            );
-                            // TODO: Handle response
-                        }
-                    }
-                }
+        if (!(!!moduleList?.size && runBackgroundTerminalCommand && !isPullingModule)) {
+            return;
+        }
+        let pullCommand = "";
+        for (const diagnostic of completeDiagnostic) {
+            if (!diagnostic.message?.includes("cannot resolve module '")) {
+                continue;
             }
+            moduleList.forEach((module) => {
+                if (diagnostic.message?.includes(module) && !pulledModules.current.includes(module)) {
+                    if (pullCommand !== "") {
+                        pullCommand += ` && `;
+                    }
+                    pullCommand += `bal pull ${module.replace(" as _", "")}`;
+                    pulledModules.current.push(module);
+                }
+            });
+        }
+        if (pullCommand !== "") {
+            setIsPullingModule(true);
+            await runBackgroundTerminalCommand(pullCommand);
             setIsPullingModule(false);
         }
     };

@@ -4,6 +4,7 @@ import { Record } from "./record";
 import { Class } from "./class";
 import { Other } from "./other";
 import { Service } from "./service";
+import { Constant } from "./constant";
 
 export class Canvas {
 
@@ -41,6 +42,11 @@ export class Canvas {
             .get(`#canvas .member-container .module-level-function[data-function-name="${fnName}"]`)
             .should('exist');
     }
+
+    private static getConstantElement(constantName: string) {
+        return cy.get(`#canvas .member-container .const-container[data-const-name="${constantName}"]`)
+    }
+
 
     private static waitForDiagramUpdate() {
         cy.get(`[id="canvas-overlay"]`)
@@ -113,5 +119,11 @@ export class Canvas {
 
     static getOtherComponent() {
         return new Other(this.getOtherMemberContainer())
+    }
+
+    static getConstant(constantName: string) {
+        this.waitForDiagramUpdate();
+        const element = this.getConstantElement(constantName);
+        return new Constant(element);
     }
 }
