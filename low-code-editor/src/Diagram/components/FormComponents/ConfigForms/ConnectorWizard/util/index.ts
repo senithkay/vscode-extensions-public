@@ -144,17 +144,13 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                     !isAnyFieldSelected(parameter?.fields)) {
                     break;
                 }
-                if (!parameter.selected && allFieldsDefaultable && !(parameter.optional || parameter.defaultValue) &&
-                    !isAnyFieldSelected(parameter?.fields) && parameter.fields?.length > 0) {
-                    // Record is not optional, but all inside fields are optional
-                    // Add default value to only first field
-                    parameter.fields[0].defaultable = false;
-                    const updatedParamList = getDefaultParams(parameter.fields, depth + 1);
-                    draftParameter = getFieldValuePair(parameter, `{\n${updatedParamList?.join()}}`, depth, valueOnly, false);
-                    // Reset field
-                    parameter.fields[0].defaultable = true;
-                    break;
-                }
+                // if (allFieldsDefaultable && !(parameter.optional || parameter.defaultValue) &&
+                //     !isAnyFieldSelected(parameter?.fields) && parameter.fields?.length > 0) {
+                //     // Record is not optional, but all inside fields are optional
+                //     // Add empty record as a default value
+                //     draftParameter = getFieldValuePair(parameter, `{}`, depth, valueOnly, false);
+                //     break;
+                // }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
                 draftParameter = getFieldValuePair(parameter, `{\n${insideParamList?.join()}}`, depth, valueOnly, false);
                 break;
