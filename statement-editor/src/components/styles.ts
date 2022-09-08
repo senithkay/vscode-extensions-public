@@ -524,7 +524,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         libraryElementBlockContent: {
             top: '10%',
             height: '80%',
-            overflowY: 'scroll',
+            overflowY: 'hidden',
             columnGap: '6%',
             display: 'grid',
             gridTemplateColumns: '29% 29% 29%'
