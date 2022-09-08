@@ -34,7 +34,9 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
     STKindChecker.isExpressionFunctionBody(config.model) : false;
+    const targetPosition = formArgs.targetPosition;
     const {
+        props: { syntaxTree },
         api: {
             panNZoom: {
                 pan,
@@ -46,10 +48,25 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     if (formType === "Return") {
         config.expression = "";
     } else if (formType === "Respond") {
+        let callerName = "";
+        const caller = STKindChecker.isModulePart(syntaxTree) && syntaxTree.members
+                        .filter((service => STKindChecker.isServiceDeclaration(service)
+                            && service.position.startLine < targetPosition.startLine
+                            && service.position.endLine > targetPosition.startLine
+                            && service.members
+                        .forEach(resource => {
+                            if (resource.position.startLine < targetPosition.startLine
+                                && resource.position.endLine >= targetPosition.startLine) {
+                                    callerName = STKindChecker.isResourceAccessorDefinition(resource)
+                                                 && STKindChecker.isRequiredParam(resource.functionSignature.parameters[0])
+                                                 && resource.functionSignature.parameters[0].paramName.value;
+                            }
+                        })));
+
         config.expression = {
             respondExpression: "",
             variable: "",
-            caller: "caller",
+            caller: callerName,
             genType: ""
         };
     }
