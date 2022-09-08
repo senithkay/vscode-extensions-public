@@ -23,7 +23,7 @@ import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../ut
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
-import { ParameterBranch } from "./ParameterBranch";
+import { MemoizedParameterBranch } from "./ParameterBranch";
 import { getDefaultParams, mapActionToFormField, mapEndpointToFormField } from "./utils";
 
 export interface TypeProps {
@@ -95,7 +95,7 @@ export function ParameterTree(props: ParameterTreeProps) {
                     )}
                     {!updatingParams && (
                         <div className={stmtEditorHelperClasses.paramList}>
-                            <ParameterBranch parameters={parameters} depth={1} onChange={handleOnChange} />
+                            <MemoizedParameterBranch parameters={parameters} depth={1} onChange={handleOnChange} />
                         </div>
                     )}
                 </>
