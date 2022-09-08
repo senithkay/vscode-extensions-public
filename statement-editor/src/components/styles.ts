@@ -856,6 +856,21 @@ export const useStatementEditorStyles = makeStyles(() =>
             justifyContent: 'center',
             alignItems: 'center'
         },
+        sectionLoadingWrapper: {
+            height: '18vh',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            },
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
         suggestionsSection: {
             display: 'flex',
             flexDirection: 'column',

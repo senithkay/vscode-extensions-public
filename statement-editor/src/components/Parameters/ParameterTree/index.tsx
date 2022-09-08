@@ -87,10 +87,8 @@ export function ParameterTree(props: ParameterTreeProps) {
                         <ListItemText secondary={"Select parameters from the list given below"} />
                     </ListSubheader>
                     {updatingParams && (
-                        <div className={stmtEditorHelperClasses.paramList}>
-                            <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
-                                <div className={overlayClasses.loadingWrapper}>Loading Parameters...</div>
-                            </div>
+                        <div className={stmtEditorHelperClasses.paramList} data-testid="parameter-loader">
+                            <div className={overlayClasses.sectionLoadingWrapper}>Loading Parameters...</div>
                         </div>
                     )}
                     {!updatingParams && (
