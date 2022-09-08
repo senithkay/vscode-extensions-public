@@ -13,6 +13,7 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 
+import { Typography } from "@material-ui/core";
 import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/core/styles';
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
@@ -40,6 +41,7 @@ interface TooltipPropsExtended extends TooltipProps {
     onClick: () => void;
     toolTipContent?: string;
     stmtEditorHint?: boolean;
+    contentType?: string;
 };
 
 const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
@@ -71,7 +73,26 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         }
     };
 
-    const { children, heading, title, content, example, actionText, actionLink, inverted, disabled, codeSnippet, openInCodeView, typeExamples, componentModel, onClick, toolTipContent, stmtEditorHint, ...restProps } = props;
+    const {
+        children,
+        heading,
+        title,
+        content,
+        example,
+        actionText,
+        actionLink,
+        inverted,
+        disabled,
+        codeSnippet,
+        openInCodeView,
+        typeExamples,
+        componentModel,
+        onClick,
+        toolTipContent,
+        stmtEditorHint,
+        contentType,
+        ...restProps
+    } = props;
 
     // Skip Tooltip rendering if disabled prop provided.
     if (disabled) return (<>{children}</>);
@@ -164,7 +185,13 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
     if (toolTipContent) {
 
         const ToolTipContent = () => (
-            <div >{toolTipContent}</div>
+            contentType ? (
+                    <>
+                        <Typography className={styles.stmtEditorTooltipContent}>{toolTipContent}</Typography>
+                        <Typography className={styles.suggestionDataType}> {contentType}</Typography>
+                    </>
+                ) :
+                <div>{toolTipContent}</div>
         );
 
         tooltipTitle = (
@@ -233,7 +260,7 @@ export function DiagramTooltipCodeSnippet(props: Partial<TooltipPropsExtended>) 
 }
 
 export function StatementEditorHint(props: Partial<TooltipPropsExtended>) {
-    const { onClick, children, componentModel, content, ...restProps } = props;
+    const { onClick, children, componentModel, content, contentType, ...restProps } = props;
 
     return (
         <Tooltip
@@ -244,6 +271,7 @@ export function StatementEditorHint(props: Partial<TooltipPropsExtended>) {
             arrow={false}
             toolTipContent={content}
             stmtEditorHint={true}
+            contentType={contentType}
         >
             {children}
         </Tooltip>

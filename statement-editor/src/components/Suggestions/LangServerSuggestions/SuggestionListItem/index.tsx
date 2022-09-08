@@ -39,10 +39,8 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
 
     return (
         <StatementEditorHint
-            content={!acceptedCompletionKindForTypes.includes(suggestion.completionKind) ?
-                suggestion.value + " " + suggestion.kind :
-                suggestion.value
-            }
+            content={suggestion.value}
+            contentType={!acceptedCompletionKindForTypes.includes(suggestion.completionKind) ? suggestion.kind : null}
         >
             <ListItem
                 button={true}
