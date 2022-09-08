@@ -25,8 +25,7 @@ import { render } from './renderer';
 import {
 	CONNECTOR_LIST_CACHE,
 	ExtendedLangClient,
-	HTTP_CONNECTOR_LIST_CACHE,
-	NOT_SUPPORTED
+	HTTP_CONNECTOR_LIST_CACHE
 } from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
