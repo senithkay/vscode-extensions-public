@@ -493,7 +493,8 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                     );
                     nextValueIndex++;
                 }
-                formField.inclusionType.selected = isAnyFieldSelected(formField.inclusionType?.fields);
+                formField.inclusionType.selected =
+                    formField.inclusionType.selected || isAnyFieldSelected(formField.inclusionType?.fields);
                 formField.selected = formField.inclusionType.selected;
             } else if (formField.typeName === "union") {
                 formField.value = positionalArg.expression?.source;
