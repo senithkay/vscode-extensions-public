@@ -63,7 +63,7 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                 </StatementEditorHint>
                 {!acceptedCompletionKindForTypes.includes(suggestion.completionKind) && (
                     <ListItemText
-                        style={{ minWidth: '10%', marginLeft: '8px' }}
+                        style={{ marginLeft: '8px' }}
                         primary={(
                             <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                 {suggestion.kind}
