@@ -270,7 +270,7 @@ const resourceOptionMenu = (
             <div ref={catMenu} className={"header-amendment-options"}>
                 {!isReadOnly && (
                     <>
-                        <div className={classNames("amendment-option")}>
+                        <div className={classNames("amendment-option", "margin-top-5")}>
                             {showMenu}
                         </div>
                     </>
