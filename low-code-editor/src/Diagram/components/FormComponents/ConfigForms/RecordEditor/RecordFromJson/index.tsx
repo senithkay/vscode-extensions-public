@@ -20,10 +20,12 @@ import {
     FormTextInput
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
+import classNames from "classnames";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 import { getInitialSource, mutateTypeDefinition } from "../../../../../utils";
+import { FileSelector } from '../../../../FileSelector';
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormActionButtons } from "../../../FormFieldComponents/FormActionButtons";
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
@@ -193,9 +195,12 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             onChange={onNameChange}
                             errorMessage={formState?.recordNameDiag}
                         />
-                        <div className={classes.inputWrapper}>
+                        <div className={classNames(classes.inputWrapper, classes.flexItems)}>
                             <div className={classes.labelWrapper}>
                                 <FormHelperText className={classes.inputLabelForRequired}>Sample JSON</FormHelperText>
+                            </div>
+                            <div className={classes.fileSelect}>
+                                <FileSelector label='Select JSON file' extension='json' onReadFile={onJsonChange} />
                             </div>
                         </div>
                         <FormTextArea
