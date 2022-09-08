@@ -1,5 +1,5 @@
 import ballerina/http;
 
 function myfunction() returns error? {
-    http:Client httpEp = check new (url = "https://foo.com");
+    http:Client httpEp = check new (url = "");
 }
