@@ -135,6 +135,13 @@ const useStyles = makeStyles(() =>
             fontFamily: "Droid Sans Mono",
             fontSize: '12px',
             letterSpacing: '0',
+        },
+        suggestionDataType: {
+            color: '#05A26B',
+            display: 'inline'
+        },
+        stmtEditorTooltipContent: {
+            display: 'inline'
         }
     }),
 );
