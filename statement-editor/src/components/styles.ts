@@ -539,9 +539,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             padding: '0 10px'
         },
         parameterCheckbox: {
-            alignSelf: "center",
+            alignSelf: "flex-start",
             color: '#2FA86C',
-            padding: '0 6px 0 0',
+            padding: '3px 6px 0 0',
             "& .MuiCheckbox-colorSecondary.Mui-checked": {
                 color: "#2FA86C"
             },
@@ -576,9 +576,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         checked: {},
         disabledCheckbox : {
-            alignSelf: "center",
+            alignSelf: "flex-start",
             color: 'rgba(47,168,108,0.5)',
-            padding: '0 6px 0 0',
+            padding: '3px 6px 0 0',
             "&$checked": {
                 color: "rgba(47,168,108,0.5)",
                 "&:hover": {
