@@ -21,7 +21,8 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import {
     getCurrentModelParams,
     getDocDescription,
-    getParentFunctionModel, isBalVersionUpdateTwo,
+    getParentFunctionModel,
+    isBalVersionUpdateTwoOrHigher,
     isConfigurableEditor,
     isDescriptionWithExample,
     isDocumentationSupportedModel,
@@ -84,9 +85,8 @@ export function ParameterSuggestions() {
                 statementModel);
             const paramsInModel: STNode[] = getCurrentModelParams(model);
             let paramDocumentation : SymbolDocumentation  = documentation.documentation;
-            const isBalUpdate2 = isBalVersionUpdateTwo(ballerinaVersion);
             // Filter from FE if the Ballerina version is less than update 2
-            if (STKindChecker.isMethodCall(model) && !isBalUpdate2) {
+            if (STKindChecker.isMethodCall(model) && !isBalVersionUpdateTwoOrHigher(ballerinaVersion)) {
                 paramDocumentation = updateParamListFordMethodCallDoc(paramsInModel, paramDocumentation);
             }
             paramDocumentation = updateParamDocWithParamPositions(paramsInModel, paramDocumentation);

@@ -909,7 +909,7 @@ export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
     );
 }
 
-export function isBalVersionUpdateTwo(version: string): boolean{
+export function isBalVersionUpdateTwoOrHigher(version: string): boolean{
     if (!version) {
         return false;
     }
