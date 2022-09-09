@@ -21,7 +21,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import {
     getCurrentModelParams,
     getDocDescription,
-    getParentFunctionModel,
+    getParentFunctionModel, isBalVersionUpdateTwo,
     isConfigurableEditor,
     isDescriptionWithExample,
     isDocumentationSupportedModel,
@@ -55,7 +55,8 @@ export function ParameterSuggestions() {
             editors,
             activeEditorId
         },
-        config
+        config,
+        ballerinaVersion
     } = useContext(StatementEditorContext);
 
     const connectorInfo = connector as BallerinaConnectorInfo;
@@ -83,8 +84,9 @@ export function ParameterSuggestions() {
                 statementModel);
             const paramsInModel: STNode[] = getCurrentModelParams(model);
             let paramDocumentation : SymbolDocumentation  = documentation.documentation;
-            // TODO: Remove this check once the methodCall param filter is added to the LS
-            if (STKindChecker.isMethodCall(model)) {
+            const isBalUpdate2 = isBalVersionUpdateTwo(ballerinaVersion);
+            // Filter from FE if the Ballerina version is less than update 2
+            if (STKindChecker.isMethodCall(model) && !isBalUpdate2) {
                 paramDocumentation = updateParamListFordMethodCallDoc(paramsInModel, paramDocumentation);
             }
             paramDocumentation = updateParamDocWithParamPositions(paramsInModel, paramDocumentation);

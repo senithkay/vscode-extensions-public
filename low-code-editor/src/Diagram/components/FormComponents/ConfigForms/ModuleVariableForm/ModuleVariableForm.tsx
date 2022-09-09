@@ -200,7 +200,8 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isModuleVar: true
+                        isModuleVar: true,
+                        ballerinaVersion
                     }
                 )
             ) : (

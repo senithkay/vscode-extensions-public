@@ -132,7 +132,8 @@ export function AddCustomStatementConfig(props: LogConfigProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        ballerinaVersion
                     }
                 )
             ) : (
