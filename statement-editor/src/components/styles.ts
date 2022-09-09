@@ -945,7 +945,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             ...removePadding
         },
         help: {
-            marginRight: '129px',
+            paddingRight: '24px',
             display: "flex"
         },
         helpLink: {
