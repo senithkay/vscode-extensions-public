@@ -23,7 +23,7 @@ import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../ut
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
-import { ParameterBranch } from "./ParameterBranch";
+import { MemoizedParameterBranch } from "./ParameterBranch";
 import { getDefaultParams, mapActionToFormField, mapEndpointToFormField } from "./utils";
 
 export interface TypeProps {
@@ -87,15 +87,13 @@ export function ParameterTree(props: ParameterTreeProps) {
                         <ListItemText secondary={"Select parameters from the list given below"} />
                     </ListSubheader>
                     {updatingParams && (
-                        <div className={stmtEditorHelperClasses.paramList}>
-                            <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
-                                <div className={overlayClasses.loadingWrapper}>Loading Parameters...</div>
-                            </div>
+                        <div className={stmtEditorHelperClasses.paramList} data-testid="parameter-loader">
+                            <div className={overlayClasses.sectionLoadingWrapper}>Loading Parameters...</div>
                         </div>
                     )}
                     {!updatingParams && (
                         <div className={stmtEditorHelperClasses.paramList}>
-                            <ParameterBranch parameters={parameters} depth={1} onChange={handleOnChange} />
+                            <MemoizedParameterBranch parameters={parameters} depth={1} onChange={handleOnChange} />
                         </div>
                     )}
                 </>

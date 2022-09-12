@@ -681,7 +681,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         paramList: {
-            maxHeight: '40vh',
+            maxHeight: '24vh',
             overflowY: 'scroll',
         },
         includedRecordHeaderList: {
@@ -843,6 +843,21 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         loadingWrapper: {
             height: 'calc(100vh - 110px)',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            },
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
+        sectionLoadingWrapper: {
+            height: '18vh',
             '&.overlay': {
                 display: 'block',
                 position: 'relative',
