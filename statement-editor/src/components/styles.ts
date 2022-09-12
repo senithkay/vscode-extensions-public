@@ -873,7 +873,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionTitle: {
             display: 'flex',
             alignItems: 'center',
-            paddingBottom: '15px',
+            paddingBottom: '24px',
             fontWeight: 500
         },
         statementExpressionContent: {
