@@ -64,7 +64,11 @@ export function InputEditor(props: InputEditorProps) {
         if (!model) {
             source = initialSource ? initialSource : '';
         } else if (model?.value) {
-            source = model.value;
+            if (STKindChecker.isPositionalArg(model.parent.parent) && STKindChecker.isFunctionCall(model.parent.parent.parent)) {
+                source = EXPR_PLACEHOLDER;
+            } else {
+                source = model.value;
+            }
         } else if (model.source === FUNCTION_CALL && STKindChecker.isFunctionCall(model)) {
             source = model.functionName.source;
         } else {
