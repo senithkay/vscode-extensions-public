@@ -86,6 +86,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     initLinks(): void {
         this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
+            const inPort =this.inPort;
 
             const lm = new DataMapperLinkModel();
             lm.setTargetPort(this.inPort);
@@ -99,24 +100,23 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 deleteLink: () => this.deleteLink(fieldAccessNode),
             }));
 
-            // TODO: need to fix the following event listener
-            /*
             lm.registerListener({
                 selectionChanged(event) {
                     if (event.isSelected) {
-                        this.inPort.fireEvent({}, "link-selected");
+                        inPort.fireEvent({}, "link-selected");
                         sourcePort.fireEvent({}, "link-selected");
                     } else {
-                        this.inPort.fireEvent({}, "link-unselected");
+                        inPort.fireEvent({}, "link-unselected");
                         sourcePort.fireEvent({}, "link-unselected");
                     }
                 },
             })
-            */
             this.getModel().addAll(lm);
         })
 
         if (this.targetPort) {
+            const outPort = this.outPort;
+            const targetPort = this.targetPort;
 
             const lm = new DataMapperLinkModel();
             lm.setTargetPort(this.targetPort);
@@ -128,20 +128,17 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 deleteLink: () => this.targetLinkDelete(this.valueNode),
             }));
 
-            // TODO: need to fix the following event listener
-            /*
             lm.registerListener({
                 selectionChanged(event) {
                     if (event.isSelected) {
-                        this.outPort.fireEvent({}, "link-selected");
-                        this.targetPort.fireEvent({}, "link-selected");
+                        outPort.fireEvent({}, "link-selected");
+                        targetPort.fireEvent({}, "link-selected");
                     } else {
-                        this.outPort.fireEvent({}, "link-unselected");
-                        this.targetPort.fireEvent({}, "link-unselected");
+                        outPort.fireEvent({}, "link-unselected");
+                        targetPort.fireEvent({}, "link-unselected");
                     }
                 },
             })
-            */
 
             this.getModel().addAll(lm);
         }
