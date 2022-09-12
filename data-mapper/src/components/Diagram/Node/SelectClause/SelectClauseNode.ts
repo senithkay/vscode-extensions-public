@@ -29,6 +29,7 @@ import { RecordFieldPortModel } from "../../Port";
 import { getFieldNames } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
+import { Point } from "@projectstorm/geometry";
 
 export const SELECT_CLAUSE_NODE_TYPE = "datamapper-node-select-clause";
 export const EXPANDED_QUERY_TARGET_PORT_PREFIX = "expandedQueryExpr.target";
@@ -36,6 +37,8 @@ export const EXPANDED_QUERY_TARGET_PORT_PREFIX = "expandedQueryExpr.target";
 export class SelectClauseNode extends DataMapperNodeModel {
 
     public typeDef: TypeDefinition;
+    public x: number;
+    public y: number;
 
     constructor(
         public context: IDataMapperContext,
@@ -128,6 +131,18 @@ export class SelectClauseNode extends DataMapperNodeModel {
     }
 
     public updatePosition() {
-        this.setPosition(1000, this.position.y);
+        this.setPosition(this.position.x, this.position.y);
+    }
+
+    setPosition(point: Point): void;
+    setPosition(x: number, y: number): void;
+    setPosition(x: unknown, y?: unknown): void {
+        if ( typeof x === 'number' && typeof y === 'number'){
+            if (!this.x || !this.y){
+                this.x = x;
+                this.y = y;
+                super.setPosition(x,y);
+            }
+        }
     }
 }

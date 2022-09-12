@@ -77,20 +77,22 @@ export class NodeInitVisitor implements Visitor {
         if (node.position.startLine === this.selection.selectedST.position.startLine
             && node.position.startColumn === this.selection.selectedST.position.startColumn)
         {
+            const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 30
+            const yPosition = 120 + intermediateClausesHeight
             // create output node
             this.outputNode = new SelectClauseNode(
                 this.context,
                 node.selectClause
             );
 
-            this.outputNode.setPosition(1000, 100);
-
+            this.outputNode.setPosition(1000, yPosition);
+            
             // create input nodes
             const fromClauseNode = new FromClauseNode(
                 this.context,
                 node.queryPipeline.fromClause
             );
-            fromClauseNode.setPosition(100, 100);
+            fromClauseNode.setPosition(100, yPosition);
             this.inputNodes.push(fromClauseNode);
 
             const queryNode = new ExpandedMappingHeaderNode(this.context, node);
