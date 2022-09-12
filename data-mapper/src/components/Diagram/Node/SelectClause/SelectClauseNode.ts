@@ -16,6 +16,7 @@ import {
     FromClause,
     MappingConstructor,
     SelectClause,
+    SpecificField,
     STKindChecker,
     TypeDefinition
 } from "@wso2-enterprise/syntax-tree";
@@ -80,6 +81,7 @@ export class SelectClauseNode extends DataMapperNodeModel {
                     sourcePort = sourceNode.getPort(sourcePortId) as RecordFieldPortModel;
                 }
                 const link = new DataMapperLinkModel(value);
+                const specificField = fields[fields.length - 1];
                 link.setSourcePort(sourcePort);
                 link.setTargetPort(targetPort);
                 link.addLabel(new ExpressionLabelModel({
@@ -87,8 +89,8 @@ export class SelectClauseNode extends DataMapperNodeModel {
                     valueNode: otherVal || value,
                     context: this.context,
                     link,
-                    specificField: fields[fields.length - 1]
-                    // TODO: add delete callback
+                    specificField,
+                    deleteLink: () => this.deleteLink(specificField)
                 }));
                 link.registerListener({
                     selectionChanged(event) {
@@ -127,6 +129,13 @@ export class SelectClauseNode extends DataMapperNodeModel {
         return foundNode;
     }
 
+    private deleteLink(specificField: SpecificField) {
+        this.context.applyModifications([{
+            type: "DELETE",
+            ...specificField.valueExpr.position
+        }]);
+    }
+    
     public updatePosition() {
         this.setPosition(1000, this.position.y);
     }
