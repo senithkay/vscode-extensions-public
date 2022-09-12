@@ -130,7 +130,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
 			val.fields.forEach((field) => {
-				if (STKindChecker.isSpecificField(field)) {
+				if (STKindChecker.isSpecificField(field) && field.valueExpr) {
 					if (STKindChecker.isMappingConstructor(field.valueExpr)) {
 						foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
 					} else if (STKindChecker.isListConstructor(field.valueExpr)) {
