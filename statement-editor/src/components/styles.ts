@@ -249,7 +249,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         },
         syntaxErrorTooltip : {
             position: 'absolute',
-            top: '-60px',
+            top: '-26px',
             left: '80%'
         }
     }),
