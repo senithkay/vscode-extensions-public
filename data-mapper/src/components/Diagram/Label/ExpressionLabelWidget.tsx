@@ -43,8 +43,6 @@ namespace S {
 
 // now we can render all what we want in the label
 export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetProps> = (props) => {
-	const [str, setStr] = React.useState(props.model.value);
-	const [editable, setEditable] = React.useState(false);
 	const [linkSelected, setLinkSelected] = React.useState(false);
 	const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
 	const [codeActions, setCodeActions] = React.useState([]);
@@ -53,8 +51,10 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		async function genModel() {
 			const actions = (await handleCodeActions(props.model.context.filePath, props.model.link?.diagnostics, props.model.context.langClientPromise))
 			setCodeActions(actions)
-        }
-		genModel();
+		}
+		if (props.model.value) {
+			genModel();
+		}
 	}, [props.model]);
 
 	const onClickConvertToQuery = async () => {
@@ -112,18 +112,30 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	return (
 		<S.Label>
 			<S.ActionsContainer>
-				<span style={{display: "flex"}}>
-					<div>{!editable && linkSelected && <CodeOutlinedIcon onClick={onClickEdit} />}</div>
-					<div>{!editable && linkSelected && canUseQueryExpr &&
-							(
-						        <Tooltip title={"Make Query"} placement="top" arrow={true}>
-									<QueryBuilderOutlinedIcon onClick={onClickConvertToQuery} />
-								</Tooltip>
-							)}
-					</div>
-					<div>{!editable && linkSelected && <DeleteIcon onClick={() => onClickDelete()} />}</div>
-					{!editable && linkSelected && codeActions.length > 0 && <CodeActionWidget codeActions={codeActions} context={props.model.context} />}
-
+				<span style={{ display: "flex" }}>
+					{props.model.value && linkSelected && (
+						<CodeOutlinedIcon onClick={onClickEdit} />
+					)}
+					{linkSelected && canUseQueryExpr && (
+						<Tooltip
+							title={"Make Query"}
+							placement="top"
+							arrow={true}
+						>
+							<QueryBuilderOutlinedIcon
+								onClick={onClickConvertToQuery}
+							/>
+						</Tooltip>
+					)}
+					{linkSelected && (
+						<DeleteIcon onClick={onClickDelete} />
+					)}
+					{linkSelected && codeActions.length > 0 && (
+						<CodeActionWidget
+							codeActions={codeActions}
+							context={props.model.context}
+						/>
+					)}
 				</span>
 			</S.ActionsContainer>
 		</S.Label>

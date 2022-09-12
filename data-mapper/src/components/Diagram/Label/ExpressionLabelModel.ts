@@ -15,8 +15,8 @@ export interface ExpressionLabelOptions extends BaseModelOptions {
 }
 
 export class ExpressionLabelModel extends LabelModel {
-	value: string;
-	valueNode: STNode;
+	value?: string;
+	valueNode?: STNode;
 	context: IDataMapperContext;
 	link?: DataMapperLinkModel;
 	specificField?: SpecificField;
