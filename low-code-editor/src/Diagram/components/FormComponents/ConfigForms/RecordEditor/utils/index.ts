@@ -10,8 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, JsonToRecordResponse,
-    PartialSTRequest, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    DIAGNOSTIC_SEVERITY, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, JsonToRecordResponse,
+    PartialSTRequest, STSymbolInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ModulePart,
     NodePosition,
@@ -37,6 +39,14 @@ export async function convertToRecord(json: string, name: string, isClosed: bool
             isRecordTypeDesc: !isSeparateDefinitions,
         }
     );
+    if (resp.diagnostics === undefined) {
+        try {
+            JSON.parse(json);
+            resp.diagnostics = [];
+        } catch (e) {
+            resp.diagnostics = [{message : "Please enter a valid JSON", severity : DIAGNOSTIC_SEVERITY.ERROR}];
+        }
+    }
     return resp;
 }
 
