@@ -13,9 +13,17 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import { FormControl, Input, InputAdornment, List, ListItem, ListItemText, Typography } from "@material-ui/core";
+import {
+    FormControl,
+    Input,
+    InputAdornment,
+    List,
+    ListItem,
+    ListItemText,
+    Typography
+} from "@material-ui/core";
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { CheckBoxGroup, StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
@@ -28,14 +36,21 @@ import {
 import { Suggestion } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getFilteredExpressions, getRecordFieldSource } from "../../../utils";
+import {
+    displayCheckBoxAsExpression,
+    getFilteredExpressions,
+    getRecordFieldSource,
+    getRecordSwitchedSource,
+    getRecordUpdatePosition, isClosedRecord
+} from "../../../utils";
 import {
     Expression,
     ExpressionGroup,
     expressions,
     EXPR_PLACEHOLDER,
     recordFiledOptions,
-    SELECTED_EXPRESSION
+    SELECTED_EXPRESSION,
+    switchOpenClose
 } from "../../../utils/expressions";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -69,14 +84,19 @@ export function ExpressionSuggestions() {
         const currentModelSource = STKindChecker.isOrderKey(currentModel.model) ? currentModel.model.expression.source :
             (currentModel.model.source ? currentModel.model.source.trim() : currentModel.model.value.trim());
         let text;
+        let updatePosition = currentModel.model.position;
         if (STKindChecker.isRecordField(currentModel.model)) {
             text = expression.template.replace(SELECTED_EXPRESSION, getRecordFieldSource(currentModel.model));
+        } else if (STKindChecker.isRecordTypeDesc(currentModel.model) && expression.name ===
+            "Switches Open/Close record to Close/Open") {
+            text = expression.template.replace(SELECTED_EXPRESSION, getRecordSwitchedSource(currentModel.model));
+            updatePosition = getRecordUpdatePosition(currentModel.model)
         } else {
             text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
                 ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
                 : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
         }
-        updateModel(text, currentModel.model.position)
+        updateModel(text, updatePosition)
         inputEditorCtx.onInputChange('');
         inputEditorCtx.onSuggestionSelection(text);
     }
@@ -91,6 +111,8 @@ export function ExpressionSuggestions() {
                 filteredGroups = []
             } else if (STKindChecker.isRecordField(currentModel.model)) {
                 filteredGroups = [recordFiledOptions]
+            } else if (STKindChecker.isRecordTypeDesc(currentModel.model)) {
+                filteredGroups = [switchOpenClose].concat(filteredGroups);
             }
             setFilteredExpressions(filteredGroups);
         }
@@ -219,14 +241,24 @@ export function ExpressionSuggestions() {
                                                     disableRipple={true}
                                                 >
                                                     <StatementEditorHint content={expression.name}>
-                                                    <ListItemText
-                                                        data-testid="expression-title"
-                                                        primary={(
-                                                            <Typography style={{ fontFamily: 'monospace' }}>
-                                                                {expression.example}
-                                                            </Typography>
+                                                        {displayCheckBoxAsExpression(currentModel.model, expression) ? (
+                                                            <CheckBoxGroup
+                                                                testId="is-closed"
+                                                                values={["is Closed ?"]}
+                                                                defaultValues={isClosedRecord(currentModel.model) ?
+                                                                    ["is Closed ?"] : []}
+                                                                onChange={null}
+                                                            />
+                                                        ) : (
+                                                            <ListItemText
+                                                                data-testid="expression-title"
+                                                                primary={(
+                                                                    <Typography style={{fontFamily: 'monospace'}}>
+                                                                        {expression.example}
+                                                                    </Typography>
+                                                                )}
+                                                            />
                                                         )}
-                                                    />
                                                     </StatementEditorHint>
                                                 </ListItem>
                                             ))

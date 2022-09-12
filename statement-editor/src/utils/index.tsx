@@ -10,14 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from 'react';
-import { IconType } from "react-icons";
+import React, {ReactNode} from 'react';
+import {IconType} from "react-icons";
 import {
     VscSymbolEnum,
-    VscSymbolEnumMember, VscSymbolEvent,
-    VscSymbolField, VscSymbolInterface, VscSymbolKeyword,
+    VscSymbolEnumMember,
+    VscSymbolEvent,
+    VscSymbolField,
+    VscSymbolInterface,
+    VscSymbolKeyword,
     VscSymbolMethod,
-    VscSymbolParameter, VscSymbolRuler,
+    VscSymbolParameter,
+    VscSymbolRuler,
     VscSymbolStructure,
     VscSymbolVariable
 } from "react-icons/vsc";
@@ -34,10 +38,14 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     Minutiae,
-    NodePosition, RecordField,
+    NodePosition,
+    RecordField,
+    RecordFieldWithDefaultValue,
+    RecordTypeDesc,
     STKindChecker,
     STNode,
-    traversNode
+    traversNode,
+    TypeReference
 } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -53,22 +61,22 @@ import {
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
-    FUNCTION_CALL,
     IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
-    StatementNodes, SymbolParameterType,
+    StatementNodes,
+    SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
 import {
-    EditorModel, MinutiaeJSX,
+    EditorModel,
+    MinutiaeJSX,
     RemainingContent,
     StatementSyntaxDiagnostics,
     StmtOffset,
     SuggestionIcon,
-    SuggestionItem,
-    SymbolIcon
+    SuggestionItem
 } from '../models/definitions';
 import { visitor as ClearDiagnosticVisitor } from "../visitors/clear-diagnostics-visitor";
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
@@ -83,7 +91,7 @@ import { visitor as ParentModelFindingVisitor } from "../visitors/parent-model-f
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { ExpressionGroup } from "./expressions";
+import { Expression, ExpressionGroup } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
@@ -918,4 +926,49 @@ export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
 
 export function getRecordFieldSource(model: RecordField): string {
     return `${model.typeName.source}${model.fieldName.value}`;
+}
+
+export const getRecordFieldsSource = (fields: (RecordField | RecordFieldWithDefaultValue | TypeReference)[]) => {
+    let source = "";
+    fields.forEach(field => {
+        source += field.source;
+    });
+    return source;
+};
+
+export function getOpenRecordTypeDescSource(model: RecordTypeDesc): string {
+    return `${getRecordFieldsSource(model.fields)}`;
+}
+
+export function getClosedRecordTypeDescSource(model: RecordTypeDesc): string {
+    return `|${getRecordFieldsSource(model.fields)}|`;
+}
+
+export function isClosedRecord(model: RecordTypeDesc): boolean {
+    return (STKindChecker.isOpenBracePipeToken(model.bodyStartDelimiter) &&
+        STKindChecker.isCloseBracePipeToken(model.bodyEndDelimiter));
+}
+
+export function getRecordSwitchedSource(model: RecordTypeDesc): string {
+    return isClosedRecord(model) ? getOpenRecordTypeDescSource(model) :
+        getClosedRecordTypeDescSource(model)
+}
+
+export function getRecordUpdatePosition(model: RecordTypeDesc): NodePosition {
+    const position = {
+        startLine: model.bodyStartDelimiter.position.endLine,
+        startColumn: model.bodyStartDelimiter.position.endColumn,
+        endLine: model.bodyEndDelimiter.position.startLine,
+        endColumn: model.bodyEndDelimiter.position.startColumn
+    };
+    return isClosedRecord(model) ?
+        {
+            ...position,
+            startColumn: model.bodyStartDelimiter.position.startColumn + 1,
+            endColumn: model.bodyEndDelimiter.position.endColumn - 1
+        } : position;
+}
+
+export function displayCheckBoxAsExpression(model: STNode, e: Expression): boolean {
+    return model && STKindChecker.isRecordTypeDesc(model) && (e.name === "Switches Open/Close record to Close/Open");
 }
