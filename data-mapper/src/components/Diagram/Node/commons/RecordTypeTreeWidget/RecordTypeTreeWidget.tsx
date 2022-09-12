@@ -15,7 +15,7 @@ import * as React from 'react';
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { RecordFieldPortModel } from '../../../Port';
 
@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface RecordTypeTreeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    typeDesc: FormField;
+    typeDesc: Type;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
 }
