@@ -69,10 +69,6 @@ export function CreateRecord(props: CreateRecordProps) {
         setEditorState(ConfigState.IMPORT_FROM_JSON);
     };
 
-    const handleBackClick = () => {
-        setEditorState(ConfigState.STATE_SELECTOR);
-    };
-
     const handleImportJsonSave = (value: string, pos: NodePosition) => {
         onSave(value, pos);
     };
@@ -89,8 +85,8 @@ export function CreateRecord(props: CreateRecordProps) {
                     }
                 },
                 config: { type: "RecordEditor" },
-                onWizardClose: handleBackClick,
-                onCancel: handleBackClick,
+                onWizardClose: onCancel,
+                onCancel,
                 currentFile,
                 getLangClient: getExpressionEditorLangClient,
                 applyModifications: modifyDiagram,
@@ -117,7 +113,7 @@ export function CreateRecord(props: CreateRecordProps) {
                 {(editorState === ConfigState.IMPORT_FROM_JSON) && (
                     <RecordFromJson
                         targetPosition={targetPosition}
-                        onCancel={handleBackClick}
+                        onCancel={onCancel}
                         onSave={handleImportJsonSave}
                     />
                 )}
