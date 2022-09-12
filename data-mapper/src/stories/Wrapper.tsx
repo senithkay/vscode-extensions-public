@@ -133,6 +133,12 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                         applyModifications={applyModifications}
                         onClose={() => { }}
                         onSave={() => { }}
+                        library={{
+                            getLibrariesList: () => Promise.resolve(undefined),
+                            getLibrariesData: () => Promise.resolve(undefined),
+                            getLibraryData: () => Promise.resolve(undefined)
+                        }}
+                        importStatements={[]}
                     />
                 </Grid>
                 <Grid item={true} xs={4}>

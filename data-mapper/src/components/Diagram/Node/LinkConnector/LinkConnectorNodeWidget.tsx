@@ -66,7 +66,8 @@ export function LinkConnectorNodeWidget (props: LinkConnectorNodeWidgetProps){
 		const [str, setStr] = React.useState(node.value);
 
         const onClickEdit = () => {
-            props.node.context.enableStamentEditor(props.node.valueNode);
+            props.node.context.enableStamentEditor({valuePosition: props.node.valueNode.valueExpr?.position, 
+                value: props.node.valueNode.valueExpr?.source, label: props.node.valueNode.fieldName.source});
         };
 
 		return (

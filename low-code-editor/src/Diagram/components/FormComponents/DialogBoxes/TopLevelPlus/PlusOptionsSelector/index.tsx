@@ -16,9 +16,9 @@ import React, { useContext, useState } from "react";
 import { Margin } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { DataMapperOverlay } from "../../../../DataMapperOverlay";
 import { FormGenerator } from "../../../FormGenerator";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
-import { DataMapperOverlay } from "../../../../DataMapperOverlay";
 
 export interface PlusOptionsProps {
     kind: string

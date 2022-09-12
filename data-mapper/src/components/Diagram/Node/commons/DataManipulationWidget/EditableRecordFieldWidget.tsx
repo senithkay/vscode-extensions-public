@@ -18,7 +18,7 @@ import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -89,7 +89,28 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     );
 
     const handleEditable = () => {
-        setEditable(true);
+        const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
+
+        const fieldName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+
+        const coloumnNumber = field.type.name?.length;
+        const specificFieldPosition: NodePosition   = {
+            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
+            startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
+            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine,
+            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
+        }
+
+        const valuePosition: NodePosition   = {
+            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber, 
+            startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber + 2,
+            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
+            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber +2
+        }
+        props.context.enableStamentEditor({specificFieldPosition, fieldName, value: "EXPRESSION" , valuePosition, label: field.type.name});
+
+
+
     };
 
     const handleExpand = () => {
@@ -97,36 +118,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         // setExpanded(!expanded)
     };
 
-    const onChange = (newVal: string) => {
-        setStr(newVal);
-    };
 
-    const onKeyUp = (key: string) => {
-        if (key === "Escape") {
-            setEditable(false);
-        }
-        if (key === "Enter") {
-            const [newSource, targetMappingConstruct] = getNewSource(field, mappingConstruct, str);
-            updateSource(newSource, targetMappingConstruct);
-        }
-    };
 
-    const updateSource = (newSource: string, targetMappingConstruct: MappingConstructor) => {
-        const targetPos = targetMappingConstruct.openBrace.position;
-        const modifications = [
-            {
-                type: "INSERT",
-                config: {
-                    "STATEMENT": `\n${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`,
-                },
-                endColumn: targetPos.endColumn,
-                endLine: targetPos.endLine,
-                startColumn: targetPos.endColumn,
-                startLine: targetPos.endLine
-            }
-        ];
-        context.applyModifications(modifications);
-    };
 
     return (
         <>
@@ -196,23 +189,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     );
                 })
             }
-            {editable && !isArray && (
-                <input
-                    size={str.length}
-                    spellCheck={false}
-                    style={{
-                        padding: "5px",
-                        fontFamily: "monospace",
-                        zIndex: 1000,
-                        border: "1px solid #5567D5"
-                    }}
-                    autoFocus={true}
-                    value={str}
-                    onChange={(event) => onChange(event.target.value)}
-                    onKeyUp={(event) => onKeyUp(event.key)}
-                    onBlur={() => setEditable(false)}
-                />
-            )}
         </>
     );
 }

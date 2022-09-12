@@ -66,11 +66,12 @@ export interface DataMapperProps {
     applyModifications: (modifications: STModification[]) => void;
     onSave: (fnName: string) => void;
     onClose: () => void;
-    library?: {
+    library: {
         getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
+    importStatements: string[];
 }
 
 export enum ViewOption {
@@ -81,6 +82,14 @@ export enum ViewOption {
 export interface SelectionState {
     selectedST: STNode;
     prevST?: STNode[];
+}
+
+export interface StatementEditorInfo {
+    value: string;
+    valuePosition: any;
+    specificFieldPosition?: any;
+    fieldName?: string;
+    label?: string;
 }
 
 const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload: SelectionState }) => {
@@ -98,11 +107,11 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 function DataMapperC(props: DataMapperProps) {
 
 
-    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose } = props;
+    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose, importStatements } = props;
 
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
-    const [currentEditableField, setCurrentEditableField] = useState<SpecificField>(null);
+    const [currentEditableField, setCurrentEditableField] = useState<StatementEditorInfo>(null);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
         prevST: []
@@ -125,8 +134,8 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
-    const enableStamentEditor = (model: SpecificField) => {
-        setCurrentEditableField(model)
+    const enableStamentEditor = (statementEditorInfo: StatementEditorInfo) => {
+        setCurrentEditableField(statementEditorInfo)
     }
 
     const closeStamentEditor = () => {
@@ -194,12 +203,13 @@ function DataMapperC(props: DataMapperProps) {
                         {!!currentEditableField &&
                             <Grid item={true} xs={5} style={{ width: "fit-content" }}>
                                 <StatementEditorComponent
-                                    model={currentEditableField}
+                                    statementEditorInfo={currentEditableField}
                                     langClientPromise={langClientPromise}
                                     applyModifications={applyModifications}
                                     currentFile={currentFile}
                                     library={library}
                                     onCancel={closeStamentEditor}
+                                    importStatements={importStatements}
                                 />
                             </Grid>
                         }
