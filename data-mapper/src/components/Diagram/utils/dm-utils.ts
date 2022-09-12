@@ -496,6 +496,15 @@ export function isConnectedViaLink(field: SpecificField) {
 	return !!fieldAccessNodes.length && !isMappingConstruct && !isListConstruct;
 }
 
+export function getTypeName(field: Type): string {
+	if (field.typeName === 'record') {
+		return field?.typeInfo ? field.typeInfo.name : 'record';
+	} else if (field.typeName === 'array') {
+		return `${getTypeName(field.memberType)}[]`;
+	}
+	return field.typeName;
+}
+
 function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 							                        fieldIndex: number,
 							                        targetPosition: NodePosition,

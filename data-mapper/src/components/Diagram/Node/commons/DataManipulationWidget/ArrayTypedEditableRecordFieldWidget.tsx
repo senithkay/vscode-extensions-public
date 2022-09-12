@@ -23,7 +23,7 @@ import { ListConstructor, MappingConstructor, NodePosition, STKindChecker } from
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { createSourceForUserInput, getBalRecFieldName } from "../../../utils/dm-utils";
+import { createSourceForUserInput, getBalRecFieldName, getTypeName } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
@@ -51,7 +51,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
     const hasValue = field.hasValue() && !!field.value.valueExpr.source;
-    const typeName = field.type.memberType.typeName;
+    const typeName = getTypeName(field.type);
     const elements = field.elements;
 
     const [expanded, setExpanded] = useState<boolean>(true);
@@ -70,7 +70,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const label = (
         <span style={{marginRight: "auto"}}>
             <span className={classes.valueLabel} style={{marginLeft: indentation}}>
-                {`${fieldName}[]`}
+                {fieldName}
                 {typeName && ":"}
             </span>
             {typeName && (

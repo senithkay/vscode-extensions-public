@@ -23,7 +23,13 @@ import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { createSourceForUserInput, getBalRecFieldName, getDefaultLiteralValue, isConnectedViaLink } from "../../../utils/dm-utils";
+import {
+    createSourceForUserInput,
+    getBalRecFieldName,
+    getDefaultLiteralValue,
+    getTypeName,
+    isConnectedViaLink
+} from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -52,7 +58,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const hasValue = field.hasValue() && !!field.value.valueExpr.source;
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';
-    const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
+    const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;

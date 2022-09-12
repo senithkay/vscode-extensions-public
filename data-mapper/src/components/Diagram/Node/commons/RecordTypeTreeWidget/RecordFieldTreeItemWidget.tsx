@@ -20,6 +20,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { getTypeName } from "../../../utils/dm-utils";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -103,9 +104,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
 
     const [expanded, setExpanded] = useState<boolean>(true)
 
-    const typeName = field.typeName
-        ? field.typeName
-        : "record";
+    const typeName = getTypeName(field);
 
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
