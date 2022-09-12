@@ -59,7 +59,7 @@ export class LinkDeletingVisitor implements Visitor {
             // LHS could be another binary expression or field access node
             // RHS is always field access node
     
-            if(node.lhsExpr && isFieldAccess(node.lhsExpr) && isPositionsEquals(this.fieldPosition, node.lhsExpr.position)){
+            if (node.lhsExpr && isFieldAccess(node.lhsExpr) && isPositionsEquals(this.fieldPosition, node.lhsExpr.position)) {
                 // If LHS is a field access node to be deleted
                 // Then also delete the operator right to it
                 this.deletePosition = {
