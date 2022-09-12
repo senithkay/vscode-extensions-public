@@ -20,6 +20,7 @@ import { ModulePart, STKindChecker, TypeDefinition } from "@wso2-enterprise/synt
 import { PrimaryButtonSquare} from "../../../../../../components/Buttons/PrimaryButtonSquare";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { removeStatement}  from "../../../../../utils";
+import { useStyles } from "../../../DynamicConnectorForm/style";
 import { wizardStyles } from "../../style";
 import { RecordEditor } from "../index";
 import { recordStyles } from "../style";
@@ -96,6 +97,13 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                         defaultMessage={"Record"}
                         onCancel={onCancel}
                     />
+                    {records?.length > 0 && (
+                        <div className={recordClasses.inputLabelWrapper}>
+                            <p className={recordClasses.inputLabel}>Successfully created following records. Click</p>
+                            <p onClick={onDeleteAllClick} className={recordClasses.inputLink}>Here</p>
+                            <p className={recordClasses.inputLabel}>to Undo</p>
+                        </div>
+                    )}
                     <div className={overlayClasses.recordFormWrapper}>
                         {records}
                     </div>
@@ -106,9 +114,6 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                             fullWidth={false}
                             onClick={onComplete}
                         />
-                    </div>
-                    <div style={{color: "red"}} onClick={onDeleteAllClick}>
-                        HI
                     </div>
                 </>
             ) : (

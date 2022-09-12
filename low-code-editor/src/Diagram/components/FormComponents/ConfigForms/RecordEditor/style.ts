@@ -445,6 +445,33 @@ export const recordStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             justifyContent: 'flex-end',
             marginRight: 20
-        }
+        },
+        inputLabelWrapper: {
+            display: "flex",
+            flexDirection: "row",
+            marginLeft: 20,
+            marginTop: 10,
+            height: 30
+        },
+        inputLabel: {
+            color: '#1D2028',
+            fontSize: 13,
+            textTransform: 'capitalize',
+            lineHeight: '35px',
+            fontWeight: 400
+        },
+        inputLink: {
+            color: 'blue',
+            cursor: 'pointer',
+            marginLeft: 5,
+            marginRight: 5,
+            fontSize: 13,
+            textTransform: 'capitalize',
+            lineHeight: '35px',
+            fontWeight: 400,
+            "&:hover": {
+                textDecoration: 'underline'
+            }
+        },
     }),
 );
