@@ -71,6 +71,20 @@ const templates: ExpressionGroup = {
     ],
     relatedModelType: ModelType.EXPRESSION
 }
+
+// 6.14 Member access expression
+const memberAccess : ExpressionGroup = {
+    name: "Member Access",
+    expressions: [
+        {
+            name: "Member Access",
+            template: `${SELECTED_EXPRESSION}[${EXPR_PLACEHOLDER}]`,
+            example: "Es[Ex]"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+
 //     6.7 Structural constructors
 //         6.7.1 List constructor
 //         6.7.2 Mapping constructor
@@ -667,6 +681,7 @@ export const expressions: ExpressionGroup[] = [
     typeCastEx,
     templates,
     structuralConstructors,
+    memberAccess,
     anonymousFunction,
     range,
     shift,
