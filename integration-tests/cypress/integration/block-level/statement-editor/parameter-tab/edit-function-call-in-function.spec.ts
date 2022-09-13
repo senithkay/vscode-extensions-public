@@ -17,8 +17,6 @@ import { EditorPane } from "../../../../utils/components/statement-editor/editor
 import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
 import { SourceCode } from "../../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
-import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
-import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
 import { ParameterTab } from "../../../../utils/components/statement-editor/parameter-tab";
 
 const BAL_FILE_PATH = "block-level/statement-editor/edit-function-call-in-function.bal";
