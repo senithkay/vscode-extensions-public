@@ -5,6 +5,8 @@ import React from "react";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ExpressionInfo } from "../DataMapper/DataMapper";
 import { getUpdatedSource } from "../../utils/st-utils";
+import { Panel } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import FormControl from "@material-ui/core/FormControl";
 
 
 export interface StatementEditorComponentProps {
@@ -30,8 +32,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
     const updatedContent = expressionInfo.fieldName?  getUpdatedSource(expressionInfo.fieldName, currentFile.content, 
         expressionInfo.specificFieldPosition) : currentFile.content;
 
-
-const stmtEditorComponent = StatementEditorWrapper(
+    const stmtEditorComponent = StatementEditorWrapper(
         {
             formArgs: { formArgs: {
                 targetPosition:expressionInfo.valuePosition
@@ -59,6 +60,11 @@ const stmtEditorComponent = StatementEditorWrapper(
         }
     );
 
-    return  (stmtEditorComponent)
+    return  (
+    <Panel onClose={onCancel}>
+        <FormControl variant="outlined" data-testid="data-mapper-stmt-editor-form" >
+            {stmtEditorComponent}
+        </FormControl>
+    </Panel>)
 }
 export const StatementEditorComponent = React.memo(StatementEditorC);
