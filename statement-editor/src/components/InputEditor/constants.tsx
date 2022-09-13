@@ -37,5 +37,6 @@ export const INPUT_EDITOR_PLACEHOLDERS = new Map<string, string>([
     ['DEFAULT_INTERMEDIATE_CLAUSE', '<add-intermediate-clause>'],
     ['BINDING_PATTERN', '<add-binding-pattern>'],
     ['VAR_NAME', '<add-variable-name>'],
-    ['ACCESS_MODIFIER', '<add-access-modifier>']
+    ['ACCESS_MODIFIER', '<add-access-modifier>'],
+    ['PARAMETER', '<add-param>']
 ]);
