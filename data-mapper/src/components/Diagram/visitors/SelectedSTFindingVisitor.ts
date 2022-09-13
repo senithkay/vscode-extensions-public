@@ -10,19 +10,26 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { FunctionDefinition, QueryExpression, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import {
+    FunctionDefinition,
+    QueryExpression,
+    SpecificField,
+    STKindChecker,
+    STNode,
+    Visitor
+} from "@wso2-enterprise/syntax-tree";
 
 export class SelectedSTFindingVisitor implements Visitor {
 
-    private node: QueryExpression | FunctionDefinition;
+    private node: SpecificField | FunctionDefinition;
 
     constructor(
         private selectedST: STNode
     ) {}
 
-    beginVisitSTNode(node: FunctionDefinition | QueryExpression, parent?: STNode){
+    beginVisitSTNode(node: FunctionDefinition | SpecificField, parent?: STNode){
         // TODO: Implement a way to identify the selectedST without using the positions since positions might change with imports, etc.
-        if ((STKindChecker.isFunctionDefinition(node) || STKindChecker.isQueryExpression(node))
+        if ((STKindChecker.isFunctionDefinition(node) || STKindChecker.isSpecificField(node))
             && node.position.startLine === this.selectedST.position.startLine
             && node.position.startColumn === this.selectedST.position.startColumn)
         {

@@ -1,5 +1,8 @@
 import React, { useEffect, useReducer, useState } from "react";
 
+import Grid from "@material-ui/core/Grid";
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     LibraryDataResponse,
     LibraryDocResponse,
@@ -23,14 +26,12 @@ import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
-import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
-import { LSClientContext } from "./Context/ls-client-context";
-import { CurrentFileContext } from "./Context/current-file-context";
-import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { StatementEditorComponent } from "../StatementEditorComponent/StatementEditorComponent"
-import Grid from "@material-ui/core/Grid";
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+
+import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
+import { CurrentFileContext } from "./Context/current-file-context";
+import { LSClientContext } from "./Context/ls-client-context";
+import { DataMapperHeader } from "./Header/DataMapperHeader";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -159,13 +160,16 @@ function DataMapperC(props: DataMapperProps) {
                     diagnostics,
                     enableStamentEditor
                 );
-                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                await recordTypeDescriptors.storeTypeDescriptors(fnST, context);
-                const nodeInitVisitor = new NodeInitVisitor(context, selection);
+
                 let selectedST = selection.selectedST;
-                const visitor = new SelectedSTFindingVisitor(selectedST);
-                traversNode(fnST, visitor);
-                selectedST = visitor.getST();
+                const selectedSTFindingVisitor = new SelectedSTFindingVisitor(selectedST);
+                traversNode(fnST, selectedSTFindingVisitor);
+                selectedST = selectedSTFindingVisitor.getST();
+
+                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                await recordTypeDescriptors.storeTypeDescriptors(selectedST, context);
+
+                const nodeInitVisitor = new NodeInitVisitor(context, selection);
                 traversNode(selectedST, nodeInitVisitor);
                 setNodes(nodeInitVisitor.getNodes());
             }

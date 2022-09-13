@@ -14,9 +14,8 @@ import {
 	canConvertLinkToQueryExpr,
 	generateQueryExpression
 } from '../Link/link-utils';
-import { RecordFieldPortModel, SpecificFieldPortModel } from '../Port';
+import { RecordFieldPortModel } from '../Port';
 import { handleCodeActions } from "../utils/ls-utils";
-import { RecordTypeDescriptorStore } from "../utils/record-type-descriptor-store";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 
@@ -61,23 +60,9 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const onClickConvertToQuery = async () => {
 		if (canUseQueryExpr) {
 			const link = props.model.link;
-			const targetPort = link.getTargetPort() instanceof RecordFieldPortModel
-				? link.getTargetPort() as RecordFieldPortModel
-				: link.getTargetPort() as SpecificFieldPortModel;
+			const targetPort = link.getTargetPort();
 
-			if (targetPort instanceof SpecificFieldPortModel) {
-				const fieldNamePosition = targetPort.field.fieldName.position;
-				const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-				const targetType = recordTypeDescriptors.getTypeDescriptor({
-					startLine: fieldNamePosition.startLine,
-					startColumn: fieldNamePosition.startColumn,
-					endLine: fieldNamePosition.startLine,
-					endColumn: fieldNamePosition.startColumn
-				});
-				if (targetType && targetType.typeName === 'array' && targetType.memberType.typeName === 'record') {
-					applyQueryExpression(link, targetType.memberType);
-				}
-			} else if (targetPort instanceof RecordFieldPortModel) {
+			if (targetPort instanceof RecordFieldPortModel) {
 				const field = targetPort.field;
 				if (field.typeName === 'array' && field.memberType.typeName === 'record') {
 					applyQueryExpression(link, field.memberType);

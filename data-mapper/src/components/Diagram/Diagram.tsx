@@ -14,6 +14,7 @@
 import * as React from 'react';
 
 import createEngine, { DagreEngine, DefaultDiagramState, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import {container} from "tsyringe";
 
@@ -27,13 +28,12 @@ import * as Links from "./Link";
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
+import { RequiredParamNode } from './Node';
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { LinkConnectorNode } from './Node/LinkConnector';
+import { MappingConstructorNode } from './Node/MappingConstructor';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import * as Ports from "./Port";
-import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
-import { ExpressionFunctionBodyNode, RequiredParamNode } from './Node';
-import { SelectClauseNode } from './Node/SelectClause';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -113,19 +113,20 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			let requiredParamFields = 0;
 			let numberOfRequiredParamNodes = 0;
 			nodes.forEach((node) => {
-				if ( node instanceof LinkConnectorNode || node instanceof QueryExpressionNode 
-					|| node instanceof ExpressionFunctionBodyNode || node instanceof SelectClauseNode){
-						node.updatePosition()
+				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode
+					|| node instanceof MappingConstructorNode)
+				{
+						node.updatePosition();
 				}
-				if ( node instanceof RequiredParamNode ){
-					node.setPosition(100, (requiredParamFields* 40) + 100 * (numberOfRequiredParamNodes + 1));
+				if (node instanceof RequiredParamNode) {
+					node.setPosition(100, (requiredParamFields * 40) + 100 * (numberOfRequiredParamNodes + 1));
 					requiredParamFields = requiredParamFields + node.numberOfFields;
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
 				}
 			});
 			setModel(model);
         }
-        genModel();
+  genModel();
 	}, [nodes]);
 
 	return (

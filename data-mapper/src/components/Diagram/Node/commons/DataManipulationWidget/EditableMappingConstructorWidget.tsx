@@ -19,7 +19,7 @@ import { MappingConstructor } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { RecordFieldPortModel, SpecificFieldPortModel } from '../../../Port';
+import { RecordFieldPortModel } from '../../../Port';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 
@@ -38,23 +38,23 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-	editableRecordField?: EditableRecordField;
+	editableRecordFields: EditableRecordField[];
 	value: MappingConstructor;
 	engine: DiagramEngine;
-	getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
+	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
 }
 
 
 export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
-	const { id, editableRecordField, value, engine, getPort, context } = props;
+	const { id, editableRecordFields, value, engine, getPort, context } = props;
 	const classes = useStyles();
 
 	// TODO: Handle root level arrays
 	return (
 		<div className={classes.root}>
 			{
-				editableRecordField.childrenTypes.map((item) => {
+				editableRecordFields.map((item) => {
 					return (
 						<EditableRecordFieldWidget
 							key={id}

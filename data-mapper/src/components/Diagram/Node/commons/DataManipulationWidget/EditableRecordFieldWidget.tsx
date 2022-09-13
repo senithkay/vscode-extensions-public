@@ -32,7 +32,7 @@ export interface EditableRecordFieldWidgetProps {
     parentId: string;
     field: EditableRecordField;
     engine: DiagramEngine;
-    getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
+    getPort: (portId: string) => RecordFieldPortModel;
     mappingConstruct: MappingConstructor;
     context: IDataMapperContext;
     fieldIndex?: number;
@@ -49,7 +49,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
-    const hasValue = field.hasValue();
+    const hasValue = field.hasValue() && !!field.value.valueExpr.source;
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';
     const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
@@ -58,7 +58,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const connectedViaLink = useMemo(() => {
-        if (field?.value) {
+        if (hasValue) {
             return isConnectedViaLink(field?.value);
         }
         return false;
@@ -118,9 +118,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         // setExpanded(!expanded)
     };
 
-
-
-
     return (
         <>
             {!isArray && (
@@ -140,7 +137,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     }
 
                     <span> {label}</span>
-                    {!hasValue && (
+                    {!hasValue && !isRecord && (
                         <IconButton
                             aria-label="add"
                             className={classes.addIcon}
