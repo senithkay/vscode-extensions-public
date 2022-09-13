@@ -89,25 +89,33 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     );
 
     const handleEditable = () => {
-        setEditable(true);
+        const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
+
+        const fieldName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+
+        const coloumnNumber = field.type.name?.length;
+        const specificFieldPosition: NodePosition   = {
+            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
+            startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
+            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine,
+            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
+        }
+
+        const valuePosition: NodePosition   = {
+            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber, 
+            startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber + 2,
+            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
+            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber +2
+        }
+        props.context.enableStamentEditor({specificFieldPosition, fieldName, value: "EXPRESSION" , valuePosition, label: field.type.name});
+
+
+
     };
 
     const handleExpand = () => {
         // TODO Enable expand collapse functionality
         // setExpanded(!expanded)
-    };
-
-    const onChange = (newVal: string) => {
-        setStr(newVal);
-    };
-
-    const onKeyUp = (key: string) => {
-        if (key === "Escape") {
-            setEditable(false);
-        }
-        if (key === "Enter") {
-            createSourceForUserInput(field, mappingConstruct, str, context.applyModifications);
-        }
     };
 
     return (
@@ -178,23 +186,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     );
                 })
             }
-            {editable && !isArray && (
-                <input
-                    size={str.length}
-                    spellCheck={false}
-                    style={{
-                        padding: "5px",
-                        fontFamily: "monospace",
-                        zIndex: 1000,
-                        border: "1px solid #5567D5"
-                    }}
-                    autoFocus={true}
-                    value={str}
-                    onChange={(event) => onChange(event.target.value)}
-                    onKeyUp={(event) => onKeyUp(event.key)}
-                    onBlur={() => setEditable(false)}
-                />
-            )}
         </>
     );
 }

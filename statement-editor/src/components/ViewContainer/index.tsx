@@ -139,7 +139,7 @@ export function ViewContainer(props: ViewContainerProps) {
     };
 
     const handleClose = async () => {
-        await sendDidChange(exprSchemeURI, currentFile.content, getLangClient);
+        await sendDidChange(exprSchemeURI, currentFile.originalContent ? currentFile.originalContent : currentFile.content, getLangClient);
         await sendDidClose(exprSchemeURI, getLangClient);
     };
 

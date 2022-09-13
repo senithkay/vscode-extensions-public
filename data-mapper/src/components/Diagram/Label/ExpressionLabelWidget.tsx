@@ -78,7 +78,8 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	};
 
 	const onClickEdit = () => {
-		props.model.context.enableStamentEditor(props.model.specificField);
+		props.model.context.enableStamentEditor({valuePosition: props.model.specificField.valueExpr?.position, 
+			value: props.model.specificField.valueExpr?.source, label: props.model.specificField.fieldName.source});
 	};
 
 	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: FormField) => {

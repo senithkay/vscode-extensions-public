@@ -16,6 +16,7 @@ import React, { useContext, useEffect } from 'react';
 import {
     DataMapper
 } from "@wso2-enterprise/ballerina-data-mapper";
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import {
     ConfigOverlayFormStatus,
     DiagramEditorLangClientInterface
@@ -27,10 +28,9 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Contexts/Diagram";
+import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
 
 import { dataMapperStyles } from "./style";
-import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
-import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 
 export interface DataMapperProps {
     model?: STNode;
@@ -47,7 +47,8 @@ export function DataMapperOverlay(props: DataMapperProps) {
     const {
         props: {
             currentFile,
-            stSymbolInfo
+            stSymbolInfo,
+            importStatements
         },
         api: {
             code: {
@@ -55,7 +56,8 @@ export function DataMapperOverlay(props: DataMapperProps) {
             },
             ls: {
                 getDiagramEditorLangClient,
-            }
+            },
+            library
         }
     } = useContext(Context);
 
@@ -107,6 +109,8 @@ export function DataMapperOverlay(props: DataMapperProps) {
                                 applyModifications={modifyDiagram}
                                 onClose={onClose}
                                 onSave={onSave}
+                                library={library}
+                                importStatements={importStatements}
                             />
                         </div>
                     </DiagramOverlay>

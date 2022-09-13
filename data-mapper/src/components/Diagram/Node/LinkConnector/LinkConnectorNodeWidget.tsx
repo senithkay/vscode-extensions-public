@@ -63,7 +63,8 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const hasError = node.hasError();
 
     const onClickEdit = () => {
-        props.node.context.enableStamentEditor(props.node.valueNode);
+        props.node.context.enableStamentEditor({valuePosition: props.node.valueNode.valueExpr?.position, 
+            value: props.node.valueNode.valueExpr?.source, label: props.node.valueNode.fieldName.source});
     };
 
     return (
@@ -75,6 +76,5 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             </div>
         </div>
     );
-
 }
 
