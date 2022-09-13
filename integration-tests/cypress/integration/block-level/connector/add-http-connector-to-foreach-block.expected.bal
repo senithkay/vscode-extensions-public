@@ -9,7 +9,7 @@ function myfunction() returns error? {
 
     foreach int i in 0 ... 100 {
 
-        http:Client httpEp = check new (url = "https://foo.com");
+        http:Client httpEp = check new (url = "");
     }
 
     while true {

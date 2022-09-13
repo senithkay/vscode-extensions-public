@@ -90,7 +90,8 @@ export function StatementEditor(props: StatementEditorProps) {
         importStatements,
         experimentalEnabled,
         extraModules,
-        runBackgroundTerminalCommand
+        runBackgroundTerminalCommand,
+        ballerinaVersion
     } = props;
 
     const {
@@ -538,6 +539,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     updateSyntaxDiagnostics={updateSyntaxDiagnostics}
                     editing={isEditing}
                     updateEditing={updateEditing}
+                    ballerinaVersion={ballerinaVersion}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

@@ -77,3 +77,5 @@ export function ParameterBranch(props: ParameterBranchProps) {
         </List>
     );
 }
+
+export const MemoizedParameterBranch = React.memo(ParameterBranch);

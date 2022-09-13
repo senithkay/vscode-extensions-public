@@ -39,6 +39,7 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
     const intl = useIntl();
     const {
         props: {
+            ballerinaVersion,
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
@@ -94,7 +95,8 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            ballerinaVersion
         }
     );
 
