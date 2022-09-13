@@ -51,7 +51,8 @@ export function InputEditor(props: InputEditorProps) {
             updateEditing
         },
         targetPosition,
-        config
+        config,
+        isExpressionMode
     } = useContext(StatementEditorContext);
 
     const inputEditorCtx = useContext(InputEditorContext);
@@ -85,7 +86,7 @@ export function InputEditor(props: InputEditorProps) {
                                     userInput.trim() :
                                 EXPR_PLACEHOLDER;
         if (statementModel && INPUT_EDITOR_PLACEHOLDERS.has(trimmedInput)) {
-            if (isPositionsEquals(statementModel.position, model.position)) {
+            if (isPositionsEquals(statementModel.position, model.position) && !isExpressionMode) {
                 // override the placeholder when the statement is empty
                 return INPUT_EDITOR_PLACEHOLDERS.get(STMT_PLACEHOLDER);
             } else {
