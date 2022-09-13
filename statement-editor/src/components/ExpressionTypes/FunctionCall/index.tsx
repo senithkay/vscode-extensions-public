@@ -62,7 +62,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
     };
 
 
-    if (!currentModel.model || (currentModel.model.source === FUNCTION_CALL_PLACEHOLDER)|| (currentModel.model.source === PARAMETER_PLACEHOLDER)) {
+    if (!currentModel.model || (currentModel.model.source === FUNCTION_CALL_PLACEHOLDER) || (currentModel.model.source === PARAMETER_PLACEHOLDER)) {
         if (model && STKindChecker.isFunctionCall(model)) {
             changeCurrentModel(model);
         }

@@ -14,11 +14,11 @@ import React, { useContext } from "react";
 
 import { MethodCall, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { PARAMETER_PLACEHOLDER } from "../../../utils/expressions";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
-import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { PARAMETER_PLACEHOLDER } from "../../../utils/expressions";
 
 interface MethodCallProps {
     model: MethodCall;

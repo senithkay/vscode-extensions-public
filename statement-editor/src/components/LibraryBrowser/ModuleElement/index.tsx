@@ -24,9 +24,9 @@ import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-
 import { InputEditorContext } from '../../../store/input-editor-context';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getModuleIconStyle } from "../../../utils";
+import { PARAMETER_PLACEHOLDER } from '../../../utils/expressions';
 import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
-import { PARAMETER_PLACEHOLDER } from '../../../utils/expressions';
 
 interface ModuleElementProps {
     moduleProperty: ModuleProperty,
