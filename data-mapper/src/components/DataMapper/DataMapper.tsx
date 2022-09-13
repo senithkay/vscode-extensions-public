@@ -196,28 +196,22 @@ function DataMapperC(props: DataMapperProps) {
         <LSClientContext.Provider value={langClientPromise}>
             <CurrentFileContext.Provider value={currentFile}>
                 <div className={classes.root}>
-                    <Grid container={true} spacing={3} className={classes.gridContainer} >
-                        <Grid item={true} xs={currentEditableField ? 7 : 12}>
-                            {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
-                            <DataMapperDiagram
-                                nodes={nodes}
-                            />
-                            {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
-                        </Grid>
-                        {!!currentEditableField &&
-                            <Grid item={true} xs={5} style={{ width: "fit-content" }}>
-                                <StatementEditorComponent
-                                    expressionInfo={currentEditableField}
-                                    langClientPromise={langClientPromise}
-                                    applyModifications={applyModifications}
-                                    currentFile={currentFile}
-                                    library={library}
-                                    onCancel={closeStamentEditor}
-                                    importStatements={importStatements}
-                                />
-                            </Grid>
-                        }
-                    </Grid>
+                    {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
+                    <DataMapperDiagram
+                        nodes={nodes}
+                    />
+                    {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
+                    {!!currentEditableField &&
+                        <StatementEditorComponent
+                            expressionInfo={currentEditableField}
+                            langClientPromise={langClientPromise}
+                            applyModifications={applyModifications}
+                            currentFile={currentFile}
+                            library={library}
+                            onCancel={closeStamentEditor}
+                            importStatements={importStatements}
+                        />
+                    }
                 </div>
             </CurrentFileContext.Provider>
         </LSClientContext.Provider>
