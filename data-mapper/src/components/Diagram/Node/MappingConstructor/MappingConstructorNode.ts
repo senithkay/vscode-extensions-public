@@ -33,7 +33,8 @@ import {
     getBalRecFieldName,
     getEnrichedRecordType,
     getInputNodeExpr,
-    getInputPortsForExpr
+    getInputPortsForExpr,
+    getTypeName
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -47,6 +48,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
     public typeDef: Type;
     public recordFields: EditableRecordField[];
+    public typeName: string;
 
     constructor(
         public context: IDataMapperContext,
@@ -69,6 +71,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
+            this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === 'record') {
                 this.recordFields = valueEnrichedType.childrenTypes;
                 if (!!this.recordFields.length) {

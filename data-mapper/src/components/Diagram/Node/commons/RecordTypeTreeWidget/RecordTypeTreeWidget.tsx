@@ -18,6 +18,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { RecordFieldPortModel } from '../../../Port';
+import { getTypeName } from "../../../utils/dm-utils";
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
 
@@ -30,6 +31,13 @@ const useStyles = makeStyles((theme: Theme) =>
             position: "relative",
             backgroundColor: " #FFFFFF",
             padding: "20px"
+        },
+        header: {
+            color: "black",
+            backgroundColor: "#d8d8ff",
+            display: "flex",
+            height: "40px",
+            padding: "8px"
         }
     }),
 );
@@ -45,8 +53,11 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     const { engine, typeDesc, id, getPort } = props;
     const classes = useStyles();
 
+    const typeName = getTypeName(typeDesc);
+
     return (
         <div className={classes.root}>
+            <span className={classes.header}>{typeName}</span>
             {
                 typeDesc.fields.map((field) => {
                     return (
