@@ -22,6 +22,7 @@ import {
     getCurrentModelParams,
     getDocDescription,
     getParentFunctionModel,
+    isBalVersionUpdateOne,
     isConfigurableEditor,
     isDescriptionWithExample,
     isDocumentationSupportedModel,
@@ -55,7 +56,8 @@ export function ParameterSuggestions() {
             editors,
             activeEditorId
         },
-        config
+        config,
+        ballerinaVersion
     } = useContext(StatementEditorContext);
 
     const connectorInfo = connector as BallerinaConnectorInfo;
@@ -83,8 +85,8 @@ export function ParameterSuggestions() {
                 statementModel);
             const paramsInModel: STNode[] = getCurrentModelParams(model);
             let paramDocumentation : SymbolDocumentation  = documentation.documentation;
-            // TODO: Remove this check once the methodCall param filter is added to the LS
-            if (STKindChecker.isMethodCall(model)) {
+            // Filter from FE if the Ballerina version is update 1
+            if (STKindChecker.isMethodCall(model) && isBalVersionUpdateOne(ballerinaVersion)) {
                 paramDocumentation = updateParamListFordMethodCallDoc(paramsInModel, paramDocumentation);
             }
             paramDocumentation = updateParamDocWithParamPositions(paramsInModel, paramDocumentation);
