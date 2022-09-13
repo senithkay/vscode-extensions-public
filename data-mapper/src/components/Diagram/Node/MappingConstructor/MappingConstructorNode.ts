@@ -1,8 +1,23 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-	ExpressionFunctionBody,
-	MappingConstructor,
-	SpecificField,
+    ExpressionFunctionBody,
+    IdentifierToken,
+    MappingConstructor,
+    NodePosition,
+    SelectClause,
+    SpecificField,
     STKindChecker,
     traversNode
 } from "@wso2-enterprise/syntax-tree";
@@ -25,40 +40,48 @@ import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-st
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
-export const EXPR_FN_BODY_NODE_TYPE = "datamapper-node-expression-fn-body";
+export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
+export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
 
-export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
+export class MappingConstructorNode extends DataMapperNodeModel {
 
     public typeDef: Type;
-    public enrichedTypeDef: EditableRecordField;
+    public recordFields: EditableRecordField[];
 
     constructor(
         public context: IDataMapperContext,
-        public value: ExpressionFunctionBody,
-        public typeDesc: TypeDescriptor) {
+        public value: ExpressionFunctionBody | SelectClause,
+        public typeIdentifier: TypeDescriptor | IdentifierToken) {
         super(
             context,
-            EXPR_FN_BODY_NODE_TYPE
+            MAPPING_CONSTRUCTOR_NODE_TYPE
         );
     }
 
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: this.typeDesc.position.startLine,
-            startColumn: this.typeDesc.position.startColumn,
-            endLine: this.typeDesc.position.startLine,
-            endColumn: this.typeDesc.position.startColumn
+            startLine: this.typeIdentifier.position.startLine,
+            startColumn: this.typeIdentifier.position.startColumn,
+            endLine: this.typeIdentifier.position.startLine,
+            endColumn: this.typeIdentifier.position.startColumn
         });
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
-            this.enrichedTypeDef = valueEnrichedType;
             if (valueEnrichedType.type.typeName === 'record') {
-                const fields: EditableRecordField[] = valueEnrichedType.childrenTypes;
-                if (!!fields.length) {
-                    fields.forEach((subField) => {
-                        this.addPortsForOutputRecordField(subField, "IN", "exprFunctionBody");
+                this.recordFields = valueEnrichedType.childrenTypes;
+                if (!!this.recordFields.length) {
+                    this.recordFields.forEach((field) => {
+                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX);
+                    });
+                }
+            } else if (valueEnrichedType.type.typeName === 'array' && STKindChecker.isSelectClause(this.value)) {
+                // valueEnrichedType only contains a single element as it is being used within the select clause
+                this.recordFields = valueEnrichedType.elements[0].members;
+                if (!!this.recordFields.length) {
+                    this.recordFields.forEach((field) => {
+                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX);
                     });
                 }
             } else {
@@ -76,8 +99,8 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
             const specificField = fields[fields.length - 1];
-            if (!value) {
-                console.log("Unsupported mapping.");
+            if (!value || !value.source) {
+                // Unsupported mapping
                 return;
             }
             const inputNode = getInputNodeExpr(value, this);
@@ -86,7 +109,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
             const outPort = this.getOutputPortForField(fields);
-			const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
+            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
             if (inPort && outPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
@@ -115,9 +138,9 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
     }
 
     private getOutputPortForField(fields: SpecificField[]) {
-        let nextTypeNode = this.enrichedTypeDef?.childrenTypes;
+        let nextTypeNode = this.recordFields;
         let recField: EditableRecordField;
-        let portIdBuffer = "exprFunctionBody";
+        let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
         let fieldIndex;
         for (let i = 0; i < fields.length; i++) {
             const specificField = fields[i];
@@ -157,8 +180,7 @@ export class ExpressionFunctionBodyNode extends DataMapperNodeModel {
         }
         if (recField) {
             const portId = `${portIdBuffer}.IN`;
-            const outPort = this.getPort(portId);
-            return outPort;
+            return this.getPort(portId);
         }
     }
 

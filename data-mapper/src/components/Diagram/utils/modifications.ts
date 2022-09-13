@@ -10,5 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./SelectClauseNodeFactory";
-export * from "./SelectClauseNode";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
+export function getModification(statement: string, targetPosition: NodePosition): STModification {
+    return {
+        type: "INSERT",
+        isImport: false,
+        config: {
+            "STATEMENT": statement
+        },
+        ...targetPosition
+    };
+}

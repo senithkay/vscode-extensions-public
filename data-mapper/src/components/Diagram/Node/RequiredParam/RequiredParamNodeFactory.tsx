@@ -6,7 +6,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
-import { RecordFieldPortModel, SpecificFieldPortModel } from '../../Port';
+import { RecordFieldPortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
 
@@ -25,7 +25,7 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
 				engine={this.engine}
 				id={event.model.value.paramName.value}
 				typeDesc={event.model.typeDef}
-				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel | SpecificFieldPortModel}
+				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 			/>
 		);
 	}

@@ -15,12 +15,12 @@ import * as React from 'react';
 
 import { IconButton } from "@material-ui/core";
 import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
+import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import ExpandIcon from "../../../../assets/icons/ExpandIcon";
 import { ViewOption } from "../../../DataMapper/DataMapper";
-import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from '../../Port';
-import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 
 import {
     QueryExpressionNode,
@@ -70,12 +70,12 @@ const styles = (theme: Theme) => createStyles({
     }
 });
 
-export interface QueryExpressionNodeWidgetProps extends WithStyles<typeof styles> {
+export interface QueryExprAsSFVNodeWidgetProps extends WithStyles<typeof styles> {
     node: QueryExpressionNode;
     engine: DiagramEngine;
 }
 
-class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidgetProps> {
+class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidgetProps> {
     render() {
         const node = this.props.node;
         const classes = this.props.classes;
@@ -85,7 +85,7 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
             node.context.changeSelection(ViewOption.EXPAND,
                 {
                     ...node.context.selection,
-                    selectedST: node.value
+                    selectedST: node.parentNode
                 })
         }
 
@@ -141,4 +141,4 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
     }
 }
 
-export const QueryExpressionNodeWidget = withStyles(styles, {withTheme: true})(QueryExpressionNodeWidgetC);
+export const QueryExpressionNodeWidget = withStyles(styles, {withTheme: true})(QueryExprAsSFVNodeWidgetC);

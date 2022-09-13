@@ -12,12 +12,12 @@ import {
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
-import { RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
+import { RecordFieldPortModel } from "../../Port";
 import { getBalRecFieldName } from "../../utils/dm-utils";
 import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
 
 export interface DataMapperNodeModelGenerics {
-	PORT: SpecificFieldPortModel | RecordFieldPortModel;
+	PORT: RecordFieldPortModel;
 }
 
 export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | BooleanTypeDesc | ByteTypeDesc | DecimalTypeDesc
@@ -56,22 +56,6 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initLinks(): void;
 	// extend this class to add link init, port init logics
 
-	protected addPortsForSpecificField(field: SpecificField, type: "IN" | "OUT", parentId: string,
-									                           parent?: SpecificFieldPortModel) {
-		const fieldId = `${parentId}.${field.fieldName.value}`;
-		if (STKindChecker.isSpecificField(field)) {
-			const fieldPort = new SpecificFieldPortModel(field, type, parentId, "", parent);
-			this.addPort(fieldPort)
-			if (STKindChecker.isMappingConstructor(field.valueExpr)) {
-				field.valueExpr.fields.forEach((subField) => {
-					if (STKindChecker.isSpecificField(subField)) {
-						this.addPortsForSpecificField(subField, type, fieldId, fieldPort);
-					}
-				});
-			}
-		}
-	}
-
 	protected addPortsForInputRecordField(field: Type, type: "IN" | "OUT", parentId: string,
 										                             parentFieldAccessExpr?: string,
 										                             parent?: RecordFieldPortModel) : number {
@@ -79,7 +63,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
 		const fieldPort = new RecordFieldPortModel(
-			field, type, parentId, undefined, parentFieldAccessExpr, parent);
+			field, type, parentId, undefined, undefined, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
 		let numberOfFields =1;
 		if (field.typeName === 'record') {
@@ -103,7 +87,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			: parentId;
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
-		const fieldPort = new RecordFieldPortModel(field.type, type, parentId, elementIndex, parentFieldAccessExpr, parent);
+		const fieldPort = new RecordFieldPortModel(
+			field.type, type, parentId, elementIndex, field, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort);
 
 		if (field.type.typeName === 'record') {

@@ -1,23 +1,23 @@
 import { FieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
+
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { IntermediatePortModel, RecordFieldPortModel, SpecificFieldPortModel } from "../../Port";
+import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import { getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { ExpressionFunctionBodyNode } from "../ExpressionFunctionBody";
-import { EXPANDED_QUERY_TARGET_PORT_PREFIX, SelectClauseNode } from "../SelectClause";
+import { MappingConstructorNode, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX} from "../MappingConstructor";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 
 export class LinkConnectorNode extends DataMapperNodeModel {
 
     public sourcePorts: RecordFieldPortModel[] = [];
-    public targetPort: RecordFieldPortModel | SpecificFieldPortModel;
+    public targetPort: RecordFieldPortModel;
 
     public inPort: IntermediatePortModel;
     public outPort: IntermediatePortModel;
@@ -63,30 +63,30 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         if (this.outPort) {
             let targetPortName = "exprFunctionBody"
             if (STKindChecker.isQueryExpression(this.context.selection.selectedST)) {
-                targetPortName = EXPANDED_QUERY_TARGET_PORT_PREFIX
+                targetPortName = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
             }
             this.specificFields.forEach((specificField) => {
                 targetPortName = targetPortName + "." + specificField.fieldName.value
             })
             targetPortName = targetPortName + ".IN"
             this.getModel().getNodes().map((node) => {
-                if (node instanceof ExpressionFunctionBodyNode || node instanceof SelectClauseNode) {
-                    const ports = Object.entries(node.getPorts());
-                    ports.forEach((entry) => {
-                        const portName = entry[0];
-                        if (portName === targetPortName) {
-                            if (entry[1] instanceof RecordFieldPortModel || entry[1] instanceof SpecificFieldPortModel)
-                                this.targetPort = entry[1]
-                        }
-                    });
-                }
+                if (node instanceof MappingConstructorNode) {
+                        const ports = Object.entries(node.getPorts());
+                        ports.forEach((entry) => {
+                            const portName = entry[0];
+                            if (portName === targetPortName) {
+                                if (entry[1] instanceof RecordFieldPortModel)
+                                    this.targetPort = entry[1]
+                             }
+                        });
+                    }
             });
         }
     }
 
     initLinks(): void {
         this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
-            const inPort =this.inPort;
+            const inPort = this.inPort;
 
             const lm = new DataMapperLinkModel();
             lm.setTargetPort(this.inPort);
@@ -181,7 +181,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     private targetLinkDelete(specificField: SpecificField) {
-        if (this.targetPort?.parentId === EXPANDED_QUERY_TARGET_PORT_PREFIX) {
+        if (this.targetPort?.parentId === MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX) {
             // If query targetPort, should delete only value expression position
             this.context.applyModifications([{
                 type: "DELETE",
