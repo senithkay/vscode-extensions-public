@@ -26,6 +26,7 @@ import { StatementEditorContext } from "../../../store/statement-editor-context"
 import { getModuleIconStyle } from "../../../utils";
 import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
+import { PARAMETER_PLACEHOLDER } from '../../../utils/expressions';
 
 interface ModuleElementProps {
     moduleProperty: ModuleProperty,
@@ -74,7 +75,7 @@ export function ModuleElement(props: ModuleElementProps) {
                 const parameters: string[] = [];
                 functionProperties.parameters.map((param: FunctionParams) => {
                     if (!(param.type.isInclusion || param.type.isNullable)) {
-                        parameters.push(`${param.name}`);
+                        parameters.push(`${PARAMETER_PLACEHOLDER}`);
                     }
                 });
 
