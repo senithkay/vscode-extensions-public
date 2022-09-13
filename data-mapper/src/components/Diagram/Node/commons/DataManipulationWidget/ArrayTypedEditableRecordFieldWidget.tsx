@@ -27,6 +27,7 @@ import { createSourceForUserInput, getBalRecFieldName, getDefaultValue } from ".
 import { getModification } from "../../../utils/modifications";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
+import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 import { useStyles } from "./styles";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
@@ -50,7 +51,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         : `${parentId}.${fieldName}`;
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
-    const hasValue = field.hasValue() && !!field.value.valueExpr.source;
+    const valExpr = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value.valueExpr;
+    const hasValue = valExpr && !!valExpr.source;
     const typeName = field.type.memberType.typeName;
     const elements = field.elements;
 
@@ -61,8 +63,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     useEffect(() => {
         if (hasValue) {
-            if (STKindChecker.isListConstructor(field.value.valueExpr)) {
-                setListConstructor(field.value.valueExpr);
+            if (STKindChecker.isListConstructor(valExpr)) {
+                setListConstructor(valExpr);
             }
         }
     }, [mappingConstruct]);
@@ -145,7 +147,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 <>
                     {
                         elements.map((element, index) => {
-                            return (
+                            return STKindChecker.isMappingConstructor(element.elementNode) ? (
                                 <>
                                     <div className={classes.treeLabel}>
                                         <span>{'{'}</span>
@@ -153,26 +155,35 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                     {
                                         element.members.map((typeWithVal) => {
                                             // TODO: Add support to render array elements other than the mapping constructors
-                                            return STKindChecker.isMappingConstructor(element.elementNode) && (
-                                                <>
-                                                    <EditableRecordFieldWidget
-                                                        key={fieldId}
-                                                        engine={engine}
-                                                        field={typeWithVal}
-                                                        getPort={getPort}
-                                                        parentId={fieldId}
-                                                        mappingConstruct={element.elementNode}
-                                                        context={context}
-                                                        fieldIndex={index}
-                                                        treeDepth={treeDepth + 1}
-                                                    />
-                                                </>
+                                            return (
+                                                <EditableRecordFieldWidget
+                                                    key={fieldId}
+                                                    engine={engine}
+                                                    field={typeWithVal}
+                                                    getPort={getPort}
+                                                    parentId={fieldId}
+                                                    mappingConstruct={element.elementNode as MappingConstructor}
+                                                    context={context}
+                                                    fieldIndex={index}
+                                                    treeDepth={treeDepth + 1}
+                                                />
                                             );
                                         })
                                     }
                                     <div className={classes.treeLabel}>
                                         <span>{'}'}</span>
                                     </div>
+                                </>
+                            ) : (
+                                <>
+                                    <PrimitiveTypedEditableArrayElementWidget
+                                        parentId={fieldId}
+                                        field={element.members[0]}
+                                        engine={engine}
+                                        getPort={getPort}
+                                        fieldIndex={index}
+                                        treeDepth={treeDepth + 1}
+                                    />
                                 </>
                             );
                         })

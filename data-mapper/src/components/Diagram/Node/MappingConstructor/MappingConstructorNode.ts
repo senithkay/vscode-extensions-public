@@ -166,6 +166,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                                 if (isPositionsEquals(element.elementNode.position, expr.position)) {
                                     element.members.forEach((member) => {
                                         if (member?.value
+                                            && STKindChecker.isSpecificField(member.value)
                                             && isPositionsEquals(member.value.fieldName.position,
                                                 fields[i + 1].fieldName.position)) {
                                             nextTypeNode = element?.members;

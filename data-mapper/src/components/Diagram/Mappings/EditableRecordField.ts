@@ -21,7 +21,7 @@ export interface ArrayElement {
 export class EditableRecordField {
 	constructor(
 		public type: Type,
-		public value?: SpecificField,
+		public value?: STNode,
 		public parentType?: EditableRecordField,
 		public childrenTypes?: EditableRecordField[],
 		public elements?: ArrayElement[]

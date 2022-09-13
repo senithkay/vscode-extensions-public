@@ -188,25 +188,25 @@ export function createSourceForUserInput(field: EditableRecordField, mappingCons
 		const fieldName = nextField.type.name;
 		parentFields.push(getBalRecFieldName(fieldName));
 
-		if (nextField.parentType.hasValue()) {
-			const valueExpr = nextField.parentType.value.valueExpr;
+		if (nextField.parentType.hasValue() && STKindChecker.isSpecificField(nextField.parentType.value)) {
+			const rootField: SpecificField = nextField.parentType.value;
 
-			if (!valueExpr.source) {
+			if (!rootField.valueExpr.source) {
 				return createValueExprSource(fieldName, newValue, parentFields.reverse(), 0,
-					nextField.parentType.value.colon.position, applyModifications);
+					rootField.colon.position, applyModifications);
 			}
 
-			if (STKindChecker.isMappingConstructor(valueExpr)) {
-				const specificField = getSpecificField(valueExpr, fieldName);
+			if (STKindChecker.isMappingConstructor(rootField.valueExpr)) {
+				const specificField = getSpecificField(rootField.valueExpr, fieldName);
 				if (specificField && !specificField.valueExpr.source) {
 					return createValueExprSource(fieldName, newValue, parentFields, 1,
 						specificField.colon.position, applyModifications);
 				}
 				source = createSpecificField(parentFields.reverse());
-				targetMappingConstructor = valueExpr;
-			} else if (STKindChecker.isListConstructor(valueExpr)
-				&& STKindChecker.isMappingConstructor(valueExpr.expressions[0])) {
-				for (const expr of valueExpr.expressions) {
+				targetMappingConstructor = rootField.valueExpr;
+			} else if (STKindChecker.isListConstructor(rootField.valueExpr)
+				&& STKindChecker.isMappingConstructor(rootField.valueExpr.expressions[0])) {
+				for (const expr of rootField.valueExpr.expressions) {
 					if (STKindChecker.isMappingConstructor(expr)
 						&& isPositionsEquals(expr.position, mappingConstruct.position))
 					{
@@ -365,7 +365,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 									                             childrenTypes?: EditableRecordField[]) {
 	let editableRecordField: EditableRecordField = null;
 	let fields = null;
-	let specificField: SpecificField;
+	let specificField: STNode;
 	let nextNode: STNode;
 
 	if (parentType) {
@@ -373,7 +373,8 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 			specificField = node.fields.find((val) =>
 				STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
 			) as SpecificField;
-			nextNode = specificField && specificField.valueExpr ? specificField.valueExpr : undefined;
+			nextNode =  specificField && STKindChecker.isSpecificField(specificField) && specificField.valueExpr
+				? specificField.valueExpr : undefined;
 		} else if (node && STKindChecker.isListConstructor(node)) {
 			const mappingConstructors = node.expressions.filter((val) =>
 				STKindChecker.isMappingConstructor(val)
@@ -391,7 +392,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 		nextNode = node;
 	}
 
-	editableRecordField = new EditableRecordField(type, specificField, parentType);
+	editableRecordField = new EditableRecordField(type, specificField || node, parentType);
 
 	if (type.typeName === PrimitiveBalType.Record) {
 		fields = type.fields;
@@ -403,10 +404,11 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 			});
 		}
 		editableRecordField.childrenTypes = children;
-	} else if (type.typeName === PrimitiveBalType.Array && type.memberType.typeName === PrimitiveBalType.Record) {
-		if (nextNode) {
+	} else if (type.typeName === PrimitiveBalType.Array && nextNode) {
+		if (type.memberType.typeName === PrimitiveBalType.Record) {
 			if (STKindChecker.isListConstructor(nextNode)) {
-				editableRecordField.elements = getEnrichedArrayType(type, nextNode, editableRecordField);
+				editableRecordField.elements = getEnrichedArrayType(
+					type.memberType.fields, nextNode, editableRecordField);
 			} else if (STKindChecker.isMappingConstructor(nextNode)) {
 				fields = type.memberType.fields;
 				const children = [...childrenTypes ? childrenTypes : []];
@@ -422,23 +424,20 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 					elementNode: nextNode
 				}];
 			}
+		} else if (STKindChecker.isListConstructor(nextNode)) {
+			editableRecordField.elements = getEnrichedPrimitiveArrayType(type, nextNode, editableRecordField);
 		}
 	}
 
 	return editableRecordField;
 }
 
-export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentType?: EditableRecordField,
+export function getEnrichedArrayType(fields: Type[], node?: ListConstructor, parentType?: EditableRecordField,
 									                            childrenTypes?: EditableRecordField[]) {
-	let fields: Type[] = [];
 	const members: ArrayElement[] = [];
 
-	if (type.typeName === PrimitiveBalType.Array && type.memberType.typeName === PrimitiveBalType.Record) {
-		fields = type.memberType.fields;
-	}
-
 	node.expressions.forEach((expr) => {
-		if (STKindChecker.isMappingConstructor(expr)) {
+		if (!STKindChecker.isCommaToken(expr)) {
 			if (fields && !!fields.length) {
 				const member: EditableRecordField[] = [];
 				fields.map((field) => {
@@ -448,6 +447,28 @@ export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentT
 				if (!!member.length) {
 					members.push({
 						members: member, elementNode: expr
+					});
+				}
+			}
+		}
+	});
+
+	return members;
+}
+
+export function getEnrichedPrimitiveArrayType(field: Type, node?: ListConstructor,
+											                                   parentType?: EditableRecordField,
+											                                   childrenTypes?: EditableRecordField[]) {
+	const members: ArrayElement[] = [];
+
+	node.expressions.forEach((expr) => {
+		if (!STKindChecker.isCommaToken(expr)) {
+			if (field) {
+				const member = getEnrichedRecordType(field.memberType, expr, parentType, childrenTypes);
+
+				if (member) {
+					members.push({
+						members: [member], elementNode: expr
 					});
 				}
 			}

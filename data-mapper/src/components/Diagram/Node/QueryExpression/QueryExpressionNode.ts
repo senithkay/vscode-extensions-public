@@ -108,6 +108,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const port = entry[1];
                     if (port instanceof RecordFieldPortModel
                         && port?.editableRecordField && port.editableRecordField?.value
+                        && STKindChecker.isSpecificField(port.editableRecordField.value)
                         && isPositionsEquals(port.editableRecordField.value.fieldName.position, fieldNamePosition)
                     ) {
                         this.targetPort = port;

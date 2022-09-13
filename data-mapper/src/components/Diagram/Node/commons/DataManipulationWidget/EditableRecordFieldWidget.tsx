@@ -18,7 +18,7 @@ import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -50,17 +50,18 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
-    const hasValue = field.hasValue() && !!field.value.valueExpr.source;
+    const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
+    const hasValue = specificField && !!specificField.valueExpr.source;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
     const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
     const fields = isRecord && field.childrenTypes;
-    const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);
+    const value: string = getDefaultLiteralValue(field.type.typeName, specificField.valueExpr);
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(field?.value);
+            return isConnectedViaLink(specificField);
         }
         return false;
     }, [field]);
