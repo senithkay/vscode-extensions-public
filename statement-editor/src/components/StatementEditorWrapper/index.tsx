@@ -113,7 +113,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         (async () => {
             let model = null;
             if (initialSource) {
-                await sendDidOpen(fileURI, currentFile.originalContent ? currentFile.originalContent 
+                await sendDidOpen(fileURI, currentFile.originalContent ? currentFile.originalContent
                     : currentFile.content, getLangClient);
 
                 const partialST =

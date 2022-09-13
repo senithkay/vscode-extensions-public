@@ -85,7 +85,7 @@ export interface SelectionState {
     prevST?: STNode[];
 }
 
-export interface StatementEditorInfo {
+export interface ExpressionInfo {
     value: string;
     valuePosition: any;
     specificFieldPosition?: any;
@@ -112,7 +112,7 @@ function DataMapperC(props: DataMapperProps) {
 
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
-    const [currentEditableField, setCurrentEditableField] = useState<StatementEditorInfo>(null);
+    const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
         prevST: []
@@ -135,8 +135,8 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
-    const enableStamentEditor = (statementEditorInfo: StatementEditorInfo) => {
-        setCurrentEditableField(statementEditorInfo)
+    const enableStamentEditor = (expressionInfo: ExpressionInfo) => {
+        setCurrentEditableField(expressionInfo)
     }
 
     const closeStamentEditor = () => {
@@ -207,7 +207,7 @@ function DataMapperC(props: DataMapperProps) {
                         {!!currentEditableField &&
                             <Grid item={true} xs={5} style={{ width: "fit-content" }}>
                                 <StatementEditorComponent
-                                    statementEditorInfo={currentEditableField}
+                                    expressionInfo={currentEditableField}
                                     langClientPromise={langClientPromise}
                                     applyModifications={applyModifications}
                                     currentFile={currentFile}
