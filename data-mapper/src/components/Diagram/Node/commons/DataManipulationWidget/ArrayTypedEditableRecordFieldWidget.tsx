@@ -182,7 +182,6 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                         engine={engine}
                                         getPort={getPort}
                                         fieldIndex={index}
-                                        treeDepth={treeDepth + 1}
                                     />
                                 </>
                             );

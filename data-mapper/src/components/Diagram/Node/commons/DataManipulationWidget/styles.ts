@@ -76,6 +76,17 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#5567D5",
             padding: "5px",
             textTransform: "none"
+        },
+        iconButton: {
+            padding: '8px',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            }
+        },
+        editIcon: {
+            height: '15px',
+            width: '15px',
+            marginTop: '-7px'
         }
     }),
 );

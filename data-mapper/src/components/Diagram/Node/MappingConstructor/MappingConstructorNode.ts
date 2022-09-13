@@ -15,7 +15,6 @@ import {
     ExpressionFunctionBody,
     IdentifierToken,
     MappingConstructor,
-    NodePosition,
     SelectClause,
     SpecificField,
     STKindChecker,
@@ -116,7 +115,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     valueNode: otherVal || value,
                     context: this.context,
                     link: lm,
-                    specificField: specificField,
+                    specificField,
                     deleteLink: () => this.deleteLink(specificField),
                 }));
                 lm.setTargetPort(outPort);

@@ -26,24 +26,21 @@ export interface PrimitiveTypedEditableArrayElementWidgetProps {
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     fieldIndex?: number;
-    treeDepth?: number;
 }
 
 export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEditableArrayElementWidgetProps) {
-    const { parentId, field, getPort, engine, fieldIndex, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, fieldIndex } = props;
     const classes = useStyles();
 
-    const value = field?.value.source;
+    const value = field?.value.source.trim();
     const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}.${value}`
+        ? `${parentId}.${fieldIndex}`
         : `${parentId}.${value}`;
     const portIn = getPort(`${fieldId}.IN`);
 
-    const indentation = !!field.elements ? 0 : ((treeDepth + 1) * 16) + 8;
-
     const label = (
         <span style={{marginRight: "auto"}}>
-            <span className={classes.valueLabel} style={{marginLeft: indentation}}>
+            <span className={classes.valueLabel}>
                 {value}
             </span>
         </span>
@@ -58,6 +55,14 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                     }
                 </span>
                 <span>{label}</span>
+                {/*<IconButton*/}
+                {/*    onClick={undefined}*/}
+                {/*    className={classes.iconButton}*/}
+                {/*>*/}
+                {/*    <div className={classes.editIcon}>*/}
+                {/*        <EditIcon />*/}
+                {/*    </div>*/}
+                {/*</IconButton>*/}
             </div>
         </>
     );

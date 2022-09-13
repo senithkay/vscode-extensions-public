@@ -98,9 +98,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 					this.addPortsForOutputRecordField(subField, type, fieldId, undefined, fieldAccessExpr, fieldPort);
 				});
 			}
-		} else if (field.type.typeName === PrimitiveBalType.Array
-			&& field.type.memberType.typeName === PrimitiveBalType.Record)
-		{
+		} else if (field.type.typeName === PrimitiveBalType.Array) {
 			const elements: ArrayElement[] = field?.elements;
 			if (elements && !!elements.length) {
 				elements.forEach((element, index) => {
