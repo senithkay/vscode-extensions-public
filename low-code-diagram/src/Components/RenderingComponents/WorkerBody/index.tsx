@@ -106,7 +106,7 @@ export function WorkerBody(props: DiagramProps) {
     // if (viewState?.collapseView) {
     //     children.push(<Collapse blockViewState={viewState} />)
     // }
-    if (viewState.collapsedRanges.length > 0) {
+    if (viewState.collapsedViewStates.length > 0) {
         // TODO: handle collapse ranges rendering
     }
 

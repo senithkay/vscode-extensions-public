@@ -1,4 +1,4 @@
-import { RemoteMethodCallAction, STKindChecker, STNode, traversNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, RemoteMethodCallAction, STKindChecker, STNode, traversNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
 
 import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
 import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
@@ -16,6 +16,32 @@ export function isSTActionInvocation(node: STNode): RemoteMethodCallAction {
     const actionFinder: ActionInvocationFinder = new ActionInvocationFinder();
     traversNode(node, actionFinder);
     return actionFinder.getIsAction();
+}
+
+
+export function isNodeWithinRange(nodePosition: NodePosition, range: NodePosition): boolean {
+    if (nodePosition.startLine > range.startLine
+        && nodePosition.endLine < range.endLine) {
+        return true;
+    }
+
+    // TODO: Check if we can simplify this more
+    if (nodePosition.startLine === range.startLine
+        && nodePosition.startColumn >= range.startColumn) {
+
+        if (nodePosition.endLine < range.endLine) {
+            return true;
+        }
+
+        if (nodePosition.endLine === range.endLine && nodePosition.endColumn <= range.endColumn) {
+            return true;
+        }
+    }
+
+    if (nodePosition.startLine === range.endLine && nodePosition.endColumn <= range.endColumn) {
+        return true;
+    }
+    return false;
 }
 
 export function isEndpointNode(node: STNode): boolean {
@@ -112,7 +138,7 @@ export function getHighestHeight(offSet: number, actions: StatementViewState[], 
     actions.forEach((action) => {
         const isFirstAction = firstAction.action.trigger.cx === action.action.trigger.cx && firstAction.action.trigger.cy === action.action.trigger.cy;
         if ((offSetValue && offSetValue > 0) && !isFirstAction) {
-            const current  = offSetValue + action.action.trigger.cy;
+            const current = offSetValue + action.action.trigger.cy;
             if (current > maxValue) {
                 maxValue = current;
             }

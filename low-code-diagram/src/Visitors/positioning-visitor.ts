@@ -569,6 +569,8 @@ export class PositioningVisitor implements Visitor {
             statementViewState.bBox.cx = blockViewState.bBox.cx;
             statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
 
+            
+
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
             if (blockViewState.draft && blockViewState.draft[0] === index) {

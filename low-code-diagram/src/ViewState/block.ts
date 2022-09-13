@@ -30,7 +30,7 @@ export class BlockViewState extends ViewState {
     public collapsedFrom: number = 0; // TODO: Remove this property
 
 
-    public collapsedRanges: CollapseViewState[] = [];
+    public collapsedViewStates: CollapseViewState[] = [];
     public isEndComponentAvailable = false;
     public isEndComponentInMain = false;
     public draft: [number, DraftStatementViewState] = undefined;

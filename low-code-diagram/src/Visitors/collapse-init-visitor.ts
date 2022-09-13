@@ -2,7 +2,9 @@ import {
     BlockStatement, FunctionBodyBlock, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-import { StatementViewState } from "../ViewState";
+import { BlockViewState, CollapseViewState, StatementViewState } from "../ViewState";
+
+import { isNodeWithinRange } from "./util";
 
 export class CollapseInitVisitor implements Visitor {
     private position: NodePosition;
@@ -27,26 +29,52 @@ export class CollapseInitVisitor implements Visitor {
     }
 
     beginVisitBlock(node: BlockStatement) {
-        node.statements.forEach(statement => {
-            const viewState = statement.viewState as StatementViewState;
-            // debugger;
-            if (this.isNodeWithinPosition(statement)
-                && !this.isSkippedConstruct(statement)
-                && !(viewState.isAction || viewState.isEndpoint)) {
-                viewState.collapsed = true;
+        const blockViewState = node.viewState as BlockViewState;
+        if (node.statements.length > 0) {
+            let range: NodePosition = {
+                startLine: node.statements[0].position.startLine,
+                endLine: node.statements[0].position.startLine,
+                startColumn: node.statements[0].position.startColumn,
+                endColumn: node.statements[0].position.endColumn
             }
-        })
-    }
 
-    private isNodeWithinPosition(node: STNode): boolean {
-        const nodePosition: NodePosition = node.position as NodePosition;
-        if (nodePosition.startLine > this.position.startLine
-            && nodePosition.endLine < this.position.endLine) {
-            return true;
+            node.statements.forEach((statement, statementIndex) => {
+                const statementVS = statement.viewState as StatementViewState;
+                if (!this.isSkippedConstruct(statement) && isNodeWithinRange(statement.position, this.position)) {
+                    if (!(statementVS.isAction || statementVS.isEndpoint)) {
+                        statementVS.collapsed = true;
+                        range.endLine = statement.position.endLine;
+                        range.endColumn = statement.position.endColumn;
+                        if (statementIndex === node.statements.length - 1) {
+                            const collapseVS = new CollapseViewState();
+                            collapseVS.range = { ...range };
+                            blockViewState.collapsedViewStates.push(collapseVS);
+                        }
+                    } else {
+                        if (!(range.startLine === statement.position.startLine
+                            && range.endLine === statement.position.endLine
+                            && range.startColumn === statement.position.startColumn
+                            && range.endColumn === statement.position.endColumn)) {
+
+                            const collapseVS = new CollapseViewState();
+                            collapseVS.range = { ...range };
+                            blockViewState.collapsedViewStates.push(collapseVS);
+                        }
+
+                        if (statementIndex !== node.statements.length - 1) {
+                            range = {
+                                startLine: node.statements[statementIndex + 1].position.startLine,
+                                endLine: node.statements[statementIndex + 1].position.endLine,
+                                startColumn: node.statements[statementIndex + 1].position.startColumn,
+                                endColumn: node.statements[statementIndex + 1].position.endColumn,
+                            }
+                        }
+                    }
+                }
+            });
         }
 
-        // todo: handle other scenarios 
-        return false;
+        debugger;
     }
 
     private isSkippedConstruct(node: STNode): boolean {

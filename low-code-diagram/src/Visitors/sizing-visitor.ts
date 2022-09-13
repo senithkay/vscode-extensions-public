@@ -39,6 +39,7 @@ import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/
 import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../Components/RenderingComponents/ActionInvocation/TriggerSVG";
 import { ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/Assignment";
 import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../Components/RenderingComponents/Collapse/CollapseSVG";
+import { COLLAPSED_BLOCK_HEIGHT, COLLAPSED_BLOCK_WIDTH } from "../Components/RenderingComponents/Collapse_new";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/ConditionAssignment";
 import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
 import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
@@ -61,7 +62,7 @@ import { getNodeSignature, initializeViewState, isVarTypeDescriptor, recalculate
 import expandTracker from "../Utils/expand-tracker";
 import {
     BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, EndViewState,
-    ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, StatementViewState, ViewState
+    ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, SimpleBBox, StatementViewState, ViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
@@ -71,7 +72,7 @@ import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { ConflictResolutionVisitor } from "./conflict-resolution-visitor";
 import { DefaultConfig } from "./default";
-import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
+import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isNodeWithinRange, isSTActionInvocation } from "./util";
 
 export interface AsyncSendInfo {
     to: string;
@@ -1499,249 +1500,266 @@ export class SizingVisitor implements Visitor {
         }
     }
 
-    private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState, height: number, width: number, lastStatementIndex: any, leftWidth: number, rightWidth: number) {
-        const startIndex = index;
-        statements.forEach((statement) => {
-            const stmtViewState: StatementViewState = statement.viewState;
-            const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
+    private seperateWorkerStatements(statement: STNode, index: number, startIndex: number) {
 
-            // identify sends, recieves, and waits and put them into a map
-            if (STKindChecker.isActionStatement(statement)) {
-                if (statement.expression.kind === 'AsyncSendAction') {
-                    const sendExpression: any = statement.expression;
-                    const targetName: string = sendExpression.peerWorker?.name?.value as string;
-                    this.addToSendReceiveMap('Send', {
-                        to: targetName, node: statement, paired: false, index: (index - startIndex)
-                    });
-                } else if (STKindChecker.isWaitAction(statement.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                } else if (STKindChecker.isCheckAction(statement.expression)
-                    && STKindChecker.isWaitAction(statement.expression.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                }
-            } else if (STKindChecker.isLocalVarDecl(statement) && statement.initializer) {
-                if (statement.initializer?.kind === 'ReceiveAction') {
-                    const receiverExpression: any = statement.initializer;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index - startIndex) });
-                } else if (STKindChecker.isCheckAction(statement.initializer)
-                    && (statement.initializer.expression.kind === 'ReceiveAction')) {
-                    const receiverExpression: any = statement.initializer.expression;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index - startIndex) });
-                } else if (STKindChecker.isWaitAction(statement.initializer)
-                    && STKindChecker.isSimpleNameReference(statement.initializer.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.initializer.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                } else if (STKindChecker.isCheckAction(statement.initializer)
-                    && STKindChecker.isWaitAction(statement.initializer.expression)
-                    && STKindChecker.isSimpleNameReference(statement.initializer.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.initializer.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                }
-            } else if (STKindChecker.isAssignmentStatement(statement)) {
-                if (statement.expression?.kind === 'ReceiveAction') {
-                    const receiverExpression: any = statement.expression;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index - startIndex) });
-                } else if (STKindChecker.isCheckAction(statement.expression)
-                    && (statement.expression.expression.kind === 'ReceiveAction')) {
-                    const receiverExpression: any = statement.expression.expression;
-                    const senderName: string = receiverExpression.receiveWorkers?.name?.value;
-
-                    this.addToSendReceiveMap('Receive',
-                        { from: senderName, node: statement, paired: false, index: (index) });
-                } else if (STKindChecker.isWaitAction(statement.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                } else if (STKindChecker.isCheckAction(statement.expression)
-                    && STKindChecker.isWaitAction(statement.expression.expression)
-                    && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
-                    this.addToSendReceiveMap('Wait', {
-                        for: statement.expression.expression.waitFutureExpr.name.value,
-                        node: statement,
-                        index: (index - startIndex)
-                    });
-                }
-            } else if (STKindChecker.isReturnStatement(statement) && statement.expression
-                && STKindChecker.isWaitAction(statement.expression) && statement.expression.waitFutureExpr
+        if (STKindChecker.isActionStatement(statement)) {
+            if (statement.expression.kind === 'AsyncSendAction') {
+                const sendExpression: any = statement.expression;
+                const targetName: string = sendExpression.peerWorker?.name?.value as string;
+                this.addToSendReceiveMap('Send', {
+                    to: targetName, node: statement, paired: false, index: (index - startIndex)
+                });
+            } else if (STKindChecker.isWaitAction(statement.expression)
                 && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
                 this.addToSendReceiveMap('Wait', {
                     for: statement.expression.waitFutureExpr.name.value,
                     node: statement,
                     index: (index - startIndex)
                 });
+            } else if (STKindChecker.isCheckAction(statement.expression)
+                && STKindChecker.isWaitAction(statement.expression.expression)
+                && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
+                this.addToSendReceiveMap('Wait', {
+                    for: statement.expression.expression.waitFutureExpr.name.value,
+                    node: statement,
+                    index: (index - startIndex)
+                });
+            }
+        } else if (STKindChecker.isLocalVarDecl(statement) && statement.initializer) {
+            if (statement.initializer?.kind === 'ReceiveAction') {
+                const receiverExpression: any = statement.initializer;
+                const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                this.addToSendReceiveMap('Receive',
+                    { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+            } else if (STKindChecker.isCheckAction(statement.initializer)
+                && (statement.initializer.expression.kind === 'ReceiveAction')) {
+                const receiverExpression: any = statement.initializer.expression;
+                const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
+                this.addToSendReceiveMap('Receive',
+                    { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+            } else if (STKindChecker.isWaitAction(statement.initializer)
+                && STKindChecker.isSimpleNameReference(statement.initializer.waitFutureExpr)) {
+                this.addToSendReceiveMap('Wait', {
+                    for: statement.initializer.waitFutureExpr.name.value,
+                    node: statement,
+                    index: (index - startIndex)
+                });
+            } else if (STKindChecker.isCheckAction(statement.initializer)
+                && STKindChecker.isWaitAction(statement.initializer.expression)
+                && STKindChecker.isSimpleNameReference(statement.initializer.expression.waitFutureExpr)) {
+                this.addToSendReceiveMap('Wait', {
+                    for: statement.initializer.expression.waitFutureExpr.name.value,
+                    node: statement,
+                    index: (index - startIndex)
+                });
+            }
+        } else if (STKindChecker.isAssignmentStatement(statement)) {
+            if (statement.expression?.kind === 'ReceiveAction') {
+                const receiverExpression: any = statement.expression;
+                const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+                this.addToSendReceiveMap('Receive',
+                    { from: senderName, node: statement, paired: false, index: (index - startIndex) });
+            } else if (STKindChecker.isCheckAction(statement.expression)
+                && (statement.expression.expression.kind === 'ReceiveAction')) {
+                const receiverExpression: any = statement.expression.expression;
+                const senderName: string = receiverExpression.receiveWorkers?.name?.value;
+
+                this.addToSendReceiveMap('Receive',
+                    { from: senderName, node: statement, paired: false, index: (index) });
+            } else if (STKindChecker.isWaitAction(statement.expression)
+                && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+                this.addToSendReceiveMap('Wait', {
+                    for: statement.expression.waitFutureExpr.name.value,
+                    node: statement,
+                    index: (index - startIndex)
+                });
+            } else if (STKindChecker.isCheckAction(statement.expression)
+                && STKindChecker.isWaitAction(statement.expression.expression)
+                && STKindChecker.isSimpleNameReference(statement.expression.expression.waitFutureExpr)) {
+                this.addToSendReceiveMap('Wait', {
+                    for: statement.expression.expression.waitFutureExpr.name.value,
+                    node: statement,
+                    index: (index - startIndex)
+                });
+            }
+        } else if (STKindChecker.isReturnStatement(statement) && statement.expression
+            && STKindChecker.isWaitAction(statement.expression) && statement.expression.waitFutureExpr
+            && STKindChecker.isSimpleNameReference(statement.expression.waitFutureExpr)) {
+            this.addToSendReceiveMap('Wait', {
+                for: statement.expression.waitFutureExpr.name.value,
+                node: statement,
+                index: (index - startIndex)
+            });
+        }
+    }
+
+    private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState, height: number, width: number, lastStatementIndex: any, leftWidth: number, rightWidth: number) {
+        const startIndex = index;
+        console.log('blockviewstate >>> ', blockViewState.collapsedViewStates);
+        statements.forEach((statement) => {
+            const stmtViewState: StatementViewState = statement.viewState;
+            const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
+
+            // identify sends, recieves, and waits and put them into a map
+            this.seperateWorkerStatements(statement, index, startIndex);
+
+            if (blockViewState.collapsedViewStates.length > 0) {
+                blockViewState.collapsedViewStates.forEach(collapseViewState => {
+                    if (!collapseViewState.bBox && isNodeWithinRange(statement.position, collapseViewState.range)) {
+                        console.log('statement >>>', '')
+                        collapseViewState.bBox = new SimpleBBox();
+                        collapseViewState.bBox.lw = COLLAPSED_BLOCK_WIDTH / 2;
+                        collapseViewState.bBox.rw = COLLAPSED_BLOCK_WIDTH / 2;
+                        collapseViewState.bBox.h = COLLAPSED_BLOCK_HEIGHT;
+
+                        height += collapseViewState.getHeight();
+                    }
+                })
             }
 
-            if (blockViewState.collapsedRanges.length === 0) {
-                // This captures the collapsed statement
-                if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
-                    // This captures the collapse button click
-                    if (plusForIndex && plusForIndex.collapsedClicked) {
-                        const collapsedView = blockViewState.collapseView;
-                        collapsedView.bBox.h = collapsedView.bBox.offsetFromTop + COLLAPSE_SVG_HEIGHT_WITH_SHADOW
-                            + collapsedView.bBox.offsetFromBottom;
-                        collapsedView.bBox.w = COLLAPSE_SVG_WIDTH_WITH_SHADOW;
-                        collapsedView.bBox.lw = COLLAPSE_SVG_WIDTH_WITH_SHADOW / 2;
-                        collapsedView.bBox.rw = COLLAPSE_SVG_WIDTH_WITH_SHADOW / 2;
+            // This captures the collapsed statement
+            if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {
+                // This captures the collapse button click
+                if (plusForIndex && plusForIndex.collapsedClicked) {
+                    const collapsedView = blockViewState.collapseView;
+                    collapsedView.bBox.h = collapsedView.bBox.offsetFromTop + COLLAPSE_SVG_HEIGHT_WITH_SHADOW
+                        + collapsedView.bBox.offsetFromBottom;
+                    collapsedView.bBox.w = COLLAPSE_SVG_WIDTH_WITH_SHADOW;
+                    collapsedView.bBox.lw = COLLAPSE_SVG_WIDTH_WITH_SHADOW / 2;
+                    collapsedView.bBox.rw = COLLAPSE_SVG_WIDTH_WITH_SHADOW / 2;
 
-                        height += collapsedView.bBox.h;
-                        if (width < collapsedView.bBox.w) {
-                            width = collapsedView.bBox.w;
-                        }
-                        if (leftWidth < collapsedView.bBox.lw) {
-                            leftWidth = collapsedView.bBox.lw;
-                        }
-                        if (rightWidth < collapsedView.bBox.rw) {
-                            rightWidth = collapsedView.bBox.rw;
-                        }
+                    height += collapsedView.bBox.h;
+                    if (width < collapsedView.bBox.w) {
+                        width = collapsedView.bBox.w;
+                    }
+                    if (leftWidth < collapsedView.bBox.lw) {
+                        leftWidth = collapsedView.bBox.lw;
+                    }
+                    if (rightWidth < collapsedView.bBox.rw) {
+                        rightWidth = collapsedView.bBox.rw;
+                    }
 
-                        blockViewState.collapseView = collapsedView;
+                    blockViewState.collapseView = collapsedView;
 
-                        // to make the next plus invisible if the current statement is not the last statement
-                        for (const invisiblePlusIndex of blockViewState.plusButtons) {
-                            if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== lastStatementIndex) {
-                                invisiblePlusIndex.visible = false;
-                            }
-                        }
-                        plusForIndex.collapsedClicked = false;
-                    } else {
-                        height += blockViewState.collapseView.bBox.h;
-                        // updates the width if the block collapse view width the higher
-                        if (width < blockViewState.collapseView.bBox.w) {
-                            width = blockViewState.collapseView.bBox.w;
-                        }
-                        if (leftWidth < blockViewState.collapseView.bBox.lw) {
-                            leftWidth = blockViewState.collapseView.bBox.lw;
-                        }
-                        if (rightWidth < blockViewState.collapseView.bBox.rw) {
-                            rightWidth = blockViewState.collapseView.bBox.rw;
-                        }
-                        // Adding the height and width for collapsed duo click in a collapsed scenario
-                        if (plusForIndex && !plusForIndex.collapsedClicked) {
-                            if (plusForIndex && plusForIndex.draftAdded) {
-                                const draft: DraftStatementViewState = new DraftStatementViewState();
-                                draft.type = plusForIndex.draftAdded;
-                                draft.subType = plusForIndex.draftSubType;
-                                draft.connector = plusForIndex.draftConnector;
-                                draft.selectedConnector = plusForIndex.draftSelectedConnector;
-
-                                draft.targetPosition = {
-                                    startLine: statement.position.startLine,
-                                    startColumn: statement.position.startColumn
-                                };
-                                blockViewState.draft = [index, draft];
-                                plusForIndex.draftAdded = undefined;
-                            } else if (plusForIndex?.collapsedPlusDuoExpanded) {
-                                height += PLUS_SVG_HEIGHT;
-                                if (width < PLUS_SVG_WIDTH) {
-                                    width = PLUS_SVG_WIDTH;
-                                }
-                                if (leftWidth < (PLUS_SVG_WIDTH / 2)) {
-                                    leftWidth = (PLUS_SVG_WIDTH / 2);
-                                }
-                                if (rightWidth < (PLUS_SVG_WIDTH / 2)) {
-                                    rightWidth = (PLUS_SVG_WIDTH / 2);
-                                }
-                            }
+                    // to make the next plus invisible if the current statement is not the last statement
+                    for (const invisiblePlusIndex of blockViewState.plusButtons) {
+                        if (invisiblePlusIndex.index > index && invisiblePlusIndex.index !== lastStatementIndex) {
+                            invisiblePlusIndex.visible = false;
                         }
                     }
-                    // To handle collapses above the current statement where it has a collapse view
-                } else if (blockViewState.collapsedFrom < index && blockViewState.collapseView) {
-                    // TODO: revisit this logic as this might not be needed and it might be wrong.
-                    // Adding the height and width for collapsed duo click in a collapsed scenario
-                    if (plusForIndex && !plusForIndex.collapsedClicked && plusForIndex?.collapsedPlusDuoExpanded) {
-                        height += PLUS_SVG_HEIGHT;
-                        if (width < PLUS_SVG_WIDTH) {
-                            width = PLUS_SVG_WIDTH;
-                        }
-                        if (leftWidth < PLUS_SVG_WIDTH / 2) {
-                            leftWidth = PLUS_SVG_WIDTH / 2;
-                        }
-                        if (rightWidth < PLUS_SVG_WIDTH / 2) {
-                            rightWidth = PLUS_SVG_WIDTH / 2;
-                        }
-                    }
+                    plusForIndex.collapsedClicked = false;
                 } else {
-                    if (plusForIndex && plusForIndex.draftAdded) {
-                        const draft: DraftStatementViewState = new DraftStatementViewState();
-                        draft.type = plusForIndex.draftAdded;
-                        draft.subType = plusForIndex.draftSubType;
-                        draft.connector = plusForIndex.draftConnector;
-                        draft.selectedConnector = plusForIndex.draftSelectedConnector;
+                    height += blockViewState.collapseView.bBox.h;
+                    // updates the width if the block collapse view width the higher
+                    if (width < blockViewState.collapseView.bBox.w) {
+                        width = blockViewState.collapseView.bBox.w;
+                    }
+                    if (leftWidth < blockViewState.collapseView.bBox.lw) {
+                        leftWidth = blockViewState.collapseView.bBox.lw;
+                    }
+                    if (rightWidth < blockViewState.collapseView.bBox.rw) {
+                        rightWidth = blockViewState.collapseView.bBox.rw;
+                    }
+                    // Adding the height and width for collapsed duo click in a collapsed scenario
+                    if (plusForIndex && !plusForIndex.collapsedClicked) {
+                        if (plusForIndex && plusForIndex.draftAdded) {
+                            const draft: DraftStatementViewState = new DraftStatementViewState();
+                            draft.type = plusForIndex.draftAdded;
+                            draft.subType = plusForIndex.draftSubType;
+                            draft.connector = plusForIndex.draftConnector;
+                            draft.selectedConnector = plusForIndex.draftSelectedConnector;
 
-                        draft.targetPosition = {
-                            startLine: statement.position.startLine,
-                            startColumn: statement.position.startColumn
-                        };
-                        blockViewState.draft = [index, draft];
-                        plusForIndex.draftAdded = undefined;
-                    } else if (plusForIndex && plusForIndex.collapsedPlusDuoExpanded) {
-                        height += PLUS_SVG_HEIGHT;
-                        if (width < PLUS_SVG_WIDTH) {
-                            width = PLUS_SVG_WIDTH;
+                            draft.targetPosition = {
+                                startLine: statement.position.startLine,
+                                startColumn: statement.position.startColumn
+                            };
+                            blockViewState.draft = [index, draft];
+                            plusForIndex.draftAdded = undefined;
+                        } else if (plusForIndex?.collapsedPlusDuoExpanded) {
+                            height += PLUS_SVG_HEIGHT;
+                            if (width < PLUS_SVG_WIDTH) {
+                                width = PLUS_SVG_WIDTH;
+                            }
+                            if (leftWidth < (PLUS_SVG_WIDTH / 2)) {
+                                leftWidth = (PLUS_SVG_WIDTH / 2);
+                            }
+                            if (rightWidth < (PLUS_SVG_WIDTH / 2)) {
+                                rightWidth = (PLUS_SVG_WIDTH / 2);
+                            }
                         }
-                        if (leftWidth < PLUS_SVG_WIDTH / 2) {
-                            leftWidth = PLUS_SVG_WIDTH / 2;
-                        }
-                        if (rightWidth < PLUS_SVG_WIDTH / 2) {
-                            rightWidth = PLUS_SVG_WIDTH / 2;
-                        }
-                    } else if (!plusForIndex && !stmtViewState.hidden) {
-                        const plusBtnViewState: PlusViewState = new PlusViewState();
-                        plusBtnViewState.index = index;
-                        plusBtnViewState.expanded = false;
-                        blockViewState.plusButtons.push(plusBtnViewState);
                     }
-
-                    if ((stmtViewState.isEndpoint && stmtViewState.isAction && !stmtViewState.hidden) ||
-                        (!stmtViewState.collapsed)) {
-                        // Excluding return statement heights which is in the main function block
-                        if (!(blockViewState.isEndComponentInMain && (index === lastStatementIndex - 1))) {
-                            height += stmtViewState.getHeight();
-                        }
+                }
+                // To handle collapses above the current statement where it has a collapse view
+            } else if (blockViewState.collapsedFrom < index && blockViewState.collapseView) {
+                // TODO: revisit this logic as this might not be needed and it might be wrong.
+                // Adding the height and width for collapsed duo click in a collapsed scenario
+                if (plusForIndex && !plusForIndex.collapsedClicked && plusForIndex?.collapsedPlusDuoExpanded) {
+                    height += PLUS_SVG_HEIGHT;
+                    if (width < PLUS_SVG_WIDTH) {
+                        width = PLUS_SVG_WIDTH;
                     }
-
-                    if ((width < stmtViewState.bBox.w) && !stmtViewState.collapsed) {
-                        width = stmtViewState.bBox.w;
+                    if (leftWidth < PLUS_SVG_WIDTH / 2) {
+                        leftWidth = PLUS_SVG_WIDTH / 2;
                     }
-
-                    if ((leftWidth < stmtViewState.bBox.lw) && !stmtViewState.collapsed) {
-                        leftWidth = stmtViewState.bBox.lw;
+                    if (rightWidth < PLUS_SVG_WIDTH / 2) {
+                        rightWidth = PLUS_SVG_WIDTH / 2;
                     }
-
-                    if ((rightWidth < stmtViewState.bBox.rw) && !stmtViewState.collapsed) {
-                        rightWidth = stmtViewState.bBox.rw;
-                    }
-
                 }
             } else {
-                
+                if (plusForIndex && plusForIndex.draftAdded) {
+                    const draft: DraftStatementViewState = new DraftStatementViewState();
+                    draft.type = plusForIndex.draftAdded;
+                    draft.subType = plusForIndex.draftSubType;
+                    draft.connector = plusForIndex.draftConnector;
+                    draft.selectedConnector = plusForIndex.draftSelectedConnector;
+
+                    draft.targetPosition = {
+                        startLine: statement.position.startLine,
+                        startColumn: statement.position.startColumn
+                    };
+                    blockViewState.draft = [index, draft];
+                    plusForIndex.draftAdded = undefined;
+                } else if (plusForIndex && plusForIndex.collapsedPlusDuoExpanded) {
+                    height += PLUS_SVG_HEIGHT;
+                    if (width < PLUS_SVG_WIDTH) {
+                        width = PLUS_SVG_WIDTH;
+                    }
+                    if (leftWidth < PLUS_SVG_WIDTH / 2) {
+                        leftWidth = PLUS_SVG_WIDTH / 2;
+                    }
+                    if (rightWidth < PLUS_SVG_WIDTH / 2) {
+                        rightWidth = PLUS_SVG_WIDTH / 2;
+                    }
+                } else if (!plusForIndex && !stmtViewState.hidden) {
+                    const plusBtnViewState: PlusViewState = new PlusViewState();
+                    plusBtnViewState.index = index;
+                    plusBtnViewState.expanded = false;
+                    blockViewState.plusButtons.push(plusBtnViewState);
+                }
+
+                if ((stmtViewState.isEndpoint && stmtViewState.isAction && !stmtViewState.hidden) ||
+                    (!stmtViewState.collapsed)) {
+                    // Excluding return statement heights which is in the main function block
+                    if (!(blockViewState.isEndComponentInMain && (index === lastStatementIndex - 1))) {
+                        height += stmtViewState.getHeight();
+                    }
+                }
+
+                if ((width < stmtViewState.bBox.w) && !stmtViewState.collapsed) {
+                    width = stmtViewState.bBox.w;
+                }
+
+                if ((leftWidth < stmtViewState.bBox.lw) && !stmtViewState.collapsed) {
+                    leftWidth = stmtViewState.bBox.lw;
+                }
+
+                if ((rightWidth < stmtViewState.bBox.rw) && !stmtViewState.collapsed) {
+                    rightWidth = stmtViewState.bBox.rw;
+                }
+
             }
+
 
             if (blockViewState.draft && blockViewState.draft[0] === index) {
                 // Get the draft.

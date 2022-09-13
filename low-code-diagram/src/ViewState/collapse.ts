@@ -15,7 +15,8 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { ViewState } from "./view-state";
 
 export class CollapseViewState extends ViewState {
-    public collapsed: boolean = false;
+    public collapsed: boolean = true;
+    public initializedPosition: boolean = false;
     // public index: number;
     // public cx: number;
     // public cy: number;
@@ -24,5 +25,6 @@ export class CollapseViewState extends ViewState {
     public range: NodePosition;
     constructor() {
         super();
+        this.bBox = undefined;
     }
 }
