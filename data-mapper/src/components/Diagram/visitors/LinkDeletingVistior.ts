@@ -11,6 +11,7 @@
  * associated services.
  */
 import {
+    BinaryExpression,
     ListConstructor,
     MappingConstructor,
     NodePosition,
@@ -20,7 +21,7 @@ import {
     Visitor,
 } from "@wso2-enterprise/syntax-tree";
 import { isPositionsEquals } from "../../../utils/st-utils";
-const { isSpecificField, isMappingConstructor, isCommaToken } = STKindChecker;
+const { isSpecificField, isMappingConstructor, isCommaToken, isFieldAccess } = STKindChecker;
 
 export class LinkDeletingVisitor implements Visitor {
     /** NodePosition of the specific field or mapping construct that needs to be removed */
@@ -49,6 +50,31 @@ export class LinkDeletingVisitor implements Visitor {
         for (const item of node.expressions) {
             if (isMappingConstructor(item)) {
                 this.findDeletePosition(item, true);
+            }
+        }
+    }
+
+    public beginVisitBinaryExpression(node: BinaryExpression): void {
+        if (this.deletePosition === null) {
+            // LHS could be another binary expression or field access node
+            // RHS is always field access node
+    
+            if (node.lhsExpr && isFieldAccess(node.lhsExpr) && isPositionsEquals(this.fieldPosition, node.lhsExpr.position)) {
+                // If LHS is a field access node to be deleted
+                // Then also delete the operator right to it
+                this.deletePosition = {
+                    ...node.lhsExpr.position,
+                    endLine: node.operator.position?.endLine,
+                    endColumn: node.operator.position?.endColumn,
+                }
+            }else if(node.rhsExpr && isFieldAccess(node.rhsExpr) && isPositionsEquals(this.fieldPosition, node.rhsExpr.position)){
+                // If RHS is a field access node to be deleted
+                // Then also delete the operator left to it
+                this.deletePosition = {
+                    ...node.rhsExpr.position,
+                    startLine: node.operator.position?.startLine,
+                    startColumn: node.operator.position?.startColumn,
+                }
             }
         }
     }

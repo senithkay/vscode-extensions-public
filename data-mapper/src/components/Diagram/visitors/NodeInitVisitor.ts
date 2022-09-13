@@ -13,15 +13,15 @@ import {
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { SelectionState } from "../../DataMapper/DataMapper";
 import {
-    ExpressionFunctionBodyNode,
     QueryExpressionNode,
     RequiredParamNode
 } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
-import { SelectClauseNode } from "../Node/SelectClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
+import { MappingConstructorNode } from "../Node/MappingConstructor";
+
 import { FieldAccessFindingVisitor } from "./FieldAccessFindingVisitor";
 
 const draftFunctionName = 'XChoreoLCReturnType';
@@ -31,7 +31,7 @@ export class NodeInitVisitor implements Visitor {
     private inputNodes: DataMapperNodeModel[] = [];
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
-    private specificFields: SpecificField[] =[];
+    private specificFields: SpecificField[] = [];
     private isWithinQuery: number = 0;
 
     constructor(
@@ -42,12 +42,12 @@ export class NodeInitVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode){
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
         if (typeDesc) {
-            this.outputNode = new ExpressionFunctionBodyNode(
+            this.outputNode = new MappingConstructorNode(
                 this.context,
                 node.functionBody as ExpressionFunctionBody,
                 typeDesc
             );
-            this.outputNode.setPosition(1000, 100);    
+            this.outputNode.setPosition(1000, 100);
         }
         // create input nodes
         const params = node.functionSignature.parameters;
@@ -73,31 +73,35 @@ export class NodeInitVisitor implements Visitor {
     };
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
-        // TODO: Implement a way to identify the selectedST without using the positions since positions might change with imports, etc.
-        if (node.position.startLine === this.selection.selectedST.position.startLine
-            && node.position.startColumn === this.selection.selectedST.position.startColumn)
+        // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
+        if (STKindChecker.isSpecificField(this.selection.selectedST)
+            && node.position.startLine === this.selection.selectedST.valueExpr.position.startLine
+            && node.position.startColumn === this.selection.selectedST.valueExpr.position.startColumn)
         {
-            const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 30
-            const yPosition = 120 + intermediateClausesHeight
-            // create output node
-            this.outputNode = new SelectClauseNode(
-                this.context,
-                node.selectClause
-            );
+            if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
+                const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 30;
+                const yPosition = 120 + intermediateClausesHeight;
+                // create output node
+                this.outputNode = new MappingConstructorNode(
+                    this.context,
+                    node.selectClause,
+                    parent.fieldName
+                );
 
-            this.outputNode.setPosition(1000, yPosition);
-            
-            // create input nodes
-            const fromClauseNode = new FromClauseNode(
-                this.context,
-                node.queryPipeline.fromClause
-            );
-            fromClauseNode.setPosition(100, yPosition);
-            this.inputNodes.push(fromClauseNode);
+                this.outputNode.setPosition(1000, yPosition);
 
-            const queryNode = new ExpandedMappingHeaderNode(this.context, node);
-            queryNode.setPosition(385, 10);
-            this.intermediateNodes.push(queryNode);
+                // create input nodes
+                const fromClauseNode = new FromClauseNode(
+                    this.context,
+                    node.queryPipeline.fromClause
+                );
+                fromClauseNode.setPosition(100, yPosition);
+                this.inputNodes.push(fromClauseNode);
+
+                const queryNode = new ExpandedMappingHeaderNode(this.context, node);
+                queryNode.setPosition(385, 10);
+                this.intermediateNodes.push(queryNode);
+            }
         } else {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
             queryNode.setPosition(440, 1200);
@@ -118,7 +122,7 @@ export class NodeInitVisitor implements Visitor {
             const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
             if (fieldAccesseNodes.length > 1){
                 const linkConnectorNode = new LinkConnectorNode(this.context, node, parent, fieldAccesseNodes, this.specificFields.slice(0));
-                linkConnectorNode.setPosition(440,1200);
+                linkConnectorNode.setPosition(440, 1200);
                 this.intermediateNodes.push(linkConnectorNode);
             }
         }

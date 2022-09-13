@@ -15,19 +15,15 @@ import * as React from 'react';
 
 import { IconButton } from "@material-ui/core";
 import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
+import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import ExpandIcon from "../../../../assets/icons/ExpandIcon";
 import { ViewOption } from "../../../DataMapper/DataMapper";
-import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from '../../Port';
-import { MappingConstructorWidget } from '../commons/MappingConstructorWidget/MappingConstructorWidget';
-import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
+import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 
 import {
     QueryExpressionNode,
-    QUERY_SOURCE_PORT_PREFIX,
-    QUERY_TARGET_PORT_PREFIX
 } from './QueryExpressionNode';
 
 const styles = (theme: Theme) => createStyles({
@@ -53,6 +49,7 @@ const styles = (theme: Theme) => createStyles({
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
+        alignItems: "center"
     },
     icons: {
         padding: '8px',
@@ -66,37 +63,43 @@ const styles = (theme: Theme) => createStyles({
         marginTop: '-7px'
     },
     buttonWrapper: {
+        display: 'flex',
         border: '1px solid #e6e7ec',
         borderRadius: '8px',
         right: "35px"
     }
 });
 
-export interface QueryExpressionNodeWidgetProps extends WithStyles<typeof styles> {
+export interface QueryExprAsSFVNodeWidgetProps extends WithStyles<typeof styles> {
     node: QueryExpressionNode;
     engine: DiagramEngine;
 }
 
-class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidgetProps> {
+class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidgetProps> {
     render() {
         const node = this.props.node;
         const classes = this.props.classes;
         const engine = this.props.engine;
 
-        const getSourcePort = (portId: string) => {
-            return node.getPort(portId) as SpecificFieldPortModel | RecordFieldPortModel;
-        }
-
-        const getTargetPort = (portId: string) => {
-            return node.getPort(portId) as SpecificFieldPortModel | RecordFieldPortModel;
-        }
-
         const onClickOnExpand = () => {
             node.context.changeSelection(ViewOption.EXPAND,
                 {
                     ...node.context.selection,
-                    selectedST: node.value
+                    selectedST: node.parentNode
                 })
+        }
+
+        const deleteQueryLink = () => {
+            const modifications = [
+                {
+                    type: "INSERT",
+                    config: {
+                        "STATEMENT": this.props.node.value.queryPipeline.fromClause.expression.source?.trim(),
+                    },
+                    ...this.props.node.value.position
+                }
+            ];
+            node.context.applyModifications(modifications);
         }
 
         return (
@@ -120,6 +123,14 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
                                         <ExpandIcon/>
                                     </div>
                                 </IconButton>
+                                <IconButton
+                                    onClick={deleteQueryLink}
+                                    className={classes.icons}
+                                >
+                                    <div className={classes.expandIcon}>
+                                        <DeleteIcon />
+                                    </div>
+                                </IconButton>
                             </div>
                             <DataMapperPortWidget engine={engine} port={node.outPort}/>
                         </div>
@@ -130,4 +141,4 @@ class QueryExpressionNodeWidgetC extends React.Component<QueryExpressionNodeWidg
     }
 }
 
-export const QueryExpressionNodeWidget = withStyles(styles, {withTheme: true})(QueryExpressionNodeWidgetC);
+export const QueryExpressionNodeWidget = withStyles(styles, {withTheme: true})(QueryExprAsSFVNodeWidgetC);

@@ -10,10 +10,5 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
-export * from "./MappingConstructor";
-export * from "./RequiredParam";
-export * from "./BinaryExpression";
-export * from "./QueryExpression";
-export * from "./AddInputType";
-export * from "./AddOutputType";
+export * from "./MappingConstructorNodeFactory";
+export * from "./MappingConstructorNode";

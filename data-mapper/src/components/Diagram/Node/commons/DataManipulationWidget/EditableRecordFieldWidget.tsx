@@ -18,12 +18,12 @@ import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel, SpecificFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
+import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { createSourceForUserInput, getBalRecFieldName, getDefaultLiteralValue, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -32,7 +32,7 @@ export interface EditableRecordFieldWidgetProps {
     parentId: string;
     field: EditableRecordField;
     engine: DiagramEngine;
-    getPort: (portId: string) => SpecificFieldPortModel | RecordFieldPortModel;
+    getPort: (portId: string) => RecordFieldPortModel;
     mappingConstruct: MappingConstructor;
     context: IDataMapperContext;
     fieldIndex?: number;
@@ -49,7 +49,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
-    const hasValue = field.hasValue();
+    const hasValue = field.hasValue() && !!field.value.valueExpr.source;
     const isArray = field.type.typeName === 'array';
     const isRecord = field.type.typeName === 'record';
     const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
@@ -58,7 +58,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const connectedViaLink = useMemo(() => {
-        if (field?.value) {
+        if (hasValue) {
             return isConnectedViaLink(field?.value);
         }
         return false;
@@ -106,26 +106,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             setEditable(false);
         }
         if (key === "Enter") {
-            const [newSource, targetMappingConstruct] = getNewSource(field, mappingConstruct, str);
-            updateSource(newSource, targetMappingConstruct);
+            createSourceForUserInput(field, mappingConstruct, str, context.applyModifications);
         }
-    };
-
-    const updateSource = (newSource: string, targetMappingConstruct: MappingConstructor) => {
-        const targetPos = targetMappingConstruct.openBrace.position;
-        const modifications = [
-            {
-                type: "INSERT",
-                config: {
-                    "STATEMENT": `\n${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`,
-                },
-                endColumn: targetPos.endColumn,
-                endLine: targetPos.endLine,
-                startColumn: targetPos.endColumn,
-                startLine: targetPos.endLine
-            }
-        ];
-        context.applyModifications(modifications);
     };
 
     return (
@@ -147,7 +129,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     }
 
                     <span> {label}</span>
-                    {!hasValue && (
+                    {!hasValue && !isRecord && (
                         <IconButton
                             aria-label="add"
                             className={classes.addIcon}
