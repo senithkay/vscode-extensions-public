@@ -39,6 +39,7 @@ import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
+import { Point } from "@projectstorm/geometry";
 
 export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
 export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
@@ -47,6 +48,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
     public typeDef: Type;
     public recordFields: EditableRecordField[];
+    public x: number;
+    public y: number;
 
     constructor(
         public context: IDataMapperContext,
@@ -196,6 +199,18 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     public updatePosition() {
-        this.setPosition(1000, this.position.y)
+        this.setPosition(this.position.x, this.position.y);
+    }
+
+    setPosition(point: Point): void;
+    setPosition(x: number, y: number): void;
+    setPosition(x: unknown, y?: unknown): void {
+        if ( typeof x === 'number' && typeof y === 'number'){
+            if (!this.x || !this.y){
+                this.x = x;
+                this.y = y;
+                super.setPosition(x,y);
+            }
+        }
     }
 }
