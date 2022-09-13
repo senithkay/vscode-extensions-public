@@ -25,6 +25,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { createSourceForUserInput, getBalRecFieldName, getDefaultLiteralValue, isConnectedViaLink } from "../../../utils/dm-utils";
 
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
 
@@ -50,8 +51,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
     const hasValue = field.hasValue() && !!field.value.valueExpr.source;
-    const isArray = field.type.typeName === 'array';
-    const isRecord = field.type.typeName === 'record';
+    const isArray = field.type.typeName === PrimitiveBalType.Array;
+    const isRecord = field.type.typeName === PrimitiveBalType.Record;
     const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
     const fields = isRecord && field.childrenTypes;
     const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);

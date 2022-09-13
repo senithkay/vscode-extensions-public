@@ -1,5 +1,5 @@
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
 	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
@@ -65,8 +65,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const fieldPort = new RecordFieldPortModel(
 			field, type, parentId, undefined, undefined, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort)
-		let numberOfFields =1;
-		if (field.typeName === 'record') {
+		let numberOfFields = 1;
+		if (field.typeName === PrimitiveBalType.Record) {
 			const fields = field?.fields;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
@@ -91,14 +91,16 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			field.type, type, parentId, elementIndex, field, parentFieldAccessExpr, parent);
 		this.addPort(fieldPort);
 
-		if (field.type.typeName === 'record') {
+		if (field.type.typeName === PrimitiveBalType.Record) {
 			const fields = field?.childrenTypes;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
 					this.addPortsForOutputRecordField(subField, type, fieldId, undefined, fieldAccessExpr, fieldPort);
 				});
 			}
-		} else if (field.type.typeName === 'array' && field.type.memberType.typeName === 'record') {
+		} else if (field.type.typeName === PrimitiveBalType.Array
+			&& field.type.memberType.typeName === PrimitiveBalType.Record)
+		{
 			const elements: ArrayElement[] = field?.elements;
 			if (elements && !!elements.length) {
 				elements.forEach((element, index) => {

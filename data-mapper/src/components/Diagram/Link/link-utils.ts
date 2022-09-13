@@ -1,5 +1,5 @@
 import { PortModel } from "@projectstorm/react-diagrams-core";
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { RecordFieldPortModel } from "../Port";
@@ -11,7 +11,7 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
 
     if (sourcePort instanceof RecordFieldPortModel) {
         const type = sourcePort.field;
-        return type.typeName === 'array' && type.memberType.typeName === 'record';
+        return type.typeName === PrimitiveBalType.Array && type.memberType.typeName === PrimitiveBalType.Record;
     }
 
     return false;

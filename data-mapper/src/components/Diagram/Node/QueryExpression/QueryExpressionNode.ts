@@ -1,4 +1,4 @@
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
     QueryExpression,
@@ -74,7 +74,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     endColumn: sourceFieldAccess.position.endColumn
                 });
 
-                if (type && type.typeName === 'array') {
+                if (type && type.typeName === PrimitiveBalType.Array) {
                     this.sourceTypeDesc = type.memberType;
                 }
 

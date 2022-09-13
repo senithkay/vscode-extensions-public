@@ -1,6 +1,7 @@
 import { PortModel } from "@projectstorm/react-diagrams";
 import {
 	keywords,
+	PrimitiveBalType,
 	STModification,
 	Type
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -49,9 +50,9 @@ export function getFieldNames(expr: FieldAccess) {
 export function getFieldTypeName(field: RecordField) {
 	let name: string;
 	if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-		name = "record";
+		name = PrimitiveBalType.Record;
 	} else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
-		name = "array";
+		name = PrimitiveBalType.Array;
 	} else if ((field.typeName as any)?.name) {
 		name = (field.typeName as any)?.name.value;
 	}
@@ -334,7 +335,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 	let portIdBuffer = node instanceof RequiredParamNode ? node.value.paramName.value
 						: EXPANDED_QUERY_SOURCE_PORT_PREFIX  + "."
 							+ (node as FromClauseNode).sourceBindingPattern.variableName.value;
-	if (typeDesc.typeName === 'record') {
+	if (typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr)) {
 			const fieldNames = getFieldNames(expr);
 			let nextTypeNode: Type = typeDesc;
@@ -348,7 +349,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 						const portId = portIdBuffer + ".OUT";
 						const port = (node.getPort(portId) as RecordFieldPortModel);
 						return port;
-					} else if (recField.typeName === 'record') {
+					} else if (recField.typeName === PrimitiveBalType.Record) {
 						nextTypeNode = recField;
 					}
 				}
@@ -392,7 +393,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 
 	editableRecordField = new EditableRecordField(type, specificField, parentType);
 
-	if (type.typeName === 'record') {
+	if (type.typeName === PrimitiveBalType.Record) {
 		fields = type.fields;
 		const children = [...childrenTypes ? childrenTypes : []];
 		if (fields && !!fields.length) {
@@ -402,7 +403,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 			});
 		}
 		editableRecordField.childrenTypes = children;
-	} else if (type.typeName === 'array' && type.memberType.typeName === 'record') {
+	} else if (type.typeName === PrimitiveBalType.Array && type.memberType.typeName === PrimitiveBalType.Record) {
 		if (nextNode) {
 			if (STKindChecker.isListConstructor(nextNode)) {
 				editableRecordField.elements = getEnrichedArrayType(type, nextNode, editableRecordField);
@@ -432,7 +433,7 @@ export function getEnrichedArrayType(type: Type, node?: ListConstructor, parentT
 	let fields: Type[] = [];
 	const members: ArrayElement[] = [];
 
-	if (type.typeName === 'array' && type.memberType.typeName === 'record') {
+	if (type.typeName === PrimitiveBalType.Array && type.memberType.typeName === PrimitiveBalType.Record) {
 		fields = type.memberType.fields;
 	}
 
@@ -464,7 +465,7 @@ export function getBalRecFieldName(fieldName : string) {
 }
 
 export function getDefaultLiteralValue(typeName : string, valueExpr: STNode) {
-	if (valueExpr && typeName !== 'array' && typeName !== 'record' && (
+	if (valueExpr && typeName !== PrimitiveBalType.Array && typeName !== PrimitiveBalType.Record && (
 		STKindChecker.isStringLiteral(valueExpr)
 		|| STKindChecker.isNumericLiteral(valueExpr)
 		|| STKindChecker.isBooleanLiteral(valueExpr)

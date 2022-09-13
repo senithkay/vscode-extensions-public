@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ExpressionFunctionBody,
     IdentifierToken,
@@ -69,14 +69,14 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
-            if (valueEnrichedType.type.typeName === 'record') {
+            if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordFields = valueEnrichedType.childrenTypes;
                 if (!!this.recordFields.length) {
                     this.recordFields.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX);
                     });
                 }
-            } else if (valueEnrichedType.type.typeName === 'array' && STKindChecker.isSelectClause(this.value)) {
+            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && STKindChecker.isSelectClause(this.value)) {
                 // valueEnrichedType only contains a single element as it is being used within the select clause
                 this.recordFields = valueEnrichedType.elements[0].members;
                 if (!!this.recordFields.length) {
@@ -155,9 +155,11 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             if (recFieldTemp) {
                 if (i === fields.length - 1) {
                     recField = recFieldTemp;
-                } else if (recFieldTemp.type.typeName === 'record') {
+                } else if (recFieldTemp.type.typeName === PrimitiveBalType.Record) {
                     nextTypeNode = recFieldTemp?.childrenTypes;
-                } else if (recFieldTemp.type.typeName === 'array' && recFieldTemp.type.memberType.typeName === 'record') {
+                } else if (recFieldTemp.type.typeName === PrimitiveBalType.Array
+                    && recFieldTemp.type.memberType.typeName === PrimitiveBalType.Record)
+                {
                     recFieldTemp.elements.forEach((element, index) => {
                         if (STKindChecker.isListConstructor(specificField.valueExpr)) {
                             specificField.valueExpr.expressions.forEach((expr) => {

@@ -5,7 +5,7 @@ import { Tooltip } from '@material-ui/core';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FormField, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -64,7 +64,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 			if (targetPort instanceof RecordFieldPortModel) {
 				const field = targetPort.field;
-				if (field.typeName === 'array' && field.memberType.typeName === 'record') {
+				if (field.typeName === PrimitiveBalType.Array && field.memberType.typeName === PrimitiveBalType.Record) {
 					applyQueryExpression(link, field.memberType);
 				}
 			}
