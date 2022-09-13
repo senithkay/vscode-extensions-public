@@ -10,13 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
-import { MethodCall, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { MethodCall, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { PARAMETER_PLACEHOLDER } from "../../../utils/expressions";
 
 interface MethodCallProps {
     model: MethodCall;
@@ -24,10 +26,22 @@ interface MethodCallProps {
 
 export function MethodCallComponent(props: MethodCallProps) {
     const { model } = props;
+    const {
+        modelCtx: {
+            currentModel,
+            changeCurrentModel
+        }
+    } = useContext(StatementEditorContext);
 
     const methodPosition: NodePosition = model.methodName.position
     methodPosition.endLine = model.closeParenToken.position.endLLine;
     methodPosition.endColumn = model.closeParenToken.position.endColumn;
+
+    if (!currentModel.model || (currentModel.model.source === PARAMETER_PLACEHOLDER)) {
+        if (model && STKindChecker.isMethodCall(model)) {
+            changeCurrentModel(model);
+        }
+    }
 
     return (
         <>
