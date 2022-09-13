@@ -23,7 +23,7 @@ import { ListConstructor, MappingConstructor, STKindChecker } from "@wso2-enterp
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { createSourceForUserInput, getBalRecFieldName } from "../../../utils/dm-utils";
+import { createSourceForUserInput, getBalRecFieldName, getDefaultValue } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
@@ -94,7 +94,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const handleAddArrayElement = () => {
         const targetPosition = listConstructor.openBracket.position;
         const fieldsAvailable = !!listConstructor.expressions.length;
-        const modification = [getModification(`\n${fieldsAvailable ? "{}," : "{}"}`, {
+        const defaultValue = getDefaultValue(field.type.memberType);
+        const modification = [getModification(`\n${fieldsAvailable ? `${defaultValue},` : defaultValue}`, {
             ...targetPosition,
             startLine: targetPosition.endLine,
             startColumn: targetPosition.endColumn

@@ -497,6 +497,46 @@ export function isConnectedViaLink(field: SpecificField) {
 	return !!fieldAccessNodes.length && !isMappingConstruct && !isListConstruct;
 }
 
+export function getDefaultValue(field: Type): string {
+	let draftParameter = "";
+	switch (field.typeName) {
+		case PrimitiveBalType.String:
+			draftParameter = `""`;
+			break;
+		case PrimitiveBalType.Int:
+		case PrimitiveBalType.Float:
+		case PrimitiveBalType.Decimal:
+			draftParameter = `0`;
+			break;
+		case PrimitiveBalType.Boolean:
+			draftParameter = `true`;
+			break;
+		case PrimitiveBalType.Array:
+			draftParameter = `[]`;
+			break;
+		case PrimitiveBalType.Xml:
+			draftParameter = "xml ``";
+			break;
+		case PrimitiveBalType.Nil:
+		case "anydata":
+		case "()":
+			draftParameter = `()`;
+			break;
+		case PrimitiveBalType.Record:
+		case PrimitiveBalType.Json:
+		case "map":
+			draftParameter = `{}`;
+			break;
+		case PrimitiveBalType.Enum:
+		case PrimitiveBalType.Union:
+			break;
+		default:
+			draftParameter = `""`;
+			break;
+	}
+	return draftParameter;
+}
+
 function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 							                        fieldIndex: number,
 							                        targetPosition: NodePosition,
