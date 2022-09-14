@@ -40,7 +40,8 @@ export interface LowCodeEditorProps {
     currentFile: {
         content: string,
         path: string,
-        size: number
+        size: number,
+        originalContent?: string
     };
     library: {
         getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
@@ -62,6 +63,8 @@ export interface LowCodeEditorProps {
     isModuleVar?: boolean;
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
     isExpressionMode?: boolean;
+    mappingCounstructor ?: string;
+    modelTargetSource?: NodePosition
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
@@ -110,7 +113,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         (async () => {
             let model = null;
             if (initialSource) {
-                await sendDidOpen(fileURI, currentFile.content, getLangClient);
+                await sendDidOpen(fileURI, currentFile.originalContent ? currentFile.originalContent
+                    : currentFile.content, getLangClient);
 
                 const partialST =
                     isConfigurableStmt || isModuleVar

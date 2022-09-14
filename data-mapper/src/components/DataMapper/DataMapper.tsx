@@ -72,6 +72,7 @@ export interface DataMapperProps {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
+    importStatements: string[];
 }
 
 export enum ViewOption {
@@ -82,6 +83,14 @@ export enum ViewOption {
 export interface SelectionState {
     selectedST: STNode;
     prevST?: STNode[];
+}
+
+export interface ExpressionInfo {
+    value: string;
+    valuePosition: any;
+    specificFieldPosition?: any;
+    fieldName?: string;
+    label?: string;
 }
 
 const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload: SelectionState }) => {
@@ -99,11 +108,11 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 function DataMapperC(props: DataMapperProps) {
 
 
-    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose } = props;
+    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose, importStatements } = props;
 
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
-    const [currentEditableField, setCurrentEditableField] = useState<SpecificField>(null);
+    const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
         prevST: []
@@ -126,8 +135,8 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
-    const enableStamentEditor = (model: SpecificField) => {
-        setCurrentEditableField(model)
+    const enableStamentEditor = (expressionInfo: ExpressionInfo) => {
+        setCurrentEditableField(expressionInfo)
     }
 
     const closeStamentEditor = () => {
@@ -187,27 +196,22 @@ function DataMapperC(props: DataMapperProps) {
         <LSClientContext.Provider value={langClientPromise}>
             <CurrentFileContext.Provider value={currentFile}>
                 <div className={classes.root}>
-                    <Grid container={true} spacing={3} className={classes.gridContainer} >
-                        <Grid item={true} xs={currentEditableField ? 7 : 12}>
-                            {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
-                            <DataMapperDiagram
-                                nodes={nodes}
-                            />
-                            {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
-                        </Grid>
-                        {!!currentEditableField &&
-                            <Grid item={true} xs={5} style={{ width: "fit-content" }}>
-                                <StatementEditorComponent
-                                    model={currentEditableField}
-                                    langClientPromise={langClientPromise}
-                                    applyModifications={applyModifications}
-                                    currentFile={currentFile}
-                                    library={library}
-                                    onCancel={closeStamentEditor}
-                                />
-                            </Grid>
-                        }
-                    </Grid>
+                    {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
+                    <DataMapperDiagram
+                        nodes={nodes}
+                    />
+                    {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
+                    {!!currentEditableField &&
+                        <StatementEditorComponent
+                            expressionInfo={currentEditableField}
+                            langClientPromise={langClientPromise}
+                            applyModifications={applyModifications}
+                            currentFile={currentFile}
+                            library={library}
+                            onCancel={closeStamentEditor}
+                            importStatements={importStatements}
+                        />
+                    }
                 </div>
             </CurrentFileContext.Provider>
         </LSClientContext.Provider>

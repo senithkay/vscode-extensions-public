@@ -3,12 +3,14 @@ import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-edi
 import { LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import React from "react";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { ExpressionInfo } from "../DataMapper/DataMapper";
+import { getUpdatedSource } from "../../utils/st-utils";
 import { Panel } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import FormControl from "@material-ui/core/FormControl";
 
 
 export interface StatementEditorComponentProps {
-    model: SpecificField,
+    expressionInfo: ExpressionInfo,
     langClientPromise?:Promise<IBallerinaLangClient>;
     currentFile?: {
         content: string,
@@ -16,37 +18,45 @@ export interface StatementEditorComponentProps {
         size: number
     };
     applyModifications: (modifications: STModification[]) => void;
-    library?: {
+    library: {
         getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     onCancel: () => void;
+    importStatements: string[];
 }
 function StatementEditorC(props: StatementEditorComponentProps) {
-    const {model, langClientPromise, currentFile, applyModifications, library, onCancel} = props;
+    const {expressionInfo, langClientPromise, currentFile, applyModifications, library, onCancel, importStatements} = props;
+
+    const updatedContent = expressionInfo.fieldName?  getUpdatedSource(expressionInfo.fieldName, currentFile.content, 
+        expressionInfo.specificFieldPosition) : currentFile.content;
 
     const stmtEditorComponent = StatementEditorWrapper(
         {
             formArgs: { formArgs: {
-                targetPosition: model.valueExpr.position
+                targetPosition:expressionInfo.valuePosition
                 } },
             config: {
                 type: "Custom",
-                model: model.valueExpr
+                model: null
             },
             onWizardClose: onCancel,
             syntaxTree: null,
             stSymbolInfo: null,
             getLangClient: () => langClientPromise,
             library,
-            label: model.fieldName.value,
-            initialSource:  model.valueExpr.source,
+            label: expressionInfo.label ? expressionInfo.label : expressionInfo.fieldName,
+            initialSource:  expressionInfo.value,
             applyModifications,
-            currentFile,
+            currentFile: {
+                ...currentFile,
+                content: updatedContent,
+                originalContent: currentFile.content
+            },
             onCancel: onCancel,
             isExpressionMode: true,
-            importStatements: []
+            importStatements
         }
     );
 
