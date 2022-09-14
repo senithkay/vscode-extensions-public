@@ -15,6 +15,7 @@ import {
     BinaryExpression,
     FunctionCall,
     IdentifierToken,
+    IndexedExpression,
     KeySpecifier,
     LetVarDecl,
     LimitClause,
@@ -104,6 +105,17 @@ class DeleteConfigSetupVisitor implements Visitor {
         }
     }
 
+    public beginVisitIndexedExpression(node: IndexedExpression) {
+        if (node.keyExpression.length === 1) {
+            (node.keyExpression[0].viewState as StatementEditorViewState).exprNotDeletable = true;
+            (node.keyExpression[0].viewState as StatementEditorViewState).templateExprDeletable = false;
+        } else {
+            node.keyExpression.map((fieldNames: STNode) => {
+                (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
+            });
+        }
+    }
+
     public beginVisitMethodCall(node: MethodCall) {
         node.arguments.map((args: STNode) => {
             (args.viewState as StatementEditorViewState).templateExprDeletable = true;
@@ -156,7 +168,8 @@ class DeleteConfigSetupVisitor implements Visitor {
     }
 
     public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
-        if (parent && (parent.viewState as StatementEditorViewState).templateExprDeletable) {
+        if (parent && !STKindChecker.isIndexedExpression(parent) &&
+            (parent.viewState as StatementEditorViewState).templateExprDeletable) {
             (node.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }

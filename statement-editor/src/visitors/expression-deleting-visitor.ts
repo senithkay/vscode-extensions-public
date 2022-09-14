@@ -261,7 +261,18 @@ class ExpressionDeletingVisitor implements Visitor {
                 });
 
                 if (hasKeyExprToBeDeleted) {
-                    this.setProperties(DEFAULT_EXPR, this.deletePosition);
+                    const expressions: string[] = [];
+                    node.keyExpression.map((expr: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(','), {
+                        ...node.position,
+                        startColumn: node.openBracket.position.endColumn,
+                        endColumn: node.closeBracket.position.startColumn
+                    });
                 }
             }
         }

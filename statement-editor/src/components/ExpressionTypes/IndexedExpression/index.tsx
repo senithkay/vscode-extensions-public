@@ -11,10 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext } from "react";
 
 import { IndexedExpression } from "@wso2-enterprise/syntax-tree";
 
+import { EXPR_CONSTRUCTOR } from "../../../constants";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
@@ -25,12 +28,29 @@ interface IndexedExpressionProps {
 
 export function IndexedExpressionComponent(props: IndexedExpressionProps) {
     const { model } = props;
+    const {
+        modelCtx: {
+            updateModel,
+        }
+    } = useContext(StatementEditorContext);
+
+    const addNewExpression = () => {
+        const expr = `, ${EXPR_CONSTRUCTOR}`;
+        const newPosition =  {
+            startLine: model.keyExpression[model.keyExpression.length - 1].position.endLine,
+            startColumn: model.keyExpression[model.keyExpression.length - 1].position.endColumn,
+            endLine: model.closeBracket.position.startLine,
+            endColumn: model.closeBracket.position.startColumn
+        }
+        updateModel(expr, newPosition);
+    };
 
     return (
         <>
             <ExpressionComponent model={model.containerExpression} />
             <TokenComponent model={model.openBracket} />
             <ExpressionArrayComponent expressions={model.keyExpression} />
+            <NewExprAddButton model={model} onClick={addNewExpression}/>
             <TokenComponent model={model.closeBracket} />
         </>
     );
