@@ -85,7 +85,7 @@ export interface SelectionState {
     prevST?: STNode[];
 }
 
-export interface StatementEditorInfo {
+export interface ExpressionInfo {
     value: string;
     valuePosition: any;
     specificFieldPosition?: any;
@@ -112,7 +112,7 @@ function DataMapperC(props: DataMapperProps) {
 
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
-    const [currentEditableField, setCurrentEditableField] = useState<StatementEditorInfo>(null);
+    const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
         prevST: []
@@ -135,8 +135,8 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
-    const enableStamentEditor = (statementEditorInfo: StatementEditorInfo) => {
-        setCurrentEditableField(statementEditorInfo)
+    const enableStamentEditor = (expressionInfo: ExpressionInfo) => {
+        setCurrentEditableField(expressionInfo)
     }
 
     const closeStamentEditor = () => {
@@ -196,28 +196,22 @@ function DataMapperC(props: DataMapperProps) {
         <LSClientContext.Provider value={langClientPromise}>
             <CurrentFileContext.Provider value={currentFile}>
                 <div className={classes.root}>
-                    <Grid container={true} spacing={3} className={classes.gridContainer} >
-                        <Grid item={true} xs={currentEditableField ? 7 : 12}>
-                            {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
-                            <DataMapperDiagram
-                                nodes={nodes}
-                            />
-                            {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
-                        </Grid>
-                        {!!currentEditableField &&
-                            <Grid item={true} xs={5} style={{ width: "fit-content" }}>
-                                <StatementEditorComponent
-                                    statementEditorInfo={currentEditableField}
-                                    langClientPromise={langClientPromise}
-                                    applyModifications={applyModifications}
-                                    currentFile={currentFile}
-                                    library={library}
-                                    onCancel={closeStamentEditor}
-                                    importStatements={importStatements}
-                                />
-                            </Grid>
-                        }
-                    </Grid>
+                    {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
+                    <DataMapperDiagram
+                        nodes={nodes}
+                    />
+                    {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
+                    {!!currentEditableField &&
+                        <StatementEditorComponent
+                            expressionInfo={currentEditableField}
+                            langClientPromise={langClientPromise}
+                            applyModifications={applyModifications}
+                            currentFile={currentFile}
+                            library={library}
+                            onCancel={closeStamentEditor}
+                            importStatements={importStatements}
+                        />
+                    }
                 </div>
             </CurrentFileContext.Provider>
         </LSClientContext.Provider>

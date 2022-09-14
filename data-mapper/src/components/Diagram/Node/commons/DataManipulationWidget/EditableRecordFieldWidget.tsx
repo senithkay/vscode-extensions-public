@@ -23,7 +23,7 @@ import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { createSourceForUserInput, getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -89,25 +89,30 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     );
 
     const handleEditable = () => {
-        const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
+        if (!!field.value) {
+            props.context.enableStamentEditor({value: "EXPRESSION" , valuePosition: field.value.valueExpr.position, label: field.value.fieldName.source});
 
-        const fieldName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+        } else {
+            const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
 
-        const coloumnNumber = field.type.name?.length;
-        const specificFieldPosition: NodePosition   = {
-            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
-            startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
-            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine,
-            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
+            const fieldName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+
+            const coloumnNumber = field.type.name?.length;
+            const specificFieldPosition: NodePosition   = {
+                startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
+                startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
+                endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine,
+                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
+            }
+
+            const valuePosition: NodePosition   = {
+                startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber, 
+                startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber + 2,
+                endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
+                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber +2
+            }
+            props.context.enableStamentEditor({specificFieldPosition, fieldName, value: "EXPRESSION" , valuePosition, label: field.type.name});
         }
-
-        const valuePosition: NodePosition   = {
-            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber, 
-            startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber + 2,
-            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
-            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber +2
-        }
-        props.context.enableStamentEditor({specificFieldPosition, fieldName, value: "EXPRESSION" , valuePosition, label: field.type.name});
 
 
 
