@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -19,7 +19,6 @@ import { EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getModification } from "../../../utils/modifications";
 
 import { useStyles } from "./styles";
 
@@ -41,10 +40,14 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
         ? `${parentId}.${fieldIndex}`
         : `${parentId}.${value}`;
     const portIn = getPort(`${fieldId}.IN`);
-    const hasValue = field.hasValue() && !!value;
 
     const [editable, setEditable] = useState<boolean>(false);
-    const [str, setStr] = useState(hasValue ? value : "");
+
+    useEffect(() => {
+        if (editable) {
+            context.enableStatementEditor(field?.value, `${parentId.split('.').pop()}[${fieldIndex}]`);
+        }
+    }, [editable]);
 
     const label = (
         <span style={{marginRight: "auto"}}>
@@ -56,23 +59,6 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
 
     const handleEditable = () => {
         setEditable(true);
-    };
-
-    const onChange = (newVal: string) => {
-        setStr(newVal);
-    };
-
-    const onKeyUp = (key: string) => {
-        if (key === "Escape") {
-            setEditable(false);
-        }
-        if (key === "Enter") {
-            const targetPosition = field?.value.position;
-            const modification = [getModification(str, {
-                ...targetPosition
-            })];
-            context.applyModifications(modification);
-        }
     };
 
     return (
@@ -89,23 +75,6 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                     className={classes.editButton}
                 />
             </div>
-            {editable && (
-                <input
-                    size={str.length}
-                    spellCheck={false}
-                    style={{
-                        padding: "5px",
-                        fontFamily: "monospace",
-                        zIndex: 1000,
-                        border: "1px solid #5567D5"
-                    }}
-                    autoFocus={true}
-                    value={str}
-                    onChange={(event) => onChange(event.target.value)}
-                    onKeyUp={(event) => onKeyUp(event.key)}
-                    onBlur={() => setEditable(false)}
-                />
-            )}
         </>
     );
 }

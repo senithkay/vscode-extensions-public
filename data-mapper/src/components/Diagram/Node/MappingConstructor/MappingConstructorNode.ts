@@ -115,7 +115,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     valueNode: otherVal || value,
                     context: this.context,
                     link: lm,
-                    field,
+                    field: STKindChecker.isSpecificField(field)
+                        ? field.valueExpr
+                        : field,
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value
                         : `${outPort.parentFieldAccess.split('.').pop()}[${outPort.index}]`,
