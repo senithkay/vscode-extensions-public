@@ -110,7 +110,6 @@ export function DataMapperOverlay(props: DataMapperProps) {
                                 applyModifications={modifyDiagram}
                                 onClose={onClose}
                                 onSave={onSave}
-                                library={library}
                                 importStatements={importStatements}
                             />
                         </div>
