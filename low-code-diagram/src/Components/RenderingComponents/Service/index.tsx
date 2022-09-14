@@ -122,7 +122,6 @@ export function Service(props: ServiceProps) {
         <>
             {isHttpService() && (
                 <div className={"service"}>
-                    <div className={"action-container"}>{!isReadOnly && renderButtons()}</div>
                     <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} onClickTryIt={onClickTryIt} onClickRun={onClickRun} />
                     <div className={"content-container"}>
                         {isExpanded && (
