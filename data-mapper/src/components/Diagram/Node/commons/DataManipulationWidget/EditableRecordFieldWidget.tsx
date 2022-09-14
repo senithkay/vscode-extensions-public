@@ -23,7 +23,7 @@ import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { createSourceForUserInput, getBalRecFieldName, getDefaultLiteralValue, isConnectedViaLink } from "../../../utils/dm-utils";
+import { createSourceForUserInput, getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
