@@ -1,4 +1,4 @@
-import { SpecificField } from "@wso2-enterprise/syntax-tree";
+import {NodePosition, SpecificField, STKindChecker, STNode} from "@wso2-enterprise/syntax-tree";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import React from "react";
@@ -6,7 +6,8 @@ import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient"
 
 
 export interface StatementEditorComponentProps {
-    model: SpecificField,
+    model: STNode,
+    label: string,
     langClientPromise?:Promise<IBallerinaLangClient>;
     currentFile?: {
         content: string,
@@ -22,25 +23,25 @@ export interface StatementEditorComponentProps {
     onCancel: () => void;
 }
 function StatementEditorC(props: StatementEditorComponentProps) {
-    const {model, langClientPromise, currentFile, applyModifications, library, onCancel} = props;
+    const {model, label, langClientPromise, currentFile, applyModifications, library, onCancel} = props;
 
 
 const stmtEditorComponent = StatementEditorWrapper(
         {
             formArgs: { formArgs: {
-                targetPosition: model.valueExpr.position
+                targetPosition: model.position
                 } },
             config: {
                 type: "Custom",
-                model: model.valueExpr
+                model
             },
             onWizardClose: onCancel,
             syntaxTree: null,
             stSymbolInfo: null,
             getLangClient: () => langClientPromise,
             library,
-            label: model.fieldName.value,
-            initialSource:  model.valueExpr.source,
+            label,
+            initialSource:  model.source,
             applyModifications,
             currentFile,
             onCancel: onCancel,

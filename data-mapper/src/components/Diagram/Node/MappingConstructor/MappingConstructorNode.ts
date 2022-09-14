@@ -97,7 +97,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
-            const specificField = fields[fields.length - 1];
+            const field = fields[fields.length - 1];
             if (!value || !value.source) {
                 // Unsupported mapping
                 return;
@@ -115,8 +115,11 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     valueNode: otherVal || value,
                     context: this.context,
                     link: lm,
-                    specificField,
-                    deleteLink: () => this.deleteLink(specificField),
+                    field,
+                    editorLabel: STKindChecker.isSpecificField(field)
+                        ? field.fieldName.value
+                        : `${outPort.parentFieldAccess.split('.').pop()}[${outPort.index}]`,
+                    deleteLink: () => this.deleteLink(field),
                 }));
                 lm.setTargetPort(outPort);
                 lm.setSourcePort(inPort);
@@ -194,7 +197,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         }
         if (recField) {
             const portId = `${portIdBuffer}.IN`;
-            return this.getPort(portId);
+            return this.getPort(portId) as RecordFieldPortModel;
         }
     }
 

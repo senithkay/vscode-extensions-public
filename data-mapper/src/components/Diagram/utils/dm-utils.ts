@@ -24,11 +24,10 @@ import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
-import { RequiredParamNode } from "../Node";
+import { MappingConstructorNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
-import { MappingConstructorNode } from "../Node/MappingConstructor";
 import { RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
@@ -75,8 +74,15 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	const targetPort = link.getTargetPort() as RecordFieldPortModel;
+	const targetNode = targetPort.getNode() as DataMapperNodeModel;
+	const applyModifications = targetNode.context.applyModifications;
 	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
+
 	rhs = getRHSFromSourcePort(link.getSourcePort());
+
+	if (!isArrayOrRecord(targetPort.field) && targetPort.editableRecordField?.value) {
+		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
+	}
 	lhs = getBalRecFieldName(targetPort.field.name);
 
 	// Inserting a new specific field
@@ -90,7 +96,6 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		parent = parent.parentModel;
 	}
 
-	const targetNode = targetPort.getNode() as DataMapperNodeModel;
 	if ((targetNode instanceof MappingConstructorNode)
 		&& STKindChecker.isMappingConstructor(targetNode.value.expression)
 	) {
@@ -100,7 +105,6 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	let targetMappingConstruct = mappingConstruct;
-	const applyModifications = targetNode.context.applyModifications;
 
 	if (parentFieldNames.length > 0) {
 		const fieldNames = parentFieldNames.reverse();
@@ -560,6 +564,10 @@ export function getDefaultValue(field: Type): string {
 	return draftParameter;
 }
 
+export function isArrayOrRecord(field: Type) {
+	return field.typeName === PrimitiveBalType.Array || field.typeName === PrimitiveBalType.Record;
+}
+
 function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 							                        fieldIndex: number,
 							                        targetPosition: NodePosition,
@@ -590,6 +598,15 @@ function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 	}
 
 	return `${rhs}: ${lhs}`;
+}
+
+function updateValueExprSource(value: string, targetPosition: NodePosition,
+							                        applyModifications: (modifications: STModification[]) => void) {
+	applyModifications([getModification(value, {
+		...targetPosition
+	})]);
+
+	return value;
 }
 
 function getRHSFromSourcePort(port: PortModel) {

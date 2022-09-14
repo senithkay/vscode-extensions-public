@@ -27,7 +27,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public valueNode: SpecificField,
+        public valueNode: STNode,
+        public editorLabel: string,
         public parentNode: STNode,
         public fieldAccessNodes: FieldAccess[],
         public specificFields: SpecificField[]) {
@@ -35,8 +36,14 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             context,
             LINK_CONNECTOR_NODE_TYPE
         );
-        this.value = valueNode.valueExpr ? valueNode.valueExpr.source.trim() : '';
-        this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.valueExpr.position)
+        if (STKindChecker.isSpecificField(valueNode)) {
+            this.value = valueNode.valueExpr ? valueNode.valueExpr.source.trim() : '';
+            this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.valueExpr.position);
+        } else {
+            this.value = '';
+            this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.position);
+        }
+
 
     }
 
@@ -145,16 +152,16 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     async updateSource() {
+        const targetPosition = STKindChecker.isSpecificField(this.valueNode)
+            ? this.valueNode.valueExpr.position
+            : this.valueNode.position;
         const modifications = [
             {
                 type: "INSERT",
                 config: {
                     "STATEMENT": this.value,
                 },
-                endColumn: this.valueNode.valueExpr.position.endColumn,
-                endLine: this.valueNode.valueExpr.position.endLine,
-                startColumn: this.valueNode.valueExpr.position.startColumn,
-                startLine: this.valueNode.valueExpr.position.startLine
+                ...targetPosition
             }
         ];
         this.context.applyModifications(modifications);
@@ -180,15 +187,17 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         }]);
     }
 
-    private targetLinkDelete(specificField: SpecificField) {
-        if (this.targetPort?.parentId === MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX) {
-            // If query targetPort, should delete only value expression position
-            this.context.applyModifications([{
-                type: "DELETE",
-                ...specificField.valueExpr.position
-            }]);
-        } else {
-            this.deleteLink(specificField)
+    private targetLinkDelete(node: STNode) {
+        if (STKindChecker.isSpecificField(node)) {
+            if (this.targetPort?.parentId === MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX) {
+                // If query targetPort, should delete only value expression position
+                this.context.applyModifications([{
+                    type: "DELETE",
+                    ...node.valueExpr.position
+                }]);
+            } else {
+                this.deleteLink(node);
+            }
         }
     }
 }

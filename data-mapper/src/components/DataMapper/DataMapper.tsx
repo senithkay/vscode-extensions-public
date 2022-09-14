@@ -103,7 +103,8 @@ function DataMapperC(props: DataMapperProps) {
 
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
-    const [currentEditableField, setCurrentEditableField] = useState<SpecificField>(null);
+    const [currentEditableField, setCurrentEditableField] = useState<STNode>(null);
+    const [editorLabel, setEditorLabel] = useState("");
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
         prevST: []
@@ -126,12 +127,14 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
-    const enableStamentEditor = (model: SpecificField) => {
-        setCurrentEditableField(model)
+    const enableStatementEditor = (model: SpecificField, label: string) => {
+        setCurrentEditableField(model);
+        setEditorLabel(label);
     }
 
-    const closeStamentEditor = () => {
-        setCurrentEditableField(null)
+    const closeStatementEditor = () => {
+        setCurrentEditableField(null);
+        setEditorLabel("");
     }
 
     useEffect(() => {
@@ -149,7 +152,7 @@ function DataMapperC(props: DataMapperProps) {
                     handleSelectedST,
                     applyModifications,
                     diagnostics,
-                    enableStamentEditor
+                    enableStatementEditor
                 );
 
                 let selectedST = selection.selectedST;
@@ -199,11 +202,12 @@ function DataMapperC(props: DataMapperProps) {
                             <Grid item={true} xs={5} style={{ width: "fit-content" }}>
                                 <StatementEditorComponent
                                     model={currentEditableField}
+                                    label={editorLabel}
                                     langClientPromise={langClientPromise}
                                     applyModifications={applyModifications}
                                     currentFile={currentFile}
                                     library={library}
-                                    onCancel={closeStamentEditor}
+                                    onCancel={closeStatementEditor}
                                 />
                             </Grid>
                         }

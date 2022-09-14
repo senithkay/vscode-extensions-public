@@ -66,7 +66,7 @@ export function LinkConnectorNodeWidget (props: LinkConnectorNodeWidgetProps){
 		const [str, setStr] = React.useState(node.value);
 
         const onClickEdit = () => {
-            props.node.context.enableStamentEditor(props.node.valueNode);
+            props.node.context.enableStatementEditor(props.node.valueNode, props.node.editorLabel);
         };
 
 		return (
@@ -80,6 +80,5 @@ export function LinkConnectorNodeWidget (props: LinkConnectorNodeWidgetProps){
                 </div>
 			</div>
 		);
-	
 }
 

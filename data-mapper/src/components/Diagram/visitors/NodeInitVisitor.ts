@@ -119,7 +119,14 @@ export class NodeInitVisitor implements Visitor {
             traversNode(node.valueExpr, fieldAccessFindingVisitor);
             const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
             if (fieldAccesseNodes.length > 1){
-                const linkConnectorNode = new LinkConnectorNode(this.context, node, parent, fieldAccesseNodes, this.specificFields.slice(0));
+                const linkConnectorNode = new LinkConnectorNode(
+                    this.context,
+                    node,
+                    node.fieldName.value,
+                    parent,
+                    fieldAccesseNodes,
+                    this.specificFields.slice(0)
+                );
                 linkConnectorNode.setPosition(440, 1200);
                 this.intermediateNodes.push(linkConnectorNode);
             }
