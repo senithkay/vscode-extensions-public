@@ -23,7 +23,7 @@ import {
     FUNCTION_COMPLETION_KIND,
     MAPPING_TYPE_DESCRIPTER,
     METHOD_COMPLETION_KIND,
-    PROPERTY_COMPLETION_KIND, SUGGESTION_COLUMN_SIZE
+    PROPERTY_COMPLETION_KIND, SUGGESTION_COLUMN_SIZE, TABLE_TYPE_DESCRIPTER
 } from "../../../constants";
 import { Suggestion, SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
@@ -163,6 +163,8 @@ export function LSSuggestions() {
 
         if (value === "map") {
             value = MAPPING_TYPE_DESCRIPTER;
+        } else if (value === "table") {
+            value = TABLE_TYPE_DESCRIPTER;
         }
 
         const nodePosition: NodePosition = currentModel
