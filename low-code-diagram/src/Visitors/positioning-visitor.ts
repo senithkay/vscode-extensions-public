@@ -39,6 +39,7 @@ import { Endpoint } from "../Types/type";
 import { isVarTypeDescriptor } from "../Utils";
 import {
     BlockViewState,
+    CollapseViewState,
     CompilationUnitViewState,
     ControlFlowExecutionTimeState,
     ControlFlowLineState,
@@ -59,7 +60,7 @@ import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
 import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "./sizing-visitor";
-import { getPlusViewState, updateConnectorCX } from "./util";
+import { getPlusViewState, isNodeWithinRange, updateConnectorCX } from "./util";
 
 let epCount: number = 0;
 export class PositioningVisitor implements Visitor {
@@ -560,6 +561,8 @@ export class PositioningVisitor implements Visitor {
     }
 
     private calculateStatementPosition(statements: STNode[], blockViewState: BlockViewState, height: number, index: number, epGap: number) {
+        let collapsedViewStates: CollapseViewState[] = [...blockViewState.collapsedViewStates];
+
         statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
 
@@ -569,7 +572,15 @@ export class PositioningVisitor implements Visitor {
             statementViewState.bBox.cx = blockViewState.bBox.cx;
             statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
 
-            
+            collapsedViewStates.forEach((collapsedViewState, i) => {
+                if (isNodeWithinRange(statement.position, collapsedViewState.range)) {
+                    collapsedViewState.bBox.cx = blockViewState.bBox.cx - collapsedViewState.bBox.lw;
+                    collapsedViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
+                    height += collapsedViewState.getHeight();
+
+                    collapsedViewStates = [...collapsedViewStates.slice(0, i), ...collapsedViewStates.slice(i + 1)];
+                }
+            });
 
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 

@@ -19,6 +19,7 @@ import { getDraftComponent, getSTComponents } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 import { Collapse } from "../Collapse";
+import CollapseComponent from "../Collapse_new";
 import ControlFlowExecutionTime from "../ControlFlowExecutionTime";
 import { ControlFlowLine } from "../ControlFlowLine";
 
@@ -44,7 +45,7 @@ export function WorkerBody(props: DiagramProps) {
         children = children.concat(
             getSTComponents(model.namedWorkerDeclarator.workerInitStatements, viewState, model, expandReadonly));
         children = children.concat(
-            getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations, viewState, model, expandReadonly))
+            getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations, viewState, model, expandReadonly));
     }
     children = children.concat(getSTComponents(model.statements, viewState, model, expandReadonly))
 
@@ -53,8 +54,8 @@ export function WorkerBody(props: DiagramProps) {
     }
 
     for (const plusView of viewState.plusButtons) {
-        if (!expandReadonly) {
-            pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />)
+        if (!expandReadonly && !(viewState.collapsedViewStates.length > 0)) {
+            pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />);
         }
     }
 
@@ -108,6 +109,9 @@ export function WorkerBody(props: DiagramProps) {
     // }
     if (viewState.collapsedViewStates.length > 0) {
         // TODO: handle collapse ranges rendering
+        viewState.collapsedViewStates.forEach((collapseVS) => {
+            children.push(<CollapseComponent collapseVS={collapseVS} />)
+        })
     }
 
     if (viewState?.draft) {

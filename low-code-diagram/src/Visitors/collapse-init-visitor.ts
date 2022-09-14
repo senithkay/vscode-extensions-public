@@ -73,8 +73,6 @@ export class CollapseInitVisitor implements Visitor {
                 }
             });
         }
-
-        debugger;
     }
 
     private isSkippedConstruct(node: STNode): boolean {

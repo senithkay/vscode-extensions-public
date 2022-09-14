@@ -1596,7 +1596,6 @@ export class SizingVisitor implements Visitor {
 
     private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState, height: number, width: number, lastStatementIndex: any, leftWidth: number, rightWidth: number) {
         const startIndex = index;
-        console.log('blockviewstate >>> ', blockViewState.collapsedViewStates);
         statements.forEach((statement) => {
             const stmtViewState: StatementViewState = statement.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
@@ -1607,7 +1606,6 @@ export class SizingVisitor implements Visitor {
             if (blockViewState.collapsedViewStates.length > 0) {
                 blockViewState.collapsedViewStates.forEach(collapseViewState => {
                     if (!collapseViewState.bBox && isNodeWithinRange(statement.position, collapseViewState.range)) {
-                        console.log('statement >>>', '')
                         collapseViewState.bBox = new SimpleBBox();
                         collapseViewState.bBox.lw = COLLAPSED_BLOCK_WIDTH / 2;
                         collapseViewState.bBox.rw = COLLAPSED_BLOCK_WIDTH / 2;

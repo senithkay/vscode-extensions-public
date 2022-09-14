@@ -43,7 +43,6 @@ export function recalculateSizingAndPositioning(
 
 export function initializeCollapseView(st: STNode, targetPosition: NodePosition) {
     traversNode(st, new CollapseInitVisitor(targetPosition));
-    console.log('>>> after visiting collapse visitor \n', st);
     const clone = { ...st }
     return clone;
 }

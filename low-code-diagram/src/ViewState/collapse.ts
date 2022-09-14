@@ -16,7 +16,6 @@ import { ViewState } from "./view-state";
 
 export class CollapseViewState extends ViewState {
     public collapsed: boolean = true;
-    public initializedPosition: boolean = false;
     // public index: number;
     // public cx: number;
     // public cy: number;

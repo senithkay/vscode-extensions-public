@@ -25,6 +25,7 @@ import { Canvas } from "../../../Canvas";
 import { Context } from "../../../Context/diagram";
 import { Provider as FunctionProvider } from "../../../Context/Function";
 import { useOverlayRef, useSelectedStatus } from "../../../hooks";
+import { initializeCollapseView } from "../../../Utils";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
 import { End } from "../End";
 import { StartButton } from "../Start";
@@ -36,7 +37,6 @@ import PanAndZoom, { ViewMode } from "./PanAndZoom";
 import { PerformanceBar } from "./perBar/PerformanceBar";
 import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
-import { initializeCollapseView } from "../../../Utils";
 
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
