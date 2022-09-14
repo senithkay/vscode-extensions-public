@@ -181,6 +181,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                         field={element.members[0]}
                                         engine={engine}
                                         getPort={getPort}
+                                        context={context}
                                         fieldIndex={index}
                                     />
                                 </>

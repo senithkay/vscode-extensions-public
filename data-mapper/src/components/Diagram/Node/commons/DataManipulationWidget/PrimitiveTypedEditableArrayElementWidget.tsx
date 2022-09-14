@@ -11,12 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { getModification } from "../../../utils/modifications";
 
 import { useStyles } from "./styles";
 
@@ -25,11 +28,12 @@ export interface PrimitiveTypedEditableArrayElementWidgetProps {
     field: EditableRecordField;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
+    context: IDataMapperContext;
     fieldIndex?: number;
 }
 
 export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEditableArrayElementWidgetProps) {
-    const { parentId, field, getPort, engine, fieldIndex } = props;
+    const { parentId, field, getPort, engine, context, fieldIndex } = props;
     const classes = useStyles();
 
     const value = field?.value.source.trim();
@@ -37,6 +41,10 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
         ? `${parentId}.${fieldIndex}`
         : `${parentId}.${value}`;
     const portIn = getPort(`${fieldId}.IN`);
+    const hasValue = field.hasValue() && !!value;
+
+    const [editable, setEditable] = useState<boolean>(false);
+    const [str, setStr] = useState(hasValue ? value : "");
 
     const label = (
         <span style={{marginRight: "auto"}}>
@@ -45,6 +53,27 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
             </span>
         </span>
     );
+
+    const handleEditable = () => {
+        setEditable(true);
+    };
+
+    const onChange = (newVal: string) => {
+        setStr(newVal);
+    };
+
+    const onKeyUp = (key: string) => {
+        if (key === "Escape") {
+            setEditable(false);
+        }
+        if (key === "Enter") {
+            const targetPosition = field?.value.position;
+            const modification = [getModification(str, {
+                ...targetPosition
+            })];
+            context.applyModifications(modification);
+        }
+    };
 
     return (
         <>
@@ -55,15 +84,28 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                     }
                 </span>
                 <span>{label}</span>
-                {/*<IconButton*/}
-                {/*    onClick={undefined}*/}
-                {/*    className={classes.iconButton}*/}
-                {/*>*/}
-                {/*    <div className={classes.editIcon}>*/}
-                {/*        <EditIcon />*/}
-                {/*    </div>*/}
-                {/*</IconButton>*/}
+                <EditButton
+                    onClick={handleEditable}
+                    className={classes.editButton}
+                />
             </div>
+            {editable && (
+                <input
+                    size={str.length}
+                    spellCheck={false}
+                    style={{
+                        padding: "5px",
+                        fontFamily: "monospace",
+                        zIndex: 1000,
+                        border: "1px solid #5567D5"
+                    }}
+                    autoFocus={true}
+                    value={str}
+                    onChange={(event) => onChange(event.target.value)}
+                    onKeyUp={(event) => onKeyUp(event.key)}
+                    onBlur={() => setEditable(false)}
+                />
+            )}
         </>
     );
 }

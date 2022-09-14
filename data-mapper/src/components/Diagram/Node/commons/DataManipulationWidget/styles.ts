@@ -77,16 +77,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             padding: "5px",
             textTransform: "none"
         },
-        iconButton: {
-            padding: '8px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
-        },
-        editIcon: {
-            height: '15px',
-            width: '15px',
-            marginTop: '-7px'
+        editButton: {
+            float: "right",
+            width: 'fit-content',
+            marginLeft: "auto"
         }
     }),
 );
