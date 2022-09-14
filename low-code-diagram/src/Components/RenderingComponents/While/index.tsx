@@ -39,7 +39,6 @@ import { BlockViewState } from "../../../ViewState";
 import { WhileViewState } from "../../../ViewState/while";
 import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
-import { Collapse } from "../Collapse";
 import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount";
 import { ControlFlowLine } from "../ControlFlowLine";
@@ -143,7 +142,8 @@ export function While(props: WhileProps) {
     }
 
     if (bodyViewState.collapseView) {
-        children.push(<Collapse blockViewState={bodyViewState} />)
+        // TODO: fix rendering of collapsed ranges in while block
+        // children.push(<Collapse blockViewState={bodyViewState} />)
     }
 
     for (const plusView of modelWhile.whileBody.viewState.plusButtons) {

@@ -32,7 +32,6 @@ import { getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt,
 import { BlockViewState, ForEachViewState } from "../../../ViewState";
 import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
-import { Collapse } from "../Collapse";
 import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount"
 import { ControlFlowLine } from "../ControlFlowLine";
@@ -112,7 +111,8 @@ export function ForEach(props: ForeachProps) {
     }
 
     if (bodyViewState.collapseView) {
-        children.push(<Collapse blockViewState={bodyViewState} />)
+        // TODO: Fix rendering collapsed view components in ForEach
+        // children.push(<Collapse blockViewState={bodyViewState} />)
     }
 
     for (const plusView of modelForeach.blockStatement.viewState.plusButtons) {

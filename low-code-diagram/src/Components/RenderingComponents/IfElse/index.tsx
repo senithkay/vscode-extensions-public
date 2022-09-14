@@ -38,7 +38,6 @@ import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
-import { Collapse } from "../Collapse";
 import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";
 import { ControlFlowLine } from "../ControlFlowLine";
 
@@ -280,7 +279,8 @@ export function IfElse(props: IfElseProps) {
 
 
         if (bodyViewState.collapseView) {
-            children.push(<Collapse blockViewState={bodyViewState} />)
+            // TODO: Fix rendering of collapsed ranges in if blocks
+            // children.push(<Collapse blockViewState={bodyViewState} />)
         }
 
         const getExpressions = (): ElseIfConfig => {

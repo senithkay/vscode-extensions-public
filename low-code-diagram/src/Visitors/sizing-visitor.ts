@@ -38,7 +38,6 @@ import {
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../Components/RenderingComponents/ActionInvocation/TriggerSVG";
 import { ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/Assignment";
-import { COLLAPSE_SVG_HEIGHT_WITH_SHADOW, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "../Components/RenderingComponents/Collapse/CollapseSVG";
 import { COLLAPSED_BLOCK_HEIGHT, COLLAPSED_BLOCK_WIDTH } from "../Components/RenderingComponents/Collapse_new";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/ConditionAssignment";
 import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
@@ -1621,11 +1620,11 @@ export class SizingVisitor implements Visitor {
                 // This captures the collapse button click
                 if (plusForIndex && plusForIndex.collapsedClicked) {
                     const collapsedView = blockViewState.collapseView;
-                    collapsedView.bBox.h = collapsedView.bBox.offsetFromTop + COLLAPSE_SVG_HEIGHT_WITH_SHADOW
+                    collapsedView.bBox.h = collapsedView.bBox.offsetFromTop + COLLAPSED_BLOCK_HEIGHT
                         + collapsedView.bBox.offsetFromBottom;
-                    collapsedView.bBox.w = COLLAPSE_SVG_WIDTH_WITH_SHADOW;
-                    collapsedView.bBox.lw = COLLAPSE_SVG_WIDTH_WITH_SHADOW / 2;
-                    collapsedView.bBox.rw = COLLAPSE_SVG_WIDTH_WITH_SHADOW / 2;
+                    collapsedView.bBox.lw = COLLAPSED_BLOCK_WIDTH / 2;
+                    collapsedView.bBox.rw = COLLAPSED_BLOCK_WIDTH / 2;
+                    collapsedView.bBox.w = collapsedView.bBox.lw + collapsedView.bBox.rw;
 
                     height += collapsedView.bBox.h;
                     if (width < collapsedView.bBox.w) {
