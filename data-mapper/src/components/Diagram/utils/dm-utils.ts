@@ -307,7 +307,7 @@ export function findNodeByValueNode(value: RequiredParam | FromClause, dmNode: D
 	return foundNode;
 }
 
-export function getInputNodeExpr(expr: FieldAccess | SimpleNameReference, dmNode: DataMapperNodeModel) {
+export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	const nameRef = STKindChecker.isSimpleNameReference(expr) ? expr : undefined;
 	if (!nameRef && STKindChecker.isFieldAccess(expr)) {
 		let valueExpr = expr.expression;
@@ -329,7 +329,7 @@ export function getInputNodeExpr(expr: FieldAccess | SimpleNameReference, dmNode
 	}
 }
 
-export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, expr: FieldAccess | SimpleNameReference)
+export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, expr: STNode)
 									: RecordFieldPortModel {
 	const typeDesc = node.typeDef;
 	let portIdBuffer = node instanceof RequiredParamNode ? node.value.paramName.value
@@ -365,34 +365,36 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 									                             childrenTypes?: EditableRecordField[]) {
 	let editableRecordField: EditableRecordField = null;
 	let fields = null;
-	let specificField: STNode;
+	let valueNode: STNode;
 	let nextNode: STNode;
 
 	if (parentType) {
 		if (node && STKindChecker.isMappingConstructor(node)) {
-			specificField = node.fields.find((val) =>
+			valueNode = node.fields.find((val) =>
 				STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
 			) as SpecificField;
-			nextNode =  specificField && STKindChecker.isSpecificField(specificField) && specificField.valueExpr
-				? specificField.valueExpr : undefined;
+			nextNode =  valueNode && STKindChecker.isSpecificField(valueNode) && valueNode.valueExpr
+				? valueNode.valueExpr : undefined;
 		} else if (node && STKindChecker.isListConstructor(node)) {
 			const mappingConstructors = node.expressions.filter((val) =>
 				STKindChecker.isMappingConstructor(val)
 			);
 			for (const expr of mappingConstructors) {
 				if (STKindChecker.isMappingConstructor(expr)) {
-					specificField = expr.fields.find((val) =>
+					valueNode = expr.fields.find((val) =>
 						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
 					) as SpecificField;
 				}
 			}
 			// TODO: Add support for other types as well
+		} else {
+			valueNode = node;
 		}
 	} else {
 		nextNode = node;
 	}
 
-	editableRecordField = new EditableRecordField(type, specificField || node, parentType);
+	editableRecordField = new EditableRecordField(type, valueNode, parentType);
 
 	if (type.typeName === PrimitiveBalType.Record) {
 		fields = type.fields;

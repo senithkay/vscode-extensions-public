@@ -84,6 +84,52 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         </span>
     );
 
+    const arrayElements = elements && (
+        elements.map((element, index) => {
+            if (STKindChecker.isMappingConstructor(element.elementNode)) {
+                return (
+                    <>
+                        <div className={classes.treeLabel}>
+                            <span>{'{'}</span>
+                        </div>
+                        {
+                            element.members.map((typeWithVal) => {
+                                // TODO: Add support to render array elements other than the mapping constructors
+                                return (
+                                    <EditableRecordFieldWidget
+                                        key={fieldId}
+                                        engine={engine}
+                                        field={typeWithVal}
+                                        getPort={getPort}
+                                        parentId={fieldId}
+                                        mappingConstruct={element.elementNode as MappingConstructor}
+                                        context={context}
+                                        fieldIndex={index}
+                                        treeDepth={treeDepth + 1}
+                                    />
+                                );
+                            })
+                        }
+                        <div className={classes.treeLabel}>
+                            <span>{'}'}</span>
+                        </div>
+                    </>
+                );
+            } else {
+                return (
+                    <PrimitiveTypedEditableArrayElementWidget
+                        parentId={fieldId}
+                        field={element.members[0]} // Element only contains a single member
+                        engine={engine}
+                        getPort={getPort}
+                        context={context}
+                        fieldIndex={index}
+                    />
+                );
+            }
+        })
+    );
+
     const handleExpand = () => {
         // TODO Enable expand collapse functionality
         // setExpanded(!expanded)
@@ -143,53 +189,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     <span>[</span>
                 </div>
             )}
-            {elements && (
-                <>
-                    {
-                        elements.map((element, index) => {
-                            return STKindChecker.isMappingConstructor(element.elementNode) ? (
-                                <>
-                                    <div className={classes.treeLabel}>
-                                        <span>{'{'}</span>
-                                    </div>
-                                    {
-                                        element.members.map((typeWithVal) => {
-                                            // TODO: Add support to render array elements other than the mapping constructors
-                                            return (
-                                                <EditableRecordFieldWidget
-                                                    key={fieldId}
-                                                    engine={engine}
-                                                    field={typeWithVal}
-                                                    getPort={getPort}
-                                                    parentId={fieldId}
-                                                    mappingConstruct={element.elementNode as MappingConstructor}
-                                                    context={context}
-                                                    fieldIndex={index}
-                                                    treeDepth={treeDepth + 1}
-                                                />
-                                            );
-                                        })
-                                    }
-                                    <div className={classes.treeLabel}>
-                                        <span>{'}'}</span>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <PrimitiveTypedEditableArrayElementWidget
-                                        parentId={fieldId}
-                                        field={element.members[0]}
-                                        engine={engine}
-                                        getPort={getPort}
-                                        context={context}
-                                        fieldIndex={index}
-                                    />
-                                </>
-                            );
-                        })
-                    }
-                </>
-            )}
+            {arrayElements}
             {hasValue && listConstructor && (
                 <>
                     <div className={classes.treeLabel}>

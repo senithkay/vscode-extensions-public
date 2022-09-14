@@ -16,8 +16,8 @@ import {
     IdentifierToken,
     MappingConstructor,
     SelectClause,
-    SpecificField,
     STKindChecker,
+    STNode,
     traversNode
 } from "@wso2-enterprise/syntax-tree";
 
@@ -136,48 +136,60 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
     }
 
-    private getOutputPortForField(fields: SpecificField[]) {
+    private getOutputPortForField(fields: STNode[]) {
         let nextTypeNode = this.recordFields;
         let recField: EditableRecordField;
         let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
         let fieldIndex;
         for (let i = 0; i < fields.length; i++) {
-            const specificField = fields[i];
-            if (fieldIndex !== undefined) {
-                portIdBuffer = `${portIdBuffer}.${fieldIndex}.${specificField.fieldName.value}`;
-                fieldIndex = undefined;
-            } else {
-                portIdBuffer = `${portIdBuffer}.${specificField.fieldName.value}`
-            }
-            const recFieldTemp = nextTypeNode.find(
-                (recF) => getBalRecFieldName(recF.type.name) === specificField.fieldName.value);
-            if (recFieldTemp) {
-                if (i === fields.length - 1) {
-                    recField = recFieldTemp;
-                } else if (recFieldTemp.type.typeName === PrimitiveBalType.Record) {
-                    nextTypeNode = recFieldTemp?.childrenTypes;
-                } else if (recFieldTemp.type.typeName === PrimitiveBalType.Array
-                    && recFieldTemp.type.memberType.typeName === PrimitiveBalType.Record)
-                {
-                    recFieldTemp.elements.forEach((element, index) => {
-                        if (STKindChecker.isListConstructor(specificField.valueExpr)) {
-                            specificField.valueExpr.expressions.forEach((expr) => {
-                                if (isPositionsEquals(element.elementNode.position, expr.position)) {
-                                    element.members.forEach((member) => {
-                                        if (member?.value
-                                            && STKindChecker.isSpecificField(member.value)
-                                            && isPositionsEquals(member.value.fieldName.position,
-                                                fields[i + 1].fieldName.position)) {
-                                            nextTypeNode = element?.members;
-                                            fieldIndex = index;
-                                            return;
-                                        }
-                                    });
-                                }
-                            })
-                        }
-                    })
+            const field = fields[i];
+            if (STKindChecker.isSpecificField(field)) {
+                if (fieldIndex !== undefined) {
+                    portIdBuffer = `${portIdBuffer}.${fieldIndex}.${field.fieldName.value}`;
+                    fieldIndex = undefined;
+                } else {
+                    portIdBuffer = `${portIdBuffer}.${field.fieldName.value}`
                 }
+                const recFieldTemp = nextTypeNode.find(
+                    (recF) => getBalRecFieldName(recF.type.name) === field.fieldName.value);
+                if (recFieldTemp) {
+                    if (i === fields.length - 1) {
+                        recField = recFieldTemp;
+                    } else if (recFieldTemp.type.typeName === PrimitiveBalType.Record) {
+                        nextTypeNode = recFieldTemp?.childrenTypes;
+                    } else if (recFieldTemp.type.typeName === PrimitiveBalType.Array) {
+                        recFieldTemp.elements.forEach((element, index) => {
+                            if (STKindChecker.isListConstructor(field.valueExpr)) {
+                                field.valueExpr.expressions.forEach((expr) => {
+                                    if (isPositionsEquals(element.elementNode.position, expr.position)) {
+                                        const nextField = fields[i + 1];
+                                        element.members.forEach((member) => {
+                                            if (member?.value) {
+                                                if ((STKindChecker.isSpecificField(member.value)
+                                                        && STKindChecker.isSpecificField(nextField)
+                                                        && isPositionsEquals(member.value.fieldName.position,
+                                                            nextField.fieldName.position))
+                                                    || (STKindChecker.isFieldAccess(member.value)
+                                                        && STKindChecker.isFieldAccess(nextField)
+                                                        && isPositionsEquals(member.value.position,
+                                                            nextField.position)))
+                                                {
+                                                    nextTypeNode = element?.members;
+                                                    fieldIndex = index;
+                                                    return;
+                                                }
+                                            }
+                                        });
+                                    }
+                                })
+                            }
+                        })
+                    }
+                }
+            } else {
+                portIdBuffer = fieldIndex !== undefined ? `${portIdBuffer}.${fieldIndex}` : portIdBuffer;
+                recField = nextTypeNode.find(
+                    (recF) => isPositionsEquals(recF?.value.position, field.position));
             }
         }
         if (recField) {
@@ -186,7 +198,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         }
     }
 
-    private deleteLink(field: SpecificField) {
+    private deleteLink(field: STNode) {
         const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
         traversNode(this.value.expression, linkDeleteVisitor);
         const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();

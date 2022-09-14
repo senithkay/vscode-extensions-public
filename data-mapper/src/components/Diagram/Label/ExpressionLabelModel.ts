@@ -10,7 +10,7 @@ export interface ExpressionLabelOptions extends BaseModelOptions {
 	valueNode?: STNode;
 	context?: IDataMapperContext;
 	link?: DataMapperLinkModel;
-	specificField?: SpecificField;	
+	specificField?: STNode;
 	deleteLink?: () => void;
 }
 
@@ -19,7 +19,7 @@ export class ExpressionLabelModel extends LabelModel {
 	valueNode?: STNode;
 	context: IDataMapperContext;
 	link?: DataMapperLinkModel;
-	specificField?: SpecificField;
+	specificField?: STNode;
 	deleteLink?: () => void;
 
 	constructor(options: ExpressionLabelOptions = {}) {

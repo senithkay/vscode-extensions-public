@@ -1,12 +1,44 @@
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-	AnydataTypeDesc, AnyTypeDesc, ArrayTypeDesc, BooleanTypeDesc, ByteTypeDesc, DecimalTypeDesc,
-	DistinctTypeDesc, ErrorTypeDesc, FloatTypeDesc, FunctionTypeDesc, FutureTypeDesc, HandleTypeDesc,
-	IntersectionTypeDesc, IntTypeDesc, JsonTypeDesc, MappingConstructor, MapTypeDesc, NeverTypeDesc, NilTypeDesc, ObjectTypeDesc,
-	OptionalTypeDesc, ParenthesisedTypeDesc, QualifiedNameReference, ReadonlyTypeDesc, RecordTypeDesc,
-	SimpleNameReference, SingletonTypeDesc, SpecificField, STKindChecker, StreamTypeDesc, StringTypeDesc, TableTypeDesc, traversNode,
-	TupleTypeDesc, TypedescTypeDesc, UnionTypeDesc, XmlTypeDesc
+	AnydataTypeDesc,
+	AnyTypeDesc,
+	ArrayTypeDesc,
+	BooleanTypeDesc,
+	ByteTypeDesc,
+	DecimalTypeDesc,
+	DistinctTypeDesc,
+	ErrorTypeDesc,
+	FloatTypeDesc,
+	FunctionTypeDesc,
+	FutureTypeDesc,
+	HandleTypeDesc,
+	IntersectionTypeDesc,
+	IntTypeDesc,
+	JsonTypeDesc,
+	MappingConstructor,
+	MapTypeDesc,
+	NeverTypeDesc,
+	NilTypeDesc,
+	ObjectTypeDesc,
+	OptionalTypeDesc,
+	ParenthesisedTypeDesc,
+	QualifiedNameReference,
+	ReadonlyTypeDesc,
+	RecordTypeDesc,
+	SimpleNameReference,
+	SingletonTypeDesc,
+	SpecificField,
+	STKindChecker,
+	STNode,
+	StreamTypeDesc,
+	StringTypeDesc,
+	TableTypeDesc,
+	traversNode,
+	TupleTypeDesc,
+	TypedescTypeDesc,
+	UnionTypeDesc,
+	XmlTypeDesc
 } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
@@ -110,36 +142,40 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
+	protected genMappings(val: STNode, parentFields?: SpecificField[]) {
 		let foundMappings: FieldAccessToSpecificFied[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
-			val.fields.forEach((field) => {
-				if (STKindChecker.isSpecificField(field) && field.valueExpr) {
-					if (STKindChecker.isMappingConstructor(field.valueExpr)) {
-						foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
-					} else if (STKindChecker.isListConstructor(field.valueExpr)) {
-						field.valueExpr.expressions.forEach((expr) => {
-							if (STKindChecker.isMappingConstructor(expr)) {
-								foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, field])];
+			if (STKindChecker.isMappingConstructor(val)) {
+				val.fields.forEach((field) => {
+					if (STKindChecker.isSpecificField(field) && field.valueExpr) {
+						if (STKindChecker.isMappingConstructor(field.valueExpr)) {
+							foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
+						} else if (STKindChecker.isListConstructor(field.valueExpr)) {
+							field.valueExpr.expressions.forEach((expr) => {
+								if (!STKindChecker.isCommaToken(expr)) {
+									foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, field])];
+								}
+							})
+						} else if (STKindChecker.isFieldAccess(field.valueExpr)
+							|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
+							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
+						} else {
+							const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
+							traversNode(field.valueExpr, fieldAccessFindingVisitor);
+							const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
+							if (fieldAccesseNodes.length === 1){
+								foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], fieldAccesseNodes[0], field.valueExpr));
 							}
-						})
-					} else if (STKindChecker.isFieldAccess(field.valueExpr)
-						|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
-						foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
-					} else {
-						const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
-						traversNode(field.valueExpr, fieldAccessFindingVisitor);
-						const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
-						if (fieldAccesseNodes.length === 1){
-							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], fieldAccesseNodes[0], field.valueExpr));
-						}
-						else {
-							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
+							else {
+								foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
+							}
 						}
 					}
-				}
-			})
+				})
+			} else if (STKindChecker.isFieldAccess(val) || STKindChecker.isSimpleNameReference(val)) {
+				foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], val));
+			}
 		}
 		return foundMappings;
 	}
