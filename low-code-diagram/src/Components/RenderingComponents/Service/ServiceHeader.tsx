@@ -108,7 +108,6 @@ export function ServiceHeader(props: ServiceHeaderProps) {
             </div>
             <HeaderActionsWithMenu
                 model={model}
-                deleteText="Delete this Service?"
                 isExpanded={isExpanded}
                 onExpandClick={onExpandClick}
                 onConfirmDelete={handleDeleteConfirm}

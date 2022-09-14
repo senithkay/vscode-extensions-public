@@ -109,7 +109,6 @@ export function ResourceHeader(props: ResourceHeaderProps) {
 
             <HeaderActionsWithMenu
                 model={model}
-                deleteText="Are you sure you want to delete resource?"
                 isExpanded={isExpanded}
                 onExpandClick={onExpandClick}
                 onConfirmDelete={onDeleteClick}
