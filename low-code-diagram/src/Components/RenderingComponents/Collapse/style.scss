@@ -1,0 +1,11 @@
+.collapse-component {
+    path.expand-button-container {
+        stroke: #BCBEC4;
+        stroke-width: 2px;
+    }
+    :hover {
+        path.expand-button-container {
+            stroke: #8D91A3;
+        }
+    }
+}

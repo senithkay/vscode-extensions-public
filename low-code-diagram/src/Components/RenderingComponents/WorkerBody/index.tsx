@@ -18,7 +18,7 @@ import { Context } from "../../../Context/diagram";
 import { getDraftComponent, getSTComponents } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
-import CollapseComponent from "../Collapse_new";
+import CollapseComponent from "../Collapse";
 import ControlFlowExecutionTime from "../ControlFlowExecutionTime";
 import { ControlFlowLine } from "../ControlFlowLine";
 
