@@ -100,6 +100,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
                     <DiagramOverlay position={{ x: 0, y: 0 }} stylePosition={"absolute"} className={dataMapperClasses.overlay}>
                         <div className={dataMapperClasses.dataMapperContainer}>
                             <DataMapper
+                                library={library}
                                 targetPosition={targetPosition}
                                 fnST={functionST}
                                 langClientPromise={getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>}
@@ -109,7 +110,6 @@ export function DataMapperOverlay(props: DataMapperProps) {
                                 applyModifications={modifyDiagram}
                                 onClose={onClose}
                                 onSave={onSave}
-                                library={library}
                                 importStatements={importStatements}
                             />
                         </div>
