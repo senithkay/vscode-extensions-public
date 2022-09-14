@@ -12,6 +12,8 @@
  */
 import {
     BinaryExpression,
+    CheckKeyword,
+    CheckpanicKeyword,
     ConstDeclaration,
     FieldAccess,
     FunctionCall,
@@ -39,6 +41,7 @@ import {
     SpecificField,
     STKindChecker,
     STNode,
+    TrapKeyword,
     TupleTypeDesc,
     TypedBindingPattern,
     TypeParameter,
@@ -242,6 +245,24 @@ class ExpressionDeletingVisitor implements Visitor {
                     endColumn: node.initializer.position.endColumn
                 })
             }
+        }
+    }
+
+    public beginVisitCheckKeyword(node: CheckKeyword) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.position)) {
+            this.setProperties("", node.position);
+        }
+    }
+
+    public beginVisitCheckpanicKeyword(node: CheckpanicKeyword) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.position)) {
+            this.setProperties("", node.position);
+        }
+    }
+
+    public beginVisitTrapKeyword(node: TrapKeyword) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.position)) {
+            this.setProperties("", node.position);
         }
     }
 
