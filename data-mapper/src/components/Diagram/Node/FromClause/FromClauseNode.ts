@@ -32,6 +32,7 @@ export class FromClauseNode extends DataMapperNodeModel {
     public typeDef: Type;
     public sourceBindingPattern: CaptureBindingPattern;
     public x: number;
+    public y: number;
 
     constructor(
         public context: IDataMapperContext,
@@ -83,10 +84,11 @@ export class FromClauseNode extends DataMapperNodeModel {
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
         if ( typeof x === 'number' && typeof y === 'number'){
-            if (!this.x){
+            if (!this.x || !this.y){
                 this.x = x;
+                this.y = y;
+                super.setPosition(x,y);
             }
-            super.setPosition(this.x,y);
         }
     }
 }

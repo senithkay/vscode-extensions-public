@@ -20,6 +20,13 @@ import CollapseIcon from "../../../../assets/icons/CollapseIcon";
 import { ViewOption } from "../../../DataMapper/DataMapper";
 
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
+import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
+import AddCircleOutline from '@material-ui/icons/AddCircleOutline';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import { FromClause, JoinClause, LetClause, LimitClause, NodePosition, OrderByClause, STKindChecker, STNode, WhereClause } from '@wso2-enterprise/syntax-tree';
+
+import { WhereClauseEditWidget } from './WhereClauseEditWidget';
+import { WhereClauseAddWidget } from './WhereClauseAddWidget';
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -33,22 +40,27 @@ const useStyles = makeStyles(() =>
             gap: "5px",
             color: "#74828F"
         },
-        fromClause: {
+        clause: {
             padding: "5px",
-            fontFamily: "monospace"
+            fontFamily: "monospace",
+            flex: 1,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: 200,
         },
         header: {
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
         },
-        icons: {
+        iconsButton: {
             padding: '8px',
             '&:hover': {
                 backgroundColor: '#F0F1FB',
             }
         },
-        collapseIcon: {
+        icon: {
             height: '15px',
             width: '15px',
             marginTop: '-7px',
@@ -58,7 +70,7 @@ const useStyles = makeStyles(() =>
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
             right: "35px"
-        }
+        },
     })
 );
 
@@ -68,7 +80,7 @@ export interface ExpandedMappingHeaderWidgetProps {
 }
 
 export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetProps) {
-    const {node, title} = props;
+    const { node, title } = props;
     const classes = useStyles();
 
     const onClickOnCollapse = () => {
@@ -78,20 +90,28 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
     return (
         <div className={classes.root}>
             <div className={classes.header}>
-                <div className={classes.fromClause}>
+                <div className={classes.clause}>
                     {title}
                 </div>
                 <div className={classes.buttonWrapper}>
                     <IconButton
                         onClick={onClickOnCollapse}
-                        className={classes.icons}
+                        className={classes.iconsButton}
                     >
-                        <div className={classes.collapseIcon}>
-                            <CollapseIcon/>
+                        <div className={classes.icon}>
+                            <CollapseIcon />
                         </div>
                     </IconButton>
                 </div>
             </div>
+            <WhereClauseEditWidget 
+                context={node.context} 
+                intermediateNodes={props.node.queryExpr.queryPipeline.intermediateClauses} 
+            />
+            <WhereClauseAddWidget 
+                context={node.context} 
+                queryExprNode={props.node.queryExpr} 
+            />
         </div>
     );
 }

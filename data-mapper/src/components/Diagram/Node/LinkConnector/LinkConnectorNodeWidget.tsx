@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { createStyles, Theme,makeStyles } from "@material-ui/core/styles";
+import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
@@ -8,7 +8,7 @@ import { DataMapperPortWidget } from '../../Port';
 import { LinkConnectorNode } from './LinkConnectorNode';
 
 const styles = makeStyles((theme: Theme) => createStyles({
-	root: {
+    root: {
         verticalAlign: "middle",
         width: '100%',
         backgroundColor: "#fff",
@@ -51,37 +51,31 @@ const styles = makeStyles((theme: Theme) => createStyles({
     }
 }),);
 
-export interface LinkConnectorNodeWidgetProps{
-	node: LinkConnectorNode;
-	engine: DiagramEngine;
+export interface LinkConnectorNodeWidgetProps {
+    node: LinkConnectorNode;
+    engine: DiagramEngine;
 }
 
-export function LinkConnectorNodeWidget (props: LinkConnectorNodeWidgetProps){
-		const node = props.node;
-		const classes = styles();
-		const engine = props.engine;
-        const hasError =node.hasError();
+export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
+    const node = props.node;
+    const classes = styles();
+    const engine = props.engine;
+    const hasError = node.hasError();
 
-		const [editable, setEditable] = React.useState(false);
-		const [str, setStr] = React.useState(node.value);
+    const onClickEdit = () => {
+        props.node.context.enableStamentEditor({valuePosition: props.node.valueNode.valueExpr?.position, 
+            value: props.node.valueNode.valueExpr?.source,
+            label: props.node.valueNode.fieldName.value || props.node.valueNode.fieldName.source});
+    };
 
-        const onClickEdit = () => {
-            props.node.context.enableStamentEditor({valuePosition: props.node.valueNode.valueExpr?.position, 
-                value: props.node.valueNode.valueExpr?.source,
-                label: props.node.valueNode.fieldName.value || props.node.valueNode.fieldName.source});
-        };
-
-		return (
-			<div className={classes.root}>
-                <div className={classes.header}>
-                    <DataMapperPortWidget engine={engine} port={node.inPort}/>
-                        <span style={{display: "flex"}}>
-                            <div>{!editable && <CodeOutlinedIcon onClick={onClickEdit} style={{color: hasError && 'red'}} />}</div>
-                        </span>
-                    <DataMapperPortWidget engine={engine} port={node.outPort}/>
-                </div>
-			</div>
-		);
-	
+    return (
+        <div className={classes.root}>
+            <div className={classes.header}>
+                <DataMapperPortWidget engine={engine} port={node.inPort} />
+                <CodeOutlinedIcon onClick={onClickEdit} style={{ color: hasError && 'red' }} />
+                <DataMapperPortWidget engine={engine} port={node.outPort} />
+            </div>
+        </div>
+    );
 }
 
