@@ -25,6 +25,9 @@ import AddCircleOutline from '@material-ui/icons/AddCircleOutline';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { FromClause, JoinClause, LetClause, LimitClause, NodePosition, OrderByClause, STKindChecker, STNode, WhereClause } from '@wso2-enterprise/syntax-tree';
 
+import { WhereClauseEditWidget } from './WhereClauseEditWidget';
+import { WhereClauseAddWidget } from './WhereClauseAddWidget';
+
 const useStyles = makeStyles(() =>
     createStyles({
         root: {
@@ -68,10 +71,6 @@ const useStyles = makeStyles(() =>
             borderRadius: '8px',
             right: "35px"
         },
-        whereClauseWrap: {
-            display: 'flex',
-            alignItems: 'center'
-        },
     })
 );
 
@@ -86,54 +85,6 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
 
     const onClickOnCollapse = () => {
         node.context.changeSelection(ViewOption.COLLAPSE);
-    }
-
-    const onClickEdit = (editNode:  FromClause | JoinClause | LetClause | LimitClause | OrderByClause | WhereClause) => {
-        if(STKindChecker.isWhereClause(editNode)){
-            props.node.context.enableStamentEditor({
-                value: editNode.expression?.source,
-                valuePosition: editNode.expression?.position,
-                label: "Where condition"
-            });
-        }
-    };
-
-    const onClickAdd = () => {
-        let addPosition:NodePosition;
-        const intermediateClauses: STNode[] = props.node.queryExpr.queryPipeline.intermediateClauses;
-        if (intermediateClauses?.length === 0) {
-            addPosition = props.node.queryExpr.queryPipeline.position
-        } else {
-            const intermediateCount = intermediateClauses.length;
-            addPosition = intermediateClauses[intermediateCount - 1].position;
-        }
-
-        const whereKeyword = 'where';
-
-        props.node.context.enableStamentEditor({
-            specificFieldPosition: {
-                endColumn: addPosition.endColumn,
-                endLine: addPosition.endLine,
-                startColumn: addPosition.endColumn,
-                startLine: addPosition.startLine
-            },
-            value: "EXPRESSION",
-            valuePosition: {
-                endColumn: addPosition.endColumn + whereKeyword.length + 12,
-                endLine: addPosition.endLine,
-                startColumn: addPosition.endColumn + whereKeyword.length + 2,
-                startLine: addPosition.startLine
-            },
-            label: "Where condition",
-            fieldName: ` ${whereKeyword} EXPRESSION`,
-        });
-    };
-
-    const deleteWhereClause = (node: STNode) => {
-        props.node.context.applyModifications([{
-            type: "DELETE",
-            ...node.position
-        }]);
     }
 
     return (
@@ -153,44 +104,14 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
                     </IconButton>
                 </div>
             </div>
-            {props.node.queryExpr.queryPipeline.intermediateClauses?.map((clauseItem, index) =>
-                <div className={classes.whereClauseWrap} key={`${index}-${clauseItem.source}`}>
-                    <div className={classes.clause}>
-                        {clauseItem.source?.trim()}
-                    </div>
-                    <IconButton
-                        onClick={() => onClickEdit(clauseItem)}
-                        className={classes.iconsButton}
-                    >
-                        <div className={classes.icon}>
-                            <CodeOutlinedIcon />
-                        </div>
-                    </IconButton>
-                    <IconButton
-                        onClick={() => deleteWhereClause(clauseItem)}
-                        className={classes.iconsButton}
-                    >
-                        <div className={classes.icon}>
-                            <HighlightOffIcon />
-                        </div>
-                    </IconButton>
-                </div>
-            )}
-
-            <div className={classes.whereClauseWrap}>
-                <div className={classes.clause}>
-                    Add Where Clause
-                </div>
-                <IconButton
-                    onClick={onClickAdd}
-                    className={classes.iconsButton}
-                >
-                    <div className={classes.icon}>
-                        <AddCircleOutline />
-                    </div>
-                </IconButton>
-            </div>
-
+            <WhereClauseEditWidget 
+                context={node.context} 
+                intermediateNodes={props.node.queryExpr.queryPipeline.intermediateClauses} 
+            />
+            <WhereClauseAddWidget 
+                context={node.context} 
+                queryExprNode={props.node.queryExpr} 
+            />
         </div>
     );
 }
