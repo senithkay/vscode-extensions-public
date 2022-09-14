@@ -34,6 +34,7 @@ export function AddLogConfig(props: LogConfigProps) {
 
     const {
         props: {
+            ballerinaVersion,
             currentFile,
             syntaxTree,
             stSymbolInfo,
@@ -92,7 +93,8 @@ export function AddLogConfig(props: LogConfigProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            ballerinaVersion
         }
     );
 

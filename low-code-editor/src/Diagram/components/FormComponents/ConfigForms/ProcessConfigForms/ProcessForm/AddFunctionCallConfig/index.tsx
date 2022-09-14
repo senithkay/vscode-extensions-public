@@ -137,7 +137,8 @@ export function AddFunctionCallConfig(props: AddFunctionCallConfigProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        ballerinaVersion
                     }
                 )
             ) : (

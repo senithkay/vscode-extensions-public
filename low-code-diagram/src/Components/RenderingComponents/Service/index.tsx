@@ -13,13 +13,14 @@
 // tslint:disable: jsx-no-multiline-js  jsx-wrap-multiline
 import React, { useContext, useState } from "react"
 
-import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
 import { useSelectedStatus } from "../../../hooks";
-import { getServiceTypeFromModel, getSTComponent } from "../../../Utils";
+import { findActualEndPositionOfIfElseStatement, getServiceTypeFromModel, getSTComponent } from "../../../Utils";
 import { TopLevelPlus } from "../../PlusButtons/TopLevelPlus";
 
+import { EmptyHeader } from "./EmptyHeader";
 import { ServiceHeader } from "./ServiceHeader";
 import "./style.scss";
 
@@ -39,17 +40,19 @@ export function Service(props: ServiceProps) {
     const [isExpanded, setIsExpanded] = useSelectedStatus(model);
     const onExpandClick = () => {
         setIsExpanded(!isExpanded);
-    }
+    };
 
     const serviceType = getServiceTypeFromModel(model, stSymbolInfo);
     const isTriggerType = serviceType !== "http";
-    const children: JSX.Element[] = []
+    const children: JSX.Element[] = [];
 
-    model.members.forEach(member => {
+    model.members.forEach((member) => {
         const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
         children.push(
             <div className={'service-member'}  data-start-position={startPosition} >
                 {/* <TopLevelPlus
+            <div className={"service-member"} data-start-position={startPosition}>
+                <TopLevelPlus
                     kind={model.kind}
                     targetPosition={member.position}
                     isTriggerType={isTriggerType}
@@ -71,13 +74,21 @@ export function Service(props: ServiceProps) {
 
     const onClickRun = async () => {
         run([]);
-    }
+    };
 
     function renderButtons() {
-        const tryItBtn = <button className="action-button" onClick={onClickTryIt}>Try it</button>
+        const tryItBtn = (
+            <button className="action-button" onClick={onClickTryIt}>
+                Try it
+            </button>
+        );
 
         if (model.isRunnable) {
-            const runBtn = <button className="action-button" onClick={onClickRun}>Run</button>
+            const runBtn = (
+                <button className="action-button" onClick={onClickRun}>
+                    Run
+                </button>
+            );
             if (!isTriggerType) {
                 return [runBtn, tryItBtn];
             }
@@ -87,32 +98,55 @@ export function Service(props: ServiceProps) {
         }
     }
 
+    function isHttpService() {
+        if (STKindChecker.isServiceDeclaration(model) && model.expressions?.length > 0) {
+            const expression = model.expressions[0];
+            if (
+                STKindChecker.isExplicitNewExpression(expression) &&
+                STKindChecker.isQualifiedNameReference(expression.typeDescriptor) &&
+                STKindChecker.isIdentifierToken(expression.typeDescriptor.modulePrefix) &&
+                expression.typeDescriptor.modulePrefix.value === "http"
+            ) {
+                return true;
+            } else if (
+                STKindChecker.isSimpleNameReference(expression) &&
+                expression.typeData?.typeSymbol?.moduleID.moduleName === "http"
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     return (
         <>
-            <div className={'service'} >
-                {/* <div className={"action-container"}>
-                    {!isReadOnly && renderButtons()}
-                </div> */}
-                <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} onClickTryIt={onClickTryIt} onClickRun={onClickRun} />
-                <div className={'content-container'}>
-                    {isExpanded && (
-                        <>
-                            {children}
-                            {!isReadOnly && (
-                                <TopLevelPlus
-                                    kind={model.kind}
-                                    targetPosition={model.closeBraceToken.position}
-                                    isTriggerType={isTriggerType}
-                                    isDocumentEmpty={model.members.length === 0}
-                                    showCategorized={true}
-                                />
-                            )
-                            }
-                        </>
-                    )}
+            {isHttpService() && (
+                <div className={"service"}>
+                    <div className={"action-container"}>{!isReadOnly && renderButtons()}</div>
+                    <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} onClickTryIt={onClickTryIt} onClickRun={onClickRun} />
+                    <div className={"content-container"}>
+                        {isExpanded && (
+                            <>
+                                {children}
+                                {!isReadOnly && (
+                                    <TopLevelPlus
+                                        kind={model.kind}
+                                        targetPosition={model.closeBraceToken.position}
+                                        isTriggerType={isTriggerType}
+                                        isDocumentEmpty={model.members.length === 0}
+                                        showCategorized={true}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
+            {!isHttpService() && (
+                <div className={"class-component"}>
+                    <EmptyHeader model={model} onExpandClick={onExpandClick} isExpanded={isExpanded} />
+                </div>
+            )}
         </>
     );
 }
-

@@ -3,7 +3,7 @@ import ballerina/http;
 function myfunction() returns error? {
     if true {
 
-        http:Client httpEp = check new (url = "https://foo.com");
+        http:Client httpEp = check new (url = "");
     } else {
 
     }

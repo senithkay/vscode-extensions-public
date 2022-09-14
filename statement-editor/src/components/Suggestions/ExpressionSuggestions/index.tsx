@@ -56,6 +56,7 @@ export function ExpressionSuggestions() {
     } = useContext(StatementEditorContext);
 
     const onClickExpressionSuggestion = (expression: Expression, clickedSuggestion: Suggestion) => {
+        setKeyword('');
         if (clickedSuggestion) {
             setSelectedSuggestion({
                 selectedGroup: clickedSuggestion.selectedGroup,

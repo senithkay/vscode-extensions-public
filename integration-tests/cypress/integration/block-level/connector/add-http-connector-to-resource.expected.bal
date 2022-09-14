@@ -2,7 +2,7 @@ import ballerina/http;
 
 service /hello on new http:Listener(9090) {
     resource function get .() returns error? {
-        http:Client httpEp = check new (url = "https://foo.com");
+        http:Client httpEp = check new (url = "");
     }
     resource function post .() returns error? {
     }

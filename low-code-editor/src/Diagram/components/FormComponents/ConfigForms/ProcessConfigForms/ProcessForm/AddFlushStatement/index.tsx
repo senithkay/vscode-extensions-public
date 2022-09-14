@@ -38,6 +38,7 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
     const intl = useIntl();
     const {
         props: {
+            ballerinaVersion,
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
@@ -82,7 +83,8 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            ballerinaVersion
         }
     );
 

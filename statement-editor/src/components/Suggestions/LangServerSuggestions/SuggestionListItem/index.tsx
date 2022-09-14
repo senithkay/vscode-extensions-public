@@ -38,7 +38,10 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
     };
 
     return (
-        <>
+        <StatementEditorHint
+            content={suggestion.value}
+            contentType={!acceptedCompletionKindForTypes.includes(suggestion.completionKind) ? suggestion.kind : null}
+        >
             <ListItem
                 button={true}
                 key={key}
@@ -50,7 +53,6 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                 <SuggestIcon
                     style={{ minWidth: '22px', textAlign: 'left', color }}
                 />
-                <StatementEditorHint content={suggestion.value}>
                 <ListItemText
                     data-testid="suggestion-value"
                     style={{ flex: 'none', maxWidth: '80%' }}
@@ -60,10 +62,9 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                         </Typography>
                     )}
                 />
-                </StatementEditorHint>
                 {!acceptedCompletionKindForTypes.includes(suggestion.completionKind) && (
                     <ListItemText
-                        style={{ minWidth: '10%', marginLeft: '8px' }}
+                        style={{ marginLeft: '8px' }}
                         primary={(
                             <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                 {suggestion.kind}
@@ -72,6 +73,6 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                     />
                 )}
             </ListItem>
-        </>
+        </StatementEditorHint>
     );
 }
