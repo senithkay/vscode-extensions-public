@@ -127,8 +127,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         // setExpanded(!expanded)
     };
 
-    const handleArrayInitialization = () => {
-        createSourceForUserInput(field, mappingConstruct, '[]', context.applyModifications);
+    const handleArrayInitialization = async () => {
+        await createSourceForUserInput(field, mappingConstruct, '[]', context.applyModifications);
     };
 
     const handleAddArrayElement = () => {

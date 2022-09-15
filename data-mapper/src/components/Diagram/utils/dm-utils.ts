@@ -178,7 +178,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	return `${lhs} = ${rhs}`;
 }
 
-export function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
+export async function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
 										                               newValue: string,
 										                               applyModifications: (modifications: STModification[]) => void) {
 

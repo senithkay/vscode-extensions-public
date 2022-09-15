@@ -45,7 +45,11 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
 
     useEffect(() => {
         if (editable) {
-            context.enableStatementEditor(field?.value, `${parentId.split('.').pop()}[${fieldIndex}]`);
+            context.enableStatementEditor({
+                value: field?.value.source,
+                valuePosition: field.value.position,
+                label: `${parentId.split('.').pop()}[${fieldIndex}]`
+            }, `${parentId.split('.').pop()}[${fieldIndex}]`);
         }
     }, [editable]);
 
