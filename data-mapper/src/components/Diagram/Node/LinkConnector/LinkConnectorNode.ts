@@ -61,13 +61,16 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         })
 
         if (this.outPort) {
-            let targetPortName = "exprFunctionBody"
-            if (STKindChecker.isQueryExpression(this.context.selection.selectedST)) {
-                targetPortName = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+            let targetPortName = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+            
+            for (let i = 0; i < this.specificFields.length; i++) {
+                if ( i == 0 && STKindChecker.isSpecificField(this.context.selection.selectedST) 
+                    && (STKindChecker.isQueryExpression(this.context.selection.selectedST.valueExpr))) {
+                    continue;
+                }
+                targetPortName = targetPortName + "." + this.specificFields[i].fieldName.value
             }
-            this.specificFields.forEach((specificField) => {
-                targetPortName = targetPortName + "." + specificField.fieldName.value
-            })
+
             targetPortName = targetPortName + ".IN"
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode) {

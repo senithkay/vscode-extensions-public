@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Point } from "@projectstorm/geometry";
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ExpressionFunctionBody,
@@ -49,6 +50,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     public typeDef: Type;
     public recordFields: EditableRecordField[];
     public typeName: string;
+    public x: number;
+    public y: number;
 
     constructor(
         public context: IDataMapperContext,
@@ -119,7 +122,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     valueNode: otherVal || value,
                     context: this.context,
                     link: lm,
-                    specificField: specificField,
+                    specificField,
                     deleteLink: () => this.deleteLink(specificField),
                 }));
                 lm.setTargetPort(outPort);
@@ -199,6 +202,18 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     public updatePosition() {
-        this.setPosition(1000, this.position.y)
+        this.setPosition(this.position.x, this.position.y);
+    }
+
+    setPosition(point: Point): void;
+    setPosition(x: number, y: number): void;
+    setPosition(x: unknown, y?: unknown): void {
+        if (typeof x === 'number' && typeof y === 'number'){
+            if (!this.x || !this.y){
+                this.x = x;
+                this.y = y;
+                super.setPosition(x, y);
+            }
+        }
     }
 }
