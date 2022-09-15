@@ -177,10 +177,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                                                         && STKindChecker.isSpecificField(nextField)
                                                         && isPositionsEquals(member.value.fieldName.position,
                                                             nextField.fieldName.position))
-                                                    || (STKindChecker.isFieldAccess(member.value)
-                                                        && STKindChecker.isFieldAccess(nextField)
-                                                        && isPositionsEquals(member.value.position,
-                                                            nextField.position)))
+                                                    || (isPositionsEquals(member.value.position, nextField.position)))
                                                 {
                                                     nextTypeNode = element?.members;
                                                     fieldIndex = index;
@@ -197,7 +194,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             } else {
                 portIdBuffer = fieldIndex !== undefined ? `${portIdBuffer}.${fieldIndex}` : portIdBuffer;
                 recField = nextTypeNode.find(
-                    (recF) => isPositionsEquals(recF?.value.position, field.position));
+                    (recF) => recF?.value && isPositionsEquals(recF.value.position, field.position));
             }
         }
         if (recField) {

@@ -175,6 +175,15 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				})
 			} else if (STKindChecker.isFieldAccess(val) || STKindChecker.isSimpleNameReference(val)) {
 				foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], val));
+			} else {
+				const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
+				traversNode(val, fieldAccessFindingVisitor);
+				const fieldAccessNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
+				if (fieldAccessNodes.length === 1){
+					foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], fieldAccessNodes[0], val));
+				} else {
+					foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], undefined , val));
+				}
 			}
 		}
 		return foundMappings;
