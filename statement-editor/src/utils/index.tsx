@@ -481,8 +481,8 @@ export function isNodeDeletable(selectedNode: STNode, formType: string): boolean
 
     let exprDeletable = !stmtViewState.exprNotDeletable;
     if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
-        exprDeletable =  stmtViewState.templateExprDeletable;
-    }else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
+        exprDeletable = stmtViewState.templateExprDeletable;
+    } else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
         exprDeletable = false;
     }
 
@@ -832,7 +832,12 @@ export function getFilteredExpressions(expression: ExpressionGroup[], currentMod
 
 export function eligibleForLevelTwoSuggestions(selectedModel: STNode, selection: string): boolean {
     return (selectedModel.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION
-        && selection !== '?';
+        && selection !== '?' && getModelContent(selectedModel) !== EXPR_CONSTRUCTOR;
+}
+
+function getModelContent(selectedModel: STNode) : string {
+     const content: string = selectedModel.source ? selectedModel.source : selectedModel.value;
+     return content.trim();
 }
 
 function getModelParamSourceList(currentModel: STNode): string[] {
@@ -903,4 +908,14 @@ export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
                     "rgba(204,209,242,0.61)" : 'inherit'
             } : undefined
     );
+}
+
+export function isBalVersionUpdateOne(version: string): boolean{
+    if (!version) {
+        return false;
+    }
+    const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
+    const versionStr = version.match(versionRegex);
+    const splittedVersions = versionStr[0]?.split(".");
+    return parseInt(splittedVersions[0], 10) === 2201 && parseInt(splittedVersions[1], 10) === 1;
 }

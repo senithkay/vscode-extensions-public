@@ -34,7 +34,9 @@ export function ReturnStatementC(props: ReturnStatementProps) {
     } = stmtCtx;
 
     if (!currentModel.model) {
-        changeCurrentModel(model.expression);
+        if (model.expression){
+            changeCurrentModel(model.expression);
+        }
     }
 
     return (

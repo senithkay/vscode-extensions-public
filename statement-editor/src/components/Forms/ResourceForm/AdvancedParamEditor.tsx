@@ -17,7 +17,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import {
-    dynamicConnectorStyles as connectorStyles,
+    dynamicConnectorStyles as connectorStyles, TextPreloaderVertical,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CommaToken, DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
@@ -225,14 +225,29 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                     <div>
                         {requestIndex === -1 && showButton(PARAM_TYPES.REQUEST)}
                         {requestIndex > -1 && getParamEditorComponent(requestIndex, PARAM_TYPES.REQUEST, currentEditOption)}
+                        {(requestIndex !== -1) && !getParamEditorComponent(requestIndex, PARAM_TYPES.REQUEST, currentEditOption) && (
+                            <div>
+                                <TextPreloaderVertical position="fixedMargin"/>
+                            </div>
+                        )}
                     </div>
                     <div>
                         {callerIndex === -1 && showButton(PARAM_TYPES.CALLER)}
                         {callerIndex > -1 && getParamEditorComponent(callerIndex, PARAM_TYPES.CALLER, currentEditOption)}
+                        {(callerIndex !== -1) && !getParamEditorComponent(callerIndex, PARAM_TYPES.CALLER, currentEditOption) && (
+                            <div>
+                                <TextPreloaderVertical position="fixedMargin"/>
+                            </div>
+                        )}
                     </div>
                     <div>
                         {headerIndex === -1 && showButton(PARAM_TYPES.HEADER_MAP)}
                         {headerIndex > -1 && getParamEditorComponent(headerIndex, PARAM_TYPES.HEADER_MAP, currentEditOption)}
+                        {(headerIndex !== -1) && !getParamEditorComponent(headerIndex, PARAM_TYPES.HEADER_MAP, currentEditOption) && (
+                            <div>
+                                <TextPreloaderVertical position="fixedMargin"/>
+                            </div>
+                        )}
                     </div>
                 </>
             )}

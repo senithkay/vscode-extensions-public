@@ -28,4 +28,16 @@ export class InputEditor {
         
         return this;
     }
+
+    static checkEditingState() {
+        cy.get(`[data-testid="input-editor"]`)
+            .should("be.visible");
+        return this;
+    }
+
+    static checkUneditableState() {
+        cy.get(`[data-testid="input-editor"]`)
+            .should("not.exist");
+        return this;
+    }
 }

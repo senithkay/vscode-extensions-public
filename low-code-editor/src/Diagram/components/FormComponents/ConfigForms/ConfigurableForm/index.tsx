@@ -237,7 +237,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isConfigurableStmt: true
+                        isConfigurableStmt: true,
+                        ballerinaVersion
                     }
                 )
             ) : (

@@ -155,7 +155,7 @@ describe("Add module-level statements via Low Code", () => {
 
         ListenerForm.shouldBeVisible()
             .typeListenerName("hello")
-            .typeListenerPortValue(9090)
+            .typeListenerPortValue('9090')
             .save();
     });
 

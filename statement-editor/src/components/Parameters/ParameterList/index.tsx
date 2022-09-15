@@ -120,7 +120,7 @@ export function ParameterList(props: ParameterListProps) {
     return (
         <>
             {!!paramDocumentation.parameters?.length && (
-                <>
+                <div data-testid="parameter-list">
                     <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
                         Configure Parameters
                         <ListItemText
@@ -131,7 +131,7 @@ export function ParameterList(props: ParameterListProps) {
                     {paramDocumentation.parameters?.map((param: ParameterInfo, value: number) => (
                             <>
                                 {param.kind === SymbolParameterType.REQUIRED ? (
-                                    <RequiredArg param={param} value={value}/>
+                                    <RequiredArg param={param} value={value} handleCheckboxClick={handleCheckboxClick}/>
                                 ) : (
                                     <>
                                         {param.kind === SymbolParameterType.INCLUDED_RECORD ? (
@@ -168,6 +168,7 @@ export function ParameterList(props: ParameterListProps) {
                                                         key={value}
                                                         className={stmtEditorHelperClasses.docListDefault}
                                                         style={getParamHighlight(model, param)}
+                                                        data-testid="optional-arg"
                                                     >
                                                         <Checkbox
                                                             classes={{
@@ -176,6 +177,7 @@ export function ParameterList(props: ParameterListProps) {
                                                             }}
                                                             checked={param.modelPosition !== undefined}
                                                             onClick={handleCheckboxClick(param)}
+                                                            data-testid="arg-check"
                                                         />
                                                         <ListItemText
                                                             className={stmtEditorHelperClasses.docListItemText}
@@ -205,7 +207,7 @@ export function ParameterList(props: ParameterListProps) {
                         )
                     )}
                     </div>
-                </>
+                </div>
             )}
         </>
     );

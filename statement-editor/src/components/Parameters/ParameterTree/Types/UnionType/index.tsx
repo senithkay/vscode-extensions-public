@@ -62,7 +62,7 @@ export default function UnionType(props: TypeProps) {
 
     return (
         <ListItem className={stmtEditorHelperClasses.docListDefault}>
-            <div className={stmtEditorHelperClasses.listItemMultiLine}>
+            <div className={stmtEditorHelperClasses.listItemMultiLine} data-testid="union-arg">
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <Checkbox
                         classes={{
@@ -74,11 +74,17 @@ export default function UnionType(props: TypeProps) {
                         checked={paramSelected}
                         disabled={requiredParam}
                         onClick={toggleParamCheck}
+                        data-testid="arg-check"
                     />
-                    <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={param.name} />
+                    <ListItemText
+                        className={stmtEditorHelperClasses.docListItemText}
+                        primary={param.name}
+                        data-testid="arg-name"
+                    />
                     {(param.optional || param.defaultable) && (
                         <ListItemText
                             className={stmtEditorHelperClasses.paramDataType}
+                            data-testid="arg-type"
                             primary={(
                                 <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                     {"(Optional)"}
@@ -86,7 +92,7 @@ export default function UnionType(props: TypeProps) {
                             )}
                         />
                     )}
-                    <div className={stmtEditorHelperClasses.listDropdownWrapper}>
+                    <div className={stmtEditorHelperClasses.listDropdownWrapper} data-testid="arg-dropdown">
                         <SelectDropdown
                             className={stmtEditorHelperClasses.listSelectDropDown}
                             values={memberTypes}
@@ -98,6 +104,7 @@ export default function UnionType(props: TypeProps) {
                         <ListItemText
                             className={stmtEditorHelperClasses.paramTreeDescriptionText}
                             primary={" : " + param.documentation}
+                            data-testid="arg-documentation"
                         />
                     )}
                 </div>

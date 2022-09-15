@@ -625,7 +625,7 @@ export function StatementOptions(props: StatementOptionsProps) {
     statements.push(foreachStm);
     statements.push(whileStmt);
     statements.push(returnStm);
-    // statements.push(respondStm);
+    statements.push(respondStm);
     if (statementEditorSupported) {
         statements.push(workerBlock);
         statements.push(sendStmt);

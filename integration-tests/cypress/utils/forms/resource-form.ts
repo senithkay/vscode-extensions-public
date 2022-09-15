@@ -5,18 +5,29 @@ import { methods } from "../type-utils";
 export class ResourceForm {
 
     private static selector = '[data-testid="resource-form"]';
+    private static clearStroke = '{selectall}{del}';
 
     static typePathName(pathName: string) {
         ExpressionEditor
-            .getForField("Resource path", this.selector)
-            .type(pathName)
-            .waitForValidations();
+            .getForField("resource-path", this.selector)
+            .clear()
+            .type(pathName);
+        cy.wait(2000);
+        return this;
+    }
+
+    static typeReturnValue(pathName: string) {
+        ExpressionEditor
+            .getForField("return-type", this.selector)
+            .clear()
+            .type(pathName);
+        cy.wait(2000);
         return this;
     }
 
     static selectMethod(type: methods) {
         SelectDropDown
-            .getForField("HTTP Method", this.selector)
+            .getForField("api-method", this.selector)
             .select(type);
         return this;
     }
@@ -28,7 +39,7 @@ export class ResourceForm {
     }
 
     private static getForm() {
-        return cy 
+        return cy
             .get(this.selector);
 
     }
@@ -75,7 +86,7 @@ export class ResourceForm {
             // .suggestWidgetShouldBeVisible() //Need to fix this
             .waitForValidations()
             // .clickFirstSuggestion() //Need to fix this
-        ;
+            ;
         return this;
     }
 
@@ -88,7 +99,7 @@ export class ResourceForm {
             .type(payloadName);
         return this;
     }
-    
+
     static clickAddQueryParam() {
         this.getForm()
             .get('[data-testid="add-query-param-button"]')
@@ -127,7 +138,7 @@ export class ResourceForm {
             .waitForValidations()
             // .clickFirstSuggestion() //Fix Suggestions
             .waitForValidations()
-        ;
+            ;
         return this;
     }
 
@@ -140,7 +151,7 @@ export class ResourceForm {
             .waitForValidations()
             // .clickFirstSuggestion() //Fix Suggestions
             .waitForValidations()
-        ;
+            ;
         return this;
     }
 
@@ -151,6 +162,66 @@ export class ResourceForm {
             .click()
             .type(clearKeyStroke)
             .type(param)
+            .get('[data-testid="path-segment-add-btn"]')
+            .click();
+        return this;
+    }
+
+    static addResourceParam(type: 'QUERY' | 'HEADER', paramType: string, paramName: string, defaultValue?: string) {
+        this.getForm()
+            .get('[data-test-id="param-add-button"]')
+            .click();
+
+        ExpressionEditor
+            .getForField("param-type", this.selector)
+            .clear()
+            .type(paramType);
+        cy.wait(2000);
+
+        ExpressionEditor
+            .getForField("param-name", this.selector)
+            .clear()
+            .type(paramName);
+        cy.wait(2000);
+
+        if (defaultValue && defaultValue.length > 0) {
+            ExpressionEditor
+                .getForField("param-default-val", this.selector)
+                .clear()
+                .type(defaultValue);
+
+            cy.wait(2000);
+        }
+
+        this.getForm()
+            .get('[data-testid="path-segment-add-btn"]')
+            .click();
+        return this;
+    }
+
+    static addPayload(paramType?: string, paramName?: string) {
+        this.getForm()
+            .get('[data-test-id="payload-add-button"]')
+            .click();
+
+        if (paramType && paramType.length > 0) {
+            ExpressionEditor
+                .getForField("param-type", this.selector)
+                .clear()
+                .type(paramType);
+            cy.wait(2000)
+        }
+
+        if (paramName && paramName.length > 0) {
+            ExpressionEditor
+                .getForField("param-name", this.selector)
+                .clear()
+                .type(paramName);
+            cy.wait(2000);
+        }
+
+
+        this.getForm()
             .get('[data-testid="path-segment-add-btn"]')
             .click();
         return this;
@@ -208,6 +279,16 @@ export class ResourceForm {
         this.getForm()
             .get(`[data-testid=${param}-close-btn]`)
             .click();
+        return this;
+    }
+
+    static removeParameter(paramType: string, paramName: string) {
+        this.getForm()
+            .get(`[data-testid="${paramType}  ${paramName}-item"]`)
+            .within(() => {
+                cy.get('#delete-button')
+                    .click();
+            })
         return this;
     }
 

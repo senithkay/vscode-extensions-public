@@ -28,4 +28,11 @@ export class Toolbar {
             .click()
         return this;
     }
+
+    static clickConfigurableButton() {
+        cy.get(`[data-testid="toolbar-configurable"]`)
+            .click()
+        return this;
+    }
+
 }

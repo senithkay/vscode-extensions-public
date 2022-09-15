@@ -92,7 +92,8 @@ export const StatementEditorContext = React.createContext({
     onWizardClose: () => undefined,
     onCancel: () => undefined,
     experimentalEnabled: false,
-    isExpressionMode: false
+    isExpressionMode: false,
+    ballerinaVersion: null
 });
 
 export interface CtxProviderProps extends LowCodeEditorProps {
@@ -161,6 +162,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         updateEditing,
         isExpressionMode,
         currentFile,
+        ballerinaVersion,
         ...restProps
     } = props;
 
@@ -215,6 +217,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     ...currentFile,
                     originalContent: currentFile.originalContent
                 },
+                ballerinaVersion,
                 ...restProps
             }}
         >

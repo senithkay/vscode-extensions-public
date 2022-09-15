@@ -35,6 +35,7 @@ export function ExprDeleteButton(props: ExprDeleteButtonProps) {
         <span
             className={`${statementRendererClasses.plusIcon} ${classNames}`}
             onClick={onClickOnMinusButton}
+            data-testid="minus-button"
         >
             -
         </span>

@@ -1,8 +1,6 @@
 import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
 import { Canvas } from "../../../utils/components/canvas";
 import { SourceCode } from "../../../utils/components/code-view";
-import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
-import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
 import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { ConnectorMarketplace } from "../../../utils/forms/connector-form";
@@ -35,17 +33,6 @@ describe('Add connector to child blocks via Low Code', () => {
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("StringLiteral")
-            .doubleClickExpressionContent('""');
-
-        InputEditor
-            .typeInput('"https://foo.com"');
-
-        StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
@@ -72,17 +59,6 @@ describe('Add connector to child blocks via Low Code', () => {
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("StringLiteral")
-            .doubleClickExpressionContent('""');
-
-        InputEditor
-            .typeInput('"https://foo.com"');
-
-        StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
@@ -109,17 +85,6 @@ describe('Add connector to child blocks via Low Code', () => {
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("StringLiteral")
-            .doubleClickExpressionContent('""');
-
-        InputEditor
-            .typeInput('"https://foo.com"');
-
-        StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
