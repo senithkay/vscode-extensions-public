@@ -41,7 +41,7 @@ export class FieldAccessFindingVisitor implements Visitor {
         this.queryExpressionDepth -= 1;
     }
 
-    public getFieldAccesseNodes(){
+    public getFieldAccessNodes(){
         return this.fieldAccesseNodes
     }
 

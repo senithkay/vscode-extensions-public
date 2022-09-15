@@ -16,7 +16,6 @@ import {
 	IntersectionTypeDesc,
 	IntTypeDesc,
 	JsonTypeDesc,
-	MappingConstructor,
 	MapTypeDesc,
 	NeverTypeDesc,
 	NilTypeDesc,
@@ -34,7 +33,6 @@ import {
 	StreamTypeDesc,
 	StringTypeDesc,
 	TableTypeDesc,
-	traversNode,
 	TupleTypeDesc,
 	TypedescTypeDesc,
 	UnionTypeDesc,
@@ -45,8 +43,7 @@ import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapp
 import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 import { RecordFieldPortModel } from "../../Port";
-import { getBalRecFieldName } from "../../utils/dm-utils";
-import { FieldAccessFindingVisitor } from '../../visitors/FieldAccessFindingVisitor';
+import { getBalRecFieldName, getFieldAccessNodes } from "../../utils/dm-utils";
 
 export interface DataMapperNodeModelGenerics {
 	PORT: RecordFieldPortModel;
@@ -161,31 +158,25 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 							|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
 							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
 						} else {
-							const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
-							traversNode(field.valueExpr, fieldAccessFindingVisitor);
-							const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
-							if (fieldAccesseNodes.length === 1){
-								foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], fieldAccesseNodes[0], field.valueExpr));
-							}
-							else {
-								foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], undefined , field.valueExpr));
-							}
+							foundMappings.push(this.getOtherMappings(field, currentFields));
 						}
 					}
 				})
 			} else if (STKindChecker.isFieldAccess(val) || STKindChecker.isSimpleNameReference(val)) {
 				foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], val));
 			} else {
-				const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
-				traversNode(val, fieldAccessFindingVisitor);
-				const fieldAccessNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
-				if (fieldAccessNodes.length === 1){
-					foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], fieldAccessNodes[0], val));
-				} else {
-					foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], undefined , val));
-				}
+				foundMappings.push(this.getOtherMappings(val, currentFields));
 			}
 		}
 		return foundMappings;
+	}
+
+	protected getOtherMappings(node: STNode, currentFields: STNode[]) {
+		const valNode = STKindChecker.isSpecificField(node) ? node.valueExpr : node;
+		const fieldAccessNodes = getFieldAccessNodes(valNode);
+		if (fieldAccessNodes.length === 1) {
+			return new FieldAccessToSpecificFied([...currentFields, node], fieldAccessNodes[0], valNode);
+		}
+		return new FieldAccessToSpecificFied([...currentFields, node], undefined , valNode);
 	}
 }

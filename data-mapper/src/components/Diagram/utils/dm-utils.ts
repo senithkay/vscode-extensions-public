@@ -553,9 +553,7 @@ export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 }
 
 export function isConnectedViaLink(field: SpecificField) {
-	const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
-	traversNode(field.valueExpr, fieldAccessFindingVisitor);
-	const fieldAccessNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
+	const fieldAccessNodes = getFieldAccessNodes(field.valueExpr);
 
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field.valueExpr);
 	const isListConstruct = STKindChecker.isListConstructor(field.valueExpr);
@@ -605,6 +603,12 @@ export function getDefaultValue(field: Type): string {
 
 export function isArrayOrRecord(field: Type) {
 	return field.typeName === PrimitiveBalType.Array || field.typeName === PrimitiveBalType.Record;
+}
+
+export function getFieldAccessNodes(node: STNode) {
+	const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
+	traversNode(node, fieldAccessFindingVisitor);
+	return fieldAccessFindingVisitor.getFieldAccessNodes();
 }
 
 function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
