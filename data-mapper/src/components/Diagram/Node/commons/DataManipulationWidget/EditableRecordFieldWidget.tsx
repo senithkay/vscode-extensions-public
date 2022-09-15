@@ -18,14 +18,19 @@ import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
+import {
+    getBalRecFieldName,
+    getDefaultLiteralValue,
+    getNewSource,
+    isConnectedViaLink
+} from "../../../utils/dm-utils";
 
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
 
@@ -68,7 +73,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [editable, setEditable] = useState<boolean>(false);
-    const [str, setStr] = useState(hasValue ? field.value.source : "");
+    const [str, setStr] = useState(hasValue ? field.value.source : `""`);
 
     const label = (
         <span style={{marginRight: "auto"}}>
@@ -92,14 +97,24 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const handleEditable = () => {
         if (!!field.value) {
-            props.context.enableStamentEditor({value: "EXPRESSION" , valuePosition: field.value.valueExpr.position, label: field.value.fieldName.source});
+            props.context.enableStatementEditor({
+                value: "EXPRESSION",
+                valuePosition: STKindChecker.isSpecificField(field.value)
+                    ? field.value.valueExpr.position
+                    : field.value.position,
+                label: STKindChecker.isSpecificField(field.value)
+                    ? field.value.fieldName.source
+                    : field.value.source
+            }, STKindChecker.isSpecificField(field.value)
+                ? field.value.fieldName.source
+                : field.value.source);
 
         } else {
             const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
 
-            const fieldName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+            const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
 
-            const coloumnNumber = field.type.name?.length;
+            const columnNumber = field.type.name?.length;
             const specificFieldPosition: NodePosition   = {
                 startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
                 startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
@@ -108,17 +123,44 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             }
 
             const valuePosition: NodePosition   = {
-                startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber, 
-                startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber + 2,
+                startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
+                startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
                 endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
-                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber +2
+                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
             }
-            props.context.enableStamentEditor({specificFieldPosition, fieldName, value: "EXPRESSION" , valuePosition, label: field.type.name});
+            props.context.enableStatementEditor({
+                specificFieldPosition,
+                fieldName: fName,
+                value: "EXPRESSION" ,
+                valuePosition,
+                label: field.type.name
+            }, field.type.name);
         }
-
-
-
     };
+
+    // const handleEditable = async () => {
+    //     if (!field.value) {
+    //         await createSourceForUserInput(field, mappingConstruct, str, context.applyModifications);
+    //     }
+    //     setEditable(true);
+    // };
+
+    // useEffect(() => {
+    //     if (editable && field.value) {
+    //         context.enableStatementEditor({
+    //             value: STKindChecker.isSpecificField(field.value) ? field.value.valueExpr.source : field.value.source,
+    //             valuePosition: STKindChecker.isSpecificField(field.value)
+    //                 ? field.value.valueExpr.position
+    //                 : field.value.position,
+    //             label: STKindChecker.isSpecificField(field.value)
+    //                 ? field.value.fieldName.source
+    //                 : field.value.source
+    //         }, STKindChecker.isSpecificField(field.value)
+    //             ? field.value.fieldName.source
+    //             : field.value.source);
+    //         setEditable(false);
+    //     }
+    // }, []);
 
     const handleExpand = () => {
         // TODO Enable expand collapse functionality
