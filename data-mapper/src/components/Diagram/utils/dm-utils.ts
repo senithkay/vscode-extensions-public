@@ -80,7 +80,10 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	rhs = getRHSFromSourcePort(link.getSourcePort());
 
-	if (!isArrayOrRecord(targetPort.field) && targetPort.editableRecordField?.value) {
+	if (!isArrayOrRecord(targetPort.field)
+		&& targetPort.editableRecordField?.value
+		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value))
+	{
 		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
 	}
 	lhs = getBalRecFieldName(targetPort.field.name);
