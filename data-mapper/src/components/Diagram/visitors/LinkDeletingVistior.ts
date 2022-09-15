@@ -12,6 +12,7 @@
  */
 import {
     BinaryExpression,
+    FieldAccess,
     ListConstructor,
     MappingConstructor,
     NodePosition,
@@ -20,6 +21,7 @@ import {
     traversNode,
     Visitor,
 } from "@wso2-enterprise/syntax-tree";
+
 import { isPositionsEquals } from "../../../utils/st-utils";
 const { isSpecificField, isMappingConstructor, isCommaToken, isFieldAccess } = STKindChecker;
 
@@ -47,18 +49,14 @@ export class LinkDeletingVisitor implements Visitor {
     }
 
     public beginVisitListConstructor(node: ListConstructor): void {
-        for (const item of node.expressions) {
-            if (isMappingConstructor(item)) {
-                this.findDeletePosition(item, true);
-            }
-        }
+        this.findDeletePositionWithinListConstructor(node);
     }
 
     public beginVisitBinaryExpression(node: BinaryExpression): void {
         if (this.deletePosition === null) {
             // LHS could be another binary expression or field access node
             // RHS is always field access node
-    
+
             if (node.lhsExpr && isFieldAccess(node.lhsExpr) && isPositionsEquals(this.fieldPosition, node.lhsExpr.position)) {
                 // If LHS is a field access node to be deleted
                 // Then also delete the operator right to it
@@ -67,7 +65,7 @@ export class LinkDeletingVisitor implements Visitor {
                     endLine: node.operator.position?.endLine,
                     endColumn: node.operator.position?.endColumn,
                 }
-            }else if(node.rhsExpr && isFieldAccess(node.rhsExpr) && isPositionsEquals(this.fieldPosition, node.rhsExpr.position)){
+            }else if (node.rhsExpr && isFieldAccess(node.rhsExpr) && isPositionsEquals(this.fieldPosition, node.rhsExpr.position)){
                 // If RHS is a field access node to be deleted
                 // Then also delete the operator left to it
                 this.deletePosition = {
@@ -76,6 +74,12 @@ export class LinkDeletingVisitor implements Visitor {
                     startColumn: node.operator.position?.startColumn,
                 }
             }
+        }
+    }
+
+    public beginVisitFieldAccess(node: FieldAccess) {
+        if (this.deletePosition === null && isPositionsEquals(this.fieldPosition, node.position)) {
+            this.deletePosition = this.fieldPosition;
         }
     }
 
@@ -141,6 +145,45 @@ export class LinkDeletingVisitor implements Visitor {
                         endLine: next.position?.endLine,
                         endColumn: next.position?.endColumn,
                     };
+                }
+            }
+        }
+    }
+
+    private findDeletePositionWithinListConstructor(node: ListConstructor) {
+        if (this.deletePosition === null) {
+            const deleteIndex = node.expressions.findIndex((expression: STNode) => {
+                return isFieldAccess(expression) && isPositionsEquals(this.fieldPosition, expression.position);
+            });
+
+            if (deleteIndex !== -1) {
+                const selected = node.expressions[deleteIndex];
+                const previous = node.expressions[deleteIndex - 1];
+                const next = node.expressions[deleteIndex + 1];
+                const isLastElement = deleteIndex + 1 === node.expressions.length;
+
+                const updatedDeletePosition = selected.position;
+
+                if (node.expressions.length === 1) {
+                    this.deletePosition = updatedDeletePosition;
+                } else if (previous && isCommaToken(previous) && isLastElement) {
+                    this.deletePosition = {
+                        ...updatedDeletePosition,
+                        startLine: previous.position?.startLine,
+                        startColumn: previous.position?.startColumn,
+                    };
+                } else if (next && isCommaToken(next)) {
+                    this.deletePosition = {
+                        ...updatedDeletePosition,
+                        endLine: next.position?.endLine,
+                        endColumn: next.position?.endColumn,
+                    };
+                }
+            } else {
+                for (const item of node.expressions) {
+                    if (isMappingConstructor(item)) {
+                        this.findDeletePosition(item, true);
+                    }
                 }
             }
         }
