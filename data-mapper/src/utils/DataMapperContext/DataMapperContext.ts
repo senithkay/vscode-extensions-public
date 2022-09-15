@@ -4,7 +4,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
+import { SelectionState, ExpressionInfo, ViewOption } from "../../components/DataMapper/DataMapper";
 import { Diagnostic } from "vscode-languageserver-protocol";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 
@@ -22,7 +22,7 @@ export interface IDataMapperContext {
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
     applyModifications: (modifications: STModification[]) => void;
     diagnostics: Diagnostic[];
-    enableStatementEditor: (model: STNode, label: string) => void;
+    enableStatementEditor: (expressionInfo: ExpressionInfo, label: string) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -41,7 +41,7 @@ export class DataMapperContext implements IDataMapperContext {
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
         public applyModifications: (modifications: STModification[]) => void,
         public diagnostics: Diagnostic[],
-        public enableStatementEditor: (model: STNode, label: string) => void
+        public enableStatementEditor: (expressionInfo: ExpressionInfo, label: string) => void
     ){}
 
     public get functionST(): FunctionDefinition {

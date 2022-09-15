@@ -22,6 +22,7 @@ import { Context as DiagramContext } from "../Contexts/Diagram";
 import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
+import { DataMapperOverlay } from "./components/DataMapperOverlay";
 import { ConnectorWizard } from "./components/FormComponents/ConfigForms/ConnectorWizard";
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
@@ -29,7 +30,6 @@ import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/F
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
-import { DataMapperOverlay } from "./components/DataMapperOverlay";
 
 export function Diagram() {
     const {
@@ -367,7 +367,7 @@ export function Diagram() {
                         <FormGenerator {...formConfig} />
                     )}
                     {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
-                         <DataMapperOverlay
+                        <DataMapperOverlay
                             {...formConfig}
                         />
                     )}

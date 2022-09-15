@@ -57,17 +57,9 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const elements = field.elements;
 
     const [expanded, setExpanded] = useState<boolean>(true);
-    const [listConstructor, setListConstructor] = useState<ListConstructor>(null);
+    const listConstructor = hasValue ? (STKindChecker.isListConstructor(valExpr) ? valExpr : null) : null;
 
     const indentation = !!elements ? 0 : ((treeDepth + 1) * 16) + 8;
-
-    useEffect(() => {
-        if (hasValue) {
-            if (STKindChecker.isListConstructor(valExpr)) {
-                setListConstructor(valExpr);
-            }
-        }
-    }, [mappingConstruct]);
 
     const label = (
         <span style={{marginRight: "auto"}}>

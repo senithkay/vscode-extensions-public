@@ -135,7 +135,7 @@ export function StatementEditor(props: StatementEditorProps) {
             handleChange(currentSource).then();
         } else if (undoItem) {
             const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
-                targetPosition, moduleList);
+                targetPosition, moduleList, isExpressionMode);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(undoItem.oldModel.model.source);
             setStmtModel(undoItem.oldModel.model, diagnostics);
@@ -151,7 +151,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
             const updatedContent = getUpdatedSource(redoItem.newModel.model.source, currentFile.content,
-                targetPosition, moduleList);
+                targetPosition, moduleList, isExpressionMode);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(redoItem.newModel.model.source);
             setStmtModel(redoItem.newModel.model, diagnostics);
@@ -166,7 +166,7 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (!newConfigurableName || isPullingModule) {
-                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList, isExpressionMode);
 
                 sendDidChange(fileURI, updatedContent, getLangClient).then();
                 const diagnostics = await handleDiagnostics(source);
@@ -204,7 +204,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     for (const statement of statements) {
                         const index = statements.indexOf(statement);
                         const updatedContent = getUpdatedSource(statement, currentFile.content,
-                            targetPosition, moduleList);
+                            targetPosition, moduleList, isExpressionMode);
                         await sendDidChange(fileURI, updatedContent, getLangClient);
                         let completions: SuggestionItem[];
 
@@ -220,7 +220,7 @@ export function StatementEditor(props: StatementEditorProps) {
                             }));
 
                             const content = getUpdatedSource(model.source, currentFile.content,
-                                targetPosition, moduleList);
+                                targetPosition, moduleList, isExpressionMode);
                             await sendDidChange(fileURI, content, getLangClient);
                         }
                     }
@@ -254,7 +254,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
-        const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
+        const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, isExpressionMode);
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         handleDiagnostics(updatedStatement).then();
@@ -291,7 +291,7 @@ export function StatementEditor(props: StatementEditorProps) {
         }
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-            const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
+            const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList, isExpressionMode);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
@@ -312,7 +312,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
         } else if (partialST.syntaxDiagnostics.length){
             const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
-            const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
+            const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, isExpressionMode);
 
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             handleDiagnostics(updatedStatement).then();

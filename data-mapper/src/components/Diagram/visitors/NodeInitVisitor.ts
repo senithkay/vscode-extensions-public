@@ -79,6 +79,8 @@ export class NodeInitVisitor implements Visitor {
             && node.position.startColumn === this.selection.selectedST.valueExpr.position.startColumn)
         {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
+                const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 30;
+                const yPosition = 120 + intermediateClausesHeight;
                 // create output node
                 this.outputNode = new MappingConstructorNode(
                     this.context,
@@ -86,14 +88,14 @@ export class NodeInitVisitor implements Visitor {
                     parent.fieldName
                 );
 
-                this.outputNode.setPosition(1000, 100);
+                this.outputNode.setPosition(1000, yPosition);
 
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(
                     this.context,
                     node.queryPipeline.fromClause
                 );
-                fromClauseNode.setPosition(100, 100);
+                fromClauseNode.setPosition(100, yPosition);
                 this.inputNodes.push(fromClauseNode);
 
                 const queryNode = new ExpandedMappingHeaderNode(this.context, node);

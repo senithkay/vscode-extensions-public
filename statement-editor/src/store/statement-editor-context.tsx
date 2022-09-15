@@ -82,7 +82,8 @@ export const StatementEditorContext = React.createContext({
     currentFile: {
         content: "",
         path: "",
-        size: 0
+        size: 0,
+        originalContent: null
     },
     documentation: null,
     syntaxTree: null,
@@ -159,6 +160,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         editing,
         updateEditing,
         isExpressionMode,
+        currentFile,
         ...restProps
     } = props;
 
@@ -209,6 +211,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 importStatements,
                 experimentalEnabled,
                 isExpressionMode,
+                currentFile: {
+                    ...currentFile,
+                    originalContent: currentFile.originalContent
+                },
                 ...restProps
             }}
         >
