@@ -131,7 +131,6 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
 
   const showMenuClick = (e: any) => {
     setIsMenuVisible(!isMenuVisible);
-    e.stopPropagation();
   };
 
   const handleOnClickRun = (e: any) => {
@@ -150,6 +149,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         <div
           onClick={handleOnClickRun}
           className={classNames("menu-option", "line-vertical", "left")}
+          id="run-button"
         >
           <div className="icon">
             <LabelRunIcon />
@@ -159,6 +159,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         <div
           onClick={handleOnClickTryIt}
           className={classNames("menu-option", "line-vertical", "middle")}
+          id="try-button"
         >
           <div className="icon">
             <LabelTryIcon />
@@ -168,6 +169,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         <div
           onClick={handleEditBtnClick}
           className={classNames("menu-option", "line-vertical", "middle")}
+          id="edit-button"
         >
           <div className={classNames("icon", "icon-adjust")}>
             <LabelEditIcon />
@@ -177,6 +179,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         <div
           onClick={handleDeleteBtnClick}
           className={classNames("menu-option", "right")}
+          id="delete-button"
         >
           <div className={classNames("icon", "icon-adjust")}>
             <LabelDeleteIcon />
@@ -193,6 +196,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         <div
           onClick={handleEditBtnClick}
           className={classNames("menu-option", "line-vertical", "left")}
+          id="edit-button"
         >
           <div className={classNames("icon", "icon-adjust")}>
             <LabelEditIcon />
@@ -202,6 +206,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         <div
           onClick={handleDeleteBtnClick}
           className={classNames("menu-option", "right")}
+          id="delete-button"
         >
           <div className={classNames("icon", "icon-adjust")}>
             <LabelDeleteIcon />
