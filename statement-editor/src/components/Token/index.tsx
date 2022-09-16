@@ -59,28 +59,25 @@ export function TokenComponent(props: TokenComponentProps) {
     const leadingMinutiaeJSX = getJSXForMinutiae(model.leadingMinutiae, isFieldWithNewLine);
     const trailingMinutiaeJSX = getJSXForMinutiae(model.trailingMinutiae, isFieldWithNewLine);
 
-
-
     const onMouseOver = (e: React.MouseEvent) => {
-            setHovered(true);
-            e.stopPropagation();
-            e.preventDefault();
+        setHovered(true);
+        e.stopPropagation();
+        e.preventDefault();
     }
 
     const onMouseOut = (e: React.MouseEvent) => {
-            setHovered(false);
-            e.stopPropagation();
-            e.preventDefault();
+        setHovered(false);
+        e.stopPropagation();
+        e.preventDefault();
     }
 
     const onMouseClick = (e: React.MouseEvent) => {
         if (!hasSyntaxDiagnostics && STKindChecker.isDotToken(model)) {
             e.stopPropagation();
             e.preventDefault();
-            if (model.parent){
+            if (model.parent) {
                 changeCurrentModel(model.parent, model.parent.position, e.shiftKey);
             }
-
         }
     }
 
