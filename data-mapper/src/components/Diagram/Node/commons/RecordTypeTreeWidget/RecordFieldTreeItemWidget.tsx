@@ -17,9 +17,10 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { getTypeName } from "../../../utils/dm-utils";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -82,7 +83,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface RecordFieldTreeItemWidgetProps {
     parentId: string;
-    field: FormField;
+    field: Type;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     treeDepth?: number;
@@ -95,7 +96,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const fieldId = `${parentId}.${field.name}`;
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
-    let fields: FormField[];
+    let fields: Type[];
 
     if (field.typeName === 'record') {
         fields = field.fields;
@@ -103,9 +104,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
 
     const [expanded, setExpanded] = useState<boolean>(true)
 
-    const typeName = field.typeName
-        ? field.typeName
-        : "record";
+    const typeName = getTypeName(field);
 
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 

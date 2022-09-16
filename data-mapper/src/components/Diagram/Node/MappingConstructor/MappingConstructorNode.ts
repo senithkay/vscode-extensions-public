@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Point } from "@projectstorm/geometry";
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ExpressionFunctionBody,
@@ -33,13 +34,13 @@ import {
     getBalRecFieldName,
     getEnrichedRecordType,
     getInputNodeExpr,
-    getInputPortsForExpr
+    getInputPortsForExpr,
+    getTypeName
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
-import { Point } from "@projectstorm/geometry";
 
 export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
 export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
@@ -48,6 +49,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
     public typeDef: Type;
     public recordFields: EditableRecordField[];
+    public typeName: string;
     public x: number;
     public y: number;
 
@@ -72,6 +74,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
+            this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === 'record') {
                 this.recordFields = valueEnrichedType.childrenTypes;
                 if (!!this.recordFields.length) {
@@ -119,7 +122,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     valueNode: otherVal || value,
                     context: this.context,
                     link: lm,
-                    specificField: specificField,
+                    specificField,
                     deleteLink: () => this.deleteLink(specificField),
                 }));
                 lm.setTargetPort(outPort);
@@ -205,11 +208,11 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
-        if ( typeof x === 'number' && typeof y === 'number'){
+        if (typeof x === 'number' && typeof y === 'number'){
             if (!this.x || !this.y){
                 this.x = x;
                 this.y = y;
-                super.setPosition(x,y);
+                super.setPosition(x, y);
             }
         }
     }
