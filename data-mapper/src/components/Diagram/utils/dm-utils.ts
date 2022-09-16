@@ -379,23 +379,22 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 		if (node && STKindChecker.isMappingConstructor(node)) {
 			valueNode = node.fields.find((val) =>
 				STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
-			) as SpecificField;
+			);
 			nextNode =  valueNode && STKindChecker.isSpecificField(valueNode) && valueNode.valueExpr
 				? valueNode.valueExpr : undefined;
 		} else if (node && STKindChecker.isListConstructor(node)) {
 			const mappingConstructors = node.expressions.filter((val) =>
 				STKindChecker.isMappingConstructor(val)
-			);
+			) as MappingConstructor[];
 			if (mappingConstructors.length > 0) {
 				for (const expr of mappingConstructors) {
-					if (STKindChecker.isMappingConstructor(expr)) {
-						valueNode = expr.fields.find((val) =>
-							STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
-						) as SpecificField;
-					}
+					valueNode = expr.fields.find((val) =>
+						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+					);
 				}
 			} else {
 				valueNode = node;
+				nextNode = valueNode;
 			}
 		} else {
 			valueNode = node;

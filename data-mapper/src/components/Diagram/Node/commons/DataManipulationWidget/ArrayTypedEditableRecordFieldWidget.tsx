@@ -51,7 +51,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         : `${parentId}.${fieldName}`;
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
-    const valExpr = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value.valueExpr;
+    const valExpr = field.hasValue()
+        && (STKindChecker.isSpecificField(field.value) ? field.value.valueExpr : field.value);
     const hasValue = valExpr && !!valExpr.source;
     const typeName = field.type.memberType.typeName;
     const elements = field.elements;
@@ -64,15 +65,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const label = (
         <span style={{marginRight: "auto"}}>
             <span className={classes.valueLabel} style={{marginLeft: indentation}}>
-                {`${fieldName}[]`}
-                {typeName && ":"}
+                {fieldName}
+                {fieldName && typeName && ":"}
             </span>
             {typeName && (
                 <span className={classes.typeLabel}>
-                    {typeName}
+                    {`${typeName}[]`}
                 </span>
             )}
-
         </span>
     );
 
@@ -107,19 +107,21 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     </>
                 );
             } else if (STKindChecker.isListConstructor(element.elementNode)) {
-                return (
-                    <ArrayTypedEditableRecordFieldWidget
-                        key={fieldId}
-                        engine={engine}
-                        field={element.members[0]}
-                        getPort={getPort}
-                        parentId={parentId}
-                        mappingConstruct={mappingConstruct}
-                        context={context}
-                        fieldIndex={index}
-                        treeDepth={treeDepth + 1}
-                    />
-                );
+                return element.members.map((typeWithVal) => {
+                    return (
+                        <ArrayTypedEditableRecordFieldWidget
+                            key={fieldId}
+                            engine={engine}
+                            field={typeWithVal}
+                            getPort={getPort}
+                            parentId={parentId}
+                            mappingConstruct={mappingConstruct}
+                            context={context}
+                            fieldIndex={index}
+                            treeDepth={treeDepth + 1}
+                        />
+                    );
+                })
             } else {
                 return (
                     <PrimitiveTypedEditableArrayElementWidget
