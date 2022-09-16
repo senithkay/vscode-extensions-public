@@ -86,7 +86,6 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         </div>
                         {
                             element.members.map((typeWithVal) => {
-                                // TODO: Add support to render array elements other than the mapping constructors
                                 return (
                                     <EditableRecordFieldWidget
                                         key={fieldId}
@@ -106,6 +105,20 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             <span>{'}'}</span>
                         </div>
                     </>
+                );
+            } else if (STKindChecker.isListConstructor(element.elementNode)) {
+                return (
+                    <ArrayTypedEditableRecordFieldWidget
+                        key={fieldId}
+                        engine={engine}
+                        field={element.members[0]}
+                        getPort={getPort}
+                        parentId={parentId}
+                        mappingConstruct={mappingConstruct}
+                        context={context}
+                        fieldIndex={index}
+                        treeDepth={treeDepth + 1}
+                    />
                 );
             } else {
                 return (

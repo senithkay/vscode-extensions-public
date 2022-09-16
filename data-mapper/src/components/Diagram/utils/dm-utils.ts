@@ -386,14 +386,17 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 			const mappingConstructors = node.expressions.filter((val) =>
 				STKindChecker.isMappingConstructor(val)
 			);
-			for (const expr of mappingConstructors) {
-				if (STKindChecker.isMappingConstructor(expr)) {
-					valueNode = expr.fields.find((val) =>
-						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
-					) as SpecificField;
+			if (mappingConstructors.length > 0) {
+				for (const expr of mappingConstructors) {
+					if (STKindChecker.isMappingConstructor(expr)) {
+						valueNode = expr.fields.find((val) =>
+							STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+						) as SpecificField;
+					}
 				}
+			} else {
+				valueNode = node;
 			}
-			// TODO: Add support for other types as well
 		} else {
 			valueNode = node;
 		}
