@@ -37,17 +37,24 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
 
     const [isHovered, setHovered] = React.useState(false);
 
-    const { modelCtx } = useContext(StatementEditorContext);
+    const { modelCtx, isExpressionMode } = useContext(StatementEditorContext);
     const {
         currentModel: selectedModel,
         changeCurrentModel,
-        hasSyntaxDiagnostics
+        hasSyntaxDiagnostics,
+        statementModel
     } = modelCtx;
 
     const intl = useIntl();
     const statementRendererClasses = useStatementRendererStyles();
 
-    const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
+    if (isExpressionMode && !selectedModel.model) {
+        changeCurrentModel(statementModel);
+    }
+
+    const isSelected = selectedModel.model && model &&
+        (isPositionsEquals(selectedModel.model.position, model.position) ||
+            (isPositionsEquals(selectedModel.model.position, statementModel.position)));
     const hasError = model?.viewState?.diagnosticsInPosition?.length > 0 && !isPlaceHolderExists(model?.source ? model.source : model?.value);
 
     const onMouseOver = (e: React.MouseEvent) => {
