@@ -27,7 +27,6 @@ import {
 	RecordTypeDesc,
 	SimpleNameReference,
 	SingletonTypeDesc,
-	SpecificField,
 	STKindChecker,
 	STNode,
 	StreamTypeDesc,
@@ -139,7 +138,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected genMappings(val: STNode, parentFields?: SpecificField[]) {
+	protected genMappings(val: STNode, parentFields?: STNode[]) {
 		let foundMappings: FieldAccessToSpecificFied[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
@@ -164,6 +163,12 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				})
 			} else if (STKindChecker.isFieldAccess(val) || STKindChecker.isSimpleNameReference(val)) {
 				foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], val));
+			} else if (STKindChecker.isListConstructor(val)) {
+				val.expressions.forEach((expr) => {
+					if (!STKindChecker.isCommaToken(expr)) {
+						foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
+					}
+				})
 			} else {
 				foundMappings.push(this.getOtherMappings(val, currentFields));
 			}
