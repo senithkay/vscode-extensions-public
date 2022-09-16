@@ -51,7 +51,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const fieldName = getBalRecFieldName(field.type.name);
     const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}.${fieldName}`
+        ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");

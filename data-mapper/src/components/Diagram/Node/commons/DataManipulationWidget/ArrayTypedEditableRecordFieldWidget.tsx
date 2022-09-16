@@ -47,7 +47,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const fieldName = getBalRecFieldName(field.type.name);
     const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}.${fieldName}`
+        ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
@@ -114,7 +114,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             engine={engine}
                             field={typeWithVal}
                             getPort={getPort}
-                            parentId={parentId}
+                            parentId={fieldId}
                             mappingConstruct={mappingConstruct}
                             context={context}
                             fieldIndex={index}

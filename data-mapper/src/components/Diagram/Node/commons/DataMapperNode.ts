@@ -114,7 +114,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		parentId = elementIndex !== undefined
 			? `${parentId}.${elementIndex}`
 			: parentId;
-		const fieldId = `${parentId}.${fieldName}`;
+		const fieldId = `${parentId}${fieldName && `.${fieldName}`}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
 		const fieldPort = new RecordFieldPortModel(
 			field.type, type, parentId, elementIndex, field, parentFieldAccessExpr, parent);
