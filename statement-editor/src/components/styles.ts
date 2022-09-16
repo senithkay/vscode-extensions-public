@@ -898,7 +898,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            padding: '10px 25px 0 25px',
+            padding: '10px 25px',
             borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {
