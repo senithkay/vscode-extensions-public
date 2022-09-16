@@ -829,7 +829,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             ...stmtEditorPadding
         },
         statementExpressionWrapper: {
-            height: 'calc(100vh - 110px)',
+            height: 'calc(100vh - 115px)',
             '&.overlay': {
                 display: 'block',
                 position: 'relative',
