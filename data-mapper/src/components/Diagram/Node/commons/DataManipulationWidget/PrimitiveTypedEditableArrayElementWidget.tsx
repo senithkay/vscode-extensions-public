@@ -35,7 +35,7 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
     const { parentId, field, getPort, engine, context, fieldIndex } = props;
     const classes = useStyles();
 
-    const value = field?.value.source.trim();
+    const value = field?.value && field.value.source.trim();
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}`
         : `${parentId}.${value}`;
@@ -46,8 +46,8 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
     useEffect(() => {
         if (editable) {
             context.enableStatementEditor({
-                value: field?.value.source,
-                valuePosition: field.value.position,
+                value: field?.value && field.value.source,
+                valuePosition: field?.value && field.value.position,
                 label: `${parentId.split('.').pop()}[${fieldIndex}]`
             }, `${parentId.split('.').pop()}[${fieldIndex}]`);
         }

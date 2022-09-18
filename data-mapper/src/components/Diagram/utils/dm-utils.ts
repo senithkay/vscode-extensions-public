@@ -392,6 +392,10 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
 					);
 				}
+				if (!valueNode) {
+					valueNode = node;
+					nextNode = valueNode;
+				}
 			} else {
 				valueNode = node;
 				nextNode = valueNode;
@@ -415,32 +419,72 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 			});
 		}
 		editableRecordField.childrenTypes = children;
-	} else if (type.typeName === PrimitiveBalType.Array && nextNode) {
-		if (type.memberType.typeName === PrimitiveBalType.Record) {
-			if (STKindChecker.isListConstructor(nextNode)) {
-				editableRecordField.elements = getEnrichedArrayType(
-					type.memberType.fields, nextNode, editableRecordField);
-			} else if (STKindChecker.isMappingConstructor(nextNode)) {
-				fields = type.memberType.fields;
-				const children = [...childrenTypes ? childrenTypes : []];
-				if (fields && !!fields.length) {
-					fields.map((field) => {
-						const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
-						children.push(childType);
-					});
+	} else if (type.typeName === PrimitiveBalType.Array) {
+		if (nextNode) {
+			if (type.memberType.typeName === PrimitiveBalType.Record) {
+				if (STKindChecker.isListConstructor(nextNode)) {
+					editableRecordField.elements = getEnrichedArrayType(
+						type.memberType.fields, nextNode, editableRecordField);
+				} else if (STKindChecker.isMappingConstructor(nextNode)) {
+					fields = type.memberType.fields;
+					const children = [...childrenTypes ? childrenTypes : []];
+					if (fields && !!fields.length) {
+						fields.map((field) => {
+							const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
+							children.push(childType);
+						});
+					}
+					// Create only a single element as there is only one mapping constructor
+					editableRecordField.elements = [{
+						members: children,
+						elementNode: nextNode
+					}];
 				}
-				// Create only a single element as there is only one mapping constructor
-				editableRecordField.elements = [{
-					members: children,
-					elementNode: nextNode
-				}];
+			} else if (type.memberType.typeName === PrimitiveBalType.Array) {
+				if (STKindChecker.isListConstructor(nextNode)) {
+					editableRecordField.elements = getEnrichedArrayTypeNew(type.memberType, nextNode, editableRecordField);
+				}
+			} else if (!isArrayOrRecord(type.memberType)) {
+				if (STKindChecker.isListConstructor(nextNode)) {
+					editableRecordField.elements = getEnrichedPrimitiveArrayType(type.memberType, nextNode, editableRecordField);
+				}
 			}
-		} else if (STKindChecker.isListConstructor(nextNode)) {
-			editableRecordField.elements = getEnrichedPrimitiveArrayType(type, nextNode, editableRecordField);
+		} else {
+			if (type.memberType.typeName === PrimitiveBalType.Record) {
+				const members: ArrayElement[] = [];
+				if (type.memberType.fields && !!type.memberType.fields.length) {
+					const member: EditableRecordField[] = [];
+					type.memberType.fields.map((field) => {
+						const childType = getEnrichedRecordType(field, undefined, parentType, childrenTypes);
+						member.push(childType);
+					});
+					if (!!member.length) {
+						members.push({
+							members: member, elementNode: undefined
+						});
+					}
+				}
+				editableRecordField.elements = members;
+			}
 		}
 	}
 
 	return editableRecordField;
+}
+
+export function getEnrichedArrayTypeNew(type: Type, node?: ListConstructor, parentType?: EditableRecordField,
+										                              childrenTypes?: EditableRecordField[]): ArrayElement[] {
+	const members: ArrayElement[] = [];
+
+	node.expressions.forEach((expr) => {
+		if (!STKindChecker.isCommaToken(expr)) {
+			const memberType = getEnrichedRecordType(type, expr, parentType, childrenTypes);
+			members.push({
+				members: [memberType], elementNode: expr
+			});
+		}
+	});
+	return members;
 }
 
 export function getEnrichedArrayType(fields: Type[], node?: ListConstructor, parentType?: EditableRecordField,
@@ -475,7 +519,7 @@ export function getEnrichedPrimitiveArrayType(field: Type, node?: ListConstructo
 	node.expressions.forEach((expr) => {
 		if (!STKindChecker.isCommaToken(expr)) {
 			if (field) {
-				const member = getEnrichedRecordType(field.memberType, expr, parentType, childrenTypes);
+				const member = getEnrichedRecordType(field, expr, parentType, childrenTypes);
 
 				if (member) {
 					members.push({

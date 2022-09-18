@@ -78,7 +78,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const arrayElements = elements && (
         elements.map((element, index) => {
-            if (STKindChecker.isMappingConstructor(element.elementNode)) {
+            if (element.elementNode && STKindChecker.isMappingConstructor(element.elementNode)) {
                 return (
                     <>
                         <div className={classes.treeLabel}>
@@ -106,7 +106,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         </div>
                     </>
                 );
-            } else if (STKindChecker.isListConstructor(element.elementNode)) {
+            } else if (element.elementNode && STKindChecker.isListConstructor(element.elementNode)) {
                 return element.members.map((typeWithVal) => {
                     return (
                         <ArrayTypedEditableRecordFieldWidget
