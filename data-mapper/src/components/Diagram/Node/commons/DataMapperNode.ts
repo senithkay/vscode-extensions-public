@@ -58,44 +58,53 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	protected addPortsForInputRecordField(field: Type, type: "IN" | "OUT", parentId: string,
 										                             parentFieldAccessExpr?: string,
-										                             parent?: RecordFieldPortModel) : number {
+										                             parent?: RecordFieldPortModel,
+																	 collapsedFields?:string[],
+																	 hidden? :boolean) : number {
 		const fieldName = getBalRecFieldName(field.name);
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
+		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(fieldAccessExpr);
 		const fieldPort = new RecordFieldPortModel(
-			field, type, parentId, undefined, undefined, parentFieldAccessExpr, parent);
+			field, type, parentId, undefined, undefined, parentFieldAccessExpr, parent, isCollapsed, hidden);
 		this.addPort(fieldPort)
 		let numberOfFields =1;
 		if (field.typeName === 'record') {
 			const fields = field?.fields;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
-					numberOfFields += this.addPortsForInputRecordField(subField, type, fieldId, fieldAccessExpr, fieldPort);
+					numberOfFields += this.addPortsForInputRecordField(subField, type, fieldId, fieldAccessExpr,
+												fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
 		}
-		return numberOfFields;
+		return hidden ? 0 : numberOfFields;
 	}
 
 	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
 										                              parentId: string, elementIndex?: number,
 										                              parentFieldAccessExpr?: string,
-										                              parent?: RecordFieldPortModel) {
+										                              parent?: RecordFieldPortModel,
+																	  collapsedFields?:string[],
+																	  hidden? :boolean,
+																	 ) {
 		const fieldName = getBalRecFieldName(field.type.name);
 		parentId = elementIndex !== undefined
 			? `${parentId}.${elementIndex}`
 			: parentId;
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
+		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(fieldId);
 		const fieldPort = new RecordFieldPortModel(
-			field.type, type, parentId, elementIndex, field, parentFieldAccessExpr, parent);
+			field.type, type, parentId, elementIndex, field, parentFieldAccessExpr, parent, isCollapsed, hidden);
 		this.addPort(fieldPort);
 
 		if (field.type.typeName === 'record') {
 			const fields = field?.childrenTypes;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
-					this.addPortsForOutputRecordField(subField, type, fieldId, undefined, fieldAccessExpr, fieldPort);
+					this.addPortsForOutputRecordField(subField, type, fieldId, undefined, fieldAccessExpr,
+								fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
 		} else if (field.type.typeName === 'array' && field.type.memberType.typeName === 'record') {
@@ -103,7 +112,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			if (elements && !!elements.length) {
 				elements.forEach((element, index) => {
 					element.members.forEach((subField) => {
-						this.addPortsForOutputRecordField(subField, type, fieldId, index, fieldAccessExpr, fieldPort);
+						this.addPortsForOutputRecordField(subField, type, fieldId, index, fieldAccessExpr,
+								fieldPort, collapsedFields, isCollapsed ? true : hidden);
 					});
 				});
 			}

@@ -39,10 +39,11 @@ export interface RecordTypeTreeWidgetProps {
     typeDesc: FormField;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
+    handleCollapse: (portName:string, isExpanded?:boolean) => void;
 }
 
 export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
-    const { engine, typeDesc, id, getPort } = props;
+    const { engine, typeDesc, id, getPort, handleCollapse } = props;
     const classes = useStyles();
 
     return (
@@ -56,6 +57,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                             field={field}
                             getPort={getPort}
                             parentId={id}
+                            handleCollapse={handleCollapse}
                         />
                     );
                 })

@@ -346,7 +346,10 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 				if (recField) {
 					if (i === fieldNames.length - 1) {
 						const portId = portIdBuffer + ".OUT";
-						const port = (node.getPort(portId) as RecordFieldPortModel);
+						let port = (node.getPort(portId) as RecordFieldPortModel);
+						while (port && port.hidden) {
+							port = port.parentModel;
+						}
 						return port;
 					} else if (recField.typeName === 'record') {
 						nextTypeNode = recField;

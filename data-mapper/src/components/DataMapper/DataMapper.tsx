@@ -33,7 +33,6 @@ import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
@@ -117,6 +116,7 @@ function DataMapperC(props: DataMapperProps) {
         selectedST: fnST,
         prevST: []
     });
+	const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
 
     const classes = useStyles();
 
@@ -143,6 +143,17 @@ function DataMapperC(props: DataMapperProps) {
         setCurrentEditableField(null)
     }
 
+    const handleCollapse = (fieldName: string, expand?:boolean) => {
+        if (!expand){
+            setCollapsedFields((prevState) => [...prevState, fieldName]);
+        }
+        else{
+            setCollapsedFields((prevState) => prevState.filter((element) => { 
+                return element != fieldName; 
+            }));
+
+        }
+    }
     useEffect(() => {
         (async () => {
             if (fnST && selection.selectedST) {
@@ -158,7 +169,9 @@ function DataMapperC(props: DataMapperProps) {
                     handleSelectedST,
                     applyModifications,
                     diagnostics,
-                    enableStamentEditor
+                    enableStamentEditor,
+                    collapsedFields,
+                    handleCollapse
                 );
 
                 let selectedST = selection.selectedST;
@@ -174,7 +187,7 @@ function DataMapperC(props: DataMapperProps) {
                 setNodes(nodeInitVisitor.getNodes());
             }
         })();
-    }, [selection, fnST]);
+    }, [selection, fnST, collapsedFields]);
 
     useEffect(() => {
         if (!selection.selectedST) {

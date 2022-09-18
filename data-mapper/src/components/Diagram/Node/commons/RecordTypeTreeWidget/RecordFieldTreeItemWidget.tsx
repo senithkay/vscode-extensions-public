@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React from "react";
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -86,10 +86,12 @@ export interface RecordFieldTreeItemWidgetProps {
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     treeDepth?: number;
+    handleCollapse: (portName:string, isExpanded?:boolean) => void;
+
 }
 
 export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
-    const { parentId, field, getPort, engine, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0 } = props;
     const classes = useStyles();
 
     const fieldId = `${parentId}.${field.name}`;
@@ -101,7 +103,10 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         fields = field.fields;
     }
 
-    const [expanded, setExpanded] = useState<boolean>(true)
+    let expanded =true;
+    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
+        expanded = false;
+    }
 
     const typeName = field.typeName
         ? field.typeName
@@ -125,8 +130,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     );
 
     const handleExpand = () => {
-        // TODO Enable expand collapse functionality
-        // setExpanded(!expanded)
+        handleCollapse(fieldId, !expanded);        
     }
 
     return (
@@ -153,7 +157,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                     }
                 </span>
             </div>
-            {fields &&
+            {fields && expanded &&
                 fields.map((subField) => {
                     return (
                         <RecordFieldTreeItemWidget
@@ -162,6 +166,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             field={subField}
                             getPort={getPort}
                             parentId={fieldId}
+                            handleCollapse={handleCollapse}
                             treeDepth={treeDepth + 1}
                         />
                     );

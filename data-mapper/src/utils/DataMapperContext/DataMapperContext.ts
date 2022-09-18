@@ -23,6 +23,8 @@ export interface IDataMapperContext {
     applyModifications: (modifications: STModification[]) => void;
     diagnostics: Diagnostic[];
     enableStamentEditor: (expressionInfo: ExpressionInfo) => void;
+    collapsedFields: string[];
+    handleCollapse: (fieldName: string, expand?: boolean) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -41,7 +43,9 @@ export class DataMapperContext implements IDataMapperContext {
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
         public applyModifications: (modifications: STModification[]) => void,
         public diagnostics: Diagnostic[],
-        public enableStamentEditor: (expressionInfo: ExpressionInfo) => void
+        public enableStamentEditor: (expressionInfo: ExpressionInfo) => void,
+        public collapsedFields: string[],
+        public handleCollapse: (fieldName: string, expand?: boolean) => void
     ){}
 
     public get functionST(): FunctionDefinition {
