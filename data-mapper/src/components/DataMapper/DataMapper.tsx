@@ -116,7 +116,7 @@ function DataMapperC(props: DataMapperProps) {
         selectedST: fnST,
         prevST: []
     });
-	const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
+    const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
 
     const classes = useStyles();
 
@@ -151,9 +151,9 @@ function DataMapperC(props: DataMapperProps) {
             setCollapsedFields((prevState) => prevState.filter((element) => { 
                 return element != fieldName; 
             }));
-
         }
     }
+
     useEffect(() => {
         (async () => {
             if (fnST && selection.selectedST) {

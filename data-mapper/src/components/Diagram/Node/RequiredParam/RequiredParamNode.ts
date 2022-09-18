@@ -39,14 +39,11 @@ export class RequiredParamNode extends DataMapperNodeModel {
                 this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, this.value.paramName.value, undefined, this.context.collapsedFields);
             });
         }
-        const ports =this.getPorts();
-        console.log({"portsLog" : ports});
     }
 
     async initLinks() {
         // Currently we create links from "IN" ports and back tracing the inputs.
     }
-
 
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;

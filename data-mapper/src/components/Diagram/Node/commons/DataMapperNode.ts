@@ -59,8 +59,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	protected addPortsForInputRecordField(field: Type, type: "IN" | "OUT", parentId: string,
 										                             parentFieldAccessExpr?: string,
 										                             parent?: RecordFieldPortModel,
-																	 collapsedFields?:string[],
-																	 hidden? :boolean) : number {
+										                             collapsedFields?:string[],
+										                             hidden? :boolean) : number {
 		const fieldName = getBalRecFieldName(field.name);
 		const fieldId = `${parentId}.${fieldName}`;
 		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
@@ -85,8 +85,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 										                              parentId: string, elementIndex?: number,
 										                              parentFieldAccessExpr?: string,
 										                              parent?: RecordFieldPortModel,
-																	  collapsedFields?:string[],
-																	  hidden? :boolean,
+										                              collapsedFields?:string[],
+										                              hidden? :boolean,
 																	 ) {
 		const fieldName = getBalRecFieldName(field.type.name);
 		parentId = elementIndex !== undefined
