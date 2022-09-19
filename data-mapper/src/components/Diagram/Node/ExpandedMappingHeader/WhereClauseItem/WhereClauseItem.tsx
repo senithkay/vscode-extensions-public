@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useState } from "react";
+import React from "react";
 
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import { QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
@@ -36,46 +36,31 @@ export function WhereClauseItem(props: {
         itemIndex,
     } = props;
     const classes = useStyles();
-    const [isHovered, setIsHovered] = useState(false);
 
     return (
-        <div
-            className={clsx(classes.element, classes.clauseWrap)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            {isHovered && (
-                <ClauseAddButton
-                    context={context}
-                    queryExprNode={queryExprNode}
-                    addIndex={itemIndex - 1}
-                    iconClass={classes.topIcon}
+        <>
+            <div className={clsx(classes.element, classes.clauseWrap)}>
+                <div className={classes.clause}>
+                    <span>{`${intermediateNode.whereKeyword.value} `}</span>
+                    <span
+                        className={classes.clauseExpression}
+                        onClick={onEditClick}
+                    >
+                        {intermediateNode.expression.source}
+                    </span>
+                </div>
+                <DeleteOutline
+                    className={clsx(classes.deleteIcon)}
+                    onClick={onDeleteClick}
                 />
-            )}
-            {isHovered && (
+            </div>
+            <div className={classes.addIconWrap}>
                 <ClauseAddButton
                     context={context}
                     queryExprNode={queryExprNode}
                     addIndex={itemIndex}
-                    iconClass={classes.bottomIcon}
                 />
-            )}
-            <div className={clsx(classes.clause)}>
-                <span>{`${intermediateNode.whereKeyword.value} `}</span>
-                <span
-                    className={classes.clauseExpression}
-                    onClick={onEditClick}
-                >
-                    {intermediateNode.expression.source}
-                </span>
             </div>
-            <DeleteOutline
-                className={clsx(
-                    classes.deleteIcon,
-                    isHovered && classes.deleteIconHovered
-                )}
-                onClick={onDeleteClick}
-            />
-        </div>
+        </>
     );
 }

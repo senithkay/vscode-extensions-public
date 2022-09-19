@@ -59,6 +59,14 @@ const useStyles = makeStyles((theme: Theme) =>
             textAlign: 'center',
             color: theme.palette.text.secondary,
         },
+        overlay: {
+            zIndex: 1,
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            background: theme.palette.common.white,
+            opacity: 0.5
+        }
     }),
 );
 
@@ -220,6 +228,7 @@ function DataMapperC(props: DataMapperProps) {
         <LSClientContext.Provider value={langClientPromise}>
             <CurrentFileContext.Provider value={currentFile}>
                 <div className={classes.root}>
+                    {!!currentEditableField && <div className={classes.overlay} />}
                     {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
                     <DataMapperDiagram
                         nodes={nodes}

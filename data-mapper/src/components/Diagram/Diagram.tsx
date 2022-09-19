@@ -51,7 +51,10 @@ function initDiagramEngine() {
 	// END TODO
 
 	const diContext = container.resolve(DataMapperDIContext);
-	const engine = createEngine();
+	const engine = createEngine({
+		registerDefaultPanAndZoomCanvasAction: true,
+		registerDefaultZoomCanvasAction: false
+	});
 
 	diContext.nodeFactories.forEach((nf) =>
 		engine.getNodeFactories().registerFactory(nf));
