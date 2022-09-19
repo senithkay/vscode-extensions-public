@@ -1,6 +1,6 @@
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-export function isObject (item: any) {
+export function isObject(item: any) {
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
 }
 
@@ -15,7 +15,7 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
 export function getUpdatedSource(statement: string, currentFileContent: string,
     targetPosition: NodePosition): string {
 
-    const updatedStatement = statement 
+    const updatedStatement = statement
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
     return updatedContent;
 }
@@ -47,4 +47,22 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
     splitContent.splice(position.startLine, noOfLines, ...replacements);
 
     return splitContent.join('\n');
+}
+
+export function genLetClauseVariableName(intermediateClauses: (STNode)[]): string {
+    const baseName = 'variable';
+    let varName = baseName;
+    let index = 0;
+
+    for (const clause of intermediateClauses) {
+        if (STKindChecker.isLetClause(clause)) {
+            for (const item of clause.letVarDeclarations) {
+                if (STKindChecker.isLetVarDecl(item) && item.typedBindingPattern.bindingPattern.source.trim() === varName) {
+                    index++;
+                    varName = baseName + index;
+                }
+            }
+        }
+    }
+    return varName;
 }
