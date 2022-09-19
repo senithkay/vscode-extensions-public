@@ -17,7 +17,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getTypeName } from "../../../utils/dm-utils";
@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
-            marginRight: "24px"
+            marginRight: "24px",
         },
         valueLabel: {
             verticalAlign: "middle",
@@ -76,7 +76,18 @@ const useStyles = makeStyles((theme: Theme) =>
             borderTopRightRadius: theme.spacing(2),
             borderBottomRightRadius: theme.spacing(2),
             paddingRight: theme.spacing(1),
+        },
+        label:{
+            width: "300px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            display: "inline-block",
+            textOverflow: "ellipsis",
+            "&:hover": {
+                overflow: "visible"
+            }
         }
+        
 
     }),
 );
@@ -100,7 +111,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const portOut = getPort(`${fieldId}.OUT`);
     let fields: Type[];
 
-    if (field.typeName === PrimitiveBalType.Record) {
+    if (field.typeName === 'record') {
         fields = field.fields;
     }
 
@@ -129,7 +140,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     );
 
     const handleExpand = () => {
-        handleCollapse(fieldId, !expanded);
+        handleCollapse(fieldId, !expanded);        
     }
 
     return (
@@ -140,16 +151,17 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
-                {fields &&
-                    (expanded ? (
-                            <ExpandMoreIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
-                        ) :
-                        (
-                            <ChevronRightIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
-                        ))
-                }
-
-                <span> {label}</span>
+                <span className={classes.label}>
+                    {fields &&
+                        (expanded ? (
+                                <ExpandMoreIcon style={{color: "black", verticalAlign: "middle", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                            ) :
+                            (
+                                <ChevronRightIcon style={{color: "black", verticalAlign: "middle", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                            ))
+                    }
+                    {label}
+                </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut}/>

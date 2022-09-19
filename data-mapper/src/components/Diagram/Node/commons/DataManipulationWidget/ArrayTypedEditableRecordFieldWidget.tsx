@@ -172,16 +172,17 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
-                {elements &&
-                    (expanded ? (
-                            <ExpandMoreIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
-                        ) :
-                        (
-                            <ChevronRightIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
-                        ))
-                }
-
-                <span>{label}</span>
+                <span className={classes.label}>
+                    {elements &&
+                        (expanded ? (
+                                <ExpandMoreIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
+                            ) :
+                            (
+                                <ChevronRightIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
+                            ))
+                    }
+                    {label}
+                </span>
                 {!hasValue && (
                     <IconButton
                         aria-label="add"

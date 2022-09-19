@@ -150,21 +150,22 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         <>
             {!isArray && (
                 <div className={classes.treeLabel}>
-                <span className={classes.treeLabelInPort}>
-                    {portIn && (!hasValue || connectedViaLink || !expanded) &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
-                    }
-                </span>
-                    {fields &&
-                        (expanded ? (
-                                <ExpandMoreIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
-                            ) :
-                            (
-                                <ChevronRightIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
-                            ))
-                    }
-
-                    <span> {label}</span>
+                    <span className={classes.treeLabelInPort}>
+                        {portIn && (!hasValue || connectedViaLink || !expanded) &&
+                            <DataMapperPortWidget engine={engine} port={portIn}/>
+                        }
+                    </span>
+                    <span className={classes.label}>                
+                        {fields &&
+                            (expanded ? (
+                                    <ExpandMoreIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
+                                ) :
+                                (
+                                    <ChevronRightIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
+                                ))
+                        }
+                        {label}
+                    </span>
                     {!hasValue && !isRecord && (
                         <IconButton
                             aria-label="add"

@@ -24,12 +24,11 @@ import { getTypeName } from "../../../utils/dm-utils";
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
 
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             flexGrow: 1,
-            maxWidth: 400,
+            width: 400,
             color: "white",
             position: "relative",
             backgroundColor: " #FFFFFF",
@@ -68,6 +67,16 @@ const useStyles = makeStyles((theme: Theme) =>
             float: "left",
             marginRight: "5px",
             width: 'fit-content',
+        },
+        label:{
+            width: "300px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            display: "inline-block",
+            textOverflow: "ellipsis",
+            "&:hover": {
+                overflow: "visible"
+            }
         }
     }),
 );
@@ -123,15 +132,16 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
-                {expanded ? (
-                            <ExpandMoreIcon style={{color: "black"}} onClick={handleExpand}/>
-                        ) :
-                        (
-                            <ChevronRightIcon style={{color: "black"}} onClick={handleExpand}/>
-                        )
-                }
-
-                <span> {label}</span>
+                <span className={classes.label}>
+                    {expanded ? (
+                                <ExpandMoreIcon style={{color: "black", verticalAlign: "middle"}} onClick={handleExpand}/>
+                            ) :
+                            (
+                                <ChevronRightIcon style={{color: "black", verticalAlign: "middle"}} onClick={handleExpand}/>
+                            )
+                    }
+                    {label}
+                </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut}/>
