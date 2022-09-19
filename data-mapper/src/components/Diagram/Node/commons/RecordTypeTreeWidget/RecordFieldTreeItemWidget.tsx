@@ -17,7 +17,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getTypeName } from "../../../utils/dm-utils";
@@ -112,7 +112,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const portOut = getPort(`${fieldId}.OUT`);
     let fields: Type[];
 
-    if (field.typeName === 'record') {
+    if (field.typeName === PrimitiveBalType.Record) {
         fields = field.fields;
     }
 
