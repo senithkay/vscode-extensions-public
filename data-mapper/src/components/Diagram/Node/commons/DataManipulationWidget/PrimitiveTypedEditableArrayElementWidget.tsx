@@ -19,6 +19,7 @@ import { EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { getFieldLabel } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
 
@@ -48,8 +49,8 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
             context.enableStatementEditor({
                 value: field?.value && field.value.source,
                 valuePosition: field?.value && field.value.position,
-                label: `${parentId.split('.').pop()}[${fieldIndex}]`
-            }, `${parentId.split('.').pop()}[${fieldIndex}]`);
+                label: getFieldLabel(fieldId)
+            }, getFieldLabel(fieldId));
         }
     }, [editable]);
 

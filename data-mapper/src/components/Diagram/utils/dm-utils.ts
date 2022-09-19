@@ -677,6 +677,19 @@ export function getFieldAccessNodes(node: STNode) {
 	return fieldAccessFindingVisitor.getFieldAccessNodes();
 }
 
+export function getFieldLabel(fieldId: string) {
+	const parts = fieldId.split('.').slice(1);
+	let fieldLabel = '';
+	for (const [i, part] of parts.entries()) {
+		if (isNaN(+part)) {
+			fieldLabel += i === 0 ? part : `.${part}`;
+		} else {
+			fieldLabel += `[${part}]`;
+		}
+	}
+	return fieldLabel;
+}
+
 function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 							                        fieldIndex: number,
 							                        targetPosition: NodePosition,
