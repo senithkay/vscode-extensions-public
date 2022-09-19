@@ -94,7 +94,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	let parent = targetPort.parentModel;
 	let fromFieldIdx = -1;
 
-	while (parent != null) {
+	while (parent != null && parent.parentModel) {
 		if (parent.field?.name) {
 			parentFieldNames.push(parent.field.name);
 		}

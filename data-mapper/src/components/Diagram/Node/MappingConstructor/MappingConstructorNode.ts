@@ -73,6 +73,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
 
         if (this.typeDef) {
+            const parentPort = this.addPortsForHeaderField(this.typeDef, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, "IN", this.context.collapsedFields);
+
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
             this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
@@ -80,7 +82,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 if (!!this.recordFields.length) {
                     this.recordFields.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-                                undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, undefined, this.context.collapsedFields);
+                                undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
             } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && STKindChecker.isSelectClause(this.value)) {
@@ -89,7 +91,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 if (!!this.recordFields.length) {
                     this.recordFields.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-                                undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, undefined, this.context.collapsedFields);
+                                undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
             } else {
