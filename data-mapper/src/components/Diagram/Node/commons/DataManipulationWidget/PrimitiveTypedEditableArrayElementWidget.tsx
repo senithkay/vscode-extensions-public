@@ -68,18 +68,20 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
 
     return (
         <>
-            <div className={classes.treeLabel}>
+            {value && (
+                <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
-                <span>{label}</span>
-                <EditButton
-                    onClick={handleEditable}
-                    className={classes.editButton}
-                />
-            </div>
+                    <span>{label}</span>
+                    <EditButton
+                        onClick={handleEditable}
+                        className={classes.editButton}
+                    />
+                </div>
+            )}
         </>
     );
 }
