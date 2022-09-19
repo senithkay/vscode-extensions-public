@@ -64,11 +64,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const listConstructor = hasValue ? (STKindChecker.isListConstructor(valExpr) ? valExpr : null) : null;
 
-    const indentation = !!elements ? 0 : ((treeDepth + 1) * 16) + 8;
+    let indentation = treeDepth * 16;
+    if (!portIn || (listConstructor && expanded)){
+        indentation += 24;
+    }
 
     const label = (
         <span style={{marginRight: "auto"}}>
-            <span className={classes.valueLabel} style={{marginLeft: indentation}}>
+            <span className={classes.valueLabel} style={{marginLeft: !!elements ? 0 : indentation + 24}}>
                 {fieldName}
                 {fieldName && typeName && ":"}
             </span>
@@ -171,10 +174,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 </span>
                 {elements &&
                     (expanded ? (
-                            <ExpandMoreIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                            <ExpandMoreIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
                         ) :
                         (
-                            <ChevronRightIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                            <ChevronRightIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
                         ))
                 }
 

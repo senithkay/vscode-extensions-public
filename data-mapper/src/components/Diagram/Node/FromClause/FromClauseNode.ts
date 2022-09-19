@@ -48,10 +48,13 @@ export class FromClauseNode extends DataMapperNodeModel {
         if (this.sourceBindingPattern) {
             const parentId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
 
+            const parentPort = this.addPortsForHeaderField(this.typeDef, parentId, "OUT", this.context.collapsedFields);
+
             if (this.typeDef && this.typeDef.typeName === PrimitiveBalType.Record) {
                 const fields = this.typeDef.fields;
                 fields.forEach((subField) => {
-                    this.addPortsForInputRecordField(subField, "OUT", parentId, this.sourceBindingPattern.variableName.value);
+                    this.addPortsForInputRecordField(subField, "OUT", parentId, this.sourceBindingPattern.variableName.value,
+                                                parentPort, this.context.collapsedFields, parentPort.collapsed );
                 });
             }
         }

@@ -14,7 +14,7 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { MappingConstructor } from '@wso2-enterprise/syntax-tree';
+import { MappingConstructor, STKindChecker } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
@@ -36,6 +36,10 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 	}
 
 	generateReactWidget(event: { model: MappingConstructorNode; }): JSX.Element {
+		let valueLabel;
+		if (STKindChecker.isSelectClause(event.model.value)){
+			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
+		}
 		return (
 			<EditableMappingConstructorWidget
 				engine={this.engine}
@@ -45,6 +49,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 				value={event.model.value.expression as MappingConstructor}
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 				context={event.model.context}
+				valueLabel={valueLabel}
 			/>
 		);
 	}
