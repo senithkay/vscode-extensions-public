@@ -95,7 +95,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	let fromFieldIdx = -1;
 
 	while (parent != null) {
-		parentFieldNames.push(parent.field.name);
+		if (parent.field?.name) {
+			parentFieldNames.push(parent.field.name);
+		}
 		parent = parent.parentModel;
 	}
 
@@ -128,10 +130,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				} else if (STKindChecker.isListConstructor(valueExpr)
 					&& fieldIndexes !== undefined && !!fieldIndexes.length)
 				{
-					const targetExpr = valueExpr.expressions[fieldIndexes.pop() * 2];
-					if (STKindChecker.isMappingConstructor(targetExpr)) {
-						mappingConstruct = targetExpr;
-					}
+					mappingConstruct = getNextMappingConstructor(valueExpr);
 				}
 
 				if (i === fieldNames.length - 1) {
@@ -176,6 +175,15 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		return missingFields.length > 0
 			? `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
 			: `\t${lhs}: ${rhs}`;
+	}
+
+	function getNextMappingConstructor(listConstructor: ListConstructor): MappingConstructor {
+		const targetExpr = listConstructor.expressions[fieldIndexes.pop() * 2];
+		if (STKindChecker.isMappingConstructor(targetExpr)) {
+			return targetExpr;
+		} else if (STKindChecker.isListConstructor(targetExpr)) {
+			return getNextMappingConstructor(targetExpr);
+		}
 	}
 
 	return `${lhs} = ${rhs}`;
