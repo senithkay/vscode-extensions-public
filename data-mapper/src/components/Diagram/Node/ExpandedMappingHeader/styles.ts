@@ -25,6 +25,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             right: "35px"
         },
         empty: {
+            marginTop: '20px',
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
@@ -69,10 +70,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             position: 'relative',
             color: theme.palette.grey[800],
-            // height: 30,
-            transitionDuration: '0.2s',
             '&:hover': {
-                color: theme.palette.common.black
+                color: theme.palette.common.black,
+                "& $deleteIcon": {
+                    opacity: 1,
+                }
             }
         },
         addIcon: {
@@ -83,16 +85,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             '&:hover': {
                 backgroundColor: '#F0F1FB',
             }
-        },
-        topIcon: {
-            position: 'absolute',
-            right: '50%',
-            top: -18
-        },
-        bottomIcon: {
-            position: 'absolute',
-            right: '50%',
-            bottom: -18
         },
         deleteIcon: {
             cursor: 'pointer',
@@ -108,8 +100,18 @@ export const useStyles = makeStyles((theme: Theme) =>
         deleteIconHovered: {
             opacity: 1,
         },
+        addIconWrap: {
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0,
+            transitionDuration: '0.2s',
+            '&:hover': {
+                opacity: 1,
+            }
+        },
         element: {
-            marginTop: '20px',
             display: 'flex',
             alignItems: 'center',
             backgroundColor: theme.palette.common.white,

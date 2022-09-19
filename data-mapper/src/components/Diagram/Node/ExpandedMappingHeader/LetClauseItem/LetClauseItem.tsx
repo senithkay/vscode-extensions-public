@@ -19,7 +19,6 @@ import {
     LetVarDecl,
     QueryExpression,
     STNode,
-    TypedBindingPattern,
 } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { useStyles } from "../styles";
@@ -43,7 +42,6 @@ export function LetClauseItem(props: {
         itemIndex,
     } = props;
     const classes = useStyles();
-    const [isHovered, setIsHovered] = useState(false);
     const [nameEditable, setNameEditable] = useState(false);
     const letVarDeclaration = intermediateNode
         .letVarDeclarations[0] as LetVarDecl;
@@ -72,72 +70,59 @@ export function LetClauseItem(props: {
     };
 
     return (
-        <div
-            className={clsx(classes.element, classes.clauseWrap)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            {isHovered && (
-                <ClauseAddButton
-                    context={context}
-                    queryExprNode={queryExprNode}
-                    addIndex={itemIndex - 1}
-                    iconClass={classes.topIcon}
+        <>
+            <div className={clsx(classes.element, classes.clauseWrap)}>
+                <div className={classes.clause}>
+                    <span>{intermediateNode.letKeyword.value}</span>
+                    <span>{` ${letVarDeclaration.typedBindingPattern.typeDescriptor.source}`}</span>
+                    <span className={classes.clauseExpression}>
+                        {nameEditable ? (
+                            <input
+                                spellCheck={false}
+                                className={classes.input}
+                                autoFocus={true}
+                                value={updatedName}
+                                onChange={(event) =>
+                                    setUpdatedName(event.target.value)
+                                }
+                                onKeyUp={(event) =>
+                                    onKeyUp(
+                                        event.key,
+                                        (
+                                            letVarDeclaration
+                                                .typedBindingPattern
+                                                .bindingPattern as CaptureBindingPattern
+                                        )?.variableName
+                                    )
+                                }
+                                onBlur={() => setNameEditable(false)}
+                            />
+                        ) : (
+                            <span onClick={() => setNameEditable(true)}>
+                                {updatedName}
+                            </span>
+                        )}
+                    </span>
+                    <span>{` ${letVarDeclaration.equalsToken.value} `}</span>
+                    <span
+                        className={classes.clauseExpression}
+                        onClick={onEditClick}
+                    >
+                        {letVarDeclaration.expression.source}
+                    </span>
+                </div>
+                <DeleteOutline
+                    className={clsx(classes.deleteIcon)}
+                    onClick={onDeleteClick}
                 />
-            )}
-            {isHovered && (
+            </div>
+            <div className={classes.addIconWrap}>
                 <ClauseAddButton
                     context={context}
                     queryExprNode={queryExprNode}
                     addIndex={itemIndex}
-                    iconClass={classes.bottomIcon}
                 />
-            )}
-            <div className={clsx(classes.clause)}>
-                <span>{intermediateNode.letKeyword.value}</span>
-                <span>{` ${letVarDeclaration.typedBindingPattern.typeDescriptor.source}`}</span>
-                <span className={classes.clauseExpression}>
-                    {nameEditable ? (
-                        <input
-                            spellCheck={false}
-                            className={classes.input}
-                            autoFocus={true}
-                            value={updatedName}
-                            onChange={(event) =>
-                                setUpdatedName(event.target.value)
-                            }
-                            onKeyUp={(event) =>
-                                onKeyUp(
-                                    event.key,
-                                    (
-                                        letVarDeclaration.typedBindingPattern
-                                            .bindingPattern as CaptureBindingPattern
-                                    )?.variableName
-                                )
-                            }
-                            onBlur={() => setNameEditable(false)}
-                        />
-                    ) : (
-                        <span onClick={() => setNameEditable(true)}>
-                            {updatedName}
-                        </span>
-                    )}
-                </span>
-                <span>{` ${letVarDeclaration.equalsToken.value} `}</span>
-                <span
-                    className={classes.clauseExpression}
-                    onClick={onEditClick}
-                >
-                    {letVarDeclaration.expression.source}
-                </span>
             </div>
-            <DeleteOutline
-                className={clsx(
-                    classes.deleteIcon,
-                    isHovered && classes.deleteIconHovered
-                )}
-                onClick={onDeleteClick}
-            />
-        </div>
+        </>
     );
 }
