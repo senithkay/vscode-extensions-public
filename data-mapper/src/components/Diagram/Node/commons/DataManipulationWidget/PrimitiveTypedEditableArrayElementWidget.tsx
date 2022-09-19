@@ -14,7 +14,6 @@
 import React, { useEffect, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -22,6 +21,7 @@ import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getFieldLabel } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
+import { ValueConfigButton } from "./ValueConfigButton";
 
 export interface PrimitiveTypedEditableArrayElementWidgetProps {
     parentId: string;
@@ -70,15 +70,14 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
         <>
             {value && (
                 <div className={classes.treeLabel}>
-                <span className={classes.treeLabelInPort}>
-                    {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
-                    }
-                </span>
+                    <span className={classes.treeLabelInPort}>
+                        {portIn &&
+                            <DataMapperPortWidget engine={engine} port={portIn}/>
+                        }
+                    </span>
                     <span>{label}</span>
-                    <EditButton
+                    <ValueConfigButton
                         onClick={handleEditable}
-                        className={classes.editButton}
                     />
                 </div>
             )}

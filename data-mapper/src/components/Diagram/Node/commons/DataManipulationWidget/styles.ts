@@ -81,6 +81,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             float: "right",
             width: 'fit-content',
             marginLeft: "auto"
+        },
+        label:{
+            width: "300px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            display: "inline-block",
+            textOverflow: "ellipsis",
+            "&:hover": {
+                overflow: "visible"
+            }
         }
     }),
 );

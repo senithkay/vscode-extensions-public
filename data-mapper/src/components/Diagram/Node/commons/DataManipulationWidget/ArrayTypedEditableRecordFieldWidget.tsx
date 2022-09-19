@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Button, IconButton } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -29,6 +29,7 @@ import { getModification } from "../../../utils/modifications";
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 import { useStyles } from "./styles";
+import { ValueConfigButton } from "./ValueConfigButton";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -50,7 +51,6 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
     const portIn = getPort(`${fieldId}.IN`);
-    const portOut = getPort(`${fieldId}.OUT`);
     const valExpr = field.hasValue()
         && (STKindChecker.isSpecificField(field.value) ? field.value.valueExpr : field.value);
     const hasValue = valExpr && !!valExpr.source;
@@ -58,7 +58,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const elements = field.elements;
 
     let expanded = true;
-    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)){
+    if (portIn && portIn.collapsed) {
         expanded = false;
     }
 
@@ -172,30 +172,22 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
-                {elements &&
-                    (expanded ? (
-                            <ExpandMoreIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
-                        ) :
-                        (
-                            <ChevronRightIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
-                        ))
-                }
-
-                <span>{label}</span>
-                {!hasValue && (
-                    <IconButton
-                        aria-label="add"
-                        className={classes.addIcon}
-                        onClick={handleArrayInitialization}
-                    >
-                        <AddIcon />
-                    </IconButton>
-                )}
-                <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut}/>
+                <span className={classes.label}>
+                    {elements &&
+                        (expanded ? (
+                                <ExpandMoreIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
+                            ) :
+                            (
+                                <ChevronRightIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
+                            ))
                     }
+                    {label}
                 </span>
+                {!hasValue && (
+                    <ValueConfigButton
+                        onClick={handleArrayInitialization}
+                    />
+                )}
             </div>
             {expanded && (
                 <>
