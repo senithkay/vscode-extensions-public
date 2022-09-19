@@ -14,9 +14,9 @@ import React from 'react';
 
 import { IconButton } from "@material-ui/core";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
-
 import AddCircleOutline from '@material-ui/icons/AddCircleOutline';
 import { NodePosition, QueryExpression, STNode } from '@wso2-enterprise/syntax-tree';
+
 import { IDataMapperContext } from '../../../../../utils/DataMapperContext/DataMapperContext';
 
 const useStyles = makeStyles(() =>
@@ -59,7 +59,7 @@ export function WhereClauseAddWidget(props: ExpandedMappingHeaderWidgetProps) {
     const classes = useStyles();
 
     const onClickAdd = () => {
-        let addPosition:NodePosition;
+        let addPosition: NodePosition;
         const intermediateClauses: STNode[] = queryExprNode.queryPipeline.intermediateClauses;
         if (intermediateClauses?.length === 0) {
             addPosition = queryExprNode.queryPipeline.position
@@ -71,7 +71,7 @@ export function WhereClauseAddWidget(props: ExpandedMappingHeaderWidgetProps) {
         const whereKeyword = 'where';
         const expressionPlaceholder = 'EXPRESSION';
 
-        context.enableStamentEditor({
+        context.enableStatementEditor({
             specificFieldPosition: {
                 startColumn: addPosition.endColumn,
                 startLine: addPosition.startLine,

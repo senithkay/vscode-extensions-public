@@ -10,14 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
 import { IconButton } from "@material-ui/core";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
-
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { FromClause, JoinClause, LetClause, LimitClause, OrderByClause, STKindChecker, STNode, WhereClause } from '@wso2-enterprise/syntax-tree';
+
 import { IDataMapperContext } from '../../../../../utils/DataMapperContext/DataMapperContext';
 
 const useStyles = makeStyles(() =>
@@ -61,8 +62,8 @@ export function WhereClauseEditWidget(props: ExpandedMappingHeaderWidgetProps) {
     const classes = useStyles();
 
     const onClickEdit = (editNode:  FromClause | JoinClause | LetClause | LimitClause | OrderByClause | WhereClause) => {
-        if(STKindChecker.isWhereClause(editNode)){
-            context.enableStamentEditor({
+        if (STKindChecker.isWhereClause(editNode)){
+            context.enableStatementEditor({
                 value: editNode.expression?.source,
                 valuePosition: editNode.expression?.position,
                 label: "Where condition"
@@ -79,28 +80,29 @@ export function WhereClauseEditWidget(props: ExpandedMappingHeaderWidgetProps) {
 
     return (
         <>
-            {intermediateNodes?.map((clauseItem, index) =>
-                <div className={classes.whereClauseWrap} key={`${index}-${clauseItem.source}`}>
-                    <div className={classes.clause}>
-                        {clauseItem.source?.trim()}
+            {intermediateNodes?.map((clauseItem, index) => (
+                    <div className={classes.whereClauseWrap} key={`${index}-${clauseItem.source}`}>
+                        <div className={classes.clause}>
+                            {clauseItem.source?.trim()}
+                        </div>
+                        <IconButton
+                            onClick={() => onClickEdit(clauseItem)}
+                            className={classes.iconsButton}
+                        >
+                            <div className={classes.icon}>
+                                <CodeOutlinedIcon />
+                            </div>
+                        </IconButton>
+                        <IconButton
+                            onClick={() => deleteWhereClause(clauseItem)}
+                            className={classes.iconsButton}
+                        >
+                            <div className={classes.icon}>
+                                <HighlightOffIcon />
+                            </div>
+                        </IconButton>
                     </div>
-                    <IconButton
-                        onClick={() => onClickEdit(clauseItem)}
-                        className={classes.iconsButton}
-                    >
-                        <div className={classes.icon}>
-                            <CodeOutlinedIcon />
-                        </div>
-                    </IconButton>
-                    <IconButton
-                        onClick={() => deleteWhereClause(clauseItem)}
-                        className={classes.iconsButton}
-                    >
-                        <div className={classes.icon}>
-                            <HighlightOffIcon />
-                        </div>
-                    </IconButton>
-                </div>
+                )
             )}
         </>
     );

@@ -13,6 +13,7 @@ import {
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { SelectionState } from "../../DataMapper/DataMapper";
 import {
+    MappingConstructorNode,
     QueryExpressionNode,
     RequiredParamNode
 } from "../Node";
@@ -20,11 +21,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
-import { MappingConstructorNode } from "../Node/MappingConstructor";
-
-import { FieldAccessFindingVisitor } from "./FieldAccessFindingVisitor";
-
-const draftFunctionName = 'XChoreoLCReturnType';
+import { getFieldAccessNodes } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -117,11 +114,16 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isMappingConstructor(node.valueExpr)
             && !STKindChecker.isListConstructor(node.valueExpr)
         ) {
-            const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
-            traversNode(node.valueExpr, fieldAccessFindingVisitor);
-            const fieldAccesseNodes = fieldAccessFindingVisitor.getFieldAccesseNodes();
-            if (fieldAccesseNodes.length > 1){
-                const linkConnectorNode = new LinkConnectorNode(this.context, node, parent, fieldAccesseNodes, this.specificFields.slice(0));
+            const fieldAccessNodes = getFieldAccessNodes(node.valueExpr);
+            if (fieldAccessNodes.length > 1){
+                const linkConnectorNode = new LinkConnectorNode(
+                    this.context,
+                    node,
+                    node.fieldName.value,
+                    parent,
+                    fieldAccessNodes,
+                    this.specificFields.slice(0)
+                );
                 linkConnectorNode.setPosition(440, 1200);
                 this.intermediateNodes.push(linkConnectorNode);
             }

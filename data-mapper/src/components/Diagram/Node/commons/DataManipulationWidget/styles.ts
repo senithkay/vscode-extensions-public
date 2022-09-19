@@ -76,6 +76,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#5567D5",
             padding: "5px",
             textTransform: "none"
+        },
+        editButton: {
+            float: "right",
+            width: 'fit-content',
+            marginLeft: "auto"
         }
     }),
 );
