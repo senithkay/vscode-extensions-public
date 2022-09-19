@@ -6,23 +6,25 @@ export class ServiceForm {
 
     static typeServicePath(svcPath: string) {
         ExpressionEditor
-            .getForField("Service path", this.selector)
+            .getForField("service-base-path", this.selector)
             .clear()
             .type(svcPath)
             .waitForValidations();
+        cy.wait(2000); // todo: this is occuring due to multiple rerenders, fix that
         return this;
     }
 
     static typeListenerPort(port: number) {
         ExpressionEditor
-            .getForField("Listener Port", this.selector)
+            .getForField("port-number", this.selector)
             .clear()
             .type(port.toString())
             .waitForValidations();
+        cy.wait(2000); // todo: this is occuring due to multiple rerenders, fix that
         return this;
 
     }
-    
+
     static clickDefineListenerline() {
         this.getForm()
             .get("fieldset span")
@@ -47,7 +49,7 @@ export class ServiceForm {
     }
 
     private static getForm() {
-        return cy 
+        return cy
             .get(this.selector);
 
     }

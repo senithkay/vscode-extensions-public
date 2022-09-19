@@ -13,18 +13,24 @@
 import {
     AssignmentStatement,
     BinaryExpression,
+    FunctionCall,
     IdentifierToken,
+    IndexedExpression,
     KeySpecifier,
     LetVarDecl,
     LimitClause,
     ListConstructor,
+    LocalVarDecl,
     MappingConstructor,
+    MethodCall,
     OrderKey,
     QueryExpression,
     QueryPipeline,
     RecordField,
     RecordFieldWithDefaultValue,
+    ReturnStatement,
     SimpleNameReference,
+    STKindChecker,
     STNode,
     TupleTypeDesc,
     TypedBindingPattern,
@@ -54,12 +60,27 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitTypedBindingPattern(node: TypedBindingPattern) {
         (node.bindingPattern.viewState as StatementEditorViewState).exprNotDeletable = true;
-        (node.typeDescriptor.viewState as StatementEditorViewState).templateExprDeletable = true;
+        (node.typeDescriptor.viewState as StatementEditorViewState).templateExprDeletable = false;
+        if (STKindChecker.isFromClause(node.parent)) {
+            (node.bindingPattern.viewState as StatementEditorViewState).templateExprDeletable = false;
+        }
     }
 
 
     public beginVisitAssignmentStatement(node: AssignmentStatement) {
         (node.varRef.viewState as StatementEditorViewState).exprNotDeletable = true;
+    }
+
+    public beginVisitReturnStatement(node: ReturnStatement) {
+        if (node.expression) {
+            (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
+        }
+    }
+
+    public beginVisitLocalVarDecl(node: LocalVarDecl, parent?: STNode) {
+        if (node.initializer){
+            (node.initializer.viewState as StatementEditorViewState).templateExprDeletable = true;
+        }
     }
 
     public beginVisitTupleTypeDesc(node: TupleTypeDesc) {
@@ -82,6 +103,29 @@ class DeleteConfigSetupVisitor implements Visitor {
                 (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
             });
         }
+    }
+
+    public beginVisitIndexedExpression(node: IndexedExpression) {
+        if (node.keyExpression.length === 1) {
+            (node.keyExpression[0].viewState as StatementEditorViewState).exprNotDeletable = true;
+            (node.keyExpression[0].viewState as StatementEditorViewState).templateExprDeletable = false;
+        } else {
+            node.keyExpression.map((fieldNames: STNode) => {
+                (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
+            });
+        }
+    }
+
+    public beginVisitMethodCall(node: MethodCall) {
+        node.arguments.map((args: STNode) => {
+            (args.viewState as StatementEditorViewState).templateExprDeletable = true;
+        });
+    }
+
+    public beginVisitFunctionCall(node: FunctionCall) {
+        node.arguments.map((args: STNode) => {
+            (args.viewState as StatementEditorViewState).templateExprDeletable = true;
+        });
     }
 
     public beginVisitOrderKey(node: OrderKey) {
@@ -124,7 +168,8 @@ class DeleteConfigSetupVisitor implements Visitor {
     }
 
     public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
-        if (parent && (parent.viewState as StatementEditorViewState).templateExprDeletable) {
+        if (parent && !STKindChecker.isIndexedExpression(parent) &&
+            (parent.viewState as StatementEditorViewState).templateExprDeletable) {
             (node.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }

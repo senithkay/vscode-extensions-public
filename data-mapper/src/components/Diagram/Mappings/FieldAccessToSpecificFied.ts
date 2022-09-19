@@ -1,9 +1,9 @@
-import { SpecificField, FieldAccess, SimpleNameReference, STNode } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, SimpleNameReference, STNode } from "@wso2-enterprise/syntax-tree";
 
 export class FieldAccessToSpecificFied {
 	constructor(
-		public fields: SpecificField[],
-		public value: FieldAccess|SimpleNameReference,
+		public fields: STNode[],
+		public value: FieldAccess | SimpleNameReference,
 		public otherVal: STNode = undefined
 	){}
 

@@ -117,9 +117,9 @@ export function ParamEditor(props: ParamProps) {
         );
     }
 
-    const debouncedTypeChange = debounce(handleTypeChange, 800);
-    const debouncedNameChange = debounce(handleNameChange, 800);
-    const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
+    // const debouncedTypeChange = debounce(handleTypeChange, 800);
+    // const debouncedNameChange = debounce(handleNameChange, 800);
+    // const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
 
     const handleOnSelect = (value: string) => {
         const newParamString = value === PARAM_TYPES.HEADER ?
@@ -154,12 +154,13 @@ export function ParamEditor(props: ParamProps) {
                         <div className={classes.paramDataTypeWrapper}>
                             <FieldTitle title='Type' optional={false} />
                             <LiteExpressionEditor
+                                testId="param-type"
                                 diagnostics={
                                     (currentComponentName === ParamEditorInputTypes.TYPE && syntaxDiagnostics) ||
                                     model.typeName?.viewState?.diagnosticsInRange
                                 }
                                 defaultValue={model?.typeName?.source.trim()}
-                                onChange={debouncedTypeChange}
+                                onChange={handleTypeChange}
                                 onFocus={onTypeEditorFocus}
                                 disabled={false}
                                 completions={currentComponentName === ParamEditorInputTypes.TYPE && completions}
@@ -169,12 +170,13 @@ export function ParamEditor(props: ParamProps) {
                 <div className={classes.paramNameWrapper}>
                     <FieldTitle title='Param Name' optional={false} />
                     <LiteExpressionEditor
+                        testId="param-name"
                         diagnostics={
                             (currentComponentName === ParamEditorInputTypes.PARAM_NAME && syntaxDiagnostics) ||
                             model.paramName?.viewState?.diagnosticsInRange
                         }
                         defaultValue={model?.paramName?.value.trim()}
-                        onChange={debouncedNameChange}
+                        onChange={handleNameChange}
                         onFocus={onNameEditorFocus}
                         disabled={false}
                         completions={currentComponentName === ParamEditorInputTypes.PARAM_NAME && completions}
@@ -187,16 +189,22 @@ export function ParamEditor(props: ParamProps) {
                         <div className={classes.paramNameWrapper}>
                             <FieldTitle title='Default Value' optional={false} />
                             <LiteExpressionEditor
+                                testId="param-default-val"
                                 diagnostics={
                                     (currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && syntaxDiagnostics)
                                     || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange
                                     || []
                                 }
-                                defaultValue={(STKindChecker.isDefaultableParam(model) && model.expression?.source.trim()) || ""}
-                                onChange={debouncedDefaultValueChange}
+                                defaultValue={
+                                    (STKindChecker.isDefaultableParam(model) && model.expression?.source.trim())
+                                    || ""
+                                }
+                                onChange={handleDefaultValueChange}
                                 onFocus={onDefaultValueEditorFocus}
                                 disabled={false}
-                                completions={currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && completions}
+                                completions={
+                                    currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && completions
+                                }
                             />
                         </div>
                     )
@@ -214,7 +222,7 @@ export function ParamEditor(props: ParamProps) {
                     text={"Save"}
                     disabled={
                         (syntaxDiagnostics && syntaxDiagnostics.length > 0)
-                        || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange.length > 0
+                        || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange?.length > 0
                         || model.paramName?.viewState?.diagnosticsInRange?.length > 0
                         || model.typeName?.viewState?.diagnosticsInRange?.length > 0
                     }

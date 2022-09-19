@@ -312,7 +312,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        ballerinaVersion
                     }
                 )
             ) : (

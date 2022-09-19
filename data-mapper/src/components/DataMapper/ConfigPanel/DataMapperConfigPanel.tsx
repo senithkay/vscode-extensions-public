@@ -1,15 +1,19 @@
+import React, { useEffect, useState } from "react";
+
 import styled from "@emotion/styled";
 import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
 import { createFunctionSignature, STModification, updateFunctionSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormActionButtons, FormHeaderSection, Panel, useStyles as useFormStyles } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-import React, { useEffect, useState } from "react";
+
 import { DataMapperProps } from "../DataMapper";
-import { FunctionNameEditor, getFnNameFromST } from "./FunctionNameEditor";
+
+import { FunctionNameEditor } from "./FunctionNameEditor";
 import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
 import { TypeBrowser } from "./TypeBrowser";
+import { getFnNameFromST, getInputsFromST, getOutputTypeFromST } from "./utils";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
     const { onClose, fnST, applyModifications, targetPosition, onSave } = props;
@@ -61,6 +65,9 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     useEffect(() => {
         if (fnST) {
             setFnName(getFnNameFromST(fnST));
+            setInputParams(getInputsFromST(fnST));
+            console.log(getOutputTypeFromST(fnST));
+            setOutputType(getOutputTypeFromST(fnST));
         }
     }, [fnST]);
 

@@ -15,7 +15,7 @@ import React from "react";
 import { CheckAction, CheckExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
-import { TokenComponent } from "../../Token";
+import { KeywordComponent } from "../../Keyword";
 
 interface CheckActionProps {
     model: CheckAction | CheckExpression;
@@ -26,7 +26,7 @@ export function CheckActionComponent(props: CheckActionProps) {
 
     return (
         <>
-            <TokenComponent model={model.checkKeyword} className={"keyword"} />
+            <KeywordComponent model={model.checkKeyword} />
             <ExpressionComponent model={model.expression} />
         </>
     );

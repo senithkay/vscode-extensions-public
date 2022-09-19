@@ -7,7 +7,7 @@ import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
 
 const BAL_FILE_PATH = "function/add-function-to-empty-file.bal";
 
-describe('Add function and statements via Low Code', () => {
+describe('Add function and parameters via Low Code', () => {
   beforeEach(() => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })

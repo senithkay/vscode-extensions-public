@@ -2,11 +2,6 @@ import { FormTextInput } from "@wso2-enterprise/ballerina-low-code-edtior-ui-com
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import React from "react";
 
-
-export function getFnNameFromST(fnST: FunctionDefinition) {
-    return fnST.functionName.value;
-}
-
 export interface FunctionNameEditorProps {
     value: string;
     onChange: (newVal: string) => void;

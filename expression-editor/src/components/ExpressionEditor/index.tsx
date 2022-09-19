@@ -211,6 +211,7 @@ export function ExpressionEditor(props: FormElementProps<ExpressionEditorProps>)
         content: undefined,
         uri: undefined,
         diagnostic: [],
+        isFirstSelect: true
     });
 
     const [disposableTriggers] = useState([]);

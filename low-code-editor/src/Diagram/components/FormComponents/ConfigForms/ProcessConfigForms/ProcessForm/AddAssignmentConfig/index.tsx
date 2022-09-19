@@ -196,7 +196,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        ballerinaVersion
                     }
                 )
             ) : (

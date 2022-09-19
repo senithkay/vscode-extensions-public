@@ -144,7 +144,8 @@ export function AddReturnForm(props: ReturnFormProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        ballerinaVersion
                     }
                 )
             ) : (

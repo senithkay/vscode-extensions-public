@@ -12,11 +12,11 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { Button } from '@material-ui/core';
 import AddIcon from "@material-ui/icons/Add";
-import { connectorStyles } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
+import { connectorStyles, TextPreloaderVertical } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import {
     CommaToken, DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode
 } from '@wso2-enterprise/syntax-tree';
@@ -100,6 +100,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
     };
 
 
+    let isEditingPram: boolean = false;
     const paramNames: string[] = [];
     const paramComponents: React.ReactElement[] = [];
     parameters
@@ -108,6 +109,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                 || param.source.includes(RESOURCE_PAYLOAD_PREFIX)
                 || param.source.includes(RESOURCE_CALLER_TYPE)
                 || param.source.includes(RESOURCE_REQUEST_TYPE)
+                || param.source.includes(RESOURCE_HEADER_MAP_TYPE)
             ) {
                 return;
             }
@@ -126,6 +128,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                     />
                 );
             } else if (editingSegmentId === index) {
+                isEditingPram = true;
                 paramComponents.push(
                     <ParamEditor
                         segmentId={index}
@@ -161,7 +164,11 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                     </Button>
                 </div>
             )}
-
+            {(editingSegmentId !== -1) && !isEditingPram && (
+                <div>
+                    <TextPreloaderVertical position="fixedMargin"/>
+                </div>
+            )}
         </div>
     );
 }

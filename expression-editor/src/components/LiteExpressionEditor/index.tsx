@@ -50,7 +50,7 @@ import {
     truncateDiagnosticMsg,
 } from "./utils";
 
-const DEBOUNCE_DELAY = 1000;
+const DEBOUNCE_DELAY = 300;
 
 const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     scrollbar: {
@@ -87,6 +87,7 @@ const MONACO_OPTIONS: monaco.editor.IEditorConstructionOptions = {
     hover: {
         enabled: false,
     },
+    occurrencesHighlight: false
 };
 
 monaco.editor.defineTheme("exp-theme", {
@@ -145,6 +146,7 @@ export interface GetCompletionsParams {
 
 export interface LiteExpressionEditorProps {
     defaultValue?: string;
+    externalChangedValue?: string;
     focus?: boolean;
     targetPosition?: any;
     onChange?: (value: string) => void;
@@ -187,7 +189,8 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         model,
         customProps,
         stModel,
-        testId
+        testId,
+        externalChangedValue
     } = props;
 
     const [expressionEditorState, setExpressionEditorState] = useState<ExpressionEditorState>({
@@ -195,6 +198,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         content: undefined,
         uri: undefined,
         diagnostic: diagnostics,
+        isFirstSelect: true
     });
 
     const initialValue = defaultValue;
@@ -399,11 +403,11 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
     }, [focus]);
 
     useEffect(() => {
-        if (defaultValue !== undefined) {
+        if (externalChangedValue !== undefined) {
             const monacoModel = monacoRef.current.editor.getModel();
-            monacoModel.applyEdits([{ range: monacoModel.getFullModelRange(), text: defaultValue }]);
+            monacoModel.setValue(externalChangedValue);
         }
-    }, [defaultValue]);
+    }, [externalChangedValue]);
 
     useEffect(() => {
         // !hideExpand
@@ -464,6 +468,11 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         const lastCharacter = currentContent.length > 0 && currentContent.charAt(currentContent.length - 1);
         if ((currentContent === "" || TRIGGER_CHARACTERS.includes(lastCharacter)) && monacoRef.current.editor.hasTextFocus()) {
             monacoRef.current.editor.trigger("exp_editor", "editor.action.triggerSuggest", {});
+        }
+
+        if (expressionEditorState.isFirstSelect) {
+            monacoRef.current.editor.setSelection(monacoRef.current.editor.getModel().getFullModelRange());
+            expressionEditorState.isFirstSelect = false;
         }
 
         if (onFocus) {

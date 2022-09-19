@@ -11,15 +11,16 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React from "react";
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { getTypeName } from "../../../utils/dm-utils";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -82,30 +83,33 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface RecordFieldTreeItemWidgetProps {
     parentId: string;
-    field: FormField;
+    field: Type;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     treeDepth?: number;
+    handleCollapse: (portName:string, isExpanded?:boolean) => void;
+
 }
 
 export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
-    const { parentId, field, getPort, engine, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0 } = props;
     const classes = useStyles();
 
     const fieldId = `${parentId}.${field.name}`;
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
-    let fields: FormField[];
+    let fields: Type[];
 
-    if (field.typeName === 'record') {
+    if (field.typeName === PrimitiveBalType.Record) {
         fields = field.fields;
     }
 
-    const [expanded, setExpanded] = useState<boolean>(true)
+    let expanded =true;
+    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
+        expanded = false;
+    }
 
-    const typeName = field.typeName
-        ? field.typeName
-        : "record";
+    const typeName = getTypeName(field);
 
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
@@ -125,8 +129,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     );
 
     const handleExpand = () => {
-        // TODO Enable expand collapse functionality
-        // setExpanded(!expanded)
+        handleCollapse(fieldId, !expanded);
     }
 
     return (
@@ -153,7 +156,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                     }
                 </span>
             </div>
-            {fields &&
+            {fields && expanded &&
                 fields.map((subField) => {
                     return (
                         <RecordFieldTreeItemWidget
@@ -162,6 +165,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             field={subField}
                             getPort={getPort}
                             parentId={fieldId}
+                            handleCollapse={handleCollapse}
                             treeDepth={treeDepth + 1}
                         />
                     );

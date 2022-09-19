@@ -308,7 +308,8 @@ export function AddIfForm(props: IfProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        ballerinaVersion
                     }
                 )
             ) : (

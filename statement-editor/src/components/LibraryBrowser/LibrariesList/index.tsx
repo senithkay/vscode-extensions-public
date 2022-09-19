@@ -30,7 +30,7 @@ export function LibrariesList(props: LibrariesListProps) {
     const { libraries, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
 
     return (
-        <List className={stmtEditorHelperClasses.libraryListBlock}>
+        <List className={stmtEditorHelperClasses.libraryListBlock} data-testid="library-list-block">
             {libraries.map((library: LibraryInfo, index: number) => (
                 <Library
                     libraryInfo={library}

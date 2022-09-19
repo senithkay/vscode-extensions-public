@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
     FromClause,
@@ -48,7 +48,7 @@ export class FromClauseNode extends DataMapperNodeModel {
         if (this.sourceBindingPattern) {
             const parentId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
 
-            if (this.typeDef && this.typeDef.typeName === 'record') {
+            if (this.typeDef && this.typeDef.typeName === PrimitiveBalType.Record) {
                 const fields = this.typeDef.fields;
                 fields.forEach((subField) => {
                     this.addPortsForInputRecordField(subField, "OUT", parentId, this.sourceBindingPattern.variableName.value);
@@ -74,7 +74,7 @@ export class FromClauseNode extends DataMapperNodeModel {
                 endLine: expr.position.endLine,
                 endColumn: expr.position.endColumn
             });
-            if (type && type.typeName === 'array') {
+            if (type && type.typeName === PrimitiveBalType.Array) {
                 this.typeDef = type.memberType;
             }
         }

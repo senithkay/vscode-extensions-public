@@ -15,6 +15,7 @@ import React, { useEffect } from 'react';
 
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
+import { StatementEditorHint } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 
 import { useStmtEditorHelperPanelStyles } from "../styles";
 
@@ -42,8 +43,33 @@ export default function TabPanel(props: TabPanelProps) {
     const tabs: React.ReactNode[] = [];
     if (values) {
         values.forEach((tabValue) => {
+
+            let hint;
+            switch (tabValue) {
+                case "Suggestions":
+                    hint = "Ctrl+Shift+M";
+                    break;
+                case "Expressions":
+                    hint = "Ctrl+Shift+,";
+                    break;
+                case "Libraries":
+                    hint = "Ctrl+Shift+.";
+                    break;
+                case "Parameters":
+                    hint = "Ctrl+Shift+/";
+                    break;
+            }
+
             tabs.push(
-                <Tab value={tabValue} label={tabValue} disableRipple={true}/>
+                <Tab
+                    value={tabValue}
+                    disableRipple={true}
+                    label={(
+                        <StatementEditorHint content={hint} >
+                            <span>{tabValue}</span>
+                        </StatementEditorHint>
+                    )}
+                />
             );
         });
     }

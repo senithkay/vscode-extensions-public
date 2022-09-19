@@ -25,10 +25,10 @@ export class ExpressionEditor {
 
     public type(text: string, editorIndex: number = 0, clearSuggestions: boolean = true) {
         if (this.position == 0) {
-            clearSuggestions ? this.getEditor(editorIndex).type("{esc}" + text, { delay: 100 }) :
-                this.getEditor(editorIndex).type(text, { delay: 100 }); // Adding escape first to close suggestion if any
+            clearSuggestions ? this.getEditor(editorIndex).type("{esc}" + text, { delay: 10 }) :
+                this.getEditor(editorIndex).type(text, { delay: 10 }); // Adding escape first to close suggestion if any
         } else {
-            this.getEditorConditions().children().get('.view-lines').eq(this.position - 1).type("{esc}" + text, { delay: 100 });
+            this.getEditorConditions().children().get('.view-lines').eq(this.position - 1).type("{esc}" + text, { delay: 10 });
         }
         return this;
     }

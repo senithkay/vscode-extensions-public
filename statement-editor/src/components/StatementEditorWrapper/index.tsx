@@ -64,7 +64,8 @@ export interface LowCodeEditorProps {
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
     isExpressionMode?: boolean;
     mappingCounstructor ?: string;
-    modelTargetSource?: NodePosition
+    modelTargetSource?: NodePosition;
+    ballerinaVersion?: string;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
@@ -94,7 +95,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         isModuleVar,
         extraModules,
         runBackgroundTerminalCommand,
-        isExpressionMode
+        isExpressionMode,
+        ballerinaVersion
     } = props;
 
     const {
@@ -238,6 +240,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             experimentalEnabled={experimentalEnabled}
                             runBackgroundTerminalCommand={runBackgroundTerminalCommand}
                             isExpressionMode={isExpressionMode}
+                            ballerinaVersion={ballerinaVersion}
                         />
                     </>
                 )}

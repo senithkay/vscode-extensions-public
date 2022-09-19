@@ -5,8 +5,8 @@ import { Tooltip } from '@material-ui/core';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { CodeActionWidget } from '../CodeAction/CodeAction';
 import { DataMapperLinkModel } from "../Link";
@@ -64,7 +64,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 			if (targetPort instanceof RecordFieldPortModel) {
 				const field = targetPort.field;
-				if (field.typeName === 'array' && field.memberType.typeName === 'record') {
+				if (field.typeName === PrimitiveBalType.Array && field.memberType.typeName === PrimitiveBalType.Record) {
 					applyQueryExpression(link, field.memberType);
 				}
 			}
@@ -78,13 +78,17 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	};
 
 	const onClickEdit = () => {
-		props.model.context.enableStamentEditor({valuePosition: props.model.specificField.valueExpr?.position, 
-			value: props.model.specificField.valueExpr?.source,
-			label: props.model.specificField.fieldName.value || props.model.specificField.fieldName.source});
+		props.model.context.enableStatementEditor({
+				valuePosition: props.model.field.position,
+				value: props.model.field.source,
+				label: props.model.editorLabel
+			});
 	};
 
-	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: FormField) => {
-		if (link.value) {
+	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: Type) => {
+		if (link.value
+			&& (STKindChecker.isFieldAccess(link.value) || STKindChecker.isSimpleNameReference(link.value)))
+		{
 			const querySrc = generateQueryExpression(link.value.source, targetRecord);
 			const position = link.value.position as NodePosition;
 			const applyModification = props.model.context.applyModifications;

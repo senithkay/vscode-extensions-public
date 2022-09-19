@@ -105,10 +105,15 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 break;
             case PrimitiveBalType.Record:
                 const allFieldsDefaultable = isAllDefaultableFields(parameter?.fields);
-                if (!parameter.selected && allFieldsDefaultable) {
+                if (!parameter.selected && allFieldsDefaultable && (parameter.optional || parameter.defaultValue)) {
                     break;
                 }
-                if (parameter.selected && allFieldsDefaultable && !isAnyFieldSelected(parameter?.fields)) {
+                if (
+                    parameter.selected &&
+                    allFieldsDefaultable &&
+                    (parameter.optional || parameter.defaultValue) &&
+                    !isAnyFieldSelected(parameter?.fields)
+                ) {
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);
@@ -472,7 +477,7 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                         mappingConstructor.fields as SpecificField[],
                         formField.fields
                     );
-                    formField.selected = isAnyFieldSelected(formField.fields);
+                    formField.selected = formField.selected || isAnyFieldSelected(formField.fields);
                     nextValueIndex++;
                 }
             } else if (
@@ -488,7 +493,9 @@ export function mapEndpointToFormField(model: STNode, formFields: FormField[]): 
                     );
                     nextValueIndex++;
                 }
-                formField.selected = isAnyFieldSelected(formField.inclusionType?.fields);
+                formField.inclusionType.selected =
+                    formField.inclusionType.selected || isAnyFieldSelected(formField.inclusionType?.fields);
+                formField.selected = formField.inclusionType.selected;
             } else if (formField.typeName === "union") {
                 formField.value = positionalArg.expression?.source;
                 formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
@@ -628,7 +635,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                             mappingField.fields as SpecificField[],
                                             subFields
                                         );
-                                        let allFieldsFilled = true;
+                                        let allFieldsFilled = true; // FIXME: fix this union type selection
                                         subFields.forEach((field) => {
                                             if (
                                                 field.optional === false &&
@@ -650,7 +657,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                 mappingField.fields as SpecificField[],
                                 formField.fields
                             );
-                            formField.selected = isAnyFieldSelected(formField.fields);
+                            formField.selected = formField.selected || isAnyFieldSelected(formField.fields);
                         }
                     }
 

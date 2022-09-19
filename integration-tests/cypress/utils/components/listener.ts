@@ -17,7 +17,13 @@ export class Listener {
 
     public clickEdit() {
         this.container.trigger('mouseover').within(() => {
-            cy.get('.listener-amendment-options .edit-btn-wrapper button').click();
+            cy.get('#edit-button').click({ force: true });
+        })
+    }
+
+    public clickDelete() {
+        this.container.trigger('mouseover').within(() => {
+            cy.get('#delete-button').click({ force: true });
         })
     }
 }

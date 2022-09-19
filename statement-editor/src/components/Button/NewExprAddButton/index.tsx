@@ -44,6 +44,7 @@ export function NewExprAddButton(props: AddButtonProps) {
         <span
             className={`${statementRendererClasses.plusIcon} ${classNames}`}
             onClick={onClickOnAddButton}
+            data-testid="plus-button"
         >
             +
         </span>

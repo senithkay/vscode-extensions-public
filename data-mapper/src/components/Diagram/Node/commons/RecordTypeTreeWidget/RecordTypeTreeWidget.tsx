@@ -15,9 +15,10 @@ import * as React from 'react';
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { RecordFieldPortModel } from '../../../Port';
+import { getTypeName } from "../../../utils/dm-utils";
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
 
@@ -30,23 +31,34 @@ const useStyles = makeStyles((theme: Theme) =>
             position: "relative",
             backgroundColor: " #FFFFFF",
             padding: "20px"
+        },
+        header: {
+            color: "black",
+            backgroundColor: "#d8d8ff",
+            display: "flex",
+            height: "40px",
+            padding: "8px"
         }
     }),
 );
 
 export interface RecordTypeTreeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    typeDesc: FormField;
+    typeDesc: Type;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
+    handleCollapse: (portName:string, isExpanded?:boolean) => void;
 }
 
 export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
-    const { engine, typeDesc, id, getPort } = props;
+    const { engine, typeDesc, id, getPort, handleCollapse } = props;
     const classes = useStyles();
+
+    const typeName = getTypeName(typeDesc);
 
     return (
         <div className={classes.root}>
+            <span className={classes.header}>{typeName}</span>
             {
                 typeDesc.fields.map((field) => {
                     return (
@@ -56,6 +68,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                             field={field}
                             getPort={getPort}
                             parentId={id}
+                            handleCollapse={handleCollapse}
                         />
                     );
                 })

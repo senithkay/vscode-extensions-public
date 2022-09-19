@@ -44,7 +44,7 @@ export function EndpointForm(props: FormGeneratorProps) {
     const { connector, isModuleType } = formArgs as EndpointFormProps;
 
     const {
-        props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled },
+        props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled, ballerinaVersion },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
@@ -130,6 +130,7 @@ export function EndpointForm(props: FormGeneratorProps) {
                     experimentalEnabled,
                     runBackgroundTerminalCommand,
                     isModuleVar: isModuleType ?? false,
+                    ballerinaVersion
                 })}
         </>
     );

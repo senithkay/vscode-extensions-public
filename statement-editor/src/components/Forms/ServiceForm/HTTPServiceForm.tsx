@@ -252,6 +252,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         <>
             <FieldTitle title='Path' optional={false} />
             <LiteExpressionEditor
+                testId="service-base-path"
                 diagnostics={currentComponentName === 'path' ?
                     currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
                 defaultValue={basePath}
@@ -269,6 +270,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         <>
             <FieldTitle title='Port' optional={false} />
             <LiteExpressionEditor
+                testId="port-number"
                 diagnostics={currentComponentName === 'port' ?
                     currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
                 defaultValue={listenerPort}
