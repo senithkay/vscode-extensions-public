@@ -67,7 +67,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             valuePosition: props.node.valueNode.position,
             value: props.node.valueNode.source,
             label: props.node.editorLabel
-        }, props.node.editorLabel);
+        });
     };
 
     return (

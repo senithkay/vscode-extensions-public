@@ -123,7 +123,6 @@ function DataMapperC(props: DataMapperProps) {
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
-    const [editorLabel, setEditorLabel] = useState("");
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: fnST,
         prevST: []
@@ -147,23 +146,21 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
-    const enableStatementEditor = (expressionInfo: ExpressionInfo, label: string) => {
+    const enableStatementEditor = (expressionInfo: ExpressionInfo) => {
         setCurrentEditableField(expressionInfo);
-        setEditorLabel(label);
     }
 
     const closeStatementEditor = () => {
         setCurrentEditableField(null);
-        setEditorLabel("");
     }
 
-    const handleCollapse = (fieldName: string, expand?:boolean) => {
+    const handleCollapse = (fieldName: string, expand?: boolean) => {
         if (!expand){
             setCollapsedFields((prevState) => [...prevState, fieldName]);
         }
         else{
             setCollapsedFields((prevState) => prevState.filter((element) => {
-                return element != fieldName;
+                return element !== fieldName;
             }));
         }
     }
@@ -231,7 +228,6 @@ function DataMapperC(props: DataMapperProps) {
                     {!!currentEditableField && (
                         <StatementEditorComponent
                             expressionInfo={currentEditableField}
-                            label={editorLabel}
                             langClientPromise={langClientPromise}
                             applyModifications={applyModifications}
                             currentFile={currentFile}

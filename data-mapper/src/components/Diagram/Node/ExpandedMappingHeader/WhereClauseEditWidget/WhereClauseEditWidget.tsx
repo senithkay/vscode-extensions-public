@@ -67,7 +67,7 @@ export function WhereClauseEditWidget(props: ExpandedMappingHeaderWidgetProps) {
                 value: editNode.expression?.source,
                 valuePosition: editNode.expression?.position,
                 label: "Where condition"
-            }, "Where condition");
+            });
         }
     };
 

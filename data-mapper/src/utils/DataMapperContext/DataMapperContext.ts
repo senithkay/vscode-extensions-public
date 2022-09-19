@@ -34,7 +34,7 @@ export interface IDataMapperContext {
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
     applyModifications: (modifications: STModification[]) => void;
     diagnostics: Diagnostic[];
-    enableStatementEditor: (expressionInfo: ExpressionInfo, label: string) => void;
+    enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     collapsedFields: string[];
     handleCollapse: (fieldName: string, expand?: boolean) => void;
 }
@@ -55,7 +55,7 @@ export class DataMapperContext implements IDataMapperContext {
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
         public applyModifications: (modifications: STModification[]) => void,
         public diagnostics: Diagnostic[],
-        public enableStatementEditor: (expressionInfo: ExpressionInfo, label: string) => void,
+        public enableStatementEditor: (expressionInfo: ExpressionInfo) => void,
         public collapsedFields: string[],
         public handleCollapse: (fieldName: string, expand?: boolean) => void
     ){}

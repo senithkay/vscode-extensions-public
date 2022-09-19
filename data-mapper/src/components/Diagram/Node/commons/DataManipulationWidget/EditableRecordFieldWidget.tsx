@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 import { IconButton } from "@material-ui/core";
 import { default as AddIcon } from  "@material-ui/icons/Add";
@@ -25,7 +25,6 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
-    createSourceForUserInput,
     getBalRecFieldName,
     getDefaultLiteralValue,
     getNewSource,
@@ -73,11 +72,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
-    const [editable, setEditable] = useState<boolean>(false);
-    const [str, setStr] = useState(hasValue ? field.value.source : `""`);
-
-    let expanded =true;
-    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
+    let expanded = true;
+    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)){
         expanded = false;
     }
 
@@ -111,9 +107,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 label: STKindChecker.isSpecificField(field.value)
                     ? field.value.fieldName.source
                     : field.value.source
-            }, STKindChecker.isSpecificField(field.value)
-                ? field.value.fieldName.source
-                : field.value.source);
+            });
 
         } else {
             const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
@@ -140,33 +134,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 value: "EXPRESSION" ,
                 valuePosition,
                 label: field.type.name
-            }, field.type.name);
+            });
         }
     };
-
-    // const handleEditable = async () => {
-    //     if (!field.value) {
-    //         await createSourceForUserInput(field, mappingConstruct, str, context.applyModifications);
-    //     }
-    //     setEditable(true);
-    // };
-
-    // useEffect(() => {
-    //     if (editable && field.value) {
-    //         context.enableStatementEditor({
-    //             value: STKindChecker.isSpecificField(field.value) ? field.value.valueExpr.source : field.value.source,
-    //             valuePosition: STKindChecker.isSpecificField(field.value)
-    //                 ? field.value.valueExpr.position
-    //                 : field.value.position,
-    //             label: STKindChecker.isSpecificField(field.value)
-    //                 ? field.value.fieldName.source
-    //                 : field.value.source
-    //         }, STKindChecker.isSpecificField(field.value)
-    //             ? field.value.fieldName.source
-    //             : field.value.source);
-    //         setEditable(false);
-    //     }
-    // }, []);
 
     const handleExpand = () => {
         context.handleCollapse(fieldId, !expanded);

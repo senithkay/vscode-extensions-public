@@ -82,7 +82,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 				valuePosition: props.model.field.position,
 				value: props.model.field.source,
 				label: props.model.editorLabel
-			}, props.model.editorLabel);
+			});
 	};
 
 	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: Type) => {

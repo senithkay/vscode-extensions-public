@@ -87,7 +87,7 @@ export function WhereClauseAddWidget(props: ExpandedMappingHeaderWidgetProps) {
             },
             label: "Where condition",
             fieldName: ` ${whereKeyword} ${expressionPlaceholder}`,
-        }, "Where condition");
+        });
     };
 
     return (
