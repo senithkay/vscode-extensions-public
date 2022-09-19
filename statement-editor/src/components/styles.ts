@@ -249,7 +249,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         },
         syntaxErrorTooltip : {
             position: 'absolute',
-            top: '-60px',
+            top: '-26px',
             left: '80%'
         }
     }),
@@ -888,7 +888,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionTitle: {
             display: 'flex',
             alignItems: 'center',
-            paddingBottom: '15px',
+            paddingBottom: '24px',
             fontWeight: 500
         },
         statementExpressionContent: {
