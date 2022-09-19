@@ -82,7 +82,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 if (!!this.recordFields.length) {
                     this.recordFields.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-                                undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
+                            undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
             } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && STKindChecker.isSelectClause(this.value)) {
@@ -91,7 +91,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 if (!!this.recordFields.length) {
                     this.recordFields.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-                                undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
+                            undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
             } else {
@@ -216,7 +216,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     private getNextField(nextTypeMemberNodes: ArrayElement[],
-                         nextFieldPosition: NodePosition): [EditableRecordField, number] {
+        nextFieldPosition: NodePosition): [EditableRecordField, number] {
         let memberIndex = -1;
         const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
             for (let i = 0; i < node.members.length; i++) {
@@ -242,14 +242,22 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     private deleteLink(field: STNode) {
-        const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
-        traversNode(this.value.expression, linkDeleteVisitor);
-        const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+        if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
+            // if Within query expression expanded view
+            this.context.applyModifications([{
+                type: "DELETE",
+                ...field.valueExpr?.position
+            }]);
+        } else {
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
+            traversNode(this.value.expression, linkDeleteVisitor);
+            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
 
-        this.context.applyModifications([{
-            type: "DELETE",
-            ...nodePositionsToDelete
-        }]);
+            this.context.applyModifications([{
+                type: "DELETE",
+                ...nodePositionsToDelete
+            }]);
+        }
     }
 
     public updatePosition() {
@@ -259,8 +267,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
-        if (typeof x === 'number' && typeof y === 'number'){
-            if (!this.x || !this.y){
+        if (typeof x === 'number' && typeof y === 'number') {
+            if (!this.x || !this.y) {
                 this.x = x;
                 this.y = y;
                 super.setPosition(x, y);
