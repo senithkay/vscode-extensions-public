@@ -20,7 +20,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getTypeName } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getTypeName } from "../../../utils/dm-utils";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -87,7 +87,7 @@ export interface RecordFieldTreeItemWidgetProps {
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     treeDepth?: number;
-    handleCollapse: (portName:string, isExpanded?:boolean) => void;
+    handleCollapse: (portName: string, isExpanded?: boolean) => void;
 
 }
 
@@ -95,7 +95,8 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0 } = props;
     const classes = useStyles();
 
-    const fieldId = `${parentId}.${field.name}`;
+    const fieldName = getBalRecFieldName(field.name);
+    const fieldId = `${parentId}.${fieldName}`;
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
     let fields: Type[];
@@ -104,8 +105,8 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         fields = field.fields;
     }
 
-    let expanded =true;
-    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
+    let expanded = true;
+    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
         expanded = false;
     }
 
@@ -116,7 +117,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const label = (
         <span style={{marginRight: "auto"}}>
             <span className={classes.valueLabel} style={{marginLeft: indentation}}>
-                {field.name}
+                {fieldName}
                 {typeName && ":"}
             </span>
             {typeName && (
