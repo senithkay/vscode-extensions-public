@@ -52,7 +52,11 @@ export function TypeBrowser(props: TypeBrowserProps) {
             setRecordCompletsions(recCompletions);
         })();
     }, [content]);
-    
+
+    useEffect(() => {
+        setSelectedType(type);
+    }, [type]);
+
     return (
         <TypeSelect
           value={selectedType}
