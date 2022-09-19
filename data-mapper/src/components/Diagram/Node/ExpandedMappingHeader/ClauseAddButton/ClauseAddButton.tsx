@@ -25,11 +25,10 @@ export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
     context: IDataMapperContext;
     addIndex: number;
-    iconClass?: string;
 }
 
 export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
-    const { context, queryExprNode, addIndex, iconClass } = props;
+    const { context, queryExprNode, addIndex } = props;
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<null | SVGSVGElement>(null);
     const open = Boolean(anchorEl);
@@ -84,7 +83,7 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
 
     return (
         <>
-            <AddIcon className={clsx(classes.addIcon, iconClass)} onClick={handleClick} />
+            <AddIcon className={clsx(classes.addIcon)} onClick={handleClick} />
             <Menu
                 anchorEl={anchorEl}
                 open={open}
