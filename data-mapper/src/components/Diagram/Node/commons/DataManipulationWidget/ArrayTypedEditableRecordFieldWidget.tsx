@@ -11,14 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import { Button, IconButton } from "@material-ui/core";
 import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { ListConstructor, MappingConstructor, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -74,7 +74,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             </span>
             {typeName && (
                 <span className={classes.typeLabel}>
-                    {`${typeName}[]`}
+                    {typeName}
                 </span>
             )}
         </span>
