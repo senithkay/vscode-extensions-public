@@ -35,6 +35,7 @@ import {
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
+import { ValueConfigButton } from "./ValueConfigButton";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -166,13 +167,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
                     <span> {label}</span>
                     {!hasValue && !isRecord && (
-                        <IconButton
-                            aria-label="add"
-                            className={classes.tripleDotsIcon}
+                        <ValueConfigButton
                             onClick={handleEditable}
-                        >
-                            <TripleDotsIcon />
-                        </IconButton>
+                        />
                     )}
                 </div>
             )}
