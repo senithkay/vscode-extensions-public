@@ -14,12 +14,14 @@
 import * as React from 'react';
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { MappingConstructor } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { RecordFieldPortModel } from '../../../Port';
+import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 
@@ -39,7 +41,34 @@ const useStyles = makeStyles((theme: Theme) =>
 			display: "flex",
 			height: "40px",
 			padding: "8px"
-		}
+		},
+        typeLabel: {
+            marginLeft: "3px",
+            verticalAlign: "middle",
+            padding: "5px",
+            color: "#222228",
+            fontFamily: "GilmerRegular",
+            fontSize: "13px",
+            minWidth: "100px",
+            marginRight: "24px"
+        },
+        valueLabel: {
+            verticalAlign: "middle",
+            padding: "5px",
+            color: "#222228",
+            fontFamily: "GilmerMedium",
+            fontSize: "13px",
+        },
+        treeLabelOutPort: {
+            float: "right",
+            width: 'fit-content',
+            marginLeft: "auto",
+        },
+        treeLabelInPort: {
+            float: "left",
+            marginRight: "5px",
+            width: 'fit-content',
+        }
 	}),
 );
 
@@ -51,18 +80,72 @@ export interface EditableMappingConstructorWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
+	valueLabel?: string;
 }
 
 
 export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
-	const { id, editableRecordFields, typeName, value, engine, getPort, context } = props;
+	const { id, editableRecordFields, typeName, value, engine, getPort, context, valueLabel } = props;
 	const classes = useStyles();
 
+	const hasValue = editableRecordFields.length > 0;
+
+
+
+    const portIn = getPort(`${id}.IN`);
+    const portOut = getPort(`${id}.OUT`);
+
+    let expanded =true;
+    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
+        expanded = false;
+    }
+
+	const indentation = (portIn &&(!hasValue || !expanded))  ?  0 : 24;
+    const label = (
+        <span style={{marginRight: "auto"} }>
+			{valueLabel && (
+				<span className={classes.valueLabel}>
+					{valueLabel}
+					{typeName && ":"}
+				</span>
+			)}
+            {typeName && (
+                <span className={classes.typeLabel}>
+                    {typeName}
+                </span>
+            )}
+
+        </span>
+    );
+
+    const handleExpand = () => {
+        context.handleCollapse(id, !expanded);        
+    }
 	// TODO: Handle root level arrays
 	return (
 		<div className={classes.root}>
-			<span className={classes.header}>{typeName}</span>
-			{
+			<span className={classes.header}>
+                <span className={classes.treeLabelInPort}>
+                    {portIn && (!hasValue || !expanded)  &&
+                        <DataMapperPortWidget engine={engine} port={portIn}/>
+                    }
+                </span>
+                {expanded ? (
+                            <ExpandMoreIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
+                        ) :
+                        (
+                            <ChevronRightIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
+                        )
+                }
+
+                <span> {label}</span>
+                <span className={classes.treeLabelOutPort}>
+                    {portOut &&
+                        <DataMapperPortWidget engine={engine} port={portOut}/>
+                    }
+                </span>
+            </span> 			
+			{expanded &&
 				editableRecordFields.map((item) => {
 					return (
 						<EditableRecordFieldWidget
@@ -73,6 +156,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 							parentId={id}
 							mappingConstruct={value}
 							context={context}
+							treeDepth={1}
 						/>
 					);
 				})

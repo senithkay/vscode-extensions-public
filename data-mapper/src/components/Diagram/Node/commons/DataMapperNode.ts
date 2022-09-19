@@ -120,6 +120,16 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
+	protected addPortsForHeaderField(field: Type, fieldValue: string, type: "IN" | "OUT",collapsedFields?:string[]) : RecordFieldPortModel {
+		const fieldName = getBalRecFieldName(fieldValue);
+		const isCollapsed = collapsedFields && collapsedFields.includes(fieldName);
+		const fieldPort = new RecordFieldPortModel(
+					field, type, undefined, undefined, undefined, undefined, undefined, isCollapsed, false, fieldName);
+		this.addPort(fieldPort)
+		
+		return fieldPort;
+	}
+
 	protected genMappings(val: MappingConstructor, parentFields?: SpecificField[]) {
 		let foundMappings: FieldAccessToSpecificFied[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];

@@ -34,10 +34,12 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public parentFieldAccess?: string,
 		public parentModel?: RecordFieldPortModel,
 		public collapsed?: boolean,
-		public hidden?: boolean) {
+		public hidden?: boolean,
+		public fieldName?: string) {
 		super({
 			type: FORM_FIELD_PORT,
-			name: `${parentId}.${getBalRecFieldName(field.name)}.${portType}`,
+			name: fieldName ? `${getBalRecFieldName(fieldName)}.${portType}`
+					: `${parentId}.${getBalRecFieldName(field.name)}.${portType}`,
 		});
 	}
 

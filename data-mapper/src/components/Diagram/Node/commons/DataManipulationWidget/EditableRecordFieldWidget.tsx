@@ -62,8 +62,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);
-    const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
-
+    let indentation = treeDepth * 16;
+    
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
             return isConnectedViaLink(field?.value);
@@ -79,9 +79,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         expanded = false;
     }
 
+    if (!portIn || (hasValue && !connectedViaLink && expanded)){
+        indentation += 24;
+    }
+
     const label = (
         <span style={{marginRight: "auto"}}>
-            <span className={classes.valueLabel} style={{marginLeft: indentation}}>
+            <span className={classes.valueLabel} style={{marginLeft: !!fields ? 0 : indentation + 24}}>
                 {fieldName}
                 {typeName && ":"}
             </span>
@@ -144,10 +148,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 </span>
                     {fields &&
                         (expanded ? (
-                                <ExpandMoreIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                                <ExpandMoreIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
                             ) :
                             (
-                                <ChevronRightIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
+                                <ChevronRightIcon style={{color: "black", marginLeft: indentation}} onClick={handleExpand}/>
                             ))
                     }
 
@@ -179,7 +183,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         mappingConstruct={mappingConstruct}
                         context={context}
                         fieldIndex={fieldIndex}
-                        treeDepth={treeDepth + 1}
+                        treeDepth={treeDepth}
                     />
                 </>
             )}

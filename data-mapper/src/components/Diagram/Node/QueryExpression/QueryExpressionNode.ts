@@ -91,6 +91,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         this.sourcePort = node.getPort(
                             `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
                     }
+                    while(this.sourcePort && this.sourcePort.hidden){
+                        this.sourcePort =this.sourcePort.parentModel;
+                    }
                 });
             }
         }
