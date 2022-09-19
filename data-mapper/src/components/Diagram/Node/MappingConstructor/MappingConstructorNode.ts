@@ -34,7 +34,8 @@ import {
     getBalRecFieldName,
     getEnrichedRecordType,
     getInputNodeExpr,
-    getInputPortsForExpr
+    getInputPortsForExpr,
+    getTypeName
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -48,6 +49,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
     public typeDef: Type;
     public recordFields: EditableRecordField[];
+    public typeName: string;
     public x: number;
     public y: number;
 
@@ -72,11 +74,13 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
+            this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordFields = valueEnrichedType.childrenTypes;
                 if (!!this.recordFields.length) {
                     this.recordFields.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX);
+                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+                                undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, undefined, this.context.collapsedFields);
                     });
                 }
             } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && STKindChecker.isSelectClause(this.value)) {
@@ -84,7 +88,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 this.recordFields = valueEnrichedType.elements[0].members;
                 if (!!this.recordFields.length) {
                     this.recordFields.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX);
+                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+                                undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, undefined, this.context.collapsedFields);
                     });
                 }
             } else {
@@ -200,7 +205,11 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         }
         if (recField) {
             const portId = `${portIdBuffer}.IN`;
-            return this.getPort(portId) as RecordFieldPortModel;
+            let port = (this.getPort(portId) as RecordFieldPortModel);
+            while (port && port.hidden) {
+                port = port.parentModel;
+            }
+            return port;
         }
     }
 
@@ -248,11 +257,11 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
-        if ( typeof x === 'number' && typeof y === 'number'){
+        if (typeof x === 'number' && typeof y === 'number'){
             if (!this.x || !this.y){
                 this.x = x;
                 this.y = y;
-                super.setPosition(x,y);
+                super.setPosition(x, y);
             }
         }
     }

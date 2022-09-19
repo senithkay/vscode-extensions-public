@@ -170,7 +170,8 @@ export function AddWhileForm(props: WhileProps) {
                         syntaxTree,
                         stSymbolInfo,
                         importStatements,
-                        experimentalEnabled
+                        experimentalEnabled,
+                        ballerinaVersion
                     }
                 )
             ) : (

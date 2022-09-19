@@ -5,7 +5,7 @@ import { Tooltip } from '@material-ui/core';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryBuilderOutlinedIcon from '@material-ui/icons/QueryBuilderOutlined';
-import { FormField, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -85,7 +85,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			}, props.model.editorLabel);
 	};
 
-	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: FormField) => {
+	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: Type) => {
 		if (link.value
 			&& (STKindChecker.isFieldAccess(link.value) || STKindChecker.isSimpleNameReference(link.value)))
 		{

@@ -57,3 +57,6 @@ If you do a npm i from workspace directory, it will create a new package-lock th
 ## Links
 
 - [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
+
+### Note
+The VSCode icons used within the low-code-editor's statement-editor is by [react-icons](https://react-icons.github.io/react-icons/icons?name=vsc) which is licensed under CC By 4.0

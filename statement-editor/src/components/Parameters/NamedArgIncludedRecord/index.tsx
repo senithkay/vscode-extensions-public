@@ -41,7 +41,7 @@ export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
     return (
         <>
             {isNewRecord && (
-                <ListItem className={stmtEditorHelperClasses.docListDefault}>
+                <ListItem className={stmtEditorHelperClasses.docListDefault} data-testid="named-arg">
                     <Checkbox
                         classes={{
                             root : stmtEditorHelperClasses.disabledCheckbox,

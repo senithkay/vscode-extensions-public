@@ -42,7 +42,11 @@ export function SearchResult(props: SearchResultProps) {
             {modules.length > 0 && !moduleSelected && (
                     <div>
                         <div className={stmtEditorHelperClasses.helperPaneSubHeader}>Modules</div>
-                        <List className={stmtEditorHelperClasses.libraryElementBlockContent} style={{paddingBottom: '25px'}}>
+                        <List
+                            className={stmtEditorHelperClasses.libraryElementBlockContent}
+                            style={{paddingBottom: '25px'}}
+                            data-testid="library-element-block-content"
+                        >
                             {modules.map((library: LibraryInfo, index: number) => (
                                 <Library
                                     libraryInfo={library}

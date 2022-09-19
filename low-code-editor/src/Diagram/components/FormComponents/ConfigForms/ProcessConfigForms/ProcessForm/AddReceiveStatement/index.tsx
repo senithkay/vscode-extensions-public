@@ -13,11 +13,17 @@
 import { useContext } from 'react';
 import { useIntl } from 'react-intl';
 
-import { ProcessConfig, ReceivestatementConfig, SendStatementConfig } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import {
+    getAllVariables,
+    ProcessConfig,
+    ReceivestatementConfig,
+    SendStatementConfig
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { Context } from '../../../../../../../Contexts/Diagram';
 import { createReceiveStatement, createSendStatement, getInitialSource } from '../../../../../../utils';
+import { genVariableName } from "../../../../../Portals/utils";
 
 interface AddReceiveStatementProps {
     config: ProcessConfig;
@@ -33,6 +39,7 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
     const intl = useIntl();
     const {
         props: {
+            ballerinaVersion,
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
@@ -65,9 +72,9 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
     });
 
     const receiveStatementConfig: ReceivestatementConfig = config.config as ReceivestatementConfig;
-    receiveStatementConfig.type = receiveStatementConfig.type === '' ? 'EXPRESSION' : receiveStatementConfig.type;
+    receiveStatementConfig.type = receiveStatementConfig.type === '' ? 'TYPE_DESCRIPTOR' : receiveStatementConfig.type;
     receiveStatementConfig.varName = receiveStatementConfig.varName === '' ?
-        'EXPRESSION' : receiveStatementConfig.varName;
+        genVariableName("variable", getAllVariables(stSymbolInfo)) : receiveStatementConfig.varName;
     receiveStatementConfig.senderWorker = receiveStatementConfig.senderWorker === '' ?
         'EXPRESSION' : receiveStatementConfig.senderWorker;
 
@@ -88,7 +95,8 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            ballerinaVersion
         }
     );
 

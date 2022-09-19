@@ -13,11 +13,17 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { ConfigurableKeyword, FinalKeyword, ModuleVarDecl } from "@wso2-enterprise/syntax-tree";
+import {
+    ConfigurableKeyword,
+    FinalKeyword,
+    ModuleVarDecl,
+    STKindChecker
+} from "@wso2-enterprise/syntax-tree";
 
 import { CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
+import { KeywordComponent } from "../../Keyword";
 import { TokenComponent } from "../../Token";
 
 interface ModuleVarDeclProps {
@@ -45,7 +51,10 @@ export function ModuleVarDeclC(props: ModuleVarDeclProps) {
     const qualifiers = model.qualifiers.map((qualifier: ConfigurableKeyword | FinalKeyword) => {
         return (
             <>
-                <TokenComponent model={qualifier} className={"keyword"} />
+                {STKindChecker.isFinalKeyword(qualifier) ?
+                    <KeywordComponent model={qualifier}/> :
+                    <TokenComponent model={qualifier} className={"keyword"} />
+                }
             </>
         )
     });

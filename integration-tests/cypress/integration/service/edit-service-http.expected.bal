@@ -5,7 +5,7 @@ service /hello on new http:Listener(9090) {
     }
     resource function post .() returns error? {
         int foo = 123;
-        string foo_string;
+        var variable = 456;
     }
 }
 

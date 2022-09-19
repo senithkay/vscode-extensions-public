@@ -23,7 +23,7 @@ import { ListConstructor, MappingConstructor, STKindChecker } from "@wso2-enterp
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { createSourceForUserInput, getBalRecFieldName, getDefaultValue } from "../../../utils/dm-utils";
+import { createSourceForUserInput, getBalRecFieldName, getDefaultValue, getTypeName } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
@@ -54,10 +54,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const valExpr = field.hasValue()
         && (STKindChecker.isSpecificField(field.value) ? field.value.valueExpr : field.value);
     const hasValue = valExpr && !!valExpr.source;
-    const typeName = field.type.memberType.typeName;
+    const typeName = getTypeName(field.type);
     const elements = field.elements;
 
-    const [expanded, setExpanded] = useState<boolean>(true);
+    let expanded = true;
+    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)){
+        expanded = false;
+    }
+
     const listConstructor = hasValue ? (STKindChecker.isListConstructor(valExpr) ? valExpr : null) : null;
 
     const indentation = !!elements ? 0 : ((treeDepth + 1) * 16) + 8;
@@ -138,8 +142,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     );
 
     const handleExpand = () => {
-        // TODO Enable expand collapse functionality
-        // setExpanded(!expanded)
+        context.handleCollapse(fieldId, !expanded);
     };
 
     const handleArrayInitialization = async () => {
@@ -162,7 +165,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <>
             <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
-                    {portIn && !listConstructor &&
+                    {portIn && (!listConstructor || !expanded) &&
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
@@ -191,27 +194,31 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     }
                 </span>
             </div>
-            {hasValue && listConstructor && (
-                <div className={classes.treeLabel}>
-                    <span>[</span>
-                </div>
-            )}
-            {arrayElements}
-            {hasValue && listConstructor && (
+            {expanded && (
                 <>
-                    <div className={classes.treeLabel}>
-                        <Button
-                            aria-label="add"
-                            className={classes.addIcon}
-                            onClick={handleAddArrayElement}
-                            startIcon={<AddIcon/>}
-                        >
-                            Add Element
-                        </Button>
-                    </div>
-                    <div className={classes.treeLabel}>
-                        <span>]</span>
-                    </div>
+                    {hasValue && listConstructor && (
+                        <div className={classes.treeLabel}>
+                            <span>[</span>
+                        </div>
+                    )}
+                    {arrayElements}
+                    {hasValue && listConstructor && (
+                        <>
+                            <div className={classes.treeLabel}>
+                                <Button
+                                    aria-label="add"
+                                    className={classes.addIcon}
+                                    onClick={handleAddArrayElement}
+                                    startIcon={<AddIcon/>}
+                                >
+                                    Add Element
+                                </Button>
+                            </div>
+                            <div className={classes.treeLabel}>
+                                <span>]</span>
+                            </div>
+                        </>
+                    )}
                 </>
             )}
         </>

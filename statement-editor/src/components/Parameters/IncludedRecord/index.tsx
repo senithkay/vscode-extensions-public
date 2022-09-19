@@ -44,6 +44,7 @@ export function IncludedRecord(props: IncludedRecordProps){
                     key={key}
                     className={stmtEditorHelperClasses.docListDefault}
                     style={getParamHighlight(model, param)}
+                    data-testid="included-record-arg"
                 >
                     <Checkbox
                         classes={{

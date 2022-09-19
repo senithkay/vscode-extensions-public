@@ -32,6 +32,13 @@ const useStyles = makeStyles((theme: Theme) =>
 			position: "relative",
 			backgroundColor: " #FFFFFF",
 			padding: "20px"
+		},
+		header: {
+			color: "black",
+			backgroundColor: "#d8d8ff",
+			display: "flex",
+			height: "40px",
+			padding: "8px"
 		}
 	}),
 );
@@ -39,6 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	editableRecordFields: EditableRecordField[];
+	typeName: string;
 	value: MappingConstructor;
 	engine: DiagramEngine;
 	getPort: (portId: string) => RecordFieldPortModel;
@@ -47,12 +55,13 @@ export interface EditableMappingConstructorWidgetProps {
 
 
 export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
-	const { id, editableRecordFields, value, engine, getPort, context } = props;
+	const { id, editableRecordFields, typeName, value, engine, getPort, context } = props;
 	const classes = useStyles();
 
 	// TODO: Handle root level arrays
 	return (
 		<div className={classes.root}>
+			<span className={classes.header}>{typeName}</span>
 			{
 				editableRecordFields.map((item) => {
 					return (

@@ -362,7 +362,10 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 				if (recField) {
 					if (i === fieldNames.length - 1) {
 						const portId = portIdBuffer + ".OUT";
-						const port = (node.getPort(portId) as RecordFieldPortModel);
+						let port = (node.getPort(portId) as RecordFieldPortModel);
+						while (port && port.hidden) {
+							port = port.parentModel;
+						}
 						return port;
 					} else if (recField.typeName === PrimitiveBalType.Record) {
 						nextTypeNode = recField;
@@ -613,6 +616,15 @@ export function isConnectedViaLink(field: SpecificField) {
 	const isListConstruct = STKindChecker.isListConstructor(field.valueExpr);
 
 	return !!fieldAccessNodes.length && !isMappingConstruct && !isListConstruct;
+}
+
+export function getTypeName(field: Type): string {
+	if (field.typeName === 'record') {
+		return field?.typeInfo ? field.typeInfo.name : 'record';
+	} else if (field.typeName === 'array') {
+		return `${getTypeName(field.memberType)}[]`;
+	}
+	return field.typeName;
 }
 
 export function getDefaultValue(field: Type): string {

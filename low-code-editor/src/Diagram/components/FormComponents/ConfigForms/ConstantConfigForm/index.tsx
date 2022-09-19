@@ -194,7 +194,8 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isModuleVar: true
+                        isModuleVar: true,
+                        ballerinaVersion
                     }
                 )
             ) : (

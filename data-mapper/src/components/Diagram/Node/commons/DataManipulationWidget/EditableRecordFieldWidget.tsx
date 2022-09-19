@@ -25,9 +25,11 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
+    createSourceForUserInput,
     getBalRecFieldName,
     getDefaultLiteralValue,
     getNewSource,
+    getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
 
@@ -59,7 +61,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const hasValue = specificField && !!specificField.valueExpr.source;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
-    const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
+    const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const value: string = getDefaultLiteralValue(field.type.typeName, specificField.valueExpr);
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
@@ -71,9 +73,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
-    const [expanded, setExpanded] = useState<boolean>(true);
     const [editable, setEditable] = useState<boolean>(false);
     const [str, setStr] = useState(hasValue ? field.value.source : `""`);
+
+    let expanded =true;
+    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
+        expanded = false;
+    }
 
     const label = (
         <span style={{marginRight: "auto"}}>
@@ -163,8 +169,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     // }, []);
 
     const handleExpand = () => {
-        // TODO Enable expand collapse functionality
-        // setExpanded(!expanded)
+        context.handleCollapse(fieldId, !expanded);
     };
 
     return (
@@ -172,7 +177,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {!isArray && (
                 <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
-                    {portIn && (!hasValue || connectedViaLink) &&
+                    {portIn && (!hasValue || connectedViaLink || !expanded) &&
                         <DataMapperPortWidget engine={engine} port={portIn}/>
                     }
                 </span>
@@ -217,7 +222,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     />
                 </>
             )}
-            {fields &&
+            {fields && expanded &&
                 fields.map((subField) => {
                     return (
                         <>

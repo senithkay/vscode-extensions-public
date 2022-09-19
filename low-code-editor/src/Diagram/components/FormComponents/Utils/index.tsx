@@ -150,7 +150,7 @@ export function addReturnTypeImports(modifications: STModification[], returnType
 }
 
 export function isDependOnDriver(connectorModule: string): boolean {
-    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect"]
+    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect", "snowflake"]
     if (dbConnectors.includes(connectorModule)) {
         return true;
     }
