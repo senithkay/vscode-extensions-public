@@ -44,7 +44,7 @@ export function ExpandedMappingHeaderWidget(
 
     const onClickEdit = (editNode: STNode) => {
         if (STKindChecker.isWhereClause(editNode)) {
-            node.context.enableStamentEditor({
+            node.context.enableStatementEditor({
                 value: editNode.expression?.source,
                 valuePosition: editNode.expression?.position,
                 label: "Where clause",
@@ -53,7 +53,7 @@ export function ExpandedMappingHeaderWidget(
             STKindChecker.isLetClause(editNode) &&
             editNode.letVarDeclarations[0]
         ) {
-            node.context.enableStamentEditor({
+            node.context.enableStatementEditor({
                 value: (editNode.letVarDeclarations[0] as LetVarDecl)
                     ?.expression?.source,
                 valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)
@@ -61,7 +61,7 @@ export function ExpandedMappingHeaderWidget(
                 label: "Let clause",
             });
         } else if (STKindChecker.isFromClause(editNode)) {
-            node.context.enableStamentEditor({
+            node.context.enableStatementEditor({
                 value: editNode.expression.source,
                 valuePosition: editNode.expression.position,
                 label: "From clause",
