@@ -20,6 +20,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { MappingConstructor, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import TripleDotsIcon from "../../../../../assets/icons/TripleDotsIcon";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
@@ -58,7 +59,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const elements = field.elements;
 
     let expanded = true;
-    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)){
+    if (portIn && portIn.collapsed) {
         expanded = false;
     }
 
@@ -185,17 +186,12 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 {!hasValue && (
                     <IconButton
                         aria-label="add"
-                        className={classes.addIcon}
+                        className={classes.tripleDotsIcon}
                         onClick={handleArrayInitialization}
                     >
-                        <AddIcon />
+                        <TripleDotsIcon />
                     </IconButton>
                 )}
-                <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut}/>
-                    }
-                </span>
             </div>
             {expanded && (
                 <>

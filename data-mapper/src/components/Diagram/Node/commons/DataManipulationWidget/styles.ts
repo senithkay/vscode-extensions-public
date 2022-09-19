@@ -77,6 +77,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             padding: "5px",
             textTransform: "none"
         },
+        tripleDotsIcon: {
+            color: "#5567D5",
+            padding: "5px",
+            width: 'fit-content',
+            height: "25px",
+            float: "right",
+            marginLeft: "auto"
+        },
         editButton: {
             float: "right",
             width: 'fit-content',
