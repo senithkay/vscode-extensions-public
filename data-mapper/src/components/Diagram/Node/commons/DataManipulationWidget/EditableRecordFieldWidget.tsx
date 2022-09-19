@@ -11,20 +11,20 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 import { IconButton } from "@material-ui/core";
 import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
-    createSourceForUserInput,
     getBalRecFieldName,
     getDefaultLiteralValue,
     getNewSource,
@@ -52,30 +52,28 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const fieldName = getBalRecFieldName(field.type.name);
     const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}.${fieldName}`
+        ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const portOut = getPort(fieldId + ".OUT");
-    const hasValue = field.hasValue() && !!field.value.valueExpr.source;
-    const isArray = field.type.typeName === 'array';
-    const isRecord = field.type.typeName === 'record';
+    const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
+    const hasValue = specificField && !!specificField.valueExpr.source;
+    const isArray = field.type.typeName === PrimitiveBalType.Array;
+    const isRecord = field.type.typeName === PrimitiveBalType.Record;
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
-    const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);
+    const value: string = getDefaultLiteralValue(field.type.typeName, specificField.valueExpr);
     let indentation = treeDepth * 16;
     
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(field?.value);
+            return isConnectedViaLink(specificField);
         }
         return false;
     }, [field]);
 
-    const [editable, setEditable] = useState<boolean>(false);
-    const [str, setStr] = useState(hasValue ? field.value.source : "");
-
-    let expanded =true;
-    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
+    let expanded = true;
+    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)){
         expanded = false;
     }
 
@@ -105,14 +103,22 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const handleEditable = () => {
         if (!!field.value) {
-            props.context.enableStamentEditor({value: "EXPRESSION" , valuePosition: field.value.valueExpr.position, label: field.value.fieldName.source});
+            props.context.enableStatementEditor({
+                value: "EXPRESSION",
+                valuePosition: STKindChecker.isSpecificField(field.value)
+                    ? field.value.valueExpr.position
+                    : field.value.position,
+                label: STKindChecker.isSpecificField(field.value)
+                    ? field.value.fieldName.source
+                    : field.value.source
+            });
 
         } else {
             const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
 
-            const fieldName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+            const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
 
-            const coloumnNumber = field.type.name?.length;
+            const columnNumber = field.type.name?.length;
             const specificFieldPosition: NodePosition   = {
                 startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
                 startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
@@ -122,15 +128,18 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
             const valuePosition: NodePosition   = {
                 startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
-                startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber + 2,
+                startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
                 endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
-                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber +2
+                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
             }
-            props.context.enableStamentEditor({specificFieldPosition, fieldName, value: "EXPRESSION" , valuePosition, label: field.type.name});
+            props.context.enableStatementEditor({
+                specificFieldPosition,
+                fieldName: fName,
+                value: "EXPRESSION" ,
+                valuePosition,
+                label: field.type.name
+            });
         }
-
-
-
     };
 
     const handleExpand = () => {

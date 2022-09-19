@@ -39,7 +39,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		super({
 			type: FORM_FIELD_PORT,
 			name: fieldName ? `${getBalRecFieldName(fieldName)}.${portType}`
-					: `${parentId}.${getBalRecFieldName(field.name)}.${portType}`,
+					: `${parentId}.${field?.name ? `${getBalRecFieldName(field.name)}.` : ''}${portType}`
 		});
 	}
 

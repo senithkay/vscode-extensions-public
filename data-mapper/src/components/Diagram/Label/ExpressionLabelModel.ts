@@ -10,7 +10,8 @@ export interface ExpressionLabelOptions extends BaseModelOptions {
 	valueNode?: STNode;
 	context?: IDataMapperContext;
 	link?: DataMapperLinkModel;
-	specificField?: SpecificField;	
+	field?: STNode;
+	editorLabel?: string;
 	deleteLink?: () => void;
 }
 
@@ -19,7 +20,8 @@ export class ExpressionLabelModel extends LabelModel {
 	valueNode?: STNode;
 	context: IDataMapperContext;
 	link?: DataMapperLinkModel;
-	specificField?: SpecificField;
+	field?: STNode;
+	editorLabel?: string;
 	deleteLink?: () => void;
 
 	constructor(options: ExpressionLabelOptions = {}) {
@@ -31,7 +33,8 @@ export class ExpressionLabelModel extends LabelModel {
 		this.valueNode = options.valueNode;
 		this.context = options.context;
 		this.link = options.link;
-		this.specificField = options.specificField;
+		this.field = options.field;
+		this.editorLabel = options.editorLabel;
 		this.updateSource = this.updateSource.bind(this);
 		this.deleteLink = options.deleteLink;
 	}

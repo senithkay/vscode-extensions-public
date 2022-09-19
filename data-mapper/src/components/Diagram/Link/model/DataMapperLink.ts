@@ -1,13 +1,13 @@
-import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { BezierCurve } from "@projectstorm/geometry";
-import { FieldAccess, NodePosition, SimpleNameReference } from "@wso2-enterprise/syntax-tree";
+import { DefaultLinkModel } from "@projectstorm/react-diagrams";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
 
-	constructor(public value: SimpleNameReference|FieldAccess = undefined, public diagnostics: Diagnostic[] = []) {
+	constructor(public value: STNode = undefined, public diagnostics: Diagnostic[] = []) {
 		super({
 			type: LINK_TYPE_ID,
 			width: 1,

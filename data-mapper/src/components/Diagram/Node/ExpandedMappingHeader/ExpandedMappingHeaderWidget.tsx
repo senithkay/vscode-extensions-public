@@ -10,108 +10,136 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React from "react";
 
 import { IconButton } from "@material-ui/core";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
-
 import CollapseIcon from "../../../../assets/icons/CollapseIcon";
 import { ViewOption } from "../../../DataMapper/DataMapper";
-
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
-import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
-import AddCircleOutline from '@material-ui/icons/AddCircleOutline';
-import HighlightOffIcon from '@material-ui/icons/HighlightOff';
-import { FromClause, JoinClause, LetClause, LimitClause, NodePosition, OrderByClause, STKindChecker, STNode, WhereClause } from '@wso2-enterprise/syntax-tree';
-
-import { WhereClauseEditWidget } from './WhereClauseEditWidget';
-import { WhereClauseAddWidget } from './WhereClauseAddWidget';
-
-const useStyles = makeStyles(() =>
-    createStyles({
-        root: {
-            width: '100%',
-            minWidth: 200,
-            backgroundColor: "#fff",
-            padding: "5px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "5px",
-            color: "#74828F"
-        },
-        clause: {
-            padding: "5px",
-            fontFamily: "monospace",
-            flex: 1,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: 200,
-        },
-        header: {
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-        },
-        iconsButton: {
-            padding: '8px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
-        },
-        icon: {
-            height: '15px',
-            width: '15px',
-            marginTop: '-7px',
-            marginLeft: '-7px'
-        },
-        buttonWrapper: {
-            border: '1px solid #e6e7ec',
-            borderRadius: '8px',
-            right: "35px"
-        },
-    })
-);
+import { ClauseAddButton } from "./ClauseAddButton";
+import { useStyles } from "./styles";
+import {
+    STNode,
+    STKindChecker,
+    LetVarDecl,
+} from "@wso2-enterprise/syntax-tree";
+import { LetClauseItem } from "./LetClauseItem";
+import { WhereClauseItem } from "./WhereClauseItem";
+import clsx from "clsx";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;
     title: string;
 }
 
-export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetProps) {
-    const { node, title } = props;
+export function ExpandedMappingHeaderWidget(
+    props: ExpandedMappingHeaderWidgetProps
+) {
+    const { node } = props;
     const classes = useStyles();
 
     const onClickOnCollapse = () => {
         node.context.changeSelection(ViewOption.COLLAPSE);
-    }
+    };
+
+    const onClickEdit = (editNode: STNode) => {
+        if (STKindChecker.isWhereClause(editNode)) {
+            node.context.enableStatementEditor({
+                value: editNode.expression?.source,
+                valuePosition: editNode.expression?.position,
+                label: "Where clause",
+            });
+        } else if (
+            STKindChecker.isLetClause(editNode) &&
+            editNode.letVarDeclarations[0]
+        ) {
+            node.context.enableStatementEditor({
+                value: (editNode.letVarDeclarations[0] as LetVarDecl)
+                    ?.expression?.source,
+                valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)
+                    ?.expression?.position,
+                label: "Let clause",
+            });
+        } else if (STKindChecker.isFromClause(editNode)) {
+            node.context.enableStatementEditor({
+                value: editNode.expression.source,
+                valuePosition: editNode.expression.position,
+                label: "From clause",
+            });
+        }
+    };
+
+    const deleteWhereClause = (clauseItem: STNode) => {
+        node.context.applyModifications([
+            {
+                type: "DELETE",
+                ...clauseItem.position,
+            },
+        ]);
+    };
+
+    const fromClause = props.node.queryExpr.queryPipeline.fromClause;
+    const intermediateClauses =
+        props.node.queryExpr.queryPipeline.intermediateClauses;
 
     return (
         <div className={classes.root}>
-            <div className={classes.header}>
+            <div className={classes.element}>
                 <div className={classes.clause}>
-                    {title}
-                </div>
-                <div className={classes.buttonWrapper}>
-                    <IconButton
-                        onClick={onClickOnCollapse}
-                        className={classes.iconsButton}
+                    {`${fromClause.fromKeyword.value} ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value} `}
+                    <span
+                        className={classes.clauseExpression}
+                        onClick={() => onClickEdit(fromClause)}
                     >
-                        <div className={classes.icon}>
-                            <CollapseIcon />
-                        </div>
-                    </IconButton>
+                        {fromClause.expression.source}
+                    </span>
                 </div>
+                <IconButton
+                    onClick={onClickOnCollapse}
+                    className={classes.iconsButton}
+                >
+                    <div className={classes.icon}>
+                        <CollapseIcon />
+                    </div>
+                </IconButton>
             </div>
-            <WhereClauseEditWidget 
-                context={node.context} 
-                intermediateNodes={props.node.queryExpr.queryPipeline.intermediateClauses} 
-            />
-            <WhereClauseAddWidget 
-                context={node.context} 
-                queryExprNode={props.node.queryExpr} 
-            />
+
+            {intermediateClauses.length > 0 ? (
+                intermediateClauses?.map((clauseItem, index) => {
+                    const itemProps = {
+                        key: index,
+                        onEditClick: () => onClickEdit(clauseItem),
+                        onDeleteClick: () => deleteWhereClause(clauseItem),
+                        context: node.context,
+                        queryExprNode: node.queryExpr,
+                        itemIndex: index,
+                    };
+                    if (STKindChecker.isWhereClause(clauseItem)) {
+                        return (
+                            <WhereClauseItem
+                                {...itemProps}
+                                intermediateNode={clauseItem}
+                            />
+                        );
+                    } else if (STKindChecker.isLetClause(clauseItem)) {
+                        return (
+                            <LetClauseItem
+                                {...itemProps}
+                                intermediateNode={clauseItem}
+                            />
+                        );
+                    }
+                })
+            ) : (
+                <div className={clsx(classes.element, classes.empty)}>
+                    <div className={classes.title}>Add Clause</div>
+                    <ClauseAddButton
+                        context={node.context}
+                        queryExprNode={node.queryExpr}
+                        addIndex={-1}
+                    />
+                </div>
+            )}
         </div>
     );
 }
