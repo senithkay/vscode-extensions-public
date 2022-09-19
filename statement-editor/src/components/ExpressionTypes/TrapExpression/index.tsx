@@ -15,7 +15,7 @@ import React from "react";
 import { TrapExpression } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
-import { TokenComponent } from "../../Token";
+import { KeywordComponent } from "../../Keyword";
 
 interface TrapExpressionProps {
     model: TrapExpression
@@ -26,7 +26,7 @@ export function TrapExpressionComponent(props: TrapExpressionProps) {
 
     return (
         <>
-            <TokenComponent model={model.trapKeyword} className={"keyword"} />
+            <KeywordComponent model={model.trapKeyword} />
             <ExpressionComponent model={model.expression} />
         </>
     );

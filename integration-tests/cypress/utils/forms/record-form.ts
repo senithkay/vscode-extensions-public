@@ -40,11 +40,9 @@ export class RecordForm {
     }
 
     static typeRecordName(name: string) {
-        ExpressionEditor
-        .getForField("Record name", this.selector)
-        .clear()
-        .type(name)
-        .waitForValidations();
+        cy.get('[field-name="Record name"]')
+            .type('{ctrl}a{del}', { delay: 100 }).wait(2000)
+            .type(name, { delay: 100 }).wait(2000);
     return this;
     }
 
@@ -53,10 +51,10 @@ export class RecordForm {
             cy.contains("Add Field").parent()
                 .click();
             cy.get('[placeholder="Type"]')
-                .type(type, { delay: 100 }).wait(1000);
+                .type(type, { delay: 100 }).wait(2000);
             if (value) {
                 cy.get('[placeholder="Field name"]')
-                    .type(name, { delay: 100 }).wait(1000);
+                    .type(name, { delay: 100 }).wait(2000);
                 cy.get('[placeholder="Value(Optional)"]')
                     .type(value + "{enter}", { delay: 100 });
             } else {
@@ -164,6 +162,7 @@ export class RecordForm {
     }
 
     static cancel() {
+        cy.wait(1000);
         this.getForm()
             .get('button')
             .contains("Cancel")
@@ -172,6 +171,7 @@ export class RecordForm {
     }
 
     static close() {
+        cy.wait(1000);
         this.getForm()
             .get('.close-btn-wrap button')
             .click();

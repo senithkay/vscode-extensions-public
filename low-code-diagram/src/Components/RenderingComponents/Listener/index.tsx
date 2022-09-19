@@ -15,6 +15,7 @@ import React, { useContext, useEffect, useState } from 'react'
 
 import { DeleteButton, EditButton, ListenerIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ListenerDeclaration, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { Context } from '../../../Context/diagram';
 import { DefaultTooltip } from '../DefaultTooltip';
@@ -93,7 +94,7 @@ export function ListenerC(props: ListenerProps) {
 
     useEffect(() => {
         if (model && showTooltip) {
-            setTooltip(showTooltip(listenerNameComponent, model.source.slice(1, -1)));
+            setTooltip(showTooltip(listenerTypeComponent, model.source.slice(1, -1)));
         }
     }, [model]);
 
@@ -112,18 +113,18 @@ export function ListenerC(props: ListenerProps) {
                             <ListenerIcon />
                         </div>
                         <div className="listener-type">
-                            {listenerTypeComponent}
+                            {tooltip ? tooltip : listenerTypeComponent}
                         </div>
                         <div className="listener-name">
-                            {tooltip ? tooltip : defaultTooltip}
+                            {listenerNameComponent}
                         </div>
                     </div>
-                    {!isReadOnly && isEditable && (
+                    {!isReadOnly && (
                         <div className={"listener-amendment-options"}>
-                            <div className={"edit-btn-wrapper"}>
+                            <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
                                 <EditButton onClick={handleEditBtnClick} />
                             </div>
-                            <div className={"delete-btn-wrapper"}>
+                            <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
                                 <DeleteButton onClick={handleDeleteBtnClick} />
                             </div>
                         </div>

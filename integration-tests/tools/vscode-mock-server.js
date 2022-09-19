@@ -47,7 +47,7 @@ app.get('/libs/data', (req, res) => {
 
 
 app.get('/libs/list', (req, res) => {
-  getLibrariesList(req.params[0]).then((resp) => res.send(resp))
+  getLibrariesList(req.query.kind).then((resp) => res.send(resp))
       .catch((e) => { res.status(500).send({
         message: e.message
       })});

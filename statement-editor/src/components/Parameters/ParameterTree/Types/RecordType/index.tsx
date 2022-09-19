@@ -17,7 +17,7 @@ import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core"
 
 import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
-import { ParameterBranch } from "../../ParameterBranch";
+import { MemoizedParameterBranch } from "../../ParameterBranch";
 import { isRequiredParam } from "../../utils";
 
 export default function RecordType(props: TypeProps) {
@@ -26,7 +26,6 @@ export default function RecordType(props: TypeProps) {
     const requiredParam = isRequiredParam(param);
 
     const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
-
 
     const toggleParamCheck = () => {
         if (!requiredParam) {
@@ -38,7 +37,7 @@ export default function RecordType(props: TypeProps) {
 
     return (
         <ListItem className={stmtEditorHelperClasses.docListDefault}>
-            <div className={stmtEditorHelperClasses.listItemMultiLine}>
+            <div className={stmtEditorHelperClasses.listItemMultiLine} data-testid="record-arg">
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <Checkbox
                         classes={{
@@ -50,11 +49,17 @@ export default function RecordType(props: TypeProps) {
                         checked={paramSelected}
                         disabled={requiredParam}
                         onClick={toggleParamCheck}
+                        data-testid="arg-check"
                     />
-                    <ListItemText className={stmtEditorHelperClasses.docListItemText} primary={param.name} />
+                    <ListItemText
+                        className={stmtEditorHelperClasses.docListItemText}
+                        primary={param.name}
+                        data-testid="arg-name"
+                    />
                     {param.typeInfo && (
                         <ListItemText
                             className={stmtEditorHelperClasses.paramDataType}
+                            data-testid="arg-type"
                             primary={(
                                 <Typography className={stmtEditorHelperClasses.suggestionDataType}>
                                     {(param.optional || param.defaultable) && " (Optional)"} {param.typeInfo.name}
@@ -66,12 +71,13 @@ export default function RecordType(props: TypeProps) {
                         <ListItemText
                             className={stmtEditorHelperClasses.paramTreeDescriptionText}
                             primary={" : " + param.documentation}
+                            data-testid="arg-documentation"
                         />
                     )}
                 </div>
                 {paramSelected && param.fields?.length > 0 && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
-                        <ParameterBranch parameters={param.fields} depth={depth + 1} onChange={onChange} />
+                        <MemoizedParameterBranch parameters={param.fields} depth={depth + 1} onChange={onChange} />
                     </div>
                 )}
             </div>

@@ -48,27 +48,6 @@ describe('Add action to function via Low Code', () => {
             .shouldBeVisible()
             .save();
 
-        // Test action creation using param endpoint.
-        Canvas.getFunction("myfunction")
-            .nameShouldBe("myfunction")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2);
-
-        BlockLevelPlusWidget.clickOption("Action");
-
-        EndpointListForm
-            .shouldBeVisible()
-            .selectEndpoint("sheetsEp");
-
-        ActionListForm
-            .shouldBeVisible()
-            .selectAction("getallspreadsheets");
-
-        StatementEditor
-            .shouldBeVisible()
-            .save();
 
         // Test action creation with module level endpoint.
         Canvas.getFunction("myfunction")
@@ -76,7 +55,7 @@ describe('Add action to function via Low Code', () => {
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(3);
+            .clickDefaultWorkerPlusBtn(2);
 
         BlockLevelPlusWidget.clickOption("Action");
 

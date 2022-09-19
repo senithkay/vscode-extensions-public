@@ -30,3 +30,5 @@ export type blockLevelOptions =
     | "Worker"
 
 export type methods = "GET" | "PUT" | "DELETE" | "POST" | "OPTIONS" | "HEAD" | "PATCH";
+
+export type modelTypes = "IntTypeDesc" | "BooleanLiteral"  | "SimpleNameReference" | "NumericLiteral" | any;

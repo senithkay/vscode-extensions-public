@@ -106,6 +106,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     let isReferencedVariable = false;
     const isLocalVariableDecl = model && STKindChecker.isLocalVarDecl(model);
+    const targetPosition = draftVS?.targetPosition || model?.position;
+
     if (isLocalVariableDecl && STKindChecker.isCaptureBindingPattern(model.typedBindingPattern.bindingPattern)) {
         const captureBingingPattern = (model as LocalVarDecl).typedBindingPattern.bindingPattern as CaptureBindingPattern;
         if (stSymbolInfo?.variableNameReferences?.size &&
@@ -114,7 +116,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
         }
     }
     if (draftVS){
-        draftVS.targetPosition = draftVS?.targetPosition || model?.position;
+        draftVS.targetPosition = targetPosition;
     }
 
     if (isEditConnector && !connector) {
@@ -136,7 +138,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                         x: viewState.bBox.cx + 80,
                         y: viewState.bBox.cy,
                     },
-                    targetPosition: draftVS?.targetPosition || model?.position,
+                    targetPosition,
                     model,
                     onClose: onWizardClose,
                     onSave: onWizardClose,
@@ -154,7 +156,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     return (
         <>
-            <g className={connectorWrapper}>
+            <g className={connectorWrapper} target-line={targetPosition.startLine}>
                 <ConnectorProcessSVG
                     x={viewState.bBox.cx - CONNECTOR_PROCESS_SVG_WIDTH / 2}
                     y={viewState.bBox.cy}

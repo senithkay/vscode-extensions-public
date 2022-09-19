@@ -4,8 +4,6 @@ import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
 import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
-import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
-import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
 import { ConnectorMarketplace } from "../../../utils/forms/connector-form";
 
 const BAL_FILE_PATH = "block-level/connector/add-connector-to-function.bal";
@@ -34,24 +32,13 @@ describe('Add connector to function via Low Code', () => {
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("StringLiteral")
-            .doubleClickExpressionContent('""');
-
-        InputEditor
-            .typeInput('"https://foo.com"');
-
-        StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-http-connector-to-function.expected.bal");
     });
 
-    it('Add google sheet connector to function', () => {
+    it.skip('Add google sheet connector to function', () => {
 
         cy.exec('bal pull ballerinax/googleapis.sheets', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
@@ -75,17 +62,6 @@ describe('Add connector to function via Low Code', () => {
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("StringLiteral")
-            .doubleClickExpressionContent('""');
-
-        InputEditor
-            .typeInput('"foo"');
-
-        StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(

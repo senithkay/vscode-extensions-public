@@ -1,3 +1,5 @@
+import { modelTypes } from "../../type-utils";
+
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -18,7 +20,7 @@ export class EditorPane {
         return this;
     }
 
-    static getExpression(modelType?:string){
+    static getExpression(modelType?: modelTypes){
         cy.get(`[data-testid="${modelType}"]`)
         this.parentSelector = `[data-testid="${modelType}"]`;
         return this;
@@ -28,7 +30,7 @@ export class EditorPane {
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
                 .click()
-                .parent('[class*="expressionElementSelected"]',{timeout:20000})
+                // .parent('[class*="expressionElementSelected"]',{timeout:20000})
         });
         return this;
     }
@@ -57,6 +59,20 @@ export class EditorPane {
         return this;
     }
 
+    static clickPlusButton() {
+        cy.contains(`[data-testid="plus-button"]`,`+`)
+            .click();
+        cy.wait(1000);
+        return this;
+    }
+
+    static clickMinusButton() {
+        cy.contains(`[data-testid="minus-button"]`,`-`)
+            .click();
+        cy.wait(1000);
+        return this;
+    }
+
     static validateNewExpression(modelType:string, text:string){
         cy.contains(`[data-testid="${modelType}"]`,text,{timeout:20000}).should('exist');
         return this;
@@ -81,6 +97,12 @@ export class EditorPane {
     static validateEmptyDiagnostics(){
         cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`)
             .should("not.exist", { timeout: 20000 });
+        return this;
+    }
+
+    static checkForSyntaxDiagnosticsHighlighting() {
+        cy.get(`[data-testid="syntax-error-highlighting"]`)
+            .should("be.visible", { timeout: 20000 });
         return this;
     }
 }

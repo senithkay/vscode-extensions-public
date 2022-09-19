@@ -189,6 +189,7 @@ export default function Toolbar(props: ToolbarProps) {
                         onClick={onClickOnConfigurable}
                         disabled={!configurable || hasSyntaxDiagnostics}
                         className={statementEditorClasses.toolbarIcons}
+                        data-testid="toolbar-configurable"
                     >
                         <ToolbarConfigurableIcon/>
                     </IconButton>

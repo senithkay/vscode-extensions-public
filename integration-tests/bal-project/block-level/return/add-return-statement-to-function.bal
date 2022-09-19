@@ -1,0 +1,4 @@
+
+function getGreetings() returns string? {
+
+}
