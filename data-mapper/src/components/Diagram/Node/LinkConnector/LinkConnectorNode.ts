@@ -82,6 +82,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                                     this.targetPort = entry[1]
                              }
                         });
+                        while (this.targetPort && this.targetPort.hidden){
+                            this.targetPort = this.targetPort.parentModel;
+                        }
                     }
             });
         }

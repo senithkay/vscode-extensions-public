@@ -113,6 +113,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         this.targetPort = port;
                     }
                 });
+                while (this.targetPort && this.targetPort.hidden){
+                    this.targetPort = this.targetPort.parentModel;
+                }
             }
         });
     }
