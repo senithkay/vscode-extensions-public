@@ -21,6 +21,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import TripleDotsIcon from "../../../../../assets/icons/TripleDotsIcon";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
@@ -34,6 +35,7 @@ import {
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
+import { ValueConfigButton } from "./ValueConfigButton";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -55,7 +57,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
-    const portOut = getPort(fieldId + ".OUT");
     const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
     const hasValue = specificField && !!specificField.valueExpr.source;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
@@ -73,7 +74,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     }, [field]);
 
     let expanded = true;
-    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)){
+    if (portIn && portIn.collapsed){
         expanded = false;
     }
 
@@ -166,19 +167,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
                     <span> {label}</span>
                     {!hasValue && !isRecord && (
-                        <IconButton
-                            aria-label="add"
-                            className={classes.addIcon}
+                        <ValueConfigButton
                             onClick={handleEditable}
-                        >
-                            <AddIcon />
-                        </IconButton>
+                        />
                     )}
-                    <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut}/>
-                    }
-                </span>
                 </div>
             )}
             {isArray && (
