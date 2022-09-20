@@ -358,7 +358,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 				const fieldName = fieldNames[i];
 				portIdBuffer += `.${fieldName}`;
 				const recField = nextTypeNode.fields.find(
-									(field: any) => field.name === fieldName);
+									(field: any) => getBalRecFieldName(field.name) === fieldName);
 				if (recField) {
 					if (i === fieldNames.length - 1) {
 						const portId = portIdBuffer + ".OUT";
