@@ -7,6 +7,7 @@ const background = require("./../../../assets/PatternBg.svg") as string;
 namespace S {
 	export const Container = styled.div`
 		height: 100%;
+		// background: #E6E8F0;
 		background-image: url('${background}');
 		background-repeat: repeat;
 		display: ${props => (props.hidden ? 'none' : 'flex')};
