@@ -358,7 +358,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 				const fieldName = fieldNames[i];
 				portIdBuffer += `.${fieldName}`;
 				const recField = nextTypeNode.fields.find(
-									(field: any) => field.name === fieldName);
+									(field: any) => getBalRecFieldName(field.name) === fieldName);
 				if (recField) {
 					if (i === fieldNames.length - 1) {
 						const portId = portIdBuffer + ".OUT";
@@ -587,16 +587,6 @@ export function getBalRecFieldName(fieldName : string) {
 	return "";
 }
 
-export function getDefaultLiteralValue(typeName : string, valueExpr: STNode) {
-	if (valueExpr && typeName !== PrimitiveBalType.Array && typeName !== PrimitiveBalType.Record && (
-		STKindChecker.isStringLiteral(valueExpr)
-		|| STKindChecker.isNumericLiteral(valueExpr)
-		|| STKindChecker.isBooleanLiteral(valueExpr)
-	)) {
-		return valueExpr.literalToken.value;
-	}
-}
-
 export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 	const fieldIndexes = [];
 	if (targetPort?.index !== undefined) {
@@ -733,7 +723,7 @@ function updateValueExprSource(value: string, targetPosition: NodePosition,
 
 function getRHSFromSourcePort(port: PortModel) {
 	const sourcePort = port as RecordFieldPortModel;
-	let rhs = getBalRecFieldName(sourcePort.field.name);
+	let rhs = sourcePort.fieldName ? getBalRecFieldName(sourcePort.fieldName) :  getBalRecFieldName(sourcePort.field.name);
 	if (sourcePort.parentFieldAccess) {
 		rhs = sourcePort.parentFieldAccess + "." + rhs;
 	}

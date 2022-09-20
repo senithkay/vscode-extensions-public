@@ -10,4 +10,31 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./ValueConfigMenu";
+import React from 'react';
+
+import MenuItem from "@material-ui/core/MenuItem";
+
+export interface ValueConfigMenuItem {
+    title: string;
+    onClick: () => void;
+    onClose?: () => void;
+}
+
+export function ValueConfigMenuItem(props: ValueConfigMenuItem) {
+    const { title, onClick, onClose } = props;
+
+    const onClickMenuItem = () => {
+        onClick();
+        onClose();
+    }
+
+    return (
+        <MenuItem
+            key={title}
+            onClick={onClickMenuItem}
+            disabled={!onClick}
+        >
+            {title}
+        </MenuItem>
+    );
+}
