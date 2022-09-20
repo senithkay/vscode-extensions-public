@@ -29,7 +29,7 @@ import { getModification } from "../../../utils/modifications";
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 import { useStyles } from "./styles";
-import { ValueConfigButton } from "./ValueConfigButton";
+import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -184,8 +184,16 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     {label}
                 </span>
                 {!hasValue && (
-                    <ValueConfigButton
-                        onClick={handleArrayInitialization}
+                    <ValueConfigMenu
+                        menuItems={[
+                            {
+                                title: ValueConfigOption.InitializeArray,
+                                onClick: handleArrayInitialization
+                            },
+                            {
+                                title: ValueConfigOption.DeleteArray,
+                                onClick: undefined
+                            }]}
                     />
                 )}
             </div>

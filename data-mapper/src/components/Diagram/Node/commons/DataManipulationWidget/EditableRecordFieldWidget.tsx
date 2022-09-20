@@ -22,16 +22,11 @@ import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterpris
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import {
-    getBalRecFieldName,
-    getNewSource,
-    getTypeName,
-    isConnectedViaLink
-} from "../../../utils/dm-utils";
+import { getBalRecFieldName, getNewSource, getTypeName, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
-import { ValueConfigButton } from "./ValueConfigButton";
+import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -98,40 +93,40 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         </span>
     );
 
-    const handleEditable = () => {
-        if (!!field.value) {
-            if (STKindChecker.isSpecificField(field.value)) {
-                props.context.enableStatementEditor({
-                    value: field.value.valueExpr.source,
-                    valuePosition: field.value.valueExpr.position,
-                    label: field.value.fieldName.source
-                });
-            }
-        } else {
-            const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
+    const handleAddValue = () => {
+        const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
 
-            const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+        const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
 
-            const columnNumber = field.type.name?.length;
-            const specificFieldPosition: NodePosition   = {
-                startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
-                startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
-                endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine,
-                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
-            }
+        const columnNumber = field.type.name?.length;
+        const specificFieldPosition: NodePosition   = {
+            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
+            startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
+            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine,
+            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
+        }
 
-            const valuePosition: NodePosition   = {
-                startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
-                startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
-                endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
-                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
-            }
+        const valuePosition: NodePosition   = {
+            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
+            startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
+            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
+            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
+        }
+        props.context.enableStatementEditor({
+            specificFieldPosition,
+            fieldName: fName,
+            value: "EXPRESSION" ,
+            valuePosition,
+            label: field.type.name
+        });
+    };
+
+    const handleEditValue = () => {
+        if (STKindChecker.isSpecificField(field.value)) {
             props.context.enableStatementEditor({
-                specificFieldPosition,
-                fieldName: fName,
-                value: "EXPRESSION" ,
-                valuePosition,
-                label: field.type.name
+                value: field.value.valueExpr.source,
+                valuePosition: field.value.valueExpr.position,
+                label: field.value.fieldName.source
             });
         }
     };
@@ -161,8 +156,17 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         {label}
                     </span>
                     {!isRecord && (
-                        <ValueConfigButton
-                            onClick={handleEditable}
+                        <ValueConfigMenu
+                            menuItems={[
+                                {
+                                    title: hasValue ? ValueConfigOption.EditValue : ValueConfigOption.AddValue,
+                                    onClick: hasValue ? handleEditValue : handleAddValue
+                                },
+                                {
+                                    title: ValueConfigOption.DeleteValue,
+                                    onClick: undefined
+                                }
+                            ]}
                         />
                     )}
                 </div>
