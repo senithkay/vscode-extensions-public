@@ -18,7 +18,7 @@ import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -29,7 +29,7 @@ import { getModification } from "../../../utils/modifications";
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 import { useStyles } from "./styles";
-import { ValueConfigButton } from "./ValueConfigButton";
+import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -153,10 +153,18 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     const handleAddArrayElement = () => {
-        const targetPosition = listConstructor.openBracket.position;
         const fieldsAvailable = !!listConstructor.expressions.length;
         const defaultValue = getDefaultValue(field.type.memberType);
-        const modification = [getModification(`\n${fieldsAvailable ? `${defaultValue},` : defaultValue}`, {
+        let targetPosition: NodePosition;
+        let newElementSource: string;
+        if (fieldsAvailable) {
+            targetPosition = listConstructor.expressions[listConstructor.expressions.length - 1].position;
+            newElementSource = `,\n${defaultValue}`
+        } else {
+            targetPosition = listConstructor.openBracket.position;
+            newElementSource = `\n${defaultValue}`
+        }
+        const modification = [getModification(newElementSource, {
             ...targetPosition,
             startLine: targetPosition.endLine,
             startColumn: targetPosition.endColumn
@@ -184,8 +192,16 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     {label}
                 </span>
                 {!hasValue && (
-                    <ValueConfigButton
-                        onClick={handleArrayInitialization}
+                    <ValueConfigMenu
+                        menuItems={[
+                            {
+                                title: ValueConfigOption.InitializeArray,
+                                onClick: handleArrayInitialization
+                            },
+                            {
+                                title: ValueConfigOption.DeleteArray,
+                                onClick: undefined
+                            }]}
                     />
                 )}
             </div>

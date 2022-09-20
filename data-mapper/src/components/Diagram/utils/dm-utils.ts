@@ -358,7 +358,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 				const fieldName = fieldNames[i];
 				portIdBuffer += `.${fieldName}`;
 				const recField = nextTypeNode.fields.find(
-									(field: any) => field.name === fieldName);
+									(field: any) => getBalRecFieldName(field.name) === fieldName);
 				if (recField) {
 					if (i === fieldNames.length - 1) {
 						const portId = portIdBuffer + ".OUT";
@@ -585,16 +585,6 @@ export function getBalRecFieldName(fieldName : string) {
 		return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;
 	}
 	return "";
-}
-
-export function getDefaultLiteralValue(typeName : string, valueExpr: STNode) {
-	if (valueExpr && typeName !== PrimitiveBalType.Array && typeName !== PrimitiveBalType.Record && (
-		STKindChecker.isStringLiteral(valueExpr)
-		|| STKindChecker.isNumericLiteral(valueExpr)
-		|| STKindChecker.isBooleanLiteral(valueExpr)
-	)) {
-		return valueExpr.literalToken.value;
-	}
 }
 
 export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {

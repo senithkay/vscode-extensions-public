@@ -21,7 +21,7 @@ import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getFieldLabel } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
-import { ValueConfigButton } from "./ValueConfigButton";
+import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 
 export interface PrimitiveTypedEditableArrayElementWidgetProps {
     parentId: string;
@@ -76,8 +76,17 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                         }
                     </span>
                     <span>{label}</span>
-                    <ValueConfigButton
-                        onClick={handleEditable}
+                    <ValueConfigMenu
+                        menuItems={[
+                            {
+                                title: ValueConfigOption.EditValue,
+                                onClick: handleEditable
+                            },
+                            {
+                                title: ValueConfigOption.DeleteElement,
+                                onClick: undefined
+                            }
+                        ]}
                     />
                 </div>
             )}
