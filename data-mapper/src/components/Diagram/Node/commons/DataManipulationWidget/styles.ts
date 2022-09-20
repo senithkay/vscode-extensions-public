@@ -24,7 +24,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#FFFFFF",
             display: "flex",
             minHeight: "24px",
-            width: "100%"
+            width: "100%",
+            border: "1px solid #E0E2E9",
+            borderRadius: "8px"
         },
         treeLabelOutPort: {
             float: "right",
@@ -74,7 +76,8 @@ export const useStyles = makeStyles((theme: Theme) =>
         addIcon: {
             color: "#5567D5",
             padding: "5px",
-            textTransform: "none"
+            textTransform: "none",
+            justifyContent: "left"
         },
         editButton: {
             float: "right",
