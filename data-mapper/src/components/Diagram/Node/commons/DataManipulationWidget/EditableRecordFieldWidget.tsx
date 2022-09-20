@@ -13,21 +13,17 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo } from "react";
 
-import { IconButton } from "@material-ui/core";
-import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import TripleDotsIcon from "../../../../../assets/icons/TripleDotsIcon";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
     getBalRecFieldName,
-    getDefaultLiteralValue,
     getNewSource,
     getTypeName,
     isConnectedViaLink
@@ -63,9 +59,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
-    const value: string = getDefaultLiteralValue(field.type.typeName, specificField.valueExpr);
     let indentation = treeDepth * 16;
-    
+
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
             return isConnectedViaLink(specificField);
@@ -73,6 +68,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
+    const value: string = !connectedViaLink  && !isArray && !isRecord && hasValue && specificField.valueExpr.source;
     let expanded = true;
     if (portIn && portIn.collapsed){
         expanded = false;

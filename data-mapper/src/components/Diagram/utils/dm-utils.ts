@@ -587,16 +587,6 @@ export function getBalRecFieldName(fieldName : string) {
 	return "";
 }
 
-export function getDefaultLiteralValue(typeName : string, valueExpr: STNode) {
-	if (valueExpr && typeName !== PrimitiveBalType.Array && typeName !== PrimitiveBalType.Record && (
-		STKindChecker.isStringLiteral(valueExpr)
-		|| STKindChecker.isNumericLiteral(valueExpr)
-		|| STKindChecker.isBooleanLiteral(valueExpr)
-	)) {
-		return valueExpr.literalToken.value;
-	}
-}
-
 export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 	const fieldIndexes = [];
 	if (targetPort?.index !== undefined) {
