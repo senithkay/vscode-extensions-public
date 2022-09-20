@@ -16,62 +16,46 @@ import { handleCodeActions } from "../utils/ls-utils";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import clsx from 'clsx';
+import IconButton from '@material-ui/core/IconButton';
 export interface FlowAliasLabelWidgetProps {
 	model: ExpressionLabelModel;
 }
 
 export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        container: {
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            overflow: "hidden",
-            boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
-        },
-        containerHidden: {
-            visibility: "hidden",
-        },
-        element: {
-            backgroundColor: theme.palette.common.white,
-            padding: "10px",
-            cursor: "pointer",
-            transitionDuration: "0.2s",
-            userSelect: "none",
-            pointerEvents: "auto",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            "&:hover": {
-                filter: "brightness(0.95)",
-            },
-        },
-        lightBulbWrapper: {
-            height: "22px",
-            width: "22px",
-            backgroundColor: theme.palette.warning.light,
-
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: "50%",
-        },
-        codeIcon: {
-            color: theme.palette.grey[500],
-        },
-        deleteIcon: {
-            color: theme.palette.error.main,
-        },
-        separator: {
-            height: "35px",
-            width: "1px",
-            backgroundColor: theme.palette.grey[200],
-        },
-        rightBorder: {
-            borderRightWidth: "2px",
-            borderColor: theme.palette.grey[300],
-        },
-    })
+	createStyles({
+		container: {
+			borderRadius: "10px",
+			display: "flex",
+			alignItems: "center",
+			overflow: "hidden",
+			boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
+		},
+		containerHidden: {
+			visibility: "hidden",
+		},
+		element: {
+			backgroundColor: theme.palette.common.white,
+			userSelect: "none",
+			pointerEvents: "auto",
+		},
+		codeIconButton: {
+			color: theme.palette.grey[400],
+			padding: "10px",
+		},
+		deleteIconButton: {
+			color: theme.palette.grey[400],
+			padding: "10px",
+		},
+		separator: {
+			height: "35px",
+			width: "1px",
+			backgroundColor: theme.palette.grey[200],
+		},
+		rightBorder: {
+			borderRightWidth: "2px",
+			borderColor: theme.palette.grey[300],
+		},
+	})
 );
 
 // now we can render all what we want in the label
@@ -136,12 +120,24 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 	const elements: React.ReactNode[] = [
 		<>
-			<div className={classes.element} onClick={onClickEdit}>
-				<CodeOutlinedIcon className={classes.codeIcon} />
+			<div className={classes.element} >
+				<IconButton
+					className={classes.codeIconButton}
+					onClick={onClickEdit}
+				>
+					<CodeOutlinedIcon />
+				</IconButton>
+
 			</div>
 			<div className={classes.separator} />
-			<div className={classes.element} onClick={onClickDelete}>
-				<DeleteIcon className={classes.deleteIcon} />
+
+			<div className={classes.element}>
+				<IconButton
+					className={classes.deleteIconButton}
+					onClick={onClickDelete}
+				>
+					<DeleteIcon />
+				</IconButton>
 			</div>
 		</>,
 	];
