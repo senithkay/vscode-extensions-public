@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
+import styled from '@emotion/styled';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -23,40 +24,20 @@ import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
 import { getTypeName } from "../../../utils/dm-utils";
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
+import { TreeContainer, TreeHeader, TreeBody } from '../Tree/Tree';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
-            flexGrow: 1,
-            width: 400,
-            color: "white",
-            position: "relative",
-            backgroundColor: " #FFFFFF",
-            padding: "20px"
-        },
-        header: {
-            color: "black",
-            backgroundColor: "#d8d8ff",
-            display: "flex",
-            height: "40px",
-            padding: "8px"
-        },
         typeLabel: {
             marginLeft: "3px",
             verticalAlign: "middle",
             padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerRegular",
-            fontSize: "13px",
             minWidth: "100px",
             marginRight: "24px"
         },
         valueLabel: {
             verticalAlign: "middle",
             padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerMedium",
-            fontSize: "13px",
         },
         treeLabelOutPort: {
             float: "right",
@@ -65,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         treeLabelInPort: {
             float: "left",
-            marginRight: "5px",
+            // marginRight: "5px",
             width: 'fit-content',
         },
         label:{
@@ -120,13 +101,13 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     );
 
     const handleExpand = () => {
-        handleCollapse(id, !expanded);        
+        handleCollapse(id, !expanded);
     }
 
 
     return (
-        <div className={classes.root}>
-            <span className={classes.header}>
+        <TreeContainer>
+            <TreeHeader>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
                         <DataMapperPortWidget engine={engine} port={portIn}/>
@@ -147,22 +128,25 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                         <DataMapperPortWidget engine={engine} port={portOut}/>
                     }
                 </span>
-            </span> 
-            {expanded &&
-                typeDesc.fields.map((field) => {
-                    return (
-                        <RecordFieldTreeItemWidget
-                            key={id}
-                            engine={engine}
-                            field={field}
-                            getPort={getPort}
-                            parentId={id}
-                            handleCollapse={handleCollapse}
-                            treeDepth={1}
-                        />
-                    );
-                })
-            }
-        </div>
+            </TreeHeader>
+            <TreeBody>
+                {expanded &&
+                    typeDesc.fields.map((field) => {
+                        return (
+                            <RecordFieldTreeItemWidget
+                                key={id}
+                                engine={engine}
+                                field={field}
+                                getPort={getPort}
+                                parentId={id}
+                                handleCollapse={handleCollapse}
+                                treeDepth={1}
+                            />
+                        );
+                    })
+                }
+            </TreeBody>
+        </TreeContainer>
     );
 }
+

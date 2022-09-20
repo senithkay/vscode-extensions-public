@@ -22,10 +22,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
-            border: "1px solid #DEE0E7",
             display: "flex",
             minHeight: "24px",
-            boxShadow: '0 2px 40px 0 rgba(102,103,133,0.15)',
+            width: "100%"
         },
         treeLabelOutPort: {
             float: "right",

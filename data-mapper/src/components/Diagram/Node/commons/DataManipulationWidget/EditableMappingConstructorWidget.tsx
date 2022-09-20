@@ -24,6 +24,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
+import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -133,8 +134,8 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
     }
 	// TODO: Handle root level arrays
 	return (
-		<div className={classes.root}>
-			<span className={classes.header}>
+		<TreeContainer>
+			<TreeHeader>
                 <span className={classes.treeLabelInPort}>
                     {portIn && (!hasValue || !expanded)  &&
                         <DataMapperPortWidget engine={engine} port={portIn}/>
@@ -155,23 +156,25 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
                         <DataMapperPortWidget engine={engine} port={portOut}/>
                     }
                 </span>
-            </span> 			
-			{expanded &&
-				editableRecordFields.map((item) => {
-					return (
-						<EditableRecordFieldWidget
-							key={id}
-							engine={engine}
-							field={item}
-							getPort={getPort}
-							parentId={id}
-							mappingConstruct={value}
-							context={context}
-							treeDepth={1}
-						/>
-					);
-				})
-			}
-		</div>
+            </TreeHeader>
+			<TreeBody>
+				{expanded &&
+					editableRecordFields.map((item) => {
+						return (
+							<EditableRecordFieldWidget
+								key={id}
+								engine={engine}
+								field={item}
+								getPort={getPort}
+								parentId={id}
+								mappingConstruct={value}
+								context={context}
+								treeDepth={1}
+							/>
+						);
+					})
+				}
+			</TreeBody>
+		</TreeContainer>
 	);
 }
