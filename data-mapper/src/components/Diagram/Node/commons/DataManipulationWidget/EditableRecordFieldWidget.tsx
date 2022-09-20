@@ -11,22 +11,31 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 import { IconButton } from "@material-ui/core";
 import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import TripleDotsIcon from "../../../../../assets/icons/TripleDotsIcon";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getDefaultLiteralValue, getNewSource, isConnectedViaLink } from "../../../utils/dm-utils";
+import {
+    getBalRecFieldName,
+    getDefaultLiteralValue,
+    getNewSource,
+    getTypeName,
+    isConnectedViaLink
+} from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
+import { ValueConfigButton } from "./ValueConfigButton";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -45,32 +54,37 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const fieldName = getBalRecFieldName(field.type.name);
     const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}.${fieldName}`
+        ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
-    const portOut = getPort(fieldId + ".OUT");
-    const hasValue = field.hasValue() && !!field.value.valueExpr.source;
-    const isArray = field.type.typeName === 'array';
-    const isRecord = field.type.typeName === 'record';
-    const typeName = isArray ? field.type.memberType.typeName : field.type.typeName;
+    const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
+    const hasValue = specificField && !!specificField.valueExpr.source;
+    const isArray = field.type.typeName === PrimitiveBalType.Array;
+    const isRecord = field.type.typeName === PrimitiveBalType.Record;
+    const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
-    const value: string = getDefaultLiteralValue(field.type.typeName, field?.value?.valueExpr);
-    const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
-
+    const value: string = getDefaultLiteralValue(field.type.typeName, specificField.valueExpr);
+    let indentation = treeDepth * 16;
+    
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(field?.value);
+            return isConnectedViaLink(specificField);
         }
         return false;
     }, [field]);
 
-    const [expanded, setExpanded] = useState<boolean>(true);
-    const [editable, setEditable] = useState<boolean>(false);
-    const [str, setStr] = useState(hasValue ? field.value.source : "");
+    let expanded = true;
+    if (portIn && portIn.collapsed){
+        expanded = false;
+    }
+
+    if (!portIn || (hasValue && !connectedViaLink && expanded)){
+        indentation += 24;
+    }
 
     const label = (
         <span style={{marginRight: "auto"}}>
-            <span className={classes.valueLabel} style={{marginLeft: indentation}}>
+            <span className={classes.valueLabel} style={{marginLeft: !!fields ? 0 : indentation + 24}}>
                 {fieldName}
                 {typeName && ":"}
             </span>
@@ -90,14 +104,22 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const handleEditable = () => {
         if (!!field.value) {
-            props.context.enableStamentEditor({value: "EXPRESSION" , valuePosition: field.value.valueExpr.position, label: field.value.fieldName.source});
+            props.context.enableStatementEditor({
+                value: "EXPRESSION",
+                valuePosition: STKindChecker.isSpecificField(field.value)
+                    ? field.value.valueExpr.position
+                    : field.value.position,
+                label: STKindChecker.isSpecificField(field.value)
+                    ? field.value.fieldName.source
+                    : field.value.source
+            });
 
         } else {
             const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
 
-            const fieldName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+            const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
 
-            const coloumnNumber = field.type.name?.length;
+            const columnNumber = field.type.name?.length;
             const specificFieldPosition: NodePosition   = {
                 startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
                 startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
@@ -106,56 +128,50 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             }
 
             const valuePosition: NodePosition   = {
-                startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber, 
-                startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber + 2,
+                startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
+                startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
                 endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
-                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + coloumnNumber +2
+                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
             }
-            props.context.enableStamentEditor({specificFieldPosition, fieldName, value: "EXPRESSION" , valuePosition, label: field.type.name});
+            props.context.enableStatementEditor({
+                specificFieldPosition,
+                fieldName: fName,
+                value: "EXPRESSION" ,
+                valuePosition,
+                label: field.type.name
+            });
         }
-
-
-
     };
 
     const handleExpand = () => {
-        // TODO Enable expand collapse functionality
-        // setExpanded(!expanded)
+        context.handleCollapse(fieldId, !expanded);
     };
 
     return (
         <>
             {!isArray && (
                 <div className={classes.treeLabel}>
-                <span className={classes.treeLabelInPort}>
-                    {portIn && (!hasValue || connectedViaLink) &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
-                    }
-                </span>
-                    {fields &&
-                        (expanded ? (
-                                <ExpandMoreIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
-                            ) :
-                            (
-                                <ChevronRightIcon style={{color: "black", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
-                            ))
-                    }
-
-                    <span> {label}</span>
+                    <span className={classes.treeLabelInPort}>
+                        {portIn && (!hasValue || connectedViaLink || !expanded) &&
+                            <DataMapperPortWidget engine={engine} port={portIn}/>
+                        }
+                    </span>
+                    <span className={classes.label}>                
+                        {fields &&
+                            (expanded ? (
+                                    <ExpandMoreIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
+                                ) :
+                                (
+                                    <ChevronRightIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
+                                ))
+                        }
+                        {label}
+                    </span>
                     {!hasValue && !isRecord && (
-                        <IconButton
-                            aria-label="add"
-                            className={classes.addIcon}
+                        <ValueConfigButton
                             onClick={handleEditable}
-                        >
-                            <AddIcon />
-                        </IconButton>
+                        />
                     )}
-                    <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut}/>
-                    }
-                </span>
                 </div>
             )}
             {isArray && (
@@ -169,11 +185,11 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         mappingConstruct={mappingConstruct}
                         context={context}
                         fieldIndex={fieldIndex}
-                        treeDepth={treeDepth + 1}
+                        treeDepth={treeDepth}
                     />
                 </>
             )}
-            {fields &&
+            {fields && expanded &&
                 fields.map((subField) => {
                     return (
                         <>

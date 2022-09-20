@@ -380,7 +380,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 documentation: await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient)
             });
         } else {
-            if (newCurrentModel && (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos){
+            if (newCurrentModel && (newCurrentModel.parent?.viewState as StatementEditorViewState)?.parentFunctionPos){
                 const parentModel =
                     getCurrentModel((newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
                         enrichModel(model, targetPosition));

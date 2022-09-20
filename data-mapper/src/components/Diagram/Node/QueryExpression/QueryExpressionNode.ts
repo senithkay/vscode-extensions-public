@@ -1,4 +1,4 @@
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
     QueryExpression,
@@ -74,7 +74,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     endColumn: sourceFieldAccess.position.endColumn
                 });
 
-                if (type && type.typeName === 'array') {
+                if (type && type.typeName === PrimitiveBalType.Array) {
                     this.sourceTypeDesc = type.memberType;
                 }
 
@@ -90,6 +90,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     {
                         this.sourcePort = node.getPort(
                             `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
+                    }
+                    while(this.sourcePort && this.sourcePort.hidden){
+                        this.sourcePort =this.sourcePort.parentModel;
                     }
                 });
             }
@@ -108,11 +111,15 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     const port = entry[1];
                     if (port instanceof RecordFieldPortModel
                         && port?.editableRecordField && port.editableRecordField?.value
+                        && STKindChecker.isSpecificField(port.editableRecordField.value)
                         && isPositionsEquals(port.editableRecordField.value.fieldName.position, fieldNamePosition)
                     ) {
                         this.targetPort = port;
                     }
                 });
+                while (this.targetPort && this.targetPort.hidden){
+                    this.targetPort = this.targetPort.parentModel;
+                }
             }
         });
     }

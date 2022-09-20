@@ -14,12 +14,14 @@
 import * as React from 'react';
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { MappingConstructor } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { RecordFieldPortModel } from '../../../Port';
+import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 
@@ -27,33 +29,134 @@ const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		root: {
 			flexGrow: 1,
-			maxWidth: 400,
+			width: 400,
 			color: "white",
 			position: "relative",
 			backgroundColor: " #FFFFFF",
 			padding: "20px"
-		}
+		},
+		header: {
+			color: "black",
+			backgroundColor: "#d8d8ff",
+			display: "flex",
+			height: "40px",
+			padding: "8px"
+		},
+        typeLabel: {
+            marginLeft: "3px",
+            verticalAlign: "middle",
+            padding: "5px",
+            color: "#222228",
+            fontFamily: "GilmerRegular",
+            fontSize: "13px",
+            minWidth: "100px",
+            marginRight: "24px"
+        },
+        valueLabel: {
+            verticalAlign: "middle",
+            padding: "5px",
+            color: "#222228",
+            fontFamily: "GilmerMedium",
+            fontSize: "13px",
+        },
+        treeLabelOutPort: {
+            float: "right",
+            width: 'fit-content',
+            marginLeft: "auto",
+        },
+        treeLabelInPort: {
+            float: "left",
+            marginRight: "5px",
+            width: 'fit-content',
+        },
+		label:{
+            width: "300px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            display: "inline-block",
+			textOverflow: "ellipsis",
+            "&:hover": {
+                overflow: "visible"
+            }
+        }
 	}),
 );
 
 export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	editableRecordFields: EditableRecordField[];
+	typeName: string;
 	value: MappingConstructor;
 	engine: DiagramEngine;
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
+	valueLabel?: string;
 }
 
 
 export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
-	const { id, editableRecordFields, value, engine, getPort, context } = props;
+	const { id, editableRecordFields, typeName, value, engine, getPort, context, valueLabel } = props;
 	const classes = useStyles();
 
+	const hasValue = editableRecordFields.length > 0;
+
+
+
+    const portIn = getPort(`${id}.IN`);
+    const portOut = getPort(`${id}.OUT`);
+
+    let expanded =true;
+    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
+        expanded = false;
+    }
+
+	const indentation = (portIn &&(!hasValue || !expanded))  ?  0 : 24;
+    const label = (
+        <span style={{marginRight: "auto"} }>
+			{valueLabel && (
+				<span className={classes.valueLabel}>
+					{valueLabel}
+					{typeName && ":"}
+				</span>
+			)}
+            {typeName && (
+                <span className={classes.typeLabel}>
+                    {typeName}
+                </span>
+            )}
+
+        </span>
+    );
+
+    const handleExpand = () => {
+        context.handleCollapse(id, !expanded);        
+    }
 	// TODO: Handle root level arrays
 	return (
 		<div className={classes.root}>
-			{
+			<span className={classes.header}>
+                <span className={classes.treeLabelInPort}>
+                    {portIn && (!hasValue || !expanded)  &&
+                        <DataMapperPortWidget engine={engine} port={portIn}/>
+                    }
+                </span>
+				<span className={classes.label}>
+					{expanded ? (
+								<ExpandMoreIcon style={{color: "black", verticalAlign: "middle",marginLeft: indentation}} onClick={handleExpand}/>
+							) :
+							(
+								<ChevronRightIcon style={{color: "black", verticalAlign: "middle", marginLeft: indentation}} onClick={handleExpand}/>
+							)
+					}
+					{label}
+				</span>
+                <span className={classes.treeLabelOutPort}>
+                    {portOut &&
+                        <DataMapperPortWidget engine={engine} port={portOut}/>
+                    }
+                </span>
+            </span> 			
+			{expanded &&
 				editableRecordFields.map((item) => {
 					return (
 						<EditableRecordFieldWidget
@@ -64,6 +167,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 							parentId={id}
 							mappingConstruct={value}
 							context={context}
+							treeDepth={1}
 						/>
 					);
 				})

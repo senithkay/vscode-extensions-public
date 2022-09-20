@@ -10,13 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext } from "react";
 
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { getJSXForMinutiae } from "../../utils";
+import { StatementEditorContext } from "../../store/statement-editor-context";
+import { getJSXForMinutiae, isPositionsEquals } from "../../utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementRendererStyles } from "../styles";
 
@@ -28,13 +28,29 @@ export interface TokenComponentProps {
 }
 
 export function TokenComponent(props: TokenComponentProps) {
-    const { model, className, isHovered, onPlusClick } = props;
+    const { model, className, onPlusClick } = props;
 
     const statementRendererClasses = useStatementRendererStyles();
 
+    const { modelCtx } = useContext(StatementEditorContext);
+    const {
+        currentModel: selectedModel,
+        changeCurrentModel,
+        hasSyntaxDiagnostics
+    } = modelCtx;
+
+    const [isHovered, setHovered] = React.useState(false);
+
+    const isSelected = selectedModel.model && model && model.parent &&
+        isPositionsEquals(selectedModel.model.position, model.parent.position);
+
     const styleClassName = classNames(
+        isSelected && !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,
         statementRendererClasses.expressionBlock,
         statementRendererClasses.expressionBlockDisabled,
+        {
+            "hovered": !isSelected && isHovered && !hasSyntaxDiagnostics,
+        },
         className
     );
 
@@ -45,8 +61,35 @@ export function TokenComponent(props: TokenComponentProps) {
     const leadingMinutiaeJSX = getJSXForMinutiae(model.leadingMinutiae, isFieldWithNewLine);
     const trailingMinutiaeJSX = getJSXForMinutiae(model.trailingMinutiae, isFieldWithNewLine);
 
+    const onMouseOver = (e: React.MouseEvent) => {
+        setHovered(true);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseOut = (e: React.MouseEvent) => {
+        setHovered(false);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const onMouseClick = (e: React.MouseEvent) => {
+        if (!hasSyntaxDiagnostics && STKindChecker.isDotToken(model)) {
+            e.stopPropagation();
+            e.preventDefault();
+            if (model.parent) {
+                changeCurrentModel(model.parent, model.parent.position, e.shiftKey);
+            }
+        }
+    }
+
     return (
-        <span className={styleClassName} >
+        <span
+            className={styleClassName}
+            onMouseOver={onMouseOver}
+            onMouseOut={onMouseOut}
+            onClick={onMouseClick}
+        >
             {STKindChecker.isCloseBraceToken(model) && newLineRequired && <br/>}
             {leadingMinutiaeJSX}
             {model.value}

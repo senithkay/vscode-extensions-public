@@ -1,4 +1,4 @@
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { RequiredParam } from "@wso2-enterprise/syntax-tree";
 import { Point } from "@projectstorm/geometry";
 
@@ -21,7 +21,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
             context,
             REQ_PARAM_NODE_TYPE
         );
-        this.numberOfFields = 0;
+        this.numberOfFields = 1;
     }
 
     async initPorts() {
@@ -33,11 +33,16 @@ export class RequiredParamNode extends DataMapperNodeModel {
             endColumn: this.value.typeName.position.startColumn
         });
 
-        if (this.typeDef && this.typeDef.typeName === 'record') {
+        const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", this.context.collapsedFields);
+
+        if (this.typeDef && this.typeDef.typeName === PrimitiveBalType.Record) {
             const fields = this.typeDef.fields;
             fields.forEach((subField) => {
-                this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, this.value.paramName.value);
+                this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, this.value.paramName.value,
+                                            parentPort, this.context.collapsedFields, parentPort.collapsed);
             });
+            
+
         }
     }
 

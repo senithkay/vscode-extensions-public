@@ -69,6 +69,13 @@ export function InputParamEditor(props: InputParamEditorProps) {
         });
     };
 
+    const handleParamTypeChange = (type: string) => {
+        setParamType(type);
+        if (type && type.length > 1) {
+            setParamName(type.charAt(0).toLowerCase() + type.slice(1))
+        }
+    }
+
     return (
         <ParamEditorContainer>
             <div>
@@ -86,7 +93,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
                 </Grid>
                 <Grid container={true} item={true} spacing={2}>
                     <Grid item={true} xs={5}>
-                        <TypeBrowser type={paramType} onChange={setParamType} />
+                        <TypeBrowser type={paramType} onChange={handleParamTypeChange} />
                     </Grid>
                     <Grid item={true} xs={7}>
                         <FormTextInput

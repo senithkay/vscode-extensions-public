@@ -45,11 +45,18 @@ export function TypeBrowser(props: TypeBrowserProps) {
                 }
             };
             const completions = await langClient.getCompletion(completionParams);
-            const recordCompletions = completions.filter((completion) => completion.kind === CompletionItemKind.Struct);
-            setRecordCompletsions(recordCompletions);
+            const recCompletions = completions.filter((completion) =>
+                        completion.kind === CompletionItemKind.Struct
+                        && completion.label !== "StrandData"
+                    );
+            setRecordCompletsions(recCompletions);
         })();
     }, [content]);
-    
+
+    useEffect(() => {
+        setSelectedType(type);
+    }, [type]);
+
     return (
         <TypeSelect
           value={selectedType}

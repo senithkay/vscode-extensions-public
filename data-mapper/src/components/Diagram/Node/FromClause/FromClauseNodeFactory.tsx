@@ -42,6 +42,8 @@ export class FromClauseNodeFactory extends AbstractReactFactory<FromClauseNode, 
                 id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`}
                 typeDesc={event.model.typeDef}
                 getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                valueLabel={event.model.sourceBindingPattern.variableName.value}
             />
         );
     }
