@@ -28,12 +28,13 @@ export interface RecordEditorProps {
     targetPosition?: NodePosition;
     formType: string;
     isTypeDefinition?: boolean;
+    isDataMapper?: boolean;
     onCancel: () => void;
     onSave: (typeDesc: string, recModel: RecordModel) => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { name, onCancel, onSave, model, targetPosition, formType, isTypeDefinition = true } = props;
+    const { name, onCancel, onSave, model, targetPosition, formType, isTypeDefinition = true, isDataMapper } = props;
 
     const {
         props: {
@@ -81,6 +82,9 @@ export function RecordEditor(props: RecordEditorProps) {
         modifyDiagram([
             createPropertyStatement(recordString, targetPosition, false)
         ]);
+        if (isDataMapper) {
+            onCancel();
+        }
     }
 
     return (
@@ -94,6 +98,7 @@ export function RecordEditor(props: RecordEditorProps) {
                     onCancel={onCancel}
                     onSave={createModelSave}
                     targetPosition={targetPosition}
+                    isDataMapper={isDataMapper}
                 />
             )}
         </>

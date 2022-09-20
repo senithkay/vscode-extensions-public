@@ -46,6 +46,7 @@ interface RecordState {
 
 interface RecordFromJsonProps {
     targetPosition?: NodePosition;
+    isDataMapper?: boolean;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
     onCancel: () => void;
 }
@@ -74,7 +75,7 @@ const reducer = (state: RecordState, action: {type: string, payload: any }) => {
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     const classes = useStyles();
 
-    const { targetPosition, onSave, onCancel } = recordFromJsonProps;
+    const { targetPosition, isDataMapper, onSave, onCancel } = recordFromJsonProps;
 
     const { props, api } = useContext(Context);
 
@@ -178,7 +179,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                     onCancel={onCancel}
                 />
             ) : (
-                <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
+                <FormControl data-testid="module-variable-config-form" className={isDataMapper ? classes.wizardFormControl : classes.wizardFormControlExtended}>
                     <FormHeaderSection
                         onCancel={onCancel}
                         formTitle="Import Sample JSON"

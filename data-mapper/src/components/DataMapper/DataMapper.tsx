@@ -73,6 +73,7 @@ export interface DataMapperProps {
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     importStatements: string[];
+    recordPanel?: (props: {closeAddNewRecord: () => void}) => JSX.Element;
 }
 
 export enum ViewOption {
@@ -108,7 +109,7 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 function DataMapperC(props: DataMapperProps) {
 
 
-    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose, importStatements } = props;
+    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose, importStatements, recordPanel } = props;
 
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -190,7 +191,8 @@ function DataMapperC(props: DataMapperProps) {
 
     const cPanelProps = {
         ...props,
-        onClose: onConfigClose
+        onClose: onConfigClose,
+        recordPanel
     }
     return (
         <LSClientContext.Provider value={langClientPromise}>
