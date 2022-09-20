@@ -98,6 +98,7 @@ export function RecordEditor(props: RecordEditorProps) {
                     onCancel={onCancel}
                     onSave={createModelSave}
                     targetPosition={targetPosition}
+                    isDataMapper={isDataMapper}
                 />
             )}
         </>

@@ -34,12 +34,13 @@ enum ConfigState {
 
 export interface CreateRecordProps {
     targetPosition?: NodePosition;
+    isDataMapper?: boolean;
     onCancel: () => void;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
 }
 
 export function CreateRecord(props: CreateRecordProps) {
-    const { targetPosition, onSave, onCancel } = props;
+    const { targetPosition, isDataMapper, onSave, onCancel } = props;
 
     const {
         props: {
@@ -112,6 +113,7 @@ export function CreateRecord(props: CreateRecordProps) {
                         onImportFromJson={handleImportJSONClick}
                         onCreateNew={handleCreateNewClick}
                         onCancel={onCancel}
+                        isDataMapper={isDataMapper}
                     />
                 )}
                 {(editorState === ConfigState.IMPORT_FROM_JSON) && (

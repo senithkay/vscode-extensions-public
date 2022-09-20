@@ -75,14 +75,14 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     applyModifications(modifications);
   };
 
-    useEffect(() => {
-        if (fnST) {
-            setFnName(getFnNameFromST(fnST));
-            setInputParams(getInputsFromST(fnST));
-            console.log(getOutputTypeFromST(fnST));
-            setOutputType(getOutputTypeFromST(fnST));
-        }
-    }, [fnST]);
+  useEffect(() => {
+    if (fnST) {
+      setFnName(getFnNameFromST(fnST));
+      setInputParams(getInputsFromST(fnST));
+      console.log(getOutputTypeFromST(fnST));
+      setOutputType(getOutputTypeFromST(fnST));
+    }
+  }, [fnST]);
 
   const enableAddNewRecord = () => {
     setIsNewRecord(true);
@@ -92,6 +92,16 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     setIsNewRecord(false);
   };
 
+  const breadCrumb = (
+    <FormHeaderSection
+      onCancel={closeAddNewRecord}
+      formTitle={"lowcode.develop.configForms.dataMapper.titleExtend"}
+      defaultMessage={"Data Mapper"}
+      formTitleSecond={"lowcode.develop.configForms.dataMapper.titleRecord"}
+      defaultMessageSecond={"Record"}
+    />
+  );
+
   return (
     <Panel onClose={onClose}>
       <FormControl
@@ -99,11 +109,13 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         data-testid="data-mapper-form"
         className={formClasses.wizardFormControlExtended}
       >
-        <FormHeaderSection
-          onCancel={onClose}
-          formTitle={"lowcode.develop.configForms.dataMapper.title"}
-          defaultMessage={"Data Mapper"}
-        />
+        {(isNewRecord && breadCrumb) || (
+          <FormHeaderSection
+            onCancel={onClose}
+            formTitle={"lowcode.develop.configForms.dataMapper.title"}
+            defaultMessage={"Data Mapper"}
+          />
+        )}
         {isNewRecord && recordPanel({ closeAddNewRecord: closeAddNewRecord })}
         {!isNewRecord && (
           <>

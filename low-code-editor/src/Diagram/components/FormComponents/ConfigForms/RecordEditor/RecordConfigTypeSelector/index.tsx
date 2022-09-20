@@ -11,67 +11,70 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React  from "react";
+import React from "react";
 import { useIntl } from "react-intl";
 
 import { Button } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
-import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { wizardStyles } from "../../style";
 import { recordStyles } from "../style";
 
 export interface RecordConfigTypeProps {
-    onImportFromJson: () => void;
-    onCreateNew: () => void;
-    onCancel: () => void;
+  isDataMapper?: boolean;
+  onImportFromJson: () => void;
+  onCreateNew: () => void;
+  onCancel: () => void;
 }
 
 export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
-    const { onImportFromJson, onCreateNew, onCancel } = props;
+  const { isDataMapper, onImportFromJson, onCreateNew, onCancel } = props;
 
-    const overlayClasses = wizardStyles();
-    const recordClasses = recordStyles();
-    const intl = useIntl();
+  const overlayClasses = wizardStyles();
+  const recordClasses = recordStyles();
+  const intl = useIntl();
 
-    const createNewButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.option.createNew",
-        defaultMessage: "Create New"
-    });
-    const importJsonButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.recordEditor.option.importJson",
-        defaultMessage: "Import a JSON"
-    });
+  const createNewButtonText = intl.formatMessage({
+    id: "lowcode.develop.configForms.recordEditor.option.createNew",
+    defaultMessage: "Create New",
+  });
+  const importJsonButtonText = intl.formatMessage({
+    id: "lowcode.develop.configForms.recordEditor.option.importJson",
+    defaultMessage: "Import a JSON",
+  });
 
-    return (
-        <>
-            <FormHeaderSection
-                formTitle={"lowcode.develop.configForms.recordEditor.codePanel.title"}
-                defaultMessage={"Record"}
-                onCancel={onCancel}
-            />
-            <div className={overlayClasses.recordFormWrapper}>
-                <div className={recordClasses.createButtonWrapper}>
-                    <Button
-                        data-test-id="create-new-btn"
-                        onClick={onCreateNew}
-                        className={recordClasses.createButton}
-                        startIcon={<AddIcon/>}
-                        color="primary"
-                    >
-                        {createNewButtonText}
-                    </Button>
-                    <Button
-                        data-test-id="import-json"
-                        onClick={onImportFromJson}
-                        className={recordClasses.createButton}
-                        startIcon={<AddIcon/>}
-                        color="primary"
-                    >
-                        {importJsonButtonText}
-                    </Button>
-                </div>
-            </div>
-        </>
-    )
+  return (
+    <>
+      {!isDataMapper && (
+        <FormHeaderSection
+          formTitle={"lowcode.develop.configForms.recordEditor.codePanel.title"}
+          defaultMessage={"Record"}
+          onCancel={onCancel}
+        />
+      )}
+      <div className={overlayClasses.recordFormWrapper}>
+        <div className={recordClasses.createButtonWrapper}>
+          <Button
+            data-test-id="create-new-btn"
+            onClick={onCreateNew}
+            className={recordClasses.createButton}
+            startIcon={<AddIcon />}
+            color="primary"
+          >
+            {createNewButtonText}
+          </Button>
+          <Button
+            data-test-id="import-json"
+            onClick={onImportFromJson}
+            className={recordClasses.createButton}
+            startIcon={<AddIcon />}
+            color="primary"
+          >
+            {importJsonButtonText}
+          </Button>
+        </div>
+      </div>
+    </>
+  );
 }
