@@ -19,6 +19,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -203,7 +204,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     />
                 )}
                 {expanded && hasValue && listConstructor && (
-                    <div className={classes.treeLabel} style={{flexDirection: "column"}}>
+                    <div className={classNames(classes.treeLabel, classes.innerTreeLabel)}>
                         <span>[</span>
                         {arrayElements}
                         <Button

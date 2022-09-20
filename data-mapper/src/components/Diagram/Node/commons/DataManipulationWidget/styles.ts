@@ -26,7 +26,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             minHeight: "24px",
             width: "100%",
             border: "1px solid #E0E2E9",
-            borderRadius: "8px"
+            borderRadius: "2px"
+        },
+        innerTreeLabel: {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            padding: "10px 12px",
+            background: "#F7F8FB",
+            borderRadius: "4px",
+            flex: "none",
+            order: 1,
+            flexGrow: 0
         },
         treeLabelOutPort: {
             float: "right",
@@ -77,7 +88,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#5567D5",
             padding: "5px",
             textTransform: "none",
-            justifyContent: "left"
+            justifyContent: "left",
+            fontStyle: "normal",
+            fontWeight: 400,
+            fontSize: "13px",
+            lineHeight: "24px"
         },
         editButton: {
             float: "right",
