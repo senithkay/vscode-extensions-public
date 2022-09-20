@@ -104,16 +104,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const handleEditable = () => {
         if (!!field.value) {
-            props.context.enableStatementEditor({
-                value: "EXPRESSION",
-                valuePosition: STKindChecker.isSpecificField(field.value)
-                    ? field.value.valueExpr.position
-                    : field.value.position,
-                label: STKindChecker.isSpecificField(field.value)
-                    ? field.value.fieldName.source
-                    : field.value.source
-            });
-
+            if (STKindChecker.isSpecificField(field.value)) {
+                props.context.enableStatementEditor({
+                    value: field.value.valueExpr.source,
+                    valuePosition: field.value.valueExpr.position,
+                    label: field.value.fieldName.source
+                });
+            }
         } else {
             const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
 
@@ -156,7 +153,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             <DataMapperPortWidget engine={engine} port={portIn}/>
                         }
                     </span>
-                    <span className={classes.label}>                
+                    <span className={classes.label}>
                         {fields &&
                             (expanded ? (
                                     <ExpandMoreIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
@@ -167,7 +164,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         }
                         {label}
                     </span>
-                    {!hasValue && !isRecord && (
+                    {!isRecord && (
                         <ValueConfigButton
                             onClick={handleEditable}
                         />
