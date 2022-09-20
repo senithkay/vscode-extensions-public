@@ -160,7 +160,7 @@ describe('Test statement editor toolbar functionality', () => {
             .clickDeleteButton();
 
         EditorPane
-            .getExpression("IntTypeDesc")
+            .getExpression("SimpleNameReference")
             .doubleClickExpressionContent(`<add-type>`);
 
         InputEditor
