@@ -326,22 +326,22 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	const nameRef = STKindChecker.isSimpleNameReference(expr) ? expr : undefined;
 	if (!nameRef && STKindChecker.isFieldAccess(expr)) {
 		let valueExpr = expr.expression;
-		while (valueExpr && STKindChecker.isFieldAccess(valueExpr)) {
-			valueExpr = valueExpr.expression;
-		}
-		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-			let paramNode: RequiredParam | FromClause =
-					dmNode.context.functionST.functionSignature.parameters.find((param) =>
-					STKindChecker.isRequiredParam(param)
-					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
-				) as RequiredParam;
-			if (STKindChecker.isSpecificField(dmNode.context.selection.selectedST)
-				&& STKindChecker.isQueryExpression(dmNode.context.selection.selectedST.valueExpr)){
-				paramNode = dmNode.context.selection.selectedST.valueExpr.queryPipeline.fromClause
-			}
-			return findNodeByValueNode(paramNode, dmNode);
-		}
+	while (valueExpr && STKindChecker.isFieldAccess(valueExpr)) {
+		valueExpr = valueExpr.expression;
 	}
+	if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
+		let paramNode: RequiredParam | FromClause =
+				dmNode.context.functionST.functionSignature.parameters.find((param) =>
+				STKindChecker.isRequiredParam(param)
+				&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
+			) as RequiredParam;
+		if (STKindChecker.isSpecificField(dmNode.context.selection.selectedST)
+			&& STKindChecker.isQueryExpression(dmNode.context.selection.selectedST.valueExpr)){
+			paramNode = dmNode.context.selection.selectedST.valueExpr.queryPipeline.fromClause
+		}
+		return findNodeByValueNode(paramNode, dmNode);
+	}
+}
 }
 
 export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, expr: STNode)
@@ -733,7 +733,7 @@ function updateValueExprSource(value: string, targetPosition: NodePosition,
 
 function getRHSFromSourcePort(port: PortModel) {
 	const sourcePort = port as RecordFieldPortModel;
-	let rhs = getBalRecFieldName(sourcePort.field.name);
+	let rhs = sourcePort.fieldName ? getBalRecFieldName(sourcePort.fieldName) :  getBalRecFieldName(sourcePort.field.name);
 	if (sourcePort.parentFieldAccess) {
 		rhs = sourcePort.parentFieldAccess + "." + rhs;
 	}
