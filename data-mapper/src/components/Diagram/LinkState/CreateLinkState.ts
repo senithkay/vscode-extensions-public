@@ -59,6 +59,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 						}
 					} else if (element === this.link.getLastPoint()) {
 						this.link.point(0, 0, -1);
+					} else if (element === this.sourcePort) {
+						this.link.remove();
+						this.clearState();
+						this.eject();
 					}
 
 					this.engine.repaintCanvas();
