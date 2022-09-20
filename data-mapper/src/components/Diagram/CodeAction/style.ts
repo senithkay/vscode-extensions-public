@@ -13,32 +13,29 @@
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dropdownButton: {
-      backgroundColor: "#F4F5F7", 
-      height: "40px", 
-      minWidth: "200px", 
-      color:"#8D91A3",
-      "&:hover": {
-        backgroundColor: "#E6E7EC", 
-        color:"#1D2028"
-
-      }
-    },
-    dropdownText: {
-      fontFamily:"GilmerRegular", 
-      padding: "6px", 
-      fontSize: "13px", 
-      height: "24px"
-    },
-    lightBulbWrapper: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "24px",
-      width: "24px",
-      backgroundColor: "#FF9D52",
-      borderRadius: "50%"
-    },
-  })
+    createStyles({
+        element: {
+            backgroundColor: theme.palette.common.white,
+            padding: "10px",
+            cursor: "pointer",
+            transitionDuration: "0.2s",
+            userSelect: "none",
+            pointerEvents: "auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            "&:hover": {
+                filter: "brightness(0.95)",
+            },
+        },
+        lightBulbWrapper: {
+            height: "22px",
+            width: "22px",
+            backgroundColor: theme.palette.warning.light,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            borderRadius: "50%",
+        },
+    })
 );
