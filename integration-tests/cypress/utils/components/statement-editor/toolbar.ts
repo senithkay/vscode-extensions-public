@@ -32,6 +32,7 @@ export class Toolbar {
     static clickConfigurableButton() {
         cy.get(`[data-testid="toolbar-configurable"]`)
             .click()
+            .wait(1000)
         return this;
     }
 
