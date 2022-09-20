@@ -733,7 +733,7 @@ function updateValueExprSource(value: string, targetPosition: NodePosition,
 
 function getRHSFromSourcePort(port: PortModel) {
 	const sourcePort = port as RecordFieldPortModel;
-	let rhs = getBalRecFieldName(sourcePort.field.name);
+	let rhs = sourcePort.fieldName ? getBalRecFieldName(sourcePort.fieldName) :  getBalRecFieldName(sourcePort.field.name);
 	if (sourcePort.parentFieldAccess) {
 		rhs = sourcePort.parentFieldAccess + "." + rhs;
 	}
