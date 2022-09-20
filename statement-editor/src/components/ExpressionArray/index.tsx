@@ -23,7 +23,7 @@ import { TokenComponent } from "../Token";
 export interface ExpressionArrayProps {
     expressions: STNode[];
     modifiable?: boolean;
-    arrayType?: ArrayType
+    arrayType?: ArrayType;
 }
 
 export function ExpressionArrayComponent(props: ExpressionArrayProps) {
@@ -59,10 +59,19 @@ export function ExpressionArrayComponent(props: ExpressionArrayProps) {
                         onMouseEnterCallback={onMouseEnter}
                         isHovered={hoverIndex === index}
                     >
-                        <ExpressionComponent
-                            key={index}
-                            model={expression}
-                        />
+                        {(index === (expressions.length - 1)) ? (
+                            <ExpressionComponent
+                                key={index}
+                                model={expression}
+                                isHovered={true} // Always we need to show the last plus
+                            />
+                        ) : (
+                            <ExpressionComponent
+                                key={index}
+                                model={expression}
+                                isHovered={hoverIndex === index}
+                            />
+                        )}
                     </ExpressionArrayElementComponent>
                 )
             })}

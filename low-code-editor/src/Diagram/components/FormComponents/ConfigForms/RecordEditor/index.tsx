@@ -11,77 +11,91 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, {useContext, useState} from 'react';
 
-import { NodePosition, RecordTypeDesc, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
+import { NodePosition, RecordTypeDesc, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
-import { FormState, Provider as RecordEditorProvider} from "../../../../../Contexts/RecordEditor"
+import { Context } from "../../../../../Contexts/Diagram";
+import {createPropertyStatement, mutateTypeDefinition} from "../../../../utils";
 
-import { CodePanel } from "./CodePanel";
-import { recordStyles } from "./style";
+import { CreateRecord } from "./CreateRecord";
 import { RecordModel } from "./types";
-import { getRecordModel } from "./utils";
 
 export interface RecordEditorProps {
     name: string;
-    existingModel?: RecordModel;
     model?: RecordTypeDesc | TypeDefinition;
     targetPosition?: NodePosition;
+    formType: string;
     isTypeDefinition?: boolean;
     onCancel: () => void;
     onSave: (typeDesc: string, recModel: RecordModel) => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { existingModel, name, onCancel, onSave, model, targetPosition, isTypeDefinition = true } = props;
+    const { name, onCancel, onSave, model, targetPosition, formType, isTypeDefinition = true } = props;
 
-    const recordClasses = recordStyles();
+    const {
+        props: {
+            stSymbolInfo,
+            currentFile,
+            syntaxTree,
+            importStatements,
+            experimentalEnabled
+        },
+        api: {
+            ls: { getExpressionEditorLangClient },
+            code: {
+                modifyDiagram
+            },
+            library
+        }
+    } = useContext(Context);
 
-    let recordModel: RecordModel;
-    if (model && STKindChecker.isRecordTypeDesc(model)) {
-        recordModel = getRecordModel(model, name, true, "record");
-        recordModel.isActive = true;
-    } else if (model && STKindChecker.isTypeDefinition(model)) {
-        if (STKindChecker.isRecordTypeDesc(model.typeDescriptor)) {
-            recordModel = getRecordModel(model.typeDescriptor, model.typeName.value, true, "record");
-            recordModel.isActive = true;
-            recordModel.isPublic = (model?.visibilityQualifier?.value === "public");
-        }
-    } else if (existingModel) {
-        recordModel = existingModel;
-    } else if (targetPosition) {
-        // Constructs a new model
-        recordModel = {
-            name,
-            isClosed: false,
-            isOptional: false,
-            isArray: false,
-            fields: [],
-            type: "record",
-            isInline: true,
-            isActive: true
-        }
+    const getStatementEditor = () => {
+        return StatementEditorWrapper(
+            {
+                label: 'Record',
+                initialSource: model?.source,
+                formArgs: {
+                    formArgs: {
+                        targetPosition: model ? targetPosition : { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
+                    }},
+                config: { type: formType, model},
+                onWizardClose: onCancel,
+                onCancel,
+                currentFile,
+                getLangClient: getExpressionEditorLangClient,
+                applyModifications: modifyDiagram,
+                library,
+                syntaxTree,
+                stSymbolInfo,
+                importStatements,
+                experimentalEnabled,
+                isModuleVar: true
+            }
+        );
     }
-    recordModel.isTypeDefinition = (isTypeDefinition || STKindChecker.isTypeDefinition(model));
+
+    const createModelSave = (recordString: string, pos: NodePosition) => {
+        modifyDiagram([
+            createPropertyStatement(recordString, targetPosition, false)
+        ]);
+    }
 
     return (
-        <RecordEditorProvider
-            state={{
-                recordModel,
-                currentForm: FormState.EDIT_RECORD_FORM,
-                currentRecord: recordModel,
-                sourceModel: model,
-                isEditorInvalid: false,
-                targetPosition,
-                onSave,
-                onCancel
-            }}
-        >
-            {recordModel && (
-                <div className={recordClasses.recordEditorContainer}>
-                    <CodePanel />
-                </div>
+        <>
+            {model ? (
+                // Edit existing record
+                getStatementEditor()
+            ) : (
+                // Create new record
+                <CreateRecord
+                    onCancel={onCancel}
+                    onSave={createModelSave}
+                    targetPosition={targetPosition}
+                />
             )}
-        </RecordEditorProvider>
+        </>
     );
 }
