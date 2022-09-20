@@ -11,76 +11,104 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React from "react";
+import React, { useEffect } from "react";
 
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-protocol";
-
+import {
+    CodeAction,
+    TextDocumentEdit,
+    TextEdit,
+} from "vscode-languageserver-protocol";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
-import { LightBulbSVG } from "./LightBulb"
-import { useStyles } from "./style"
+import { LightBulbSVG } from "./LightBulb";
+import { useStyles } from "./style";
 
 export interface CodeActionWidgetProps {
     codeActions: CodeAction[];
     context: IDataMapperContext;
+    labelWidgetVisible?: boolean;
+    additionalActions?: {
+        title: string;
+        onClick: () => void;
+    }[];
 }
 
 export function CodeActionWidget(props: CodeActionWidgetProps) {
-    const { codeActions, context } = props;
-    const classes = useStyles()
-    const [listCodeAction, setListCodeAction] = React.useState(false);
-
-    const handleSelect = (e: any) => {
-       const action = codeActions[e.currentTarget.value]
-       const modifications: STModification[] = [];
-       (action.edit?.documentChanges[0] as TextDocumentEdit).edits.forEach((change: TextEdit) => {
-           modifications.push({
-            type: "INSERT",
-            config: {
-                "STATEMENT": change.newText,
-            },
-            endColumn: change.range.end.character,
-            endLine: change.range.end.line,
-            startColumn: change.range.start.character,
-            startLine: change.range.start.line
-           })
-
-       })
-       context.applyModifications(modifications);
-    }
-
+    const { codeActions, context, labelWidgetVisible, additionalActions } =
+        props;
+    const classes = useStyles();
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLDivElement>(null);
+    const open = Boolean(anchorEl);
     const menuItems: React.ReactNode[] = [];
-    if (codeActions) {
-        codeActions.forEach((action, index) => {
+
+    if (additionalActions && additionalActions.length > 0) {
+        additionalActions.forEach((item, index) => {
             menuItems.push(
-                
-                <button key={index} className={classes.dropdownButton} value={index} onMouseDown={handleSelect}>
-                   <span className={classes.dropdownText}> {action.title} </span>
-                </button>
-    
+                <MenuItem key={`${item.title}-${index}`} onClick={item.onClick}>
+                    {item.title}
+                </MenuItem>
             );
         });
     }
 
+    useEffect(() => {
+        if (!labelWidgetVisible) {
+            setAnchorEl(null);
+        }
+    }, [labelWidgetVisible]);
 
-	
-	const onClickCodeAction= () => {
-		//TODO implement the delete link logic
-		setListCodeAction(true)
-		console.log({"codeActionLog": codeActions});
-	};
+    const onCodeActionSelect = (action: CodeAction) => {
+        const modifications: STModification[] = [];
+        (action.edit?.documentChanges[0] as TextDocumentEdit).edits.forEach(
+            (change: TextEdit) => {
+                modifications.push({
+                    type: "INSERT",
+                    config: {
+                        STATEMENT: change.newText,
+                    },
+                    endColumn: change.range.end.character,
+                    endLine: change.range.end.line,
+                    startColumn: change.range.start.character,
+                    startLine: change.range.start.line,
+                });
+            }
+        );
+        context.applyModifications(modifications);
+    };
+
+    if (codeActions) {
+        codeActions.forEach((action, index) => {
+            menuItems.push(
+                <MenuItem
+                    key={index}
+                    onClick={() => onCodeActionSelect(action)}
+                >
+                    {action.title}
+                </MenuItem>
+            );
+        });
+    }
+
+    const onClickCodeAction = (event: React.MouseEvent<HTMLDivElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
 
     return (
-        <>
-            <div className={classes.lightBulbWrapper} onClick={onClickCodeAction}>
+        <div className={classes.element} onClick={onClickCodeAction}>
+            <div className={classes.lightBulbWrapper}>
                 <LightBulbSVG />
             </div>
-        
-            {listCodeAction && (
-                <div style={{paddingLeft: "5px"}}>               
-                    {menuItems}
-                </div>
-            )}
-        </>
+            <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+            >
+                {menuItems}
+            </Menu>
+        </div>
     );
 }

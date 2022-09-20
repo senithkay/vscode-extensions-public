@@ -28,15 +28,10 @@ const useStyles = makeStyles((theme: Theme) =>
         treeLabel: {
             verticalAlign: "middle",
             padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerMedium",
-            fontSize: "13px",
             minWidth: "100px",
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #DEE0E7",
             display: "flex",
             minHeight: "24px",
-            boxShadow: '0 2px 40px 0 rgba(102,103,133,0.15)',
+            background: "#FFF"
         },
         treeLabelOutPort: {
             float: "right",
@@ -52,20 +47,14 @@ const useStyles = makeStyles((theme: Theme) =>
             marginLeft: "3px",
             verticalAlign: "middle",
             padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerRegular",
-            fontSize: "13px",
             minWidth: "100px",
-            backgroundColor: "#FFFFFF",
             marginRight: "24px",
+            fontFamily: "GilmerRegular",
+            fontWeight: 400
         },
         valueLabel: {
             verticalAlign: "middle",
             padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerMedium",
-            fontSize: "13px",
-            backgroundColor: "#FFFFFF",
         },
         group: {
             marginLeft: "0px",
@@ -87,8 +76,6 @@ const useStyles = makeStyles((theme: Theme) =>
                 overflow: "visible"
             }
         }
-        
-
     }),
 );
 
@@ -141,7 +128,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     );
 
     const handleExpand = () => {
-        handleCollapse(fieldId, !expanded);        
+        handleCollapse(fieldId, !expanded);
     }
 
     return (

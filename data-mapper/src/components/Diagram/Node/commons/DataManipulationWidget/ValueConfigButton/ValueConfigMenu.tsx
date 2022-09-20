@@ -19,6 +19,8 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 import TripleDotsIcon from "../../../../../../assets/icons/TripleDotsIcon";
 
+import { ValueConfigMenuItem } from "./ValueConfigMenuItem";
+
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         tripleDotsIcon: {
@@ -39,13 +41,21 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-
-export interface ValueConfigButtonProps {
-    onClick: () => void;
+export enum ValueConfigOption {
+    AddValue = "Add Value",
+    EditValue = "Edit Value",
+    InitializeArray = "Initialize Array",
+    DeleteValue = "Delete Value",
+    DeleteElement = "Delete Element",
+    DeleteArray = "Delete Array"
 }
 
-export function ValueConfigButton(props: ValueConfigButtonProps) {
-    const { onClick } = props;
+export interface ValueConfigMenuProps {
+    menuItems: ValueConfigMenuItem[]
+}
+
+export function ValueConfigMenu(props: ValueConfigMenuProps) {
+    const { menuItems } = props;
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
     const open = Boolean(anchorEl);
@@ -58,20 +68,10 @@ export function ValueConfigButton(props: ValueConfigButtonProps) {
         setAnchorEl(null);
     };
 
-    const onClickAddOrEditValue = () => {
-        handleClose();
-        onClick();
-    }
-
-    const onClickDeleteValue = () => {
-        handleClose();
-        // TODO
-    }
-
     return (
         <>
             <IconButton
-                aria-label="addOrEdit"
+                aria-label="valueConfig"
                 className={classes.tripleDotsIcon}
                 onClick={(e) => handleClick(e)}
             >
@@ -85,17 +85,18 @@ export function ValueConfigButton(props: ValueConfigButtonProps) {
                 transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                 className={classes.valueConfigMenu}
             >
-                <MenuItem
-                    onClick={onClickAddOrEditValue}
-                >
-                    Add/Edit Value
-                </MenuItem>
-                <MenuItem
-                    disabled={true}
-                    onClick={onClickDeleteValue}
-                >
-                    Delete Value
-                </MenuItem>
+                {
+                    menuItems.map((menuItem: ValueConfigMenuItem) => {
+                        return (
+                            <ValueConfigMenuItem
+                                key={menuItem.title}
+                                title={menuItem.title}
+                                onClick={menuItem.onClick}
+                                onClose={handleClose}
+                            />
+                        )
+                    })
+                }
             </Menu>
         </>
     );
