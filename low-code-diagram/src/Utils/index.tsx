@@ -14,6 +14,7 @@ import { Endpoint } from "../Types/type";
 import { BlockViewState, FunctionViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { CollapseInitVisitor } from "../Visitors/collapse-init-visitor";
+import { CollapsedRangeExpandVisitor } from "../Visitors/collapsed-range-expand-visitor";
 import { InitVisitor } from "../Visitors/init-visitor";
 import { PositioningVisitor } from "../Visitors/positioning-visitor";
 import { SizingVisitor } from "../Visitors/sizing-visitor";
@@ -43,6 +44,12 @@ export function recalculateSizingAndPositioning(
 
 export function initializeCollapseView(st: STNode, targetPosition: NodePosition) {
     traversNode(st, new CollapseInitVisitor(targetPosition));
+    const clone = { ...st }
+    return clone;
+}
+
+export function expandCollapsedRange(st: STNode, range: NodePosition) {
+    traversNode(st, new CollapsedRangeExpandVisitor(range));
     const clone = { ...st }
     return clone;
 }

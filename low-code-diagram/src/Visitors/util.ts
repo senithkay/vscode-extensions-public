@@ -1,10 +1,10 @@
 import { NodePosition, RemoteMethodCallAction, STKindChecker, STNode, traversNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
 
-import { CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
+import { CLIENT_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
 import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
-import { IFELSE_SVG_HEIGHT, IFELSE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/IfElseSVG";
-import { PROCESS_SVG_HEIGHT, PROCESS_SVG_WIDTH } from "../Components/RenderingComponents/Processor/ProcessSVG";
-import { RESPOND_SVG_HEIGHT, RESPOND_SVG_WIDTH } from "../Components/RenderingComponents/Respond/RespondSVG";
+import { IFELSE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/IfElseSVG";
+import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
+import { RESPOND_SVG_HEIGHT } from "../Components/RenderingComponents/Respond/RespondSVG";
 import { Endpoint } from "../Types/type";
 import { EndpointViewState, PlusViewState, SimpleBBox, StatementViewState } from "../ViewState";
 
@@ -19,7 +19,7 @@ export function isSTActionInvocation(node: STNode): RemoteMethodCallAction {
 }
 
 
-export function isNodeWithinRange(nodePosition: NodePosition, range: NodePosition): boolean {
+export function isPositionWithinRange(nodePosition: NodePosition, range: NodePosition): boolean {
     if (nodePosition.startLine > range.startLine
         && nodePosition.endLine < range.endLine) {
         return true;

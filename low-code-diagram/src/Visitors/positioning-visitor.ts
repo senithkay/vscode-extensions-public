@@ -60,7 +60,7 @@ import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
 import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "./sizing-visitor";
-import { getPlusViewState, isNodeWithinRange, updateConnectorCX } from "./util";
+import { getPlusViewState, isPositionWithinRange, updateConnectorCX } from "./util";
 
 let epCount: number = 0;
 export class PositioningVisitor implements Visitor {
@@ -573,13 +573,22 @@ export class PositioningVisitor implements Visitor {
             statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
 
             collapsedViewStates.forEach((collapsedViewState, i) => {
-                if (isNodeWithinRange(statement.position, collapsedViewState.range)) {
+                if (isPositionWithinRange(statement.position, collapsedViewState.range)) {
                     collapsedViewState.bBox.cx = blockViewState.bBox.cx - collapsedViewState.bBox.lw;
-                    collapsedViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
-                    height += collapsedViewState.getHeight();
+                    collapsedViewState.bBox.cy = blockViewState.bBox.cy + collapsedViewState.bBox.offsetFromTop + height;
+
+                    if (collapsedViewState.collapsed) {
+                        height += collapsedViewState.getHeight();
+                    } else {
+                        collapsedViewState.bBox.cy -= statementViewState.bBox.offsetFromTop;
+                        collapsedViewState.bBox.h = 0;
+                    }
 
                     collapsedViewStates = [...collapsedViewStates.slice(0, i), ...collapsedViewStates.slice(i + 1)];
                 }
+
+
+
             });
 
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
@@ -853,6 +862,12 @@ export class PositioningVisitor implements Visitor {
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)
                     || (!statementViewState.collapsed)) {
                     height += statementViewState.getHeight();
+                    for (let collapsedIndex = 0; collapsedIndex < blockViewState.collapsedViewStates.length; collapsedIndex++) {
+                        if (isPositionWithinRange(statement.position, blockViewState.collapsedViewStates[collapsedIndex].range)) {
+                            blockViewState.collapsedViewStates[collapsedIndex].bBox.h += statementViewState.getHeight();
+                            break;
+                        }
+                    }
                 }
             }
             ++index;

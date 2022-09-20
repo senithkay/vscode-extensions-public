@@ -15,21 +15,38 @@ import React from "react";
 import { BlockViewState, CollapseViewState } from "../../../ViewState";
 
 import { CollapseSVG } from "./CollapseSVG";
+import { ExpandButtonSVG } from "./ExpandButtonSVG";
 
 interface CollapseProps {
     collapseVS: CollapseViewState;
+    onExpandClick?: () => void;
 }
 
 export const COLLAPSED_BLOCK_HEIGHT = 26;
 export const COLLAPSED_BLOCK_WIDTH = 46;
 
 export default function CollapseComponent(props: CollapseProps) {
-    const { collapseVS } = props;
+    const { collapseVS, onExpandClick } = props;
     const x = collapseVS.bBox.cx;
     const y = collapseVS.bBox.cy;
     return (
         <g >
-            <CollapseSVG x={x} y={y} />
+            {collapseVS.collapsed && <CollapseSVG x={x} y={y} onExpandClick={onExpandClick} />}
+            {!collapseVS.collapsed && (
+                <g>
+                    <rect
+                        width={collapseVS.bBox.w}
+                        height={collapseVS.bBox.h}
+                        x={x}
+                        y={y}
+                        stroke={'#5567D5'}
+                        fill={'none'}
+                        rx={6}
+                        strokeDasharray={2}
+                    />
+                    <ExpandButtonSVG x={collapseVS.bBox.w - (9 + 5)} y={y + 5} />
+                </g>
+            )}
         </g>
     )
 }

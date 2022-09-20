@@ -14,9 +14,16 @@ import React from 'react';
 
 import './style.scss';
 
-export function CollapseSVG(props: { x: number, y: number }) {
+interface CollapseSVGProps {
+    x: number;
+    y: number;
+    onExpandClick?: () => void;
+}
+
+export function CollapseSVG(props: CollapseSVGProps) {
+    const { onExpandClick, ...xyProps } = props;
     return (
-        <svg className='collapse-component' {...props} version="1.1" width="46px" height="26px" viewBox="0 0 46.0 26.0" >
+        <svg className='collapse-component' {...xyProps} version="1.1" width="46px" height="26px" viewBox="0 0 46.0 26.0" >
             <defs>
                 <clipPath id="i0">
                     <path d="M2130,0 L2130,1221 L0,1221 L0,0 L2130,0 Z" />
@@ -41,7 +48,7 @@ export function CollapseSVG(props: { x: number, y: number }) {
                             <polygon points="0,0 44,0 44,24 0,24 0,0" stroke="none" fill="#F7F7FB" />
                         </g>
                         <path d="M6,0 L38,0 C41.3137085,-6.08718376e-16 44,2.6862915 44,6 L44,18 C44,21.3137085 41.3137085,24 38,24 L6,24 C2.6862915,24 4.05812251e-16,21.3137085 0,18 L0,6 C-4.05812251e-16,2.6862915 2.6862915,6.08718376e-16 6,0 Z" stroke="#5567D5" stroke-width="1" fill="none" stroke-miterlimit="10" stroke-dasharray=" 2.0 3.0" />
-                        <g transform="translate(24.0 4.0)">
+                        <g transform="translate(24.0 4.0)" onClick={onExpandClick} >
                             <path d="M14,-1 C14.8284271,-1 15.5784271,-0.664213562 16.1213203,-0.121320344 C16.6642136,0.421572875 17,1.17157288 17,2 L17,14 C17,14.8284271 16.6642136,15.5784271 16.1213203,16.1213203 C15.5784271,16.6642136 14.8284271,17 14,17 L2,17 C1.17157288,17 0.421572875,16.6642136 -0.121320344,16.1213203 C-0.664213562,15.5784271 -1,14.8284271 -1,14 L-1,2 C-1,1.17157288 -0.664213562,0.421572875 -0.121320344,-0.121320344 C0.421572875,-0.664213562 1.17157288,-1 2,-1 Z" stroke="none" fill="rgba(161, 161, 161, 0.325807)" />
                             <path className='expand-button-container' d="M2,0 L14,0 C15.1045695,-2.02906125e-16 16,0.8954305 16,2 L16,14 C16,15.1045695 15.1045695,16 14,16 L2,16 C0.8954305,16 1.3527075e-16,15.1045695 0,14 L0,2 C-1.3527075e-16,0.8954305 0.8954305,2.02906125e-16 2,0 Z" />
                             <g clip-path="url(#i2)">

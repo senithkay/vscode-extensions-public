@@ -71,7 +71,7 @@ import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { ConflictResolutionVisitor } from "./conflict-resolution-visitor";
 import { DefaultConfig } from "./default";
-import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isNodeWithinRange, isSTActionInvocation } from "./util";
+import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isPositionWithinRange, isSTActionInvocation } from "./util";
 
 export interface AsyncSendInfo {
     to: string;
@@ -1409,7 +1409,7 @@ export class SizingVisitor implements Visitor {
     }
 
     private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0,
-                           index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
+        index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }
@@ -1479,6 +1479,15 @@ export class SizingVisitor implements Visitor {
         blockViewState.bBox.rw = rightWidth > 0 ? rightWidth : DefaultConfig.defaultBlockWidth / 2;
 
         blockViewState.bBox.w = blockViewState.bBox.lw + blockViewState.bBox.rw;
+
+        blockViewState.collapsedViewStates.forEach(collapsedVS => {
+            if (!collapsedVS.collapsed) {
+                collapsedVS.bBox.lw = blockViewState.bBox.lw;
+                collapsedVS.bBox.rw = blockViewState.bBox.rw;
+
+                collapsedVS.bBox.w = collapsedVS.bBox.lw + collapsedVS.bBox.rw;
+            }
+        })
     }
 
     private addToSendReceiveMap(type: 'Send' | 'Receive' | 'Wait', entry: AsyncReceiveInfo | AsyncSendInfo | WaitInfo) {
@@ -1604,8 +1613,10 @@ export class SizingVisitor implements Visitor {
 
             if (blockViewState.collapsedViewStates.length > 0) {
                 blockViewState.collapsedViewStates.forEach(collapseViewState => {
-                    if (!collapseViewState.bBox && isNodeWithinRange(statement.position, collapseViewState.range)) {
+                    if (!collapseViewState.bBox && isPositionWithinRange(statement.position, collapseViewState.range)) {
                         collapseViewState.bBox = new SimpleBBox();
+                        collapseViewState.bBox.offsetFromTop = 5;
+                        collapseViewState.bBox.offsetFromBottom = 5;
                         collapseViewState.bBox.lw = COLLAPSED_BLOCK_WIDTH / 2;
                         collapseViewState.bBox.rw = COLLAPSED_BLOCK_WIDTH / 2;
                         collapseViewState.bBox.h = COLLAPSED_BLOCK_HEIGHT;

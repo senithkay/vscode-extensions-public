@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
-import { getDraftComponent, getSTComponents } from "../../../Utils";
+import { expandCollapsedRange, getDraftComponent, getSTComponents, recalculateSizingAndPositioning, sizingAndPositioning } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 import CollapseComponent from "../Collapse";
@@ -29,7 +29,14 @@ export interface DiagramProps {
 }
 
 export function WorkerBody(props: DiagramProps) {
-    const { state, actions: { insertComponentStart } } = useContext(Context);
+    const {
+        state,
+        actions: { insertComponentStart, diagramRedraw },
+        props: {
+            syntaxTree,
+            experimentalEnabled
+        }
+    } = useContext(Context);
 
     const { expandReadonly, model, viewState } = props;
     const pluses: React.ReactNode[] = [];
@@ -109,7 +116,14 @@ export function WorkerBody(props: DiagramProps) {
     if (viewState.collapsedViewStates.length > 0) {
         // TODO: handle collapse ranges rendering
         viewState.collapsedViewStates.forEach((collapseVS) => {
-            children.push(<CollapseComponent collapseVS={collapseVS} />)
+            const onExpandClick = () => {
+                console.log('expand in range >>>', collapseVS.range);
+                diagramRedraw(
+                    recalculateSizingAndPositioning(
+                        expandCollapsedRange(syntaxTree, collapseVS.range), experimentalEnabled)
+                );
+            }
+            children.push(<CollapseComponent collapseVS={collapseVS} onExpandClick={onExpandClick} />)
         })
     }
 

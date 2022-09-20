@@ -17,7 +17,7 @@ import {
 
 import { BlockViewState, CollapseViewState, StatementViewState } from "../ViewState";
 
-import { isNodeWithinRange } from "./util";
+import { isPositionWithinRange } from "./util";
 
 export class CollapseInitVisitor implements Visitor {
     private position: NodePosition;
@@ -53,7 +53,7 @@ export class CollapseInitVisitor implements Visitor {
 
             node.statements.forEach((statement, statementIndex) => {
                 const statementVS = statement.viewState as StatementViewState;
-                if (!this.isSkippedConstruct(statement) && isNodeWithinRange(statement.position, this.position)) {
+                if (!this.isSkippedConstruct(statement) && isPositionWithinRange(statement.position, this.position)) {
                     if (!(statementVS.isAction || statementVS.isEndpoint)) {
                         statementVS.collapsed = true;
                         range.endLine = statement.position.endLine;
