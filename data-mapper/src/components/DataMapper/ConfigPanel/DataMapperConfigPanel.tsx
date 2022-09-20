@@ -97,7 +97,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
       <FormControl
         variant="outlined"
         data-testid="data-mapper-form"
-        className={formClasses.wizardFormControl}
+        className={formClasses.wizardFormControlExtended}
       >
         <FormHeaderSection
           onCancel={onClose}

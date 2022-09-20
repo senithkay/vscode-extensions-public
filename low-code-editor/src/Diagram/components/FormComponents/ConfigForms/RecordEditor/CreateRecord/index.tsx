@@ -34,13 +34,12 @@ enum ConfigState {
 
 export interface CreateRecordProps {
     targetPosition?: NodePosition;
-    isDataMapper?: boolean;
     onCancel: () => void;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
 }
 
 export function CreateRecord(props: CreateRecordProps) {
-    const { targetPosition, isDataMapper, onSave, onCancel } = props;
+    const { targetPosition, onSave, onCancel } = props;
 
     const {
         props: {
@@ -106,7 +105,7 @@ export function CreateRecord(props: CreateRecordProps) {
     )
 
     return (
-        <FormControl data-testid="record-form" className={isDataMapper ? overlayClasses.wizardFormControl : overlayClasses.wizardFormControlExtended}>
+        <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>
             <>
                 {(editorState === ConfigState.STATE_SELECTOR) && (
                     <RecordConfigTypeSelector
@@ -120,7 +119,6 @@ export function CreateRecord(props: CreateRecordProps) {
                         targetPosition={targetPosition}
                         onCancel={handleBackClick}
                         onSave={handleImportJsonSave}
-                        isDataMapper={isDataMapper}
                     />
                 )}
                 {(editorState === ConfigState.CREATE_FROM_SCRATCH) && (
