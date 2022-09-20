@@ -90,6 +90,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             "&:hover": {
                 overflow: "visible"
             }
+        },
+        expandIcon: {
+            color:  theme.palette.common.black,
+            height: "25px",
+            width: "25px",
+            marginLeft: "auto"
         }
     }),
 );

@@ -21,6 +21,7 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getTypeName } from "../../../utils/dm-utils";
+import IconButton from "@material-ui/core/IconButton";
 
 // tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -66,7 +67,7 @@ const useStyles = makeStyles((theme: Theme) =>
             borderBottomRightRadius: theme.spacing(2),
             paddingRight: theme.spacing(1),
         },
-        label:{
+        label: {
             width: "300px",
             whiteSpace: "nowrap",
             overflow: "hidden",
@@ -75,6 +76,12 @@ const useStyles = makeStyles((theme: Theme) =>
             "&:hover": {
                 overflow: "visible"
             }
+        },
+        expandIcon: {
+            color: theme.palette.common.black,
+            height: "25px",
+            width: "25px",
+            marginLeft: "auto"
         }
     }),
 );
@@ -113,8 +120,8 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
-        <span style={{marginRight: "auto"}}>
-            <span className={classes.valueLabel} style={{marginLeft: indentation}}>
+        <span style={{ marginRight: "auto" }}>
+            <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
                 {fieldName}
                 {typeName && ":"}
             </span>
@@ -136,23 +143,22 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
             <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
+                        <DataMapperPortWidget engine={engine} port={portIn} />
                     }
                 </span>
                 <span className={classes.label}>
-                    {fields &&
-                        (expanded ? (
-                                <ExpandMoreIcon style={{color: "black", verticalAlign: "middle", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
-                            ) :
-                            (
-                                <ChevronRightIcon style={{color: "black", verticalAlign: "middle", marginLeft: treeDepth * 16}} onClick={handleExpand}/>
-                            ))
-                    }
+                    <IconButton
+                        className={classes.expandIcon}
+                        style={{ marginLeft: treeDepth * 16 }}
+                        onClick={handleExpand}
+                    >
+                        {fields && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
+                    </IconButton>
                     {label}
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut}/>
+                        <DataMapperPortWidget engine={engine} port={portOut} />
                     }
                 </span>
             </div>

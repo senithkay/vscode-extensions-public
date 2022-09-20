@@ -14,7 +14,6 @@
 import React, { useMemo } from "react";
 
 import { IconButton } from "@material-ui/core";
-import { default as AddIcon } from  "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
@@ -65,7 +64,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const fields = isRecord && field.childrenTypes;
     const value: string = getDefaultLiteralValue(field.type.typeName, specificField.valueExpr);
     let indentation = treeDepth * 16;
-    
+
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
             return isConnectedViaLink(specificField);
@@ -74,17 +73,17 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     }, [field]);
 
     let expanded = true;
-    if (portIn && portIn.collapsed){
+    if (portIn && portIn.collapsed) {
         expanded = false;
     }
 
-    if (!portIn || (hasValue && !connectedViaLink && expanded)){
+    if (!portIn || (hasValue && !connectedViaLink && expanded)) {
         indentation += 24;
     }
 
     const label = (
-        <span style={{marginRight: "auto"}}>
-            <span className={classes.valueLabel} style={{marginLeft: !!fields ? 0 : indentation + 24}}>
+        <span style={{ marginRight: "auto" }}>
+            <span className={classes.valueLabel} style={{ marginLeft: !!fields ? 0 : indentation + 24 }}>
                 {fieldName}
                 {typeName && ":"}
             </span>
@@ -120,23 +119,23 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
 
             const columnNumber = field.type.name?.length;
-            const specificFieldPosition: NodePosition   = {
+            const specificFieldPosition: NodePosition = {
                 startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
-                startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
-                endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine,
-                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
+                startColumn: (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
+                endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine,
+                endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
             }
 
-            const valuePosition: NodePosition   = {
+            const valuePosition: NodePosition = {
                 startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
                 startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
-                endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
-                endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
+                endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
+                endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
             }
             props.context.enableStatementEditor({
                 specificFieldPosition,
                 fieldName: fName,
-                value: "EXPRESSION" ,
+                value: "EXPRESSION",
                 valuePosition,
                 label: field.type.name
             });
@@ -153,18 +152,17 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 <div className={classes.treeLabel}>
                     <span className={classes.treeLabelInPort}>
                         {portIn && (!hasValue || connectedViaLink || !expanded) &&
-                            <DataMapperPortWidget engine={engine} port={portIn}/>
+                            <DataMapperPortWidget engine={engine} port={portIn} />
                         }
                     </span>
-                    <span className={classes.label}>                
-                        {fields &&
-                            (expanded ? (
-                                    <ExpandMoreIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
-                                ) :
-                                (
-                                    <ChevronRightIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
-                                ))
-                        }
+                    <span className={classes.label}>
+                        <IconButton
+                            className={classes.expandIcon}
+                            style={{ marginLeft: indentation }}
+                            onClick={handleExpand}
+                        >
+                            {fields && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
+                        </IconButton>
                         {label}
                     </span>
                     {!hasValue && !isRecord && (

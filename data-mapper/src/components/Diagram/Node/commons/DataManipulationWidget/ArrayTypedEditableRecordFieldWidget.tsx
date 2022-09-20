@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Button } from "@material-ui/core";
-import { default as AddIcon } from  "@material-ui/icons/Add";
+import { Button, IconButton } from "@material-ui/core";
+import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
@@ -65,13 +65,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const listConstructor = hasValue ? (STKindChecker.isListConstructor(valExpr) ? valExpr : null) : null;
 
     let indentation = treeDepth * 16;
-    if (!portIn || (listConstructor && expanded)){
+    if (!portIn || (listConstructor && expanded)) {
         indentation += 24;
     }
 
     const label = (
-        <span style={{marginRight: "auto"}}>
-            <span className={classes.valueLabel} style={{marginLeft: !!elements ? 0 : indentation + 24}}>
+        <span style={{ marginRight: "auto" }}>
+            <span className={classes.valueLabel} style={{ marginLeft: !!elements ? 0 : indentation + 24 }}>
                 {fieldName}
                 {fieldName && typeName && ":"}
             </span>
@@ -169,18 +169,17 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             <div className={classes.treeLabel}>
                 <span className={classes.treeLabelInPort}>
                     {portIn && (!listConstructor || !expanded) &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
+                        <DataMapperPortWidget engine={engine} port={portIn} />
                     }
                 </span>
                 <span className={classes.label}>
-                    {elements &&
-                        (expanded ? (
-                                <ExpandMoreIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
-                            ) :
-                            (
-                                <ChevronRightIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
-                            ))
-                    }
+                    <IconButton
+                        className={classes.expandIcon}
+                        style={{ marginLeft: indentation }}
+                        onClick={handleExpand}
+                    >
+                        {elements && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
+                    </IconButton>
                     {label}
                 </span>
                 {!hasValue && (
@@ -204,7 +203,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                     aria-label="add"
                                     className={classes.addIcon}
                                     onClick={handleAddArrayElement}
-                                    startIcon={<AddIcon/>}
+                                    startIcon={<AddIcon />}
                                 >
                                     Add Element
                                 </Button>
