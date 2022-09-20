@@ -24,9 +24,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#FFFFFF",
             display: "flex",
             minHeight: "24px",
-            width: "100%",
-            border: "1px solid #E0E2E9",
-            borderRadius: "2px"
+            width: "100%"
         },
         innerTreeLabel: {
             display: "flex",

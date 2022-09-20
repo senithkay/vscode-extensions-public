@@ -26,6 +26,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { createSourceForUserInput, getBalRecFieldName, getDefaultValue, getTypeName } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
+import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
@@ -89,8 +90,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             if (element.elementNode && STKindChecker.isMappingConstructor(element.elementNode)) {
                 return (
                     <>
-                        <div className={classes.treeLabel} style={{flexDirection: "column"}}>
-                            <span>{'{'}</span>
+                        <TreeBody>
                             {
                                 element.members.map((typeWithVal) => {
                                     return (
@@ -108,8 +108,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                     );
                                 })
                             }
-                            <span>{'}'}</span>
-                        </div>
+                        </TreeBody>
+                        <br/>
                     </>
                 );
             } else if (element.elementNode && STKindChecker.isListConstructor(element.elementNode)) {
@@ -130,14 +130,16 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 })
             } else {
                 return (
-                    <PrimitiveTypedEditableArrayElementWidget
-                        parentId={fieldId}
-                        field={element.members[0]} // Element only contains a single member
-                        engine={engine}
-                        getPort={getPort}
-                        context={context}
-                        fieldIndex={index}
-                    />
+                    <TreeBody>
+                        <PrimitiveTypedEditableArrayElementWidget
+                            parentId={fieldId}
+                            field={element.members[0]} // Element only contains a single member
+                            engine={engine}
+                            getPort={getPort}
+                            context={context}
+                            fieldIndex={index}
+                        />
+                    </TreeBody>
                 );
             }
         })
