@@ -39,7 +39,7 @@ import {
     getPreviousNode,
     getSelectedModelPosition,
     getUpdatedSource,
-    isBindingPattern, isDocumentationSupportedModel,
+    isBindingPattern, isDocumentationSupportedModel, isModuleMember,
     isOperator,
 } from "../../utils";
 import {
@@ -250,6 +250,17 @@ export function StatementEditor(props: StatementEditorProps) {
         })();
     }, [currentFile.content]);
 
+    useEffect(() => {
+        (async () => {
+            if (editorModel) {
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
+                sendDidChange(fileURI, updatedContent, getLangClient).then();
+                const diagnostics = await handleDiagnostics(source);
+                setStmtModel(editorModel, diagnostics);
+            }
+        })();
+    }, [editorModel, currentFile.content]);
+
     const restArg = (restCheckClicked: boolean) => {
         setRestArg(restCheckClicked);
     }
@@ -282,7 +293,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 endColumn: position.endColumn,
                 newCodeSnippet: codeSnippet
             }
-            partialST = (STKindChecker.isModuleVarDecl(existingModel) || STKindChecker.isConstDeclaration(existingModel))
+            partialST = isModuleMember(existingModel)
                 ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, getLangClient)
                 : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: existingModel.source , stModification }, getLangClient)
                 : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient));

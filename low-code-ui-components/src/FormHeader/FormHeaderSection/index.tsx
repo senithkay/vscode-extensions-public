@@ -13,6 +13,7 @@
 // tslint:disable:jsx-no-multiline-js
 import React from "react";
 
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { BackButton } from "./BackButton";
@@ -23,13 +24,15 @@ import { useStyles } from "./style";
 interface FormHeaderSectionProps {
     formTitle: string;
     defaultMessage: string;
+    formTitleSecond?: string;
+    defaultMessageSecond?: string;
     formType?: string;
     onCancel?: () => void;
     onBack?: () => void;
 }
 
 export function FormHeaderSection(props: FormHeaderSectionProps) {
-    const { onCancel, onBack, formTitle, defaultMessage, formType } = props;
+    const { onCancel, onBack, formTitle, formTitleSecond, defaultMessage, defaultMessageSecond, formType } = props;
     const formClasses = useStyles();
     // TODO need to move the assests folder to commens module
     const icon = (formType && formType.length > 0) ? getConstructIcon(formType) : null;
@@ -39,6 +42,7 @@ export function FormHeaderSection(props: FormHeaderSectionProps) {
             {formType ? <div className={formClasses.titleIcon}>{icon}</div> : null}
             {onBack && <BackButton onBack={onBack} />}
             <FormTitle formTitle={formTitle} defaultMessage={defaultMessage} />
+            {formTitleSecond && <div className={formClasses.secondTitle}><NavigateNextIcon fontSize="small" /> <FormTitle formTitle={formTitleSecond} defaultMessage={defaultMessageSecond} /> </div>}
             {onCancel && <CloseButton onCancel={onCancel} />}
         </div>
     );
