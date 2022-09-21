@@ -192,34 +192,36 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 className={classes.treeLabel}
                 style={{ flexDirection: hasValue && !connectedViaLink && expanded ? "column" : "initial" }}
             >
-                <span className={classes.treeLabelInPort}>
-                    {portIn && (!listConstructor || !expanded) &&
-                        <DataMapperPortWidget engine={engine} port={portIn} />
-                    }
-                </span>
-                <span className={classes.label}>
-                    {elements && <IconButton
-                        className={classes.expandIcon}
-                        style={{ marginLeft: indentation }}
-                        onClick={handleExpand}
-                    >
-                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                    </IconButton>}
-                    {label}
-                </span>
-                {!hasValue && (
-                    <ValueConfigMenu
-                        menuItems={[
-                            {
-                                title: ValueConfigOption.InitializeArray,
-                                onClick: handleArrayInitialization
-                            },
-                            {
-                                title: ValueConfigOption.DeleteArray,
-                                onClick: undefined
-                            }]}
-                    />
-                )}
+                <div>
+                    <span className={classes.treeLabelInPort}>
+                        {portIn && (!listConstructor || !expanded) &&
+                            <DataMapperPortWidget engine={engine} port={portIn} />
+                        }
+                    </span>
+                    <span className={classes.label}>
+                        {elements && <IconButton
+                            className={classes.expandIcon}
+                            style={{ marginLeft: indentation }}
+                            onClick={handleExpand}
+                        >
+                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                        </IconButton>}
+                        {label}
+                    </span>
+                    {!hasValue && (
+                        <ValueConfigMenu
+                            menuItems={[
+                                {
+                                    title: ValueConfigOption.InitializeArray,
+                                    onClick: handleArrayInitialization
+                                },
+                                {
+                                    title: ValueConfigOption.DeleteArray,
+                                    onClick: undefined
+                                }]}
+                        />
+                    )}
+                </div>
                 {expanded && hasValue && listConstructor && (
                     <div className={classNames(classes.treeLabel, classes.innerTreeLabel)}>
                         <span>[</span>

@@ -2,6 +2,7 @@ import { BezierCurve } from "@projectstorm/geometry";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
+import { IntermediatePortModel } from "../../Port";
 
 export const LINK_TYPE_ID = "datamapper-link";
 
@@ -27,19 +28,24 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 			const curve = new BezierCurve();
 			curve.setSource(this.getFirstPoint().getPosition());
 			curve.setTarget(this.getLastPoint().getPosition());
-			const srcControl = this.getFirstPoint().getPosition().clone();
-			srcControl.translate(220, 0);
-			const targetControl = this.getLastPoint().getPosition().clone();
-			targetControl.translate(-220, 0);
-			curve.setSourceControl(srcControl);
-			curve.setTargetControl(targetControl);
+			if (this.sourcePort instanceof IntermediatePortModel){
+				curve.setSourceControl(this.getFirstPoint().getPosition());
+				curve.setTargetControl(this.getLastPoint().getPosition());
+			} else {
+				const srcControl = this.getFirstPoint().getPosition().clone();
+				srcControl.translate(220, 0);
+				const targetControl = this.getLastPoint().getPosition().clone();
+				targetControl.translate(-220, 0);
+				curve.setSourceControl(srcControl);
+				curve.setTargetControl(targetControl);
 
-			if (this.sourcePort) {
-				curve.getSourceControl().translate(...this.calculateControlOffset(this.getSourcePort()));
-			}
+				if (this.sourcePort) {
+					curve.getSourceControl().translate(...this.calculateControlOffset(this.getSourcePort()));
+				}
 
-			if (this.targetPort) {
-				curve.getTargetControl().translate(...this.calculateControlOffset(this.getTargetPort()));
+				if (this.targetPort) {
+					curve.getTargetControl().translate(...this.calculateControlOffset(this.getTargetPort()));
+				}				
 			}
 			return curve.getSVGCurve();
 		}
