@@ -110,7 +110,7 @@ export function getModifications(model: STNode, configType: string, targetPositi
 
 export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition,
                                            isHovered?: boolean): ReactNode {
-    let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
+    let ExprTypeComponent = (expressionTypeComponents as any)[expression?.kind]; // TODO: Find the issue why the expression value getting null.
 
     if (!ExprTypeComponent) {
         ExprTypeComponent = (expressionTypeComponents as any)[OTHER_EXPRESSION];
