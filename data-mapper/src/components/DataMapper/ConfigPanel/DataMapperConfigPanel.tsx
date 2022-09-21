@@ -156,7 +156,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
               validForm={isValidConfig}
               onSave={onSaveForm}
               onCancel={onClose}
-            />{" "}
+            />
           </>
         )}
       </FormControl>
