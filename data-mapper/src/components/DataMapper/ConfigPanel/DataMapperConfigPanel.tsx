@@ -23,6 +23,7 @@ import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
 import { TypeBrowser } from "./TypeBrowser";
 import { getFnNameFromST, getInputsFromST, getOutputTypeFromST } from "./utils";
+import { RecordButtonGroup } from "./RecordButtonGroup";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
   const {
@@ -40,6 +41,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
   const [outputType, setOutputType] = useState("");
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [isAddExistType, setAddExistType] = useState(false);
+
+  const [showOutputType, setShowOutputType] = useState(false);
 
   const isValidConfig = fnName && inputParams.length > 0 && outputType !== "";
 
@@ -92,6 +95,15 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     setIsNewRecord(false);
   };
 
+  const handleShowOutputType = () => {
+    setShowOutputType(true);
+  }
+
+  const handleShowRecordEditor = () => {
+    enableAddNewRecord();
+    handleShowOutputType();
+  }
+
   const breadCrumb = (
     <FormHeaderSection
       onCancel={closeAddNewRecord}
@@ -132,7 +144,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
               <FormDivider />
               <OutputTypeConfigPanel>
                 <Title>Output Type</Title>
-                <TypeBrowser type={outputType} onChange={setOutputType} />
+                {showOutputType && <TypeBrowser type={outputType} onChange={setOutputType} /> }
+                <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
               </OutputTypeConfigPanel>
             </FormBody>
             <FormActionButtons
