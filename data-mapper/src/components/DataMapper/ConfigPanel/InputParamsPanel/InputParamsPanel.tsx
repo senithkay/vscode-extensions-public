@@ -1,8 +1,7 @@
 import styled from "@emotion/styled";
-import Button from "@material-ui/core/Button";
-import AddIcon from '@material-ui/icons/Add'
 import React, { useEffect, useState } from "react";
 import { Title } from "../DataMapperConfigPanel";
+import { RecordButtonGroup } from "../RecordButtonGroup";
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";
@@ -72,22 +71,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps)  {
                 ))}
                 {isAddExistType && <InputParamEditor onSave={onAddNew} onCancel={disableAddNew} />}
                 {!isAddExistType && editingIndex === -1 && 
-                                <>
-                                    <Button
-                                        onClick={handleEnableAddNewRecord}
-                                        startIcon={<AddIcon />}
-                                        color="primary"
-                                    >
-                                        New Record
-                                    </Button>
-                                    OR
-                                    <Button
-                                        onClick={enableAddNew}
-                                        color="primary"
-                                    >
-                                        Existing Record
-                                    </Button>
-                                </>
+                    <RecordButtonGroup openRecordEditor={handleEnableAddNewRecord} showTypeList={enableAddNew} />
                 }
         </InputParamsContainer>
     );
