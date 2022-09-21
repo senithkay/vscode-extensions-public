@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo } from "react";
 
+import { IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
@@ -65,17 +66,17 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const value: string = !connectedViaLink  && !isArray && !isRecord && hasValue && specificField.valueExpr.source;
     let expanded = true;
-    if (portIn && portIn.collapsed){
+    if (portIn && portIn.collapsed) {
         expanded = false;
     }
 
-    if (!portIn || (hasValue && !connectedViaLink && expanded)){
+    if (!portIn || (hasValue && !connectedViaLink && expanded)) {
         indentation += 24;
     }
 
     const label = (
-        <span style={{marginRight: "auto"}}>
-            <span className={classes.valueLabel} style={{marginLeft: !!fields ? 0 : indentation + 24}}>
+        <span style={{ marginRight: "auto" }}>
+            <span className={classes.valueLabel} style={{ marginLeft: !!fields ? 0 : indentation + 24 }}>
                 {fieldName}
                 {typeName && ":"}
             </span>
@@ -141,18 +142,17 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 <div className={classes.treeLabel}>
                     <span className={classes.treeLabelInPort}>
                         {portIn && (!hasValue || connectedViaLink || !expanded) &&
-                            <DataMapperPortWidget engine={engine} port={portIn}/>
+                            <DataMapperPortWidget engine={engine} port={portIn} />
                         }
                     </span>
                     <span className={classes.label}>
-                        {fields &&
-                            (expanded ? (
-                                    <ExpandMoreIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
-                                ) :
-                                (
-                                    <ChevronRightIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
-                                ))
-                        }
+                        <IconButton
+                            className={classes.expandIcon}
+                            style={{ marginLeft: indentation }}
+                            onClick={handleExpand}
+                        >
+                            {fields && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
+                        </IconButton>
                         {label}
                     </span>
                     {!isRecord && (

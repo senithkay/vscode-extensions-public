@@ -25,6 +25,7 @@ import { getTypeName } from "../../../utils/dm-utils";
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
 import { TreeContainer, TreeHeader, TreeBody } from '../Tree/Tree';
+import { IconButton } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -49,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
             // marginRight: "5px",
             width: 'fit-content',
         },
-        label:{
+        label: {
             width: "300px",
             whiteSpace: "nowrap",
             overflow: "hidden",
@@ -58,6 +59,12 @@ const useStyles = makeStyles((theme: Theme) =>
             "&:hover": {
                 overflow: "visible"
             }
+        },
+        expandIcon: {
+            color: theme.palette.common.black,
+            height: "25px",
+            width: "25px",
+            marginLeft: "auto"
         }
     }),
 );
@@ -67,7 +74,7 @@ export interface RecordTypeTreeWidgetProps {
     typeDesc: Type;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
-    handleCollapse: (portName:string, isExpanded?:boolean) => void;
+    handleCollapse: (portName: string, isExpanded?: boolean) => void;
     valueLabel?: string;
 }
 
@@ -80,13 +87,13 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     const portIn = getPort(`${id}.IN`);
     const portOut = getPort(`${id}.OUT`);
 
-    let expanded =true;
-    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
+    let expanded = true;
+    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
         expanded = false;
     }
 
     const label = (
-        <span style={{marginRight: "auto"}}>
+        <span style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel}>
                 {valueLabel ? valueLabel : id}
                 {typeName && ":"}
@@ -110,22 +117,21 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
             <TreeHeader>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
+                        <DataMapperPortWidget engine={engine} port={portIn} />
                     }
                 </span>
                 <span className={classes.label}>
-                    {expanded ? (
-                                <ExpandMoreIcon style={{color: "black", verticalAlign: "middle"}} onClick={handleExpand}/>
-                            ) :
-                            (
-                                <ChevronRightIcon style={{color: "black", verticalAlign: "middle"}} onClick={handleExpand}/>
-                            )
-                    }
+                    <IconButton
+                        className={classes.expandIcon}
+                        onClick={handleExpand}
+                    >
+                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                    </IconButton>
                     {label}
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut}/>
+                        <DataMapperPortWidget engine={engine} port={portOut} />
                     }
                 </span>
             </TreeHeader>

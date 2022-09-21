@@ -13,18 +13,20 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Button } from "@material-ui/core";
-import { default as AddIcon } from  "@material-ui/icons/Add";
+import { Button, IconButton } from "@material-ui/core";
+import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { createSourceForUserInput, getBalRecFieldName, getDefaultValue, getTypeName } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
+import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
@@ -65,13 +67,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const listConstructor = hasValue ? (STKindChecker.isListConstructor(valExpr) ? valExpr : null) : null;
 
     let indentation = treeDepth * 16;
-    if (!portIn || (listConstructor && expanded)){
+    if (!portIn || (listConstructor && expanded)) {
         indentation += 24;
     }
 
     const label = (
-        <span style={{marginRight: "auto"}}>
-            <span className={classes.valueLabel} style={{marginLeft: !!elements ? 0 : indentation + 24}}>
+        <span style={{ marginRight: "auto" }}>
+            <span className={classes.valueLabel} style={{ marginLeft: !!elements ? 0 : indentation + 24 }}>
                 {fieldName}
                 {fieldName && typeName && ":"}
             </span>
@@ -88,29 +90,26 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             if (element.elementNode && STKindChecker.isMappingConstructor(element.elementNode)) {
                 return (
                     <>
-                        <div className={classes.treeLabel}>
-                            <span>{'{'}</span>
-                        </div>
-                        {
-                            element.members.map((typeWithVal) => {
-                                return (
-                                    <EditableRecordFieldWidget
-                                        key={fieldId}
-                                        engine={engine}
-                                        field={typeWithVal}
-                                        getPort={getPort}
-                                        parentId={fieldId}
-                                        mappingConstruct={element.elementNode as MappingConstructor}
-                                        context={context}
-                                        fieldIndex={index}
-                                        treeDepth={treeDepth + 1}
-                                    />
-                                );
-                            })
-                        }
-                        <div className={classes.treeLabel}>
-                            <span>{'}'}</span>
-                        </div>
+                        <TreeBody>
+                            {
+                                element.members.map((typeWithVal) => {
+                                    return (
+                                        <EditableRecordFieldWidget
+                                            key={fieldId}
+                                            engine={engine}
+                                            field={typeWithVal}
+                                            getPort={getPort}
+                                            parentId={fieldId}
+                                            mappingConstruct={element.elementNode as MappingConstructor}
+                                            context={context}
+                                            fieldIndex={index}
+                                            treeDepth={treeDepth + 1}
+                                        />
+                                    );
+                                })
+                            }
+                        </TreeBody>
+                        <br/>
                     </>
                 );
             } else if (element.elementNode && STKindChecker.isListConstructor(element.elementNode)) {
@@ -131,14 +130,16 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 })
             } else {
                 return (
-                    <PrimitiveTypedEditableArrayElementWidget
-                        parentId={fieldId}
-                        field={element.members[0]} // Element only contains a single member
-                        engine={engine}
-                        getPort={getPort}
-                        context={context}
-                        fieldIndex={index}
-                    />
+                    <TreeBody>
+                        <PrimitiveTypedEditableArrayElementWidget
+                            parentId={fieldId}
+                            field={element.members[0]} // Element only contains a single member
+                            engine={engine}
+                            getPort={getPort}
+                            context={context}
+                            fieldIndex={index}
+                        />
+                    </TreeBody>
                 );
             }
         })
@@ -174,21 +175,20 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     return (
         <>
-            <div className={classes.treeLabel}>
+            <div className={classes.treeLabel} style={{flexDirection: hasValue ? "column" : "initial"}}>
                 <span className={classes.treeLabelInPort}>
                     {portIn && (!listConstructor || !expanded) &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
+                        <DataMapperPortWidget engine={engine} port={portIn} />
                     }
                 </span>
                 <span className={classes.label}>
-                    {elements &&
-                        (expanded ? (
-                                <ExpandMoreIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
-                            ) :
-                            (
-                                <ChevronRightIcon style={{color: "black", verticalAlign: "middle",  marginLeft: indentation}} onClick={handleExpand}/>
-                            ))
-                    }
+                    <IconButton
+                        className={classes.expandIcon}
+                        style={{ marginLeft: indentation }}
+                        onClick={handleExpand}
+                    >
+                        {elements && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
+                    </IconButton>
                     {label}
                 </span>
                 {!hasValue && (
@@ -204,34 +204,22 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             }]}
                     />
                 )}
+                {expanded && hasValue && listConstructor && (
+                    <div className={classNames(classes.treeLabel, classes.innerTreeLabel)}>
+                        <span>[</span>
+                        {arrayElements}
+                        <Button
+                            aria-label="add"
+                            className={classes.addIcon}
+                            onClick={handleAddArrayElement}
+                            startIcon={<AddIcon/>}
+                        >
+                            Add Element
+                        </Button>
+                        <span>]</span>
+                    </div>
+                )}
             </div>
-            {expanded && (
-                <>
-                    {hasValue && listConstructor && (
-                        <div className={classes.treeLabel}>
-                            <span>[</span>
-                        </div>
-                    )}
-                    {arrayElements}
-                    {hasValue && listConstructor && (
-                        <>
-                            <div className={classes.treeLabel}>
-                                <Button
-                                    aria-label="add"
-                                    className={classes.addIcon}
-                                    onClick={handleAddArrayElement}
-                                    startIcon={<AddIcon/>}
-                                >
-                                    Add Element
-                                </Button>
-                            </div>
-                            <div className={classes.treeLabel}>
-                                <span>]</span>
-                            </div>
-                        </>
-                    )}
-                </>
-            )}
         </>
     );
 }

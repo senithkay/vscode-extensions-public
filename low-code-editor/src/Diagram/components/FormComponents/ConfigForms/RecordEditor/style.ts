@@ -394,5 +394,14 @@ export const recordStyles = makeStyles((theme: Theme) =>
             flexDirection: `column`,
             borderLeft: `1px solid #cdcdcd`
         },
+        createButton: {
+            textTransform: 'initial'
+        },
+        createButtonWrapper: {
+            display: "flex",
+            marginLeft: 15,
+            flexDirection: "column",
+            alignItems: "flex-start"
+        }
     }),
 );

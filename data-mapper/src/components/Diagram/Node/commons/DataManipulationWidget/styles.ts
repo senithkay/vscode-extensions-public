@@ -26,6 +26,17 @@ export const useStyles = makeStyles((theme: Theme) =>
             minHeight: "24px",
             width: "100%"
         },
+        innerTreeLabel: {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            padding: "10px 12px",
+            background: "#F7F8FB",
+            borderRadius: "4px",
+            flex: "none",
+            order: 1,
+            flexGrow: 0
+        },
         treeLabelOutPort: {
             float: "right",
             width: 'fit-content',
@@ -74,7 +85,12 @@ export const useStyles = makeStyles((theme: Theme) =>
         addIcon: {
             color: "#5567D5",
             padding: "5px",
-            textTransform: "none"
+            textTransform: "none",
+            justifyContent: "left",
+            fontStyle: "normal",
+            fontWeight: 400,
+            fontSize: "13px",
+            lineHeight: "24px"
         },
         editButton: {
             float: "right",
@@ -90,6 +106,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             "&:hover": {
                 overflow: "visible"
             }
+        },
+        expandIcon: {
+            color:  theme.palette.common.black,
+            height: "25px",
+            width: "25px",
+            marginLeft: "auto"
         }
     }),
 );

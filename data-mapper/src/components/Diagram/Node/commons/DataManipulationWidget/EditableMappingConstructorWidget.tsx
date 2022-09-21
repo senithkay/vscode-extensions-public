@@ -25,6 +25,7 @@ import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
+import IconButton from '@material-ui/core/IconButton';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -43,43 +44,49 @@ const useStyles = makeStyles((theme: Theme) =>
 			height: "40px",
 			padding: "8px"
 		},
-        typeLabel: {
-            marginLeft: "3px",
-            verticalAlign: "middle",
-            padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerRegular",
-            fontSize: "13px",
-            minWidth: "100px",
-            marginRight: "24px"
-        },
-        valueLabel: {
-            verticalAlign: "middle",
-            padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerMedium",
-            fontSize: "13px",
-        },
-        treeLabelOutPort: {
-            float: "right",
-            width: 'fit-content',
-            marginLeft: "auto",
-        },
-        treeLabelInPort: {
-            float: "left",
-            marginRight: "5px",
-            width: 'fit-content',
-        },
-		label:{
-            width: "300px",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            display: "inline-block",
+		typeLabel: {
+			marginLeft: "3px",
+			verticalAlign: "middle",
+			padding: "5px",
+			color: "#222228",
+			fontFamily: "GilmerRegular",
+			fontSize: "13px",
+			minWidth: "100px",
+			marginRight: "24px"
+		},
+		valueLabel: {
+			verticalAlign: "middle",
+			padding: "5px",
+			color: "#222228",
+			fontFamily: "GilmerMedium",
+			fontSize: "13px",
+		},
+		treeLabelOutPort: {
+			float: "right",
+			width: 'fit-content',
+			marginLeft: "auto",
+		},
+		treeLabelInPort: {
+			float: "left",
+			marginRight: "5px",
+			width: 'fit-content',
+		},
+		label: {
+			width: "300px",
+			whiteSpace: "nowrap",
+			overflow: "hidden",
+			display: "inline-block",
 			textOverflow: "ellipsis",
-            "&:hover": {
-                overflow: "visible"
-            }
-        }
+			"&:hover": {
+				overflow: "visible"
+			}
+		},
+		expandIcon: {
+			color: theme.palette.common.black,
+			height: "25px",
+			width: "25px",
+			marginLeft: "auto"
+		}
 	}),
 );
 
@@ -103,60 +110,60 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 
 
 
-    const portIn = getPort(`${id}.IN`);
-    const portOut = getPort(`${id}.OUT`);
+	const portIn = getPort(`${id}.IN`);
+	const portOut = getPort(`${id}.OUT`);
 
-    let expanded =true;
-    if ((portIn && portIn.collapsed )||(portOut && portOut.collapsed)){
-        expanded = false;
-    }
+	let expanded = true;
+	if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
+		expanded = false;
+	}
 
-	const indentation = (portIn &&(!hasValue || !expanded))  ?  0 : 24;
-    const label = (
-        <span style={{marginRight: "auto"} }>
+	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
+	const label = (
+		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
 					{valueLabel}
 					{typeName && ":"}
 				</span>
 			)}
-            {typeName && (
-                <span className={classes.typeLabel}>
-                    {typeName}
-                </span>
-            )}
+			{typeName && (
+				<span className={classes.typeLabel}>
+					{typeName}
+				</span>
+			)}
 
-        </span>
-    );
+		</span>
+	);
 
-    const handleExpand = () => {
-        context.handleCollapse(id, !expanded);        
-    }
+	const handleExpand = () => {
+		context.handleCollapse(id, !expanded);
+	}
 	// TODO: Handle root level arrays
 	return (
 		<TreeContainer>
 			<TreeHeader>
-                <span className={classes.treeLabelInPort}>
-                    {portIn && (!hasValue || !expanded)  &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
-                    }
-                </span>
-				<span className={classes.label}>
-					{expanded ? (
-								<ExpandMoreIcon style={{color: "black", verticalAlign: "middle",marginLeft: indentation}} onClick={handleExpand}/>
-							) :
-							(
-								<ChevronRightIcon style={{color: "black", verticalAlign: "middle", marginLeft: indentation}} onClick={handleExpand}/>
-							)
+				<span className={classes.treeLabelInPort}>
+					{portIn && (!hasValue || !expanded) &&
+						<DataMapperPortWidget engine={engine} port={portIn} />
 					}
+				</span>
+				<span className={classes.label}>
+					<IconButton
+						className={classes.expandIcon}
+						style={{ marginLeft: indentation }}
+						onClick={handleExpand}
+					>
+						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+					</IconButton>
 					{label}
 				</span>
-                <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut}/>
-                    }
-                </span>
-            </TreeHeader>
+				<span className={classes.treeLabelOutPort}>
+					{portOut &&
+						<DataMapperPortWidget engine={engine} port={portOut} />
+					}
+				</span>
+			</TreeHeader>
 			<TreeBody>
 				{expanded &&
 					editableRecordFields.map((item) => {

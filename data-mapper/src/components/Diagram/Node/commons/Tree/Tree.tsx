@@ -34,6 +34,6 @@ export const TreeBody = styled.div`
     background: #E0E2E9;
     border-radius: 3px;
     flex: none;
-    order: 1;
     flex-grow: 0;
+    width: 100%;
 `;

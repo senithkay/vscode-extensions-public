@@ -24,6 +24,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { LightBulbSVG } from "./LightBulb";
 import { useStyles } from "./style";
+import IconButton from "@material-ui/core/IconButton";
 
 export interface CodeActionWidgetProps {
     codeActions: CodeAction[];
@@ -39,7 +40,7 @@ export function CodeActionWidget(props: CodeActionWidgetProps) {
     const { codeActions, context, labelWidgetVisible, additionalActions } =
         props;
     const classes = useStyles();
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLDivElement>(null);
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
     const open = Boolean(anchorEl);
     const menuItems: React.ReactNode[] = [];
 
@@ -91,15 +92,18 @@ export function CodeActionWidget(props: CodeActionWidgetProps) {
         });
     }
 
-    const onClickCodeAction = (event: React.MouseEvent<HTMLDivElement>) => {
+    const onClickCodeAction = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
 
     return (
-        <div className={classes.element} onClick={onClickCodeAction}>
-            <div className={classes.lightBulbWrapper}>
+        <div className={classes.element} >
+            <IconButton
+                className={classes.iconButton}
+                onClick={onClickCodeAction}
+            >
                 <LightBulbSVG />
-            </div>
+            </IconButton>
             <Menu
                 anchorEl={anchorEl}
                 open={open}
