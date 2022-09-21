@@ -147,13 +147,13 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                     }
                 </span>
                 <span className={classes.label}>
-                    <IconButton
+                    {fields && <IconButton
                         className={classes.expandIcon}
                         style={{ marginLeft: treeDepth * 16 }}
                         onClick={handleExpand}
                     >
-                        {fields && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
-                    </IconButton>
+                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                    </IconButton>}
                     {label}
                 </span>
                 <span className={classes.treeLabelOutPort}>

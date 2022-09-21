@@ -122,7 +122,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                 })
                             }
                         </TreeBody>
-                        <br/>
+                        <br />
                     </>
                 );
             } else if (element.elementNode && STKindChecker.isListConstructor(element.elementNode)) {
@@ -190,7 +190,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <>
             <div
                 className={classes.treeLabel}
-                style={{flexDirection: hasValue && !connectedViaLink ? "column" : "initial"}}
+                style={{ flexDirection: hasValue && !connectedViaLink ? "column" : "initial" }}
             >
                 <span className={classes.treeLabelInPort}>
                     {portIn && (!listConstructor || !expanded) &&
@@ -198,13 +198,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     }
                 </span>
                 <span className={classes.label}>
-                    <IconButton
+                    {elements && <IconButton
                         className={classes.expandIcon}
                         style={{ marginLeft: indentation }}
                         onClick={handleExpand}
                     >
-                        {elements && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
-                    </IconButton>
+                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                    </IconButton>}
                     {label}
                 </span>
                 {!hasValue && (
@@ -228,7 +228,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             aria-label="add"
                             className={classes.addIcon}
                             onClick={handleAddArrayElement}
-                            startIcon={<AddIcon/>}
+                            startIcon={<AddIcon />}
                         >
                             Add Element
                         </Button>
