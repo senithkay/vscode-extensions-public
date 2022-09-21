@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -23,10 +24,12 @@ import { useStatementRendererStyles } from "../styles";
 export interface TokenComponentProps {
     model: STNode;
     className?: string;
+    isHovered?: boolean;
+    onPlusClick?: (evt: any) => void;
 }
 
 export function TokenComponent(props: TokenComponentProps) {
-    const { model, className } = props;
+    const { model, className, onPlusClick } = props;
 
     const statementRendererClasses = useStatementRendererStyles();
 
@@ -91,6 +94,14 @@ export function TokenComponent(props: TokenComponentProps) {
             {STKindChecker.isCloseBraceToken(model) && newLineRequired && <br/>}
             {leadingMinutiaeJSX}
             {model.value}
+            {onPlusClick && (
+                <span
+                    className={`${statementRendererClasses.plusIcon} ${isHovered ? "view" : "hide"}`}
+                    onClick={onPlusClick}
+                >
+                +
+                </span>
+            )}
             {trailingMinutiaeJSX}
         </span>
     );

@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
-import { useIntl } from "react-intl";
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
@@ -28,12 +27,14 @@ export interface ExpressionComponentProps {
     children?: React.ReactElement[];
     classNames?: string;
     stmtPosition?: NodePosition;
+    isHovered?: boolean;
+    onPlusClick?: (evt: any) => void;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames, stmtPosition } = props;
+    const { model, children, classNames, stmtPosition, isHovered: hovered } = props;
 
-    const component = getExpressionTypeComponent(model, stmtPosition);
+    const component = getExpressionTypeComponent(model, stmtPosition, hovered);
 
     const [isHovered, setHovered] = React.useState(false);
 
@@ -45,7 +46,6 @@ export function ExpressionComponent(props: ExpressionComponentProps) {
         statementModel
     } = modelCtx;
 
-    const intl = useIntl();
     const statementRendererClasses = useStatementRendererStyles();
 
     if (isExpressionMode && !selectedModel.model) {
