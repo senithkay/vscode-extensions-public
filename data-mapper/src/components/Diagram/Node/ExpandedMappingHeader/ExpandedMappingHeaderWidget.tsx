@@ -10,22 +10,21 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { IconButton } from "@material-ui/core";
-import CollapseIcon from "../../../../assets/icons/CollapseIcon";
-import { ViewOption } from "../../../DataMapper/DataMapper";
-import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
-import { ClauseAddButton } from "./ClauseAddButton";
-import { useStyles } from "./styles";
 import {
-    STNode,
-    STKindChecker,
     LetVarDecl,
+    STKindChecker,
+    STNode,
 } from "@wso2-enterprise/syntax-tree";
-import { LetClauseItem } from "./LetClauseItem";
-import { WhereClauseItem } from "./WhereClauseItem";
 import clsx from "clsx";
+
+import { ClauseAddButton } from "./ClauseAddButton";
+import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
+import { LetClauseItem } from "./LetClauseItem";
+import { useStyles } from "./styles";
+import { WhereClauseItem } from "./WhereClauseItem";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;
@@ -37,10 +36,6 @@ export function ExpandedMappingHeaderWidget(
 ) {
     const { node } = props;
     const classes = useStyles();
-
-    const onClickOnCollapse = () => {
-        node.context.changeSelection(ViewOption.COLLAPSE);
-    };
 
     const onClickEdit = (editNode: STNode) => {
         if (STKindChecker.isWhereClause(editNode)) {
@@ -94,14 +89,6 @@ export function ExpandedMappingHeaderWidget(
                         {fromClause.expression.source}
                     </span>
                 </div>
-                <IconButton
-                    onClick={onClickOnCollapse}
-                    className={classes.iconsButton}
-                >
-                    <div className={classes.icon}>
-                        <CollapseIcon />
-                    </div>
-                </IconButton>
             </div>
             {intermediateClauses.length > 0 && (
                 <div className={classes.addIconWrap}>

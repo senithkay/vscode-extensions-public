@@ -32,6 +32,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: "flex-start",
             padding: "10px 12px",
             background: "#F7F8FB",
+            border: "1px #A9D7DD solid",
             borderRadius: "4px",
             flex: "none",
             order: 1,

@@ -24,13 +24,13 @@ export class SelectedSTFindingVisitor implements Visitor {
     private node: SpecificField | FunctionDefinition;
 
     constructor(
-        private selectedST: STNode
+        private selectedST: STNode,
+        private lineOffset: number
     ) {}
 
     beginVisitSTNode(node: FunctionDefinition | SpecificField, parent?: STNode){
-        // TODO: Implement a way to identify the selectedST without using the positions since positions might change with imports, etc.
         if ((STKindChecker.isFunctionDefinition(node) || STKindChecker.isSpecificField(node))
-            && node.position.startLine === this.selectedST.position.startLine
+            && node.position.startLine === this.selectedST.position.startLine + this.lineOffset
             && node.position.startColumn === this.selectedST.position.startColumn)
         {
             this.node = node;
