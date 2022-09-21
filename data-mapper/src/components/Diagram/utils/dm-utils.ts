@@ -599,11 +599,11 @@ export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 	return fieldIndexes;
 }
 
-export function isConnectedViaLink(field: SpecificField) {
-	const fieldAccessNodes = getFieldAccessNodes(field.valueExpr);
+export function isConnectedViaLink(field: STNode) {
+	const fieldAccessNodes = getFieldAccessNodes(field);
 
-	const isMappingConstruct = STKindChecker.isMappingConstructor(field.valueExpr);
-	const isListConstruct = STKindChecker.isListConstructor(field.valueExpr);
+	const isMappingConstruct = STKindChecker.isMappingConstructor(field);
+	const isListConstruct = STKindChecker.isListConstructor(field);
 
 	return !!fieldAccessNodes.length && !isMappingConstruct && !isListConstruct;
 }
