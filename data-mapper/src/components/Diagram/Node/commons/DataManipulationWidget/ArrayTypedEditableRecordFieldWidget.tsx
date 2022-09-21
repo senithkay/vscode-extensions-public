@@ -109,7 +109,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                 })
                             }
                         </TreeBody>
-                        <br/>
+                        <br />
                     </>
                 );
             } else if (element.elementNode && STKindChecker.isListConstructor(element.elementNode)) {
@@ -175,20 +175,20 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     return (
         <>
-            <div className={classes.treeLabel} style={{flexDirection: hasValue ? "column" : "initial"}}>
+            <div className={classes.treeLabel} style={{ flexDirection: hasValue ? "column" : "initial" }}>
                 <span className={classes.treeLabelInPort}>
                     {portIn && (!listConstructor || !expanded) &&
                         <DataMapperPortWidget engine={engine} port={portIn} />
                     }
                 </span>
                 <span className={classes.label}>
-                    <IconButton
+                    {elements && <IconButton
                         className={classes.expandIcon}
                         style={{ marginLeft: indentation }}
                         onClick={handleExpand}
                     >
-                        {elements && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
-                    </IconButton>
+                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                    </IconButton>}
                     {label}
                 </span>
                 {!hasValue && (
@@ -212,7 +212,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             aria-label="add"
                             className={classes.addIcon}
                             onClick={handleAddArrayElement}
-                            startIcon={<AddIcon/>}
+                            startIcon={<AddIcon />}
                         >
                             Add Element
                         </Button>
