@@ -42,12 +42,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             width: 'auto'
         },
-        secondTitle: {
-            position: 'absolute',
-            left: 124,
-            display: 'flex',
-            alignItems: 'center'
-        }
     }),
     { index: 1 }
 );

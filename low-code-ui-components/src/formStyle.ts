@@ -43,12 +43,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         margin: '0 !important',
       },
     },
-    wizardFormControlExtended: {
-      width: 600,
-      "& .MuiFormControl-marginNormal": {
-          margin: '0 !important',
-      },
-    },
     underline: {
       "&&&:before": {
         borderBottom: "0 !Important "

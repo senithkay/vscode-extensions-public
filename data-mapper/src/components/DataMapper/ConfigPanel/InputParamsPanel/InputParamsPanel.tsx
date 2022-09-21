@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import Button from "@material-ui/core/Button";
 import AddIcon from '@material-ui/icons/Add'
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Title } from "../DataMapperConfigPanel";
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
@@ -9,34 +9,27 @@ import { DataMapperInputParam } from "./types";
 
 export interface InputConfigWidgetProps {
     inputParams: DataMapperInputParam[];
-    isAddExistType: boolean;
     onUpdateParams: (newParams: DataMapperInputParam[]) => void;
-    enableAddNewRecord: () => void;
-    setAddExistType: (value: boolean) => void;
 }
 
 export function InputParamsPanel(props: InputConfigWidgetProps)  {
 
-    const { inputParams, isAddExistType, onUpdateParams, enableAddNewRecord, setAddExistType } = props;
+    const { inputParams, onUpdateParams } = props;
 
     const [editingIndex, setEditingIndex] = useState(-1);
-
-    const handleEnableAddNewRecord = () => {
-        enableAddNewRecord();
-        enableAddNew();
-    }
+    const [isAddingNew, setAddingNew] = useState(false);
 
     const enableAddNew = () => {
-        setAddExistType(true);
+        setAddingNew(true);
     }
 
     const disableAddNew = () => {
-        setAddExistType(false);
+        setAddingNew(false);
     }
 
     const onAddNew = (param: DataMapperInputParam) => {
         onUpdateParams([...inputParams, param]);
-        setAddExistType(false);
+        setAddingNew(false);
     }
 
     const onUpdate = (index: number, param: DataMapperInputParam) => {
@@ -70,25 +63,15 @@ export function InputParamsPanel(props: InputConfigWidgetProps)  {
                     ? <InputParamEditor index={editingIndex} param={param} onUpdate={onUpdate} onCancel={onUpdateCancel} />
                     : <InputParamItem index={index} inputParam={param} onEditClick={onEditClick} onDelete={onDeleteClick} />
                 ))}
-                {isAddExistType && <InputParamEditor onSave={onAddNew} onCancel={disableAddNew} />}
-                {!isAddExistType && editingIndex === -1 && 
-                                <>
-                                    <Button
-                                        onClick={handleEnableAddNewRecord}
-                                        startIcon={<AddIcon />}
-                                        color="primary"
-                                    >
-                                        From New Record
-                                    </Button>
+                {isAddingNew && <InputParamEditor onSave={onAddNew} onCancel={disableAddNew} />}
+                {!isAddingNew && editingIndex === -1 && 
                                     <Button
                                         onClick={enableAddNew}
                                         startIcon={<AddIcon />}
                                         color="primary"
                                     >
-                                        From Existing Record
-                                    </Button>
-                                </>
-                }
+                                        Add Input
+                                    </Button>}
         </InputParamsContainer>
     );
 }
