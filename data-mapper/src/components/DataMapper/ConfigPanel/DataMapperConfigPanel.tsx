@@ -66,7 +66,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     } else {
       modifications.push(
         createFunctionSignature(
-          "public",
+          "",
           fnName,
           parametersStr,
           returnTypeStr,
