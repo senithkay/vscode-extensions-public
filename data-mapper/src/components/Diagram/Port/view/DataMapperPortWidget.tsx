@@ -68,7 +68,7 @@ interface PortsContainerProps {
 const PortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "pointer",
 	display: "inline",
-	color: props.active ? "rgb(0, 192, 255)" : (props.hasLinks ? (props.hasError ? 'red' : "#5567D5") : "#8D91A3"),
+	color: (props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : (props.active ? "rgb(0, 192, 255)" : "#8D91A3")),
 	"&:hover": {
 		color: "rgb(0, 192, 255)"
 	}

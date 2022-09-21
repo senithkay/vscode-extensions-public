@@ -17,7 +17,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 		});
 
 		if (diagnostics.length > 0){
-			this.setColor('red');
+			this.setColor('#FE523C');
 		}
 
 	}
