@@ -136,11 +136,13 @@ function DataMapperC(props: DataMapperProps) {
         prevST: []
     });
     const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
+    const [importStatementsCount, setImportStatementsCount] = React.useState<number>(importStatements ? importStatements.length : 0);
 
     const classes = useStyles();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState) => {
         dispatchSelection({ type: mode, payload: selectionState });
+        setImportStatementsCount(importStatements.length);
     }
 
     const onConfigOpen = () => {
@@ -194,7 +196,11 @@ function DataMapperC(props: DataMapperProps) {
                 );
 
                 let selectedST = selection.selectedST;
-                const selectedSTFindingVisitor = new SelectedSTFindingVisitor(selectedST);
+                let lineOffset = 0
+                if (importStatements.length !== importStatementsCount){
+                    lineOffset = importStatements.length - importStatementsCount;
+                }
+                const selectedSTFindingVisitor = new SelectedSTFindingVisitor(selectedST, lineOffset);
                 traversNode(fnST, selectedSTFindingVisitor);
                 selectedST = selectedSTFindingVisitor.getST();
 
