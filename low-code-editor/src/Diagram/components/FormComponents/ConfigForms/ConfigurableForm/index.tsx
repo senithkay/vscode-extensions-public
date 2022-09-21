@@ -240,6 +240,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         importStatements,
                         experimentalEnabled,
                         isConfigurableStmt: true,
+                        ballerinaVersion,
                         isCodeServerInstance,
                         openExternalUrl
                     }

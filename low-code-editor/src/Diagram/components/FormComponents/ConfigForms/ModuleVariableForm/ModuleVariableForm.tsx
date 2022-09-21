@@ -203,6 +203,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                         importStatements,
                         experimentalEnabled,
                         isModuleVar: true,
+                        ballerinaVersion,
                         isCodeServerInstance,
                         openExternalUrl
                     }

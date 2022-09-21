@@ -140,6 +140,7 @@ export function AddFunctionCallConfig(props: AddFunctionCallConfigProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
+                        ballerinaVersion,
                         isCodeServerInstance,
                         openExternalUrl
                     }

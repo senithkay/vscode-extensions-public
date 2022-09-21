@@ -197,6 +197,7 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                         importStatements,
                         experimentalEnabled,
                         isModuleVar: true,
+                        ballerinaVersion,
                         isCodeServerInstance,
                         openExternalUrl
                     }

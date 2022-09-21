@@ -211,6 +211,7 @@ export function AddRespondForm(props: RespondFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
+                        ballerinaVersion,
                         isCodeServerInstance,
                         openExternalUrl
                     }

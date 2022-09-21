@@ -281,6 +281,7 @@ export function AddForeachForm(props: ForeachProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
+                        ballerinaVersion,
                         isCodeServerInstance,
                         openExternalUrl
                     }

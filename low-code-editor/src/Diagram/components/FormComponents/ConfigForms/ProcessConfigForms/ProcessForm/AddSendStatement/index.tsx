@@ -32,6 +32,7 @@ export function AddSendStatement(props: AddSendStatementProps) {
     const intl = useIntl();
     const {
         props: {
+            ballerinaVersion,
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
@@ -87,6 +88,7 @@ export function AddSendStatement(props: AddSendStatementProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
+            ballerinaVersion,
             isCodeServerInstance,
             openExternalUrl
         }

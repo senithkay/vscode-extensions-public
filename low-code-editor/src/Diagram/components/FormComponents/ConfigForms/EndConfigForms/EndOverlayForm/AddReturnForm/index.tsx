@@ -147,6 +147,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
+                        ballerinaVersion,
                         isCodeServerInstance,
                         openExternalUrl
                     }

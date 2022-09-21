@@ -908,3 +908,13 @@ export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
             } : undefined
     );
 }
+
+export function isBalVersionUpdateOne(version: string): boolean{
+    if (!version) {
+        return false;
+    }
+    const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
+    const versionStr = version.match(versionRegex);
+    const splittedVersions = versionStr[0]?.split(".");
+    return parseInt(splittedVersions[0], 10) === 2201 && parseInt(splittedVersions[1], 10) === 1;
+}

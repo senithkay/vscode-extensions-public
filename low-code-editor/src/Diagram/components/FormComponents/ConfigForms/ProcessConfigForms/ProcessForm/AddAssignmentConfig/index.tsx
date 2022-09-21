@@ -199,6 +199,7 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
+                        ballerinaVersion,
                         isCodeServerInstance,
                         openExternalUrl
                     }

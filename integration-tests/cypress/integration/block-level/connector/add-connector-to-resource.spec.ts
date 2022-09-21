@@ -4,8 +4,6 @@ import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus-widget";
 import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
-import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
-import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
 import { ConnectorMarketplace } from "../../../utils/forms/connector-form";
 
 const BAL_FILE_PATH = "block-level/connector/add-connector-to-resource.bal";
@@ -34,17 +32,6 @@ describe('Add connector to resource via Low Code', () => {
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("StringLiteral")
-            .doubleClickExpressionContent('""');
-
-        InputEditor
-            .typeInput('"https://foo.com"');
-
-        StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
@@ -75,17 +62,6 @@ describe('Add connector to resource via Low Code', () => {
 
         StatementEditor
             .shouldBeVisible()
-            .getEditorPane();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("StringLiteral")
-            .doubleClickExpressionContent('""');
-
-        InputEditor
-            .typeInput('"foo"');
-
-        StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(

@@ -137,10 +137,11 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                 break;
             case PrimitiveBalType.Record:
                 const allFieldsDefaultable = isAllDefaultableFields(parameter?.fields);
-                if (!parameter.selected && allFieldsDefaultable) {
+                if (!parameter.selected && allFieldsDefaultable && (parameter.optional || parameter.defaultValue)) {
                     break;
                 }
-                if (parameter.selected && allFieldsDefaultable && !isAnyFieldSelected(parameter?.fields)) {
+                if (parameter.selected && allFieldsDefaultable && (parameter.optional || parameter.defaultValue) &&
+                    !isAnyFieldSelected(parameter?.fields)) {
                     break;
                 }
                 const insideParamList = getDefaultParams(parameter.fields, depth + 1);

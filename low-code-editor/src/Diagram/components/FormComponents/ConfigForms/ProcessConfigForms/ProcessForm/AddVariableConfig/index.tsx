@@ -315,6 +315,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
+                        ballerinaVersion,
                         isCodeServerInstance,
                         openExternalUrl
                     }

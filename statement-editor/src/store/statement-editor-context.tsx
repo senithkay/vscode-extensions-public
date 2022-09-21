@@ -91,6 +91,7 @@ export const StatementEditorContext = React.createContext({
     onWizardClose: () => undefined,
     onCancel: () => undefined,
     experimentalEnabled: false,
+    ballerinaVersion: null,
     isCodeServerInstance: false,
     openExternalUrl: (url: string) => {}
 });
@@ -159,6 +160,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         updateSyntaxDiagnostics,
         editing,
         updateEditing,
+        ballerinaVersion,
         isCodeServerInstance,
         openExternalUrl,
         ...restProps
@@ -210,6 +212,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 targetPosition,
                 importStatements,
                 experimentalEnabled,
+                ballerinaVersion,
                 isCodeServerInstance,
                 openExternalUrl,
                 ...restProps

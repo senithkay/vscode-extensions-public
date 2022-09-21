@@ -249,7 +249,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         },
         syntaxErrorTooltip : {
             position: 'absolute',
-            top: '-60px',
+            top: '-26px',
             left: '80%'
         }
     }),
@@ -524,7 +524,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         libraryElementBlockContent: {
             top: '10%',
             height: '80%',
-            overflowY: 'scroll',
+            overflowY: 'hidden',
             columnGap: '6%',
             display: 'grid',
             gridTemplateColumns: '29% 29% 29%'
@@ -539,9 +539,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             padding: '0 10px'
         },
         parameterCheckbox: {
-            alignSelf: "center",
+            alignSelf: "flex-start",
             color: '#2FA86C',
-            padding: '0 6px 0 0',
+            padding: '3px 6px 0 0',
             "& .MuiCheckbox-colorSecondary.Mui-checked": {
                 color: "#2FA86C"
             },
@@ -576,9 +576,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         checked: {},
         disabledCheckbox : {
-            alignSelf: "center",
+            alignSelf: "flex-start",
             color: 'rgba(47,168,108,0.5)',
-            padding: '0 6px 0 0',
+            padding: '3px 6px 0 0',
             "&$checked": {
                 color: "rgba(47,168,108,0.5)",
                 "&:hover": {
@@ -681,7 +681,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         paramList: {
-            maxHeight: '40vh',
+            maxHeight: '24vh',
             overflowY: 'scroll',
         },
         includedRecordHeaderList: {
@@ -856,6 +856,21 @@ export const useStatementEditorStyles = makeStyles(() =>
             justifyContent: 'center',
             alignItems: 'center'
         },
+        sectionLoadingWrapper: {
+            height: '18vh',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            },
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
         suggestionsSection: {
             display: 'flex',
             flexDirection: 'column',
@@ -873,7 +888,7 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionTitle: {
             display: 'flex',
             alignItems: 'center',
-            paddingBottom: '15px',
+            paddingBottom: '24px',
             fontWeight: 500
         },
         statementExpressionContent: {

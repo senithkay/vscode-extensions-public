@@ -49,7 +49,7 @@ export function ActionForm(props: FormGeneratorProps) {
     const { action, endpointName } = formArgs as ActionFormProps;
 
     const {
-        props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled },
+        props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled, ballerinaVersion },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram },
@@ -127,6 +127,7 @@ export function ActionForm(props: FormGeneratorProps) {
                     stSymbolInfo,
                     extraModules: imports,
                     experimentalEnabled,
+                    ballerinaVersion
                 })}
         </>
     );

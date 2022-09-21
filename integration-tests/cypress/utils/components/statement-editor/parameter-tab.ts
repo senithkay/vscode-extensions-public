@@ -136,7 +136,7 @@ export class ParameterTab {
             .scrollIntoView()
             .siblings(`[data-testid="arg-check"]`)
             .click({ force: true })
-            .wait(500);
+            .wait(1000);
         return this;
     }
 

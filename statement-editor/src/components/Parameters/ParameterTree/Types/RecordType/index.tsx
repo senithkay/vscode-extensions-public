@@ -17,7 +17,7 @@ import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core"
 
 import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
-import { ParameterBranch } from "../../ParameterBranch";
+import { MemoizedParameterBranch } from "../../ParameterBranch";
 import { isRequiredParam } from "../../utils";
 
 export default function RecordType(props: TypeProps) {
@@ -77,7 +77,7 @@ export default function RecordType(props: TypeProps) {
                 </div>
                 {paramSelected && param.fields?.length > 0 && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
-                        <ParameterBranch parameters={param.fields} depth={depth + 1} onChange={onChange} />
+                        <MemoizedParameterBranch parameters={param.fields} depth={depth + 1} onChange={onChange} />
                     </div>
                 )}
             </div>

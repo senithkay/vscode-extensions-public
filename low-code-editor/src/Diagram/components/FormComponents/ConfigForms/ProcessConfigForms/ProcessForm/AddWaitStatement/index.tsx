@@ -38,6 +38,7 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
     const intl = useIntl();
     const {
         props: {
+            ballerinaVersion,
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
@@ -84,6 +85,7 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
+            ballerinaVersion,
             isCodeServerInstance,
             openExternalUrl
         }
