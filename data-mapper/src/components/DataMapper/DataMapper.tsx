@@ -235,7 +235,15 @@ function DataMapperC(props: DataMapperProps) {
             <CurrentFileContext.Provider value={currentFile}>
                 <div className={classes.root}>
                     {!!currentEditableField && <div className={classes.overlay} />}
-                    {fnST && <DataMapperHeader name={fnST?.functionName?.value} onClose={onClose} onCofingOpen={onConfigOpen} />}
+                    {fnST && (
+                        <DataMapperHeader
+                            name={fnST?.functionName?.value}
+                            selection={selection}
+                            changeSelection={handleSelectedST}
+                            onClose={onClose}
+                            onConfigOpen={onConfigOpen}
+                        />
+                    )}
                     <DataMapperDiagram
                         nodes={nodes}
                     />
