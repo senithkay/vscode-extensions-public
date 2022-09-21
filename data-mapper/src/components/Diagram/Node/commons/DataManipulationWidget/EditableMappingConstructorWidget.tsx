@@ -176,7 +176,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 								parentId={id}
 								mappingConstruct={value}
 								context={context}
-								treeDepth={1}
+								treeDepth={0}
 							/>
 						);
 					})

@@ -190,7 +190,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <>
             <div
                 className={classes.treeLabel}
-                style={{ flexDirection: hasValue && !connectedViaLink ? "column" : "initial" }}
+                style={{ flexDirection: hasValue && !connectedViaLink && expanded ? "column" : "initial" }}
             >
                 <div>
                     <span className={classes.treeLabelInPort}>
