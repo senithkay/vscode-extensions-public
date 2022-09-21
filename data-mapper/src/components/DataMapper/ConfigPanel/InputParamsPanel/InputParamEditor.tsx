@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Grid } from "@material-ui/core";
 import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -35,6 +35,12 @@ export function InputParamEditor(props: InputParamEditorProps) {
         name: "",
         type: "",
     };
+
+    useEffect(() => {
+        if (param.type) {
+            handleParamTypeChange(param.type)
+        }
+    }, [param]);
 
     const [paramType, setParamType] = useState<string>(param?.type || "");
     const [paramName, setParamName] = useState<string>(param?.name || "");

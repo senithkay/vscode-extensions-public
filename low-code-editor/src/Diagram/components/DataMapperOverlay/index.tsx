@@ -93,7 +93,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
     setNewFnName(fnName);
   };
 
-  const renderRecordPanel = (panelProps: {closeAddNewRecord: () => void}) => {
+  const renderRecordPanel = (panelProps: {closeAddNewRecord: (createdNewRecord?: string) => void}) => {
     return (
       <RecordEditor
         formType={""}

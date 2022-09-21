@@ -39,10 +39,12 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
   const [fnName, setFnName] = useState("transform");
   const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
   const [outputType, setOutputType] = useState("");
+  const [inputType, setInputType] = useState("");
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [isAddExistType, setAddExistType] = useState(false);
 
   const [showOutputType, setShowOutputType] = useState(false);
+  const [newRecordBy, setNewRecordBy] = useState<"input" | "output">(undefined);
 
   const isValidConfig = fnName && inputParams.length > 0 && outputType !== "";
 
@@ -87,21 +89,34 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     }
   }, [fnST]);
 
+  // For Input Value
   const enableAddNewRecord = () => {
     setIsNewRecord(true);
+    setNewRecordBy("input");
   };
 
-  const closeAddNewRecord = () => {
+  const closeAddNewRecord = (createdNewRecord?: string) => {
     setIsNewRecord(false);
+    if (createdNewRecord) {
+      if (newRecordBy === "input") {
+        setInputType(createdNewRecord.split(" ")[1]);
+      }
+      if (newRecordBy === "output") {
+        setOutputType(createdNewRecord.split(" ")[1]);
+      }
+    }
+    setNewRecordBy(undefined);
   };
 
   const handleShowOutputType = () => {
     setShowOutputType(true);
   }
 
+  // For Output Value
   const handleShowRecordEditor = () => {
     enableAddNewRecord();
     handleShowOutputType();
+    setNewRecordBy("output");
   }
 
   const breadCrumb = (
@@ -135,6 +150,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
               <FunctionNameEditor value={fnName} onChange={setFnName} />
               <FormDivider />
               <InputParamsPanel
+                newRecordParam={inputType}
                 inputParams={inputParams}
                 onUpdateParams={setInputParams}
                 enableAddNewRecord={enableAddNewRecord}

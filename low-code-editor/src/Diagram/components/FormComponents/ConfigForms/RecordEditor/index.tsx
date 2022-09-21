@@ -29,7 +29,7 @@ export interface RecordEditorProps {
     formType: string;
     isTypeDefinition?: boolean;
     isDataMapper?: boolean;
-    onCancel: () => void;
+    onCancel: (createdNewRecord?: string) => void;
     onSave: (typeDesc: string, recModel: RecordModel) => void;
 }
 
@@ -83,7 +83,7 @@ export function RecordEditor(props: RecordEditorProps) {
             createPropertyStatement(recordString, targetPosition, false)
         ]);
         if (isDataMapper) {
-            onCancel();
+            onCancel(recordString);
         }
     }
 

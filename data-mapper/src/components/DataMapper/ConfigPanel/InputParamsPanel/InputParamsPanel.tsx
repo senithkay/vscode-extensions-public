@@ -8,6 +8,7 @@ import { DataMapperInputParam } from "./types";
 
 export interface InputConfigWidgetProps {
     inputParams: DataMapperInputParam[];
+    newRecordParam: string;
     isAddExistType: boolean;
     onUpdateParams: (newParams: DataMapperInputParam[]) => void;
     enableAddNewRecord: () => void;
@@ -16,7 +17,7 @@ export interface InputConfigWidgetProps {
 
 export function InputParamsPanel(props: InputConfigWidgetProps)  {
 
-    const { inputParams, isAddExistType, onUpdateParams, enableAddNewRecord, setAddExistType } = props;
+    const { inputParams, isAddExistType, newRecordParam, onUpdateParams, enableAddNewRecord, setAddExistType } = props;
 
     const [editingIndex, setEditingIndex] = useState(-1);
 
@@ -69,7 +70,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps)  {
                     ? <InputParamEditor index={editingIndex} param={param} onUpdate={onUpdate} onCancel={onUpdateCancel} />
                     : <InputParamItem index={index} inputParam={param} onEditClick={onEditClick} onDelete={onDeleteClick} />
                 ))}
-                {isAddExistType && <InputParamEditor onSave={onAddNew} onCancel={disableAddNew} />}
+                {isAddExistType && <InputParamEditor param={{name: "", type: newRecordParam}} onSave={onAddNew} onCancel={disableAddNew} />}
                 {!isAddExistType && editingIndex === -1 && 
                     <RecordButtonGroup openRecordEditor={handleEnableAddNewRecord} showTypeList={enableAddNew} />
                 }
