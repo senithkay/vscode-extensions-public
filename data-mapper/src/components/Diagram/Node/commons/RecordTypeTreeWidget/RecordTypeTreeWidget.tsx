@@ -146,7 +146,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                                 getPort={getPort}
                                 parentId={id}
                                 handleCollapse={handleCollapse}
-                                treeDepth={1}
+                                treeDepth={0}
                             />
                         );
                     })
