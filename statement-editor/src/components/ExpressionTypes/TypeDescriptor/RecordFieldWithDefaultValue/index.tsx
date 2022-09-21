@@ -19,11 +19,10 @@ import { TokenComponent } from "../../../Token";
 
 interface RecordFieldWithDefaultValueProps {
     model: RecordFieldWithDefaultValue;
-    onPlusClick?: (evt: any) => void;
 }
 
 export function RecordFieldWithDefaultValueComponent(props: RecordFieldWithDefaultValueProps) {
-    const { model, onPlusClick } = props;
+    const { model } = props;
 
     return (
         <>
@@ -31,7 +30,7 @@ export function RecordFieldWithDefaultValueComponent(props: RecordFieldWithDefau
             <ExpressionComponent model={model.fieldName} />
             <TokenComponent model={model.equalsToken} />
             <ExpressionComponent model={model.expression} />
-            <TokenComponent model={model.semicolonToken} onPlusClick={onPlusClick} />
+            <TokenComponent model={model.semicolonToken} />
         </>
     );
 }

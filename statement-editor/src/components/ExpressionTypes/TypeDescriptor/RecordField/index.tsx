@@ -10,40 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 
 import { RecordField } from "@wso2-enterprise/syntax-tree";
 
-import { FIELD_DESCRIPTOR } from "../../../../constants";
-import { StatementEditorContext } from "../../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../../Expression";
 import { TokenComponent } from "../../../Token";
 
 interface RecordFieldProps {
     model: RecordField;
-    isHovered?: boolean;
 }
 
 export function RecordFieldComponent(props: RecordFieldProps) {
-    const { model, isHovered } = props;
-
-    const stmtCtx = useContext(StatementEditorContext);
-    const {
-        modelCtx: {
-            updateModel,
-        }
-    } = stmtCtx;
-
-    const onClickOnPlusIcon = (event: any) => {
-        event.stopPropagation();
-        const newPosition = {
-            startLine: model.position.endLine,
-            startColumn: model.position.endColumn,
-            endLine: model.position.endLine,
-            endColumn: model.position.endColumn
-        }
-        updateModel(`${FIELD_DESCRIPTOR};`, newPosition);
-    };
+    const { model } = props;
 
     return (
         <>
@@ -51,7 +30,7 @@ export function RecordFieldComponent(props: RecordFieldProps) {
             <ExpressionComponent model={model.typeName} />
             <ExpressionComponent model={model.fieldName} />
             {model.questionMarkToken && <TokenComponent model={model.questionMarkToken}/>}
-            <TokenComponent model={model.semicolonToken} isHovered={isHovered} onPlusClick={onClickOnPlusIcon}/>
+            <TokenComponent model={model.semicolonToken} />
         </>
     );
 }

@@ -915,13 +915,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         docButton : {
             marginLeft: theme.spacing(15.75)
-        },
-        flexItems: {
-            display: "flex"
-        },
-        fileSelect: {
-            marginLeft: "auto",
-            padding: theme.spacing(0.2)
         }
     }),
     { index: 1 }

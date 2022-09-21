@@ -51,13 +51,6 @@ export enum EXTENDED_APIS {
     SYMBOL_GET_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol'
 }
 
-export enum DIAGNOSTIC_SEVERITY {
-    INTERNAL = "INTERNAL",
-    HINT = "HINT",
-    INFO = "INFO",
-    WARNING = "WARNING",
-    ERROR = "ERROR"
-}
 
 export interface GetProjectASTParams {
     sourceRoot: string;
@@ -620,12 +613,6 @@ export interface JsonToRecordRequest {
 
 export interface JsonToRecordResponse {
     codeBlock: string;
-    diagnostics?: JsonToRecordMapperDiagnostic[];
-}
-
-export interface JsonToRecordMapperDiagnostic {
-    message: string;
-    severity?: DIAGNOSTIC_SEVERITY;
 }
 
 export interface PerformanceAnalyzerGraphResponse {

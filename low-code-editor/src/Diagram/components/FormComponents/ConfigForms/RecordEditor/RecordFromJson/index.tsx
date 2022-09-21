@@ -14,81 +14,64 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 
 import { FormControl, FormHelperText } from "@material-ui/core";
-import {
-    CheckBoxGroup,
-    FormHeaderSection,
-    FormTextInput
-} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
-import classNames from "classnames";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { RecordTypeDesc, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 
 import { Context } from "../../../../../../Contexts/Diagram";
+import { useRecordEditorContext } from "../../../../../../Contexts/RecordEditor";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
-import { getInitialSource, mutateTypeDefinition } from "../../../../../utils";
-import { FileSelector } from '../../../../FileSelector';
+import { ConfigOverlayFormStatus } from "../../../../../store/definitions";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormActionButtons } from "../../../FormFieldComponents/FormActionButtons";
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
-import { checkDiagnostics, getUpdatedSource } from "../../../Utils";
-import { RecordEditor } from "../index";
-import { convertToRecord, getModulePartST, getRecordST, getRootRecord } from "../utils";
+import { wizardStyles } from "../../style";
+import { convertToRecord, getRecordModel, getRecordST } from "../utils";
 
 interface RecordState {
     isLoading?: boolean;
     jsonValue?: string;
-    recordName?: string;
-    recordNameDiag?: string;
-    importedRecord?: TypeDefinition;
-    modifiedPosition?: NodePosition;
-    isSeparateDef?: boolean;
-    jsonDiagnostics?: string;
+    isValidRecord?: boolean;
 }
 
 interface RecordFromJsonProps {
-    targetPosition?: NodePosition;
-    onSave: (recordString: string, modifiedPosition: NodePosition) => void;
+    configOverlayFormStatus?: ConfigOverlayFormStatus;
     onCancel: () => void;
+    onSave: () => void;
 }
 
 const reducer = (state: RecordState, action: {type: string, payload: any }) => {
     switch (action.type) {
         case 'jsonConversionStart':
             return {...state, isLoading: action.payload};
-        case 'setJsonDiagnostics':
-            return {...state, jsonDiagnostics: action.payload, isLoading: false};
+        case 'setJsonValidity':
+            return {...state, isValidRecord: action.payload};
         case 'setJsonValue':
-            return {...state, jsonValue: action.payload, jsonDiagnostics: ""};
-        case 'recordNameChange':
-            return {...state, recordName: action.payload.recordName, recordNameDiag: action.payload.recordNameDiag};
-        case 'setRecordNameDiag':
-            return {...state, recordNameDiag: action.payload.recordNameDiag};
-        case 'checkSeparateDef':
-            return {...state, isSeparateDef: action.payload};
+            return {...state, jsonValue: action.payload};
         case 'jsonConversionSuccess':
-            return {...state, importedRecord: action.payload.importedRecord, modifiedPosition: action.payload.modifiedPosition, jsonValue: "", isLoading: false, jsonDiagnostics: ""};
+            return {jsonValue: "", isLoading: false, isValidRecord: true};
+        case 'jsonConversionFailure':
+            return {jsonValue: "", isLoading: false, isValidRecord: false};
         default:
             break;
     }
 }
 
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
+    const overlayClasses = wizardStyles();
     const classes = useStyles();
 
-    const { targetPosition, onSave, onCancel } = recordFromJsonProps;
+    const { configOverlayFormStatus, onSave, onCancel } = recordFromJsonProps;
 
     const { props, api } = useContext(Context);
+    const { state, callBacks } = useRecordEditorContext();
 
-    const { isMutationProgress, langServerURL, currentFile } = props;
+    const { isMutationProgress, langServerURL } = props;
     const { ls } = api;
 
     const [formState, dispatchFromState] = useReducer(reducer, {
-        recordName: "",
         jsonValue: "",
         isLoading: false,
-        jsonDiagnostics: "",
-        isSeparateDef: false,
-        recordNameDiag: "",
-        importedRecord: undefined,
+        isValidRecord: true
     });
 
     const convertToJSon = () => {
@@ -97,142 +80,75 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
 
     const onJsonChange = (jsonText: string) => {
         dispatchFromState({type: 'setJsonValue', payload: jsonText});
-    };
-
-    const onNameChange = async (name: string) => {
-        const content = getInitialSource(mutateTypeDefinition(name, "record {};", targetPosition,
-            true));
-        const updateContent = getUpdatedSource(content, currentFile.content, targetPosition);
-        const diagnostics = await checkDiagnostics(currentFile?.path, updateContent, ls, targetPosition);
-        let filteredDiagnostics;
-        if ((diagnostics[0]?.severity === 1)
-            && (diagnostics[0]?.range?.start?.line - 1) === targetPosition.startLine) {
-            filteredDiagnostics = diagnostics;
+        try {
+            JSON.parse(jsonText);
+            dispatchFromState({type: 'setJsonValidity', payload: (JSON.stringify(jsonText) !== `"{}"`)});
+        } catch (e) {
+            dispatchFromState({type: 'setJsonValidity', payload: false});
         }
-        dispatchFromState({type: 'recordNameChange', payload: {
-            recordName: name,
-            recordNameDiag: filteredDiagnostics ? filteredDiagnostics[0].message : ""
-        }});
-    };
-
-    const onSeparateDefinitionSelection = (mode: string[]) => {
-        dispatchFromState({type: 'checkSeparateDef', payload: mode.length > 0});
     };
 
     useEffect(() => {
         if (formState.isLoading) {
             (async () => {
-                const recordResponse = await convertToRecord(formState.jsonValue, formState.recordName,
-                    false, langServerURL, formState.isSeparateDef, ls);
-                let recordST: STNode;
-                let newPosition: NodePosition;
-                if (recordResponse?.diagnostics?.length === 0) {
-                    if (formState.isSeparateDef) {
-                        // Uses module part since we receive multiple records
-                        const modulePart = await getModulePartST({
-                            codeSnippet: recordResponse.codeBlock.trim()
-                        }, langServerURL, ls);
-                        if (STKindChecker.isModulePart(modulePart)) {
-                            recordST = getRootRecord(modulePart, formState.recordName);
-                            newPosition = {
-                                startLine: targetPosition.startLine + recordST.position.startLine,
-                                startColumn: targetPosition.startColumn,
-                                endLine: targetPosition.startLine + recordST.position.endLine,
-                                endColumn: recordST.position.endColumn,
-                            }
-                        }
-                    } else {
-                        recordST = await getRecordST({ codeSnippet: recordResponse.codeBlock.trim()},
-                            langServerURL, ls);
-                        newPosition = {
-                            startLine: targetPosition.startLine,
-                            startColumn: targetPosition.startColumn,
-                            endLine: targetPosition.startLine + recordST.position.endLine,
-                            endColumn: recordST.position.endColumn,
-                        }
-                    }
-                    dispatchFromState({type: 'jsonConversionSuccess', payload: {
-                        importedRecord: recordST, modifiedPosition: newPosition
-                    }});
-                    onSave(recordResponse.codeBlock, newPosition);
-                } else {
-                    dispatchFromState({type: 'setJsonDiagnostics', payload: recordResponse?.diagnostics[0].message});
+                const recordResponse = await convertToRecord(formState.jsonValue, state.currentRecord.name,
+                    false, langServerURL, ls);
+                const recordST: STNode = await getRecordST({ codeSnippet: recordResponse.trim()
+                        .replace(/\n/g, "") }, langServerURL, ls);
+                if (STKindChecker.isTypeDefinition(recordST)) {
+                    const typeDef: TypeDefinition = recordST as TypeDefinition;
+                    const recordModel = getRecordModel(typeDef.typeDescriptor as RecordTypeDesc,
+                        typeDef.typeName.value, true, "record");
+                    state.currentRecord.fields = state.currentRecord.fields.concat(recordModel.fields);
+                    callBacks.onUpdateCurrentRecord(state.currentRecord);
+                    callBacks.onUpdateModel(state.recordModel);
+                    dispatchFromState({type: 'jsonConversionSuccess', payload: recordModel});
+                    onSave();
                 }
             })();
         }
     }, [formState.isLoading]);
 
-    const isSaveButtonEnabled = !isMutationProgress && formState.jsonDiagnostics === ""
-        && (formState.jsonValue !== "") && !formState.recordNameDiag && formState.recordName;
+    const isSaveButtonEnabled = !isMutationProgress && formState.isValidRecord && (formState.jsonValue !== "");
+
+    const jsonError = "Please enter a valid JSON";
 
     return (
-        <>
-            {formState.importedRecord ? (
-                <RecordEditor
-                    name={formState.importedRecord.typeName.value}
-                    targetPosition={formState.modifiedPosition}
-                    onSave={null}
-                    model={formState.importedRecord}
-                    isTypeDefinition={true}
-                    formType={""}
-                    onCancel={onCancel}
-                />
-            ) : (
-                <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
-                    <FormHeaderSection
-                        onCancel={onCancel}
-                        formTitle="Import Sample JSON"
-                        formType={""}
-                        defaultMessage=""
-                    />
-                    <div id="json-input-container" test-id="json-input-container" className={classes.formWrapper}>
-                        <FormTextInput
-                            label="Record Name"
-                            dataTestId="import-record-name"
-                            placeholder="Enter Record Name"
-                            defaultValue={formState.recordName}
-                            customProps={{ readonly: false, isErrored: formState?.recordNameDiag}}
-                            onChange={onNameChange}
-                            errorMessage={formState?.recordNameDiag}
-                        />
-                        <div className={classNames(classes.inputWrapper, classes.flexItems)}>
-                            <div className={classes.labelWrapper}>
-                                <FormHelperText className={classes.inputLabelForRequired}>Sample JSON</FormHelperText>
-                            </div>
-                            <div className={classes.fileSelect}>
-                                <FileSelector label='Select JSON file' extension='json' onReadFile={onJsonChange} />
-                            </div>
-                        </div>
-                        <FormTextArea
-                            rowsMax={6.3}
-                            dataTestId="json-input"
-                            placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
-                            onChange={onJsonChange}
-                            customProps={{
-                                isInvalid: formState.jsonDiagnostics !== "",
-                                text: formState.jsonDiagnostics
-                            }}
-                            defaultValue={formState.jsonValue}
-                        />
-                        {formState.isLoading && (
-                            <TextPreloaderVertical position="absolute" />
-                        )}
-                        <CheckBoxGroup
-                            values={["Make Separate Record Definitions"]}
-                            defaultValues={formState.isSeparateDef ? ['Make Separate Record Definitions'] : []}
-                            onChange={onSeparateDefinitionSelection}
-                        />
-                        <FormActionButtons
-                            cancelBtnText="Back"
-                            saveBtnText="Save"
-                            isMutationInProgress={false}
-                            validForm={isSaveButtonEnabled}
-                            onSave={convertToJSon}
-                            onCancel={onCancel}
-                        />
+        <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControl}>
+            <FormHeaderSection
+                onCancel={recordFromJsonProps.onCancel}
+                formTitle="Import Sample JSON"
+                formType={""}
+                defaultMessage=""
+            />
+            <div id="json-input-container" test-id="json-input-container" className={classes.formWrapper}>
+                <div className={classes.inputWrapper}>
+                    <div className={classes.labelWrapper}>
+                        <FormHelperText className={classes.inputLabelForRequired}>Sample JSON</FormHelperText>
                     </div>
-                </FormControl>
-            )}
-        </>
+                </div>
+                <FormTextArea
+                    dataTestId="json-input"
+                    placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
+                    onChange={onJsonChange}
+                    customProps={{
+                        isInvalid: !formState.isValidRecord,
+                        text: jsonError
+                    }}
+                    defaultValue={formState.jsonValue}
+                />
+                {formState.isLoading && (
+                    <TextPreloaderVertical position="absolute" />
+                )}
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    saveBtnText="Save"
+                    isMutationInProgress={false}
+                    validForm={isSaveButtonEnabled}
+                    onSave={convertToJSon}
+                    onCancel={recordFromJsonProps.onCancel}
+                />
+            </div>
+        </FormControl>
     );
 }
