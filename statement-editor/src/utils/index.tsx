@@ -108,8 +108,9 @@ export function getModifications(model: STNode, configType: string, targetPositi
     return modifications;
 }
 
-export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition): ReactNode {
-    let ExprTypeComponent = (expressionTypeComponents as any)[expression?.kind];
+export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition,
+                                           isHovered?: boolean): ReactNode {
+    let ExprTypeComponent = (expressionTypeComponents as any)[expression?.kind]; // TODO: Find the issue why the expression value getting null.
 
     if (!ExprTypeComponent) {
         ExprTypeComponent = (expressionTypeComponents as any)[OTHER_EXPRESSION];
@@ -119,6 +120,7 @@ export function getExpressionTypeComponent(expression: STNode, stmtPosition?: No
         <ExprTypeComponent
             model={expression}
             stmtPosition={stmtPosition}
+            isHovered={isHovered}
         />
     );
 }
@@ -301,6 +303,11 @@ export function getUpdatedSource(statement: string, currentFileContent: string,
     }
 
     return updatedContent;
+}
+
+export function isModuleMember(model: STNode): boolean {
+    return (STKindChecker.isModuleVarDecl(model) || STKindChecker.isConstDeclaration(model) ||
+        STKindChecker.isTypeDefinition(model));
 }
 
 export function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {

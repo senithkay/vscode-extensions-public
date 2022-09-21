@@ -11,109 +11,128 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from "react";
 
+import { DataMapper } from "@wso2-enterprise/ballerina-data-mapper";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-    DataMapper
-} from "@wso2-enterprise/ballerina-data-mapper";
-import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
-import {
-    ConfigOverlayFormStatus,
-    DiagramEditorLangClientInterface
+  ConfigOverlayFormStatus,
+  DiagramEditorLangClientInterface,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    FunctionDefinition, ModulePart,
-    NodePosition, STKindChecker,
-    STNode
+  FunctionDefinition,
+  ModulePart,
+  NodePosition,
+  STKindChecker,
+  STNode,
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Contexts/Diagram";
-import { DiagramOverlay, DiagramOverlayContainer } from '../Portals/Overlay';
+import { RecordEditor } from "../FormComponents/ConfigForms/RecordEditor";
+import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
 
 export interface DataMapperProps {
-    model?: STNode;
-    targetPosition?: NodePosition;
-    onCancel?: () => void;
-    configOverlayFormStatus: ConfigOverlayFormStatus;
+  model?: STNode;
+  targetPosition?: NodePosition;
+  onCancel?: () => void;
+  configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
-    const { targetPosition, onCancel: onClose, model } = props;
+  const { targetPosition, onCancel: onClose, model } = props;
 
-    const dataMapperClasses = dataMapperStyles();
+  const dataMapperClasses = dataMapperStyles();
 
-    const {
-        props: {
-            currentFile,
-            stSymbolInfo,
-            importStatements
-        },
-        api: {
-            code: {
-                modifyDiagram
-            },
-            ls: {
-                getDiagramEditorLangClient,
-            },
-            library
-        }
-    } = useContext(Context);
+  const {
+    props: { currentFile, stSymbolInfo, importStatements },
+    api: {
+      code: { modifyDiagram },
+      ls: { getDiagramEditorLangClient },
+      library,
+    },
+  } = useContext(Context);
 
-    const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
-    const [newFnName, setNewFnName] = React.useState("");
+  const [functionST, setFunctionST] =
+    React.useState<FunctionDefinition>(undefined);
+  const [newFnName, setNewFnName] = React.useState("");
 
-    useEffect(() => {
-        (async () => {
-            if (model && STKindChecker.isFunctionDefinition(model)) {
-                handleFunctionST(model.functionName.value).then();
-            } else if (!!functionST) {
-                handleFunctionST(functionST.functionName.value).then();
-            } else {
-                handleFunctionST(newFnName).then();
-            }
-        })();
-    }, [currentFile.content]);
+  useEffect(() => {
+    (async () => {
+      if (model && STKindChecker.isFunctionDefinition(model)) {
+        handleFunctionST(model.functionName.value).then();
+      } else if (!!functionST) {
+        handleFunctionST(functionST.functionName.value).then();
+      } else {
+        handleFunctionST(newFnName).then();
+      }
+    })();
+  }, [currentFile.content]);
 
-    const handleFunctionST = async (funcName: string) => {
-        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
-        const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
-            documentIdentifier: {
-                uri: `file://${currentFile.path}`
-            }
-        });
-        if (parseSuccess) {
-            const modPart = syntaxTree as ModulePart;
-            const fns = modPart.members.filter((mem) => STKindChecker.isFunctionDefinition(mem)) as FunctionDefinition[];
-            setFunctionST(fns.find((mem) => mem.functionName.value === funcName));
-            return;
-        }
-        setFunctionST(undefined);
+  const handleFunctionST = async (funcName: string) => {
+    const langClient: DiagramEditorLangClientInterface =
+      await getDiagramEditorLangClient();
+    const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
+      documentIdentifier: {
+        uri: `file://${currentFile.path}`,
+      },
+    });
+    if (parseSuccess) {
+      const modPart = syntaxTree as ModulePart;
+      const fns = modPart.members.filter((mem) =>
+        STKindChecker.isFunctionDefinition(mem)
+      ) as FunctionDefinition[];
+      setFunctionST(fns.find((mem) => mem.functionName.value === funcName));
+      return;
     }
+    setFunctionST(undefined);
+  };
 
-    const onSave = (fnName: string) => {
-        setNewFnName(fnName);
-    };
+  const onSave = (fnName: string) => {
+    setNewFnName(fnName);
+  };
 
-    return (<DiagramOverlayContainer>
-                    <DiagramOverlay position={{ x: 0, y: 0 }} stylePosition={"absolute"} className={dataMapperClasses.overlay}>
-                        <div className={dataMapperClasses.dataMapperContainer}>
-                            <DataMapper
-                                library={library}
-                                targetPosition={targetPosition}
-                                fnST={functionST}
-                                langClientPromise={getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>}
-                                filePath={currentFile.path}
-                                currentFile={currentFile}
-                                stSymbolInfo={stSymbolInfo}
-                                applyModifications={modifyDiagram}
-                                onClose={onClose}
-                                onSave={onSave}
-                                importStatements={importStatements}
-                            />
-                        </div>
-                    </DiagramOverlay>
-                </DiagramOverlayContainer>
-            );
+  const renderRecordPanel = (panelProps: {closeAddNewRecord: (createdNewRecord?: string) => void}) => {
+    return (
+      <RecordEditor
+        formType={""}
+        targetPosition={targetPosition}
+        name={"record"}
+        onCancel={panelProps.closeAddNewRecord}
+        onSave={onSave}
+        isTypeDefinition={true}
+        isDataMapper={true}
+      />
+    );
+  };
+
+  return (
+    <DiagramOverlayContainer>
+      <DiagramOverlay
+        position={{ x: 0, y: 0 }}
+        stylePosition={"absolute"}
+        className={dataMapperClasses.overlay}
+      >
+        <div className={dataMapperClasses.dataMapperContainer}>
+          <DataMapper
+            library={library}
+            targetPosition={targetPosition}
+            fnST={functionST}
+            langClientPromise={
+              getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+            }
+            filePath={currentFile.path}
+            currentFile={currentFile}
+            stSymbolInfo={stSymbolInfo}
+            applyModifications={modifyDiagram}
+            onClose={onClose}
+            onSave={onSave}
+            importStatements={importStatements}
+            recordPanel={renderRecordPanel}
+          />
+        </div>
+      </DiagramOverlay>
+    </DiagramOverlayContainer>
+  );
 }

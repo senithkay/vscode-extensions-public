@@ -32,13 +32,14 @@ import { wizardStyles as useFormStyles } from "../style";
 interface TypeDefFormProps {
     model?: TypeDefinition;
     targetPosition?: NodePosition;
+    formType: string;
     onCancel: () => void;
     onSave: () => void;
 }
 
 // FixMe: show validation messages to type definition name
 export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
-    const { model, targetPosition, onCancel, onSave } = props;
+    const { model, targetPosition, formType, onCancel, onSave } = props;
 
     const formClasses = useFormStyles();
     const recordClasses = recordStyles();
@@ -229,10 +230,10 @@ export function TypeDefinitionConfigForm(props: TypeDefFormProps) {
                 <RecordEditor
                     name={name}
                     targetPosition={targetPosition}
-                    existingModel={typeDescModel}
                     onSave={handleEditorComplete}
-                    model={model?.typeDescriptor as RecordTypeDesc}
+                    model={model}
                     isTypeDefinition={true}
+                    formType={formType}
                     onCancel={onCancel}
                 />
             )}

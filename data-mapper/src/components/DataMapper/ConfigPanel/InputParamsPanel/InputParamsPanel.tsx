@@ -1,35 +1,42 @@
 import styled from "@emotion/styled";
-import Button from "@material-ui/core/Button";
-import AddIcon from '@material-ui/icons/Add'
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Title } from "../DataMapperConfigPanel";
+import { RecordButtonGroup } from "../RecordButtonGroup";
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";
 
 export interface InputConfigWidgetProps {
     inputParams: DataMapperInputParam[];
+    newRecordParam: string;
+    isAddExistType: boolean;
     onUpdateParams: (newParams: DataMapperInputParam[]) => void;
+    enableAddNewRecord: () => void;
+    setAddExistType: (value: boolean) => void;
 }
 
 export function InputParamsPanel(props: InputConfigWidgetProps)  {
 
-    const { inputParams, onUpdateParams } = props;
+    const { inputParams, isAddExistType, newRecordParam, onUpdateParams, enableAddNewRecord, setAddExistType } = props;
 
     const [editingIndex, setEditingIndex] = useState(-1);
-    const [isAddingNew, setAddingNew] = useState(false);
+
+    const handleEnableAddNewRecord = () => {
+        enableAddNewRecord();
+        enableAddNew();
+    }
 
     const enableAddNew = () => {
-        setAddingNew(true);
+        setAddExistType(true);
     }
 
     const disableAddNew = () => {
-        setAddingNew(false);
+        setAddExistType(false);
     }
 
     const onAddNew = (param: DataMapperInputParam) => {
         onUpdateParams([...inputParams, param]);
-        setAddingNew(false);
+        setAddExistType(false);
     }
 
     const onUpdate = (index: number, param: DataMapperInputParam) => {
@@ -63,15 +70,10 @@ export function InputParamsPanel(props: InputConfigWidgetProps)  {
                     ? <InputParamEditor index={editingIndex} param={param} onUpdate={onUpdate} onCancel={onUpdateCancel} />
                     : <InputParamItem index={index} inputParam={param} onEditClick={onEditClick} onDelete={onDeleteClick} />
                 ))}
-                {isAddingNew && <InputParamEditor onSave={onAddNew} onCancel={disableAddNew} />}
-                {!isAddingNew && editingIndex === -1 && 
-                                    <Button
-                                        onClick={enableAddNew}
-                                        startIcon={<AddIcon />}
-                                        color="primary"
-                                    >
-                                        Add Input
-                                    </Button>}
+                {isAddExistType && <InputParamEditor param={{name: "", type: newRecordParam}} onSave={onAddNew} onCancel={disableAddNew} />}
+                {!isAddExistType && editingIndex === -1 && 
+                    <RecordButtonGroup openRecordEditor={handleEnableAddNewRecord} showTypeList={enableAddNew} />
+                }
         </InputParamsContainer>
     );
 }

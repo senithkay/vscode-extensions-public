@@ -13,28 +13,30 @@
 import { DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, JsonToRecordResponse,
     PartialSTRequest, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    ModulePart,
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
     STKindChecker,
-    STNode
+    STNode, TypeDefinition
 } from "@wso2-enterprise/syntax-tree";
 
 import { isLiteral } from "../../../../../utils";
 import { Field, RecordModel, SimpleField } from "../types";
 
 export async function convertToRecord(json: string, name: string, isClosed: boolean,
-                                      lsUrl: string, ls?: any): Promise<string> {
+                                      lsUrl: string, isSeparateDefinitions: boolean,
+                                      ls?: any): Promise<JsonToRecordResponse> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient();
     const resp: JsonToRecordResponse = await langClient.convert(
         {
             jsonString: json,
             recordName: name,
             isClosed,
-            isRecordTypeDesc: true,
+            isRecordTypeDesc: !isSeparateDefinitions,
         }
-    )
-    return resp.codeBlock;
+    );
+    return resp;
 }
 
 export async function getRecordST(partialSTRequest: PartialSTRequest,
@@ -43,6 +45,18 @@ export async function getRecordST(partialSTRequest: PartialSTRequest,
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
 
     const resp = await langClient.getSTForModuleMembers(partialSTRequest);
+    return resp.syntaxTree;
+}
+
+export function getRootRecord(modulePartSt: ModulePart, name: string): TypeDefinition {
+    return (modulePartSt.members.find(record => (STKindChecker.isTypeDefinition(record)
+        && (record.typeName.value === name)))) as TypeDefinition;
+}
+
+export async function getModulePartST(partialSTRequest: PartialSTRequest, lsUrl: string, ls?: any): Promise<STNode> {
+    const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
+
+    const resp = await langClient.getSTForModulePart(partialSTRequest);
     return resp.syntaxTree;
 }
 
