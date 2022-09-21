@@ -29,7 +29,6 @@ export class SelectedSTFindingVisitor implements Visitor {
     ) {}
 
     beginVisitSTNode(node: FunctionDefinition | SpecificField, parent?: STNode){
-        // TODO: Implement a way to identify the selectedST without using the positions since positions might change with imports, etc.
         if ((STKindChecker.isFunctionDefinition(node) || STKindChecker.isSpecificField(node))
             && node.position.startLine === this.selectedST.position.startLine + this.lineOffset
             && node.position.startColumn === this.selectedST.position.startColumn)
