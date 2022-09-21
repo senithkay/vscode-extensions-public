@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useMemo } from "react";
 
 import { Button, IconButton } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
@@ -24,7 +24,13 @@ import classNames from "classnames";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { createSourceForUserInput, getBalRecFieldName, getDefaultValue, getTypeName } from "../../../utils/dm-utils";
+import {
+    createSourceForUserInput,
+    getBalRecFieldName,
+    getDefaultValue,
+    getTypeName,
+    isConnectedViaLink
+} from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 import { TreeBody } from "../Tree/Tree";
 
@@ -58,6 +64,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const hasValue = valExpr && !!valExpr.source;
     const typeName = getTypeName(field.type);
     const elements = field.elements;
+
+    const connectedViaLink = useMemo(() => {
+        if (hasValue) {
+            return isConnectedViaLink(valExpr);
+        }
+        return false;
+    }, [field]);
 
     let expanded = true;
     if (portIn && portIn.collapsed) {
@@ -109,7 +122,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                 })
                             }
                         </TreeBody>
-                        <br/>
+                        <br />
                     </>
                 );
             } else if (element.elementNode && STKindChecker.isListConstructor(element.elementNode)) {
@@ -175,35 +188,40 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     return (
         <>
-            <div className={classes.treeLabel} style={{flexDirection: hasValue ? "column" : "initial"}}>
-                <span className={classes.treeLabelInPort}>
-                    {portIn && (!listConstructor || !expanded) &&
-                        <DataMapperPortWidget engine={engine} port={portIn} />
-                    }
-                </span>
-                <span className={classes.label}>
-                    <IconButton
-                        className={classes.expandIcon}
-                        style={{ marginLeft: indentation }}
-                        onClick={handleExpand}
-                    >
-                        {elements && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
-                    </IconButton>
-                    {label}
-                </span>
-                {!hasValue && (
-                    <ValueConfigMenu
-                        menuItems={[
-                            {
-                                title: ValueConfigOption.InitializeArray,
-                                onClick: handleArrayInitialization
-                            },
-                            {
-                                title: ValueConfigOption.DeleteArray,
-                                onClick: undefined
-                            }]}
-                    />
-                )}
+            <div
+                className={classes.treeLabel}
+                style={{ flexDirection: hasValue && !connectedViaLink && expanded ? "column" : "initial" }}
+            >
+                <div>
+                    <span className={classes.treeLabelInPort}>
+                        {portIn && (!listConstructor || !expanded) &&
+                            <DataMapperPortWidget engine={engine} port={portIn} />
+                        }
+                    </span>
+                    <span className={classes.label}>
+                        {elements && <IconButton
+                            className={classes.expandIcon}
+                            style={{ marginLeft: indentation }}
+                            onClick={handleExpand}
+                        >
+                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                        </IconButton>}
+                        {label}
+                    </span>
+                    {!hasValue && (
+                        <ValueConfigMenu
+                            menuItems={[
+                                {
+                                    title: ValueConfigOption.InitializeArray,
+                                    onClick: handleArrayInitialization
+                                },
+                                {
+                                    title: ValueConfigOption.DeleteArray,
+                                    onClick: undefined
+                                }]}
+                        />
+                    )}
+                </div>
                 {expanded && hasValue && listConstructor && (
                     <div className={classNames(classes.treeLabel, classes.innerTreeLabel)}>
                         <span>[</span>
@@ -212,7 +230,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             aria-label="add"
                             className={classes.addIcon}
                             onClick={handleAddArrayElement}
-                            startIcon={<AddIcon/>}
+                            startIcon={<AddIcon />}
                         >
                             Add Element
                         </Button>

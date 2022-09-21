@@ -17,6 +17,8 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import clsx from 'clsx';
 import IconButton from '@material-ui/core/IconButton';
+import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
+
 export interface FlowAliasLabelWidgetProps {
 	model: ExpressionLabelModel;
 }
@@ -64,6 +66,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
 	const [codeActions, setCodeActions] = React.useState([]);
 	const classes = useStyles();
+	const diagnostic = props.model.link.hasError() ? props.model.link.diagnostics[0] : null;
 
 	React.useEffect(() => {
 		async function genModel() {
@@ -173,6 +176,16 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 				labelWidgetVisible={linkSelected}
 				additionalActions={additionalActions}
 			/>
+		);
+	}
+
+	if (diagnostic) {
+		elements.push(<div className={classes.separator} />);
+		elements.push(
+			<DiagnosticWidget 
+				diagnostic={diagnostic} 
+				value={props.model.value}
+				onClick={onClickEdit}/>
 		);
 	}
 

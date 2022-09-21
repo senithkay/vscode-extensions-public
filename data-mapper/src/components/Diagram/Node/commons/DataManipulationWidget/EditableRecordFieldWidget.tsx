@@ -59,12 +59,12 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(specificField);
+            return isConnectedViaLink(specificField.valueExpr);
         }
         return false;
     }, [field]);
 
-    const value: string = !connectedViaLink  && !isArray && !isRecord && hasValue && specificField.valueExpr.source;
+    const value: string = !connectedViaLink && !isArray && !isRecord && hasValue && specificField.valueExpr.source;
     let expanded = true;
     if (portIn && portIn.collapsed) {
         expanded = false;
@@ -100,23 +100,23 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
 
         const columnNumber = field.type.name?.length;
-        const specificFieldPosition: NodePosition   = {
+        const specificFieldPosition: NodePosition = {
             startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
-            startColumn:  (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
-            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine,
-            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
+            startColumn: (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
+            endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine,
+            endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
         }
 
-        const valuePosition: NodePosition   = {
+        const valuePosition: NodePosition = {
             startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
             startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
-            endLine:  (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
-            endColumn:  (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
+            endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
+            endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
         }
         props.context.enableStatementEditor({
             specificFieldPosition,
             fieldName: fName,
-            value: "EXPRESSION" ,
+            value: "EXPRESSION",
             valuePosition,
             label: field.type.name
         });
@@ -146,13 +146,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         }
                     </span>
                     <span className={classes.label}>
-                        <IconButton
+                        {fields && <IconButton
                             className={classes.expandIcon}
                             style={{ marginLeft: indentation }}
                             onClick={handleExpand}
                         >
-                            {fields && (expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />)}
-                        </IconButton>
+                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                        </IconButton>}
                         {label}
                     </span>
                     {!isRecord && (
