@@ -43,3 +43,7 @@ export async function runBackgroundTerminalCommand(command: string) {
         });
     });
 }
+
+export function openExternalUrl(url:string){
+    vscode.env.openExternal(vscode.Uri.parse(url));
+}
