@@ -12,7 +12,9 @@
  */
 import React from "react";
 
-import { CloseRounded } from "@material-ui/icons";
+import { Box } from "@material-ui/core";
+import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
+import EditIcon from "@material-ui/icons/Edit";
 import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { DataMapperInputParam } from "./types";
 import styled from "@emotion/styled";
@@ -43,10 +45,16 @@ export function InputParamItem(props: InputParamItemProps) {
             <ClickToEditContainer onClick={handleEdit}>
                 {label}
             </ClickToEditContainer>
-            <DeleteButton
-                onClick={handleDelete}
-                icon={<CloseRounded fontSize="small" />}
-            />
+            <Box component={"span"}>
+                <EditButton
+                    onClick={handleEdit}
+                    icon={<EditIcon fontSize="small" />}
+                />
+                <DeleteButton
+                    onClick={handleDelete}
+                    icon={<DeleteOutLineIcon fontSize="small" />}
+                />
+            </Box>
         </InputParamContainer>
     );
 }
@@ -58,6 +66,13 @@ const ClickToEditContainer = styled.div`
 
 const DeleteButton = styled(ButtonWithIcon)`
     padding: 0;
+    color: #FE523C;
+`;
+
+const EditButton = styled(ButtonWithIcon)`
+    padding: 0;
+    margin-right: 5px;
+    color: #36B475;
 `;
 
 const InputParamContainer = styled.div((props) => ({

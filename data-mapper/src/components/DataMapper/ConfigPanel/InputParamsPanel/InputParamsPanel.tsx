@@ -78,14 +78,14 @@ export function InputParamsPanel(props: InputConfigWidgetProps)  {
                                         startIcon={<AddIcon />}
                                         color="primary"
                                     >
-                                        From New Record
+                                        New Record
                                     </Button>
+                                    OR
                                     <Button
                                         onClick={enableAddNew}
-                                        startIcon={<AddIcon />}
                                         color="primary"
                                     >
-                                        From Existing Record
+                                        Existing Record
                                     </Button>
                                 </>
                 }
