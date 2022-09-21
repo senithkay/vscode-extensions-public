@@ -65,7 +65,8 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
     const { model, targetPosition, onCancel, onSave, formType } = props;
@@ -196,7 +197,8 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                         importStatements,
                         experimentalEnabled,
                         isModuleVar: true,
-                        isCodeServerInstance
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

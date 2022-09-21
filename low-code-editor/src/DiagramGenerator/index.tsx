@@ -80,6 +80,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
     const getBalVersion: () => Promise<string | undefined> = props.getBallerinaVersion;
     const getEnv: (name: string) => Promise<any> = props.getEnv;
+    const openExternalUrl: (url: string) => Promise<boolean> = props.openExternalUrl;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -421,7 +422,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     getLibrariesData,
                                     getLibraryData
                                 },
-                                runBackgroundTerminalCommand
+                                runBackgroundTerminalCommand,
+                                openExternalUrl
                             }}
                         />
                     </DiagramGenErrorBoundary>

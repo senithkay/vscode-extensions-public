@@ -56,7 +56,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -198,7 +199,8 @@ export function AddAssignmentConfig(props: AddAssignmentConfigProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isCodeServerInstance
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

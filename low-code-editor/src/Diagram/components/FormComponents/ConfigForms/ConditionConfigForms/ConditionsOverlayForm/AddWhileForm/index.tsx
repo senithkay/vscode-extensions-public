@@ -54,7 +54,8 @@ export function AddWhileForm(props: WhileProps) {
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -172,7 +173,8 @@ export function AddWhileForm(props: WhileProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isCodeServerInstance
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

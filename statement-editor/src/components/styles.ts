@@ -950,7 +950,10 @@ export const useStatementEditorStyles = makeStyles(() =>
         },
         helpLink: {
             marginLeft: '8px',
-            color: '#5567D5'
+            color: '#5567D5',
+            "&:hover": {
+                cursor: "pointer"
+            }
         }
     }),
 );

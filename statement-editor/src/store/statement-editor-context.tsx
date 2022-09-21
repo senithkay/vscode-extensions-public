@@ -91,7 +91,8 @@ export const StatementEditorContext = React.createContext({
     onWizardClose: () => undefined,
     onCancel: () => undefined,
     experimentalEnabled: false,
-    isCodeServerInstance: false
+    isCodeServerInstance: false,
+    openExternalUrl: (url: string) => {}
 });
 
 export interface CtxProviderProps extends LowCodeEditorProps {
@@ -159,6 +160,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         editing,
         updateEditing,
         isCodeServerInstance,
+        openExternalUrl,
         ...restProps
     } = props;
 
@@ -209,6 +211,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 importStatements,
                 experimentalEnabled,
                 isCodeServerInstance,
+                openExternalUrl,
                 ...restProps
             }}
         >

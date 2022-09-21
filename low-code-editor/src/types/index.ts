@@ -112,6 +112,7 @@ export interface LowCodeEditorAPI {
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     },
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>
+    openExternalUrl?: (url: string) => Promise<boolean>
 }
 
 // FIXME Some of these props should be moved to low code state

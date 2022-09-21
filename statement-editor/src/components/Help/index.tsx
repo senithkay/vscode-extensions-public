@@ -11,15 +11,23 @@
  * associated services.
  */
 
-import React from "react";
+import React, { useContext } from "react";
 
 import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import HelpIcon from "../../assets/icons/HelpIcon";
+import { StatementEditorContext } from "../../store/statement-editor-context";
 import { useStatementEditorStyles } from "../styles";
 
 export function Help() {
     const statementEditorClasses = useStatementEditorStyles();
+    const {
+        openExternalUrl
+    } = useContext(StatementEditorContext);
+
+    const openStatementEditorHelp = () => {
+        openExternalUrl("https://wso2.com/choreo/docs/tutorials/construct-statements/");
+    }
 
     return (
         <div className={statementEditorClasses.help}>
@@ -27,13 +35,12 @@ export function Help() {
             <StatementEditorHint
                 content={"If you are new to Statement Editor, please refer the user guide"}
             >
-                <a
-                    target="_blank"
-                    href="https://wso2.com/choreo/docs/get-started/quick-start-guide/"
+                <div
+                    onClick={openStatementEditorHelp}
                     className={statementEditorClasses.helpLink}
                 >
                     Help
-                </a>
+                </div>
             </StatementEditorHint>
         </div>
     );

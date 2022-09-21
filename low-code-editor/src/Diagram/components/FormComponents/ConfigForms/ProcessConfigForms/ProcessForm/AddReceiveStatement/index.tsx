@@ -53,7 +53,8 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
                 modifyDiagram
             },
             insights: { onEvent },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
     const saveVariableButtonText = intl.formatMessage({
@@ -96,7 +97,8 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
-            isCodeServerInstance
+            isCodeServerInstance,
+            openExternalUrl
         }
     );
 

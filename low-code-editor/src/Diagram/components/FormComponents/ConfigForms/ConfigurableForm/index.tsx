@@ -72,7 +72,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            library
+            library,
+            openExternalUrl
         },
     } = useContext(Context);
 
@@ -239,7 +240,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         importStatements,
                         experimentalEnabled,
                         isConfigurableStmt: true,
-                        isCodeServerInstance
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

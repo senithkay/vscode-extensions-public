@@ -52,7 +52,8 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
                 modifyDiagram
             },
             insights: { onEvent },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -83,7 +84,8 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
-            isCodeServerInstance
+            isCodeServerInstance,
+            openExternalUrl
         }
     );
 

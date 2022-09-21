@@ -46,7 +46,8 @@ export function AddSendStatement(props: AddSendStatementProps) {
                 modifyDiagram
             },
             insights: { onEvent },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
     const saveVariableButtonText = intl.formatMessage({
@@ -86,7 +87,8 @@ export function AddSendStatement(props: AddSendStatementProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
-            isCodeServerInstance
+            isCodeServerInstance,
+            openExternalUrl
         }
     );
 

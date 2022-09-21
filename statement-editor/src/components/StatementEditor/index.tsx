@@ -91,6 +91,7 @@ export function StatementEditor(props: StatementEditorProps) {
         experimentalEnabled,
         extraModules,
         runBackgroundTerminalCommand,
+        openExternalUrl,
         isCodeServerInstance
     } = props;
 
@@ -540,6 +541,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     editing={isEditing}
                     updateEditing={updateEditing}
                     isCodeServerInstance={isCodeServerInstance}
+                    openExternalUrl={openExternalUrl}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

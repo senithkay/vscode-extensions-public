@@ -73,7 +73,8 @@ export function AddIfForm(props: IfProps) {
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         },
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -310,7 +311,8 @@ export function AddIfForm(props: IfProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isCodeServerInstance
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

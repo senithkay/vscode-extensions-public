@@ -41,6 +41,7 @@ export interface EditorAPI {
     getSentryConfig: () => Promise<SentryConfig | undefined>;
     getBallerinaVersion: () => Promise<string | undefined>;
     getEnv: (name: string) => Promise<any>;
+    openExternalUrl: (url: string) => Promise<boolean>;
 }
 
 export enum PALETTE_COMMANDS {
@@ -56,7 +57,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
             sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, ...restProps } = props;
+            runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -86,6 +87,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     getSentryConfig={getSentryConfig}
                     getBallerinaVersion={getBallerinaVersion}
                     getEnv={getEnv}
+                    openExternalUrl={openExternalUrl}
                     panX="-30"
                     panY="0"
                     scale="0.9"

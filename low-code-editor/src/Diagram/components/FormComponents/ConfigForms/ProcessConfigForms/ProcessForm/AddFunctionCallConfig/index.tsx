@@ -56,7 +56,8 @@ export function AddFunctionCallConfig(props: AddFunctionCallConfigProps) {
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -139,7 +140,8 @@ export function AddFunctionCallConfig(props: AddFunctionCallConfigProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isCodeServerInstance
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

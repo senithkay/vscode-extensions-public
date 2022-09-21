@@ -55,7 +55,8 @@ export function AddRespondForm(props: RespondFormProps) {
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -210,7 +211,8 @@ export function AddRespondForm(props: RespondFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isCodeServerInstance
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

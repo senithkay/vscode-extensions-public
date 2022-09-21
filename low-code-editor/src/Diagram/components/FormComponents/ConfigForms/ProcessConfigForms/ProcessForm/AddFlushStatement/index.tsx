@@ -52,7 +52,8 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
                 modifyDiagram
             },
             insights: { onEvent },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -84,7 +85,8 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
-            isCodeServerInstance
+            isCodeServerInstance,
+            openExternalUrl
         }
     );
 

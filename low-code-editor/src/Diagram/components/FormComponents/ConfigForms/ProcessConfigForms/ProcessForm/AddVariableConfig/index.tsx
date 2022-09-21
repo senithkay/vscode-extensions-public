@@ -74,8 +74,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             code: {
                 modifyDiagram
             },
-            library
-        }
+            library,
+            openExternalUrl
+        },
     } = useContext(Context);
 
     let initialModelType: string = '';
@@ -314,7 +315,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isCodeServerInstance
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

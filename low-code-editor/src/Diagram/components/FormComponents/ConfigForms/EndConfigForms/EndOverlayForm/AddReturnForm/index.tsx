@@ -51,7 +51,8 @@ export function AddReturnForm(props: ReturnFormProps) {
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -146,7 +147,8 @@ export function AddReturnForm(props: ReturnFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isCodeServerInstance
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (
