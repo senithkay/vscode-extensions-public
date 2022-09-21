@@ -17,6 +17,10 @@ import { createStyles, makeStyles } from "@material-ui/core/styles";
 import HomeIcon from '@material-ui/icons/Home';
 import { EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { SelectionState, ViewOption } from "../DataMapper";
+
+import HeaderBreadcrumb from "./HeaderBreadcrumb";
+
 const useStyles = makeStyles(() =>
     createStyles({
         editButton: {
@@ -25,13 +29,30 @@ const useStyles = makeStyles(() =>
     })
 );
 
-export function DataMapperHeader(props: { name: string; onClose: () => void; onConfigOpen: () => void; }) {
-    const { name, onClose, onConfigOpen } = props;
+export interface DataMapperHeaderProps {
+    name: string;
+    selection: SelectionState;
+    changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
+    onClose: () => void;
+    onConfigOpen: () => void;
+}
+
+export function DataMapperHeader(props: DataMapperHeaderProps) {
+    const { name, selection, changeSelection, onClose, onConfigOpen } = props;
     const classes = useStyles();
     return (
         <HeaderContainer>
             <HomeButton onClick={onClose} />
-            <Title>Data Mapper: {name}</Title>
+            <BeadCrumb>
+                <HeaderBreadcrumb
+                    functionName={name}
+                    selection={selection}
+                    changeSelection={changeSelection}
+                />
+            </BeadCrumb>
+            <Title>
+                Data Mapper
+            </Title>
             <EditButton className={classes.editButton} onClick={onConfigOpen} />
         </HeaderContainer>
     );
@@ -51,8 +72,15 @@ const HomeButton = styled(HomeIcon)`
     cursor: pointer;
 `;
 
+const BeadCrumb = styled.div`
+    position: absolute;
+    left: 4%;
+`;
+
 const Title = styled.div`
     font-weight: 600;
+    position: absolute;
+    left: 50%;
 `;
 
 const Name = styled.div`
