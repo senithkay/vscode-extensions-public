@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useMemo } from "react";
 
 import { Button, IconButton } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
@@ -24,7 +24,13 @@ import classNames from "classnames";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { createSourceForUserInput, getBalRecFieldName, getDefaultValue, getTypeName } from "../../../utils/dm-utils";
+import {
+    createSourceForUserInput,
+    getBalRecFieldName,
+    getDefaultValue,
+    getTypeName,
+    isConnectedViaLink
+} from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 import { TreeBody } from "../Tree/Tree";
 
@@ -58,6 +64,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const hasValue = valExpr && !!valExpr.source;
     const typeName = getTypeName(field.type);
     const elements = field.elements;
+
+    const connectedViaLink = useMemo(() => {
+        if (hasValue) {
+            return isConnectedViaLink(valExpr);
+        }
+        return false;
+    }, [field]);
 
     let expanded = true;
     if (portIn && portIn.collapsed) {
@@ -175,7 +188,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     return (
         <>
-            <div className={classes.treeLabel} style={{ flexDirection: hasValue ? "column" : "initial" }}>
+            <div
+                className={classes.treeLabel}
+                style={{ flexDirection: hasValue && !connectedViaLink ? "column" : "initial" }}
+            >
                 <span className={classes.treeLabelInPort}>
                     {portIn && (!listConstructor || !expanded) &&
                         <DataMapperPortWidget engine={engine} port={portIn} />

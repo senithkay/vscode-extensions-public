@@ -59,7 +59,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(specificField);
+            return isConnectedViaLink(specificField.valueExpr);
         }
         return false;
     }, [field]);
