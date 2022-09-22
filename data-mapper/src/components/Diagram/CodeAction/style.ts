@@ -27,5 +27,12 @@ export const useStyles = makeStyles((theme: Theme) =>
         iconButton: {
           padding: "10px 14px",
         },
+        menu: {
+          '& .MuiMenuItem-root': {
+              fontSize: '11px',
+              paddingBottom: "1px",
+              paddingTop: "1px"
+          }
+      }
     })
 );

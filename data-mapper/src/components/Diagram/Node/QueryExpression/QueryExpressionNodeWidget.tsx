@@ -17,8 +17,7 @@ import { IconButton } from "@material-ui/core";
 import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-
-import ExpandIcon from "../../../../assets/icons/ExpandIcon";
+import ExitToApp from "@material-ui/icons/ExitToApp";
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 
@@ -29,12 +28,14 @@ import {
 const styles = (theme: Theme) => createStyles({
     root: {
         width: '100%',
-        backgroundColor: "#fff",
+        backgroundColor: theme.palette.common.white,
         padding: "5px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
-        color: "#74828F"
+        color: theme.palette.grey[400],
+        boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
+        borderRadius: "10px",
     },
     fromClause: {
         padding: "5px",
@@ -52,15 +53,7 @@ const styles = (theme: Theme) => createStyles({
         alignItems: "center"
     },
     icons: {
-        padding: '8px',
-        '&:hover': {
-            backgroundColor: '#F0F1FB',
-        }
-    },
-    expandIcon: {
-        height: '15px',
-        width: '15px',
-        marginTop: '-7px'
+        padding: '5px'
     },
     buttonWrapper: {
         display: 'flex',
@@ -110,7 +103,7 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
                         className={classes.root}
                     >
                         <div className={classes.header}>
-                            <DataMapperPortWidget engine={engine} port={node.inPort}/>
+                            <DataMapperPortWidget engine={engine} port={node.inPort} />
                             <div className={classes.fromClause}>
                                 Query
                             </div>
@@ -119,20 +112,16 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
                                     onClick={onClickOnExpand}
                                     className={classes.icons}
                                 >
-                                    <div className={classes.expandIcon}>
-                                        <ExpandIcon/>
-                                    </div>
+                                    <ExitToApp />
                                 </IconButton>
                                 <IconButton
                                     onClick={deleteQueryLink}
                                     className={classes.icons}
                                 >
-                                    <div className={classes.expandIcon}>
-                                        <DeleteIcon />
-                                    </div>
+                                    <DeleteIcon />
                                 </IconButton>
                             </div>
-                            <DataMapperPortWidget engine={engine} port={node.outPort}/>
+                            <DataMapperPortWidget engine={engine} port={node.outPort} />
                         </div>
                     </div>
                 )}
@@ -141,4 +130,4 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
     }
 }
 
-export const QueryExpressionNodeWidget = withStyles(styles, {withTheme: true})(QueryExprAsSFVNodeWidgetC);
+export const QueryExpressionNodeWidget = withStyles(styles, { withTheme: true })(QueryExprAsSFVNodeWidgetC);
