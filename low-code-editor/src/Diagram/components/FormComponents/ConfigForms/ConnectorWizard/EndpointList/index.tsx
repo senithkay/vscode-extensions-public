@@ -70,7 +70,7 @@ export function EndpointList(props: FormGeneratorProps) {
                 className={classes.endpointItem}
             >
                 <div className={classes.iconWrapper}>
-                    <ModuleIcon module={connector} scale={0.5} />
+                    <ModuleIcon module={connector} scale={0.35} width={16}/>
                 </div>
                 <Typography>{name}</Typography>
             </ListItem>
