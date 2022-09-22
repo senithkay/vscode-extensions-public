@@ -40,6 +40,9 @@ export interface EndpointListProps {
     addNewEndpoint: () => void;
 }
 
+const DEFAULT_ICON_SCALE = 0.35;
+const ICON_WIDTH_SMALL = 16;
+
 export function EndpointList(props: FormGeneratorProps) {
     const classes = useStyles();
     const formClasses = useFormStyles();
@@ -70,7 +73,7 @@ export function EndpointList(props: FormGeneratorProps) {
                 className={classes.endpointItem}
             >
                 <div className={classes.iconWrapper}>
-                    <ModuleIcon module={connector} scale={0.35} width={16}/>
+                    <ModuleIcon module={connector} scale={DEFAULT_ICON_SCALE} width={ICON_WIDTH_SMALL}/>
                 </div>
                 <Typography>{name}</Typography>
             </ListItem>
