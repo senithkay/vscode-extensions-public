@@ -172,6 +172,16 @@ export class FunctionDiagram {
         return this;
     }
 
+
+    public assertControlFlowLineCount(count: number) {
+        this.container.within(() => {
+            return cy.get('.control-flow-line').should(
+                "have.length",
+                count
+            )
+        })
+    }
+
     public clickEditOnExistingEndpointStatement(targetLine: number) {
         this.container.within(() => {
             cy.get(`.diagram-canvas .main-connector-process-wrapper[target-line="${targetLine}"] .connector-process-options-wrapper [data-testid="editBtn"]`)

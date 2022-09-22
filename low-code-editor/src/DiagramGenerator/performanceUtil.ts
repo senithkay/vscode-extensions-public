@@ -18,30 +18,71 @@
  */
 
 import {
-    ANALYZE_TYPE,
-    DiagramEditorLangClientInterface, GraphData, GraphPoint, PerformanceAnalyzerGraphResponse,
-    PerformanceAnalyzerRealtimeResponse, PerformanceAnalyzerResponse, PerformanceData, SequenceGraphPoint, SequenceGraphPointValue
+    ANALYZE_TYPE, DiagramEditorLangClientInterface,
+    PerformanceAnalyzerResponse, Range, TopBarData
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { mergeAnalysisDetails } from "./mergePerformanceData";
-import { PFSession } from "./vscode/Diagram";
+import { ConnectorLatency, mergeAnalysisDetails } from "./mergePerformanceData";
 
 const SUCCESS = "Success";
+const NO_DATA = "NO_DATA";
 let syntaxTree: any;
 let langClient: DiagramEditorLangClientInterface;
 let filePath: string;
-let graphData: GraphPoint[];
-let sequenceDiagramData: SequenceGraphPoint[];
 let diagramRedraw: any;
+let advancedData: PerformanceAnalyzerAdvancedResponse;
 let currentResourcePos: NodePosition;
 let showPerformanceGraph: (request: PerformanceGraphRequest) => Promise<boolean>;
-let getDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>;
+let getDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>;
 const endpoints = new Map<string, PerformanceAnalyzerResponse>();
 
 export interface PerformanceGraphRequest {
     file: string;
-    data: GraphData;
+    name: string;
+    data: PerformanceAnalyzerAdvancedResponse;
+}
+
+export interface PerformanceAnalyzerRealtimeResponse extends SequenceDiagramData {
+    message?: string;
+    type?: any;
+    positions: Record<string, ConnectorPosition>;
+}
+
+export interface PerformanceAnalyzerAdvancedResponse {
+    criticalPath: number;
+    pathmaps: Record<string, string[]>;
+    paths: Record<string, PathData>;
+    positions: Record<string, ConnectorPosition>;
+}
+
+interface PathData {
+    graphData: GraphPoint[];
+    sequenceDiagramData: SequenceDiagramData;
+}
+
+interface GraphPoint {
+    concurrency: number;
+    latency: number;
+    tps: number;
+}
+
+interface ConnectorPosition {
+    name: string;
+    pkgID: string;
+    pos: string;
+}
+
+export interface Values {
+    min?: number;
+    max: number;
+}
+
+interface SequenceDiagramData {
+    concurrency: Values;
+    latency: Values;
+    tps: Values;
+    connectorLatencies: Record<string, Values>;
 }
 
 /**
@@ -55,7 +96,9 @@ export interface PerformanceGraphRequest {
  */
 export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
                                          showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
-                                         getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerGraphResponse | undefined>): Promise<Map<string, PerformanceData>> {
+                                         getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) =>
+        Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse
+            | undefined>): Promise<void> {
     if (!st || !file || !lc) {
         return;
     }
@@ -66,12 +109,19 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
     showPerformanceGraph = showPerf;
     getDataFromChoreo = getPerfDataFromChoreo;
 
-    const performanceBarData = new Map<string, PerformanceData>();
+    await addRealtimeData();
+}
+
+async function addRealtimeData() {
+    if (!langClient || !filePath || !getDataFromChoreo || !updateDiagram) {
+        return;
+    }
 
     await langClient.getPerfEndpoints({
         documentIdentifier: {
             uri: filePath
-        }
+        },
+        isWorkerSupported: true
     }).then(async (response) => {
         if (!response) {
             return;
@@ -81,111 +131,94 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
             if (resource.type === SUCCESS) {
 
                 const realtimeData = await getDataFromChoreo(resource, ANALYZE_TYPE.REALTIME) as PerformanceAnalyzerRealtimeResponse;
-                if (!realtimeData) {
-                    return;
-                }
+                if (!realtimeData) continue;
+                if (realtimeData.message === NO_DATA) continue;
+
                 const pos = resource.resourcePos;
                 const position = `${pos.start.line},${pos.start.character},${pos.end.line},${pos.end.character}`;
-                performanceBarData.set(position, { data: realtimeData, type: ANALYZE_TYPE.REALTIME });
                 endpoints.set(position, resource);
+                currentResourcePos = { startLine: pos.start.line, startColumn: pos.start.character, endLine: pos.end.line, endColumn: pos.end.character };
+
+                // add connector latencies
+                updateDiagram(realtimeData, ANALYZE_TYPE.REALTIME);
+
             }
         }
+    });
+}
+
+function updateDiagram(realtimeData: PerformanceAnalyzerRealtimeResponse, analyzeType: ANALYZE_TYPE) {
+    const analysisData: ConnectorLatency[] = [];
+    const concurrency = realtimeData.concurrency;
+    const latency = realtimeData.latency;
+    const tps = realtimeData.tps;
+
+    const topBarData: TopBarData = {
+        concurrency: concurrency.min === concurrency.max ? `${concurrency.max}` : `${concurrency.min} - ${concurrency.max}`,
+        latency: getPerfValuesWithUnit(latency),
+        tps: tps.min === tps.max ? `${tps.max}` : `${tps.min} - ${tps.max}`,
+        analyzeType
+    };
+
+    Object.keys(realtimeData.connectorLatencies).forEach((key) => {
+        const name = (realtimeData.positions[key]).pos.split("/").pop();
+        const latencies = realtimeData.connectorLatencies[key];
+        analysisData.push({ name, latency: getPerfValuesWithUnit(latencies) });
 
     });
-    return performanceBarData;
+
+    mergeAnalysisDetails(syntaxTree, topBarData, analysisData, currentResourcePos);
 }
 
 export async function addAdvancedLabels(name: string, range: NodePosition, diagramRedrawFunc: any) {
     if (!filePath || !langClient || !diagramRedrawFunc) {
         return;
     }
-    currentResourcePos = range;
 
     diagramRedraw = diagramRedrawFunc;
 
     const position = `${range.startLine},${range.startColumn},${range.endLine},${range.endColumn}`;
 
-    let data = await getDataFromChoreo(endpoints.get(position), ANALYZE_TYPE.ADVANCED);
+    const data = await getDataFromChoreo(endpoints.get(position), ANALYZE_TYPE.ADVANCED);
 
     if (!data) {
         return;
     }
-    data = data as PerformanceAnalyzerGraphResponse;
-
-    sequenceDiagramData = data.sequenceDiagramData;
-    graphData = data.graphData;
-    updateAdvancedLabels(0);
-    showPerformanceChart({ name, graphData })
+    currentResourcePos = { startLine: range.startLine, startColumn: range.startColumn, endLine: range.endLine, endColumn: range.endColumn };
+    advancedData = data as PerformanceAnalyzerAdvancedResponse;
+    showPerformanceChart({ file: filePath, name, data: advancedData });
+    updatePerfPath(advancedData.criticalPath.toString());
 }
 
-function updateAdvancedLabels(concurrency: number) {
-
-    if (!syntaxTree || !sequenceDiagramData || !diagramRedraw || !graphData) {
-        return;
-    }
-
-    if (sequenceDiagramData.length === 0) {
-        return;
-    }
-
-    const data = sequenceDiagramData[concurrency];
-    const values = data.values;
-    let file: string;
-
-    const analysisData: SequenceGraphPointValue[] = [];
-    for (const value of values) {
-        const name = value.name.replace("(", "").replace(")", "");
-        const latency = value.latency;
-        const tps = value.tps;
-        file = name.split("/")[0];
-
-        analysisData.push({ name, latency, tps });
-    }
-
-    mergeAnalysisDetails(syntaxTree, graphData[concurrency], analysisData, file, currentResourcePos);
-    diagramRedraw(syntaxTree);
-}
-
-async function showPerformanceChart(data: GraphData) {
+async function showPerformanceChart(data: PerformanceGraphRequest) {
     await showPerformanceGraph({
         file: filePath,
-        data
+        name: data.name,
+        data: data.data
     });
 }
 
-export async function updatePerformanceLabels(concurrency: number) {
-
-    switch (concurrency) {
-        case -1: {
-            mergeAnalysisDetails(syntaxTree, null, null, null, null, true);
-            await addPerformanceData(syntaxTree, filePath, langClient, showPerformanceGraph, getDataFromChoreo);
-            diagramRedraw(syntaxTree);
-            return true;
-        }
-        case 1: {
-            concurrency = 0;
-            break;
-        }
-        case 25: {
-            concurrency = 1;
-            break;
-        }
-        case 50: {
-            concurrency = 2;
-            break;
-        }
-        case 75: {
-            concurrency = 3;
-            break;
-        }
-        case 100: {
-            concurrency = 4;
-            break;
-        }
-        default: {
-            return false;
-        }
+export async function updatePerfPath(pathId: string) {
+    if (pathId === '-1') {
+        await addRealtimeData();
+    } else {
+        updateDiagram({ ...advancedData.paths[pathId].sequenceDiagramData, positions: advancedData.positions }, ANALYZE_TYPE.ADVANCED);
     }
-    updateAdvancedLabels(concurrency);
+
+    diagramRedraw(syntaxTree);
     return true;
+}
+
+function getPerfValuesWithUnit(latencies: Values): string {
+    const min = `${getResponseTime(latencies.min)} ${getResponseUnit(latencies.min)}`;
+    const max = `${getResponseTime(latencies.max)} ${getResponseUnit(latencies.max)}`;
+    return min === max ? max : `${min} - ${max}`;
+}
+
+function getResponseTime(responseTime: number) {
+    return responseTime > 1000 ? (responseTime / 1000).toFixed(2) : responseTime
+}
+
+function getResponseUnit(responseTime: number) {
+    return responseTime > 1000 ? " s" : " ms";
 }

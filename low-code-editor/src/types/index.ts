@@ -17,7 +17,7 @@
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     BallerinaConnectorInfo, CommandResponse, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, PerformanceData, STModification,
+    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification,
     STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -140,7 +140,6 @@ export interface LowCodeEditorProperties {
     isReadOnly: boolean;
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
-    performanceData?: Map<string, PerformanceData>;
     importStatements: string[];
     experimentalEnabled?: boolean;
     lowCodeResourcesVersion?: string;

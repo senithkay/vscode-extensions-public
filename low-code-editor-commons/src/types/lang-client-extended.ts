@@ -295,55 +295,9 @@ export interface Position {
     character: number;
 }
 
-export interface PerformanceAnalyzerGraphResponse {
-    message: string;
-    type: any;
-    sequenceDiagramData: SequenceGraphPoint[];
-    graphData: GraphPoint[];
-}
-
-export interface PerformanceAnalyzerRealtimeResponse {
-    message: string;
-    type: any;
-    concurrency: Values;
-    latency: Values;
-    tps: Values;
-}
-
-export interface Values {
-    min?: number;
-    max: number;
-}
-
 export interface PerformanceAnalyzerEndpointsRequest {
     documentIdentifier: DocumentIdentifier;
-}
-
-export interface GraphPoint {
-    concurrency: string;
-    latency: string;
-    tps: string;
-}
-
-export interface SequenceGraphPoint {
-    concurrency: string;
-    values: SequenceGraphPointValue[];
-}
-
-export interface SequenceGraphPointValue {
-    name: string;
-    latency: number;
-    tps: number;
-}
-
-export interface GraphData {
-    name: string,
-    graphData: GraphPoint[];
-}
-
-export interface PerformanceGraphRequest {
-    file: string;
-    data: GraphData;
+    isWorkerSupported: boolean;
 }
 
 export interface CurrentFile {
