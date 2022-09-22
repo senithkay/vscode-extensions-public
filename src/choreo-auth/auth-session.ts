@@ -26,7 +26,7 @@ const KEY_FILE_PATH = path.join(os.homedir(), ".config", "choreo", "vscode", "au
 
 export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
     if (existsSync(KEY_FILE_PATH)) {
-        const data = readFileSync(KEY_FILE_PATH, { encoding: 'utf-8' })
+        const data = readFileSync(KEY_FILE_PATH, { encoding: 'utf-8' });
         const session = JSON.parse(data).session;
         return {
             loginStatus: true,
