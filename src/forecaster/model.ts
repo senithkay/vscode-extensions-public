@@ -17,7 +17,7 @@
  *
  */
 
-import { GraphPoint, PerformanceAnalyzerGraphResponse, PerformanceAnalyzerResponse, Range } from "../core";
+import { PerformanceAnalyzerResponse, Range } from "../core";
 import { CODELENSE_TYPE } from "./codelens-provider";
 
 export enum ANALYZETYPE {
@@ -38,7 +38,7 @@ export interface PFSession {
 
 export interface PerformanceGraphRequest {
     file: string;
-    data: GraphData;
+    data: PerformanceAnalyzerAdvancedResponse;
 }
 
 export interface SyntaxTree {
@@ -140,6 +140,59 @@ export class DataLabel {
 
 export interface PerfContext {
     resourceData: PerformanceAnalyzerResponse | undefined;
-    advancedData: PerformanceAnalyzerGraphResponse | undefined;
+    advancedData: PerformanceAnalyzerAdvancedResponse | undefined;
     file: string | undefined;
+}
+
+export interface PerformanceAnalyzerRealtimeResponse {
+    message: string;
+    type: any;
+    positions: Record<string, ConnectorPosition>;
+    concurrency: Values;
+    latency: Values;
+    tps: Values;
+    connectorLatencies: Record<string, Values>;
+}
+
+export interface PerformanceAnalyzerAdvancedResponse {
+    message?: string;
+    criticalPath: number;
+    pathmaps: Record<string, string[]>;
+    paths: Record<string, PathData>;
+    positions: Record<string, ConnectorPosition>;
+}
+
+interface PathData {
+    graphData: GraphPoint[];
+    sequenceDiagramData: SequenceDiagramData;
+}
+
+interface ConnectorPosition {
+    name: string;
+    pkgID: string;
+    pos: string;
+}
+
+export interface GraphPoint {
+    concurrency: number;
+    latency: number;
+    tps: number;
+}
+
+export interface Values {
+    min?: number;
+    max: number;
+}
+
+interface SequenceDiagramData {
+    concurrency: Values;
+    latency: Values;
+    tps: Values;
+    connectorLatencies: Record<string, Values>;
+}
+
+export interface PerformanceGraphRequest {
+    file: string;
+    name: string;
+    data: PerformanceAnalyzerAdvancedResponse;
 }

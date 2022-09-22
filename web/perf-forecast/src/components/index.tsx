@@ -19,12 +19,11 @@
 
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { PerformanceForcast } from "./performance-forcast/PerformanceForcast";
-
+import { PerformanceForecast } from "./performance-forecast/PerformanceForecast";
 
 export function renderPerformance(data: any) {
     ReactDOM.render(
-        <PerformanceForcast name={data.name} data={data.data} />,
+        <PerformanceForecast name={data.name} data={data.data} />,
         document.getElementById("webview-container")
     );
 }
