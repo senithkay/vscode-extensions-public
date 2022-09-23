@@ -6,11 +6,11 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
-import { getInputNodeExpr, getInputPortsForExpr } from "../../utils/dm-utils";
+import { getInputNodeExpr, getInputPortsForExpr, getOutputPortForField } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { MappingConstructorNode, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../MappingConstructor";
+import { MappingConstructorNode } from "../MappingConstructor";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 
@@ -31,7 +31,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public editorLabel: string,
         public parentNode: STNode,
         public fieldAccessNodes: FieldAccess[],
-        public specificFields: SpecificField[]) {
+        public fields: STNode[]) {
         super(
             context,
             LINK_CONNECTOR_NODE_TYPE
@@ -40,7 +40,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             this.value = valueNode.valueExpr ? valueNode.valueExpr.source.trim() : '';
             this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.valueExpr.position);
         } else {
-            this.value = '';
+            this.value = valueNode.value ? valueNode.value.trim()  : valueNode.source.trim();
             this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.position);
         }
 
@@ -68,27 +68,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         })
 
         if (this.outPort) {
-            let targetPortName = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
-
-            for (let i = 0; i < this.specificFields.length; i++) {
-                if (i == 0 && STKindChecker.isSpecificField(this.context.selection.selectedST)
-                    && (STKindChecker.isQueryExpression(this.context.selection.selectedST.valueExpr))) {
-                    continue;
-                }
-                targetPortName = targetPortName + "." + this.specificFields[i].fieldName.value
-            }
-
-            targetPortName = targetPortName + ".IN"
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode) {
-                    const ports = Object.entries(node.getPorts());
-                    ports.forEach((entry) => {
-                        const portName = entry[0];
-                        if (portName === targetPortName) {
-                            if (entry[1] instanceof RecordFieldPortModel)
-                                this.targetPort = entry[1]
-                        }
-                    });
+                    this.targetPort = getOutputPortForField(this.fields, node)
                     while (this.targetPort && this.targetPort.hidden) {
                         this.targetPort = this.targetPort.parentModel;
                     }

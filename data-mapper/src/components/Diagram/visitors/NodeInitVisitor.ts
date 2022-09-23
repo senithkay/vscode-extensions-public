@@ -2,6 +2,7 @@ import {
     BinaryExpression,
     ExpressionFunctionBody,
     FunctionDefinition,
+    ListConstructor,
     QueryExpression,
     SpecificField,
     STKindChecker,
@@ -110,7 +111,10 @@ export class NodeInitVisitor implements Visitor {
     };
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
-        this.specificFields.push(node)
+        if (this.selection.selectedST.position.startLine !== node.position.startLine
+            && this.selection.selectedST.position.startColumn !== node.position.startColumn ) {
+            this.specificFields.push(node)
+        }
         if (this.isWithinQuery === 0
             && node.valueExpr
             && !STKindChecker.isMappingConstructor(node.valueExpr)
@@ -132,6 +136,29 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
+    beginVisitListConstructor(node: ListConstructor, parent?: STNode): void {
+        if (this.isWithinQuery === 0 && node.expressions) {
+            node.expressions.forEach((expr) => {
+                if(!STKindChecker.isMappingConstructor(expr)){
+                    const fieldAccessNodes = getFieldAccessNodes(expr);
+                    if (fieldAccessNodes.length > 1){
+                        const linkConnectorNode = new LinkConnectorNode(
+                            this.context,
+                            expr,
+                            "",
+                            parent,
+                            fieldAccessNodes,
+                            [...this.specificFields, expr]
+                        );
+                        linkConnectorNode.setPosition(440, 1200);
+                        this.intermediateNodes.push(linkConnectorNode);
+                    }
+                }
+            })
+        }
+        
+    }
+
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         this.isWithinQuery -= 1;
 
@@ -145,7 +172,9 @@ export class NodeInitVisitor implements Visitor {
     }
 
     endVisitSpecificField(node: SpecificField, parent?: STNode) {
-        this.specificFields.pop()
+        if (this.specificFields.length > 0) {
+            this.specificFields.pop()
+        }
     }
 
     getNodes() {

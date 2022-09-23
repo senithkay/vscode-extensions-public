@@ -1,6 +1,8 @@
 import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canvas-core';
 import { PortModel, LinkModel, DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { MouseEvent, KeyboardEvent } from 'react';
+import { LinkConnectorNode } from '../Node/LinkConnector';
+import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
 
 /**
@@ -35,7 +37,8 @@ export class CreateLinkState extends State<DiagramEngine> {
 							}
 						}
 					} else if (element instanceof PortModel && this.sourcePort && element !== this.sourcePort) {
-						if (element instanceof RecordFieldPortModel) {
+						if ((element instanceof RecordFieldPortModel)
+						|| ((element instanceof IntermediatePortModel) && (element.getParent() instanceof LinkConnectorNode))) {
 							if (element.portType === "IN") {
 								element.fireEvent({}, "mappingFinishedTo");
 								if (this.sourcePort.canLinkToPort(element)) {

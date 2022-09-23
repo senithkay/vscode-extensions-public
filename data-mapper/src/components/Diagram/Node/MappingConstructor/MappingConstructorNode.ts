@@ -30,11 +30,13 @@ import { DataMapperLinkModel } from "../../Link";
 import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
+import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getBalRecFieldName,
     getEnrichedRecordType,
     getInputNodeExpr,
     getInputPortsForExpr,
+    getOutputPortForField,
     getTypeName
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
@@ -43,7 +45,6 @@ import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
-export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
 
 export class MappingConstructorNode extends DataMapperNodeModel {
 
@@ -118,7 +119,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            const outPort = this.getOutputPortForField(fields);
+            const outPort = getOutputPortForField(fields, this);
             const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
             if (inPort && outPort) {
                 lm.addLabel(new ExpressionLabelModel({
@@ -150,95 +151,6 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 this.getModel().addAll(lm);
             }
         });
-    }
-
-    private getOutputPortForField(fields: STNode[]) {
-        let nextTypeChildNodes: EditableRecordField[] = this.recordFields; // Represents fields of a record
-        let nextTypeMemberNodes: ArrayElement[]; // Represents elements of an array
-        let recField: EditableRecordField;
-        let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
-        for (let i = 0; i < fields.length; i++) {
-            const field = fields[i];
-            if (STKindChecker.isSpecificField(field)) {
-                if (nextTypeChildNodes) {
-                    portIdBuffer = `${portIdBuffer}.${field.fieldName.value}`
-                    const recFieldTemp = nextTypeChildNodes.find(
-                        (recF) => getBalRecFieldName(recF.type.name) === field.fieldName.value);
-                    if (recFieldTemp) {
-                        if (i === fields.length - 1) {
-                            recField = recFieldTemp;
-                        } else {
-                            [nextTypeChildNodes, nextTypeMemberNodes] = this.getNextNodes(recFieldTemp);
-                        }
-                    }
-                } else if (nextTypeMemberNodes) {
-                    const [nextField, fieldIndex] = this.getNextField(nextTypeMemberNodes, field.position);
-                    if (nextField && fieldIndex !== -1) {
-                        portIdBuffer = `${portIdBuffer}.${fieldIndex}.${field.fieldName.value}`;
-                        if (i === fields.length - 1) {
-                            recField = nextField;
-                        } else {
-                            [nextTypeChildNodes, nextTypeMemberNodes] = this.getNextNodes(nextField);
-                        }
-                    }
-                }
-            } else if (STKindChecker.isListConstructor(field) && nextTypeMemberNodes) {
-                const [nextField, fieldIndex] = this.getNextField(nextTypeMemberNodes, field.position);
-                if (nextField && fieldIndex !== -1) {
-                    portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
-                    [nextTypeChildNodes, nextTypeMemberNodes] = this.getNextNodes(nextField);
-                }
-            } else {
-                if (nextTypeChildNodes) {
-                    const fieldIndex = nextTypeChildNodes.findIndex(
-                        (recF) => recF?.value && isPositionsEquals(field.position, recF.value.position));
-                    if (fieldIndex !== -1) {
-                        portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
-                        recField = nextTypeChildNodes[fieldIndex];
-                    }
-                } else if (nextTypeMemberNodes) {
-                    const [nextField, fieldIndex] = this.getNextField(nextTypeMemberNodes, field.position);
-                    if (nextField && fieldIndex !== -1) {
-                        portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
-                        recField = nextField;
-                    }
-                }
-            }
-        }
-        if (recField) {
-            const portId = `${portIdBuffer}.IN`;
-            let port = (this.getPort(portId) as RecordFieldPortModel);
-            while (port && port.hidden) {
-                port = port.parentModel;
-            }
-            return port;
-        }
-    }
-
-    private getNextField(nextTypeMemberNodes: ArrayElement[],
-        nextFieldPosition: NodePosition): [EditableRecordField, number] {
-        let memberIndex = -1;
-        const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
-            for (let i = 0; i < node.members.length; i++) {
-                const member = node.members[i];
-                if (member?.value && isPositionsEquals(nextFieldPosition, member.value.position)) {
-                    memberIndex = i;
-                    return true;
-                }
-            }
-        });
-        if (fieldIndex !== -1 && memberIndex !== -1) {
-            return [nextTypeMemberNodes[fieldIndex].members[memberIndex], fieldIndex];
-        }
-        return [undefined, fieldIndex];
-    }
-
-    private getNextNodes(nextField: EditableRecordField): [EditableRecordField[], ArrayElement[]] {
-        if (nextField.type.typeName === PrimitiveBalType.Record) {
-            return [nextField?.childrenTypes, undefined];
-        } else if (nextField.type.typeName === PrimitiveBalType.Array) {
-            return [undefined, nextField?.elements];
-        }
     }
 
     private deleteLink(field: STNode) {
