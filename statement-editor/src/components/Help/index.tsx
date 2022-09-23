@@ -33,7 +33,7 @@ export function Help() {
         <div className={statementEditorClasses.help}>
             <HelpIcon/>
             <StatementEditorHint
-                content={"If you are new to Statement Editor, please refer the user guide"}
+                content={"Refer the Statement Editor user guide"}
             >
                 <div
                     onClick={openStatementEditorHelp}
