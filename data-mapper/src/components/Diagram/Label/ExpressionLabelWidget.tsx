@@ -18,6 +18,7 @@ import { ExpressionLabelModel } from './ExpressionLabelModel';
 import clsx from 'clsx';
 import IconButton from '@material-ui/core/IconButton';
 import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
+import { getBalRecFieldName } from '../utils/dm-utils';
 
 export interface FlowAliasLabelWidgetProps {
 	model: ExpressionLabelModel;
@@ -182,11 +183,40 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	if (diagnostic) {
 		elements.push(<div className={classes.separator} />);
 		elements.push(
-			<DiagnosticWidget 
-				diagnostic={diagnostic} 
+			<DiagnosticWidget
+				diagnostic={diagnostic}
 				value={props.model.value}
-				onClick={onClickEdit}/>
+				onClick={onClickEdit} />
 		);
+	}
+
+	let isSourceCollapsed = false;
+	let isTargetCollapsed = false;
+	const collapsedFields = props.model?.context?.collapsedFields;
+
+	const source = props.model?.link?.getSourcePort()
+	const target = props.model?.link?.getTargetPort()
+
+	if (source instanceof RecordFieldPortModel) {
+		if (source?.parentId) {
+			const fieldName = getBalRecFieldName(source.field.name);
+			isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
+		} else {
+			isSourceCollapsed = collapsedFields?.includes(source?.fieldName)
+		}
+	}
+
+	if (target instanceof RecordFieldPortModel) {
+		if (target?.parentId) {
+			const fieldName = getBalRecFieldName(target.field.name);
+			isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
+		} else {
+			isTargetCollapsed = collapsedFields?.includes(target?.fieldName)
+		}
+	}
+
+	if (isSourceCollapsed || isTargetCollapsed) {
+		return null;
 	}
 
 	return (
