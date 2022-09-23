@@ -50,7 +50,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
-    const hasValue = specificField && !!specificField.valueExpr.source;
+    const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
     const typeName = getTypeName(field.type);
