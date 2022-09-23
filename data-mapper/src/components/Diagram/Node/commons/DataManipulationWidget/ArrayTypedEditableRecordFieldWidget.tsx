@@ -154,6 +154,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             getPort={getPort}
                             context={context}
                             fieldIndex={index}
+                            deleteField={deleteField}
                         />
                     </TreeBody>
                 );
