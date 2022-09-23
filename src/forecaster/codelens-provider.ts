@@ -22,10 +22,9 @@ import {
     CancellationToken, CodeLens, CodeLensProvider, Event, EventEmitter,
     ProviderResult, Range, TextDocument, Uri, window, workspace
 } from 'vscode';
-import { createPerformanceGraphAndCodeLenses } from './activator';
+// import { createPerformanceGraphAndCodeLenses } from './activator';
 import { DataLabel } from './model';
 import path from 'path';
-import { ANALYZETYPE } from './model';
 import { SHOW_GRAPH_COMMAND } from './activator';
 import { DefaultWebviewPanel } from './performanceGraphPanel';
 
@@ -94,7 +93,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         if (!ExecutorCodeLensProvider.isProccessing) {
             ExecutorCodeLensProvider.isProccessing = true;
             ExecutorCodeLensProvider.dataLabels = [];
-            await createPerformanceGraphAndCodeLenses(uri.fsPath, ANALYZETYPE.REALTIME);
+            // await createPerformanceGraphAndCodeLenses(uri.fsPath, ANALYZETYPE.REALTIME);
             ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
             ExecutorCodeLensProvider.isProccessing = false;
         }
