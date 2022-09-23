@@ -83,6 +83,8 @@ const inputEditorTemplateStyles = {
     }
 }
 
+const HEADER_FOOTER_HEIGHT = '115px';
+
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
@@ -829,7 +831,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             ...stmtEditorPadding
         },
         statementExpressionWrapper: {
-            height: 'calc(100vh - 115px)',
+            height: "calc(100vh - " + HEADER_FOOTER_HEIGHT + ")",
             '&.overlay': {
                 display: 'block',
                 position: 'relative',
