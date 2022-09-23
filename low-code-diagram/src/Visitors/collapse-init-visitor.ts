@@ -12,10 +12,11 @@
  */
 
 import {
-    BlockStatement, FunctionBodyBlock, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor
+    BlockStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-import { BlockViewState, CollapseViewState, StatementViewState } from "../ViewState";
+import { BlockViewState, CollapseViewState, FunctionViewState, StatementViewState } from "../ViewState";
+import { DefaultConfig } from "./default";
 
 import { isPositionWithinRange } from "./util";
 
@@ -23,6 +24,17 @@ export class CollapseInitVisitor implements Visitor {
     private position: NodePosition;
     constructor(position: NodePosition) {
         this.position = position;
+    }
+
+    beginVisitFunctionDefinition(node: FunctionDefinition) {
+        const viewState: FunctionViewState = node.viewState as FunctionViewState;
+        const trigger = viewState.trigger;
+        const end = viewState?.end?.bBox;
+
+        trigger.offsetFromBottom = DefaultConfig.interactionModeOffset;
+        trigger.offsetFromTop = DefaultConfig.interactionModeOffset;
+        end.offsetFromBottom = DefaultConfig.interactionModeOffset;
+        end.offsetFromTop = DefaultConfig.interactionModeOffset;
     }
 
     beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
@@ -53,6 +65,8 @@ export class CollapseInitVisitor implements Visitor {
 
             node.statements.forEach((statement, statementIndex) => {
                 const statementVS = statement.viewState as StatementViewState;
+                statementVS.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
+                statementVS.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
                 if (!this.isSkippedConstruct(statement) && isPositionWithinRange(statement.position, this.position)) {
                     if (!(statementVS.isAction || statementVS.isEndpoint)) {
                         statementVS.collapsed = true;

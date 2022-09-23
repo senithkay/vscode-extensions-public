@@ -13,17 +13,18 @@
 import React from "react";
 
 import { BlockViewState, CollapseViewState } from "../../../ViewState";
+import { DefaultConfig } from "../../../Visitors";
+import { COLLAPSE_SVG_HEIGHT, COLLAPSE_SVG_WIDTH } from "../ForEach/ColapseButtonSVG";
 
-import { CollapseSVG } from "./CollapseSVG";
-import { ExpandButtonSVG } from "./ExpandButtonSVG";
+import { CollapseButtonSVG } from "./CollapseButtonSVG";
+import { CollapsedComponentSVG } from "./CollapsedComponentSVG";
+import { ExpandedContainer } from "./ExpandedContainer";
 
 interface CollapseProps {
     collapseVS: CollapseViewState;
     onExpandClick?: () => void;
 }
 
-export const COLLAPSED_BLOCK_HEIGHT = 26;
-export const COLLAPSED_BLOCK_WIDTH = 46;
 
 export default function CollapseComponent(props: CollapseProps) {
     const { collapseVS, onExpandClick } = props;
@@ -31,22 +32,8 @@ export default function CollapseComponent(props: CollapseProps) {
     const y = collapseVS.bBox.cy;
     return (
         <g >
-            {collapseVS.collapsed && <CollapseSVG x={x} y={y} onExpandClick={onExpandClick} />}
-            {!collapseVS.collapsed && (
-                <g>
-                    <rect
-                        width={collapseVS.bBox.w}
-                        height={collapseVS.bBox.h}
-                        x={x}
-                        y={y}
-                        stroke={'#5567D5'}
-                        fill={'none'}
-                        rx={6}
-                        strokeDasharray={2}
-                    />
-                    <ExpandButtonSVG x={collapseVS.bBox.w - (9 + 5)} y={y + 5} />
-                </g>
-            )}
+            {collapseVS.collapsed && <CollapsedComponentSVG x={x} y={y} onExpandClick={onExpandClick} />}
+            {!collapseVS.collapsed && <ExpandedContainer collapseVS={collapseVS} />}
         </g>
     )
 }

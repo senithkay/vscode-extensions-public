@@ -31,14 +31,13 @@ import {
     STKindChecker,
     STNode,
     traversNode,
-    TypeDefinition,
     Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
 import { PLUS_SVG_HEIGHT, PLUS_SVG_WIDTH } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../Components/RenderingComponents/ActionInvocation/TriggerSVG";
 import { ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/Assignment";
-import { COLLAPSED_BLOCK_HEIGHT, COLLAPSED_BLOCK_WIDTH } from "../Components/RenderingComponents/Collapse";
+import { COLLAPSED_BLOCK_HEIGHT, COLLAPSED_BLOCK_WIDTH } from "../Components/RenderingComponents/Collapse/CollapsedComponentSVG";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/ConditionAssignment";
 import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
 import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
@@ -1484,10 +1483,14 @@ export class SizingVisitor implements Visitor {
             if (!collapsedVS.collapsed) {
                 collapsedVS.bBox.lw = blockViewState.bBox.lw;
                 collapsedVS.bBox.rw = blockViewState.bBox.rw;
+                collapsedVS.bBox.offsetFromTop = DefaultConfig.offSet;
+                collapsedVS.bBox.offsetFromBottom = DefaultConfig.offSet;
 
                 collapsedVS.bBox.w = collapsedVS.bBox.lw + collapsedVS.bBox.rw;
             }
-        })
+        });
+
+        console.log('sizing end block >>>', blockViewState.collapsedViewStates)
     }
 
     private addToSendReceiveMap(type: 'Send' | 'Receive' | 'Wait', entry: AsyncReceiveInfo | AsyncSendInfo | WaitInfo) {
@@ -1615,8 +1618,8 @@ export class SizingVisitor implements Visitor {
                 blockViewState.collapsedViewStates.forEach(collapseViewState => {
                     if (!collapseViewState.bBox && isPositionWithinRange(statement.position, collapseViewState.range)) {
                         collapseViewState.bBox = new SimpleBBox();
-                        collapseViewState.bBox.offsetFromTop = 5;
-                        collapseViewState.bBox.offsetFromBottom = 5;
+                        collapseViewState.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
+                        collapseViewState.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
                         collapseViewState.bBox.lw = COLLAPSED_BLOCK_WIDTH / 2;
                         collapseViewState.bBox.rw = COLLAPSED_BLOCK_WIDTH / 2;
                         collapseViewState.bBox.h = COLLAPSED_BLOCK_HEIGHT;

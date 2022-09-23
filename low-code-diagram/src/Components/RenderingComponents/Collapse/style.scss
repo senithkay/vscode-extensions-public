@@ -1,11 +1,16 @@
-.collapse-component {
-    path.expand-button-container {
-        stroke: #BCBEC4;
-        stroke-width: 2px;
-    }
-    :hover {
-        path.expand-button-container {
-            stroke: #8D91A3;
+.expanded-block {
+    .collapse-button {
+        .collapse-button-border {
+            stroke: #A6B3FF;
+        }
+
+        :hover {
+            .collapse-button-border {
+                stroke: #5567D5;
+            }
         }
     }
 }
+
+// hover 8d91a3
+// normal bcbec4

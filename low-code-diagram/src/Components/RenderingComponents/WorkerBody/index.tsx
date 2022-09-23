@@ -113,17 +113,17 @@ export function WorkerBody(props: DiagramProps) {
     // if (viewState?.collapseView) {
     //     children.push(<Collapse blockViewState={viewState} />)
     // }
+    const collapsedComponents: JSX.Element[] = []
     if (viewState.collapsedViewStates.length > 0) {
         // TODO: handle collapse ranges rendering
         viewState.collapsedViewStates.forEach((collapseVS) => {
             const onExpandClick = () => {
-                console.log('expand in range >>>', collapseVS.range);
                 diagramRedraw(
                     recalculateSizingAndPositioning(
                         expandCollapsedRange(syntaxTree, collapseVS.range), experimentalEnabled)
                 );
             }
-            children.push(<CollapseComponent collapseVS={collapseVS} onExpandClick={onExpandClick} />)
+            collapsedComponents.push(<CollapseComponent collapseVS={collapseVS} onExpandClick={onExpandClick} />)
         })
     }
 
@@ -134,6 +134,7 @@ export function WorkerBody(props: DiagramProps) {
     return (
         <>
             {controlFlowLines}
+            {collapsedComponents}
             {pluses}
             {workerIndicatorLine}
             {workerArrows}

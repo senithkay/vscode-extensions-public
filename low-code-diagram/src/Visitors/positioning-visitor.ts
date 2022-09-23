@@ -31,6 +31,7 @@ import {
 
 import { PLUS_SVG_HEIGHT } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../Components/RenderingComponents/ControlFlowExecutionTime";
+import { COLLAPSE_SVG_HEIGHT, COLLAPSE_SVG_HEIGHT_WITH_SHADOW } from "../Components/RenderingComponents/ForEach/ColapseButtonSVG";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
 import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
@@ -554,6 +555,7 @@ export class PositioningVisitor implements Visitor {
             plusViewState.bBox.cx = blockViewState.bBox.cx;
         }
         blockViewState.bBox.h = height;
+        console.log('end block positioning >>>', blockViewState.collapsedViewStates)
     }
 
     public beginVisitBlockStatement(node: BlockStatement) {
@@ -572,24 +574,39 @@ export class PositioningVisitor implements Visitor {
             statementViewState.bBox.cx = blockViewState.bBox.cx;
             statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
 
-            collapsedViewStates.forEach((collapsedViewState, i) => {
-                if (isPositionWithinRange(statement.position, collapsedViewState.range)) {
-                    collapsedViewState.bBox.cx = blockViewState.bBox.cx - collapsedViewState.bBox.lw;
-                    collapsedViewState.bBox.cy = blockViewState.bBox.cy + collapsedViewState.bBox.offsetFromTop + height;
+            // collapsedViewStates.forEach((collapsedViewState, i) => {
+            //     if (isPositionWithinRange(statement.position, collapsedViewState.range)) {
+            //         collapsedViewState.bBox.cx = blockViewState.bBox.cx - collapsedViewState.bBox.lw;
+            //         // collapsedViewState.bBox.cy = blockViewState.bBox.cy + collapsedViewState.bBox.offsetFromTop + height;
 
-                    if (collapsedViewState.collapsed) {
-                        height += collapsedViewState.getHeight();
+            //         if (collapsedViewState.collapsed) {
+            //             collapsedViewState.bBox.cy = blockViewState.bBox.cy + collapsedViewState.bBox.offsetFromTop + height;
+            //             height += collapsedViewState.getHeight();
+            //         } else {
+            //             collapsedViewState.bBox.cy = statementViewState.bBox.cy - statementViewState.bBox.offsetFromTop;
+            //             collapsedViewState.bBox.h = 0;
+            //         }
+
+            //         collapsedViewStates = [...collapsedViewStates.slice(0, i), ...collapsedViewStates.slice(i + 1)];
+            //     }
+            // });
+
+            for (let i = 0; i < collapsedViewStates.length; i++) {
+                if (isPositionWithinRange(statement.position, collapsedViewStates[i].range)) {
+                    collapsedViewStates[i].bBox.cx = blockViewState.bBox.cx - collapsedViewStates[i].bBox.lw;
+
+                    if (collapsedViewStates[i].collapsed) {
+                        collapsedViewStates[i].bBox.cy = blockViewState.bBox.cy + collapsedViewStates[i].bBox.offsetFromTop + height;
+                        height += collapsedViewStates[i].getHeight();
                     } else {
-                        collapsedViewState.bBox.cy -= statementViewState.bBox.offsetFromTop;
-                        collapsedViewState.bBox.h = 0;
+                        collapsedViewStates[i].bBox.cy = statementViewState.bBox.cy - statementViewState.bBox.offsetFromTop;
+                        collapsedViewStates[i].bBox.h = -COLLAPSE_SVG_HEIGHT / 3;
                     }
 
                     collapsedViewStates = [...collapsedViewStates.slice(0, i), ...collapsedViewStates.slice(i + 1)];
+                    break;
                 }
-
-
-
-            });
+            }
 
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
@@ -862,9 +879,10 @@ export class PositioningVisitor implements Visitor {
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)
                     || (!statementViewState.collapsed)) {
                     height += statementViewState.getHeight();
-                    for (let collapsedIndex = 0; collapsedIndex < blockViewState.collapsedViewStates.length; collapsedIndex++) {
-                        if (isPositionWithinRange(statement.position, blockViewState.collapsedViewStates[collapsedIndex].range)) {
-                            blockViewState.collapsedViewStates[collapsedIndex].bBox.h += statementViewState.getHeight();
+                    for (const collapsedViewState of blockViewState.collapsedViewStates) {
+                        if (!collapsedViewState.collapsed
+                            && isPositionWithinRange(statement.position, collapsedViewState.range)) {
+                            collapsedViewState.bBox.h += statementViewState.getHeight();
                             break;
                         }
                     }
