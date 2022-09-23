@@ -214,6 +214,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     );
                 })
             }
+            function openExternalUrl(command, args) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'openExternalUrl',
+                        [command, args],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function sendTelemetryEvent(args) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -263,6 +274,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             resolveMissingDependencyByCodeAction,
                             runCommand,
                             runBackgroundTerminalCommand,
+                            openExternalUrl,
                             sendTelemetryEvent,
                             getLibrariesList,
                             getLibrariesData,

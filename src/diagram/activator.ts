@@ -36,7 +36,7 @@ import { showMessage } from '../utils/showMessage';
 import { sep } from "path";
 import { CommandResponse, DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { runCommand, runBackgroundTerminalCommand } from '../utils/runCommand';
+import { runCommand, runBackgroundTerminalCommand, openExternalUrl } from '../utils/runCommand';
 import { Diagnostic } from '.';
 import { createTests } from '../testing/activator';
 import {
@@ -459,6 +459,13 @@ class DiagramPanel {
 				methodName: "runBackgroundTerminalCommand",
 				handler: async (args: any[]): Promise<CommandResponse> => {
 					return await runBackgroundTerminalCommand(args[0]);
+				}
+			},
+			{
+				methodName: "openExternalUrl",
+				handler: async (args: any[]): Promise<boolean> => {
+					openExternalUrl(args[0]);
+					return Promise.resolve(true);
 				}
 			},
 			{
