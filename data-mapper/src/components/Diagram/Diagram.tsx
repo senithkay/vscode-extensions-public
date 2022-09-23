@@ -98,19 +98,25 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	React.useEffect(() => {
 		async function genModel() {
-			const model = new DiagramModel();
-			model.addAll(...nodes);
+			const zoomLevel = model.getZoomLevel();
+			const offSetX = model.getOffsetX();
+			const offSetY = model.getOffsetY();
+
+			const newModel = new DiagramModel();
+			newModel.setZoomLevel(zoomLevel);
+			newModel.setOffset(offSetX, offSetY);
+			newModel.addAll(...nodes);
 			for (let i = 0; i < nodes.length; i++) {
 				const node = nodes[i];
-				node.setModel(model);
+				node.setModel(newModel);
 				await node.initPorts();
 				await node.initLinks();
 				engine.repaintCanvas();
 			}
 			model.setLocked(true);
-			engine.setModel(model);
-			if (model.getLinks().length > 0){
-				dagreEngine.redistribute(model);
+			engine.setModel(newModel);
+			if (newModel.getLinks().length > 0){
+				dagreEngine.redistribute(newModel);
 				engine.repaintCanvas(true);
 			}
 			let requiredParamFields = 0;
@@ -127,7 +133,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
 				}
 			});
-			setModel(model);
+			setModel(newModel);
         }
   genModel();
 	}, [nodes]);
