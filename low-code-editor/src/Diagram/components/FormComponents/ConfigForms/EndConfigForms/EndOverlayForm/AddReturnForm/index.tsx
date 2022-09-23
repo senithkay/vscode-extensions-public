@@ -43,14 +43,16 @@ export function AddReturnForm(props: ReturnFormProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -145,7 +147,9 @@ export function AddReturnForm(props: ReturnFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        ballerinaVersion
+                        ballerinaVersion,
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

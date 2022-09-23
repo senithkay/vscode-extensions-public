@@ -91,7 +91,9 @@ export function StatementEditor(props: StatementEditorProps) {
         experimentalEnabled,
         extraModules,
         runBackgroundTerminalCommand,
-        ballerinaVersion
+        ballerinaVersion,
+        openExternalUrl,
+        isCodeServerInstance
     } = props;
 
     const {
@@ -540,6 +542,8 @@ export function StatementEditor(props: StatementEditorProps) {
                     editing={isEditing}
                     updateEditing={updateEditing}
                     ballerinaVersion={ballerinaVersion}
+                    isCodeServerInstance={isCodeServerInstance}
+                    openExternalUrl={openExternalUrl}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

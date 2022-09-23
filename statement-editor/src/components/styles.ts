@@ -964,6 +964,17 @@ export const useStatementEditorStyles = makeStyles(() =>
                 paddingRight: '12.5px'
             },
             ...removePadding
+        },
+        help: {
+            paddingRight: '24px',
+            display: "flex"
+        },
+        helpLink: {
+            marginLeft: '8px',
+            color: '#5567D5',
+            "&:hover": {
+                cursor: "pointer"
+            }
         }
     }),
 );

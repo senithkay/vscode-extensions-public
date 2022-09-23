@@ -75,7 +75,8 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getSentryConfig: () => Promise.resolve(undefined),
     getBallerinaVersion: () => Promise.resolve("2201.1.1 (swan lake update 1)"), // Test will check only latest forms
     getEnv: (name: string) => Promise.resolve(undefined),
-    experimentalEnabled: true
+    experimentalEnabled: true,
+    openExternalUrl: (url: string) => Promise.resolve(undefined)
   }
 }
 
