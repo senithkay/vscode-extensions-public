@@ -17,7 +17,7 @@
  *
  */
 
-import { WebView, VSBrowser, By, EditorView, Key } from 'vscode-extension-tester';
+import { WebView, VSBrowser, By, EditorView } from 'vscode-extension-tester';
 import { join } from 'path';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
@@ -75,25 +75,16 @@ describe('Swagger view UI Tests', () => {
         await wait(2000);
 
         // click try it
-        const tryIt = await swaggerWebView.findWebElement(By.className("try-out__btn"));
+        const tryIt = (await swaggerWebView.findWebElements(By.className("try-out__btn")))[0];
         expect(tryIt).is.not.undefined;
         await tryIt.click();
         await wait(2000);
 
-        // clear request body
-        const reqBody = await swaggerWebView.findWebElement(By.className("body-param__text"));
-        expect(reqBody).is.not.undefined;
-        await reqBody.sendKeys((process.platform === "darwin" ? Key.COMMAND : Key.CONTROL), "a", Key.DELETE, Key.END);
-
         // cilck execute
-        const execute = await swaggerWebView.findWebElement(By.className("btn execute opblock-control__btn"));
+        const execute = (await swaggerWebView.findWebElements(By.className("opblock-control__btn")))[0];
         expect(execute).is.not.undefined;
         await execute.click();
         await wait(2000);
-
-        // scroll down
-        await reqBody.sendKeys(Key.PAGE_DOWN, Key.PAGE_DOWN);
-        await wait(500);
 
         // check response
         const codeBlock = await swaggerWebView.findWebElement(By.className("highlight-code"));
@@ -147,21 +138,16 @@ describe('Swagger view UI Tests', () => {
         await wait(2000);
 
         // click try it
-        const tryIt = await swaggerWebView.findWebElement(By.className("try-out__btn"));
+        const tryIt = (await swaggerWebView.findWebElements(By.className("try-out__btn")))[0];
         expect(tryIt).is.not.undefined;
         await tryIt.click();
         await wait(2000);
 
         // cilck execute
-        const execute = await swaggerWebView.findWebElement(By.className("btn execute opblock-control__btn"));
+        const execute = (await swaggerWebView.findWebElements(By.className("opblock-control__btn")))[0];
         expect(execute).is.not.undefined;
         await execute.click();
         await wait(2000);
-
-        // scroll down
-        const reqBody = await swaggerWebView.findWebElement(By.className("body-param__text"));
-        await reqBody.sendKeys(Key.PAGE_DOWN, Key.PAGE_DOWN);
-        await wait(500);
 
         // check response
         const codeBlock = await swaggerWebView.findWebElement(By.className("highlight-code"));
