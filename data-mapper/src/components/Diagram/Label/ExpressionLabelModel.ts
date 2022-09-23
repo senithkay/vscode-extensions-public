@@ -1,6 +1,6 @@
 import { BaseModelOptions, DeserializeEvent } from '@projectstorm/react-canvas-core';
 import { LabelModel } from '@projectstorm/react-diagrams';
-import { SpecificField, STNode } from '@wso2-enterprise/syntax-tree';
+import { STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../Link';

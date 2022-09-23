@@ -1,11 +1,15 @@
 import * as React from 'react';
 
+import IconButton from '@material-ui/core/IconButton';
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import clsx from 'clsx';
 
 import { CodeActionWidget } from '../CodeAction/CodeAction';
+import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
 import { DataMapperLinkModel } from "../Link";
 import {
 	canConvertLinkToQueryExpr,
@@ -13,11 +17,8 @@ import {
 } from '../Link/link-utils';
 import { RecordFieldPortModel } from '../Port';
 import { handleCodeActions } from "../utils/ls-utils";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import clsx from 'clsx';
-import IconButton from '@material-ui/core/IconButton';
-import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
 
 export interface FlowAliasLabelWidgetProps {
 	model: ExpressionLabelModel;

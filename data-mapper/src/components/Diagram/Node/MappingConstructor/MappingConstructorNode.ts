@@ -132,7 +132,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value
                         : `${outPort.parentFieldAccess.split('.').pop()}[${outPort.index}]`,
-                    deleteLink: () => this.deleteLink(field),
+                    deleteLink: () => this.deleteField(field),
                 }));
                 lm.setTargetPort(outPort);
                 lm.setSourcePort(inPort);
@@ -241,7 +241,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         }
     }
 
-    private deleteLink(field: STNode) {
+    deleteField(field: STNode) {
         if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
             // if Within query expression expanded view
             this.context.applyModifications([{

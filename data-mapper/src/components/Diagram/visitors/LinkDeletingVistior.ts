@@ -77,12 +77,6 @@ export class LinkDeletingVisitor implements Visitor {
         }
     }
 
-    public beginVisitFieldAccess(node: FieldAccess) {
-        if (this.deletePosition === null && isPositionsEquals(this.fieldPosition, node.position)) {
-            this.deletePosition = this.fieldPosition;
-        }
-    }
-
     /**
      * Traverse and find the position that needs to be removed
      * @param node Mapping constructor node which will be checked for the item to delete

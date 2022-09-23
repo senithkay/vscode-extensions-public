@@ -18,7 +18,7 @@ import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -48,10 +48,11 @@ export interface ArrayTypedEditableRecordFieldWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
+    deleteField?: (node: STNode) => void;
 }
 
 export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.type.name);
@@ -117,6 +118,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                             context={context}
                                             fieldIndex={index}
                                             treeDepth={treeDepth + 1}
+                                            deleteField={deleteField}
                                         />
                                     );
                                 })
@@ -138,6 +140,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             context={context}
                             fieldIndex={index}
                             treeDepth={treeDepth + 1}
+                            deleteField={deleteField}
                         />
                     );
                 })
@@ -164,6 +167,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const handleArrayInitialization = async () => {
         await createSourceForUserInput(field, mappingConstruct, '[]', context.applyModifications);
+    };
+
+    const handleArrayDeletion = async () => {
+        deleteField(field.value);
     };
 
     const handleAddArrayElement = () => {
@@ -208,19 +215,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         </IconButton>}
                         {label}
                     </span>
-                    {!hasValue && (
-                        <ValueConfigMenu
-                            menuItems={[
-                                {
-                                    title: ValueConfigOption.InitializeArray,
-                                    onClick: handleArrayInitialization
-                                },
-                                {
-                                    title: ValueConfigOption.DeleteArray,
-                                    onClick: undefined
-                                }]}
-                        />
-                    )}
+                    <ValueConfigMenu
+                        menuItems={[
+                            {
+                                title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
+                                onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
+                            }
+                        ]}
+                    />
                 </div>
                 {expanded && hasValue && listConstructor && (
                     <div className={classNames(classes.treeLabel, classes.innerTreeLabel)}>

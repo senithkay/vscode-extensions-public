@@ -13,19 +13,19 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
+import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { MappingConstructor } from '@wso2-enterprise/syntax-tree';
+import { MappingConstructor, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
+import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
-import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
-import IconButton from '@material-ui/core/IconButton';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -99,11 +99,12 @@ export interface EditableMappingConstructorWidgetProps {
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
 	valueLabel?: string;
+	deleteField?: (node: STNode) => void;
 }
 
 
 export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
-	const { id, editableRecordFields, typeName, value, engine, getPort, context, valueLabel } = props;
+	const { id, editableRecordFields, typeName, value, engine, getPort, context, valueLabel, deleteField } = props;
 	const classes = useStyles();
 
 	const hasValue = editableRecordFields.length > 0;
@@ -177,6 +178,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 								mappingConstruct={value}
 								context={context}
 								treeDepth={0}
+								deleteField={deleteField}
 							/>
 						);
 					})

@@ -18,7 +18,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -38,10 +38,11 @@ export interface EditableRecordFieldWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
+    deleteField?: (node: STNode) => void;
 }
 
 export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.type.name);
@@ -183,6 +184,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         context={context}
                         fieldIndex={fieldIndex}
                         treeDepth={treeDepth}
+                        deleteField={deleteField}
                     />
                 </>
             )}
@@ -199,6 +201,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 mappingConstruct={mappingConstruct}
                                 context={context}
                                 treeDepth={treeDepth + 1}
+                                deleteField={deleteField}
                             />
                         </>
                     );
