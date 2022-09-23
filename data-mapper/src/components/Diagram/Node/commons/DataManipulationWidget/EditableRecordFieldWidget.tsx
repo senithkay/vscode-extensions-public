@@ -28,6 +28,7 @@ import { getBalRecFieldName, getNewSource, getTypeName, isConnectedViaLink } fro
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
+import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -133,9 +134,25 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
     };
 
+    const handleDeleteValue = () => {
+        deleteField(field.value);
+    };
+
     const handleExpand = () => {
         context.handleCollapse(fieldId, !expanded);
     };
+
+    const addOrEditValueMenuItem: ValueConfigMenuItem = {
+        title: hasValue ? ValueConfigOption.EditValue : ValueConfigOption.AddValue,
+        onClick: hasValue ? handleEditValue : handleAddValue
+    };
+
+    const deleteValueMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.DeleteValue,
+        onClick: hasValue && handleDeleteValue
+    };
+
+    const valConfigMenuItems = [addOrEditValueMenuItem, hasValue && deleteValueMenuItem];
 
     return (
         <>
@@ -158,16 +175,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     </span>
                     {!isRecord && (
                         <ValueConfigMenu
-                            menuItems={[
-                                {
-                                    title: hasValue ? ValueConfigOption.EditValue : ValueConfigOption.AddValue,
-                                    onClick: hasValue ? handleEditValue : handleAddValue
-                                },
-                                {
-                                    title: ValueConfigOption.DeleteValue,
-                                    onClick: undefined
-                                }
-                            ]}
+                            menuItems={valConfigMenuItems}
                         />
                     )}
                 </div>
