@@ -201,7 +201,9 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	while (nextField && nextField.parentType) {
 		const fieldName = nextField.type.name;
-		parentFields.push(getBalRecFieldName(fieldName));
+		if (fieldName) {
+			parentFields.push(getBalRecFieldName(fieldName));
+		}
 
 		if (nextField.parentType.hasValue() && STKindChecker.isSpecificField(nextField.parentType.value)) {
 			const rootField: SpecificField = nextField.parentType.value;
