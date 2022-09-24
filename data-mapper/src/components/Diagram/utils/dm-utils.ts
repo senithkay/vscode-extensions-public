@@ -434,20 +434,21 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 		if (nextNode) {
 			if (type.memberType.typeName === PrimitiveBalType.Record) {
 				if (STKindChecker.isListConstructor(nextNode)) {
-					editableRecordField.elements = getEnrichedArrayType(
-						type.memberType.fields, nextNode, editableRecordField);
+					editableRecordField.elements = getEnrichedPrimitiveArrayType(
+						type.memberType, nextNode, editableRecordField);
 				} else if (STKindChecker.isMappingConstructor(nextNode)) {
-					fields = type.memberType.fields;
-					const children = [...childrenTypes ? childrenTypes : []];
-					if (fields && !!fields.length) {
-						fields.map((field) => {
-							const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
-							children.push(childType);
-						});
-					}
-					// Create only a single element as there is only one mapping constructor
+					// fields = type.memberType.fields;
+					const childType = getEnrichedRecordType(type.memberType, nextNode, editableRecordField, childrenTypes);
+					// const children = [...childrenTypes ? childrenTypes : []];
+					// if (fields && !!fields.length) {
+					// 	fields.map((field) => {
+					// 		const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
+					// 		children.push(childType);
+					// 	});
+					// }
+					// Create only a single element as there is only one mapping constructor (Query Expr)
 					editableRecordField.elements = [{
-						members: children,
+						members: [childType],
 						elementNode: nextNode
 					}];
 				}
@@ -463,18 +464,22 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 		} else {
 			if (type.memberType.typeName === PrimitiveBalType.Record) {
 				const members: ArrayElement[] = [];
-				if (type.memberType.fields && !!type.memberType.fields.length) {
-					const member: EditableRecordField[] = [];
-					type.memberType.fields.map((field) => {
-						const childType = getEnrichedRecordType(field, undefined, parentType, childrenTypes);
-						member.push(childType);
-					});
-					if (!!member.length) {
-						members.push({
-							members: member, elementNode: undefined
-						});
-					}
-				}
+				const childType = getEnrichedRecordType(type.memberType, undefined, parentType, childrenTypes);
+				// if (type.memberType.fields && !!type.memberType.fields.length) {
+				// 	const member: EditableRecordField[] = [];
+				// 	type.memberType.fields.map((field) => {
+				// 		const childType = getEnrichedRecordType(field, undefined, parentType, childrenTypes);
+				// 		member.push(childType);
+				// 	});
+				// 	if (!!member.length) {
+				// 		members.push({
+				// 			members: member, elementNode: undefined
+				// 		});
+				// 	}
+				// }
+				members.push({
+					members: [childType], elementNode: undefined
+				});
 				editableRecordField.elements = members;
 			}
 		}
