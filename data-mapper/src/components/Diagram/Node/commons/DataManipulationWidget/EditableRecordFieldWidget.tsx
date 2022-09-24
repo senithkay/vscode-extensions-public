@@ -57,6 +57,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
+    const isWithinArray = fieldIndex !== undefined;
     let indentation = treeDepth * 16;
 
     const connectedViaLink = useMemo(() => {
@@ -142,17 +143,19 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         context.handleCollapse(fieldId, !expanded);
     };
 
-    const addOrEditValueMenuItem: ValueConfigMenuItem = {
-        title: hasValue ? ValueConfigOption.EditValue : ValueConfigOption.AddValue,
-        onClick: hasValue ? handleEditValue : handleAddValue
-    };
+    const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
+        ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
+        : { title: ValueConfigOption.AddValue, onClick: handleAddValue };
 
     const deleteValueMenuItem: ValueConfigMenuItem = {
-        title: ValueConfigOption.DeleteValue,
-        onClick: hasValue && handleDeleteValue
+        title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
+        onClick: handleDeleteValue
     };
 
-    const valConfigMenuItems = [addOrEditValueMenuItem, hasValue && deleteValueMenuItem];
+    const valConfigMenuItems = [
+        !isWithinArray && addOrEditValueMenuItem,
+        (hasValue || isWithinArray) && deleteValueMenuItem
+    ];
 
     return (
         <>
@@ -173,7 +176,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         </IconButton>}
                         {label}
                     </span>
-                    {!isRecord && (
+                    {(!isRecord || isWithinArray) && (
                         <ValueConfigMenu
                             menuItems={valConfigMenuItems}
                         />
