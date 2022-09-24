@@ -46,7 +46,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
 
-    const fieldName = getBalRecFieldName(field.type.name);
+    let fieldName = getBalRecFieldName(field.type.name);
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
@@ -75,6 +75,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     if (!portIn || (hasValue && !connectedViaLink && expanded)) {
         indentation += 24;
+    }
+
+    if (!fieldName && isWithinArray) {
+        fieldName = field.parentType.type?.name ? `${field.parentType.type?.name}Item` : 'item';
     }
 
     const label = (

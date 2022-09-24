@@ -561,9 +561,9 @@ export function isConnectedViaLink(field: STNode) {
 }
 
 export function getTypeName(field: Type): string {
-	if (field.typeName === 'record') {
+	if (field.typeName === PrimitiveBalType.Record) {
 		return field?.typeInfo ? field.typeInfo.name : 'record';
-	} else if (field.typeName === 'array') {
+	} else if (field.typeName === PrimitiveBalType.Array) {
 		return `${getTypeName(field.memberType)}[]`;
 	}
 	return field.typeName;
