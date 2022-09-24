@@ -105,51 +105,43 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 return (
                     <>
                         <TreeBody>
-                            {
-                                element.members.map((typeWithVal) => {
-                                    return (
-                                        <EditableRecordFieldWidget
-                                            key={fieldId}
-                                            engine={engine}
-                                            field={typeWithVal}
-                                            getPort={getPort}
-                                            parentId={fieldId}
-                                            mappingConstruct={element.elementNode as MappingConstructor}
-                                            context={context}
-                                            fieldIndex={index}
-                                            treeDepth={treeDepth + 1}
-                                            deleteField={deleteField}
-                                        />
-                                    );
-                                })
-                            }
+                            <EditableRecordFieldWidget
+                                key={fieldId}
+                                engine={engine}
+                                field={element.member}
+                                getPort={getPort}
+                                parentId={fieldId}
+                                mappingConstruct={element.elementNode as MappingConstructor}
+                                context={context}
+                                fieldIndex={index}
+                                treeDepth={treeDepth + 1}
+                                deleteField={deleteField}
+                            />
                         </TreeBody>
                         <br />
                     </>
                 );
             } else if (element.elementNode && STKindChecker.isListConstructor(element.elementNode)) {
-                return element.members.map((typeWithVal) => {
-                    return (
-                        <ArrayTypedEditableRecordFieldWidget
-                            key={fieldId}
-                            engine={engine}
-                            field={typeWithVal}
-                            getPort={getPort}
-                            parentId={fieldId}
-                            mappingConstruct={mappingConstruct}
-                            context={context}
-                            fieldIndex={index}
-                            treeDepth={treeDepth + 1}
-                            deleteField={deleteField}
-                        />
-                    );
-                })
+                return (
+                    <ArrayTypedEditableRecordFieldWidget
+                        key={fieldId}
+                        engine={engine}
+                        field={element.member}
+                        getPort={getPort}
+                        parentId={fieldId}
+                        mappingConstruct={mappingConstruct}
+                        context={context}
+                        fieldIndex={index}
+                        treeDepth={treeDepth + 1}
+                        deleteField={deleteField}
+                    />
+                )
             } else {
                 return (
                     <TreeBody>
                         <PrimitiveTypedEditableArrayElementWidget
                             parentId={fieldId}
-                            field={element.members[0]} // Element only contains a single member
+                            field={element.member}
                             engine={engine}
                             getPort={getPort}
                             context={context}

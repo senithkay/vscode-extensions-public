@@ -48,7 +48,7 @@ export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
 export class MappingConstructorNode extends DataMapperNodeModel {
 
     public typeDef: Type;
-    public recordFields: EditableRecordField[];
+    public recordField: EditableRecordField;
     public typeName: string;
     public x: number;
     public y: number;
@@ -78,18 +78,20 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
             this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
-                this.recordFields = valueEnrichedType.childrenTypes;
-                if (!!this.recordFields.length) {
-                    this.recordFields.forEach((field) => {
+                this.recordField = valueEnrichedType;
+                if (!!this.recordField.childrenTypes.length) {
+                    this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
                             undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
-            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && STKindChecker.isSelectClause(this.value)) {
-                // valueEnrichedType only contains a single element as it is being used within the select clause
-                this.recordFields = valueEnrichedType.elements[0].members;
-                if (!!this.recordFields.length) {
-                    this.recordFields.forEach((field) => {
+            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
+                && STKindChecker.isSelectClause(this.value)
+            ) {
+                // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
+                this.recordField = valueEnrichedType.elements[0].member;
+                if (!!this.recordField.childrenTypes.length) {
+                    this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
                             undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
@@ -153,8 +155,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     private getOutputPortForField(fields: STNode[]) {
-        let nextTypeChildNodes: EditableRecordField[] = this.recordFields; // Represents fields of a record
-        let nextTypeMemberNodes: ArrayElement[]; // Represents elements of an array
+        let nextTypeChildNodes: EditableRecordField[] = this.recordField.childrenTypes; // Represents fields of a record
+        let nextTypeMemberNodes: ArrayElement[] = this.recordField.elements; // Represents elements of an array
         let recField: EditableRecordField;
         let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
         for (let i = 0; i < fields.length; i++) {
@@ -219,24 +221,23 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                          nextFieldPosition: NodePosition): [EditableRecordField, number] {
         let memberIndex = -1;
         const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
-            const member = node.members[0];
-            if (member.type.typeName === PrimitiveBalType.Record) {
-                for (let i = 0; i < member.childrenTypes.length; i++) {
-                    const field = member.childrenTypes[i];
+            if (node.member.type.typeName === PrimitiveBalType.Record) {
+                for (let i = 0; i < node.member.childrenTypes.length; i++) {
+                    const field = node.member.childrenTypes[i];
                     if (field?.value && isPositionsEquals(nextFieldPosition, field.value.position)) {
                         memberIndex = i;
                         return true;
                     }
                 }
             } else {
-                return member?.value && isPositionsEquals(nextFieldPosition, member.value.position);
+                return node.member?.value && isPositionsEquals(nextFieldPosition, node.member.value.position);
             }
         });
         if (fieldIndex !== -1) {
             if (memberIndex !== -1) {
-                return [nextTypeMemberNodes[fieldIndex].members[0].childrenTypes[memberIndex], fieldIndex];
+                return [nextTypeMemberNodes[fieldIndex].member.childrenTypes[memberIndex], fieldIndex];
             }
-            return [nextTypeMemberNodes[fieldIndex].members[0], fieldIndex];
+            return [nextTypeMemberNodes[fieldIndex].member, fieldIndex];
         }
         return [undefined, undefined];
     }

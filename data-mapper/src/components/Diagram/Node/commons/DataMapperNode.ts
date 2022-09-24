@@ -139,10 +139,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			const elements: ArrayElement[] = field?.elements;
 			if (elements && !!elements.length) {
 				elements.forEach((element, index) => {
-					element.members.forEach((subField) => {
-						this.addPortsForOutputRecordField(subField, type, fieldId, index, fieldAccessExpr,
-								fieldPort, collapsedFields, isCollapsed ? true : hidden);
-					});
+					this.addPortsForOutputRecordField(element.member, type, fieldId, index, fieldAccessExpr,
+						fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
 		}

@@ -446,7 +446,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 				} else if (STKindChecker.isMappingConstructor(nextNode)) {
 					const childType = getEnrichedRecordType(type.memberType, nextNode, editableRecordField, childrenTypes);
 					editableRecordField.elements = [{
-						members: [childType],
+						member: childType,
 						elementNode: nextNode
 					}];
 				}
@@ -458,7 +458,8 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 				const members: ArrayElement[] = [];
 				const childType = getEnrichedRecordType(type.memberType, undefined, parentType, childrenTypes);
 				members.push({
-					members: [childType], elementNode: undefined
+					member: childType,
+					elementNode: undefined
 				});
 				editableRecordField.elements = members;
 			}
@@ -475,11 +476,12 @@ export function getEnrichedArrayType(field: Type, node?: ListConstructor, parent
 	node.expressions.forEach((expr) => {
 		if (!STKindChecker.isCommaToken(expr)) {
 			if (field) {
-				const member = getEnrichedRecordType(field, expr, parentType, childrenTypes);
+				const childType = getEnrichedRecordType(field, expr, parentType, childrenTypes);
 
-				if (member) {
+				if (childType) {
 					members.push({
-						members: [member], elementNode: expr
+						member: childType,
+						elementNode: expr
 					});
 				}
 			}
