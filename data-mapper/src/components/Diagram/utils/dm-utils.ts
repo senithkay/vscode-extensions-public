@@ -190,8 +190,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 }
 
 export async function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
-										                               newValue: string,
-										                               applyModifications: (modifications: STModification[]) => void) {
+										                                     newValue: string,
+										                                     applyModifications: (modifications: STModification[]) => void) {
 
 	let source;
 	let targetMappingConstructor = mappingConstruct;
@@ -556,8 +556,9 @@ export function getEnrichedPrimitiveArrayType(field: Type, node?: ListConstructo
 	return members;
 }
 
-export function getNewSource(field: EditableRecordField, mappingConstruct: MappingConstructor, newValue: string,
-							                      parentFields?: string[] , lineNumber:number = -1): [string, MappingConstructor, number?,number?] {
+export function getNewSource(field: EditableRecordField, mappingConstruct: MappingConstructor,
+							                      newValue: string, parentFields?: string[],
+							                      lineNumber: number = -1): [string, MappingConstructor, number?] {
 
 	const fieldName = getBalRecFieldName(field.type.name);
 
@@ -565,18 +566,22 @@ export function getNewSource(field: EditableRecordField, mappingConstruct: Mappi
 		const parent = [...parentFields ? [...parentFields, fieldName] : [fieldName]];
 
 		if (field.parentType.hasValue()) {
-			const valueExpr = STKindChecker.isSpecificField(field.parentType.value) && field.parentType.value.valueExpr;
+			if (STKindChecker.isSpecificField(field.parentType.value)) {
+				const valueExpr = STKindChecker.isSpecificField(field.parentType.value) && field.parentType.value.valueExpr;
 
-			if (STKindChecker.isMappingConstructor(valueExpr)) {
-				return [createSpecificField(parent.reverse()), valueExpr, lineNumber + 1];
-			} else if (STKindChecker.isListConstructor(valueExpr)
-				&& STKindChecker.isMappingConstructor(valueExpr.expressions[0])) {
-				for (const expr of valueExpr.expressions) {
-					if (STKindChecker.isMappingConstructor(expr)
-						&& isPositionsEquals(expr.position, mappingConstruct.position)) {
-						return [createSpecificField(parent.reverse()), expr, lineNumber + 1];
+				if (STKindChecker.isMappingConstructor(valueExpr)) {
+					return [createSpecificField(parent.reverse()), valueExpr, lineNumber + 1];
+				} else if (STKindChecker.isListConstructor(valueExpr)
+					&& STKindChecker.isMappingConstructor(valueExpr.expressions[0])) {
+					for (const expr of valueExpr.expressions) {
+						if (STKindChecker.isMappingConstructor(expr)
+							&& isPositionsEquals(expr.position, mappingConstruct.position)) {
+							return [createSpecificField(parent.reverse()), expr, lineNumber + 1];
+						}
 					}
 				}
+			} else if (STKindChecker.isMappingConstructor(field.parentType.value)) {
+				return [createSpecificField(parent.reverse()), field.parentType.value, lineNumber + 1];
 			}
 			// TODO: Implement this to update already existing non-mapping-constructor values
 			return null;
