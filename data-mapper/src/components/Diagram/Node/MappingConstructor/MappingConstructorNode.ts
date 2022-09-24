@@ -216,21 +216,29 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     private getNextField(nextTypeMemberNodes: ArrayElement[],
-        nextFieldPosition: NodePosition): [EditableRecordField, number] {
+                         nextFieldPosition: NodePosition): [EditableRecordField, number] {
         let memberIndex = -1;
         const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
-            for (let i = 0; i < node.members.length; i++) {
-                const member = node.members[i];
-                if (member?.value && isPositionsEquals(nextFieldPosition, member.value.position)) {
-                    memberIndex = i;
-                    return true;
+            const member = node.members[0];
+            if (member.type.typeName === PrimitiveBalType.Record) {
+                for (let i = 0; i < member.childrenTypes.length; i++) {
+                    const field = member.childrenTypes[i];
+                    if (field?.value && isPositionsEquals(nextFieldPosition, field.value.position)) {
+                        memberIndex = i;
+                        return true;
+                    }
                 }
+            } else {
+                return member?.value && isPositionsEquals(nextFieldPosition, member.value.position);
             }
         });
-        if (fieldIndex !== -1 && memberIndex !== -1) {
-            return [nextTypeMemberNodes[fieldIndex].members[memberIndex], fieldIndex];
+        if (fieldIndex !== -1) {
+            if (memberIndex !== -1) {
+                return [nextTypeMemberNodes[fieldIndex].members[0].childrenTypes[memberIndex], fieldIndex];
+            }
+            return [nextTypeMemberNodes[fieldIndex].members[0], fieldIndex];
         }
-        return [undefined, fieldIndex];
+        return [undefined, undefined];
     }
 
     private getNextNodes(nextField: EditableRecordField): [EditableRecordField[], ArrayElement[]] {

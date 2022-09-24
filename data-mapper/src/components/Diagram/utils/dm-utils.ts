@@ -389,7 +389,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 	if (parentType) {
 		if (node && STKindChecker.isMappingConstructor(node)) {
 			const specificField: SpecificField = node.fields.find((val) =>
-				STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+				STKindChecker.isSpecificField(val) && type?.name && val.fieldName.value === getBalRecFieldName(type.name)
 			) as SpecificField;
 			if (specificField) {
 				valueNode = specificField;
