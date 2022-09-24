@@ -441,49 +441,22 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 		if (nextNode) {
 			if (type.memberType.typeName === PrimitiveBalType.Record) {
 				if (STKindChecker.isListConstructor(nextNode)) {
-					editableRecordField.elements = getEnrichedPrimitiveArrayType(
+					editableRecordField.elements = getEnrichedArrayType(
 						type.memberType, nextNode, editableRecordField);
 				} else if (STKindChecker.isMappingConstructor(nextNode)) {
-					// fields = type.memberType.fields;
 					const childType = getEnrichedRecordType(type.memberType, nextNode, editableRecordField, childrenTypes);
-					// const children = [...childrenTypes ? childrenTypes : []];
-					// if (fields && !!fields.length) {
-					// 	fields.map((field) => {
-					// 		const childType = getEnrichedRecordType(field, nextNode, editableRecordField, childrenTypes);
-					// 		children.push(childType);
-					// 	});
-					// }
-					// Create only a single element as there is only one mapping constructor (Query Expr)
 					editableRecordField.elements = [{
 						members: [childType],
 						elementNode: nextNode
 					}];
 				}
-			} else if (type.memberType.typeName === PrimitiveBalType.Array) {
-				if (STKindChecker.isListConstructor(nextNode)) {
-					editableRecordField.elements = getEnrichedArrayTypeNew(type.memberType, nextNode, editableRecordField);
-				}
-			} else if (!isArrayOrRecord(type.memberType)) {
-				if (STKindChecker.isListConstructor(nextNode)) {
-					editableRecordField.elements = getEnrichedPrimitiveArrayType(type.memberType, nextNode, editableRecordField);
-				}
+			} else if (STKindChecker.isListConstructor(nextNode)) {
+				editableRecordField.elements = getEnrichedArrayType(type.memberType, nextNode, editableRecordField);
 			}
 		} else {
 			if (type.memberType.typeName === PrimitiveBalType.Record) {
 				const members: ArrayElement[] = [];
 				const childType = getEnrichedRecordType(type.memberType, undefined, parentType, childrenTypes);
-				// if (type.memberType.fields && !!type.memberType.fields.length) {
-				// 	const member: EditableRecordField[] = [];
-				// 	type.memberType.fields.map((field) => {
-				// 		const childType = getEnrichedRecordType(field, undefined, parentType, childrenTypes);
-				// 		member.push(childType);
-				// 	});
-				// 	if (!!member.length) {
-				// 		members.push({
-				// 			members: member, elementNode: undefined
-				// 		});
-				// 	}
-				// }
 				members.push({
 					members: [childType], elementNode: undefined
 				});
@@ -495,48 +468,8 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 	return editableRecordField;
 }
 
-export function getEnrichedArrayTypeNew(type: Type, node?: ListConstructor, parentType?: EditableRecordField,
-										                              childrenTypes?: EditableRecordField[]): ArrayElement[] {
-	const members: ArrayElement[] = [];
-
-	node.expressions.forEach((expr) => {
-		if (!STKindChecker.isCommaToken(expr)) {
-			const memberType = getEnrichedRecordType(type, expr, parentType, childrenTypes);
-			members.push({
-				members: [memberType], elementNode: expr
-			});
-		}
-	});
-	return members;
-}
-
-export function getEnrichedArrayType(fields: Type[], node?: ListConstructor, parentType?: EditableRecordField,
+export function getEnrichedArrayType(field: Type, node?: ListConstructor, parentType?: EditableRecordField,
 									                            childrenTypes?: EditableRecordField[]) {
-	const members: ArrayElement[] = [];
-
-	node.expressions.forEach((expr) => {
-		if (!STKindChecker.isCommaToken(expr)) {
-			if (fields && !!fields.length) {
-				const member: EditableRecordField[] = [];
-				fields.map((field) => {
-					const childType = getEnrichedRecordType(field, expr, parentType, childrenTypes);
-					member.push(childType);
-				});
-				if (!!member.length) {
-					members.push({
-						members: member, elementNode: expr
-					});
-				}
-			}
-		}
-	});
-
-	return members;
-}
-
-export function getEnrichedPrimitiveArrayType(field: Type, node?: ListConstructor,
-											                                   parentType?: EditableRecordField,
-											                                   childrenTypes?: EditableRecordField[]) {
 	const members: ArrayElement[] = [];
 
 	node.expressions.forEach((expr) => {
