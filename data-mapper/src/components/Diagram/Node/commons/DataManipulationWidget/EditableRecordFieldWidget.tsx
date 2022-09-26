@@ -83,6 +83,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {typeName && (
                 <span className={classes.typeLabel}>
                     {typeName}
+                    {!fields && !field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 </span>
             )}
             {value && (
