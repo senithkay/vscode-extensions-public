@@ -24,6 +24,7 @@ import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
+import clsx from 'clsx';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -39,7 +40,8 @@ const styles = (theme: Theme) => createStyles({
     },
     fromClause: {
         padding: "5px",
-        fontFamily: "monospace"
+        fontFamily: "GilmerMedium",
+        marginRight: '10px'
     },
     mappingPane: {
         display: "flex",
@@ -55,11 +57,11 @@ const styles = (theme: Theme) => createStyles({
     icons: {
         padding: '5px'
     },
-    buttonWrapper: {
-        display: 'flex',
-        border: '1px solid #e6e7ec',
-        borderRadius: '8px',
-        right: "35px"
+    openQueryIcon: {
+        color: theme.palette.grey[300]
+    },
+    deleteIcon: {
+        color: theme.palette.error.main
     }
 });
 
@@ -107,20 +109,18 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
                             <div className={classes.fromClause}>
                                 Query
                             </div>
-                            <div className={classes.buttonWrapper}>
-                                <IconButton
-                                    onClick={onClickOnExpand}
-                                    className={classes.icons}
-                                >
-                                    <ExitToApp />
-                                </IconButton>
-                                <IconButton
-                                    onClick={deleteQueryLink}
-                                    className={classes.icons}
-                                >
-                                    <DeleteIcon />
-                                </IconButton>
-                            </div>
+                            <IconButton
+                                onClick={onClickOnExpand}
+                                className={clsx(classes.icons, classes.openQueryIcon)}
+                            >
+                                <ExitToApp />
+                            </IconButton>
+                            <IconButton
+                                onClick={deleteQueryLink}
+                                className={clsx(classes.icons, classes.deleteIcon)}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
                             <DataMapperPortWidget engine={engine} port={node.outPort} />
                         </div>
                     </div>
