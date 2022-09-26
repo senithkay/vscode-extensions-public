@@ -100,6 +100,7 @@ export function Service(props: ServiceProps) {
         if (STKindChecker.isServiceDeclaration(model) && model.expressions?.length > 0) {
             const expression = model.expressions[0];
             if (
+                expression &&
                 STKindChecker.isExplicitNewExpression(expression) &&
                 STKindChecker.isQualifiedNameReference(expression.typeDescriptor) &&
                 STKindChecker.isIdentifierToken(expression.typeDescriptor.modulePrefix) &&
@@ -107,6 +108,7 @@ export function Service(props: ServiceProps) {
             ) {
                 return true;
             } else if (
+                expression &&
                 STKindChecker.isSimpleNameReference(expression) &&
                 expression.typeData?.typeSymbol?.moduleID.moduleName === "http"
             ) {
@@ -116,9 +118,23 @@ export function Service(props: ServiceProps) {
         return false;
     }
 
+    function isTrigger() {
+        if (STKindChecker.isServiceDeclaration(model) && model.expressions?.length > 0) {
+            const expression = model.expressions[0];
+            if (
+                expression &&
+                STKindChecker.isSimpleNameReference(expression) &&
+                expression.typeData?.typeSymbol?.moduleID.moduleName.includes("trigger")
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     return (
         <>
-            {isHttpService() && (
+            {(isHttpService() || isTrigger()) && (
                 <div className={"service"}>
                     <div className={"action-container"}>{!isReadOnly && renderButtons()}</div>
                     <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} />
@@ -140,7 +156,7 @@ export function Service(props: ServiceProps) {
                     </div>
                 </div>
             )}
-            {!isHttpService() && (
+            {!(isHttpService() || isTrigger()) && (
                 <div className={"class-component"}>
                     <EmptyHeader model={model} onExpandClick={onExpandClick} isExpanded={isExpanded} />
                 </div>
