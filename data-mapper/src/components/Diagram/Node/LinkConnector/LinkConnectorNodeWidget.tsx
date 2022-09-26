@@ -6,6 +6,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { DataMapperPortWidget } from '../../Port';
 import { LinkConnectorNode } from './LinkConnectorNode';
+import { getFieldLabel } from '../../utils/dm-utils';
 
 const styles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -66,7 +67,8 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         props.node.context.enableStatementEditor({
             valuePosition: props.node.valueNode.position,
             value: props.node.valueNode.source,
-            label: props.node.editorLabel
+            label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
+                    : props.node.editorLabel)
         });
     };
 

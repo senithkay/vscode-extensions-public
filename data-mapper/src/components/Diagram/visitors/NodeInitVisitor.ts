@@ -148,7 +148,8 @@ export class NodeInitVisitor implements Visitor {
                             "",
                             parent,
                             fieldAccessNodes,
-                            [...this.specificFields, expr]
+                            [...this.specificFields, expr],
+                            true
                         );
                         linkConnectorNode.setPosition(440, 1200);
                         this.intermediateNodes.push(linkConnectorNode);

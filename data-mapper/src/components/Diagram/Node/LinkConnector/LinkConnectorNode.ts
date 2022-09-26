@@ -31,7 +31,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public editorLabel: string,
         public parentNode: STNode,
         public fieldAccessNodes: FieldAccess[],
-        public fields: STNode[]) {
+        public fields: STNode[],
+        public isPrimitiveTypeArrayElement?: boolean) {
         super(
             context,
             LINK_CONNECTOR_NODE_TYPE
