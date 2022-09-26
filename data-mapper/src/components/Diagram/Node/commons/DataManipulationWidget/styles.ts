@@ -57,7 +57,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
-            marginRight: "24px"
+            marginRight: "24px",
+            fontWeight: 400
         },
         value: {
             verticalAlign: "middle",
