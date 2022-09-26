@@ -498,13 +498,13 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitWhereClause(node: WhereClause) {
-        if (node.expression.source.trim() === DEFAULT_EXPR) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.expression.position)) {
             this.setProperties("", node.position);
         }
     }
 
     public beginVisitLimitClause(node: LimitClause) {
-        if (node.expression.source.trim() === DEFAULT_EXPR) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.expression.position)) {
             this.setProperties("", node.position);
         }
     }
@@ -524,7 +524,7 @@ class ExpressionDeletingVisitor implements Visitor {
                 });
 
                 if (parent) {
-                    this.setProperties(!!expressions.length ? expressions.join('\n') : ' ', {
+                    this.setProperties(!!expressions.length ? expressions.join('') : ' ', {
                         startLine: node.fromClause.position.endLine,
                         endLine: parent.selectClause.position.startLine,
                         startColumn: node.fromClause.position.endColumn,
