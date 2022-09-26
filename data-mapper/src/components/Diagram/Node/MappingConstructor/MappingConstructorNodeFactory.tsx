@@ -24,9 +24,9 @@ import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import {
 	MappingConstructorNode,
-	MAPPING_CONSTRUCTOR_NODE_TYPE,
-	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX
+	MAPPING_CONSTRUCTOR_NODE_TYPE
 } from './MappingConstructorNode';
+import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
 
 @injectable()
 @singleton()

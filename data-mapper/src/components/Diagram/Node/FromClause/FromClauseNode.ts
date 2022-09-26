@@ -22,9 +22,9 @@ import { Point } from "@projectstorm/geometry";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
-export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
 
 export class FromClauseNode extends DataMapperNodeModel {
 
