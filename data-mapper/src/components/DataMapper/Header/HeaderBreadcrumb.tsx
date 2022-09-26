@@ -18,10 +18,9 @@ import Link from '@material-ui/core/Link';
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { theme } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { SelectionState, ViewOption } from "../DataMapper";
-
-import { getBreadcrumbItemLabel } from "./header-utils";
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -50,32 +49,36 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
     const classes = useStyles();
 
     const [activeLink, links] = useMemo(() => {
-        let label = getBreadcrumbItemLabel(selection.selectedST);
+        if (selection.selectedST.stNode) {
+            let isFnDef = STKindChecker.isFunctionDefinition(selection.selectedST.stNode);
+            let label = selection.selectedST.fieldPath;
+            const selectedLink = (
+                <Typography className={classes.active}>
+                    {isFnDef ? label : `${label}:query`}
+                </Typography>
+            );
 
-        const selectedLink = label && (
-            <Typography className={classes.active}>
-                {label}
-            </Typography>
-        );
+            const restLinks = selection.prevST.length > 0 && (
+                selection.prevST.map((node, index) => {
+                    label = node.fieldPath;
+                    isFnDef = STKindChecker.isFunctionDefinition(node.stNode);
+                    return (
+                        <Link
+                            data-index={index}
+                            key={index}
+                            underline="hover"
+                            onClick={handleClick}
+                            className={classes.link}
+                        >
+                            {isFnDef ? label : `${label}:query`}
+                        </Link>
+                    );
+                })
+            );
 
-        const restLinks = selection.prevST.length > 0 && (
-            selection.prevST.map((node, index) => {
-                label = getBreadcrumbItemLabel(node);
-                return (
-                    <Link
-                        data-index={index}
-                        key={index}
-                        underline="hover"
-                        onClick={handleClick}
-                        className={classes.link}
-                    >
-                        {label}
-                    </Link>
-                );
-            })
-        );
-
-        return [selectedLink, restLinks];
+            return [selectedLink, restLinks];
+        }
+        return [undefined, undefined];
     }, [selection]);
 
     function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {

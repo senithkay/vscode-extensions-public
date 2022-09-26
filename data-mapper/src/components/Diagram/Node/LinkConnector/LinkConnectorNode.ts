@@ -177,9 +177,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     private targetLinkDelete(node: STNode) {
+        const selectedST = this.context.selection.selectedST.stNode;
         if (STKindChecker.isSpecificField(node)) {
-            if (STKindChecker.isSpecificField(this.context.selection.selectedST)
-                && STKindChecker.isQueryExpression(this.context.selection.selectedST.valueExpr)) {
+            if (STKindChecker.isSpecificField(selectedST)
+                && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
                 // If query targetPort, should delete only value expression position
                 this.context.applyModifications([{
                     type: "DELETE",

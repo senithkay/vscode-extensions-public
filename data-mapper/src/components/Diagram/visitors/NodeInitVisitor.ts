@@ -72,9 +72,10 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
-        if (STKindChecker.isSpecificField(this.selection.selectedST)
-            && node.position.startLine === this.selection.selectedST.valueExpr.position.startLine
-            && node.position.startColumn === this.selection.selectedST.valueExpr.position.startColumn)
+        const selectedSTNode = this.selection.selectedST.stNode;
+        if (STKindChecker.isSpecificField(selectedSTNode)
+            && node.position.startLine === selectedSTNode.valueExpr.position.startLine
+            && node.position.startColumn === selectedSTNode.valueExpr.position.startColumn)
         {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
                 const fromClauseHeight = 90;
@@ -111,8 +112,9 @@ export class NodeInitVisitor implements Visitor {
     };
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
-        if (this.selection.selectedST.position.startLine !== node.position.startLine
-            && this.selection.selectedST.position.startColumn !== node.position.startColumn ) {
+        const selectedSTNode = this.selection.selectedST.stNode;
+        if (selectedSTNode.position.startLine !== node.position.startLine
+            && selectedSTNode.position.startColumn !== node.position.startColumn) {
             this.specificFields.push(node)
         }
         if (this.isWithinQuery === 0

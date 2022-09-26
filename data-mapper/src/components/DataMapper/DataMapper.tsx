@@ -101,8 +101,8 @@ export enum ViewOption {
 }
 
 export interface SelectionState {
-    selectedST: STNode;
-    prevST?: STNode[];
+    selectedST: DMNode;
+    prevST?: DMNode[];
 }
 
 export interface ExpressionInfo {
@@ -112,6 +112,12 @@ export interface ExpressionInfo {
     fieldName?: string;
     label?: string;
 }
+
+interface DMNode {
+    stNode: STNode;
+    fieldPath: string;
+}
+
 
 const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload: SelectionState, index: number }) => {
     if (action.type === ViewOption.EXPAND) {
@@ -136,7 +142,7 @@ function DataMapperC(props: DataMapperProps) {
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
-        selectedST: fnST,
+        selectedST: {stNode: fnST, fieldPath: fnST && fnST.functionName.value},
         prevST: []
     });
     const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
@@ -181,7 +187,7 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
-            if (fnST && selection.selectedST) {
+            if (fnST && selection.selectedST.stNode) {
                 const diagnostics = await handleDiagnostics(filePath, langClientPromise)
 
                 const context = new DataMapperContext(
@@ -199,7 +205,7 @@ function DataMapperC(props: DataMapperProps) {
                     handleCollapse
                 );
 
-                let selectedST = selection.selectedST;
+                let selectedST = selection.selectedST.stNode;
                 let lineOffset = 0
                 if (importStatements.length !== importStatementsCount){
                     lineOffset = importStatements.length - importStatementsCount;
@@ -219,12 +225,15 @@ function DataMapperC(props: DataMapperProps) {
     }, [selection, fnST, collapsedFields]);
 
     useEffect(() => {
-        if (!selection.selectedST) {
+        if (fnST && !selection.selectedST.stNode) {
             dispatchSelection({
                 type: undefined,
                 payload: {
                     prevST: [],
-                    selectedST: fnST
+                    selectedST: {
+                        stNode: fnST,
+                        fieldPath: fnST.functionName.value
+                    }
                 },
                 index: undefined
             })
