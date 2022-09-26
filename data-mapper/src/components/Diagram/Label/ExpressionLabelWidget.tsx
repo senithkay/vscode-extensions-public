@@ -16,6 +16,7 @@ import {
 	generateQueryExpression
 } from '../Link/link-utils';
 import { RecordFieldPortModel } from '../Port';
+import { getBalRecFieldName } from '../utils/dm-utils';
 import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
@@ -183,11 +184,45 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	if (diagnostic) {
 		elements.push(<div className={classes.separator} />);
 		elements.push(
-			<DiagnosticWidget 
-				diagnostic={diagnostic} 
+			<DiagnosticWidget
+				diagnostic={diagnostic}
 				value={props.model.value}
-				onClick={onClickEdit}/>
+				onClick={onClickEdit} />
 		);
+	}
+
+	let isSourceCollapsed = false;
+	let isTargetCollapsed = false;
+	const collapsedFields = props.model?.context?.collapsedFields;
+
+	const source = props.model?.link?.getSourcePort()
+	const target = props.model?.link?.getTargetPort()
+
+	if (source instanceof RecordFieldPortModel) {
+		if (source?.parentId) {
+			const fieldName = getBalRecFieldName(source.field.name);
+			isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
+		} else {
+			isSourceCollapsed = collapsedFields?.includes(source.portName)
+		}
+	}
+
+	if (target instanceof RecordFieldPortModel) {
+		if (target?.parentId) {
+			const fieldName = getBalRecFieldName(target.field.name);
+			isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
+		} else {
+			isTargetCollapsed = collapsedFields?.includes(target.portName)
+		}
+	}
+
+	if (props.model?.valueNode && isSourceCollapsed && isTargetCollapsed){
+		// for direct links, disable link widgets if both sides are collapsed
+		return null
+	} else if (!props.model?.valueNode && (isSourceCollapsed || isTargetCollapsed)) {
+		// for links with intermediary nodes,
+		// disable link widget if either source or target port is collapsed
+		return null;
 	}
 
 	return (

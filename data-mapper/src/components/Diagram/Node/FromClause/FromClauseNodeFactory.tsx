@@ -23,10 +23,10 @@ import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 
 import {
-    EXPANDED_QUERY_SOURCE_PORT_PREFIX,
     FromClauseNode,
     QUERY_EXPR_SOURCE_NODE_TYPE
 } from './FromClauseNode';
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from '../../utils/constants';
 
 @injectable()
 @singleton()

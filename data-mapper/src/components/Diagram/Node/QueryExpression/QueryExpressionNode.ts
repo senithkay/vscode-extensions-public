@@ -11,10 +11,11 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { getFieldNames } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../FromClause";
+import { FromClauseNode } from "../FromClause";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { RequiredParamNode } from "../RequiredParam";
 

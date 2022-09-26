@@ -26,11 +26,12 @@ import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { MappingConstructorNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, FromClauseNode } from "../Node/FromClause";
+import { FromClauseNode } from "../Node/FromClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
-import { RecordFieldPortModel } from "../Port";
+import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "./constants";
 import { getModification } from "./modifications";
 
 export function getFieldNames(expr: FieldAccess) {
@@ -289,7 +290,14 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 			Object.keys(targetPort.getLinks()).forEach((linkId) => {
 				if (linkId !== link.getID()){
 					const link = targetPort.getLinks()[linkId]
-					targetPos = (link.getLabels()[0] as ExpressionLabelModel).valueNode.position;
+					if (link.getSourcePort() instanceof IntermediatePortModel){
+						if (link.getSourcePort().getParent( ) instanceof LinkConnectorNode) {
+							targetPos = (link.getSourcePort().getParent( ) as LinkConnectorNode).valueNode.position
+						}
+					}
+					else {
+						targetPos = (link.getLabels()[0] as ExpressionLabelModel).valueNode.position;
+					}
 
 				}
 			})
@@ -382,6 +390,102 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 		}
 	}
 	return null;
+}
+
+export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode) {
+	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
+	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
+	let recField: EditableRecordField;
+	let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+	for (let i = 0; i < fields.length; i++) {
+		const field = fields[i];
+		if (STKindChecker.isSpecificField(field)) {
+			if (nextTypeChildNodes) {
+				portIdBuffer = `${portIdBuffer}.${field.fieldName.value}`
+				const recFieldTemp = nextTypeChildNodes.find(
+					(recF) => getBalRecFieldName(recF.type.name) === field.fieldName.value);
+				if (recFieldTemp) {
+					if (i === fields.length - 1) {
+						recField = recFieldTemp;
+					} else {
+						[nextTypeChildNodes, nextTypeMemberNodes] = getNextNodes(recFieldTemp);
+					}
+				}
+			} else if (nextTypeMemberNodes) {
+				const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
+				if (nextField && fieldIndex !== -1) {
+					portIdBuffer = `${portIdBuffer}.${fieldIndex}.${field.fieldName.value}`;
+					if (i === fields.length - 1) {
+						recField = nextField;
+					} else {
+						[nextTypeChildNodes, nextTypeMemberNodes] = getNextNodes(nextField);
+					}
+				}
+			}
+		} else if (STKindChecker.isListConstructor(field) && nextTypeMemberNodes) {
+			const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
+			if (nextField && fieldIndex !== -1) {
+				portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
+				[nextTypeChildNodes, nextTypeMemberNodes] = getNextNodes(nextField);
+			}
+		} else {
+			if (nextTypeChildNodes) {
+				const fieldIndex = nextTypeChildNodes.findIndex(
+					(recF) => recF?.value && isPositionsEquals(field.position, recF.value.position));
+				if (fieldIndex !== -1) {
+					portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
+					recField = nextTypeChildNodes[fieldIndex];
+				}
+			} else if (nextTypeMemberNodes) {
+				const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
+				if (nextField && fieldIndex !== -1) {
+					portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
+					recField = nextField;
+				}
+			}
+		}
+	}
+	if (recField) {
+		const portId = `${portIdBuffer}.IN`;
+		let port = (node.getPort(portId) as RecordFieldPortModel);
+		while (port && port.hidden) {
+			port = port.parentModel;
+		}
+		return port;
+	}
+}
+
+function getNextField(nextTypeMemberNodes: ArrayElement[],
+	                     nextFieldPosition: NodePosition): [EditableRecordField, number] {
+	let memberIndex = -1;
+	const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
+		if (node.member.type.typeName === PrimitiveBalType.Record) {
+			for (let i = 0; i < node.member.childrenTypes.length; i++) {
+				const field = node.member.childrenTypes[i];
+				if (field?.value && isPositionsEquals(nextFieldPosition, field.value.position)) {
+					memberIndex = i;
+					return true;
+				}
+			}
+		} else {
+			return node.member?.value && isPositionsEquals(nextFieldPosition, node.member.value.position);
+		}
+	});
+	if (fieldIndex !== -1) {
+		if (memberIndex !== -1) {
+			return [nextTypeMemberNodes[fieldIndex].member.childrenTypes[memberIndex], fieldIndex];
+		}
+		return [nextTypeMemberNodes[fieldIndex].member, fieldIndex];
+	}
+	return [undefined, undefined];
+}
+
+function getNextNodes(nextField: EditableRecordField): [EditableRecordField[], ArrayElement[]] {
+	if (nextField.type.typeName === PrimitiveBalType.Record) {
+		return [nextField?.childrenTypes, undefined];
+	} else if (nextField.type.typeName === PrimitiveBalType.Array) {
+		return [undefined, nextField?.elements];
+	}
 }
 
 export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: EditableRecordField,
@@ -568,6 +672,8 @@ export function getTypeName(field: Type): string {
 		return field?.typeInfo ? field.typeInfo.name : 'record';
 	} else if (field.typeName === PrimitiveBalType.Array) {
 		return `${getTypeName(field.memberType)}[]`;
+	} else if (field.typeName === 'union') {
+		return field.members?.map(item => getTypeName(item)).join(' | ');
 	}
 	return field.typeName;
 }
