@@ -709,6 +709,8 @@ export function getTypeName(field: Type): string {
 		return field?.typeInfo ? field.typeInfo.name : 'record';
 	} else if (field.typeName === 'array') {
 		return `${getTypeName(field.memberType)}[]`;
+	} else if (field.typeName === 'union') {
+		return field.members?.map(item=>getTypeName(item)).join(' | ');
 	}
 	return field.typeName;
 }
