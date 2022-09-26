@@ -121,8 +121,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
 
     const formatRecord = (block: string) => {
         let i = 0;
-        return block.replace(/record {/g, function(match: any) { 
-            return match === "record {" ? (i++ === 0 ? 'record {' : 'record {\n') : ''; 
+        return block.replace(/record {/g, (match: string) => {
+            return match === "record {" ? (i++ === 0 ? 'record {' : 'record {\n') : '';
         });
     }
 
