@@ -26,8 +26,8 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
-    getBalRecFieldName,
     getDefaultValue,
+    getFieldName,
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
@@ -55,7 +55,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
 
-    const fieldName = getBalRecFieldName(field.type.name);
+    const fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;

@@ -95,7 +95,10 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	let fromFieldIdx = -1;
 
 	while (parent != null && parent.parentModel) {
-		if (parent.field?.name) {
+		if (parent.field?.name
+			&& !(parent.field.typeName === PrimitiveBalType.Record
+				&& parent.parentModel.field.typeName === PrimitiveBalType.Array)
+		) {
 			parentFieldNames.push(parent.field.name);
 		}
 		parent = parent.parentModel;
@@ -201,7 +204,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	while (nextField && nextField.parentType) {
 		const fieldName = nextField.type.name;
-		if (fieldName) {
+		if (!(nextField.hasValue() && STKindChecker.isMappingConstructor(nextField.value))) {
 			parentFields.push(getBalRecFieldName(fieldName));
 		}
 
@@ -619,6 +622,17 @@ export function getFieldAccessNodes(node: STNode) {
 	return fieldAccessFindingVisitor.getFieldAccessNodes();
 }
 
+export function getFieldName(field: EditableRecordField) {
+	if (!field.type?.name
+		|| (field?.parentType
+			&& field.type.typeName === PrimitiveBalType.Record
+			&& field.parentType.type.typeName === PrimitiveBalType.Array)
+	) {
+		return '';
+	}
+	return getBalRecFieldName(field.type.name);
+}
+
 export function getFieldLabel(fieldId: string) {
 	const parts = fieldId.split('.').slice(1);
 	let fieldLabel = '';
@@ -675,11 +689,7 @@ function updateValueExprSource(value: string, targetPosition: NodePosition,
 
 function getRHSFromSourcePort(port: PortModel) {
 	const sourcePort = port as RecordFieldPortModel;
-	let rhs = sourcePort.fieldName ? getBalRecFieldName(sourcePort.fieldName) :  getBalRecFieldName(sourcePort.field.name);
-	if (sourcePort.parentFieldAccess) {
-		rhs = sourcePort.parentFieldAccess + "." + rhs;
-	}
-	return rhs;
+	return sourcePort.portName ? getBalRecFieldName(sourcePort.portName) :  getBalRecFieldName(sourcePort.field.name);
 }
 
 function getSpecificField(mappingConstruct: MappingConstructor, targetFieldName: string) {

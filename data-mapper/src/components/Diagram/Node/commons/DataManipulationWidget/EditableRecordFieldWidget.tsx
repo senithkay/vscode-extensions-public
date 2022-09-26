@@ -23,7 +23,7 @@ import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-e
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getNewSource, getTypeName, isConnectedViaLink } from "../../../utils/dm-utils";
+import { getFieldName, getNewSource, getTypeName, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -46,7 +46,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
 
-    let fieldName = getBalRecFieldName(field.type.name);
+    let fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
