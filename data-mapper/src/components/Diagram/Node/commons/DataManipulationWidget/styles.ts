@@ -113,6 +113,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "25px",
             width: "25px",
             marginLeft: "auto"
+        },
+        requiredMark: {
+            color: theme.palette.error.main,
+            marginLeft: '5px',
+            fontSize: '18px'
         }
     }),
 );
