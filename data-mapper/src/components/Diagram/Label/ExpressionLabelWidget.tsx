@@ -214,8 +214,13 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			isTargetCollapsed = collapsedFields?.includes(target?.fieldName)
 		}
 	}
-
-	if (isSourceCollapsed || isTargetCollapsed) {
+	
+	if(props.model?.valueNode && isSourceCollapsed && isTargetCollapsed){
+		// for direct links, disable link widgets if both sides are collapsed
+		return null
+	}else if (!props.model?.valueNode && (isSourceCollapsed || isTargetCollapsed)) {
+		// for links with intermediary nodes, 
+		// disable link widget if either source or target port is collapsed
 		return null;
 	}
 
