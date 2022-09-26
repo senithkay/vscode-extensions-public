@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
@@ -21,58 +21,74 @@ import { theme } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { SelectionState, ViewOption } from "../DataMapper";
 
+import { getBreadcrumbItemLabel } from "./header-utils";
+
 const useStyles = makeStyles(() =>
     createStyles({
         breadcrumb: {
             '& > * + *': {
                 marginTop: theme.spacing(2),
-            },
+            }
         },
+        active: {
+            cursor: "default",
+            color: "textPrimary"
+        },
+        link: {
+            cursor: "pointer"
+        }
     })
 );
 
 export interface HeaderBreadcrumbProps {
-    functionName: string;
     selection: SelectionState;
-    changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
+    changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
 }
 
 export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
-    const { functionName, selection, changeSelection } = props;
+    const { selection, changeSelection } = props;
     const classes = useStyles();
 
-    const links = selection.prevST.length > 0 && (
-        selection.prevST.map((node, index) => {
-            return (index === selection.prevST.length - 1) ? (
-                <Typography color="textPrimary">{`query${index + 1}`}</Typography>
-            ) : (
-                <Link
-                    key={index}
-                    underline="hover"
-                    onClick={handleClick}
-                >
-                    {`query${index + 1}`}
-                </Link>
-            );
-        })
-    );
+    const [activeLink, links] = useMemo(() => {
+        let label = getBreadcrumbItemLabel(selection.selectedST);
+
+        const selectedLink = label && (
+            <Typography className={classes.active}>
+                {label}
+            </Typography>
+        );
+
+        const restLinks = selection.prevST.length > 0 && (
+            selection.prevST.map((node, index) => {
+                label = getBreadcrumbItemLabel(node);
+                return (
+                    <Link
+                        data-index={index}
+                        key={index}
+                        underline="hover"
+                        onClick={handleClick}
+                        className={classes.link}
+                    >
+                        {label}
+                    </Link>
+                );
+            })
+        );
+
+        return [selectedLink, restLinks];
+    }, [selection]);
 
     function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
         event.preventDefault();
-        changeSelection(ViewOption.COLLAPSE);
+        const index: number = +event.currentTarget.getAttribute('data-index');
+        changeSelection(ViewOption.NAVIGATE, undefined, index);
     }
 
     return (
         <div className={classes.breadcrumb}>
             <Breadcrumbs aria-label="breadcrumb">
-                {selection.prevST.length === 0 ? (
-                    <Typography color="textPrimary">{functionName}</Typography>
-                ) : (
-                    <Link onClick={handleClick}>
-                        {functionName}
-                    </Link>
-                )}
                 {links}
+                {activeLink}
             </Breadcrumbs>
         </div>
     );

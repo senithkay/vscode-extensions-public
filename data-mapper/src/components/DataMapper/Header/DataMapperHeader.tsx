@@ -30,22 +30,20 @@ const useStyles = makeStyles(() =>
 );
 
 export interface DataMapperHeaderProps {
-    name: string;
     selection: SelectionState;
-    changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
+    changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onClose: () => void;
     onConfigOpen: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { name, selection, changeSelection, onClose, onConfigOpen } = props;
+    const { selection, changeSelection, onClose, onConfigOpen } = props;
     const classes = useStyles();
     return (
         <HeaderContainer>
             <HomeButton onClick={onClose} />
             <BeadCrumb>
                 <HeaderBreadcrumb
-                    functionName={name}
                     selection={selection}
                     changeSelection={changeSelection}
                 />

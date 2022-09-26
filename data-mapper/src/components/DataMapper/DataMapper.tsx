@@ -96,7 +96,8 @@ export interface DataMapperProps {
 
 export enum ViewOption {
     EXPAND,
-    COLLAPSE
+    COLLAPSE,
+    NAVIGATE
 }
 
 export interface SelectionState {
@@ -112,14 +113,16 @@ export interface ExpressionInfo {
     label?: string;
 }
 
-const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload: SelectionState }) => {
+const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload: SelectionState, index: number }) => {
     if (action.type === ViewOption.EXPAND) {
         const previousST = !!state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
         return { selectedST: action.payload.selectedST, prevST: previousST };
-    }
-    if (action.type === ViewOption.COLLAPSE) {
+    } else if (action.type === ViewOption.COLLAPSE) {
         const prevSelection = state.prevST.pop();
         return { selectedST: prevSelection, prevST: [...state.prevST] };
+    } else if (action.type === ViewOption.NAVIGATE) {
+        const targetST = state.prevST[action.index];
+        return { selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
     }
     return { selectedST: action.payload.selectedST, prevST: action.payload.prevST };
 };
@@ -141,8 +144,8 @@ function DataMapperC(props: DataMapperProps) {
 
     const classes = useStyles();
 
-    const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState) => {
-        dispatchSelection({ type: mode, payload: selectionState });
+    const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
+        dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
         setImportStatementsCount(importStatements.length);
     }
 
@@ -222,7 +225,8 @@ function DataMapperC(props: DataMapperProps) {
                 payload: {
                     prevST: [],
                     selectedST: fnST
-                }
+                },
+                index: undefined
             })
         }
     }, [fnST]);
@@ -239,7 +243,6 @@ function DataMapperC(props: DataMapperProps) {
                     {!!currentEditableField && <div className={classes.overlay} />}
                     {fnST && (
                         <DataMapperHeader
-                            name={fnST?.functionName?.value}
                             selection={selection}
                             changeSelection={handleSelectedST}
                             onClose={onClose}
