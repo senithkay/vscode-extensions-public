@@ -41,6 +41,7 @@ import {
     SpecificField,
     STKindChecker,
     STNode,
+    TableTypeDesc,
     TrapKeyword,
     TupleTypeDesc,
     TypedBindingPattern,
@@ -193,6 +194,12 @@ class ExpressionDeletingVisitor implements Visitor {
                     });
                 }
             }
+        }
+    }
+
+    public beginVisitTableTypeDesc(node: TableTypeDesc) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.keyConstraintNode?.position)) {
+            this.setProperties("", node.keyConstraintNode.position);
         }
     }
 
