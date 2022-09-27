@@ -17,48 +17,108 @@
  *
  */
 
-import { ANALYZE_TYPE, GraphPoint, SequenceGraphPointValue } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { ANALYZE_TYPE, TopBarData } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BlockStatement, IfElseStatement, NodePosition, RemoteMethodCallAction, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, Visitor } from "@wso2-enterprise/syntax-tree";
+
+import { haveConnectors } from "./connectorVisitor";
+
+export interface ConnectorLatency {
+    name: string;
+    latency: string;
+}
 
 // TODO: find out what kind of invocations analyse here. is it only action invocations.
 export function mergeAnalysisDetails(
     stNode: STNode,
-    serviceData: GraphPoint,
-    analysisData: SequenceGraphPointValue[],
-    cUnit: string,
-    currentResourcePos: NodePosition,
-    isClear = false
+    serviceData: TopBarData,
+    connectorLatencies: ConnectorLatency[],
+    currentResourcePos: NodePosition
 ) {
-    const analysisMerger = new AnalysisDetailMerger(serviceData, analysisData, cUnit, currentResourcePos);
+    const analysisMerger = new AnalysisDetailMerger(serviceData, connectorLatencies, currentResourcePos);
     if (!stNode) {
         return;
     }
     traversNode(stNode, analysisMerger);
-    if (isClear) {
-        analysisMerger.clear();
-    } else {
-        analysisMerger.merge();
-    }
 }
 
 export class AnalysisDetailMerger implements Visitor {
-    anaylisisDetailMap: { [key: string]: RemoteMethodCallAction } = {};
-    serviceData: GraphPoint;
-    analysisData: SequenceGraphPointValue[];
-    cUnit: string;
+    serviceData: TopBarData;
+    connectorLatencies: ConnectorLatency[];
     currentResourcePos: NodePosition;
-    constructor(serviceData: GraphPoint, analysisData: SequenceGraphPointValue[], cUnit: string,
-                currentResourcePos: NodePosition) {
+    blocks: BlockStatement[];
+    isAdvanced: boolean;
+    constructor(serviceData: TopBarData, connectorLatencies: ConnectorLatency[], currentResourcePos: NodePosition) {
         this.serviceData = serviceData;
-        this.analysisData = analysisData;
-        this.cUnit = cUnit;
+        this.connectorLatencies = connectorLatencies;
         this.currentResourcePos = currentResourcePos;
+        this.blocks = [];
+        this.isAdvanced = serviceData.analyzeType === ANALYZE_TYPE.ADVANCED;
     }
+
+    public beginVisitBlockStatement(node: BlockStatement) {
+        this.blocks.push(node);
+        node.isInSelectedPath = false;
+        node.controlFlow = { isReached: false };
+        node.statements.forEach((statement) => {
+            statement.controlFlow = { isReached: false };
+        });
+    }
+
+    public endVisitBlockStatement(node: BlockStatement) {
+        this.blocks.pop();
+        if (node.isInSelectedPath) {
+            node.controlFlow = { isReached: true };
+            this.updateStatements(node.statements, true);
+        }
+        node.isInSelectedPath = false;
+    }
+
+    public beginVisitIfElseStatement(node: IfElseStatement) {
+        if (node.ifBody) {
+            node.ifBody.controlFlow = { isReached: false };
+        }
+        if (node.elseBody?.elseBody) {
+            node.elseBody.elseBody.controlFlow = { isReached: false };
+        }
+        this.updateStatements(node.ifBody.statements, false);
+        if (node.elseBody?.elseBody &&
+            STKindChecker.isBlockStatement(node.elseBody.elseBody)) this.updateStatements(node.elseBody.elseBody.statements, false);
+    }
+
+    public endVisitIfElseStatement(node: IfElseStatement) {
+        if (this.isAdvanced && !node.ifBody.controlFlow?.isReached && !node.elseBody?.elseBody?.controlFlow?.isReached) {
+            node.isInSelectedPath = true;
+
+            if (!haveConnectors(node.ifBody)) {
+                node.ifBody.controlFlow = { isReached: true };
+                this.updateStatements(node.ifBody.statements, true);
+
+            } else if (node.elseBody?.elseBody) {
+                node.elseBody.elseBody.controlFlow = { isReached: true };
+                if (STKindChecker.isBlockStatement(node.elseBody.elseBody)) this.updateStatements(node.elseBody.elseBody.statements, true);
+            }
+        }
+    }
+
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
+        node.controlFlow = { isReached: false };
         const { position: { startLine, startColumn, endLine, endColumn } } = node;
-        const key = `${this.cUnit}/${startLine}:${startColumn},${endLine}:${endColumn}`;
-        (node as any).performance = {};
-        this.anaylisisDetailMap[key] = node;
+        const key = `(${startLine}:${startColumn},${endLine}:${endColumn})`;
+
+        if (this.isAdvanced) {
+            delete node.performance;
+        }
+
+        this.connectorLatencies.forEach(data => {
+            if (key === data.name) {
+                node.performance = { latency: data.latency };
+
+                if (this.blocks.length > 0) {
+                    this.blocks.forEach((block) => block.isInSelectedPath = this.isAdvanced);
+                }
+                node.controlFlow = { isReached: this.isAdvanced };
+            }
+        });
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition) {
@@ -66,29 +126,25 @@ export class AnalysisDetailMerger implements Visitor {
             node.position.startColumn === this.currentResourcePos.startColumn) {
             node.performance = {
                 concurrency: this.serviceData.concurrency, latency: this.serviceData.latency,
-                tps: this.serviceData.tps, analyzeType: ANALYZE_TYPE.ADVANCED
+                tps: this.serviceData.tps, analyzeType: this.serviceData.analyzeType
             };
-        } else {
+
+            if (STKindChecker.isFunctionBodyBlock(node.functionBody)) {
+                node.functionBody.statements.forEach((statement) => {
+                    statement.controlFlow = { isReached: this.isAdvanced }
+                });
+            }
+        } else if (this.isAdvanced) {
             delete node.performance;
+            if (STKindChecker.isFunctionBodyBlock(node.functionBody)) {
+                this.updateStatements(node.functionBody.statements, false);
+            }
         }
     }
 
-    public merge() {
-        this.analysisData.forEach(data => {
-
-            const invocation = this.anaylisisDetailMap[Object.keys(this.anaylisisDetailMap).find((key) => (
-                key === data.name)
-            )] as any;
-            if (invocation) {
-                invocation.performance.latency = data.latency.toFixed(2);
-            }
+    updateStatements(statements: any, isReached: boolean) {
+        statements.forEach((statement: any) => {
+            statement.controlFlow = { isReached }
         });
-    }
-
-    public clear() {
-        Object.values(this.anaylisisDetailMap).forEach((value) => {
-            const invocation = value as any;
-            delete invocation.performance;
-        })
     }
 };

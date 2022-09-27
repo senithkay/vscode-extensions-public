@@ -80,6 +80,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const getSentryConfig: () => Promise<SentryConfig | undefined> = props.getSentryConfig;
     const getBalVersion: () => Promise<string | undefined> = props.getBallerinaVersion;
     const getEnv: (name: string) => Promise<any> = props.getEnv;
+    const openExternalUrl: (url: string) => Promise<boolean> = props.openExternalUrl;
 
     const defaultZoomStatus = {
         scale: defaultScale,
@@ -93,10 +94,10 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
     const [isModulePullInProgress, setModulePullInProgress] = React.useState<boolean>(false);
     const [loaderText, setLoaderText] = React.useState<string>('Loading...');
-    const [performanceData, setPerformanceData] = React.useState(undefined);
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
+    const [isCodeServer, setCodeServer] = React.useState<boolean>(false);
     const initSelectedPosition = startColumn === 0 && startLine === 0 && syntaxTree ? // TODO: change to use undefined for unselection
         getDefaultSelectedPosition(syntaxTree)
         : { startLine, startColumn }
@@ -138,6 +139,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         (async () => {
             const version: string = await getBalVersion();
             setBalVersion(version);
+            const isCodeServerInstance : string = await getEnv("CODE_SERVER_ENV");
+            setCodeServer(isCodeServerInstance === "true");
             const sentryConfig: SentryConfig = await getSentryConfig();
             if (sentryConfig) {
                 init(sentryConfig);
@@ -285,11 +288,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                 size: 1,
                                 type: "File"
                             }}
-                            performanceData={performanceData}
                             importStatements={getImportStatements(syntaxTree)}
                             experimentalEnabled={experimentalEnabled}
                             lowCodeResourcesVersion={lowCodeResourcesVersion}
                             ballerinaVersion={balVersion}
+                            isCodeServerInstance={isCodeServer}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
@@ -350,7 +353,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                                                 }
                                                             ],
                                                         })
-                                                        const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri }})
+                                                        const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri } })
                                                         vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient, experimentalEnabled, showMessage);
                                                         setSyntaxTree(vistedSyntaxTree);
                                                     }
@@ -417,7 +420,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     getLibrariesData,
                                     getLibraryData
                                 },
-                                runBackgroundTerminalCommand
+                                runBackgroundTerminalCommand,
+                                openExternalUrl
                             }}
                         />
                     </DiagramGenErrorBoundary>
@@ -430,8 +434,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         const currentTime: number = Date.now();
         const langClient = await langClientPromise;
         if (currentTime - lastPerfUpdate > debounceTime) {
-            const perfData = await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo);
-            setPerformanceData(perfData);
+            await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo);
             lastPerfUpdate = currentTime;
         }
     }

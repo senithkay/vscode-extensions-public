@@ -66,6 +66,8 @@ export interface LowCodeEditorProps {
     mappingCounstructor ?: string;
     modelTargetSource?: NodePosition;
     ballerinaVersion?: string;
+    isCodeServerInstance?: boolean;
+    openExternalUrl?: (url: string) => Promise<boolean>;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {
@@ -96,7 +98,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         extraModules,
         runBackgroundTerminalCommand,
         isExpressionMode,
-        ballerinaVersion
+        ballerinaVersion,
+        isCodeServerInstance,
+        openExternalUrl
     } = props;
 
     const {
@@ -241,6 +245,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             runBackgroundTerminalCommand={runBackgroundTerminalCommand}
                             isExpressionMode={isExpressionMode}
                             ballerinaVersion={ballerinaVersion}
+                            isCodeServerInstance={isCodeServerInstance}
+                            openExternalUrl={openExternalUrl}
                         />
                     </>
                 )}
