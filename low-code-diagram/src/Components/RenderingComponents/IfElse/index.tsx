@@ -33,6 +33,8 @@ import {
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
+import { useFunctionContext } from "../../../Context/Function";
+import { ViewMode } from "../../../Context/types";
 import { findActualEndPositionOfIfElseStatement, getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents } from "../../../Utils";
 import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
@@ -67,6 +69,7 @@ export function IfElse(props: IfElseProps) {
     const state = diagramContext?.state;
     const { diagramCleanDraw, insertComponentStart } = diagramContext.actions;
     const { model, blockViewState, name } = props;
+    const { viewMode } = useFunctionContext();
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
     const [ifElseConfigOverlayFormState, setIfElseConditionConfigState] = useState(undefined);
@@ -264,7 +267,9 @@ export function IfElse(props: IfElseProps) {
 
         const ifBodyPlusBtns: JSX.Element[] = [];
         for (const plusView of ifStatement.ifBody.viewState.plusButtons) {
-            ifBodyPlusBtns.push(<PlusButton viewState={plusView} model={ifStatement.ifBody} initPlus={false} />)
+            if (viewMode === ViewMode.STATEMENT) {
+                ifBodyPlusBtns.push(<PlusButton viewState={plusView} model={ifStatement.ifBody} initPlus={false} />);
+            }
         }
 
         pluses.push(<g className="if-body-pluses">{ifBodyPlusBtns}</g>);
@@ -272,7 +277,9 @@ export function IfElse(props: IfElseProps) {
         const elseBodyPlusBtns: JSX.Element[] = [];
         if (isElseExist) {
             for (const plusView of ifStatement.elseBody.elseBody.viewState.plusButtons) {
-                elseBodyPlusBtns.push(<PlusButton viewState={plusView} model={ifStatement.elseBody.elseBody as BlockStatement} initPlus={false} />)
+                if (viewMode === ViewMode.STATEMENT) {
+                    elseBodyPlusBtns.push(<PlusButton viewState={plusView} model={ifStatement.elseBody.elseBody as BlockStatement} initPlus={false} />)
+                }
             }
         }
         pluses.push(<g className="else-body-pluses">{elseBodyPlusBtns}</g>);

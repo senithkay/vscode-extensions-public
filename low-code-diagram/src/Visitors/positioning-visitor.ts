@@ -71,9 +71,6 @@ export interface WorkerHighlight {
     highlight: boolean;
 }
 
-// This holds the plus widget height diff to be added to the function when its open.
-// This will be reset on every rerender.
-let plusHolderHeight: number = 0;
 export class PositioningVisitor implements Visitor {
     private allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
     private epCount: number = 0;

@@ -24,6 +24,7 @@ import { v4 as uuid } from "uuid";
 import { Canvas } from "../../../Canvas";
 import { Context } from "../../../Context/diagram";
 import { Provider as FunctionProvider } from "../../../Context/Function";
+import { ViewMode } from "../../../Context/types";
 import { useOverlayRef, useSelectedStatus } from "../../../hooks";
 import { initializeCollapseView } from "../../../Utils";
 import { BlockViewState, FunctionViewState } from "../../../ViewState";
@@ -33,7 +34,7 @@ import { WorkerBody } from "../WorkerBody";
 import { WorkerLine } from "../WorkerLine";
 
 import { FunctionHeader } from "./FunctionHeader";
-import PanAndZoom, { ViewMode } from "./PanAndZoom";
+import PanAndZoom from "./PanAndZoom";
 import { PerformanceBar } from "./perBar/PerformanceBar";
 import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
@@ -134,6 +135,7 @@ export function Function(props: FunctionProps) {
                 overlayNode={overlayNode}
                 functionNode={model}
                 hasWorker={!!(model.functionBody as FunctionBodyBlock).namedWorkerDeclarator}
+                viewMode={viewMode}
             >
                 <PanAndZoom
                     viewMode={viewMode}

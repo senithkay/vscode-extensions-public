@@ -15,6 +15,8 @@ import React, { useContext } from "react";
 import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
+import { useFunctionContext } from "../../../Context/Function";
+import { ViewMode } from "../../../Context/types";
 import { collapseExpandedRange, expandCollapsedRange, getDraftComponent, getSTComponents, recalculateSizingAndPositioning, sizingAndPositioning } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
@@ -38,6 +40,8 @@ export function WorkerBody(props: DiagramProps) {
         }
     } = useContext(Context);
 
+    const { viewMode } = useFunctionContext();
+
     const { expandReadonly, model, viewState } = props;
     const pluses: React.ReactNode[] = [];
     const workerArrows: React.ReactNode[] = [];
@@ -60,7 +64,7 @@ export function WorkerBody(props: DiagramProps) {
     }
 
     for (const plusView of viewState.plusButtons) {
-        if (!expandReadonly && !(viewState.collapsedViewStates.length > 0)) {
+        if (!expandReadonly && viewMode === ViewMode.STATEMENT) {
             pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />);
         }
     }

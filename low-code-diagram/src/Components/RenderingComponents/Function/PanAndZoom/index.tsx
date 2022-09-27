@@ -15,15 +15,12 @@ import React, { useContext } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { Context } from "../../../../Context/diagram";
+import { ViewMode } from "../../../../Context/types";
 import FitToScreenSVG from "../../../../PanAndZoom/images/fit-to-screen";
 import ZoomInSVG from "../../../../PanAndZoom/images/zoom-in";
 import ZoomOutSVG from "../../../../PanAndZoom/images/zoom-out";
 
 
-export enum ViewMode {
-    INTERACTION = 'Interaction',
-    STATEMENT = 'Statement'
-}
 interface PanAndZoomProps {
     viewMode: ViewMode;
     toggleViewMode: () => void;
