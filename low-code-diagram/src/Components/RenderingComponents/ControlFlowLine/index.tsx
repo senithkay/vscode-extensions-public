@@ -24,7 +24,7 @@ export interface ControlFlowProps {
 
 export function ControlFlowLine(props: ControlFlowProps) {
     const { controlFlowViewState } = props;
-    const { h = 0, x, y, w = 0 } = controlFlowViewState;
+    const { h = 0, x, y, w = 0, isDotted } = controlFlowViewState;
 
     return (
         <g className="control-flow-line">
@@ -33,6 +33,7 @@ export function ControlFlowLine(props: ControlFlowProps) {
                 y1={y}
                 x2={x + w}
                 y2={y + h}
+                isDotted={isDotted}
             />
         </g>
     );

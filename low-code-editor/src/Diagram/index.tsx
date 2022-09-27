@@ -60,7 +60,6 @@ export function Diagram() {
             isReadOnly,
             stSymbolInfo,
             error,
-            performanceData,
             selectedPosition,
             zoomStatus,
             experimentalEnabled
@@ -328,7 +327,6 @@ export function Diagram() {
                     <LowCodeDiagram
                         syntaxTree={syntaxTree}
                         isReadOnly={isReadOnly}
-                        performanceData={performanceData}
                         selectedPosition={selectedPosition}
                         zoomStatus={zoomStatus}
                         stSymbolInfo={stSymbolInfo}

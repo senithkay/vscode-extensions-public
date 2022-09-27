@@ -32,6 +32,7 @@ export const STMT_PLACEHOLDER = "STATEMENT";
 export const TYPE_DESC_PLACEHOLDER = "TYPE_DESCRIPTOR";
 export const BINDING_PATTERN_PLACEHOLDER = "BINDING_PATTERN";
 export const DEFAULT_INTERMEDIATE_CLAUSE_PLACEHOLDER = "DEFAULT_INTERMEDIATE_CLAUSE";
+export const PARAMETER_PLACEHOLDER = "PARAMETER";
 /* tslint:disable-next-line */
 export const SELECTED_EXPRESSION = "${SELECTED_EXPRESSION}";
 
@@ -71,6 +72,20 @@ const templates: ExpressionGroup = {
     ],
     relatedModelType: ModelType.EXPRESSION
 }
+
+// 6.14 Member access expression
+const memberAccess : ExpressionGroup = {
+    name: "Member Access",
+    expressions: [
+        {
+            name: "Member Access",
+            template: `${SELECTED_EXPRESSION}[${EXPR_PLACEHOLDER}]`,
+            example: "Es[Ex]"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+
 //     6.7 Structural constructors
 //         6.7.1 List constructor
 //         6.7.2 Mapping constructor
@@ -667,6 +682,7 @@ export const expressions: ExpressionGroup[] = [
     typeCastEx,
     templates,
     structuralConstructors,
+    memberAccess,
     anonymousFunction,
     range,
     shift,

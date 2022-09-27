@@ -35,7 +35,7 @@ import { COLLAPSE_SVG_HEIGHT, COLLAPSE_SVG_HEIGHT_WITH_SHADOW } from "../Compone
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
 import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
-import { START_SVG_SHADOW_OFFSET } from "../Components/RenderingComponents/Start/StartSVG";
+import { START_SVG_SHADOW_OFFSET, START_SVG_WIDTH } from "../Components/RenderingComponents/Start/StartSVG";
 import { Endpoint } from "../Types/type";
 import { isVarTypeDescriptor } from "../Utils";
 import {
@@ -55,6 +55,7 @@ import {
     PlusViewState,
     SimpleBBox,
     StatementViewState,
+    ViewState,
     WhileViewState
 } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
@@ -64,6 +65,15 @@ import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "
 import { getPlusViewState, isPositionWithinRange, updateConnectorCX } from "./util";
 
 let epCount: number = 0;
+
+export interface WorkerHighlight {
+    position: { x: number, y: number };
+    highlight: boolean;
+}
+
+// This holds the plus widget height diff to be added to the function when its open.
+// This will be reset on every rerender.
+let plusHolderHeight: number = 0;
 export class PositioningVisitor implements Visitor {
     private allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
     private epCount: number = 0;
@@ -476,6 +486,20 @@ export class PositioningVisitor implements Visitor {
             const workerDeclVS = workerDecl.viewState as WorkerDeclarationViewState;
 
             bodyViewState.workerIndicatorLine.w = workerDeclVS.trigger.cx - bodyViewState.workerIndicatorLine.x;
+
+            (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDeclarator => {
+
+                if (workerDeclarator.workerBody.controlFlow?.isReached) {
+                    const workerBodyViewState = workerDeclarator.workerBody.viewState as BlockViewState;
+                    const workerLine: ControlFlowLineState = {
+                        x: bodyViewState.workerIndicatorLine.x,
+                        y: bodyViewState.workerIndicatorLine.y,
+                        w: bodyViewState.workerIndicatorLine.w - (START_SVG_WIDTH / 2),
+                        isDotted: true
+                    };
+                    workerBodyViewState.controlFlow.lineStates.push(workerLine);
+                }
+            });
         }
     }
 
@@ -726,7 +750,7 @@ export class PositioningVisitor implements Visitor {
                     controlFlowLineState.x = blockViewState.bBox.cx;
                     controlFlowLineState.y = blockViewState.bBox.cy - blockViewState.bBox.offsetFromBottom;
                     controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
-                } else {
+                } else if (index <= statements.length) {
                     const previousStatementViewState: StatementViewState = statements[index - 1].viewState;
                     controlFlowLineState.x = statementViewState.bBox.cx;
                     if (STKindChecker.isIfElseStatement(statements[index - 1])) {
@@ -954,6 +978,7 @@ export class PositioningVisitor implements Visitor {
                 elseViewStatement.elseBottomHorizontalLine.x = viewState.bBox.cx;
                 elseViewStatement.elseBottomHorizontalLine.y = elseViewStatement.elseBody.y +
                     elseViewStatement.elseBody.length;
+
             } else if (node.elseBody.elseBody.kind === "IfElseStatement") {
                 const elseIfStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
                 const elseIfViewState: IfViewState = elseIfStmt.viewState;
@@ -972,6 +997,7 @@ export class PositioningVisitor implements Visitor {
                 elseIfViewState.elseIfBottomHorizontalLine.y = viewState.bBox.cy + elseIfViewState.elseIfLifeLine.h +
                     elseIfViewState.headIf.h;
             }
+
         } else {
             const defaultElseVS: ElseViewState = viewState.defaultElseVS;
 
@@ -1041,6 +1067,27 @@ export class PositioningVisitor implements Visitor {
                 h: node.ifBody.viewState.bBox.h - (TOP_CURVE_SVG_HEIGHT + BOTTOM_CURVE_SVG_WIDTH),
             };
             defaultElseVS?.controlFlow.lineStates.push(defaultBodyControlFlowLine);
+        }
+        // perf analyzer path highlights
+        if (node.isInSelectedPath) {
+            if (node.ifBody.statements.length === 0 && node.ifBody.controlFlow?.isReached) {
+                const line: ControlFlowLineState = {
+                    x: node.viewState.bBox.cx,
+                    y: node.ifBody.viewState.bBox.cy,
+                    h: node.ifBody.viewState.bBox.length,
+                }
+                bodyViewState.controlFlow.lineStates.push(line);
+            } else if (node.elseBody?.elseBody?.controlFlow?.isReached) {
+                const elseStmt: IfElseStatement = node.elseBody.elseBody as IfElseStatement;
+                const elseViewState: ElseViewState = elseStmt.viewState;
+                const defaultBodyControlFlowLine = {
+                    x: elseViewState.bBox.cx,
+                    y: node.ifBody.viewState.bBox.cy + TOP_CURVE_SVG_HEIGHT,
+                    h: node.ifBody.viewState.bBox.h - (TOP_CURVE_SVG_HEIGHT + BOTTOM_CURVE_SVG_WIDTH),
+                };
+
+                elseViewState.controlFlow.lineStates.push(defaultBodyControlFlowLine);
+            }
         }
     }
 }

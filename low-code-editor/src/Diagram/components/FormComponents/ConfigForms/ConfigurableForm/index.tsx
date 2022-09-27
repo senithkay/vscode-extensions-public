@@ -67,11 +67,13 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
             currentFile,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
-            library
+            library,
+            openExternalUrl
         },
     } = useContext(Context);
 
@@ -237,7 +239,10 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        isConfigurableStmt: true
+                        isConfigurableStmt: true,
+                        ballerinaVersion,
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

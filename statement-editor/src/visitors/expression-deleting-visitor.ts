@@ -12,6 +12,8 @@
  */
 import {
     BinaryExpression,
+    CheckKeyword,
+    CheckpanicKeyword,
     ConstDeclaration,
     FieldAccess,
     FunctionCall,
@@ -39,6 +41,7 @@ import {
     SpecificField,
     STKindChecker,
     STNode,
+    TrapKeyword,
     TupleTypeDesc,
     TypedBindingPattern,
     TypeParameter,
@@ -245,6 +248,24 @@ class ExpressionDeletingVisitor implements Visitor {
         }
     }
 
+    public beginVisitCheckKeyword(node: CheckKeyword) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.position)) {
+            this.setProperties("", node.position);
+        }
+    }
+
+    public beginVisitCheckpanicKeyword(node: CheckpanicKeyword) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.position)) {
+            this.setProperties("", node.position);
+        }
+    }
+
+    public beginVisitTrapKeyword(node: TrapKeyword) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.position)) {
+            this.setProperties("", node.position);
+        }
+    }
+
     public beginVisitSpecificField(node: SpecificField) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.valueExpr.position)) {
             this.setProperties(DEFAULT_EXPR, node.valueExpr.position);
@@ -261,7 +282,18 @@ class ExpressionDeletingVisitor implements Visitor {
                 });
 
                 if (hasKeyExprToBeDeleted) {
-                    this.setProperties(DEFAULT_EXPR, this.deletePosition);
+                    const expressions: string[] = [];
+                    node.keyExpression.map((expr: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, expr.position) && !STKindChecker.isCommaToken(expr)) {
+                            expressions.push(expr.source);
+                        }
+                    });
+
+                    this.setProperties(expressions.join(','), {
+                        ...node.position,
+                        startColumn: node.openBracket.position.endColumn,
+                        endColumn: node.closeBracket.position.startColumn
+                    });
                 }
             }
         }

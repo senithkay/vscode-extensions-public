@@ -28,6 +28,7 @@ import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
 import Breadcrumb from "../Breadcrumb";
 import { CloseButton } from "../Button/CloseButton";
 import { EditorPane } from '../EditorPane';
+import { Help } from "../Help";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ViewContainerProps {
@@ -67,7 +68,8 @@ export function ViewContainer(props: ViewContainerProps) {
             activeEditorId
         },
         targetPosition,
-        syntaxTree
+        syntaxTree,
+        isCodeServerInstance
     } =  useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
@@ -147,6 +149,7 @@ export function ViewContainer(props: ViewContainerProps) {
             <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor">
                 <div className={overlayClasses.statementEditorHeader}>
                     <Breadcrumb/>
+                    {isCodeServerInstance && <Help/>}
                     <div className={overlayClasses.closeButton} data-testid="close-btn">
                         {onCancel && <CloseButton onCancel={onCancel} />}
                     </div>

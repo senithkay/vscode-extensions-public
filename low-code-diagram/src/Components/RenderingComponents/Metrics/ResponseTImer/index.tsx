@@ -26,7 +26,7 @@ export interface ResponseTimerProps {
 export function ResponseTimerC(props: ResponseTimerProps) {
     const { x, y, responseTime } = props;
     const responseTimeValue = Number(responseTime);
-    const value = responseTimeValue > 1000 ? responseTimeValue / 1000 : responseTimeValue;
+    const value = responseTimeValue > 1000 ? (responseTimeValue / 1000).toFixed(2) : responseTimeValue;
     const unit = responseTimeValue > 1000 ? " s" : " ms";
 
     return (
@@ -37,3 +37,14 @@ export function ResponseTimerC(props: ResponseTimerProps) {
 }
 
 export const ResponseTimer = ResponseTimerC;
+
+export function PerformanceLabelC(props: ResponseTimerProps) {
+    const { x, y, responseTime } = props;
+    return (
+        <g>
+            <CounterLeftSVG x={x} y={y - TRIGGER_RECT_SVG_HEIGHT / 2.5} text={responseTime}/>
+        </g>
+    );
+}
+
+export const PerformanceLabel = PerformanceLabelC;

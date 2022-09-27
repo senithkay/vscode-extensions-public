@@ -432,17 +432,21 @@ export class SizingVisitor implements Visitor {
         const matchedStatements = this.syncAsyncStatements(node);
         const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
         const startDate = new Date();
+        let conflictResolved = false;
 
         do {
             resolutionVisitor.resetConflictStatus();
             traversNode(node, resolutionVisitor);
+            if (!conflictResolved) {
+                conflictResolved = resolutionVisitor.conflictFound();
+            }
             if ((new Date()).getTime() - startDate.getTime() > 5000) {
                 this.conflictResolutionFailed = true;
                 break;
             }
         } while (resolutionVisitor.conflictFound())
 
-        if (bodyViewState.hasWorkerDecl) {
+        if (conflictResolved) {
             let maxWorkerHeight = 0;
             let totalWorkerWidth = 0;
             Array.from(this.workerMap.keys()).forEach(key => {
@@ -482,7 +486,7 @@ export class SizingVisitor implements Visitor {
             });
             this.endVisitFunctionBodyBlock(body);
 
-            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h;
+            lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
 
             if (bodyViewState.isEndComponentAvailable) {
                 lifeLine.h += (body.statements[body.statements.length - 1].viewState as ViewState).bBox.offsetFromTop;
@@ -497,13 +501,15 @@ export class SizingVisitor implements Visitor {
             viewState.bBox.rw = (trigger.rw > bodyViewState.bBox.rw ? trigger.rw : bodyViewState.bBox.rw) + DefaultConfig.serviceRearPadding + totalWorkerWidth + (this.getConnectorSize() * (DefaultConfig.connectorEPWidth)) + DefaultConfig.epGap;
             viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
-            const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
+            if (bodyViewState.hasWorkerDecl) {
+                const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
 
-            if (bodyViewState.bBox.h < maxWorkerFullHeight) {
-                viewState.bBox.h += (maxWorkerFullHeight - bodyViewState.bBox.h);
+                if (bodyViewState.bBox.h < maxWorkerFullHeight) {
+                    viewState.bBox.h += (maxWorkerFullHeight - bodyViewState.bBox.h);
+                }
+
+                this.currentWorker.pop();
             }
-
-            this.currentWorker.pop();
             this.cleanMaps();
         }
 
@@ -1408,7 +1414,7 @@ export class SizingVisitor implements Visitor {
     }
 
     private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0,
-                           index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
+        index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }

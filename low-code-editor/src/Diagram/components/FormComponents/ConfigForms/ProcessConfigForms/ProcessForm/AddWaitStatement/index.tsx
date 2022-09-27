@@ -38,12 +38,14 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
     const intl = useIntl();
     const {
         props: {
+            ballerinaVersion,
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -51,7 +53,8 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
                 modifyDiagram
             },
             insights: { onEvent },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -81,7 +84,10 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
             syntaxTree,
             stSymbolInfo,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            ballerinaVersion,
+            isCodeServerInstance,
+            openExternalUrl
         }
     );
 

@@ -17,7 +17,7 @@
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     BallerinaConnectorInfo, CommandResponse, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, FunctionDef, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, PerformanceData, STModification,
+    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification,
     STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -113,6 +113,7 @@ export interface LowCodeEditorAPI {
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     },
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>
+    openExternalUrl?: (url: string) => Promise<boolean>
 }
 
 // FIXME Some of these props should be moved to low code state
@@ -141,12 +142,12 @@ export interface LowCodeEditorProperties {
     isReadOnly: boolean;
     zoomStatus: ZoomStatus;
     selectedPosition?: SelectedPosition;
-    performanceData?: Map<string, PerformanceData>;
     importStatements: string[];
     experimentalEnabled?: boolean;
     lowCodeResourcesVersion?: string;
     ballerinaVersion?: string;
     environment?: string;
+    isCodeServerInstance?: boolean;
 }
 
 export interface SelectedPosition {
