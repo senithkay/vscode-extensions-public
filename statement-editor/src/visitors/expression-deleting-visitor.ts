@@ -274,8 +274,10 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitIndexedExpression(node: IndexedExpression) {
         if (!this.isNodeFound) {
-            if (isPositionsEquals(this.deletePosition, node.containerExpression.position)) {
-                this.setProperties(DEFAULT_EXPR, node.position);
+            if (isPositionsEquals(this.deletePosition, node.keyExpression[0].position)) {
+                node.keyExpression.length === 1 && node.keyExpression[0].source.trim() === DEFAULT_EXPR ?
+                    this.setProperties(node.containerExpression.source, node.position) :
+                    this.setProperties(DEFAULT_EXPR, node.keyExpression[0].position);
             } else {
                 const hasKeyExprToBeDeleted = node.keyExpression.some((expr: STNode) => {
                     return isPositionsEquals(this.deletePosition, expr.position);

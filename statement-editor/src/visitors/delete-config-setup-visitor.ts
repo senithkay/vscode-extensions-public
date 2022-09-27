@@ -29,7 +29,6 @@ import {
     RecordField,
     RecordFieldWithDefaultValue,
     ReturnStatement,
-    SimpleNameReference,
     STKindChecker,
     STNode,
     TupleTypeDesc,
@@ -106,14 +105,9 @@ class DeleteConfigSetupVisitor implements Visitor {
     }
 
     public beginVisitIndexedExpression(node: IndexedExpression) {
-        if (node.keyExpression.length === 1) {
-            (node.keyExpression[0].viewState as StatementEditorViewState).exprNotDeletable = true;
-            (node.keyExpression[0].viewState as StatementEditorViewState).templateExprDeletable = false;
-        } else {
-            node.keyExpression.map((fieldNames: STNode) => {
-                (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
-            });
-        }
+        node.keyExpression.map((fieldNames: STNode) => {
+            (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
+        });
     }
 
     public beginVisitMethodCall(node: MethodCall) {
@@ -138,10 +132,12 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitWhereClause(node: WhereClause) {
         (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
     }
 
     public beginVisitLimitClause(node: LimitClause) {
         (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
     }
 
     public beginVisitRecordField(node: RecordField) {
@@ -163,13 +159,6 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitIdentifierToken(node: IdentifierToken, parent?: STNode) {
         if (parent && (parent.viewState as StatementEditorViewState).templateExprDeletable) {
-            (node.viewState as StatementEditorViewState).templateExprDeletable = true;
-        }
-    }
-
-    public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
-        if (parent && !STKindChecker.isIndexedExpression(parent) &&
-            (parent.viewState as StatementEditorViewState).templateExprDeletable) {
             (node.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }
