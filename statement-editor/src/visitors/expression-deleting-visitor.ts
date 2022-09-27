@@ -171,23 +171,27 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitTupleTypeDesc(node: TupleTypeDesc) {
         if (!this.isNodeFound) {
-            const hasItemsToBeDeleted = node.memberTypeDesc.some((item: STNode) => {
-                return isPositionsEquals(this.deletePosition, item.position);
-            });
-
-            if (hasItemsToBeDeleted) {
-                const typeDescList: string[] = [];
-                node.memberTypeDesc.map((types: STNode) => {
-                    if (!isPositionsEquals(this.deletePosition, types.position) && !STKindChecker.isCommaToken(types)) {
-                        typeDescList.push(types.source);
-                    }
+            if (isPositionsEquals(this.deletePosition, node.memberTypeDesc[0]?.position)) {
+                this.setProperties(DEFAULT_TYPE_DESC, node.memberTypeDesc[0].position);
+            } else {
+                const hasItemsToBeDeleted = node.memberTypeDesc.some((item: STNode) => {
+                    return isPositionsEquals(this.deletePosition, item.position);
                 });
 
-                this.setProperties(typeDescList.join(','), {
-                    ...node.position,
-                    startColumn: node.openBracketToken.position.endColumn,
-                    endColumn: node.closeBracketToken.position.startColumn
-                });
+                if (hasItemsToBeDeleted) {
+                    const typeDescList: string[] = [];
+                    node.memberTypeDesc.map((types: STNode) => {
+                        if (!isPositionsEquals(this.deletePosition, types.position) && !STKindChecker.isCommaToken(types)) {
+                            typeDescList.push(types.source);
+                        }
+                    });
+
+                    this.setProperties(typeDescList.join(','), {
+                        ...node.position,
+                        startColumn: node.openBracketToken.position.endColumn,
+                        endColumn: node.closeBracketToken.position.startColumn
+                    });
+                }
             }
         }
     }
