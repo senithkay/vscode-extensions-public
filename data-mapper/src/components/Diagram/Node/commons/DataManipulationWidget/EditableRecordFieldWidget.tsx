@@ -85,12 +85,12 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         <span style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel} style={{ marginLeft: !!fields ? 0 : indentation + 24 }}>
                 {fieldName}
+                {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {typeName && ":"}
             </span>
             {typeName && (
                 <span className={classes.typeLabel}>
                     {typeName}
-                    {!fields && !field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 </span>
             )}
             {value && (

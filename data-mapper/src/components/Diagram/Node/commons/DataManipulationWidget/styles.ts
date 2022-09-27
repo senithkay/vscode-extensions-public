@@ -117,7 +117,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         requiredMark: {
             color: theme.palette.error.main,
-            marginLeft: '5px',
+            margin: '0 2px',
             fontSize: '18px'
         }
     }),
