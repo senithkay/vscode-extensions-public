@@ -25,6 +25,7 @@ import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperC
 import { LightBulbSVG } from "./LightBulb";
 import { useStyles } from "./style";
 import IconButton from "@material-ui/core/IconButton";
+import { makeStyles, Theme, createStyles } from "@material-ui/core";
 
 export interface CodeActionWidgetProps {
     codeActions: CodeAction[];
@@ -108,8 +109,9 @@ export function CodeActionWidget(props: CodeActionWidgetProps) {
                 anchorEl={anchorEl}
                 open={open}
                 onClose={() => setAnchorEl(null)}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                className={classes.menu}
             >
                 {menuItems}
             </Menu>

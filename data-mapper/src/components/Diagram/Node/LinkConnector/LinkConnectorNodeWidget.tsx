@@ -12,12 +12,14 @@ const styles = makeStyles((theme: Theme) => createStyles({
     root: {
         verticalAlign: "middle",
         width: '100%',
-        backgroundColor: "#fff",
+        backgroundColor: theme.palette.common.white,
         padding: "5px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
-        color: "#74828F"
+        color: theme.palette.grey[400],
+        boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
+        borderRadius: "8px",
     },
     fromClause: {
         padding: "5px",
