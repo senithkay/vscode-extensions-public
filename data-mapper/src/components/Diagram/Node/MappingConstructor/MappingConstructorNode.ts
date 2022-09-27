@@ -16,7 +16,6 @@ import {
     ExpressionFunctionBody,
     IdentifierToken,
     MappingConstructor,
-    NodePosition,
     SelectClause,
     STKindChecker,
     STNode,
@@ -24,15 +23,13 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { isPositionsEquals } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";
+import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
 import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
-    getBalRecFieldName,
     getEnrichedRecordType,
     getInputNodeExpr,
     getInputPortsForExpr,
@@ -49,7 +46,7 @@ export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-construct
 export class MappingConstructorNode extends DataMapperNodeModel {
 
     public typeDef: Type;
-    public recordFields: EditableRecordField[];
+    public recordField: EditableRecordField;
     public typeName: string;
     public x: number;
     public y: number;
@@ -79,18 +76,20 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
             this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
-                this.recordFields = valueEnrichedType.childrenTypes;
-                if (!!this.recordFields.length) {
-                    this.recordFields.forEach((field) => {
+                this.recordField = valueEnrichedType;
+                if (!!this.recordField.childrenTypes.length) {
+                    this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
                             undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
-            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && STKindChecker.isSelectClause(this.value)) {
-                // valueEnrichedType only contains a single element as it is being used within the select clause
-                this.recordFields = valueEnrichedType.elements[0].members;
-                if (!!this.recordFields.length) {
-                    this.recordFields.forEach((field) => {
+            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
+                && STKindChecker.isSelectClause(this.value)
+            ) {
+                // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
+                this.recordField = valueEnrichedType.elements[0].member;
+                if (!!this.recordField.childrenTypes.length) {
+                    this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
                             undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
@@ -133,7 +132,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value
                         : `${outPort.parentFieldAccess.split('.').pop()}[${outPort.index}]`,
-                    deleteLink: () => this.deleteLink(field),
+                    deleteLink: () => this.deleteField(field),
                 }));
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
@@ -153,7 +152,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
     }
 
-    private deleteLink(field: STNode) {
+    deleteField(field: STNode) {
         if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
             // if Within query expression expanded view
             this.context.applyModifications([{

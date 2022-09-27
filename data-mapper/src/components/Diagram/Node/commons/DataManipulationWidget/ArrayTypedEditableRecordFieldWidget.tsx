@@ -18,7 +18,7 @@ import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -26,8 +26,8 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
-    getBalRecFieldName,
     getDefaultValue,
+    getFieldName,
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
@@ -48,13 +48,14 @@ export interface ArrayTypedEditableRecordFieldWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
+    deleteField?: (node: STNode) => void;
 }
 
 export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
 
-    const fieldName = getBalRecFieldName(field.type.name);
+    const fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
@@ -104,53 +105,48 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 return (
                     <>
                         <TreeBody>
-                            {
-                                element.members.map((typeWithVal) => {
-                                    return (
-                                        <EditableRecordFieldWidget
-                                            key={fieldId}
-                                            engine={engine}
-                                            field={typeWithVal}
-                                            getPort={getPort}
-                                            parentId={fieldId}
-                                            mappingConstruct={element.elementNode as MappingConstructor}
-                                            context={context}
-                                            fieldIndex={index}
-                                            treeDepth={treeDepth + 1}
-                                        />
-                                    );
-                                })
-                            }
+                            <EditableRecordFieldWidget
+                                key={fieldId}
+                                engine={engine}
+                                field={element.member}
+                                getPort={getPort}
+                                parentId={fieldId}
+                                mappingConstruct={element.elementNode as MappingConstructor}
+                                context={context}
+                                fieldIndex={index}
+                                treeDepth={treeDepth + 1}
+                                deleteField={deleteField}
+                            />
                         </TreeBody>
                         <br />
                     </>
                 );
             } else if (element.elementNode && STKindChecker.isListConstructor(element.elementNode)) {
-                return element.members.map((typeWithVal) => {
-                    return (
-                        <ArrayTypedEditableRecordFieldWidget
-                            key={fieldId}
-                            engine={engine}
-                            field={typeWithVal}
-                            getPort={getPort}
-                            parentId={fieldId}
-                            mappingConstruct={mappingConstruct}
-                            context={context}
-                            fieldIndex={index}
-                            treeDepth={treeDepth + 1}
-                        />
-                    );
-                })
+                return (
+                    <ArrayTypedEditableRecordFieldWidget
+                        key={fieldId}
+                        engine={engine}
+                        field={element.member}
+                        getPort={getPort}
+                        parentId={fieldId}
+                        mappingConstruct={mappingConstruct}
+                        context={context}
+                        fieldIndex={index}
+                        treeDepth={treeDepth + 1}
+                        deleteField={deleteField}
+                    />
+                )
             } else {
                 return (
                     <TreeBody>
                         <PrimitiveTypedEditableArrayElementWidget
                             parentId={fieldId}
-                            field={element.members[0]} // Element only contains a single member
+                            field={element.member}
                             engine={engine}
                             getPort={getPort}
                             context={context}
                             fieldIndex={index}
+                            deleteField={deleteField}
                         />
                     </TreeBody>
                 );
@@ -164,6 +160,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const handleArrayInitialization = async () => {
         await createSourceForUserInput(field, mappingConstruct, '[]', context.applyModifications);
+    };
+
+    const handleArrayDeletion = async () => {
+        deleteField(field.value);
     };
 
     const handleAddArrayElement = () => {
@@ -208,19 +208,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         </IconButton>}
                         {label}
                     </span>
-                    {!hasValue && (
-                        <ValueConfigMenu
-                            menuItems={[
-                                {
-                                    title: ValueConfigOption.InitializeArray,
-                                    onClick: handleArrayInitialization
-                                },
-                                {
-                                    title: ValueConfigOption.DeleteArray,
-                                    onClick: undefined
-                                }]}
-                        />
-                    )}
+                    <ValueConfigMenu
+                        menuItems={[
+                            {
+                                title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
+                                onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
+                            }
+                        ]}
+                    />
                 </div>
                 {expanded && hasValue && listConstructor && (
                     <div className={classNames(classes.treeLabel, classes.innerTreeLabel)}>

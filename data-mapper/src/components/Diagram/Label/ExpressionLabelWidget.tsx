@@ -1,24 +1,25 @@
 import * as React from 'react';
 
+import IconButton from '@material-ui/core/IconButton';
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import clsx from 'clsx';
 
 import { CodeActionWidget } from '../CodeAction/CodeAction';
+import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
 import { DataMapperLinkModel } from "../Link";
 import {
 	canConvertLinkToQueryExpr,
 	generateQueryExpression
 } from '../Link/link-utils';
 import { RecordFieldPortModel } from '../Port';
-import { handleCodeActions } from "../utils/ls-utils";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { ExpressionLabelModel } from './ExpressionLabelModel';
-import clsx from 'clsx';
-import IconButton from '@material-ui/core/IconButton';
-import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
 import { getBalRecFieldName } from '../utils/dm-utils';
+import { handleCodeActions } from "../utils/ls-utils";
+
+import { ExpressionLabelModel } from './ExpressionLabelModel';
 
 export interface FlowAliasLabelWidgetProps {
 	model: ExpressionLabelModel;
@@ -202,7 +203,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			const fieldName = getBalRecFieldName(source.field.name);
 			isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
 		} else {
-			isSourceCollapsed = collapsedFields?.includes(source?.fieldName)
+			isSourceCollapsed = collapsedFields?.includes(source.portName)
 		}
 	}
 
@@ -211,15 +212,15 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			const fieldName = getBalRecFieldName(target.field.name);
 			isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
 		} else {
-			isTargetCollapsed = collapsedFields?.includes(target?.fieldName)
+			isTargetCollapsed = collapsedFields?.includes(target.portName)
 		}
 	}
-	
-	if(props.model?.valueNode && isSourceCollapsed && isTargetCollapsed){
+
+	if (props.model?.valueNode && isSourceCollapsed && isTargetCollapsed){
 		// for direct links, disable link widgets if both sides are collapsed
 		return null
-	}else if (!props.model?.valueNode && (isSourceCollapsed || isTargetCollapsed)) {
-		// for links with intermediary nodes, 
+	} else if (!props.model?.valueNode && (isSourceCollapsed || isTargetCollapsed)) {
+		// for links with intermediary nodes,
 		// disable link widget if either source or target port is collapsed
 		return null;
 	}

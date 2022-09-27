@@ -18,16 +18,17 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { MappingConstructor, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getNewSource, getTypeName, isConnectedViaLink } from "../../../utils/dm-utils";
+import { getFieldName, getNewSource, getTypeName, isConnectedViaLink } from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
+import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -38,23 +39,25 @@ export interface EditableRecordFieldWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
+    deleteField?: (node: STNode) => void;
 }
 
 export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
 
-    const fieldName = getBalRecFieldName(field.type.name);
+    let fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
-    const hasValue = specificField && !!specificField.valueExpr.source;
+    const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
+    const isWithinArray = fieldIndex !== undefined;
     let indentation = treeDepth * 16;
 
     const connectedViaLink = useMemo(() => {
@@ -72,6 +75,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     if (!portIn || (hasValue && !connectedViaLink && expanded)) {
         indentation += 24;
+    }
+
+    if (!fieldName && isWithinArray) {
+        fieldName = field.parentType.type?.name ? `${field.parentType.type?.name}Item` : 'item';
     }
 
     const label = (
@@ -133,9 +140,27 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
     };
 
+    const handleDeleteValue = () => {
+        deleteField(field.value);
+    };
+
     const handleExpand = () => {
         context.handleCollapse(fieldId, !expanded);
     };
+
+    const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
+        ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
+        : { title: ValueConfigOption.AddValue, onClick: handleAddValue };
+
+    const deleteValueMenuItem: ValueConfigMenuItem = {
+        title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
+        onClick: handleDeleteValue
+    };
+
+    const valConfigMenuItems = [
+        !isWithinArray && addOrEditValueMenuItem,
+        (hasValue || isWithinArray) && deleteValueMenuItem
+    ];
 
     return (
         <>
@@ -156,18 +181,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         </IconButton>}
                         {label}
                     </span>
-                    {!isRecord && (
+                    {(!isRecord || isWithinArray) && (
                         <ValueConfigMenu
-                            menuItems={[
-                                {
-                                    title: hasValue ? ValueConfigOption.EditValue : ValueConfigOption.AddValue,
-                                    onClick: hasValue ? handleEditValue : handleAddValue
-                                },
-                                {
-                                    title: ValueConfigOption.DeleteValue,
-                                    onClick: undefined
-                                }
-                            ]}
+                            menuItems={valConfigMenuItems}
                         />
                     )}
                 </div>
@@ -184,6 +200,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         context={context}
                         fieldIndex={fieldIndex}
                         treeDepth={treeDepth}
+                        deleteField={deleteField}
                     />
                 </>
             )}
@@ -200,6 +217,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 mappingConstruct={mappingConstruct}
                                 context={context}
                                 treeDepth={treeDepth + 1}
+                                deleteField={deleteField}
                             />
                         </>
                     );

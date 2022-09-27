@@ -14,6 +14,7 @@
 import React, { useEffect, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -30,10 +31,11 @@ export interface PrimitiveTypedEditableArrayElementWidgetProps {
     getPort: (portId: string) => RecordFieldPortModel;
     context: IDataMapperContext;
     fieldIndex?: number;
+    deleteField?: (node: STNode) => void;
 }
 
 export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEditableArrayElementWidgetProps) {
-    const { parentId, field, getPort, engine, context, fieldIndex } = props;
+    const { parentId, field, getPort, engine, context, fieldIndex, deleteField } = props;
     const classes = useStyles();
 
     const value = field?.value && field.value.source.trim();
@@ -66,6 +68,10 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
         setEditable(true);
     };
 
+    const handleDelete = async () => {
+        deleteField(field.value);
+    };
+
     return (
         <>
             {value && (
@@ -84,7 +90,7 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                             },
                             {
                                 title: ValueConfigOption.DeleteElement,
-                                onClick: undefined
+                                onClick: handleDelete
                             }
                         ]}
                     />
