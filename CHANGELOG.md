@@ -1,5 +1,24 @@
 # Change Log
 
+## **3.1.0**
+### Added
+- Ballerina Notebook. [#183](https://github.com/wso2/ballerina-plugin-vscode/issues/183)
+
+### Improved
+- The low-code diagram editor - New statement editor introduced.
+
+    - Statement-editor allows users to easily discover Ballerina libraries and use predefined expression templates along with the context based suggestions to build statements even without having a prior knowledge on Ballerina syntaxes.
+
+### Fixed
+- Swagger client send an invalid Content type header.
+
+## **3.0.2**
+### Improved
+- The low-code diagram editor.
+
+### Fixed
+- Swagger View. [#416](https://github.com/wso2/ballerina-plugin-vscode/issues/197)
+
 ## **3.0.1**
 ### Added
 - A palette command that creates the distribution format of the Ballerina package. [#180](https://github.com/wso2/ballerina-plugin-vscode/issues/180)

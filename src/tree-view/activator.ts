@@ -16,19 +16,19 @@
  * under the License.
  */
 
-import { BallerinaExtension, ChoreoSession, ConstructIdentifier } from "../core";
-import { renderFirstDiagramElement, showDiagramEditor } from '../diagram';
+import { BallerinaExtension, BallerinaProjectComponents, ChoreoSession, ConstructIdentifier, DocumentIdentifier, ExtendedLangClient, NOT_SUPPORTED } from "../core";
+import { callUpdateDiagramMethod, showDiagramEditor, updateDiagramElement } from '../diagram';
 import { sendTelemetryEvent, CMP_PACKAGE_VIEW, TM_EVENT_OPEN_PACKAGE_OVERVIEW } from "../telemetry";
 import { commands, Uri, window, workspace } from 'vscode';
 import {
     TREE_ELEMENT_EXECUTE_COMMAND, EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_TREE_NEW_FILE_COMMAND,
     EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem, EXPLORER_TREE_NEW_MODULE_COMMAND,
-    EXPLRER_TREE_DELETE_FILE_COMMAND, EXPLORER_ITEM_KIND, DOCUMENTATION_VIEW
+    EXPLRER_TREE_DELETE_FILE_COMMAND, EXPLORER_ITEM_KIND, DOCUMENTATION_VIEW, Module
 } from "./model";
 import { SessionDataProvider } from "./session-tree-data-provider";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
-import { existsSync, mkdirSync, open, rm, rmdir } from 'fs';
-import { join } from 'path';
+import { existsSync, mkdirSync, open, readFileSync, rm, rmdir } from 'fs';
+import { join, sep } from 'path';
 import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { getChoreoKeytarSession } from "../choreo-auth/auth-session";
 import { showChoreoPushMessage } from "../editor-support/git-status";
@@ -160,6 +160,119 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     if (ballerinaExtInstance.isBallerinaLowCodeMode()) {
         commands.executeCommand(PALETTE_COMMANDS.FOCUS_EXPLORER);
-        renderFirstDiagramElement(ballerinaExtInstance.langClient!);
+        renderFirstFile(ballerinaExtInstance.langClient!, true);
+    } else if (ballerinaExtInstance.isCodeServerEnv()) {
+        renderFirstFile(ballerinaExtInstance.langClient!, false);
     }
+}
+
+export async function renderFirstFile(client: ExtendedLangClient, isDiagram: boolean) {
+    const folder = workspace.workspaceFolders![0];
+    const tomlPath = folder.uri.fsPath + sep + 'Ballerina.toml';
+    const currentFileUri = Uri.file(tomlPath).toString();
+    if (!existsSync(tomlPath)) {
+        return;
+    }
+
+    client.onReady().then(async () => {
+        client.sendNotification('textDocument/didOpen', {
+            textDocument: {
+                uri: currentFileUri,
+                languageId: 'ballerina',
+                version: 1,
+                text: readFileSync(tomlPath, { encoding: 'utf-8' })
+            }
+        });
+
+        const documentIdentifiers: DocumentIdentifier[] = [{ uri: currentFileUri }];
+        let projectResponse;
+        let i = 0;
+        do {
+            projectResponse = await client.getBallerinaProjectComponents({ documentIdentifiers });
+            if (projectResponse === NOT_SUPPORTED) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        } while (i++ < 5 && projectResponse === NOT_SUPPORTED);
+
+        const response = projectResponse as BallerinaProjectComponents;
+        if (!response.packages || response.packages.length == 0 || !response.packages[0].modules) {
+            return;
+        }
+        const defaultModules: Module[] = response.packages[0].modules.filter(module => {
+            return !module.name;
+        });
+        if (defaultModules.length == 0) {
+            return;
+        }
+        if ((defaultModules[0].functions && defaultModules[0].functions.length > 0) ||
+            (defaultModules[0].services && defaultModules[0].services.length > 0)) {
+            const mainFunctionNodes = defaultModules[0].functions.filter(fn => {
+                return fn.name === 'main';
+            });
+            if (mainFunctionNodes.length > 0) {
+                const path = join(folder.uri.path, mainFunctionNodes[0].filePath);
+                if (!isDiagram) {
+                    workspace.openTextDocument(Uri.file(path)).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                    return;
+                }
+                await showDiagramEditor(0, 0, path);
+                const diagramElement = {
+                    isDiagram: true,
+                    fileUri: Uri.file(path),
+                    startLine: mainFunctionNodes[0].endLine,
+                    startColumn: mainFunctionNodes[0].endColumn - 1
+                };
+                updateDiagramElement(diagramElement);
+                callUpdateDiagramMethod();
+            } else if (defaultModules[0].services && defaultModules[0].services.length > 0) {
+                const path = join(folder.uri.path, defaultModules[0].services[0].filePath);
+                if (!isDiagram) {
+                    workspace.openTextDocument(Uri.file(path)).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                    return;
+                }
+                for (let i = 0; i < defaultModules[0].services.length; i++) {
+                    await showDiagramEditor(0, 0, path);
+                    let startLine: number;
+                    let startColumn: number;
+                    if (defaultModules[0].services[i].resources && defaultModules[0].services[i].resources.length > 0) {
+                        startLine = defaultModules[0].services[i].resources[0].startLine;
+                        startColumn = defaultModules[0].services[i].resources[0].startColumn;
+                    } else {
+                        startLine = defaultModules[0].services[i].startLine;
+                        startColumn = defaultModules[0].services[i].startColumn;
+                    }
+                    const diagramElement = {
+                        isDiagram: true,
+                        fileUri: Uri.file(path),
+                        startLine,
+                        startColumn
+                    };
+                    updateDiagramElement(diagramElement);
+                    callUpdateDiagramMethod();
+                    break;
+                }
+            } else if (defaultModules[0].functions.length > 0) {
+                const path = join(folder.uri.path, defaultModules[0].functions[0].filePath);
+                if (!isDiagram) {
+                    workspace.openTextDocument(Uri.file(path)).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                    return;
+                }
+                await showDiagramEditor(0, 0, path);
+                const diagramElement = {
+                    isDiagram: true,
+                    fileUri: Uri.file(path),
+                    startLine: defaultModules[0].functions[0].endLine,
+                    startColumn: defaultModules[0].functions[0].endColumn - 1
+                };
+                updateDiagramElement(diagramElement);
+                callUpdateDiagramMethod();
+            }
+        }
+    });
 }

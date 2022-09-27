@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/ballerina-by-examples",
-  "version": "3.0.1",
+  "version": "3.0.2-snapshot",
   "description": "Provides components for displaying Ballerina By Examples",
   "main": "build/BBEViewer",
   "scripts": {

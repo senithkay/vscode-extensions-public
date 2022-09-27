@@ -51,7 +51,7 @@ export function render(type: WEBVIEW_TYPE, data: any)
          `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("WebViews"),
+        ...getComposerWebViewOptions("WebViews", true),
         body, scripts, styles, bodyCss
     };
 

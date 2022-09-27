@@ -117,10 +117,13 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                         if (found) {
                             break;
                         }
-                        // test failed
-                        const testMessage: TestMessage = new TestMessage("");
-                        run.failed(test, testMessage, timeElapsed);
                     }
+                    if (found) {
+                        continue;
+                    }
+                    // test failed
+                    const testMessage: TestMessage = new TestMessage("");
+                    run.failed(test, testMessage, timeElapsed);
                 }
             }
         } else if (request.profile?.kind == TestRunProfileKind.Debug) {

@@ -73,6 +73,7 @@ export const SwaggerView = (props: any) => {
     const specs: OASpec[] = props.data.specs;
     const file: string | undefined = props.data.file;
     const serviceName: string | undefined = props.data.serviceName;
+    const proxy: string | undefined = props.data.proxy;
     let response: Response;
 
     let selectedService = 0;
@@ -124,7 +125,7 @@ export const SwaggerView = (props: any) => {
             })
         });
         if (res) {
-            req.url = "";
+            req.url = proxy;
         }
         return req;
     }

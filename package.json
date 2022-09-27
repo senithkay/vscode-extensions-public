@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "3.0.1",
+    "version": "3.1.1",
     "publisher": "wso2",
     "repository": {
         "type": "git",
@@ -14,7 +14,7 @@
         "theme": "light"
     },
     "engines": {
-        "vscode": "^1.59.0"
+        "vscode": "^1.60.0"
     },
     "categories": [
         "Programming Languages",
@@ -26,7 +26,8 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "workspaceContains:Ballerina.toml",
-        "onView:ballerinaExplorerTreeView"
+        "onView:ballerinaExplorerTreeView",
+        "onNotebook:ballerina-notebook"
     ],
     "contributes": {
         "languages": [
@@ -127,6 +128,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Enable experimental features."
+                },
+                "ballerina.enableNotebookDebug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable notebook debug mode."
                 }
             }
         },
@@ -371,6 +377,52 @@
                 "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.notebook.restartNotebook",
+                "title": "Restart Notebook",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                },
+                "category": "Ballerina",
+                "when": "notebookType == 'ballerina-notebook'"
+            },
+            {
+                "command": "ballerina.notebook.openVariableView",
+                "title": "Notebook Variables",
+                "icon": "$(notebook)",
+                "category": "Ballerina",
+                "enablement": "notebookType == 'ballerina-notebook'"
+            },
+            {
+                "command": "ballerina.notebook.openOutlineView",
+                "title": "Notebook Outline",
+                "icon": "$(list-unordered)",
+                "category": "Ballerina",
+                "enablement": "notebookType == 'ballerina-notebook'"
+            },
+            {
+                "command": "ballerina.notebook.debug",
+                "title": "Debug Cell",
+                "category": "Ballerina",
+                "enablement": "isNotebookDebugModeEnabled"
+            },
+            {
+                "command": "ballerina.notebook.refreshVariableView",
+                "title": "Refresh",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                },
+                "category": "Ballerina",
+                "enablement": "isNotebookVariableViewEnabled"
+            },
+            {
+                "command": "ballerina.notebook.createNotebook",
+                "title": "Create Notebook",
+                "category": "Ballerina",
+                "icon": "$(notebook)"
             }
         ],
         "views": {
@@ -385,6 +437,14 @@
                     "name": "Choreo",
                     "contextualTitle": "Choreo Session Details"
                 }
+            ],
+            "notebook-variables": [
+                {
+                    "type": "webview",
+                    "id": "ballerinaViewVariables",
+                    "name": "Variable View",
+                    "when": "isNotebookVariableViewEnabled"
+                }
             ]
         },
         "viewsContainers": {
@@ -393,6 +453,13 @@
                     "id": "diagram-explorer",
                     "title": "Ballerina Low-Code",
                     "icon": "resources/images/icons/tab.svg"
+                }
+            ],
+            "panel": [
+                {
+                    "id": "notebook-variables",
+                    "title": "Ballerina Notebook",
+                    "icon": "$(notebook)"
                 }
             ]
         },
@@ -423,6 +490,11 @@
                     "command": "ballerina.new.module",
                     "when": "view == ballerinaExplorerTreeView",
                     "group": "navigation"
+                },
+                {
+                    "command": "ballerina.notebook.refreshVariableView",
+                    "when": "view == ballerinaViewVariables",
+                    "group": "navigation"
                 }
             ],
             "editor/title": [
@@ -447,6 +519,34 @@
                     "when": "isBallerinaDiagram",
                     "command": "ballerina.show.source",
                     "group": "navigation@4"
+                }
+            ],
+            "notebook/toolbar": [
+                {
+                    "command": "ballerina.notebook.restartNotebook",
+                    "title": "Restart Notebook",
+                    "group": "navigation@1",
+                    "when": "notebookType == 'ballerina-notebook'"
+                },
+                {
+                    "command": "ballerina.notebook.openVariableView",
+                    "title": "Variables",
+                    "group": "navigation@2",
+                    "when": "notebookType == 'ballerina-notebook'"
+                },
+                {
+                    "command": "ballerina.notebook.openOutlineView",
+                    "title": "Outline",
+                    "group": "navigation@3",
+                    "when": "notebookType == 'ballerina-notebook'"
+                }
+            ],
+            "notebook/cell/execute": [
+                {
+                    "command": "ballerina.notebook.debug",
+                    "title": "Debug",
+                    "group": "navigation@1",
+                    "when": "notebookType == 'ballerina-notebook' && isNotebookDebugModeEnabled"
                 }
             ],
             "view/item/context": [
@@ -489,9 +589,36 @@
                 {
                     "command": "ballerina.choreo.signin",
                     "when": "editorLangId != ballerina && !isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.notebook.createNotebook"
                 }
             ]
-        }
+        },
+        "notebooks": [
+            {
+                "id": "ballerina-notebook",
+                "type": "ballerina-notebook",
+                "displayName": "Ballerina Notebook",
+                "selector": [
+                    {
+                        "filenamePattern": "*.balnotebook"
+                    }
+                ]
+            }
+        ],
+        "notebookRenderer": [
+            {
+                "id": "ballerina-notebook-renderer",
+                "displayName": "Ballerina Notebook Renderer",
+                "entrypoint": "resources/jslibs/NotebookRenderer.js",
+                "mimeTypes": [
+                    "ballerina-notebook/json-view",
+                    "ballerina-notebook/table-view",
+                    "ballerina-notebook/xml-view"
+                ]
+            }
+        ]
     },
     "main": "./dist/extension",
     "scripts": {
@@ -501,13 +628,15 @@
         "update-version": "node ./scripts/update-version.js",
         "test-compile": "tsc -p ./",
         "test": "npm run test-compile && node ./out/test/runTest.js",
-        "test-coverage": "cross-env COVER_CONFIG=html npm run test",
+        "ui-test-setup": "npx extest get-vscode -c 1.68.0 && npx extest get-chromedriver -c 1.68.0 && npx extest install-vsix -f $(ls *.vsix)",
+		"ui-test": "npm run test-compile && npx extest run-tests 'out/ui-test/*.test.js' --mocha_config ui-test/.mocharc.js -o ui-test/settings.json",
+		"test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package --yarn",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
     },
     "dependencies": {
-        "@types/vscode": "^1.59.0",
+        "@types/vscode": "^1.67.0",
         "@wso2-enterprise/ballerina-configurable-editor": "next",
         "@wso2-enterprise/ballerina-low-code-editor-distribution": "next",
         "@wso2-enterprise/ballerina-low-code-edtior-commons": "next",
@@ -521,7 +650,8 @@
         "vscode-debugprotocol": "^1.44.0",
         "vscode-extension-telemetry": "^0.1.7",
         "vscode-languageclient": "^7.0.0",
-        "vscode-test": "^1.5.1"
+        "vscode-test": "^1.5.1",
+        "vscode-languageserver-protocol": "^3.16.0"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.18.8",
@@ -529,7 +659,8 @@
         "@types/mocha": "^8.2.2",
         "@types/node": "^15.12.2",
         "@types/tcp-port-used": "^1.0.0",
-        "@types/vscode": "^1.59.0",
+        "@types/vscode": "^1.60.0",
+        "@types/vscode-notebook-renderer": "^1.60.0",
         "axios": "^0.22.0",
         "chai": "^4.3.4",
         "cross-env": "^7.0.3",
@@ -552,6 +683,7 @@
         "typescript": "^4.5.4",
         "vsce": "^1.93.0",
         "vscode-debugadapter-testsupport": "^1.44.0",
+        "vscode-extension-tester": "^4.2.5",
         "webpack": "^5.66.0",
         "webpack-cli": "^4.9.1",
         "webpack-merge-and-include-globally": "^2.3.4",

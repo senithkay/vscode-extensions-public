@@ -50,3 +50,8 @@ export enum Constants {
     ARRAY_TYPE = "arrayType",
     FLOAT = "float",
 }
+
+export enum Commands {
+    RUN = "Run",
+    DEBUG = "Debug",
+}

@@ -34,7 +34,7 @@ function activateRunCommand() {
             commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
             return;
         }
-        openConfigEditor(ballerinaExtInstance, filePath);
+        openConfigEditor(ballerinaExtInstance, filePath, false);
     });
 
     // register ballerina run handler

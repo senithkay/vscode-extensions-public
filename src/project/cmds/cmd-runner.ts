@@ -63,7 +63,8 @@ export enum MESSAGES {
     SELECT_OPTION = "Select a build option.",
     NOT_IN_PROJECT = "Current file does not belong to a ballerina project.",
     INVALID_PACK = "Only a Ballerina package can be packed.",
-    INVALID_JSON = "Invalid JSON String"
+    INVALID_JSON = "Invalid JSON String",
+    INVALID_JSON_RESPONSE = "JSON response is invalid."
 }
 
 export const CONFIG_FILE = 'Config.toml';

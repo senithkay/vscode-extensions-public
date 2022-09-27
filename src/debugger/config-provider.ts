@@ -18,10 +18,8 @@
  */
 
 import {
-    DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration,
-    debug, ExtensionContext, window, commands,
-    DebugSession,
-    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer
+    DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, debug, ExtensionContext, window, commands,
+    DebugSession, DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -30,9 +28,14 @@ import { ballerinaExtInstance, BallerinaExtension, LANGUAGE, OLD_BALLERINA_VERSI
     UNSUPPORTED_DEBUGGER_RUNINTERMINAL_KIND, INVALID_DEBUGGER_RUNINTERMINAL_KIND } from '../core';
 import { BallerinaProject, ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
-import { TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException } from '../telemetry';
+import {
+    TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException,
+    CMP_NOTEBOOK, TM_EVENT_START_NOTEBOOK_DEBUG
+} from '../telemetry';
 import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
 import { decimal, ExecutableOptions } from 'vscode-languageclient/node';
+import { BAL_NOTEBOOK, getTempFile, NOTEBOOK_CELL_SCHEME } from '../notebook';
+import fileUriToPath from 'file-uri-to-path';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -83,38 +86,50 @@ async function getModifiedConfigs(config: DebugConfiguration) {
 
     const activeDoc = window.activeTextEditor.document;
 
-    if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
-        await ballerinaExtInstance.langClient.getBallerinaProject({
-            documentIdentifier: {
-                uri: activeDoc.uri.toString()
-            }
-        }).then((response) => {
-            const project = response as BallerinaProject;
-            if (project.kind === undefined) {
-                return Promise.reject();
-            }
-            if (!project.kind || (config.request === 'launch' && project.kind === 'BALA_PROJECT')) {
-                ballerinaExtInstance.showMessageInvalidProject();
-                return Promise.reject();
-            }
-        }, error => {
-            log(`Language server failed to respond with the error message, ${error.message}, while debugging.`);
-            sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
-        });
-    } else if (!activeDoc.fileName.endsWith('.bal')) {
-        ballerinaExtInstance.showMessageInvalidFile();
-        return Promise.reject();
+    config.script = activeDoc.uri.fsPath;
+    if (activeDoc.fileName.endsWith(BAL_NOTEBOOK)) {
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_NOTEBOOK_DEBUG, CMP_NOTEBOOK);
+        let activeTextEditorUri = activeDoc.uri;
+        if (activeTextEditorUri.scheme === NOTEBOOK_CELL_SCHEME) {
+            activeTextEditorUri = Uri.file(getTempFile());
+            config.script = fileUriToPath(activeTextEditorUri.toString(true));
+        } else {
+            return Promise.reject();
+        }
     }
 
-    config.script = activeDoc.uri.fsPath;
+    if (activeDoc.uri.scheme !== NOTEBOOK_CELL_SCHEME) {
+        if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
+            await ballerinaExtInstance.langClient.getBallerinaProject({
+                documentIdentifier: {
+                    uri: activeDoc.uri.toString()
+                }
+            }).then((response) => {
+                const project = response as BallerinaProject;
+                if (project.kind === undefined) {
+                    return Promise.reject();
+                }
+                if (!project.kind || (config.request === 'launch' && project.kind === 'BALA_PROJECT')) {
+                    ballerinaExtInstance.showMessageInvalidProject();
+                    return Promise.reject();
+                }
+            }, error => {
+                log(`Language server failed to respond with the error message, ${error.message}, while debugging.`);
+                sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
+            });
+        } else if (!activeDoc.fileName.endsWith('.bal')) {
+            ballerinaExtInstance.showMessageInvalidFile();
+            return Promise.reject();
+        }
 
-    let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-    if (langClient.initializeResult) {
-        const { experimental } = langClient.initializeResult!.capabilities;
-        if (experimental && experimental.introspection && experimental.introspection.port > 0) {
-            config.networkLogsPort = experimental.introspection.port;
-            if (config.networkLogs === undefined) {
-                config.networkLogs = false;
+        let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+        if (langClient.initializeResult) {
+            const { experimental } = langClient.initializeResult!.capabilities;
+            if (experimental && experimental.introspection && experimental.introspection.port > 0) {
+                config.networkLogsPort = experimental.introspection.port;
+                if (config.networkLogs === undefined) {
+                    config.networkLogs = false;
+                }
             }
         }
     }
@@ -162,13 +177,14 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
         Thenable<DebugAdapterDescriptor> {
         const port = session.configuration.debugServer;
+        const configEnv = session.configuration.configEnv;
         const cwd = this.getCurrentWorkingDir();
         let args: string[] = [];
         const cmd = this.getScriptPath(args);
         args.push(port.toString());
 
         let opt: ExecutableOptions = { cwd: cwd };
-        opt.env = Object.assign({}, process.env);
+        opt.env = Object.assign({}, process.env, configEnv);
 
         const serverProcess = child_process.spawn(cmd, args, opt);
 

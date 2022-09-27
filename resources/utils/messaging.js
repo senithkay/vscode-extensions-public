@@ -198,6 +198,15 @@ function getLangClient() {
                 });
             })
         },
+        definition: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('definition', [params], (resp) => {
+                    consoleLog(start, 'definition');
+                    resolve(resp);
+                });
+            })
+        },
         syntaxTreeModify: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
@@ -352,11 +361,29 @@ function getLangClient() {
                 });
             })
         },
+        codeAction: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('codeAction', [params], (resp) => {
+                    consoleLog(start, 'codeAction');
+                    resolve(resp);
+                });
+            })
+        },
         getSTForModulePart: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSTForModulePart', [params], (resp) => {
                     consoleLog(start, 'getSTForModulePart');
+                    resolve(resp);
+                });
+            })
+        },
+        getSTForResource: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getSTForResource', [params], (resp) => {
+                    consoleLog(start, 'getSTForResource');
                     resolve(resp);
                 });
             })
@@ -399,6 +426,15 @@ function getLangClient() {
                 );
             })
         },
+        getNotebookVariables: () => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getNotebookVariables', [], (resp) => {
+                    consoleLog(start, 'getNotebookVariables');
+                    resolve(resp);
+                });
+            });
+        },
         getSymbolDocumentation: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
@@ -408,6 +444,24 @@ function getLangClient() {
                 });
             });
         },
+        getTypeFromExpression: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getTypeFromExpression', [params], (resp) => {
+                    consoleLog(start, 'getTypeFromExpression');
+                    resolve(resp);
+                });
+            });
+        },
+        getTypeFromSymbol: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getTypeFromSymbol', [params], (resp) => {
+                    consoleLog(start, 'getTypeFromSymbol');
+                    resolve(resp);
+                });
+            });
+        }
     }
 }
 
