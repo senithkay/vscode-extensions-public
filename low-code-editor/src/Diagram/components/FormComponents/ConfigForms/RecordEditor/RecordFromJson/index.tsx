@@ -119,6 +119,13 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         dispatchFromState({type: 'checkSeparateDef', payload: mode.length > 0});
     };
 
+    const formatRecord = (block: string) => {
+        let i = 0;
+        return block.replace(/record {/g, (match: string) => {
+            return match === "record {" ? (i++ === 0 ? 'record {' : 'record {\n') : '';
+        });
+    }
+
     useEffect(() => {
         if (formState.isLoading) {
             (async () => {
@@ -126,11 +133,12 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                     false, langServerURL, formState.isSeparateDef, ls);
                 let recordST: STNode;
                 let newPosition: NodePosition;
+                const updatedBlock = formatRecord(recordResponse.codeBlock);
                 if (recordResponse?.diagnostics?.length === 0) {
                     if (formState.isSeparateDef) {
                         // Uses module part since we receive multiple records
                         const modulePart = await getModulePartST({
-                            codeSnippet: recordResponse.codeBlock.trim()
+                            codeSnippet: updatedBlock.trim()
                         }, langServerURL, ls);
                         if (STKindChecker.isModulePart(modulePart)) {
                             recordST = getRootRecord(modulePart, formState.recordName);
@@ -142,7 +150,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             }
                         }
                     } else {
-                        recordST = await getRecordST({ codeSnippet: recordResponse.codeBlock.trim()},
+                        recordST = await getRecordST({ codeSnippet: updatedBlock.trim()},
                             langServerURL, ls);
                         newPosition = {
                             startLine: targetPosition.startLine,
@@ -154,7 +162,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                     dispatchFromState({type: 'jsonConversionSuccess', payload: {
                         importedRecord: recordST, modifiedPosition: newPosition
                     }});
-                    onSave(recordResponse.codeBlock, newPosition);
+                    onSave(updatedBlock, newPosition);
                 } else {
                     dispatchFromState({type: 'setJsonDiagnostics', payload: recordResponse?.diagnostics[0].message});
                 }

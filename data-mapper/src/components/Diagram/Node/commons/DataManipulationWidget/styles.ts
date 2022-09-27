@@ -57,7 +57,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: "13px",
             minWidth: "100px",
             backgroundColor: "#FFFFFF",
-            marginRight: "24px"
+            marginRight: "24px",
+            fontWeight: 400
         },
         value: {
             verticalAlign: "middle",
@@ -113,6 +114,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "25px",
             width: "25px",
             marginLeft: "auto"
+        },
+        requiredMark: {
+            color: theme.palette.error.main,
+            margin: '0 2px',
+            fontSize: '18px'
         }
     }),
 );

@@ -16,7 +16,6 @@ import {
     ExpressionFunctionBody,
     IdentifierToken,
     MappingConstructor,
-    NodePosition,
     SelectClause,
     STKindChecker,
     STNode,
@@ -24,17 +23,17 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { isPositionsEquals } from "../../../../utils/st-utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
-import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";
+import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
+import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
-    getBalRecFieldName,
     getEnrichedRecordType,
     getInputNodeExpr,
     getInputPortsForExpr,
+    getOutputPortForField,
     getTypeName
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
@@ -43,12 +42,11 @@ import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
-export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
 
 export class MappingConstructorNode extends DataMapperNodeModel {
 
     public typeDef: Type;
-    public recordFields: EditableRecordField[];
+    public recordField: EditableRecordField;
     public typeName: string;
     public x: number;
     public y: number;
@@ -78,18 +76,20 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
             this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
-                this.recordFields = valueEnrichedType.childrenTypes;
-                if (!!this.recordFields.length) {
-                    this.recordFields.forEach((field) => {
+                this.recordField = valueEnrichedType;
+                if (!!this.recordField.childrenTypes.length) {
+                    this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
                             undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
-            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && STKindChecker.isSelectClause(this.value)) {
-                // valueEnrichedType only contains a single element as it is being used within the select clause
-                this.recordFields = valueEnrichedType.elements[0].members;
-                if (!!this.recordFields.length) {
-                    this.recordFields.forEach((field) => {
+            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
+                && STKindChecker.isSelectClause(this.value)
+            ) {
+                // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
+                this.recordField = valueEnrichedType.elements[0].member;
+                if (!!this.recordField.childrenTypes.length) {
+                    this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
                             undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
                     });
@@ -118,9 +118,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            const outPort = this.getOutputPortForField(fields);
+            const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
-            if (inPort && outPort) {
+            if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,
@@ -132,18 +132,18 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value
                         : `${outPort.parentFieldAccess.split('.').pop()}[${outPort.index}]`,
-                    deleteLink: () => this.deleteLink(field),
+                    deleteLink: () => this.deleteField(field),
                 }));
-                lm.setTargetPort(outPort);
+                lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
                 lm.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {
                             inPort.fireEvent({}, "link-selected");
-                            outPort.fireEvent({}, "link-selected");
+                            mappedOutPort.fireEvent({}, "link-selected");
                         } else {
                             inPort.fireEvent({}, "link-unselected");
-                            outPort.fireEvent({}, "link-unselected");
+                            mappedOutPort.fireEvent({}, "link-unselected");
                         }
                     },
                 })
@@ -152,96 +152,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
     }
 
-    private getOutputPortForField(fields: STNode[]) {
-        let nextTypeChildNodes: EditableRecordField[] = this.recordFields; // Represents fields of a record
-        let nextTypeMemberNodes: ArrayElement[]; // Represents elements of an array
-        let recField: EditableRecordField;
-        let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
-        for (let i = 0; i < fields.length; i++) {
-            const field = fields[i];
-            if (STKindChecker.isSpecificField(field)) {
-                if (nextTypeChildNodes) {
-                    portIdBuffer = `${portIdBuffer}.${field.fieldName.value}`
-                    const recFieldTemp = nextTypeChildNodes.find(
-                        (recF) => getBalRecFieldName(recF.type.name) === field.fieldName.value);
-                    if (recFieldTemp) {
-                        if (i === fields.length - 1) {
-                            recField = recFieldTemp;
-                        } else {
-                            [nextTypeChildNodes, nextTypeMemberNodes] = this.getNextNodes(recFieldTemp);
-                        }
-                    }
-                } else if (nextTypeMemberNodes) {
-                    const [nextField, fieldIndex] = this.getNextField(nextTypeMemberNodes, field.position);
-                    if (nextField && fieldIndex !== -1) {
-                        portIdBuffer = `${portIdBuffer}.${fieldIndex}.${field.fieldName.value}`;
-                        if (i === fields.length - 1) {
-                            recField = nextField;
-                        } else {
-                            [nextTypeChildNodes, nextTypeMemberNodes] = this.getNextNodes(nextField);
-                        }
-                    }
-                }
-            } else if (STKindChecker.isListConstructor(field) && nextTypeMemberNodes) {
-                const [nextField, fieldIndex] = this.getNextField(nextTypeMemberNodes, field.position);
-                if (nextField && fieldIndex !== -1) {
-                    portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
-                    [nextTypeChildNodes, nextTypeMemberNodes] = this.getNextNodes(nextField);
-                }
-            } else {
-                if (nextTypeChildNodes) {
-                    const fieldIndex = nextTypeChildNodes.findIndex(
-                        (recF) => recF?.value && isPositionsEquals(field.position, recF.value.position));
-                    if (fieldIndex !== -1) {
-                        portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
-                        recField = nextTypeChildNodes[fieldIndex];
-                    }
-                } else if (nextTypeMemberNodes) {
-                    const [nextField, fieldIndex] = this.getNextField(nextTypeMemberNodes, field.position);
-                    if (nextField && fieldIndex !== -1) {
-                        portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
-                        recField = nextField;
-                    }
-                }
-            }
-        }
-        if (recField) {
-            const portId = `${portIdBuffer}.IN`;
-            let port = (this.getPort(portId) as RecordFieldPortModel);
-            while (port && port.hidden) {
-                port = port.parentModel;
-            }
-            return port;
-        }
-    }
-
-    private getNextField(nextTypeMemberNodes: ArrayElement[],
-        nextFieldPosition: NodePosition): [EditableRecordField, number] {
-        let memberIndex = -1;
-        const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
-            for (let i = 0; i < node.members.length; i++) {
-                const member = node.members[i];
-                if (member?.value && isPositionsEquals(nextFieldPosition, member.value.position)) {
-                    memberIndex = i;
-                    return true;
-                }
-            }
-        });
-        if (fieldIndex !== -1 && memberIndex !== -1) {
-            return [nextTypeMemberNodes[fieldIndex].members[memberIndex], fieldIndex];
-        }
-        return [undefined, fieldIndex];
-    }
-
-    private getNextNodes(nextField: EditableRecordField): [EditableRecordField[], ArrayElement[]] {
-        if (nextField.type.typeName === PrimitiveBalType.Record) {
-            return [nextField?.childrenTypes, undefined];
-        } else if (nextField.type.typeName === PrimitiveBalType.Array) {
-            return [undefined, nextField?.elements];
-        }
-    }
-
-    private deleteLink(field: STNode) {
+    deleteField(field: STNode) {
         if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
             // if Within query expression expanded view
             this.context.applyModifications([{

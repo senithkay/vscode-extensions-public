@@ -77,12 +77,6 @@ export class LinkDeletingVisitor implements Visitor {
         }
     }
 
-    public beginVisitFieldAccess(node: FieldAccess) {
-        if (this.deletePosition === null && isPositionsEquals(this.fieldPosition, node.position)) {
-            this.deletePosition = this.fieldPosition;
-        }
-    }
-
     /**
      * Traverse and find the position that needs to be removed
      * @param node Mapping constructor node which will be checked for the item to delete
@@ -153,7 +147,7 @@ export class LinkDeletingVisitor implements Visitor {
     private findDeletePositionWithinListConstructor(node: ListConstructor) {
         if (this.deletePosition === null) {
             const deleteIndex = node.expressions.findIndex((expression: STNode) => {
-                return isFieldAccess(expression) && isPositionsEquals(this.fieldPosition, expression.position);
+                return isPositionsEquals(this.fieldPosition, expression.position);
             });
 
             if (deleteIndex !== -1) {

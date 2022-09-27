@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { FormControl } from "@material-ui/core";
-import { getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { getAllVariables, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -35,7 +35,7 @@ enum ConfigState {
 export interface CreateRecordProps {
     targetPosition?: NodePosition;
     isDataMapper?: boolean;
-    onCancel: () => void;
+    onCancel: (createdNewRecord?: string) => void;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
 }
 
@@ -78,6 +78,13 @@ export function CreateRecord(props: CreateRecordProps) {
         onSave(value, pos);
     };
 
+    const handleModifyDiagram = (mutations: STModification[], options?: any) => {
+        modifyDiagram(mutations, options);
+        if (isDataMapper) {
+            onCancel(mutations[0].config.STATEMENT);
+        }
+    }
+
     const statementEditor = (
         StatementEditorWrapper(
             {
@@ -94,7 +101,7 @@ export function CreateRecord(props: CreateRecordProps) {
                 onCancel: handleBackClick,
                 currentFile,
                 getLangClient: getExpressionEditorLangClient,
-                applyModifications: modifyDiagram,
+                applyModifications: handleModifyDiagram,
                 library,
                 syntaxTree,
                 stSymbolInfo,

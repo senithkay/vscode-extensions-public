@@ -11,10 +11,10 @@
 * associated services.
 */
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { SpecificField, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface ArrayElement {
-	members: EditableRecordField[];
+	member: EditableRecordField;
 	elementNode: STNode;
 }
 

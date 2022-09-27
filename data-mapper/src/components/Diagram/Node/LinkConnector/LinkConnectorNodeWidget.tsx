@@ -6,17 +6,21 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { DataMapperPortWidget } from '../../Port';
 import { LinkConnectorNode } from './LinkConnectorNode';
+import { getFieldLabel } from '../../utils/dm-utils';
+import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
 
 const styles = makeStyles((theme: Theme) => createStyles({
     root: {
         verticalAlign: "middle",
         width: '100%',
-        backgroundColor: "#fff",
+        backgroundColor: theme.palette.common.white,
         padding: "5px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
-        color: "#74828F"
+        color: theme.palette.grey[400],
+        boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
+        borderRadius: "8px",
     },
     fromClause: {
         padding: "5px",
@@ -48,7 +52,12 @@ const styles = makeStyles((theme: Theme) => createStyles({
         borderRadius: '8px',
         position: "absolute",
         right: "35px"
-    }
+    },
+    separator: {
+        height: "22px",
+        width: "1px",
+        backgroundColor: theme.palette.grey[200],
+    },
 }),);
 
 export interface LinkConnectorNodeWidgetProps {
@@ -61,12 +70,14 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const classes = styles();
     const engine = props.engine;
     const hasError = node.hasError();
+    const diagnostic = hasError ? node.diagnostics[0] : null;
 
     const onClickEdit = () => {
         props.node.context.enableStatementEditor({
             valuePosition: props.node.valueNode.position,
             value: props.node.valueNode.source,
-            label: props.node.editorLabel
+            label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
+                    : props.node.editorLabel)
         });
     };
 
@@ -74,7 +85,18 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         <div className={classes.root}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} />
-                <CodeOutlinedIcon onClick={onClickEdit} style={{ color: hasError && 'red' }} />
+                <CodeOutlinedIcon onClick={onClickEdit} style={{ color: hasError && '#FE523C' }} />
+                { diagnostic &&(
+                    <>
+                        <div style={{paddingRight: "5px", paddingLeft: "5px"}}>
+                            <div className={classes.separator} />
+                        </div>
+                        <DiagnosticWidget 
+                            diagnostic={diagnostic} 
+                            value={ props.node.valueNode.source}
+                            onClick={onClickEdit} />
+                    </>
+                )}
                 <DataMapperPortWidget engine={engine} port={node.outPort} />
             </div>
         </div>

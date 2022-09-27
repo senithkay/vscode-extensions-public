@@ -14,7 +14,7 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { MappingConstructor, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { MappingConstructor, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
@@ -24,9 +24,9 @@ import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import {
 	MappingConstructorNode,
-	MAPPING_CONSTRUCTOR_NODE_TYPE,
-	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX
+	MAPPING_CONSTRUCTOR_NODE_TYPE
 } from './MappingConstructorNode';
+import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
 
 @injectable()
 @singleton()
@@ -44,12 +44,13 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 			<EditableMappingConstructorWidget
 				engine={this.engine}
 				id={MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}
-				editableRecordFields={event.model.recordFields}
+				editableRecordFields={event.model.recordField.childrenTypes}
 				typeName={event.model.typeName}
 				value={event.model.value.expression as MappingConstructor}
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 				context={event.model.context}
 				valueLabel={valueLabel}
+				deleteField={(node: STNode) => event.model.deleteField(node)}
 			/>
 		);
 	}
