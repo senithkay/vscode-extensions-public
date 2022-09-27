@@ -472,9 +472,7 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitOrderByClause(node: OrderByClause) {
         if (!this.isNodeFound) {
             if (node.orderKey.length === 1 && isPositionsEquals(this.deletePosition, node.orderKey[0].position)) {
-                node.orderKey[0].source.trim() === DEFAULT_EXPR ?
-                    this.setProperties("", node.position) :
-                    this.setProperties(DEFAULT_EXPR, node.orderKey[0].position);
+                    this.setProperties("", node.position);
             } else {
                 const hasItemsToBeDeleted = node.orderKey.some((item: STNode) => {
                     return isPositionsEquals(this.deletePosition, item.position);

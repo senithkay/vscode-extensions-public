@@ -129,7 +129,7 @@ class DeleteConfigSetupVisitor implements Visitor {
     }
 
     public beginVisitOrderKey(node: OrderKey) {
-        (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        (node.orderDirection.viewState as StatementEditorViewState).exprNotDeletable = true;
     }
 
     public beginVisitLetVarDecl(node: LetVarDecl) {
