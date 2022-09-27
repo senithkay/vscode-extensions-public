@@ -22,12 +22,13 @@ import ErrorIcon from "../../../assets/icons/Error";
 export interface DiagnosticWidgetProps {
     diagnostic: Diagnostic,
     value?: string,
-    onClick?: () => void;
+    onClick?: () => void,
+    isLabelElement? : boolean
 }
 
 
 export function DiagnosticWidget(props: DiagnosticWidgetProps) {
-    const {diagnostic, value, onClick} =  props;
+    const {diagnostic, value, onClick, isLabelElement} =  props;
     const classes = useStyles();
 
     const comp = (
@@ -40,7 +41,7 @@ export function DiagnosticWidget(props: DiagnosticWidgetProps) {
 
     return (
         <DiagnosticTooltip diagnostic={diagnostic} value={value}  onClick={onClick}>
-            <div className={classes.element}>
+        <div className={isLabelElement && classes.element}>
             <div className={classes.iconWrapper}>
                 <ErrorIcon  /> 
             </div>

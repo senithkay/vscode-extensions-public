@@ -185,7 +185,8 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			<DiagnosticWidget 
 				diagnostic={diagnostic} 
 				value={props.model.value}
-				onClick={onClickEdit}/>
+				onClick={onClickEdit}
+				isLabelElement={true} />
 		);
 	}
 
