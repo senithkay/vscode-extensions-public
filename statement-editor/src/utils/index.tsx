@@ -812,7 +812,9 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
     if (params) {
         let paramList = params[1].split(',');
         paramList = paramList.map((param: string) => {
-            return PARAMETER_PLACEHOLDER;
+            if (param) {
+                return PARAMETER_PLACEHOLDER;
+            }
         });
         exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
     }
