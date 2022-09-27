@@ -916,5 +916,6 @@ export function isBalVersionUpdateOne(version: string): boolean{
     const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
     const versionStr = version.match(versionRegex);
     const splittedVersions = versionStr[0]?.split(".");
-    return parseInt(splittedVersions[0], 10) === 2201 && parseInt(splittedVersions[1], 10) === 1;
+    return parseInt(splittedVersions[0], 10) === 2201 && parseInt(splittedVersions[1], 10) === 1
+        && parseInt(splittedVersions[2], 10) === 1 ;
 }
