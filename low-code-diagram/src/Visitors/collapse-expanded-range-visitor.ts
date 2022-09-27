@@ -21,12 +21,13 @@ import { BlockViewState, StatementViewState } from "../ViewState";
 import { DefaultConfig } from "./default";
 import { isPositionWithinRange } from "./util";
 
-export class CollapsedRangeExpandVisitor implements Visitor {
+export class CollapseExpandedRangeVisitor implements Visitor {
     private expandRange: NodePosition;
 
     constructor(expandRange: NodePosition) {
         this.expandRange = expandRange;
     }
+
     beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
         this.beginVisitBlock(node);
     }
@@ -48,25 +49,18 @@ export class CollapsedRangeExpandVisitor implements Visitor {
 
         blockVS.collapsedViewStates.forEach(collapsedVS => {
             if (isPositionWithinRange(collapsedVS.range, this.expandRange)) {
-                collapsedVS.collapsed = false;
+                collapsedVS.collapsed = true;
+                collapsedVS.bBox.h = COLLAPSE_SVG_HEIGHT;
             }
         });
-
-        let firstStatementInRange: StatementViewState;
-        let lastStatementInRange: StatementViewState;
 
         node.statements.forEach(statement => {
             const stmtVS: StatementViewState = statement.viewState as StatementViewState;
             if (isPositionWithinRange(statement.position, this.expandRange)) {
-                if (!firstStatementInRange) {
-                    firstStatementInRange = stmtVS;
-                }
-                lastStatementInRange = stmtVS;
-                stmtVS.collapsed = false;
+                stmtVS.collapsed = true;
+                stmtVS.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
+                stmtVS.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
             }
         });
-
-        if (firstStatementInRange) firstStatementInRange.bBox.offsetFromTop = DefaultConfig.offSet + COLLAPSE_SVG_HEIGHT / 2;
-        if (lastStatementInRange) lastStatementInRange.bBox.offsetFromBottom = DefaultConfig.offSet;
     }
 }

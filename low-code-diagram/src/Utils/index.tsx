@@ -13,6 +13,7 @@ import { Statement } from "../Components/RenderingComponents/Statement";
 import { Endpoint } from "../Types/type";
 import { BlockViewState, FunctionViewState, StatementViewState } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
+import { CollapseExpandedRangeVisitor } from "../Visitors/collapse-expanded-range-visitor";
 import { CollapseInitVisitor } from "../Visitors/collapse-init-visitor";
 import { CollapsedRangeExpandVisitor } from "../Visitors/collapsed-range-expand-visitor";
 import { InitVisitor } from "../Visitors/init-visitor";
@@ -50,6 +51,12 @@ export function initializeCollapseView(st: STNode, targetPosition: NodePosition)
 
 export function expandCollapsedRange(st: STNode, range: NodePosition) {
     traversNode(st, new CollapsedRangeExpandVisitor(range));
+    const clone = { ...st }
+    return clone;
+}
+
+export function collapseExpandedRange(st: STNode, range: NodePosition) {
+    traversNode(st, new CollapseExpandedRangeVisitor(range));
     const clone = { ...st }
     return clone;
 }

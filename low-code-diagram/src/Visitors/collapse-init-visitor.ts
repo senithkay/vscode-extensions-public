@@ -16,8 +16,8 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { BlockViewState, CollapseViewState, FunctionViewState, StatementViewState } from "../ViewState";
-import { DefaultConfig } from "./default";
 
+import { DefaultConfig } from "./default";
 import { isPositionWithinRange } from "./util";
 
 export class CollapseInitVisitor implements Visitor {

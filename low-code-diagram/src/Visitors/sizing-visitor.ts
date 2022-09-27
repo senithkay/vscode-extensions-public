@@ -1489,8 +1489,6 @@ export class SizingVisitor implements Visitor {
                 collapsedVS.bBox.w = collapsedVS.bBox.lw + collapsedVS.bBox.rw;
             }
         });
-
-        console.log('sizing end block >>>', blockViewState.collapsedViewStates)
     }
 
     private addToSendReceiveMap(type: 'Send' | 'Receive' | 'Wait', entry: AsyncReceiveInfo | AsyncSendInfo | WaitInfo) {
@@ -1605,29 +1603,33 @@ export class SizingVisitor implements Visitor {
         }
     }
 
-    private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState, height: number, width: number, lastStatementIndex: any, leftWidth: number, rightWidth: number) {
+    private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState,
+        height: number, width: number, lastStatementIndex: any, leftWidth: number,
+        rightWidth: number) {
         const startIndex = index;
+
+        blockViewState.collapsedViewStates.forEach(collapsedVS => {
+            // if (!collapsedVS.bBox) {
+            // }
+
+            if (collapsedVS.collapsed) {
+                collapsedVS.bBox = new SimpleBBox();
+                collapsedVS.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
+                collapsedVS.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
+                collapsedVS.bBox.lw = COLLAPSED_BLOCK_WIDTH / 2;
+                collapsedVS.bBox.rw = COLLAPSED_BLOCK_WIDTH / 2;
+                collapsedVS.bBox.h = COLLAPSED_BLOCK_HEIGHT;
+
+                height += collapsedVS.getHeight();
+            }
+        });
+
         statements.forEach((statement) => {
             const stmtViewState: StatementViewState = statement.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
             // identify sends, recieves, and waits and put them into a map
             this.seperateWorkerStatements(statement, index, startIndex);
-
-            if (blockViewState.collapsedViewStates.length > 0) {
-                blockViewState.collapsedViewStates.forEach(collapseViewState => {
-                    if (!collapseViewState.bBox && isPositionWithinRange(statement.position, collapseViewState.range)) {
-                        collapseViewState.bBox = new SimpleBBox();
-                        collapseViewState.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
-                        collapseViewState.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
-                        collapseViewState.bBox.lw = COLLAPSED_BLOCK_WIDTH / 2;
-                        collapseViewState.bBox.rw = COLLAPSED_BLOCK_WIDTH / 2;
-                        collapseViewState.bBox.h = COLLAPSED_BLOCK_HEIGHT;
-
-                        height += collapseViewState.getHeight();
-                    }
-                })
-            }
 
             // This captures the collapsed statement
             if (blockViewState.collapsedFrom === index && blockViewState.collapseView) {

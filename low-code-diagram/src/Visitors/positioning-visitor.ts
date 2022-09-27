@@ -555,7 +555,6 @@ export class PositioningVisitor implements Visitor {
             plusViewState.bBox.cx = blockViewState.bBox.cx;
         }
         blockViewState.bBox.h = height;
-        console.log('end block positioning >>>', blockViewState.collapsedViewStates)
     }
 
     public beginVisitBlockStatement(node: BlockStatement) {
@@ -573,23 +572,6 @@ export class PositioningVisitor implements Visitor {
 
             statementViewState.bBox.cx = blockViewState.bBox.cx;
             statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
-
-            // collapsedViewStates.forEach((collapsedViewState, i) => {
-            //     if (isPositionWithinRange(statement.position, collapsedViewState.range)) {
-            //         collapsedViewState.bBox.cx = blockViewState.bBox.cx - collapsedViewState.bBox.lw;
-            //         // collapsedViewState.bBox.cy = blockViewState.bBox.cy + collapsedViewState.bBox.offsetFromTop + height;
-
-            //         if (collapsedViewState.collapsed) {
-            //             collapsedViewState.bBox.cy = blockViewState.bBox.cy + collapsedViewState.bBox.offsetFromTop + height;
-            //             height += collapsedViewState.getHeight();
-            //         } else {
-            //             collapsedViewState.bBox.cy = statementViewState.bBox.cy - statementViewState.bBox.offsetFromTop;
-            //             collapsedViewState.bBox.h = 0;
-            //         }
-
-            //         collapsedViewStates = [...collapsedViewStates.slice(0, i), ...collapsedViewStates.slice(i + 1)];
-            //     }
-            // });
 
             for (let i = 0; i < collapsedViewStates.length; i++) {
                 if (isPositionWithinRange(statement.position, collapsedViewStates[i].range)) {

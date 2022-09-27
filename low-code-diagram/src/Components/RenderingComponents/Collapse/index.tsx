@@ -23,17 +23,18 @@ import { ExpandedContainer } from "./ExpandedContainer";
 interface CollapseProps {
     collapseVS: CollapseViewState;
     onExpandClick?: () => void;
+    onCollapseClick?: () => void;
 }
 
 
 export default function CollapseComponent(props: CollapseProps) {
-    const { collapseVS, onExpandClick } = props;
+    const { collapseVS, onExpandClick, onCollapseClick } = props;
     const x = collapseVS.bBox.cx;
     const y = collapseVS.bBox.cy;
     return (
         <g >
             {collapseVS.collapsed && <CollapsedComponentSVG x={x} y={y} onExpandClick={onExpandClick} />}
-            {!collapseVS.collapsed && <ExpandedContainer collapseVS={collapseVS} />}
+            {!collapseVS.collapsed && <ExpandedContainer collapseVS={collapseVS} onCollapseClick={onCollapseClick} />}
         </g>
     )
 }

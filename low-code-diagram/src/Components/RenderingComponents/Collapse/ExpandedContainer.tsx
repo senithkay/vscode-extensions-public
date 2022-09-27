@@ -19,11 +19,11 @@ import { CollapseButtonSVG } from "./CollapseButtonSVG";
 
 interface ExpandedContainerProps {
     collapseVS: CollapseViewState;
-    onExpandClick?: () => void;
+    onCollapseClick?: () => void;
 }
 
 export function ExpandedContainer(props: ExpandedContainerProps) {
-    const { collapseVS, onExpandClick } = props;
+    const { collapseVS, onCollapseClick } = props;
     const [mouseOverExpand, setMouseOverExpand] = useState<boolean>(false);
 
     const x = collapseVS.bBox.cx;
@@ -72,6 +72,7 @@ export function ExpandedContainer(props: ExpandedContainerProps) {
                 y={y}
                 onMouseEnter={onMouseOverExpandButton}
                 onMouseLeave={onMouseLeave}
+                onClick={onCollapseClick}
             />
         </g>
     );

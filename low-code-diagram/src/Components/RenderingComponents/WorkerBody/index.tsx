@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
-import { expandCollapsedRange, getDraftComponent, getSTComponents, recalculateSizingAndPositioning, sizingAndPositioning } from "../../../Utils";
+import { collapseExpandedRange, expandCollapsedRange, getDraftComponent, getSTComponents, recalculateSizingAndPositioning, sizingAndPositioning } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 import CollapseComponent from "../Collapse";
@@ -123,7 +123,21 @@ export function WorkerBody(props: DiagramProps) {
                         expandCollapsedRange(syntaxTree, collapseVS.range), experimentalEnabled)
                 );
             }
-            collapsedComponents.push(<CollapseComponent collapseVS={collapseVS} onExpandClick={onExpandClick} />)
+
+            const onCollapseClick = () => {
+                diagramRedraw(
+                    recalculateSizingAndPositioning(
+                        collapseExpandedRange(syntaxTree, collapseVS.range)
+                    )
+                );
+            }
+            collapsedComponents.push((
+                <CollapseComponent
+                    collapseVS={collapseVS}
+                    onExpandClick={onExpandClick}
+                    onCollapseClick={onCollapseClick}
+                />
+            ))
         })
     }
 
