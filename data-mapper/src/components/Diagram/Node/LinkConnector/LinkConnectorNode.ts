@@ -112,7 +112,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             const outPort = this.outPort;
             const targetPort = this.targetMappedPort;
 
-            const lm = new DataMapperLinkModel();
+            const lm = new DataMapperLinkModel(undefined, this.diagnostics);
             lm.setTargetPort(this.targetMappedPort);
             lm.setSourcePort(this.outPort);
 
