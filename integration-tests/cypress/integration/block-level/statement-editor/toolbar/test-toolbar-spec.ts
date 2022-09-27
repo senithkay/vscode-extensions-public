@@ -42,15 +42,6 @@ describe('Test statement editor toolbar functionality', () => {
             .shouldBeVisible();
 
         EditorPane
-            .getStatementRenderer()
-            .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var');
-
-        InputEditor
-            .typeInput("int");
-
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "int")
             .getExpression("SimpleNameReference")
             .doubleClickExpressionContent('<add-expression>');
 
@@ -63,6 +54,9 @@ describe('Test statement editor toolbar functionality', () => {
 
         Toolbar
             .clickDeleteButton();
+
+        StatementEditor
+            .saveDisabled()
 
         EditorPane
             .getExpression("SimpleNameReference")
@@ -105,22 +99,13 @@ describe('Test statement editor toolbar functionality', () => {
             .typeInput("int");
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int")
-            .getExpression("TypedBindingPattern")
-            .clickExpressionContent('int');
-
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('float');
-
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "float");
+            .validateNewExpression("TypedBindingPattern", "int");
 
         Toolbar
             .clickUndoButton();
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int");
+            .validateNewExpression("TypedBindingPattern", "var");
 
         EditorPane
             .getExpression("SimpleNameReference")
