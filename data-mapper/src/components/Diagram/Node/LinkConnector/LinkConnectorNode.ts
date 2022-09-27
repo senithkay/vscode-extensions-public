@@ -17,6 +17,7 @@ export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 export class LinkConnectorNode extends DataMapperNodeModel {
 
     public sourcePorts: RecordFieldPortModel[] = [];
+    public targetMappedPort: RecordFieldPortModel;
     public targetPort: RecordFieldPortModel;
 
     public inPort: IntermediatePortModel;
@@ -71,10 +72,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode) {
-                    this.targetPort = getOutputPortForField(this.fields, node)
-                    while (this.targetPort && this.targetPort.hidden) {
-                        this.targetPort = this.targetPort.parentModel;
-                    }
+                    [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
                 }
             });
         }
@@ -110,12 +108,12 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             this.getModel().addAll(lm);
         })
 
-        if (this.targetPort) {
+        if (this.targetMappedPort) {
             const outPort = this.outPort;
-            const targetPort = this.targetPort;
+            const targetPort = this.targetMappedPort;
 
             const lm = new DataMapperLinkModel();
-            lm.setTargetPort(this.targetPort);
+            lm.setTargetPort(this.targetMappedPort);
             lm.setSourcePort(this.outPort);
 
             lm.addLabel(new ExpressionLabelModel({
@@ -157,7 +155,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     public updatePosition() {
-        const position = this.targetPort.getPosition()
+        const position = this.targetMappedPort.getPosition()
         this.setPosition(800, position.y - 4)
     }
 
