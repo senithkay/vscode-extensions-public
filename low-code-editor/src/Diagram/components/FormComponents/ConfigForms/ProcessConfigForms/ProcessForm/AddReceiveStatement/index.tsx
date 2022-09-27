@@ -45,7 +45,8 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             stSymbolInfo,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -53,7 +54,8 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
                 modifyDiagram
             },
             insights: { onEvent },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
     const saveVariableButtonText = intl.formatMessage({
@@ -96,7 +98,9 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
-            ballerinaVersion
+            ballerinaVersion,
+            isCodeServerInstance,
+            openExternalUrl
         }
     );
 

@@ -93,7 +93,9 @@ export function StatementEditor(props: StatementEditorProps) {
         extraModules,
         runBackgroundTerminalCommand,
         isExpressionMode,
-        ballerinaVersion
+        ballerinaVersion,
+        openExternalUrl,
+        isCodeServerInstance
     } = props;
 
     const {
@@ -555,6 +557,8 @@ export function StatementEditor(props: StatementEditorProps) {
                     updateEditing={updateEditing}
                     isExpressionMode={isExpressionMode}
                     ballerinaVersion={ballerinaVersion}
+                    isCodeServerInstance={isCodeServerInstance}
+                    openExternalUrl={openExternalUrl}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}
