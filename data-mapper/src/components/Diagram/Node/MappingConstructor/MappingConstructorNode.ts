@@ -118,9 +118,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            const outPort = getOutputPortForField(fields, this);
+            const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
-            if (inPort && outPort) {
+            if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,
@@ -134,16 +134,16 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                         : `${outPort.parentFieldAccess.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field),
                 }));
-                lm.setTargetPort(outPort);
+                lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
                 lm.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {
                             inPort.fireEvent({}, "link-selected");
-                            outPort.fireEvent({}, "link-selected");
+                            mappedOutPort.fireEvent({}, "link-selected");
                         } else {
                             inPort.fireEvent({}, "link-unselected");
-                            outPort.fireEvent({}, "link-unselected");
+                            mappedOutPort.fireEvent({}, "link-unselected");
                         }
                     },
                 })

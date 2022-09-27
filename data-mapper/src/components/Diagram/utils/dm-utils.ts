@@ -392,7 +392,8 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 	return null;
 }
 
-export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode) {
+export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode)
+									: [RecordFieldPortModel, RecordFieldPortModel]{
 	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
 	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
 	let recField: EditableRecordField;
@@ -447,11 +448,12 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 	}
 	if (recField) {
 		const portId = `${portIdBuffer}.IN`;
-		let port = (node.getPort(portId) as RecordFieldPortModel);
-		while (port && port.hidden) {
-			port = port.parentModel;
+		const port = (node.getPort(portId) as RecordFieldPortModel);
+		let mappedPort = port;
+		while (mappedPort && mappedPort.hidden) {
+			mappedPort = mappedPort.parentModel;
 		}
-		return port;
+		return [port, mappedPort];
 	}
 }
 
@@ -672,7 +674,7 @@ export function getTypeName(field: Type): string {
 		return field?.typeInfo ? field.typeInfo.name : 'record';
 	} else if (field.typeName === PrimitiveBalType.Array) {
 		return `${getTypeName(field.memberType)}[]`;
-	} else if (field.typeName === 'union') {
+	} else if (field.typeName === PrimitiveBalType.Union) {
 		return field.members?.map(item => getTypeName(item)).join(' | ');
 	}
 	return field.typeName;
