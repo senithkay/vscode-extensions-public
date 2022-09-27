@@ -21,7 +21,6 @@ import {
     LimitClause,
     ListConstructor,
     LocalVarDecl,
-    MappingConstructor,
     MethodCall,
     OrderKey,
     QueryExpression,
@@ -48,12 +47,6 @@ class DeleteConfigSetupVisitor implements Visitor {
     public beginVisitListConstructor(node: ListConstructor) {
         node.expressions.map((expr: STNode) => {
             (expr.viewState as StatementEditorViewState).templateExprDeletable = true;
-        });
-    }
-
-    public beginVisitMappingConstructor(node: MappingConstructor) {
-        node.fields.map((field: STNode) => {
-            (field.viewState as StatementEditorViewState).templateExprDeletable = true;
         });
     }
 
