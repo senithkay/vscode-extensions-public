@@ -1376,8 +1376,7 @@ export class SizingVisitor implements Visitor {
         return index;
     }
 
-    private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0,
-        index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
+    private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0, index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }
