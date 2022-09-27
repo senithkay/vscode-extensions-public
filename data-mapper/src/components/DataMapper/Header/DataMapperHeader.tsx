@@ -24,7 +24,9 @@ import HeaderBreadcrumb from "./HeaderBreadcrumb";
 const useStyles = makeStyles(() =>
     createStyles({
         editButton: {
-            cursor: "pointer"
+            cursor: "pointer",
+            position: "absolute",
+            right: "10px"
         }
     })
 );
@@ -42,15 +44,13 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
     return (
         <HeaderContainer>
             <HomeButton onClick={onClose} />
-            <BeadCrumb>
+            <BreadCrumb>
+                <Title> Data Mapper: </Title>
                 <HeaderBreadcrumb
                     selection={selection}
                     changeSelection={changeSelection}
                 />
-            </BeadCrumb>
-            <Title>
-                Data Mapper
-            </Title>
+            </BreadCrumb>
             <EditButton className={classes.editButton} onClick={onConfigOpen} />
         </HeaderContainer>
     );
@@ -62,25 +62,19 @@ const HeaderContainer = styled.div`
     display: flex;
     padding: 15px;
     background-color: white;
-    justify-content: space-between;
 `;
-
 
 const HomeButton = styled(HomeIcon)`
     cursor: pointer;
-`;
-
-const BeadCrumb = styled.div`
-    position: absolute;
-    left: 4%;
+    margin-right: 10px;
 `;
 
 const Title = styled.div`
     font-weight: 600;
-    position: absolute;
-    left: 50%;
+    margin-right: 10px;
 `;
 
-const Name = styled.div`
-    font-weight: 400;
+const BreadCrumb = styled.div`
+    width: 90%;
+    display: flex;
 `;

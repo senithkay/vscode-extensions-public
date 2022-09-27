@@ -17,6 +17,7 @@ import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { theme } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -24,20 +25,23 @@ import { SelectionState, ViewOption } from "../DataMapper";
 
 const useStyles = makeStyles(() =>
     createStyles({
-        breadcrumb: {
-            '& > * + *': {
-                marginTop: theme.spacing(2),
-            }
-        },
         active: {
             cursor: "default",
-            color: "textPrimary"
+            color: "textPrimary",
+            lineHeight: "unset"
         },
         link: {
             cursor: "pointer"
+        },
+        breadcrumb: {
+            lineHeight: "unset",
+            "& .MuiBreadcrumbs-separator": {
+                margin: "2px"
+            }
         }
     })
 );
+
 
 export interface HeaderBreadcrumbProps {
     selection: SelectionState;
@@ -88,11 +92,13 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
     }
 
     return (
-        <div className={classes.breadcrumb}>
-            <Breadcrumbs aria-label="breadcrumb">
-                {links}
-                {activeLink}
-            </Breadcrumbs>
-        </div>
+        <Breadcrumbs
+            maxItems={3}
+            separator={<NavigateNextIcon fontSize="small" />}
+            className={classes.breadcrumb}
+        >
+            {links}
+            {activeLink}
+        </Breadcrumbs>
     );
 }
