@@ -14,8 +14,7 @@ export class DefaultLinkSegmentWidget extends React.Component<DefaultLinkSegment
             {
                 ref: this.props.forwardRef,
                 strokeWidth: isSelected ? 2 : 1,
-
-
+                cursor: "pointer"
             }
         );
 
