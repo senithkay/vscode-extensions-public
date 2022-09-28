@@ -20,9 +20,10 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
 export function generateQueryExpression(srcExpr: string, targetType: Type) {
 
     const srcFields = targetType.fields;
+    const itemName = `${srcExpr.split('.').pop().trim()}Item`;
 
     // TODO: Dynamically generate the identifier name instead of 'item'
-    return `from var item in ${srcExpr}
+    return `from var ${itemName} in ${srcExpr}
         select {
             ${targetType.fields.map((field, index) => `${field.name}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
         }`

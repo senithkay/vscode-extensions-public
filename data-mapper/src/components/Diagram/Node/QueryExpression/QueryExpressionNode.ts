@@ -12,7 +12,7 @@ import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getFieldNames } from "../../utils/dm-utils";
+import { getBalRecFieldName, getFieldNames } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
@@ -20,10 +20,6 @@ import { MappingConstructorNode } from "../MappingConstructor";
 import { RequiredParamNode } from "../RequiredParam";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
-
-export const QUERY_SOURCE_PORT_PREFIX = "queryExpr.source";
-
-export const QUERY_TARGET_PORT_PREFIX = "queryExpr.target";
 
 export class QueryExpressionNode extends DataMapperNodeModel {
 
@@ -92,8 +88,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         this.sourcePort = node.getPort(
                             `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
                     }
-                    while(this.sourcePort && this.sourcePort.hidden){
-                        this.sourcePort =this.sourcePort.parentModel;
+                    while (this.sourcePort && this.sourcePort.hidden){
+                        this.sourcePort = this.sourcePort.parentModel;
                     }
                 });
             }
@@ -164,6 +160,19 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             })
             this.getModel().addAll(link);
         }
+    }
+
+    public getTargetFieldPath() {
+        let fieldPath = getBalRecFieldName(this.targetPort?.fieldName
+            ? this.targetPort.fieldName
+            : this.targetPort.field.name
+        );
+        if (this.targetPort.parentFieldAccess) {
+            const parentFieldAccess = this.targetPort.parentFieldAccess.split('.')
+                .slice(1).join('.').toString();
+            fieldPath = parentFieldAccess ? `${parentFieldAccess}.${fieldPath}` : fieldPath;
+        }
+        return fieldPath;
     }
 
     public updatePosition() {

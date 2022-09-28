@@ -10,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { WorkerHighlight } from "../Visitors";
+
 import { SimpleBBox } from "./simple-bbox";
 
 export class ViewState {
@@ -19,6 +21,8 @@ export class ViewState {
     public synced: boolean = false;
     public collapsed: boolean = false;
     public folded: boolean = false;
+    public isPathSelected?: boolean;
+    public highlightedPaths?: WorkerHighlight[];
 
     public getHeight(): number {
         return (this.bBox.h + this.bBox.offsetFromBottom + this.bBox.offsetFromTop);

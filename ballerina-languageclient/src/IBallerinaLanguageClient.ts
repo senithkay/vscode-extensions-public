@@ -627,40 +627,13 @@ export interface JsonToRecordMapperDiagnostic {
     message: string;
     severity?: DIAGNOSTIC_SEVERITY;
 }
-
-export interface PerformanceAnalyzerGraphResponse {
-    message: string;
-    type: any;
-    sequenceDiagramData: SequenceGraphPoint[];
-    graphData: GraphPoint[];
-}
-
-export interface PerformanceAnalyzerRealtimeResponse {
-    message: string;
-    type: any;
-    concurrency: Values;
-    latency: Values;
-    tps: Values;
-}
-
-export interface Values {
-    min?: number;
-    max: number;
-}
-
 export interface DocumentIdentifier {
     uri: string;
 }
 
 export interface PerformanceAnalyzerRequest {
     documentIdentifier: DocumentIdentifier;
-}
-
-export interface PerformanceAnalyzerGraphResponse {
-    message: string;
-    type: any;
-    sequenceDiagramData: SequenceGraphPoint[];
-    graphData: GraphPoint[];
+    isWorkerSupported: boolean;
 }
 
 export interface PerformanceAnalyzerResponse {
@@ -675,33 +648,6 @@ export interface PerformanceAnalyzerResponse {
 interface RRange {
     start: Position;
     end: Position;
-}
-
-export interface GraphPoint {
-    concurrency: string;
-    latency: string;
-    tps: string;
-}
-
-export interface SequenceGraphPoint {
-    concurrency: string;
-    values: SequenceGraphPointValue[];
-}
-
-export interface SequenceGraphPointValue {
-    name: string;
-    latency: number;
-    tps: number;
-}
-
-export interface GraphData {
-    name: string,
-    graphData: GraphPoint[];
-}
-
-export interface PerformanceGraphRequest {
-    file: string;
-    data: GraphData;
 }
 
 export interface ExecutorPositionsResponse {
