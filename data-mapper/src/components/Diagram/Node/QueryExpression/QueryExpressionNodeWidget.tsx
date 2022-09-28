@@ -82,7 +82,7 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
                     ...node.context.selection,
                     selectedST: {
                         stNode: node.parentNode,
-                        fieldPath: node.getTargetFieldPath()
+                        fieldPath: node.targetFieldFQN
                     }
                 })
         }

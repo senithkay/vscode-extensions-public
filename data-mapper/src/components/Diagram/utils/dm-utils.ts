@@ -1,4 +1,3 @@
-import { PortModel } from "@projectstorm/react-diagrams";
 import {
 	keywords,
 	PrimitiveBalType,
@@ -74,12 +73,13 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		return;
 	}
 
+	const sourcePort = link.getSourcePort() as RecordFieldPortModel;
 	const targetPort = link.getTargetPort() as RecordFieldPortModel;
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
 	const applyModifications = targetNode.context.applyModifications;
 	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
 
-	rhs = getRHSFromSourcePort(link.getSourcePort());
+	rhs = sourcePort.fieldFQN;
 
 	if (!isArrayOrRecord(targetPort.field)
 		&& targetPort.editableRecordField?.value
@@ -274,8 +274,9 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 	let rhs = "";
 	const modifications: STModification[] = [];
-	if (link.getSourcePort()) {
-		rhs = getRHSFromSourcePort(link.getSourcePort());
+	const sourcePort = link.getSourcePort();
+	if (sourcePort && sourcePort instanceof RecordFieldPortModel) {
+		rhs = sourcePort.fieldFQN;
 	}
 
 	if (link.getTargetPort()){
@@ -290,9 +291,9 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 			Object.keys(targetPort.getLinks()).forEach((linkId) => {
 				if (linkId !== link.getID()){
 					const link = targetPort.getLinks()[linkId]
-					if (link.getSourcePort() instanceof IntermediatePortModel){
-						if (link.getSourcePort().getParent( ) instanceof LinkConnectorNode) {
-							targetPos = (link.getSourcePort().getParent( ) as LinkConnectorNode).valueNode.position
+					if (sourcePort instanceof IntermediatePortModel){
+						if (sourcePort.getParent( ) instanceof LinkConnectorNode) {
+							targetPos = (sourcePort.getParent( ) as LinkConnectorNode).valueNode.position
 						}
 					}
 					else {
@@ -794,11 +795,6 @@ function updateValueExprSource(value: string, targetPosition: NodePosition,
 	})]);
 
 	return value;
-}
-
-function getRHSFromSourcePort(port: PortModel) {
-	const sourcePort = port as RecordFieldPortModel;
-	return sourcePort.portName ? getBalRecFieldName(sourcePort.portName) :  getBalRecFieldName(sourcePort.field.name);
 }
 
 function getSpecificField(mappingConstruct: MappingConstructor, targetFieldName: string) {

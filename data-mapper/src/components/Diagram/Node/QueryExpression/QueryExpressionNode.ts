@@ -12,7 +12,7 @@ import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getBalRecFieldName, getFieldNames } from "../../utils/dm-utils";
+import { getFieldNames } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
@@ -31,6 +31,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public outPort: IntermediatePortModel;
 
     public sourceBindingPattern: CaptureBindingPattern;
+    public targetFieldFQN: string;
 
     constructor(
         public context: IDataMapperContext,
@@ -159,20 +160,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 },
             })
             this.getModel().addAll(link);
+            this.targetFieldFQN = this.targetPort.fieldFQN;
         }
-    }
-
-    public getTargetFieldPath() {
-        let fieldPath = getBalRecFieldName(this.targetPort?.fieldName
-            ? this.targetPort.fieldName
-            : this.targetPort.field.name
-        );
-        if (this.targetPort.parentFieldAccess) {
-            const parentFieldAccess = this.targetPort.parentFieldAccess.split('.')
-                .slice(1).join('.').toString();
-            fieldPath = parentFieldAccess ? `${parentFieldAccess}.${fieldPath}` : fieldPath;
-        }
-        return fieldPath;
     }
 
     public updatePosition() {
