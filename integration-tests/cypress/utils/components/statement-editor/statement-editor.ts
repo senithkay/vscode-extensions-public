@@ -45,7 +45,7 @@ export class StatementEditor {
             .get('button')
             .contains("Add")
             .should('not.be.disabled')
-            .wait(1000)
+            .wait(2000)
             .click()
             .wait(3000);
         return this;

@@ -27,7 +27,7 @@ describe('Test helper pane functionality', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Add Variable Declaration Statement with Ls-Suggestions', () => {
+    it.skip('Add Variable Declaration Statement with Ls-Suggestions', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -74,7 +74,7 @@ describe('Test helper pane functionality', () => {
 
     });
 
-    it('Add Variable Declaration Statement with Expression and Operator Suggestions', () => {
+    it.skip('Add Variable Declaration Statement with Expression and Operator Suggestions', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -133,7 +133,7 @@ describe('Test helper pane functionality', () => {
             getCurrentSpecFolder() + "expression-and-operator-suggestions.expected.bal");
     });
 
-    it('Add Variable Declaration Statement with Type Expression Suggestions', () => {
+    it.skip('Add Variable Declaration Statement with Type Expression Suggestions', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -182,7 +182,6 @@ describe('Test helper pane functionality', () => {
             .clickExpressionSuggestion('Es | Ex');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int|<add-type> ")
             .getExpression("UnionTypeDesc")
             .clickSpecificExpression("SimpleNameReference", 0, '<add-type>');
 
@@ -200,7 +199,7 @@ describe('Test helper pane functionality', () => {
             getCurrentSpecFolder() + "type-suggestion.expected.bal");
     });
 
-    it('Validate correct expression suggestion filtering with search', () => {
+    it.skip('Validate correct expression suggestion filtering with search', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -237,7 +236,7 @@ describe('Test helper pane functionality', () => {
 
     });
 
-    it('Test Library-suggestions and filtering of libraries with dropdown', () => {
+    it.skip('Test Library-suggestions and filtering of libraries with dropdown', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -285,7 +284,7 @@ describe('Test helper pane functionality', () => {
 
     });
 
-    it('Test a suggestion for partially typed value', () => {
+    it.skip('Test a suggestion for partially typed value', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
