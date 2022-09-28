@@ -348,9 +348,10 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 					STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
 				) as RequiredParam;
-			if (STKindChecker.isSpecificField(dmNode.context.selection.selectedST)
-				&& STKindChecker.isQueryExpression(dmNode.context.selection.selectedST.valueExpr)){
-				paramNode = dmNode.context.selection.selectedST.valueExpr.queryPipeline.fromClause
+			const selectedST = dmNode.context.selection.selectedST.stNode;
+			if (STKindChecker.isSpecificField(selectedST)
+				&& STKindChecker.isQueryExpression(selectedST.valueExpr)) {
+				paramNode = selectedST.valueExpr.queryPipeline.fromClause
 			}
 			return findNodeByValueNode(paramNode, dmNode);
 		}

@@ -24,35 +24,33 @@ import HeaderBreadcrumb from "./HeaderBreadcrumb";
 const useStyles = makeStyles(() =>
     createStyles({
         editButton: {
-            cursor: "pointer"
+            cursor: "pointer",
+            position: "absolute",
+            right: "10px"
         }
     })
 );
 
 export interface DataMapperHeaderProps {
-    name: string;
     selection: SelectionState;
-    changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
+    changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onClose: () => void;
     onConfigOpen: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { name, selection, changeSelection, onClose, onConfigOpen } = props;
+    const { selection, changeSelection, onClose, onConfigOpen } = props;
     const classes = useStyles();
     return (
         <HeaderContainer>
             <HomeButton onClick={onClose} />
-            <BeadCrumb>
+            <BreadCrumb>
+                <Title> Data Mapper: </Title>
                 <HeaderBreadcrumb
-                    functionName={name}
                     selection={selection}
                     changeSelection={changeSelection}
                 />
-            </BeadCrumb>
-            <Title>
-                Data Mapper
-            </Title>
+            </BreadCrumb>
             <EditButton className={classes.editButton} onClick={onConfigOpen} />
         </HeaderContainer>
     );
@@ -64,25 +62,19 @@ const HeaderContainer = styled.div`
     display: flex;
     padding: 15px;
     background-color: white;
-    justify-content: space-between;
 `;
-
 
 const HomeButton = styled(HomeIcon)`
     cursor: pointer;
-`;
-
-const BeadCrumb = styled.div`
-    position: absolute;
-    left: 4%;
+    margin-right: 10px;
 `;
 
 const Title = styled.div`
     font-weight: 600;
-    position: absolute;
-    left: 50%;
+    margin-right: 10px;
 `;
 
-const Name = styled.div`
-    font-weight: 400;
+const BreadCrumb = styled.div`
+    width: 90%;
+    display: flex;
 `;
