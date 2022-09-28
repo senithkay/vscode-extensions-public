@@ -128,7 +128,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             props.context.enableStatementEditor({
                 value: field.value.valueExpr.source,
                 valuePosition: field.value.valueExpr.position,
-                label: field.value.fieldName.source
+                label: field.value.fieldName.value
             });
         }
     };

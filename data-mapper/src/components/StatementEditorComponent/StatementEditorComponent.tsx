@@ -6,7 +6,6 @@ import { LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModif
 import { Panel } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
-import { getUpdatedSource } from "../../utils/st-utils";
 import { ExpressionInfo } from "../DataMapper/DataMapper";
 
 
@@ -40,9 +39,6 @@ function StatementEditorC(props: StatementEditorComponentProps) {
         importStatements
     } = props;
 
-    const updatedContent = expressionInfo.fieldName ?  getUpdatedSource(expressionInfo.fieldName, currentFile.content,
-        expressionInfo.specificFieldPosition) : currentFile.content;
-
     const stmtEditorComponent = StatementEditorWrapper(
         {
             formArgs: { formArgs: {
@@ -62,7 +58,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             applyModifications,
             currentFile: {
                 ...currentFile,
-                content: updatedContent,
+                content: currentFile.content,
                 originalContent: currentFile.content
             },
             onCancel,

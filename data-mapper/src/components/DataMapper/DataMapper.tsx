@@ -108,8 +108,6 @@ export interface SelectionState {
 export interface ExpressionInfo {
     value: string;
     valuePosition: any;
-    specificFieldPosition?: any;
-    fieldName?: string;
     label?: string;
 }
 
