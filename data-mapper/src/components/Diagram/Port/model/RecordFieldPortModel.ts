@@ -16,6 +16,7 @@ import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { createSourceForMapping, getBalRecFieldName, modifySpecificFieldSource } from "../../utils/dm-utils";
+import { IntermediatePortModel } from "../IntermediatePort";
 
 export interface RecordFieldNodeModelGenerics {
 	PORT: RecordFieldPortModel;
@@ -80,6 +81,6 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	}
 
 	canLinkToPort(port: RecordFieldPortModel): boolean {
-		return this.portType !== port.portType && !this.isDisabled() && !port.isDisabled();
+		return this.portType !== port.portType && ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
 	}
 }
