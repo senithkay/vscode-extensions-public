@@ -215,15 +215,9 @@ describe('Test statement editor toolbar functionality', () => {
 
         EditorPane
             .validateNewExpression("TypedBindingPattern", "string")
-            .getExpression("CaptureBindingPattern")
-            .doubleClickExpressionContent("variable");
-
-        InputEditor
-            .typeInput("var3");
-
-        EditorPane
             .getExpression("SimpleNameReference")
-            .clickExpressionContent(`<add-expression>`);
+            .clickExpressionContent(`<add-expression>`)
+            .validateNewExpression("SimpleNameReference", "<add-expression>");
     
         Toolbar
             .clickConfigurableButton();
