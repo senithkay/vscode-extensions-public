@@ -27,7 +27,7 @@ describe('Test helper pane functionality', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it.skip('Add Variable Declaration Statement with Ls-Suggestions', () => {
+    it('Add Variable Declaration Statement with Ls-Suggestions', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -74,7 +74,7 @@ describe('Test helper pane functionality', () => {
 
     });
 
-    it.skip('Add Variable Declaration Statement with Expression and Operator Suggestions', () => {
+    it('Add Variable Declaration Statement with Expression and Operator Suggestions', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -133,7 +133,7 @@ describe('Test helper pane functionality', () => {
             getCurrentSpecFolder() + "expression-and-operator-suggestions.expected.bal");
     });
 
-    it.skip('Add Variable Declaration Statement with Type Expression Suggestions', () => {
+    it('Add Variable Declaration Statement with Type Expression Suggestions', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -199,7 +199,7 @@ describe('Test helper pane functionality', () => {
             getCurrentSpecFolder() + "type-suggestion.expected.bal");
     });
 
-    it.skip('Validate correct expression suggestion filtering with search', () => {
+    it('Validate correct expression suggestion filtering with search', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -236,7 +236,7 @@ describe('Test helper pane functionality', () => {
 
     });
 
-    it.skip('Test Library-suggestions and filtering of libraries with dropdown', () => {
+    it('Test Library-suggestions and filtering of libraries with dropdown', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -284,7 +284,7 @@ describe('Test helper pane functionality', () => {
 
     });
 
-    it.skip('Test a suggestion for partially typed value', () => {
+    it('Test a suggestion for partially typed value', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
