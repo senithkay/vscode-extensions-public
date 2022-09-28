@@ -37,6 +37,7 @@ export interface IDataMapperContext {
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     collapsedFields: string[];
     handleCollapse: (fieldName: string, expand?: boolean) => void;
+    handleFieldToBeEdited: (fieldId: string) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -57,7 +58,8 @@ export class DataMapperContext implements IDataMapperContext {
         public diagnostics: Diagnostic[],
         public enableStatementEditor: (expressionInfo: ExpressionInfo) => void,
         public collapsedFields: string[],
-        public handleCollapse: (fieldName: string, expand?: boolean) => void
+        public handleCollapse: (fieldName: string, expand?: boolean) => void,
+        public handleFieldToBeEdited: (fieldId: string) => void
     ){}
 
     public get functionST(): FunctionDefinition {

@@ -141,6 +141,7 @@ function DataMapperC(props: DataMapperProps) {
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
+    const [fieldTobeEdited, setFieldTobeEdited] = useState('');
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: {stNode: fnST, fieldPath: fnST && fnST.functionName.value},
         prevST: []
@@ -174,6 +175,10 @@ function DataMapperC(props: DataMapperProps) {
         setCurrentEditableField(null);
     }
 
+    const handleFieldToBeEdited = (fieldId: string) => {
+        setFieldTobeEdited(fieldId);
+    }
+
     const handleCollapse = (fieldName: string, expand?: boolean) => {
         if (!expand){
             setCollapsedFields((prevState) => [...prevState, fieldName]);
@@ -202,7 +207,8 @@ function DataMapperC(props: DataMapperProps) {
                     diagnostics,
                     enableStatementEditor,
                     collapsedFields,
-                    handleCollapse
+                    handleCollapse,
+                    handleFieldToBeEdited
                 );
 
                 let selectedST = selection.selectedST.stNode;

@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo } from "react";
+import React, {useEffect, useMemo, useState} from "react";
 
 import { IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -23,12 +23,20 @@ import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-e
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getFieldName, getNewSource, getTypeName, isConnectedViaLink } from "../../../utils/dm-utils";
+import {
+    createSourceForUserInput,
+    getFieldName,
+    getNewSource,
+    getTypeName,
+    isConnectedViaLink
+} from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import {getUpdatedSource} from "@wso2-enterprise/ballerina-statement-editor/lib/utils";
+import {sendDidChange} from "@wso2-enterprise/ballerina-statement-editor/lib/utils/ls-utils";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -59,6 +67,14 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
     let indentation = treeDepth * 16;
+
+    const [isEditing, setIsEditing] = useState(false);
+
+    useEffect(() => {
+        if (isEditing) {
+            console.log("YES");
+        }
+    }, [isEditing]);
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
@@ -102,33 +118,63 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         </span>
     );
 
-    const handleAddValue = () => {
-        const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
-
-        const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
-
-        const columnNumber = field.type.name?.length;
-        const specificFieldPosition: NodePosition = {
-            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
-            startColumn: (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
-            endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine,
-            endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
-        }
-
-        const valuePosition: NodePosition = {
-            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
-            startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
-            endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
-            endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
-        }
-        props.context.enableStatementEditor({
-            specificFieldPosition,
-            fieldName: fName,
-            value: "EXPRESSION",
-            valuePosition,
-            label: field.type.name
-        });
+    const handleAddValue = async () => {
+        await createSourceForUserInput(field, mappingConstruct, '', context.applyModifications);
+        setIsEditing(true);
+        // const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
+        //
+        // const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+        //
+        // const columnNumber = field.type.name?.length;
+        // const specificFieldPosition: NodePosition = {
+        //     startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
+        //     startColumn: (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
+        //     endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine,
+        //     endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
+        // }
+        //
+        // const valuePosition: NodePosition = {
+        //     startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
+        //     startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
+        //     endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
+        //     endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
+        // }
+        // props.context.enableStatementEditor({
+        //     specificFieldPosition,
+        //     fieldName: fName,
+        //     value: "EXPRESSION",
+        //     valuePosition,
+        //     label: field.type.name
+        // });
     };
+
+    // const handleAddValue = () => {
+    //     const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
+    //
+    //     const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
+    //
+    //     const columnNumber = field.type.name?.length;
+    //     const specificFieldPosition: NodePosition = {
+    //         startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
+    //         startColumn: (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
+    //         endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine,
+    //         endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
+    //     }
+    //
+    //     const valuePosition: NodePosition = {
+    //         startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
+    //         startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
+    //         endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
+    //         endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
+    //     }
+    //     props.context.enableStatementEditor({
+    //         specificFieldPosition,
+    //         fieldName: fName,
+    //         value: "EXPRESSION",
+    //         valuePosition,
+    //         label: field.type.name
+    //     });
+    // };
 
     const handleEditValue = () => {
         if (STKindChecker.isSpecificField(field.value)) {
