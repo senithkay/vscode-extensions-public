@@ -25,7 +25,12 @@ export function PerformanceBar(props: PerformanceProps) {
     const onClickPerformance = async () => {
         let fullPath = "";
         for (const path of model.relativeResourcePath) {
-            fullPath += (path as any).value;
+            const p = path as any;
+            if (p.kind === "ResourcePathSegmentParam") {
+                fullPath += p.source;
+            } else {
+                fullPath += p.value;
+            }
         }
 
         if (openPerformanceChart) {
