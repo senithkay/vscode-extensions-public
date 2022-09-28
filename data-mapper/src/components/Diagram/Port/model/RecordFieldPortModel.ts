@@ -32,7 +32,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public parentId: string,
 		public index?: number,
 		public editableRecordField?: EditableRecordField,
-		public parentFieldAccess?: string,
+		public fieldFQN?: string,
 		public parentModel?: RecordFieldPortModel,
 		public collapsed?: boolean,
 		public hidden?: boolean) {
