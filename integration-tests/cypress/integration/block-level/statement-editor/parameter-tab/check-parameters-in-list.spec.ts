@@ -53,7 +53,7 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('toString()', 1000);
 
         ParameterTab
-            .shouldHaveParameters(0);
+            .validateNoParameters();
 
     });
 

@@ -41,6 +41,12 @@ export class ParameterTab {
         return this;
     }
 
+    static validateNoParameters(){
+        cy.get(`[data-testid="parameter-list"]`)
+            .should('not.be.visible');
+        return this;
+    }
+
     static shouldHaveRequiredArg(name: string) {
         cy.get(`[data-testid="required-arg"]`)
             .should('be.visible')
