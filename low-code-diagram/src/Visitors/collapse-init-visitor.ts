@@ -12,7 +12,7 @@
  */
 
 import {
-    BlockStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor
+    BlockStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
 import { BlockViewState, CollapseViewState, FunctionViewState, StatementViewState } from "../ViewState";
@@ -37,23 +37,26 @@ export class CollapseInitVisitor implements Visitor {
         end.offsetFromTop = DefaultConfig.interactionModeOffset;
     }
 
-    beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
-        this.beginVisitBlock(node);
+    endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
+        this.endVisitBlock(node);
     }
 
-    beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
-        this.beginVisitBlock(node.ifBody);
-        if (node.elseBody && STKindChecker.isElseBlock(node.elseBody)
-            && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
-            this.beginVisitBlock(node.elseBody.elseBody)
-        }
+    // endVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
+    //     this.endVisitBlock(node.ifBody);
+    //     if (node.elseBody && STKindChecker.isElseBlock(node.elseBody)
+    //         && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
+    //         this.endVisitBlock(node.elseBody.elseBody)
+    //     }
+    // }
+    endVisitWhileStatement(node: WhileStatement, parent?: STNode): void {
+        console.log('while statement node >>>', node);
     }
 
-    beginVisitBlockStatement(node: BlockStatement): void {
-        this.beginVisitBlock(node);
+    endVisitBlockStatement(node: BlockStatement): void {
+        this.endVisitBlock(node);
     }
 
-    beginVisitBlock(node: BlockStatement) {
+    endVisitBlock(node: BlockStatement) {
         const blockViewState = node.viewState as BlockViewState;
         if (node.statements.length > 0) {
             let range: NodePosition = {
@@ -103,6 +106,6 @@ export class CollapseInitVisitor implements Visitor {
     }
 
     private isSkippedConstruct(node: STNode): boolean {
-        return STKindChecker.isIfElseStatement(node);
+        return STKindChecker.isWhileStatement(node) || STKindChecker.isForeachStatement(node) || STKindChecker.isIfElseStatement(node);
     }
 }

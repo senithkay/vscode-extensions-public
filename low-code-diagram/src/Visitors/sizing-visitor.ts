@@ -39,8 +39,7 @@ import { TRIGGER_RECT_SVG_HEIGHT, TRIGGER_RECT_SVG_WIDTH } from "../Components/R
 import { ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/Assignment";
 import { COLLAPSED_BLOCK_HEIGHT, COLLAPSED_BLOCK_WIDTH } from "../Components/RenderingComponents/Collapse/CollapsedComponentSVG";
 import { CONDITION_ASSIGNMENT_NAME_WIDTH } from "../Components/RenderingComponents/ConditionAssignment";
-import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT, CLIENT_SVG_WIDTH } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
-import { CONNECTOR_PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorProcess/ConnectorProcessSVG";
+import { CLIENT_RADIUS, CLIENT_SVG_HEIGHT } from "../Components/RenderingComponents/Connector/ConnectorHeader/ConnectorClientSVG";
 import { STOP_SVG_HEIGHT, STOP_SVG_WIDTH } from "../Components/RenderingComponents/End/StopSVG";
 import { FOREACH_SVG_HEIGHT, FOREACH_SVG_WIDTH } from "../Components/RenderingComponents/ForEach/ForeachSVG";
 import { COLLAPSE_DOTS_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ThreeDotsSVG";
@@ -56,11 +55,11 @@ import { START_SVG_HEIGHT, START_SVG_WIDTH } from "../Components/RenderingCompon
 import { VARIABLE_NAME_WIDTH } from "../Components/RenderingComponents/VariableName";
 import { WHILE_SVG_HEIGHT, WHILE_SVG_WIDTH } from "../Components/RenderingComponents/While/WhileSVG";
 import { Endpoint } from "../Types/type";
-import { getNodeSignature, initializeViewState, isVarTypeDescriptor, recalculateSizingAndPositioning, sizingAndPositioning } from "../Utils";
+import { getNodeSignature, isVarTypeDescriptor, recalculateSizingAndPositioning } from "../Utils";
 import expandTracker from "../Utils/expand-tracker";
 import {
-    BlockViewState, CollapseViewState, CompilationUnitViewState, DoViewState, ElseViewState, EndpointViewState, EndViewState,
-    ForEachViewState, FunctionViewState, IfViewState, OnErrorViewState, PlusViewState, SimpleBBox, StatementViewState, ViewState
+    BlockViewState, CompilationUnitViewState, ElseViewState, EndViewState,
+    ForEachViewState, FunctionViewState, IfViewState, PlusViewState, SimpleBBox, StatementViewState, ViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
@@ -70,7 +69,7 @@ import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { ConflictResolutionVisitor } from "./conflict-resolution-visitor";
 import { DefaultConfig } from "./default";
-import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isPositionWithinRange, isSTActionInvocation } from "./util";
+import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
 
 export interface AsyncSendInfo {
     to: string;

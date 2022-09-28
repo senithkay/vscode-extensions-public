@@ -355,9 +355,9 @@ export class InitVisitor implements Visitor {
     }
 
     private initStatement(node: STNode, parent?: STNode) {
-        if (!node.viewState) {
-            node.viewState = new StatementViewState();
-        }
+        // if (!node.viewState) {
+        node.viewState = new StatementViewState();
+        // }
         const stmtViewState: StatementViewState = node.viewState;
         // todo: In here we need to catch only the action invocations.
         if (isSTActionInvocation(node) && !haveBlockStatement(node)) {

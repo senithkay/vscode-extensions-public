@@ -16,17 +16,19 @@ import {
     NamedWorkerDeclaration, STKindChecker, STNode, traversNode, Visitor,
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
+import { COLLAPSE_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ColapseButtonSVG";
 
 import { FOREACH_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ForeachSVG";
 import { IFELSE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/IfElseSVG";
 import {
-    BlockViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, StatementViewState,
+    BlockViewState, CollapseViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, StatementViewState,
     WhileViewState
 } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
 import { ConflictRestrictSpace, DEFAULT_WORKER_NAME, SendRecievePairInfo, SizingVisitor } from "./sizing-visitor";
+import { isPositionWithinRange } from "./util";
 
 export class ConflictResolutionVisitor implements Visitor {
     private matchedPairInfo: SendRecievePairInfo[];
@@ -73,9 +75,29 @@ export class ConflictResolutionVisitor implements Visitor {
 
     private visitBlockStatement(node: BlockStatement, parent?: STNode, height: number = 0) {
         const blockViewState: BlockViewState = node.viewState as BlockViewState;
+        let collapsedViewStates: CollapseViewState[] = [...blockViewState.collapsedViewStates];
 
         node.statements.forEach((statementNode, statementIndex) => {
             const statementViewState: StatementViewState = statementNode.viewState as StatementViewState;
+
+            for (let i = 0; i < collapsedViewStates.length; i++) {
+                if (isPositionWithinRange(statementNode.position, collapsedViewStates[i].range)) {
+                    collapsedViewStates[i].bBox.cx = blockViewState.bBox.cx - collapsedViewStates[i].bBox.lw;
+
+                    if (collapsedViewStates[i].collapsed) {
+                        collapsedViewStates[i].bBox.cy = blockViewState.bBox.cy + collapsedViewStates[i].bBox.offsetFromTop + height;
+                        height += collapsedViewStates[i].getHeight();
+                    } else {
+                        collapsedViewStates[i].bBox.cy = statementViewState.bBox.cy - statementViewState.bBox.offsetFromTop;
+                        collapsedViewStates[i].bBox.h = -COLLAPSE_SVG_HEIGHT / 3;
+                    }
+
+                    collapsedViewStates = [...collapsedViewStates.slice(0, i), ...collapsedViewStates.slice(i + 1)];
+                    break;
+                }
+            }
+
+            if (statementViewState.collapsed) return;
 
             if (blockViewState.draft && blockViewState.draft[0] === statementIndex) {
                 height += blockViewState.draft[1].getHeight();
@@ -211,7 +233,7 @@ export class ConflictResolutionVisitor implements Visitor {
     }
 
     private fixIfConflictsWithMessage(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
-                                      statementIndex: number): boolean {
+        statementIndex: number): boolean {
         let updatedAsConflict: boolean = false;
 
         this.matchedPairInfo.forEach(matchedPair => {
@@ -259,7 +281,7 @@ export class ConflictResolutionVisitor implements Visitor {
     }
 
     private fixIfConflictWithEndPoint(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
-                                      statementIndex: number): boolean {
+        statementIndex: number): boolean {
         let updatedAsConflict = false;
         this.endPointPositions.forEach(position => {
             if (((boxStartHeight >= position.y1 && boxStartHeight <= position.y2)

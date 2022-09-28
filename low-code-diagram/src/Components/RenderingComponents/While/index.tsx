@@ -34,11 +34,14 @@ import {
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
-import { getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents } from "../../../Utils";
+import { useFunctionContext } from "../../../Context/Function";
+import { ViewMode } from "../../../Context/types";
+import { collapseExpandedRange, expandCollapsedRange, getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents, recalculateSizingAndPositioning } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { WhileViewState } from "../../../ViewState/while";
 import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
+import CollapseComponent from "../Collapse";
 import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount";
 import { ControlFlowLine } from "../ControlFlowLine";
@@ -47,7 +50,10 @@ import { ExpandButtonSVG } from "../ForEach/ExpandButtonSVG";
 import { COLLAPSE_DOTS_SVG_WIDTH, ThreeDotsSVG } from "../ForEach/ThreeDotsSVG";
 
 import "./style.scss";
-import { WhileSVG, WHILE_SHADOW_OFFSET, WHILE_SVG_HEIGHT, WHILE_SVG_HEIGHT_WITH_SHADOW, WHILE_SVG_WIDTH, WHILE_SVG_WIDTH_WITH_SHADOW } from "./WhileSVG";
+import {
+    WhileSVG, WHILE_SHADOW_OFFSET, WHILE_SVG_HEIGHT, WHILE_SVG_HEIGHT_WITH_SHADOW, WHILE_SVG_WIDTH,
+    WHILE_SVG_WIDTH_WITH_SHADOW
+} from "./WhileSVG";
 
 export interface WhileProps {
     blockViewState?: BlockViewState;
@@ -56,7 +62,8 @@ export interface WhileProps {
 
 export function While(props: WhileProps) {
     const diagramContext = useContext(Context);
-    const { syntaxTree, isReadOnly, stSymbolInfo } = diagramContext.props;
+    const { viewMode } = useFunctionContext();
+    const { syntaxTree, isReadOnly, stSymbolInfo, experimentalEnabled } = diagramContext.props;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const state = diagramContext?.state;
@@ -84,7 +91,7 @@ export function While(props: WhileProps) {
     const diagnosticMsgs = getDiagnosticInfo(diagnostics);
 
     const diagnosticStyles = diagnosticMsgs?.severity === "ERROR" ? "while-block-error" : "while-block-warning";
-    const whileRectStyles = diagnosticMsgs ? diagnosticStyles : "while-block" ;
+    const whileRectStyles = diagnosticMsgs ? diagnosticStyles : "while-block";
 
     let codeSnippet = modelWhile?.source?.trim().split('{')[0];
     let codeSnippetOnSvg = "WHILE";
@@ -148,6 +155,34 @@ export function While(props: WhileProps) {
 
     for (const plusView of modelWhile.whileBody.viewState.plusButtons) {
         pluses.push(<PlusButton viewState={plusView} model={modelWhile.whileBody} initPlus={false} />)
+    }
+
+    const collapsedComponents: JSX.Element[] = []
+    if (bodyViewState.collapsedViewStates.length > 0) {
+        // TODO: handle collapse ranges rendering
+        bodyViewState.collapsedViewStates.forEach((collapseVS) => {
+            const onExpandClick = () => {
+                diagramRedraw(
+                    recalculateSizingAndPositioning(
+                        expandCollapsedRange(syntaxTree, collapseVS.range), experimentalEnabled)
+                );
+            }
+
+            const onCollapseClick = () => {
+                diagramRedraw(
+                    recalculateSizingAndPositioning(
+                        collapseExpandedRange(syntaxTree, collapseVS.range)
+                    )
+                );
+            }
+            collapsedComponents.push((
+                <CollapseComponent
+                    collapseVS={collapseVS}
+                    onExpandClick={onExpandClick}
+                    onCollapseClick={onCollapseClick}
+                />
+            ))
+        })
     }
 
     const handleFoldClick = () => {
@@ -257,7 +292,8 @@ export function While(props: WhileProps) {
             <line className="life-line" {...lifeLineProps} />
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
             {controlFlowLines}
-            {pluses}
+            {viewMode === ViewMode.STATEMENT && pluses}
+            {collapsedComponents}
             {children}
             {drafts}
         </g>

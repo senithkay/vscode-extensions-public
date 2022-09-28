@@ -27,6 +27,7 @@ export class CollapsedRangeExpandVisitor implements Visitor {
     constructor(expandRange: NodePosition) {
         this.expandRange = expandRange;
     }
+
     beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
         this.beginVisitBlock(node);
     }

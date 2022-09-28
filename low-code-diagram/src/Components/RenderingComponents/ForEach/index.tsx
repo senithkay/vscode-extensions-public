@@ -28,10 +28,13 @@ import {
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
-import { getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents } from "../../../Utils";
+import { useFunctionContext } from "../../../Context/Function";
+import { ViewMode } from "../../../Context/types";
+import { collapseExpandedRange, expandCollapsedRange, getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents, recalculateSizingAndPositioning } from "../../../Utils";
 import { BlockViewState, ForEachViewState } from "../../../ViewState";
 import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
+import CollapseComponent from "../Collapse";
 import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";
 import { ControlFlowIterationCount, ControlFlowIterationCountProp, CONTROL_FLOW_ITERATION_COUNT_PADDING } from "../ControlFlowIterationCount"
 import { ControlFlowLine } from "../ControlFlowLine";
@@ -55,7 +58,8 @@ export interface ForeachProps {
 
 export function ForEach(props: ForeachProps) {
     const diagramContext = useContext(Context);
-    const { syntaxTree, isReadOnly, stSymbolInfo } = diagramContext.props;
+    const { viewMode } = useFunctionContext();
+    const { syntaxTree, isReadOnly, stSymbolInfo, experimentalEnabled } = diagramContext.props;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const state = diagramContext?.state;
@@ -116,7 +120,36 @@ export function ForEach(props: ForeachProps) {
     }
 
     for (const plusView of modelForeach.blockStatement.viewState.plusButtons) {
+        if (viewMode === ViewMode.INTERACTION) break;
         pluses.push(<PlusButton viewState={plusView} model={modelForeach.blockStatement} initPlus={false} />)
+    }
+
+    const collapsedComponents: JSX.Element[] = []
+    if (bodyViewState.collapsedViewStates.length > 0) {
+        // TODO: handle collapse ranges rendering
+        bodyViewState.collapsedViewStates.forEach((collapseVS) => {
+            const onExpandClick = () => {
+                diagramRedraw(
+                    recalculateSizingAndPositioning(
+                        expandCollapsedRange(syntaxTree, collapseVS.range), experimentalEnabled)
+                );
+            }
+
+            const onCollapseClick = () => {
+                diagramRedraw(
+                    recalculateSizingAndPositioning(
+                        collapseExpandedRange(syntaxTree, collapseVS.range)
+                    )
+                );
+            }
+            collapsedComponents.push((
+                <CollapseComponent
+                    collapseVS={collapseVS}
+                    onExpandClick={onExpandClick}
+                    onCollapseClick={onCollapseClick}
+                />
+            ))
+        })
     }
 
     const handleFoldClick = () => {
@@ -285,6 +318,7 @@ export function ForEach(props: ForeachProps) {
             {(children.length !== 0) && <ColapseButtonSVG {...foldProps} onClick={handleFoldClick} />}
             {controlFlowLines}
             {!isReadOnly && pluses}
+            {collapsedComponents}
             {children}
             {drafts}
         </g>

@@ -31,7 +31,7 @@ import {
 
 import { PLUS_SVG_HEIGHT } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../Components/RenderingComponents/ControlFlowExecutionTime";
-import { COLLAPSE_SVG_HEIGHT, COLLAPSE_SVG_HEIGHT_WITH_SHADOW } from "../Components/RenderingComponents/ForEach/ColapseButtonSVG";
+import { COLLAPSE_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ColapseButtonSVG";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
 import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
@@ -44,18 +44,15 @@ import {
     CompilationUnitViewState,
     ControlFlowExecutionTimeState,
     ControlFlowLineState,
-    DoViewState,
     ElseViewState,
     EndpointViewState,
     EndViewState,
     ForEachViewState,
     FunctionViewState,
     IfViewState,
-    OnErrorViewState,
     PlusViewState,
     SimpleBBox,
     StatementViewState,
-    ViewState,
     WhileViewState
 } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
