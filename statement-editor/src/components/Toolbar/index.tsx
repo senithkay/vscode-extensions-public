@@ -26,8 +26,8 @@ import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import {
     ADD_CONFIGURABLE_LABEL,
     CALL_CONFIG_TYPE,
-    CONFIGURABLE_TYPE_BOOLEAN,
-    CONFIGURABLE_TYPE_STRING
+    CONFIGURABLE_TYPE_STRING,
+    RECORD_EDITOR
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import {
@@ -83,6 +83,9 @@ export default function Toolbar(props: ToolbarProps) {
             modelConfigurable = (currentModel.model.viewState as StatementEditorViewState).modelType === ModelType.EXPRESSION;
 
             if (STKindChecker.isFunctionCall(currentModel.model) && config.type === CALL_CONFIG_TYPE) {
+                modelConfigurable = false;
+            }
+            if (config.type === RECORD_EDITOR && STKindChecker.isTypeDefinition(currentModel.model.parent)) {
                 modelConfigurable = false;
             }
         }
