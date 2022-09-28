@@ -67,13 +67,25 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
+    let isDisabled = portIn.descendantHasValue;
+    if (!isDisabled){
+        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)){
+            portIn.ancestorHasValue = true;
+            isDisabled = true;
+        }
+        if(hasValue && !connectedViaLink && (isArray || isRecord)) {
+            portIn.setDescendantHasValue();
+            isDisabled = true;
+        }
+    }
+
     const value: string = !connectedViaLink && !isArray && !isRecord && hasValue && specificField.valueExpr.source;
     let expanded = true;
     if (portIn && portIn.collapsed) {
         expanded = false;
     }
 
-    if (!portIn || (hasValue && !connectedViaLink && expanded)) {
+    if (!portIn) {
         indentation += 24;
     }
 
@@ -167,8 +179,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {!isArray && (
                 <div className={classes.treeLabel}>
                     <span className={classes.treeLabelInPort}>
-                        {portIn && (!hasValue || connectedViaLink || !expanded) &&
-                            <DataMapperPortWidget engine={engine} port={portIn} />
+                        {portIn && 
+                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled} />
                         }
                     </span>
                     <span className={classes.label}>
@@ -181,7 +193,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         </IconButton>}
                         {label}
                     </span>
-                    {(!isRecord || isWithinArray) && (
+                    {(!isDisabled) && (
                         <ValueConfigMenu
                             menuItems={valConfigMenuItems}
                         />

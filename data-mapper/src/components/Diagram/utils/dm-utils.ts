@@ -527,8 +527,6 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 				valueNode = node;
 				nextNode = valueNode;
 			}
-		} else {
-			valueNode = node;
 		}
 	} else {
 		nextNode = node;
