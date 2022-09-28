@@ -17,15 +17,17 @@ import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { RecordForm } from "../../utils/forms/record-form";
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
+import { EditorPane } from "../../utils/components/statement-editor/editor-pane";
+import { InputEditor } from "../../utils/components/statement-editor/input-editor";
+import { SuggestionsPane } from "../../utils/components/statement-editor/suggestions-pane";
 
 const BAL_FILE_PATH = "default/empty-file.bal";
+const EXISTING_RECORD_FILE_PATH = "module-level/record.bal";
 
 describe('Record', () => {
-    beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
-    })
 
-    it('Add and Edit Record', () => {
+    it.skip('Add Record', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -34,72 +36,77 @@ describe('Record', () => {
 
         RecordForm
             .shouldBeVisible()
-            .typeRecordName('Person')
-            .clickWhiteSpace()
-            .haveRecordName("Person")
-            .addNewField('string', 'firstName')
-            .clickWhiteSpace()
-            .addNewField('string', 'lastName')
-            .clickWhiteSpace()
-            .addNewField('string', 'address', '"none"')
-            .clickWhiteSpace()
-            .addNewField('int', 'test')
-            .save();
+            .clickCreateNew();
 
-        Canvas
-            .getRecord('Person')
-            .clickEdit();
-
-        RecordForm
-            .editField('firstName', 'fname')
-            .editField('lastName', 'lname')
-            .deleteField('test')
-            .save();
-
-
-        Canvas
-            .getRecord('Person')
-            .clickEdit();
-
-        // toggle public
-        RecordForm
-            .shouldBeVisible()
-            .makePublicRecord()
-            .save();
-
-        Canvas
-            .getRecord('Person')
-            .clickEdit();
-
-        // toggle closed
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("IdentifierToken")
+            .doubleClickExpressionContent("Record")
+        InputEditor.typeInput("Person");
+        EditorPane.clickPlusButton();
+        EditorPane.doubleClickStatementContent("<add-type>");
+        InputEditor.typeInput("string");
+        EditorPane.doubleClickStatementContent("<add-field-name>");
+        InputEditor.typeInput("name");
+        EditorPane.clickPlusButton();
+        EditorPane.clickStatementContent("<add-type>");
+        SuggestionsPane
+            .clickSuggestionsTab("Expressions")
+            .clickExpressionSuggestion('record{Es Ex;}');
+        EditorPane.doubleClickStatementContent("<add-field-name>");
+        InputEditor.typeInput("address");
+        EditorPane.doubleClickStatementContent("<add-type>");
+        InputEditor.typeInput("string");
+        EditorPane.doubleClickStatementContent("<add-binding-pattern>");
+        InputEditor.typeInput("city");
+        EditorPane.clickPlusRecordFieldPlus("city");
+        EditorPane.doubleClickStatementContent("<add-type>");
+        InputEditor.typeInput("int");
+        EditorPane.doubleClickStatementContent("<add-field-name>");
+        InputEditor.typeInput("id");
         RecordForm
             .shouldBeVisible()
-            .toggleClosedRecord()
             .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "record-form.expected.bal");
     });
 
-    it('Add and Delete Record', () => {
+    it.skip('Edit Record', () => {
+        cy.visit(getIntegrationTestPageURL(EXISTING_RECORD_FILE_PATH));
         Canvas
-            .welcomeMessageShouldBeVisible()
-            .clickTopLevelPlusButton();
+            .getRecord('Person')
+            .clickEdit();
 
-        TopLevelPlusWidget.clickOption('Record');
+        RecordForm
+            .shouldBeVisible();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("IdentifierToken")
+            .doubleClickExpressionContent(`Person`);
+        InputEditor.typeInput("Individual");
+
+        EditorPane.clickPlusRecordFieldPlus("name");
+        EditorPane.doubleClickStatementContent("<add-type>");
+        InputEditor.typeInput("int");
+        EditorPane.doubleClickStatementContent("<add-field-name>");
+        InputEditor.typeInput("age");
+
+        EditorPane.doubleClickStatementContent("name");
+        InputEditor.typeInput("firstName");
 
         RecordForm
             .shouldBeVisible()
-            .typeRecordName('Person')
-            .clickWhiteSpace()
-            .haveRecordName("Person")
-            .addNewField('string', 'firstName')
-            .addNewField('string', 'lastName')
-            .addNewField('string', 'address', '"none"')
             .save();
 
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "record-form-edited.expected.bal");
+    });
+
+    it.skip('Delete Record', () => {
         Canvas
-            .getRecord('Person')
+            .getRecord('Individual')
             .clickDelete();
 
         SourceCode.shouldBeEqualTo(
@@ -107,6 +114,7 @@ describe('Record', () => {
     });
 
     it('Open and Cancel Form', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -115,10 +123,12 @@ describe('Record', () => {
 
         RecordForm
             .shouldBeVisible()
+            .clickCreateNew()
             .cancel();
     });
 
-    it('Open and Close Form', () => {
+    it('Add from JSON', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         Canvas
             .welcomeMessageShouldBeVisible()
             .clickTopLevelPlusButton();
@@ -127,28 +137,25 @@ describe('Record', () => {
 
         RecordForm
             .shouldBeVisible()
-            .close();
-    });
-
-
-    it('Add from Json', () => {
-        Canvas
-            .welcomeMessageShouldBeVisible()
-            .clickTopLevelPlusButton();
-
-        TopLevelPlusWidget.clickOption('Record');
+            .clickImportAJSON();
 
         RecordForm
             .shouldBeVisible()
             .typeRecordName('Person')
-            .clickWhiteSpace()
-            .haveRecordName("Person")
             .importFromJson(`
                 {
-                    "firstName": "",
-                    "lastName": ""
+                    "name": "",
+                    "address": {
+                        "city": "Colombo",
+                        "id": 10
+                    }
                 }
             `)
             .save();
+        RecordForm
+            .shouldBeVisible()
+            .save();
+
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "record-form.expected.bal");
     });
 });

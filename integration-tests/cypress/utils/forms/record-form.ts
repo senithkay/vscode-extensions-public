@@ -40,10 +40,9 @@ export class RecordForm {
     }
 
     static typeRecordName(name: string) {
-        cy.get('[field-name="Record name"]')
-            .type('{ctrl}a{del}', { delay: 100 }).wait(2000)
+        cy.get('[data-testid="import-record-name"]')
             .type(name, { delay: 100 }).wait(2000);
-    return this;
+        return this;
     }
 
     static addNewField(type: string, name: string, value?: any) {
@@ -68,7 +67,7 @@ export class RecordForm {
 
     static importFromJson(body: string) {
         this.getForm().within(() => {
-            cy.contains("Import JSON").parent()
+            cy.contains("Sample JSON").parent()
                 .click();
         }).wait(2000);
 
@@ -139,6 +138,16 @@ export class RecordForm {
         this.getForm().within(() => {
             cy.get(`[data-testid="delete-${name}"] button`).click({ force: true });
         });
+        return this;
+    }
+
+    static clickCreateNew() {
+        this.getForm().get('button').contains("Create New").click();
+        return this;
+    }
+
+    static clickImportAJSON() {
+        this.getForm().get('button').contains("Import a JSON").click();
         return this;
     }
 
