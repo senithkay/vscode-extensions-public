@@ -10,10 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, JsonToRecordResponse,
-    PartialSTRequest, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    DIAGNOSTIC_SEVERITY, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, JsonToRecordResponse,
+    PartialSTRequest, STSymbolInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ModulePart,
+    NodePosition,
     RecordField,
     RecordFieldWithDefaultValue,
     RecordTypeDesc,
@@ -36,6 +39,14 @@ export async function convertToRecord(json: string, name: string, isClosed: bool
             isRecordTypeDesc: !isSeparateDefinitions,
         }
     );
+    if (resp.diagnostics === undefined) {
+        try {
+            JSON.parse(json);
+            resp.diagnostics = [];
+        } catch (e) {
+            resp.diagnostics = [{message : "Please enter a valid JSON", severity : DIAGNOSTIC_SEVERITY.ERROR}];
+        }
+    }
     return resp;
 }
 
@@ -46,6 +57,71 @@ export async function getRecordST(partialSTRequest: PartialSTRequest,
 
     const resp = await langClient.getSTForModuleMembers(partialSTRequest);
     return resp.syntaxTree;
+}
+
+export function extractImportedRecordNames(definitions: ModulePart | TypeDefinition): string[] {
+    const recordName: string[] = [];
+    if (STKindChecker.isModulePart(definitions)) {
+        const typeDefs: TypeDefinition[] = definitions.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+        typeDefs.forEach(typeDef => recordName.push(typeDef?.typeName?.value));
+    } else if (STKindChecker.isTypeDefinition(definitions)) {
+        recordName.push(definitions.typeName.value);
+    }
+    return recordName;
+}
+
+export function getActualRecordST(syntaxTree: STNode, recordName: string): TypeDefinition {
+    let typeDef: TypeDefinition;
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        typeDef = (syntaxTree.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[])
+            .find(record => record.typeName.value === recordName);
+    }
+    return typeDef;
+}
+
+export function getCreatedRecordRange(recordNames: string[], syntaxTree: STNode): NodePosition {
+    let recordRange: NodePosition;
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        const typeDefs: TypeDefinition[] = syntaxTree.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+        const createdRecords = typeDefs.filter(record => recordNames.includes(record.typeName.value));
+        if (createdRecords.length > 0) {
+            createdRecords.forEach((record, index) => {
+                if (index === 0) {
+                    recordRange = record.position;
+                } else {
+                    if (recordRange.startLine >= record.position.startLine) {
+                        recordRange = {
+                            ...recordRange,
+                            startLine: record.position.startLine,
+                            startColumn: record.position.startColumn
+                        }
+                    } else if (recordRange.startLine === record.position.startLine &&
+                        (recordRange.startColumn >= record.position.startLine)) {
+                        recordRange = {
+                            ...recordRange,
+                            startColumn: record.position.startColumn
+                        }
+                    } else if (recordRange.endLine <= record.position.endLine) {
+                        recordRange = {
+                            ...recordRange,
+                            endLine: record.position.endLine,
+                            endColumn: record.position.endColumn
+                        }
+                    } else if (recordRange.startLine === record.position.startLine &&
+                        (recordRange.endLine <= record.position.endColumn)) {
+                        recordRange = {
+                            ...recordRange,
+                            endColumn: record.position.endColumn
+                        }
+                    }
+                }
+            })
+        }
+    }
+    return recordRange;
 }
 
 export function getRootRecord(modulePartSt: ModulePart, name: string): TypeDefinition {
