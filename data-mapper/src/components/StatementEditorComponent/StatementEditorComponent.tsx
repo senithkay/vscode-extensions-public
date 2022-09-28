@@ -25,10 +25,20 @@ export interface StatementEditorComponentProps {
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     onCancel: () => void;
+    onClose: () => void;
     importStatements: string[];
 }
 function StatementEditorC(props: StatementEditorComponentProps) {
-    const {expressionInfo, langClientPromise, currentFile, applyModifications, library, onCancel, importStatements} = props;
+    const {
+        expressionInfo,
+        langClientPromise,
+        currentFile,
+        applyModifications,
+        library,
+        onCancel,
+        onClose,
+        importStatements
+    } = props;
 
     const updatedContent = expressionInfo.fieldName ?  getUpdatedSource(expressionInfo.fieldName, currentFile.content,
         expressionInfo.specificFieldPosition) : currentFile.content;
@@ -42,7 +52,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
                 type: "Custom",
                 model: null
             },
-            onWizardClose: onCancel,
+            onWizardClose: onClose,
             syntaxTree: null,
             stSymbolInfo: null,
             getLangClient: () => langClientPromise,
