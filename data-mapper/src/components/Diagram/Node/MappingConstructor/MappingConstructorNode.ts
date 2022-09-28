@@ -79,8 +79,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 this.recordField = valueEnrichedType;
                 if (!!this.recordField.childrenTypes.length) {
                     this.recordField.childrenTypes.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-                            undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
+                        this.addPortsForOutputRecordField(field, "IN", '', undefined,
+                            MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
+                            this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
             } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
@@ -90,8 +91,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 this.recordField = valueEnrichedType.elements[0].member;
                 if (!!this.recordField.childrenTypes.length) {
                     this.recordField.childrenTypes.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-                            undefined, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort, this.context.collapsedFields, parentPort.collapsed);
+                        this.addPortsForOutputRecordField(field, "IN", '', undefined,
+                            MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
+                            this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
             } else {
@@ -131,7 +133,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value
-                        : `${outPort.parentFieldAccess.split('.').pop()}[${outPort.index}]`,
+                        : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field),
                 }));
                 lm.setTargetPort(mappedOutPort);

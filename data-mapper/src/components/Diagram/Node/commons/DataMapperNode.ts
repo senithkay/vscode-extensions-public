@@ -85,16 +85,16 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	// extend this class to add link init, port init logics
 
 	protected addPortsForInputRecordField(field: Type, type: "IN" | "OUT", parentId: string,
-										                             parentFieldAccessExpr?: string,
+										                             portPrefix?: string,
 										                             parent?: RecordFieldPortModel,
 										                             collapsedFields?:string[],
 										                             hidden? :boolean) : number {
 		const fieldName = field?.name ? getBalRecFieldName(field.name) : '';
-		const fieldId = `${parentId}${fieldName && `.${fieldName}`}`;
-		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
-		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(fieldAccessExpr);
+		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
+		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
+		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
-			field, fieldId, type, parentId, undefined, undefined, parentFieldAccessExpr,
+			field, portName, type, parentId, undefined, undefined, fieldFQN,
 			parent, isCollapsed, hidden);
 		this.addPort(fieldPort)
 		let numberOfFields = 1;
@@ -102,7 +102,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			const fields = field?.fields;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
-					numberOfFields += this.addPortsForInputRecordField(subField, type, fieldId, fieldAccessExpr,
+					numberOfFields += this.addPortsForInputRecordField(subField, type, fieldFQN, portPrefix,
 												fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
@@ -112,28 +112,27 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
 										                              parentId: string, elementIndex?: number,
-										                              parentFieldAccessExpr?: string,
+										                              portPrefix?: string,
 										                              parent?: RecordFieldPortModel,
 										                              collapsedFields?:string[],
 										                              hidden? :boolean,
 																	 ) {
 		const fieldName = getFieldName(field);
-		parentId = elementIndex !== undefined
+		parentId = parentId && elementIndex !== undefined
 			? `${parentId}.${elementIndex}`
 			: parentId;
-		const fieldId = `${parentId}${fieldName && `.${fieldName}`}`;
-		const fieldAccessExpr = `${parentFieldAccessExpr}.${fieldName}`;
-		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(fieldId);
+		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
+		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
+		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
-			field.type, fieldId, type, parentId, elementIndex, field, parentFieldAccessExpr,
-			parent, isCollapsed, hidden);
+			field.type, portName, type, parentId, elementIndex, field, fieldFQN, parent, isCollapsed, hidden);
 		this.addPort(fieldPort);
 
 		if (field.type.typeName === PrimitiveBalType.Record) {
 			const fields = field?.childrenTypes;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
-					this.addPortsForOutputRecordField(subField, type, fieldId, undefined, fieldAccessExpr,
+					this.addPortsForOutputRecordField(subField, type, fieldFQN, undefined, portPrefix,
 								fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
@@ -141,7 +140,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			const elements: ArrayElement[] = field?.elements;
 			if (elements && !!elements.length) {
 				elements.forEach((element, index) => {
-					this.addPortsForOutputRecordField(element.member, type, fieldId, index, fieldAccessExpr,
+					this.addPortsForOutputRecordField(element.member, type, fieldFQN, index, portPrefix,
 						fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
