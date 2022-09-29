@@ -457,6 +457,7 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 		}
 		return [port, mappedPort];
 	}
+	return [null,null]
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
@@ -529,6 +530,8 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 				valueNode = node;
 				nextNode = valueNode;
 			}
+		} else {
+			valueNode = node;
 		}
 	} else {
 		nextNode = node;

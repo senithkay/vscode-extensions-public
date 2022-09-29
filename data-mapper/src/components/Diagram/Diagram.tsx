@@ -107,11 +107,15 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			newModel.setOffset(offSetX, offSetY);
 			newModel.addAll(...nodes);
 			for (let i = 0; i < nodes.length; i++) {
-				const node = nodes[i];
-				node.setModel(newModel);
-				await node.initPorts();
-				await node.initLinks();
-				engine.repaintCanvas();
+				try {
+					const node = nodes[i];
+					node.setModel(newModel);
+					await node.initPorts();
+					await node.initLinks();
+					engine.repaintCanvas();
+				} catch (e) {
+					console.error(e)
+				}
 			}
 			model.setLocked(true);
 			engine.setModel(newModel);
