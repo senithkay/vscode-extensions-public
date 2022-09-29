@@ -216,7 +216,7 @@ function getPerfValuesWithUnit(latencies: Values): string {
 }
 
 function getResponseTime(responseTime: number) {
-    return responseTime > 1000 ? (responseTime / 1000).toFixed(2) : responseTime
+    return responseTime > 1000 ? (responseTime / 1000).toFixed(2) : responseTime.toFixed(0)
 }
 
 function getResponseUnit(responseTime: number) {
