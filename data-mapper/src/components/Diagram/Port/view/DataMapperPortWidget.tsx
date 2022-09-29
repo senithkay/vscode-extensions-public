@@ -13,10 +13,11 @@ import styled from "@emotion/styled";
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
 	port: IntermediatePortModel | RecordFieldPortModel;
+	disable?: boolean;
 }
 
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {
-	const { engine, port } = props;
+	const { engine, port, disable } = props;
 	const [ active, setActive ] = useState(false);
 
 	const hasLinks = Object.entries(port.links).length > 0;
@@ -30,23 +31,25 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		})
 
 	useEffect(() => {
-		port.registerListener({
-			eventDidFire(event) {
-				if (event.function === "mappingStartedFrom" || event.function === "mappingFinishedTo") {
-					// setActive(true);
-				} else if (event.function === "link-selected") {
-					setActive(true);
-				} else if (event.function === "link-unselected") {
-					setActive(false);
-				}
-			},
-		})
+			port.registerListener({
+				eventDidFire(event) {
+					if (event.function === "mappingStartedFrom" || event.function === "mappingFinishedTo") {
+						// setActive(true);
+					} else if (event.function === "link-selected") {
+						setActive(true);
+					} else if (event.function === "link-unselected") {
+						setActive(false);
+					}
+				},
+			})
+		
 	}, []);
 
 	const containerProps = {
 		hasError,
 		hasLinks,
-		active
+		active,
+		disable: disable
 	};
 
 	return <PortWidget
@@ -54,7 +57,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		engine={engine}
 	>
 		<PortContainer { ...containerProps }>
-			{active ? <RadioButtonCheckedIcon/> : (hasLinks ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>)}
+			{active && !disable ? <RadioButtonCheckedIcon/> : (hasLinks ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>)}
 		</PortContainer>
 	</PortWidget>
 }
@@ -63,13 +66,14 @@ interface PortsContainerProps {
 	active: boolean;
 	hasLinks: boolean;
 	hasError: boolean;
+	disable: boolean
 }
 
 const PortContainer = styled.div((props: PortsContainerProps) => ({
-	cursor: "pointer",
+	cursor: props.disable ? "not-allowed" : "pointer",
 	display: "inline",
 	color: (props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : (props.active ? "rgb(0, 192, 255)" : "#8D91A3")),
 	"&:hover": {
-		color: "rgb(0, 192, 255)"
+		color: !props.disable && "rgb(0, 192, 255)"
 	}
 }));
