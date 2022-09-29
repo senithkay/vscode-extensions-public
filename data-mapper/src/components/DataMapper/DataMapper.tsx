@@ -91,18 +91,21 @@ export interface DataMapperProps {
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     importStatements: string[];
-    recordPanel?: (props: {closeAddNewRecord: () => void}) => JSX.Element;
+    recordPanel?: (props: { closeAddNewRecord: () => void }) => JSX.Element;
 }
 
 export enum ViewOption {
+    INITIALIZE,
     EXPAND,
     COLLAPSE,
-    NAVIGATE
+    NAVIGATE,
+    RESET,
 }
 
 export interface SelectionState {
     selectedST: DMNode;
     prevST?: DMNode[];
+    state?: DMState;
 }
 
 export interface ExpressionInfo {
@@ -111,24 +114,35 @@ export interface ExpressionInfo {
     label?: string;
 }
 
-interface DMNode {
+export interface DMNode {
     stNode: STNode;
     fieldPath: string;
 }
 
+enum DMState {
+    INITIALIZED,
+    NOT_INITIALIZED,
+    ST_NOT_FOUND,
+}
 
-const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload: SelectionState, index: number }) => {
-    if (action.type === ViewOption.EXPAND) {
-        const previousST = !!state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
-        return { selectedST: action.payload.selectedST, prevST: previousST };
-    } else if (action.type === ViewOption.COLLAPSE) {
-        const prevSelection = state.prevST.pop();
-        return { selectedST: prevSelection, prevST: [...state.prevST] };
-    } else if (action.type === ViewOption.NAVIGATE) {
-        const targetST = state.prevST[action.index];
-        return { selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
+const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload?: SelectionState, index?: number }) => {
+    switch (action.type) {
+        case ViewOption.EXPAND:
+            const previousST = !!state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
+            return { ...state, selectedST: action.payload.selectedST, prevST: previousST };
+        case ViewOption.COLLAPSE:
+            const prevSelection = state.prevST.pop();
+            return { ...state, selectedST: prevSelection, prevST: [...state.prevST] };
+        case ViewOption.NAVIGATE:
+            const targetST = state.prevST[action.index];
+            return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
+        case ViewOption.RESET:
+            return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED };
+        case ViewOption.INITIALIZE:
+            return { selectedST: action.payload.selectedST, prevST: action.payload.prevST, state: DMState.INITIALIZED };
+        default:
+            return state;
     }
-    return { selectedST: action.payload.selectedST, prevST: action.payload.prevST };
 };
 
 function DataMapperC(props: DataMapperProps) {
@@ -142,17 +156,16 @@ function DataMapperC(props: DataMapperProps) {
     const [isStmtEditorCanceled, setIsStmtEditorCanceled] = useState(false);
     const [fieldTobeEdited, setFieldTobeEdited] = useState('');
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
-        selectedST: {stNode: fnST, fieldPath: fnST && fnST.functionName.value},
-        prevST: []
+        selectedST: { stNode: fnST, fieldPath: fnST && fnST.functionName.value },
+        prevST: [],
+        state: DMState.NOT_INITIALIZED
     });
     const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
-    const [importStatementsCount, setImportStatementsCount] = React.useState<number>(importStatements ? importStatements.length : 0);
 
     const classes = useStyles();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
-        setImportStatementsCount(importStatements.length);
     }
 
     const onConfigOpen = () => {
@@ -188,19 +201,34 @@ function DataMapperC(props: DataMapperProps) {
     }
 
     const handleCollapse = (fieldName: string, expand?: boolean) => {
-        if (!expand){
+        if (!expand) {
             setCollapsedFields((prevState) => [...prevState, fieldName]);
         }
-        else{
-            setCollapsedFields((prevState) => prevState.filter((element) => {
-                return element !== fieldName;
-            }));
+        else {
+            setCollapsedFields((prevState) => prevState.filter((element) => element !== fieldName));
         }
     }
 
     useEffect(() => {
+        if (fnST) {
+            const defaultSt = { stNode: fnST, fieldPath: fnST.functionName.value };
+            if (selection.selectedST) {
+                const selectedSTFindingVisitor = new SelectedSTFindingVisitor([...selection.prevST, selection.selectedST]);
+                traversNode(fnST, selectedSTFindingVisitor);
+                const { selectedST, prevST } = selectedSTFindingVisitor.getST();
+
+                dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST, selectedST: selectedST || defaultSt } });
+            } else {
+                dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST: [], selectedST: defaultSt } });
+            }
+        } else {
+            dispatchSelection({ type: ViewOption.RESET });
+        }
+    }, [fnST]);
+
+    useEffect(() => {
         (async () => {
-            if (fnST && selection.selectedST.stNode) {
+            if (selection.selectedST.stNode) {
                 const diagnostics = await handleDiagnostics(filePath, langClientPromise)
 
                 const context = new DataMapperContext(
@@ -221,15 +249,7 @@ function DataMapperC(props: DataMapperProps) {
                     handleFieldToBeEdited
                 );
 
-                let selectedST = selection.selectedST.stNode;
-                let lineOffset = 0
-                if (importStatements.length !== importStatementsCount){
-                    lineOffset = importStatements.length - importStatementsCount;
-                }
-                const selectedSTFindingVisitor = new SelectedSTFindingVisitor(selectedST, lineOffset);
-                traversNode(fnST, selectedSTFindingVisitor);
-                selectedST = selectedSTFindingVisitor.getST();
-
+                const selectedST = selection.selectedST.stNode;
                 const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
                 await recordTypeDescriptors.storeTypeDescriptors(selectedST, context);
 
@@ -238,34 +258,27 @@ function DataMapperC(props: DataMapperProps) {
                 setNodes(nodeInitVisitor.getNodes());
             }
         })();
-    }, [selection, fnST, collapsedFields, isStmtEditorCanceled]);
-
-    useEffect(() => {
-        if (fnST && !selection.selectedST.stNode) {
-            dispatchSelection({
-                type: undefined,
-                payload: {
-                    prevST: [],
-                    selectedST: {
-                        stNode: fnST,
-                        fieldPath: fnST.functionName.value
-                    }
-                },
-                index: undefined
-            })
-        }
-    }, [fnST]);
+    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled])
 
     const cPanelProps = {
         ...props,
         onClose: onConfigClose,
         recordPanel
     }
+
+    useEffect(() => {
+        if (selection.state === DMState.ST_NOT_FOUND) {
+            onClose();
+        }
+    }, [selection.state])
+
+    const showOverlay = !!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen
+
     return (
         <LSClientContext.Provider value={langClientPromise}>
             <CurrentFileContext.Provider value={currentFile}>
-                <div className={classes.root}>
-                    {!!currentEditableField && <div className={classes.overlay} />}
+                {selection.state === DMState.INITIALIZED && <div className={classes.root}>
+                    {!!showOverlay && <div className={classes.overlay} />}
                     {fnST && (
                         <DataMapperHeader
                             selection={selection}
@@ -277,7 +290,7 @@ function DataMapperC(props: DataMapperProps) {
                     <DataMapperDiagram
                         nodes={nodes}
                     />
-                    {(!fnST || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
+                    {(!selection?.selectedST?.stNode || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
                     {!!currentEditableField && (
                         <StatementEditorComponent
                             expressionInfo={currentEditableField}
@@ -290,7 +303,7 @@ function DataMapperC(props: DataMapperProps) {
                             importStatements={importStatements}
                         />
                     )}
-                </div>
+                </div>}
             </CurrentFileContext.Provider>
         </LSClientContext.Provider>
     )

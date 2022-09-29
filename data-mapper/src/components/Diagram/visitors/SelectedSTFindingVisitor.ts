@@ -18,26 +18,45 @@ import {
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
+import { DMNode } from "../../DataMapper/DataMapper";
 
 export class SelectedSTFindingVisitor implements Visitor {
 
     private node: SpecificField | FunctionDefinition;
 
-    constructor(
-        private selectedST: STNode,
-        private lineOffset: number
-    ) {}
+    private updatedPrevST: DMNode[];
 
-    beginVisitSTNode(node: FunctionDefinition | SpecificField, parent?: STNode){
-        if ((STKindChecker.isFunctionDefinition(node) || STKindChecker.isSpecificField(node))
-            && node.position.startLine === this.selectedST.position.startLine + this.lineOffset
-            && node.position.startColumn === this.selectedST.position.startColumn)
-        {
-            this.node = node;
+    constructor(
+        private prevST: DMNode[],
+    ) {
+        this.updatedPrevST = []
+    }
+
+    beginVisitSTNode(node: FunctionDefinition | SpecificField, parent?: STNode) {
+        const item = this.prevST[0];
+
+        if (item?.stNode && node && (STKindChecker.isFunctionDefinition(node) || STKindChecker.isSpecificField(node))) {
+            if (
+                STKindChecker.isSpecificField(node) &&
+                STKindChecker.isSpecificField(item.stNode) &&
+                node.fieldName.value === item.stNode.fieldName?.value
+            ) {
+                this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }]
+            } else if (
+                STKindChecker.isFunctionDefinition(node) &&
+                STKindChecker.isFunctionDefinition(item.stNode) &&
+                node.functionName.value === item.stNode.functionName?.value
+            ) {
+                this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }]
+            }
         }
     }
 
     getST() {
-        return this.node;
+        const selectedST = this.updatedPrevST.pop();
+        return {
+            selectedST,
+            prevST: this.updatedPrevST,
+        };
     }
 }
