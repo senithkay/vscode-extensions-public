@@ -11,19 +11,24 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getFieldName, getNewSource, getTypeName, isConnectedViaLink } from "../../../utils/dm-utils";
+import {
+    createSourceForUserInput,
+    getFieldName,
+    getTypeName,
+    isConnectedViaLink
+} from "../../../utils/dm-utils";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -60,6 +65,17 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const isWithinArray = fieldIndex !== undefined;
     let indentation = treeDepth * 16;
 
+    useEffect(() => {
+        if (context.fieldToBeEdited === fieldId) {
+            if (!context.isStmtEditorCanceled) {
+                handleEditValue();
+            } else {
+                handleDeleteValue();
+                context.handleFieldToBeEdited(undefined);
+            }
+        }
+    }, [context.fieldToBeEdited, context.isStmtEditorCanceled]);
+
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
             return isConnectedViaLink(specificField.valueExpr);
@@ -67,13 +83,25 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
+    let isDisabled = portIn.descendantHasValue;
+    if (!isDisabled){
+        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)){
+            portIn.ancestorHasValue = true;
+            isDisabled = true;
+        }
+        if(hasValue && !connectedViaLink && (isArray || isRecord)) {
+            portIn.setDescendantHasValue();
+            isDisabled = true;
+        }
+    }
+
     const value: string = !connectedViaLink && !isArray && !isRecord && hasValue && specificField.valueExpr.source;
     let expanded = true;
     if (portIn && portIn.collapsed) {
         expanded = false;
     }
 
-    if (!portIn || (hasValue && !connectedViaLink && expanded)) {
+    if (!portIn) {
         indentation += 24;
     }
 
@@ -102,32 +130,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         </span>
     );
 
-    const handleAddValue = () => {
-        const [newSource, targetMappingConstruct, lineNumber] = getNewSource(field, mappingConstruct, "");
-
-        const fName = `${targetMappingConstruct.fields.length > 0 ? `${newSource},` : newSource}`
-
-        const columnNumber = field.type.name?.length;
-        const specificFieldPosition: NodePosition = {
-            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine,
-            startColumn: (targetMappingConstruct.openBrace.position as NodePosition).startColumn + 1,
-            endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine,
-            endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + 1
-        }
-
-        const valuePosition: NodePosition = {
-            startLine: (targetMappingConstruct.openBrace.position as NodePosition).startLine + lineNumber,
-            startColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2,
-            endLine: (targetMappingConstruct.openBrace.position as NodePosition).endLine + lineNumber,
-            endColumn: (targetMappingConstruct.openBrace.position as NodePosition).endColumn + columnNumber + 2
-        }
-        props.context.enableStatementEditor({
-            specificFieldPosition,
-            fieldName: fName,
-            value: "EXPRESSION",
-            valuePosition,
-            label: field.type.name
-        });
+    const handleAddValue = async () => {
+        await createSourceForUserInput(field, mappingConstruct, 'EXPRESSION', context.applyModifications);
+        context.handleFieldToBeEdited(fieldId);
     };
 
     const handleEditValue = () => {
@@ -135,7 +140,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             props.context.enableStatementEditor({
                 value: field.value.valueExpr.source,
                 valuePosition: field.value.valueExpr.position,
-                label: field.value.fieldName.source
+                label: field.value.fieldName.value
             });
         }
     };
@@ -167,8 +172,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {!isArray && (
                 <div className={classes.treeLabel}>
                     <span className={classes.treeLabelInPort}>
-                        {portIn && (!hasValue || connectedViaLink || !expanded) &&
-                            <DataMapperPortWidget engine={engine} port={portIn} />
+                        {portIn && 
+                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled} />
                         }
                     </span>
                     <span className={classes.label}>
@@ -181,7 +186,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         </IconButton>}
                         {label}
                     </span>
-                    {(!isRecord || isWithinArray) && (
+                    {(!isDisabled) && (
                         <ValueConfigMenu
                             menuItems={valConfigMenuItems}
                         />

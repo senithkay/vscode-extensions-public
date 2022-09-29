@@ -105,14 +105,12 @@ export enum ViewOption {
 export interface SelectionState {
     selectedST: DMNode;
     prevST?: DMNode[];
-    state?: DM_STATE;
+    state?: DMState;
 }
 
 export interface ExpressionInfo {
     value: string;
     valuePosition: any;
-    specificFieldPosition?: any;
-    fieldName?: string;
     label?: string;
 }
 
@@ -121,7 +119,7 @@ export interface DMNode {
     fieldPath: string;
 }
 
-enum DM_STATE {
+enum DMState {
     INITIALIZED,
     NOT_INITIALIZED,
     ST_NOT_FOUND,
@@ -139,9 +137,9 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
             const targetST = state.prevST[action.index];
             return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
         case ViewOption.RESET:
-            return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DM_STATE.ST_NOT_FOUND : DM_STATE.INITIALIZED };
+            return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED };
         case ViewOption.INITIALIZE:
-            return { selectedST: action.payload.selectedST, prevST: action.payload.prevST, state: DM_STATE.INITIALIZED };
+            return { selectedST: action.payload.selectedST, prevST: action.payload.prevST, state: DMState.INITIALIZED };
         default:
             return state;
     }
@@ -155,10 +153,12 @@ function DataMapperC(props: DataMapperProps) {
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
+    const [isStmtEditorCanceled, setIsStmtEditorCanceled] = useState(false);
+    const [fieldTobeEdited, setFieldTobeEdited] = useState('');
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: { stNode: fnST, fieldPath: fnST && fnST.functionName.value },
         prevST: [],
-        state: DM_STATE.NOT_INITIALIZED
+        state: DMState.NOT_INITIALIZED
     });
     const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
 
@@ -185,6 +185,19 @@ function DataMapperC(props: DataMapperProps) {
 
     const closeStatementEditor = () => {
         setCurrentEditableField(null);
+        setFieldTobeEdited(undefined);
+    }
+
+    const cancelStatementEditor = () => {
+        setCurrentEditableField(null);
+        setIsStmtEditorCanceled(true);
+    }
+
+    const handleFieldToBeEdited = (fieldId: string) => {
+        setFieldTobeEdited(fieldId);
+        if (fieldId === undefined) {
+            setIsStmtEditorCanceled(false);
+        }
     }
 
     const handleCollapse = (fieldName: string, expand?: boolean) => {
@@ -230,7 +243,10 @@ function DataMapperC(props: DataMapperProps) {
                     diagnostics,
                     enableStatementEditor,
                     collapsedFields,
-                    handleCollapse
+                    handleCollapse,
+                    isStmtEditorCanceled,
+                    fieldTobeEdited,
+                    handleFieldToBeEdited
                 );
 
                 const selectedST = selection.selectedST.stNode;
@@ -242,7 +258,7 @@ function DataMapperC(props: DataMapperProps) {
                 setNodes(nodeInitVisitor.getNodes());
             }
         })();
-    }, [selection.selectedST, collapsedFields])
+    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled])
 
     const cPanelProps = {
         ...props,
@@ -251,7 +267,7 @@ function DataMapperC(props: DataMapperProps) {
     }
 
     useEffect(() => {
-        if (selection.state === DM_STATE.ST_NOT_FOUND) {
+        if (selection.state === DMState.ST_NOT_FOUND) {
             onClose();
         }
     }, [selection.state])
@@ -261,7 +277,7 @@ function DataMapperC(props: DataMapperProps) {
     return (
         <LSClientContext.Provider value={langClientPromise}>
             <CurrentFileContext.Provider value={currentFile}>
-                {selection.state === DM_STATE.INITIALIZED && <div className={classes.root}>
+                {selection.state === DMState.INITIALIZED && <div className={classes.root}>
                     {!!showOverlay && <div className={classes.overlay} />}
                     {fnST && (
                         <DataMapperHeader
@@ -282,7 +298,8 @@ function DataMapperC(props: DataMapperProps) {
                             applyModifications={applyModifications}
                             currentFile={currentFile}
                             library={library}
-                            onCancel={closeStatementEditor}
+                            onCancel={cancelStatementEditor}
+                            onClose={closeStatementEditor}
                             importStatements={importStatements}
                         />
                     )}

@@ -522,8 +522,9 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         recordFormWrapper: {
             width: '100%',
+            maxHeight: 720,
+            overflowY: 'scroll',
             flexDirection: "row",
-            padding: '15px 0',
         },
         triggerDropDownList: {
             margin: '1rem 0 0.25rem',
