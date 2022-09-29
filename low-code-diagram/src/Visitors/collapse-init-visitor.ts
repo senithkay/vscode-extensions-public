@@ -15,7 +15,7 @@ import {
     BlockStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
-import { BlockViewState, CollapseViewState, FunctionViewState, StatementViewState } from "../ViewState";
+import { BlockViewState, CollapseViewState, FunctionViewState, StatementViewState, ViewState } from "../ViewState";
 
 import { DefaultConfig } from "./default";
 import { isPositionWithinRange } from "./util";
@@ -41,13 +41,6 @@ export class CollapseInitVisitor implements Visitor {
         this.endVisitBlock(node);
     }
 
-    // endVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
-    //     this.endVisitBlock(node.ifBody);
-    //     if (node.elseBody && STKindChecker.isElseBlock(node.elseBody)
-    //         && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
-    //         this.endVisitBlock(node.elseBody.elseBody)
-    //     }
-    // }
     endVisitWhileStatement(node: WhileStatement, parent?: STNode): void {
         console.log('while statement node >>>', node);
     }
@@ -70,8 +63,8 @@ export class CollapseInitVisitor implements Visitor {
                 const statementVS = statement.viewState as StatementViewState;
                 statementVS.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
                 statementVS.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
-                if (!this.isSkippedConstruct(statement) && isPositionWithinRange(statement.position, this.position)) {
-                    if (!(statementVS.isAction || statementVS.isEndpoint)) {
+                if (isPositionWithinRange(statement.position, this.position)) {
+                    if (!(statementVS.isAction || statementVS.isEndpoint || this.isSkippedConstruct(statement))) {
                         statementVS.collapsed = true;
                         range.endLine = statement.position.endLine;
                         range.endColumn = statement.position.endColumn;
@@ -81,6 +74,10 @@ export class CollapseInitVisitor implements Visitor {
                             blockViewState.collapsedViewStates.push(collapseVS);
                         }
                     } else {
+                        if (!blockViewState.containsAction) {
+                            blockViewState.containsAction = statementVS.isAction || statementVS.isEndpoint;
+                        }
+
                         if (!(range.startLine === statement.position.startLine
                             && range.endLine === statement.position.endLine
                             && range.startColumn === statement.position.startColumn
@@ -106,6 +103,8 @@ export class CollapseInitVisitor implements Visitor {
     }
 
     private isSkippedConstruct(node: STNode): boolean {
-        return STKindChecker.isWhileStatement(node) || STKindChecker.isForeachStatement(node) || STKindChecker.isIfElseStatement(node);
+        return STKindChecker.isWhileStatement(node)
+            || STKindChecker.isForeachStatement(node)
+            || STKindChecker.isIfElseStatement(node);
     }
 }

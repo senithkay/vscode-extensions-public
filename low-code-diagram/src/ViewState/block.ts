@@ -48,6 +48,7 @@ export class BlockViewState extends ViewState {
     public parentBlock?: any = undefined;
     public expandOffSet?: number = 0;
     public expandConnectorHeight?: number = 0;
+    public containsAction?: boolean = false;
 
     constructor() {
         super();

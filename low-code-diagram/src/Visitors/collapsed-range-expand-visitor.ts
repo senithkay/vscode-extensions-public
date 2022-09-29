@@ -40,7 +40,7 @@ export class CollapsedRangeExpandVisitor implements Visitor {
         }
     }
 
-    beginVisitBlockStatement(node: BlockStatement): void {
+    beginVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
         this.beginVisitBlock(node);
     }
 
@@ -58,6 +58,10 @@ export class CollapsedRangeExpandVisitor implements Visitor {
 
         node.statements.forEach(statement => {
             const stmtVS: StatementViewState = statement.viewState as StatementViewState;
+
+            stmtVS.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
+            stmtVS.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
+
             if (isPositionWithinRange(statement.position, this.expandRange)) {
                 if (!firstStatementInRange) {
                     firstStatementInRange = stmtVS;
