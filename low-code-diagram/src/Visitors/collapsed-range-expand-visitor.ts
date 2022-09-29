@@ -12,7 +12,7 @@
  */
 
 import {
-    BlockStatement, FunctionBodyBlock, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor
+    BlockStatement, FunctionBodyBlock, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
 import { COLLAPSE_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ColapseButtonSVG";
@@ -44,34 +44,48 @@ export class CollapsedRangeExpandVisitor implements Visitor {
         this.beginVisitBlock(node);
     }
 
+    beginVisitWhileStatement(node: WhileStatement, parent?: STNode): void {
+        console.log('expand visitor >>>', node);
+    }
+
     beginVisitBlock(node: BlockStatement) {
         const blockVS: BlockViewState = node.viewState as BlockViewState;
 
         blockVS.collapsedViewStates.forEach(collapsedVS => {
-            if (isPositionWithinRange(collapsedVS.range, this.expandRange)) {
+            // if (isPositionWithinRange(collapsedVS.range, this.expandRange)) {
+            //     collapsedVS.collapsed = false;
+            // }
+            if (collapsedVS.range.startLine === this.expandRange.startLine
+                && collapsedVS.range.endLine === this.expandRange.endLine
+                && collapsedVS.range.startLine === this.expandRange.startLine
+                && collapsedVS.range.endLine === this.expandRange.endLine) {
+
                 collapsedVS.collapsed = false;
-            }
-        });
 
-        let firstStatementInRange: StatementViewState;
-        let lastStatementInRange: StatementViewState;
+                let firstStatementInRange: StatementViewState;
+                let lastStatementInRange: StatementViewState;
 
-        node.statements.forEach(statement => {
-            const stmtVS: StatementViewState = statement.viewState as StatementViewState;
 
-            stmtVS.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
-            stmtVS.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
+                node.statements.forEach(statement => {
+                    const stmtVS: StatementViewState = statement.viewState as StatementViewState;
 
-            if (isPositionWithinRange(statement.position, this.expandRange)) {
-                if (!firstStatementInRange) {
-                    firstStatementInRange = stmtVS;
+                    if (isPositionWithinRange(statement.position, this.expandRange)) {
+                        if (!firstStatementInRange) {
+                            firstStatementInRange = stmtVS;
+                        }
+                        lastStatementInRange = stmtVS;
+                        stmtVS.collapsed = false;
+                    }
+                });
+
+                if (firstStatementInRange) {
+                    firstStatementInRange.bBox.offsetFromTop = DefaultConfig.offSet + COLLAPSE_SVG_HEIGHT / 2;
                 }
-                lastStatementInRange = stmtVS;
-                stmtVS.collapsed = false;
+
+                if (lastStatementInRange) {
+                    lastStatementInRange.bBox.offsetFromBottom = DefaultConfig.offSet;
+                }
             }
         });
-
-        if (firstStatementInRange) firstStatementInRange.bBox.offsetFromTop = DefaultConfig.offSet + COLLAPSE_SVG_HEIGHT / 2;
-        if (lastStatementInRange) lastStatementInRange.bBox.offsetFromBottom = DefaultConfig.offSet;
     }
 }

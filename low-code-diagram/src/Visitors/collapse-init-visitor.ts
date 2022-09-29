@@ -12,7 +12,7 @@
  */
 
 import {
-    BlockStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
+    BlockStatement, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
 import { BlockViewState, CollapseViewState, FunctionViewState, StatementViewState, ViewState } from "../ViewState";
@@ -38,14 +38,26 @@ export class CollapseInitVisitor implements Visitor {
     }
 
     endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
+        console.log('function body >>>', node, parent);
         this.endVisitBlock(node);
     }
 
     endVisitWhileStatement(node: WhileStatement, parent?: STNode): void {
-        console.log('while statement node >>>', node);
+        const whileViewstate = node.viewState as StatementViewState;
+        const whileBodyBlock = node.whileBody as BlockStatement;
+        const whileBodyVS = whileBodyBlock.viewState as BlockViewState;
+        whileViewstate.collapsed = !whileBodyVS.containsAction;
     }
 
-    endVisitBlockStatement(node: BlockStatement): void {
+    endVisitForeachStatement(node: ForeachStatement, parent?: STNode): void {
+        const foreachViewstate = node.viewState as StatementViewState;
+        const foreachBodyBlock = node.blockStatement as BlockStatement;
+        const foreachBodyVS = foreachBodyBlock.viewState as BlockViewState;
+        foreachViewstate.collapsed = !foreachBodyVS.containsAction;
+    }
+
+    endVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
+        console.log('normal body >>>', node, parent);
         this.endVisitBlock(node);
     }
 
@@ -64,7 +76,7 @@ export class CollapseInitVisitor implements Visitor {
                 statementVS.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
                 statementVS.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
                 if (isPositionWithinRange(statement.position, this.position)) {
-                    if (!(statementVS.isAction || statementVS.isEndpoint || this.isSkippedConstruct(statement))) {
+                    if (!(statementVS.isAction || statementVS.isEndpoint || this.isSkippedConstruct(statement)) || statementVS.collapsed) {
                         statementVS.collapsed = true;
                         range.endLine = statement.position.endLine;
                         range.endColumn = statement.position.endColumn;
