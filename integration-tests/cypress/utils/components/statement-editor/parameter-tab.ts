@@ -43,7 +43,7 @@ export class ParameterTab {
 
     static validateNoParameters(){
         cy.get(`[data-testid="parameter-list"]`)
-            .should('not.be.visible');
+            .should('not.exist');
         return this;
     }
 
