@@ -602,47 +602,6 @@ export function getEnrichedArrayType(field: Type, node?: ListConstructor, parent
 	return members;
 }
 
-export function getNewSource(field: EditableRecordField, mappingConstruct: MappingConstructor,
-							                      newValue: string, parentFields?: string[],
-							                      lineNumber: number = -1): [string, MappingConstructor, number?] {
-
-	const fieldName = getBalRecFieldName(field.type.name);
-
-	if (field.parentType) {
-		const parent = [...parentFields ? [...parentFields, fieldName] : [fieldName]];
-
-		if (field.parentType.hasValue()) {
-			if (STKindChecker.isSpecificField(field.parentType.value)) {
-				const valueExpr = STKindChecker.isSpecificField(field.parentType.value) && field.parentType.value.valueExpr;
-
-				if (STKindChecker.isMappingConstructor(valueExpr)) {
-					return [createSpecificField(parent.reverse()), valueExpr, lineNumber + 1];
-				} else if (STKindChecker.isListConstructor(valueExpr)
-					&& STKindChecker.isMappingConstructor(valueExpr.expressions[0])) {
-					for (const expr of valueExpr.expressions) {
-						if (STKindChecker.isMappingConstructor(expr)
-							&& isPositionsEquals(expr.position, mappingConstruct.position)) {
-							return [createSpecificField(parent.reverse()), expr, lineNumber + 1];
-						}
-					}
-				}
-			} else if (STKindChecker.isMappingConstructor(field.parentType.value)) {
-				return [createSpecificField(parent.reverse()), field.parentType.value, lineNumber + 1];
-			}
-			// TODO: Implement this to update already existing non-mapping-constructor values
-			return null;
-		}
-		return getNewSource(field.parentType, mappingConstruct, newValue, parent, lineNumber + 1);
-	}
-	return [createSpecificField(parentFields.reverse()), mappingConstruct, lineNumber];
-
-	function createSpecificField(missingFields: string[]): string {
-		return missingFields.length > 1
-			? `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
-			: `\t${missingFields[0]}: ${newValue}`;
-	}
-}
-
 export function getBalRecFieldName(fieldName : string) {
 	if (fieldName) {
 		return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;

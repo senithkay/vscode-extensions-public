@@ -108,8 +108,6 @@ export interface SelectionState {
 export interface ExpressionInfo {
     value: string;
     valuePosition: any;
-    specificFieldPosition?: any;
-    fieldName?: string;
     label?: string;
 }
 
@@ -141,6 +139,8 @@ function DataMapperC(props: DataMapperProps) {
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
+    const [isStmtEditorCanceled, setIsStmtEditorCanceled] = useState(false);
+    const [fieldTobeEdited, setFieldTobeEdited] = useState('');
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: {stNode: fnST, fieldPath: fnST && fnST.functionName.value},
         prevST: []
@@ -172,6 +172,19 @@ function DataMapperC(props: DataMapperProps) {
 
     const closeStatementEditor = () => {
         setCurrentEditableField(null);
+        setFieldTobeEdited(undefined);
+    }
+
+    const cancelStatementEditor = () => {
+        setCurrentEditableField(null);
+        setIsStmtEditorCanceled(true);
+    }
+
+    const handleFieldToBeEdited = (fieldId: string) => {
+        setFieldTobeEdited(fieldId);
+        if (fieldId === undefined) {
+            setIsStmtEditorCanceled(false);
+        }
     }
 
     const handleCollapse = (fieldName: string, expand?: boolean) => {
@@ -202,7 +215,10 @@ function DataMapperC(props: DataMapperProps) {
                     diagnostics,
                     enableStatementEditor,
                     collapsedFields,
-                    handleCollapse
+                    handleCollapse,
+                    isStmtEditorCanceled,
+                    fieldTobeEdited,
+                    handleFieldToBeEdited
                 );
 
                 let selectedST = selection.selectedST.stNode;
@@ -222,7 +238,7 @@ function DataMapperC(props: DataMapperProps) {
                 setNodes(nodeInitVisitor.getNodes());
             }
         })();
-    }, [selection, fnST, collapsedFields]);
+    }, [selection, fnST, collapsedFields, isStmtEditorCanceled]);
 
     useEffect(() => {
         if (fnST && !selection.selectedST.stNode) {
@@ -269,7 +285,8 @@ function DataMapperC(props: DataMapperProps) {
                             applyModifications={applyModifications}
                             currentFile={currentFile}
                             library={library}
-                            onCancel={closeStatementEditor}
+                            onCancel={cancelStatementEditor}
+                            onClose={closeStatementEditor}
                             importStatements={importStatements}
                         />
                     )}

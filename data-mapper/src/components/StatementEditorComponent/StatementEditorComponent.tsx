@@ -6,7 +6,6 @@ import { LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModif
 import { Panel } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
-import { getUpdatedSource } from "../../utils/st-utils";
 import { ExpressionInfo } from "../DataMapper/DataMapper";
 
 
@@ -25,13 +24,20 @@ export interface StatementEditorComponentProps {
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     onCancel: () => void;
+    onClose: () => void;
     importStatements: string[];
 }
 function StatementEditorC(props: StatementEditorComponentProps) {
-    const {expressionInfo, langClientPromise, currentFile, applyModifications, library, onCancel, importStatements} = props;
-
-    const updatedContent = expressionInfo.fieldName ?  getUpdatedSource(expressionInfo.fieldName, currentFile.content,
-        expressionInfo.specificFieldPosition) : currentFile.content;
+    const {
+        expressionInfo,
+        langClientPromise,
+        currentFile,
+        applyModifications,
+        library,
+        onCancel,
+        onClose,
+        importStatements
+    } = props;
 
     const stmtEditorComponent = StatementEditorWrapper(
         {
@@ -42,7 +48,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
                 type: "Custom",
                 model: null
             },
-            onWizardClose: onCancel,
+            onWizardClose: onClose,
             syntaxTree: null,
             stSymbolInfo: null,
             getLangClient: () => langClientPromise,
@@ -52,7 +58,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             applyModifications,
             currentFile: {
                 ...currentFile,
-                content: updatedContent,
+                content: currentFile.content,
                 originalContent: currentFile.content
             },
             onCancel,
