@@ -28,55 +28,6 @@ describe('Test statement editor toolbar functionality', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Test Delete option', () => {
-        Canvas.getFunction("testStatementEditorComponents")
-            .nameShouldBe("testStatementEditorComponents")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2);
-
-        BlockLevelPlusWidget.clickOption("Variable");
-
-        StatementEditor
-            .shouldBeVisible();
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent('<add-expression>');
-
-        InputEditor
-            .typeInput("var1");
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .clickExpressionContent('var1');
-
-        Toolbar
-            .clickDeleteButton();
-
-        StatementEditor
-            .saveDisabled()
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`);
-
-        InputEditor
-            .typeInput("456");
-
-        EditorPane
-            .validateNewExpression("NumericLiteral", "456")
-            .validateEmptyDiagnostics();
-
-        StatementEditor
-            .save();
-
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "toolbar-functionality.expected.bal");
-
-    });
-
     it('Test Undo, Redo options', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
