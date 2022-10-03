@@ -891,13 +891,13 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionTitle: {
             display: 'flex',
             alignItems: 'center',
-            paddingBottom: '24px',
             fontWeight: 500
         },
         statementExpressionContent: {
             maxHeight: '275px',
             overflowY: 'scroll',
             marginRight: '-25px',
+            paddingTop: '25px',
             ...statementFontStyles
         },
         footer: {
