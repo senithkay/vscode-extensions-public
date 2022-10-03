@@ -30,7 +30,7 @@ import {
     ReturnStatement,
     STKindChecker,
     STNode,
-    TupleTypeDesc,
+    TupleTypeDesc, TypeCastExpression,
     TypedBindingPattern,
     Visitor, WhereClause
 } from "@wso2-enterprise/syntax-tree";
@@ -67,6 +67,10 @@ class DeleteConfigSetupVisitor implements Visitor {
         if (node.expression) {
             (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
+    }
+
+    public beginVisitTypeCastExpression(node: TypeCastExpression) {
+        (node.typeCastParam.viewState as StatementEditorViewState).templateExprDeletable = true;
     }
 
     public beginVisitLocalVarDecl(node: LocalVarDecl, parent?: STNode) {
