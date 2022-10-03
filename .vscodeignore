@@ -62,3 +62,4 @@ cypress.json
 **/*.ts
 **/*.py
 **/tsconfig.json
+**/*.zip
