@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from '@emotion/styled';
 import { CanvasEngine, TransformLayerWidget, SmartLayerWidget } from '@projectstorm/react-canvas-core'
+import { OverlayLayerModel } from '../OverlayLayer/OverlayLayerModel';
 
 export interface DiagramProps {
 	engine: CanvasEngine;
@@ -73,9 +74,10 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 		const engine = this.props.engine;
 		const model = engine.getModel();
         const layers = model.getLayers();
-        const svgLayers = layers.filter((layer) => layer.getOptions().isSvg);
-        const nonSVGLayers = layers.filter((layer) => !layer.getOptions().isSvg);
-        const reArrangedLayers = [...nonSVGLayers, ...svgLayers];
+        const svgLayers = layers.filter((layer) => layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
+        const nonSVGLayers = layers.filter((layer) => !layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
+		const overlayLayers = layers.filter(layer => layer instanceof OverlayLayerModel);
+        const reArrangedLayers = [...nonSVGLayers, ...svgLayers, ...overlayLayers];
 
 		return (
 			<S.Canvas

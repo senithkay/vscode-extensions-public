@@ -1,6 +1,8 @@
 import * as React from "react";
-import { DefaultLinkSegmentWidget } from "./DefaultLinkSegmentWidget";
+
 import { DefaultLinkWidget as ReactDiagramDefaultLinkWidget } from "@projectstorm/react-diagrams";
+
+import { DefaultLinkSegmentWidget } from "./DefaultLinkSegmentWidget";
 
 export class DefaultLinkWidget extends ReactDiagramDefaultLinkWidget {
     generateLink(
