@@ -155,6 +155,7 @@ function DataMapperC(props: DataMapperProps) {
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [isStmtEditorCanceled, setIsStmtEditorCanceled] = useState(false);
     const [fieldTobeEdited, setFieldTobeEdited] = useState('');
+    const [showDMOverlay, setShowDMOverlay] = useState(false);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: { stNode: fnST, fieldPath: fnST && fnST.functionName.value },
         prevST: [],
@@ -209,6 +210,10 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
+    const handleOverlay = (showOverlay: boolean) => {
+        setShowDMOverlay(showOverlay);
+    }
+
     useEffect(() => {
         if (fnST) {
             const defaultSt = { stNode: fnST, fieldPath: fnST.functionName.value };
@@ -246,7 +251,8 @@ function DataMapperC(props: DataMapperProps) {
                     handleCollapse,
                     isStmtEditorCanceled,
                     fieldTobeEdited,
-                    handleFieldToBeEdited
+                    handleFieldToBeEdited,
+                    handleOverlay
                 );
 
                 const selectedST = selection.selectedST.stNode;
@@ -272,14 +278,16 @@ function DataMapperC(props: DataMapperProps) {
         }
     }, [selection.state])
 
-    const showOverlay = !!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen
+    useEffect(() => {
+        handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen);
+    }, [currentEditableField, selection.selectedST, isConfigPanelOpen])
 
     return (
         <LSClientContext.Provider value={langClientPromise}>
             <CurrentFileContext.Provider value={currentFile}>
                 {selection.state === DMState.INITIALIZED && (
                     <div className={classes.root}>
-                        {!!showOverlay && <div className={classes.overlay} />}
+                        {!!showDMOverlay && <div className={classes.overlay} />}
                         {fnST && (
                             <DataMapperHeader
                                 selection={selection}

@@ -104,6 +104,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
 	const onClickDelete = () => {
 		setMutationInProgress(true);
+		props.model.context.handleOverlay(true);
 		if (props.model.deleteLink) {
 			props.model.deleteLink();
 		}
