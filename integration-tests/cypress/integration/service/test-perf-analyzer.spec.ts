@@ -17,7 +17,7 @@ describe('Test Performance Analyzer', () => {
     diagram
       .shouldBeRenderedProperly()
       .shouldHavePerfBar()
-      .assertPerfText("Forecasted performance of the critical path: Concurrency 1 | Latency: 46  ms - 3.74  s | Tps: 8.28 - 21.66");
+      .assertPerfText("Forecasted performance of the performance-critical path: Concurrency 1 | Latency: 46  ms - 3.74  s | Tps: 8.28 - 21.66");
 
 
     diagram.assertPerfLabel(0, "19  ms - 18  ms");
@@ -34,7 +34,7 @@ describe('Test Performance Analyzer', () => {
     diagram2
       .shouldBeRenderedProperly()
       .shouldHavePerfBar()
-      .assertPerfText("Forecasted performance of the critical path: Concurrency 1 - 50 | Latency: 107  ms - 7.28  s | Tps: 4.56 - 9.39");
+      .assertPerfText("Forecasted performance of the performance-critical path: Concurrency 1 - 50 | Latency: 107  ms - 7.28  s | Tps: 4.56 - 9.39");
 
     diagram2.assertPerfLabel(0, "256  ms - 5.28  s");
 
