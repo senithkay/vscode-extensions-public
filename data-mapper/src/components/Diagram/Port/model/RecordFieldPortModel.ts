@@ -10,12 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { LinkModel, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
+import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { createSourceForMapping, getBalRecFieldName, modifySpecificFieldSource } from "../../utils/dm-utils";
+import { IntermediatePortModel } from "../IntermediatePort";
 
 export interface RecordFieldNodeModelGenerics {
 	PORT: RecordFieldPortModel;
@@ -35,7 +36,9 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public fieldFQN?: string,
 		public parentModel?: RecordFieldPortModel,
 		public collapsed?: boolean,
-		public hidden?: boolean) {
+		public hidden?: boolean,
+		public descendantHasValue?: boolean,
+		public ancestorHasValue?: boolean) {
 		super({
 			type: FORM_FIELD_PORT,
 			name: `${portName}.${portType}`
@@ -59,7 +62,25 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		return lm;
 	}
 
+	addLink(link: LinkModel<LinkModelGenerics>): void {
+		if (this.portType === 'IN'){
+			this.parentModel?.setDescendantHasValue();
+		}
+		super.addLink(link);
+	}
+
+	setDescendantHasValue(): void {
+		this.descendantHasValue = true;
+		if (this.parentModel){
+			this.parentModel.setDescendantHasValue();
+		}
+	}
+
+	isDisabled(): boolean {
+		return this.ancestorHasValue || this.descendantHasValue
+	}
+
 	canLinkToPort(port: RecordFieldPortModel): boolean {
-		return this.portType !== port.portType;
+		return this.portType !== port.portType && ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
 	}
 }

@@ -81,13 +81,25 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const listConstructor = hasValue ? (STKindChecker.isListConstructor(valExpr) ? valExpr : null) : null;
 
     let indentation = treeDepth * 16;
-    if (!portIn || (listConstructor && expanded)) {
+    if (!portIn) {
         indentation += 24;
+    }
+
+    let isDisabled = portIn.descendantHasValue;
+    if (!isDisabled) {
+        if (listConstructor && expanded) {
+            portIn.setDescendantHasValue();
+            isDisabled = true;
+        }
+        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)){
+            portIn.ancestorHasValue = true;
+            isDisabled = true;
+        }
     }
 
     const label = (
         <span style={{ marginRight: "auto" }}>
-            <span className={classes.valueLabel} style={{ marginLeft: !!elements ? 0 : indentation + 24 }}>
+            <span className={classes.valueLabel} style={{ marginLeft: (hasValue && !connectedViaLink) ? 0 : indentation + 24 }}>
                 {fieldName}
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {fieldName && typeName && ":"}
@@ -195,28 +207,32 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             >
                 <div>
                     <span className={classes.treeLabelInPort}>
-                        {portIn && (!listConstructor || !expanded) &&
-                            <DataMapperPortWidget engine={engine} port={portIn} />
+                        {portIn && 
+                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled} />
                         }
                     </span>
                     <span className={classes.label}>
-                        {elements && <IconButton
-                            className={classes.expandIcon}
-                            style={{ marginLeft: indentation }}
-                            onClick={handleExpand}
-                        >
-                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                        </IconButton>}
+                        {(hasValue && !connectedViaLink) && 
+                            <IconButton
+                                className={classes.expandIcon}
+                                style={{ marginLeft: indentation }}
+                                onClick={handleExpand}
+                            >
+                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                            </IconButton>
+                        }
                         {label}
                     </span>
-                    <ValueConfigMenu
-                        menuItems={[
-                            {
-                                title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
-                                onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
-                            }
-                        ]}
-                    />
+                    {((hasValue && !connectedViaLink) || !isDisabled) &&
+                        <ValueConfigMenu
+                            menuItems={[
+                                {
+                                    title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
+                                    onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
+                                }
+                            ]}
+                        />
+                    }
                 </div>
                 {expanded && hasValue && listConstructor && (
                     <div className={classNames(classes.treeLabel, classes.innerTreeLabel)}>
