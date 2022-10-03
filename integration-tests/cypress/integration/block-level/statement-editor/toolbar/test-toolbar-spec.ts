@@ -28,120 +28,120 @@ describe('Test statement editor toolbar functionality', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Test Undo, Redo options', () => {
-        Canvas.getFunction("testStatementEditorComponents")
-            .nameShouldBe("testStatementEditorComponents")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2);
+    // it('Test Undo, Redo options', () => {
+    //     Canvas.getFunction("testStatementEditorComponents")
+    //         .nameShouldBe("testStatementEditorComponents")
+    //         .shouldBeExpanded()
+    //         .getDiagram()
+    //         .shouldBeRenderedProperly()
+    //         .clickDefaultWorkerPlusBtn(2);
 
-        BlockLevelPlusWidget.clickOption("Variable");
+    //     BlockLevelPlusWidget.clickOption("Variable");
 
-        StatementEditor
-            .shouldBeVisible();
+    //     StatementEditor
+    //         .shouldBeVisible();
 
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var');
+    //     EditorPane
+    //         .getStatementRenderer()
+    //         .getExpression("TypedBindingPattern")
+    //         .doubleClickExpressionContent('var');
 
-        InputEditor
-            .typeInput("int");
+    //     InputEditor
+    //         .typeInput("int");
 
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "int");
+    //     EditorPane
+    //         .validateNewExpression("TypedBindingPattern", "int");
 
-        Toolbar
-            .clickUndoButton();
+    //     Toolbar
+    //         .clickUndoButton();
 
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "var");
+    //     EditorPane
+    //         .validateNewExpression("TypedBindingPattern", "var");
 
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent('<add-expression>');
+    //     EditorPane
+    //         .getExpression("SimpleNameReference")
+    //         .doubleClickExpressionContent('<add-expression>');
 
-        InputEditor
-            .typeInput("456");
+    //     InputEditor
+    //         .typeInput("456");
 
-        EditorPane
-            .validateNewExpression("NumericLiteral", "456")
-            .validateEmptyDiagnostics();
+    //     EditorPane
+    //         .validateNewExpression("NumericLiteral", "456")
+    //         .validateEmptyDiagnostics();
 
-        StatementEditor
-            .save();
+    //     StatementEditor
+    //         .save();
 
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "toolbar-functionality.expected.bal");
+    //     SourceCode.shouldBeEqualTo(
+    //         getCurrentSpecFolder() + "toolbar-functionality.expected.bal");
 
-    });
+    // });
 
-    it('Delete expression type', () => {
-        Canvas.getFunction("testStatementEditorComponents")
-            .nameShouldBe("testStatementEditorComponents")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickEditExistingBlockStatement(2);
+    // it('Delete expression type', () => {
+    //     Canvas.getFunction("testStatementEditorComponents")
+    //         .nameShouldBe("testStatementEditorComponents")
+    //         .shouldBeExpanded()
+    //         .getDiagram()
+    //         .shouldBeRenderedProperly()
+    //         .clickEditExistingBlockStatement(2);
 
-        StatementEditor
-            .shouldBeVisible();
+    //     StatementEditor
+    //         .shouldBeVisible();
 
-        EditorPane
-            .getExpression("IntTypeDesc")
-            .clickExpressionContent('int');
+    //     EditorPane
+    //         .getExpression("IntTypeDesc")
+    //         .clickExpressionContent('int');
 
-        Toolbar
-            .clickDeleteButton();
+    //     Toolbar
+    //         .clickDeleteButton();
 
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-type>`);
+    //     EditorPane
+    //         .getExpression("SimpleNameReference")
+    //         .doubleClickExpressionContent(`<add-type>`);
 
-        InputEditor
-            .typeInput("float");
+    //     InputEditor
+    //         .typeInput("float");
 
-        StatementEditor
-            .save();
+    //     StatementEditor
+    //         .save();
 
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "toolbar-type-delete.expected.bal");
+    //     SourceCode.shouldBeEqualTo(
+    //         getCurrentSpecFolder() + "toolbar-type-delete.expected.bal");
 
-    });
+    // });
 
-    it('Delete expression value', () => {
-        Canvas.getFunction("testStatementEditorComponents")
-            .nameShouldBe("testStatementEditorComponents")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickEditExistingBlockStatement(2);
+    // it('Delete expression value', () => {
+    //     Canvas.getFunction("testStatementEditorComponents")
+    //         .nameShouldBe("testStatementEditorComponents")
+    //         .shouldBeExpanded()
+    //         .getDiagram()
+    //         .shouldBeRenderedProperly()
+    //         .clickEditExistingBlockStatement(2);
 
-        StatementEditor
-            .shouldBeVisible();
+    //     StatementEditor
+    //         .shouldBeVisible();
 
-        EditorPane
-            .getExpression("NumericLiteral")
-            .clickExpressionContent('2');
+    //     EditorPane
+    //         .getExpression("NumericLiteral")
+    //         .clickExpressionContent('2');
 
-        Toolbar
-            .clickDeleteButton();
+    //     Toolbar
+    //         .clickDeleteButton();
 
-        EditorPane
-            .getExpression("NumericLiteral")
-            .doubleClickExpressionContent(`<add-expression>`);
+    //     EditorPane
+    //         .getExpression("NumericLiteral")
+    //         .doubleClickExpressionContent(`<add-expression>`);
 
-        InputEditor
-            .typeInput("3");
+    //     InputEditor
+    //         .typeInput("3");
 
-        StatementEditor
-            .save();
+    //     StatementEditor
+    //         .save();
 
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "toolbar-variable-value-delete.expected.bal");
+    //     SourceCode.shouldBeEqualTo(
+    //         getCurrentSpecFolder() + "toolbar-variable-value-delete.expected.bal");
 
-    });
+    // });
 
     it('Add Configurable', () => {
         Canvas.getFunction("testStatementEditorComponents")
@@ -159,8 +159,14 @@ describe('Test statement editor toolbar functionality', () => {
         Toolbar
             .clickConfigurableButton();
 
+        EditorPane
+            .validateNewExpression("TypedBindingPattern", "conf");
+
         StatementEditor
             .add();
+        
+        EditorPane
+            .validateNewExpression("SimpleNameReference", "conf");
 
         StatementEditor
             .save();

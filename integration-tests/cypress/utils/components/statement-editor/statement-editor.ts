@@ -44,10 +44,8 @@ export class StatementEditor {
         this.getStatementEditor()
             .get('button')
             .contains("Add")
-            .should('not.be.disabled')
-            .wait(2000)
-            .click()
-            .wait(3000);
+            .should('not.be.disabled', {timeout:20000})
+            .click({ force: true })
         return this;
 
     }
