@@ -53,6 +53,7 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                 valuePosition: field?.value && field.value.position,
                 label: getFieldLabel(fieldId)
             });
+            setEditable(false);
         }
     }, [editable]);
 
