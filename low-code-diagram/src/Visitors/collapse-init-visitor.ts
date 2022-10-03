@@ -12,10 +12,10 @@
  */
 
 import {
-    BlockStatement, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
+    BlockStatement, ElseBlock, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
-import { BlockViewState, CollapseViewState, FunctionViewState, StatementViewState, ViewState } from "../ViewState";
+import { BlockViewState, CollapseViewState, FunctionViewState, IfViewState, StatementViewState, ViewState } from "../ViewState";
 
 import { DefaultConfig } from "./default";
 import { isPositionWithinRange } from "./util";
@@ -38,7 +38,7 @@ export class CollapseInitVisitor implements Visitor {
     }
 
     endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
-        console.log('function body >>>', node, parent);
+        // console.log('function body >>>', node, parent);
         this.endVisitBlock(node);
     }
 
@@ -57,8 +57,29 @@ export class CollapseInitVisitor implements Visitor {
     }
 
     endVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
-        console.log('normal body >>>', node, parent);
+        // console.log('normal body >>>', node, parent);
         this.endVisitBlock(node);
+    }
+
+    endVisitIfElseStatement(node: IfElseStatement): void {
+        console.log('if else end visit >>>', node);
+        const ifElseVS: ViewState = node.viewState as ViewState;
+        const ifBodyBlock: BlockStatement = node.ifBody as BlockStatement;
+        const ifBodyVS = ifBodyBlock.viewState as BlockViewState;
+        const elseBody: ElseBlock = node.elseBody as ElseBlock;
+        ifElseVS.collapsed = !ifBodyVS.containsAction;
+
+        if (elseBody && elseBody.elseBody) {
+            if (STKindChecker.isIfElseStatement(elseBody.elseBody)) {
+                const elseVS = elseBody.elseBody.viewState as ViewState;
+                ifElseVS.collapsed = ifElseVS.collapsed && elseVS.collapsed;
+            }
+
+            if (STKindChecker.isBlockStatement(elseBody.elseBody)) {
+                const elseVS = elseBody.elseBody.viewState as BlockViewState;
+                ifElseVS.collapsed = ifElseVS.collapsed && !elseVS.containsAction;
+            }
+        }
     }
 
     endVisitBlock(node: BlockStatement) {

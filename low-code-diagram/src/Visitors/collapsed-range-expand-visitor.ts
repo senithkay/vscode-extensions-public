@@ -32,29 +32,26 @@ export class CollapsedRangeExpandVisitor implements Visitor {
         this.beginVisitBlock(node);
     }
 
-    beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
-        this.beginVisitBlock(node.ifBody);
-        if (node.elseBody && STKindChecker.isElseBlock(node.elseBody)
-            && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
-            this.beginVisitBlock(node.elseBody.elseBody)
-        }
-    }
+    // beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
+    //     this.beginVisitBlock(node.ifBody);
+    //     if (node.elseBody && STKindChecker.isElseBlock(node.elseBody)
+    //         && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
+    //         this.beginVisitBlock(node.elseBody.elseBody)
+    //     }
+    // }
 
     beginVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
         this.beginVisitBlock(node);
     }
 
-    beginVisitWhileStatement(node: WhileStatement, parent?: STNode): void {
-        console.log('expand visitor >>>', node);
-    }
+    // beginVisitWhileStatement(node: WhileStatement, parent?: STNode): void {
+    //     console.log('expand visitor >>>', node);
+    // }
 
     beginVisitBlock(node: BlockStatement) {
         const blockVS: BlockViewState = node.viewState as BlockViewState;
 
         blockVS.collapsedViewStates.forEach(collapsedVS => {
-            // if (isPositionWithinRange(collapsedVS.range, this.expandRange)) {
-            //     collapsedVS.collapsed = false;
-            // }
             if (collapsedVS.range.startLine === this.expandRange.startLine
                 && collapsedVS.range.endLine === this.expandRange.endLine
                 && collapsedVS.range.startLine === this.expandRange.startLine
@@ -69,7 +66,7 @@ export class CollapsedRangeExpandVisitor implements Visitor {
                 node.statements.forEach(statement => {
                     const stmtVS: StatementViewState = statement.viewState as StatementViewState;
 
-                    if (isPositionWithinRange(statement.position, this.expandRange)) {
+                    if (isPositionWithinRange(statement.position, collapsedVS.range)) {
                         if (!firstStatementInRange) {
                             firstStatementInRange = stmtVS;
                         }

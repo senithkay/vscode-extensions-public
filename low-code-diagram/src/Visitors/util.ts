@@ -38,7 +38,8 @@ export function isPositionWithinRange(nodePosition: NodePosition, range: NodePos
         }
     }
 
-    if (nodePosition.startLine === range.endLine && nodePosition.endColumn <= range.endColumn) {
+    if (nodePosition.startLine > range.startLine && nodePosition.endLine === range.endLine
+        && nodePosition.endColumn <= range.endColumn) {
         return true;
     }
     return false;
