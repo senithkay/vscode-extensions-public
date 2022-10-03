@@ -26,7 +26,7 @@ const EXISTING_RECORD_FILE_PATH = "module-level/record.bal";
 
 describe('Record', () => {
 
-    it.skip('Add Record', () => {
+    it('Add Record', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         Canvas
             .welcomeMessageShouldBeVisible()
@@ -72,7 +72,7 @@ describe('Record', () => {
             getCurrentSpecFolder() + "record-form.expected.bal");
     });
 
-    it.skip('Edit Record', () => {
+    it('Edit Record', () => {
         cy.visit(getIntegrationTestPageURL(EXISTING_RECORD_FILE_PATH));
         Canvas
             .getRecord('Person')
@@ -104,7 +104,7 @@ describe('Record', () => {
             getCurrentSpecFolder() + "record-form-edited.expected.bal");
     });
 
-    it.skip('Delete Record', () => {
+    it('Delete Record', () => {
         Canvas
             .getRecord('Individual')
             .clickDelete();
@@ -150,11 +150,35 @@ describe('Record', () => {
                         "id": 10
                     }
                 }
-            `)
-            .save();
+            `);
+
         RecordForm
             .shouldBeVisible()
-            .save();
+            .panelDone();
+
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "record-form.expected.bal");
+    });
+
+    it('Add from JSON File Upload', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget.clickOption('Record');
+
+        RecordForm
+            .shouldBeVisible()
+            .clickImportAJSON();
+
+        RecordForm
+            .shouldBeVisible()
+            .typeRecordName('Person')
+            .importFromJsonFile();
+
+        RecordForm
+            .shouldBeVisible()
+            .panelDone();
 
         SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "record-form.expected.bal");
     });

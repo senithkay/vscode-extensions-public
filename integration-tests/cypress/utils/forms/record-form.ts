@@ -1,4 +1,3 @@
-import { ExpressionEditor } from "../components/expression-editor"
 
 export class RecordForm {
 
@@ -77,6 +76,24 @@ export class RecordForm {
             .get('.textarea-wrapper textarea')
             .first()
             .type(body);
+        inputContainer.get('[data-testid="save-btn"]')
+            .last()
+            .click()
+
+        return this;
+    }
+
+    static importFromJsonFile() {
+        this.getForm().within(() => {
+            cy.contains("Select JSON file").parent()
+                .click();
+        });
+
+        const jsonFile = 'record.json';
+        cy.get('input[type="file"]').attachFile(jsonFile).wait(2000);
+
+        const inputContainer = cy.get('#json-input-container');
+
         inputContainer.get('[data-testid="save-btn"]')
             .last()
             .click()
@@ -167,7 +184,14 @@ export class RecordForm {
             .contains("Save")
             .click();
         return this;
+    }
 
+    static panelDone() {
+        this.getForm()
+            .get('button')
+            .contains("Done")
+            .click();
+        return this;
     }
 
     static cancel() {
