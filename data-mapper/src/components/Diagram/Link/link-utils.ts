@@ -1,8 +1,8 @@
 import { PortModel } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { RecordFieldPortModel } from "../Port";
+import { getBalRecFieldName } from "../utils/dm-utils";
 
 import { DataMapperLinkModel } from "./model/DataMapperLink";
 
@@ -25,6 +25,8 @@ export function generateQueryExpression(srcExpr: string, targetType: Type) {
     // TODO: Dynamically generate the identifier name instead of 'item'
     return `from var ${itemName} in ${srcExpr}
         select {
-            ${targetType.fields.map((field, index) => `${field.name}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`).join("")}
+            ${targetType.fields.map((field, index) =>
+                `${getBalRecFieldName(field.name)}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`
+            ).join("")}
         }`
 }

@@ -98,7 +98,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	while (parent != null && parent.parentModel) {
 		if (parent.field?.name
 			&& !(parent.field.typeName === PrimitiveBalType.Record
-				&& parent.parentModel.field.typeName === PrimitiveBalType.Array)
+				&& parent.parentModel.field.typeName === PrimitiveBalType.Array
+				&& !parent.isWithinSelectClause)
 		) {
 			parentFieldNames.push(parent.field.name);
 		}
