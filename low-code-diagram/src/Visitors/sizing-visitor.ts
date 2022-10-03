@@ -445,7 +445,7 @@ export class SizingVisitor implements Visitor {
             }
         } while (resolutionVisitor.conflictFound())
 
-        if (conflictResolved) {
+        if (conflictResolved || bodyViewState.hasWorkerDecl) {
             let maxWorkerHeight = 0;
             let totalWorkerWidth = 0;
             Array.from(this.workerMap.keys()).forEach(key => {
@@ -1413,7 +1413,7 @@ export class SizingVisitor implements Visitor {
     }
 
     private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0,
-                           index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
+        index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }
@@ -1609,8 +1609,8 @@ export class SizingVisitor implements Visitor {
     }
 
     private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState,
-                                     height: number, width: number, lastStatementIndex: any, leftWidth: number,
-                                     rightWidth: number) {
+        height: number, width: number, lastStatementIndex: any, leftWidth: number,
+        rightWidth: number) {
         const startIndex = index;
 
         blockViewState.collapsedViewStates.forEach(collapsedVS => {

@@ -38,7 +38,6 @@ export class CollapseInitVisitor implements Visitor {
     }
 
     endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
-        // console.log('function body >>>', node, parent);
         this.endVisitBlock(node);
     }
 
@@ -57,12 +56,10 @@ export class CollapseInitVisitor implements Visitor {
     }
 
     endVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
-        // console.log('normal body >>>', node, parent);
         this.endVisitBlock(node);
     }
 
     endVisitIfElseStatement(node: IfElseStatement): void {
-        console.log('if else end visit >>>', node);
         const ifElseVS: ViewState = node.viewState as ViewState;
         const ifBodyBlock: BlockStatement = node.ifBody as BlockStatement;
         const ifBodyVS = ifBodyBlock.viewState as BlockViewState;
@@ -82,17 +79,27 @@ export class CollapseInitVisitor implements Visitor {
         }
     }
 
-    endVisitBlock(node: BlockStatement) {
+    endVisitBlock(node: BlockStatement | FunctionBodyBlock) {
         const blockViewState = node.viewState as BlockViewState;
-        if (node.statements.length > 0) {
-            let range: NodePosition = {
-                startLine: node.statements[0].position.startLine,
-                endLine: node.statements[0].position.startLine,
-                startColumn: node.statements[0].position.startColumn,
-                endColumn: node.statements[0].position.endColumn
-            }
 
-            node.statements.forEach((statement, statementIndex) => {
+        if (STKindChecker.isFunctionBodyBlock(node) && node.namedWorkerDeclarator
+            && node.namedWorkerDeclarator.workerInitStatements.length > 0) {
+            this.populateBlockVSWithCollapseVS(node.namedWorkerDeclarator.workerInitStatements, blockViewState);
+        }
+
+        this.populateBlockVSWithCollapseVS(node.statements, blockViewState);
+    }
+
+    private populateBlockVSWithCollapseVS(statements: STNode[], blockViewState: BlockViewState) {
+        if (statements.length > 0) {
+            let range: NodePosition = {
+                startLine: statements[0].position.startLine,
+                endLine: statements[0].position.startLine,
+                startColumn: statements[0].position.startColumn,
+                endColumn: statements[0].position.endColumn
+            };
+
+            statements.forEach((statement, statementIndex) => {
                 const statementVS = statement.viewState as StatementViewState;
                 statementVS.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
                 statementVS.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
@@ -101,7 +108,7 @@ export class CollapseInitVisitor implements Visitor {
                         statementVS.collapsed = true;
                         range.endLine = statement.position.endLine;
                         range.endColumn = statement.position.endColumn;
-                        if (statementIndex === node.statements.length - 1) {
+                        if (statementIndex === statements.length - 1) {
                             const collapseVS = new CollapseViewState();
                             collapseVS.range = { ...range };
                             blockViewState.collapsedViewStates.push(collapseVS);
@@ -121,13 +128,13 @@ export class CollapseInitVisitor implements Visitor {
                             blockViewState.collapsedViewStates.push(collapseVS);
                         }
 
-                        if (statementIndex !== node.statements.length - 1) {
+                        if (statementIndex !== statements.length - 1) {
                             range = {
-                                startLine: node.statements[statementIndex + 1].position.startLine,
-                                endLine: node.statements[statementIndex + 1].position.endLine,
-                                startColumn: node.statements[statementIndex + 1].position.startColumn,
-                                endColumn: node.statements[statementIndex + 1].position.endColumn,
-                            }
+                                startLine: statements[statementIndex + 1].position.startLine,
+                                endLine: statements[statementIndex + 1].position.endLine,
+                                startColumn: statements[statementIndex + 1].position.startColumn,
+                                endColumn: statements[statementIndex + 1].position.endColumn,
+                            };
                         }
                     }
                 }
