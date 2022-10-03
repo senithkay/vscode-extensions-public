@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from '@emotion/styled';
 import { DiagramEngine, LabelModel } from '@projectstorm/react-diagrams';
-import { OverlayLayerPortal } from '../OverlayLayer/OverlayLayerPortal';
+import { LinkOveryPortal } from './LinkOverlayPortal';
 
 export interface LabelWidgetProps {
 	engine: DiagramEngine;
@@ -90,13 +90,13 @@ export class OveriddenLabelWidget extends React.Component<LabelWidgetProps> {
 		const canvas = this.props.engine.getCanvas();
 
 		return (
-			<OverlayLayerPortal>
+			<LinkOveryPortal>
 				<S.Foreign key={this.props.label.getID()} width={canvas?.offsetWidth} height={canvas?.offsetHeight}>
 				<S.Label ref={this.ref}>
 						{this.props.engine.getFactoryForLabel(this.props.label).generateReactWidget({ model: this.props.label })}
 					</S.Label>
 				</S.Foreign>
-			</OverlayLayerPortal>
+			</LinkOveryPortal>
 		);
 	}
 }

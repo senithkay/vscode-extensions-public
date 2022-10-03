@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import * as _ from 'lodash';
 import { LinkLayerWidgetProps } from '@projectstorm/react-diagrams';
 import { OveriddenLinkWidget } from './LinkWidget';
+import { LinkOverayContainerID } from './LinkOverlayPortal';
 
 namespace S {
 	export const Container = styled.div``;
@@ -18,6 +19,7 @@ export class OveriddenLinkLayerWidget extends React.Component<LinkLayerWidgetPro
 						return <OveriddenLinkWidget key={link.getID()} link={link} diagramEngine={this.props.engine} />;
 					})
 				}
+				<g id={LinkOverayContainerID} ></g>
 			</>
 		);
 	}
