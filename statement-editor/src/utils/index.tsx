@@ -83,7 +83,7 @@ import { visitor as ParentModelFindingVisitor } from "../visitors/parent-model-f
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { ExpressionGroup } from "./expressions";
+import { ExpressionGroup, PARAMETER_PLACEHOLDER } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
@@ -812,7 +812,9 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
     if (params) {
         let paramList = params[1].split(',');
         paramList = paramList.map((param: string) => {
-            return param.trim().split(' ').pop();
+            if (param) {
+                return PARAMETER_PLACEHOLDER;
+            }
         });
         exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
     }
@@ -916,5 +918,6 @@ export function isBalVersionUpdateOne(version: string): boolean{
     const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
     const versionStr = version.match(versionRegex);
     const splittedVersions = versionStr[0]?.split(".");
-    return parseInt(splittedVersions[0], 10) === 2201 && parseInt(splittedVersions[1], 10) === 1;
+    return parseInt(splittedVersions[0], 10) === 2201 && parseInt(splittedVersions[1], 10) === 1
+        && parseInt(splittedVersions[2], 10) === 1 ;
 }

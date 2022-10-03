@@ -35,6 +35,10 @@ export default function UnionType(props: TypeProps) {
     const [parameter, setParameter] = useState<FormField>(initSelectedMember);
     const initialRendering = useRef(false);
 
+    if (!(param.members && param.members.length > 0)){
+        return <></>;
+    }
+
     const updateFormFieldMemberSelection = (unionField: FormField) => {
         const unionFieldName = getUnionParamName(unionField);
         param.members.forEach((field) => {
@@ -119,5 +123,5 @@ export default function UnionType(props: TypeProps) {
 }
 
 export function getUnionParamName(param: FormField) {
-    return param.name || param.typeName;
+    return param ? param.name || param.typeName : "";
 }

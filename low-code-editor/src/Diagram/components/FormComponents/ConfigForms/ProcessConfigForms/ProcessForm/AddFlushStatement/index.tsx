@@ -44,7 +44,8 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             stSymbolInfo,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -52,7 +53,8 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
                 modifyDiagram
             },
             insights: { onEvent },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -84,7 +86,9 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
-            ballerinaVersion
+            ballerinaVersion,
+            isCodeServerInstance,
+            openExternalUrl
         }
     );
 

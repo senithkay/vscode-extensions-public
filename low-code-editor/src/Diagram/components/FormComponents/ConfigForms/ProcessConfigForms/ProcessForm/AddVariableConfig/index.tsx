@@ -66,15 +66,17 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             stSymbolInfo,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
                 modifyDiagram
             },
-            library
-        }
+            library,
+            openExternalUrl
+        },
     } = useContext(Context);
 
     let initialModelType: string = '';
@@ -313,7 +315,9 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        ballerinaVersion
+                        ballerinaVersion,
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

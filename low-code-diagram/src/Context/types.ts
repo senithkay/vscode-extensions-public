@@ -1,4 +1,4 @@
-import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, LowcodeEvent, PerformanceData, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, LowcodeEvent, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { PlusViewState } from "../ViewState";
@@ -27,7 +27,6 @@ export interface LowCodeDiagramProperties {
     error?: Error;
     selectedPosition?: SelectedPosition;
     stSymbolInfo?: STSymbolInfo;
-    performanceData?: Map<string, PerformanceData>;
     zoomStatus?: ZoomStatus;
     experimentalEnabled?: boolean;
     onDiagramDoubleClick?: () => void,
