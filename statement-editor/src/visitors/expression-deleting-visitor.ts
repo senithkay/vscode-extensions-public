@@ -44,6 +44,7 @@ import {
     TableTypeDesc,
     TrapKeyword,
     TupleTypeDesc,
+    TypeCastExpression,
     TypedBindingPattern,
     TypeParameter,
     TypeTestExpression,
@@ -144,6 +145,17 @@ class ExpressionDeletingVisitor implements Visitor {
             if (STKindChecker.isReturnStatement(node.parent) && isPositionsEquals(this.deletePosition, node.position)) {
                 this.setProperties("", node.position);
             }
+        }
+    }
+
+    public beginVisitTypeCastExpression(node: TypeCastExpression) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeCastParam.position)) {
+            this.setProperties("", {
+                startLine: node.ltToken.position.startLine,
+                startColumn: node.ltToken.position.startColumn,
+                endLine: node.gtToken.position.endLine,
+                endColumn: node.gtToken.position.endColumn
+            });
         }
     }
 
