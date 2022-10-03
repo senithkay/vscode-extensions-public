@@ -277,33 +277,35 @@ function DataMapperC(props: DataMapperProps) {
     return (
         <LSClientContext.Provider value={langClientPromise}>
             <CurrentFileContext.Provider value={currentFile}>
-                {selection.state === DMState.INITIALIZED && <div className={classes.root}>
-                    {!!showOverlay && <div className={classes.overlay} />}
-                    {fnST && (
-                        <DataMapperHeader
-                            selection={selection}
-                            changeSelection={handleSelectedST}
-                            onClose={onClose}
-                            onConfigOpen={onConfigOpen}
+                {selection.state === DMState.INITIALIZED && (
+                    <div className={classes.root}>
+                        {!!showOverlay && <div className={classes.overlay} />}
+                        {fnST && (
+                            <DataMapperHeader
+                                selection={selection}
+                                changeSelection={handleSelectedST}
+                                onClose={onClose}
+                                onConfigOpen={onConfigOpen}
+                            />
+                        )}
+                        <DataMapperDiagram
+                            nodes={nodes}
                         />
-                    )}
-                    <DataMapperDiagram
-                        nodes={nodes}
-                    />
-                    {(!selection?.selectedST?.stNode || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
-                    {!!currentEditableField && (
-                        <StatementEditorComponent
-                            expressionInfo={currentEditableField}
-                            langClientPromise={langClientPromise}
-                            applyModifications={applyModifications}
-                            currentFile={currentFile}
-                            library={library}
-                            onCancel={cancelStatementEditor}
-                            onClose={closeStatementEditor}
-                            importStatements={importStatements}
-                        />
-                    )}
-                </div>}
+                        {(!selection?.selectedST?.stNode || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
+                        {!!currentEditableField && (
+                            <StatementEditorComponent
+                                expressionInfo={currentEditableField}
+                                langClientPromise={langClientPromise}
+                                applyModifications={applyModifications}
+                                currentFile={currentFile}
+                                library={library}
+                                onCancel={cancelStatementEditor}
+                                onClose={closeStatementEditor}
+                                importStatements={importStatements}
+                            />
+                        )}
+                    </div>
+                )}
             </CurrentFileContext.Provider>
         </LSClientContext.Provider>
     )
