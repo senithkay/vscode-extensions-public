@@ -63,3 +63,4 @@ cypress.json
 **/*.py
 **/tsconfig.json
 **/*.zip
+.trivyignore
