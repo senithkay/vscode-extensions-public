@@ -223,7 +223,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         }
                         {label}
                     </span>
-                    {(hasValue || !isDisabled) &&
+                    {((hasValue && !connectedViaLink) || !isDisabled) &&
                         <ValueConfigMenu
                             menuItems={[
                                 {
