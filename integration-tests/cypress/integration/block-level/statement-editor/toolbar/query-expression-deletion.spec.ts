@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
 import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
 import { Canvas } from "../../../../utils/components/canvas";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
@@ -48,6 +49,46 @@ describe('Test statement editor query expression deletion functionality', () => 
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "query-expression.expected.bal");
+
+    });
+
+    it('Test delete button disabled on required query expressions', () => {
+        Canvas.getFunction("main")
+            .nameShouldBe("main")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickEditExistingBlockStatement(2);
+
+        StatementEditor
+            .shouldBeVisible();
+
+        EditorPane
+            .getExpression("WhereClause")
+            .ClickHoverPlusOfExpression("WhereClause", 1, `i % 2 == 0`);
+
+        SuggestionsPane
+            .tabShouldFocused("Expressions")
+            .clickExpressionSuggestion("let var i = Ex");
+
+        EditorPane
+            .clickExpressionContent("<add-expression>");
+
+        Toolbar
+            .deleteDisabled();
+
+        EditorPane
+            .getExpression("WhereClause")
+            .ClickHoverPlusOfExpression("WhereClause", 1, `i % 2 == 0`);
+
+        SuggestionsPane
+            .clickExpressionSuggestion("order by Ex ascending")
+
+        EditorPane
+            .clickExpressionContent("ascending");
+
+        Toolbar
+            .deleteDisabled();
 
     });
 })

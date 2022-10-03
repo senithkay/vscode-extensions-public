@@ -29,6 +29,12 @@ export class Toolbar {
         return this;
     }
 
+    static deleteDisabled(){
+        cy.get(`[data-testid="toolbar-delete"]`)
+            .should('have.class', 'Mui-disabled');
+        return this;
+    }
+
     static clickConfigurableButton() {
         cy.get(`[data-testid="toolbar-configurable"]`)
             .click()
