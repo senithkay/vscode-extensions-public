@@ -12,7 +12,7 @@
  */
 export class InputEditor {
     static getInputEditor() {
-        return cy.get(`[data-testid="input-editor"]`);
+        return cy.get(`[data-testid="input-editor"]`, { timeout: 10000 });
     }
 
     static typeInput(text: string, parseSpecialCharSequences: boolean = true) {

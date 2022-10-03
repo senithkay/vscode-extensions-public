@@ -174,12 +174,40 @@ describe('Record', () => {
         RecordForm
             .shouldBeVisible()
             .typeRecordName('Person')
-            .importFromJsonFile();
+            .importFromJsonFile()
+            .importFromJsonSave();
 
         RecordForm
             .shouldBeVisible()
             .panelDone();
 
         SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "record-form.expected.bal");
+    });
+
+    it('Add from JSON File Upload Panel Test', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget.clickOption('Record');
+
+        RecordForm
+            .shouldBeVisible()
+            .clickImportAJSON();
+
+        RecordForm
+            .shouldBeVisible()
+            .typeRecordName('Person')
+            .importFromJsonFile()
+            .checkSeperateRecords()
+            .importFromJsonSave();
+
+        RecordForm
+            .shouldBeVisible()
+            .seperateRecordsVisible()
+            .panelDone();
+
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "record-form-seperate.expected.bal");
     });
 });

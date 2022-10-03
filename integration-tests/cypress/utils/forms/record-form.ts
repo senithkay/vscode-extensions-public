@@ -92,12 +92,28 @@ export class RecordForm {
         const jsonFile = 'record.json';
         cy.get('input[type="file"]').attachFile(jsonFile).wait(2000);
 
-        const inputContainer = cy.get('#json-input-container');
+        return this;
+    }
 
+    static checkSeperateRecords() {
+        this.getForm().within(() => {
+            cy.contains("Make Separate Record Definitions").parent()
+            .click();
+        });
+        return this;
+    }
+
+    static importFromJsonSave() {
+        const inputContainer = cy.get('#json-input-container');
         inputContainer.get('[data-testid="save-btn"]')
             .last()
-            .click()
+            .click();
+        return this;
+    }
 
+    static seperateRecordsVisible() {
+        this.getForm().get('[data-testid="Address-item"]').should("be.visible");
+        this.getForm().get('[data-testid="Person-item"]').should("be.visible");
         return this;
     }
 
