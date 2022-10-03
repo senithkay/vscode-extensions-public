@@ -72,6 +72,7 @@ export const ADD_CONFIGURABLE_LABEL = "Add Configurable";
 export const DEFAULT_IDENTIFIER = "identifier";
 export const CONNECTOR = "Connector";
 export const ACTION = "Action";
+export const RECORD_EDITOR = "RecordEditor";
 
 export const TYPE_DESC_CONSTRUCTOR = "TYPE_DESCRIPTOR";
 export const EXPR_CONSTRUCTOR = "EXPRESSION";
