@@ -56,7 +56,7 @@ export function ResourceQueryParams(props: ResourceQueryParamsProps) {
                     </>
                 );
             default:
-                return `${relativePath.value}`
+                return relativePath.value
         }
     });
 
