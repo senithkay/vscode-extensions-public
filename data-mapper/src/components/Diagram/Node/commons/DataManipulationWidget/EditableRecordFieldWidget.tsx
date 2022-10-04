@@ -175,8 +175,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {!isArray && (
                 <div className={classes.treeLabel}>
                     <span className={classes.treeLabelInPort}>
-                        {portIn && 
-                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled} />
+                        {portIn &&
+                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
                         }
                     </span>
                     <span className={classes.label}>
