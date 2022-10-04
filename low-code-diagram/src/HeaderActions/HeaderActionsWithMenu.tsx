@@ -63,7 +63,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
     const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
 
     const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
-    const handleDeleteBtnClick = (e: any) => {
+    const handleDeleteBtnClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         onConfirmDelete();
     };
@@ -75,7 +75,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
 
     const catMenu = useRef(null);
 
-    const closeOpenMenus = (e: any) => {
+    const closeOpenMenus = (e: MouseEvent) => {
         if (
             catMenu.current &&
             isMenuVisible &&
@@ -92,7 +92,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         };
     }, [isMenuVisible]);
 
-    const handleEditBtnClick = (e: any) => {
+    const handleEditBtnClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (unsupportedType) {
             if (renderDialogBox) {
@@ -134,16 +134,16 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         setIsDeleteViewVisible(false);
     }, [model]);
 
-    const showMenuClick = (e: any) => {
+    const showMenuClick = (e: React.MouseEvent) => {
         setIsMenuVisible(!isMenuVisible);
     };
 
-    const handleOnClickRun = (e: any) => {
+    const handleOnClickRun = (e: React.MouseEvent) => {
         e.stopPropagation();
         onClickRun();
     };
 
-    const handleOnClickTryIt = (e: any) => {
+    const handleOnClickTryIt = (e: React.MouseEvent) => {
         e.stopPropagation();
         onClickTryIt();
     };
