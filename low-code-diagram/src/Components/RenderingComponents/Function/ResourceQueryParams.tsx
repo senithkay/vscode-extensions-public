@@ -49,10 +49,10 @@ export function ResourceQueryParams(props: ResourceQueryParamsProps) {
             case 'ResourcePathSegmentParam':
                 return (
                     <>
-                        [<span className={'type-descriptor'}>
+                        <span className={'type-descriptor'}>
                             /{`${(relativePath as any).typeDescriptor?.name?.value} `}
                         </span>
-                        {(relativePath as any).paramName?.value}]
+                        {(relativePath as any).paramName?.value}
                     </>
                 );
             default:

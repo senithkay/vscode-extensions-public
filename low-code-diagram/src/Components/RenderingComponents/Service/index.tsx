@@ -50,14 +50,6 @@ export function Service(props: ServiceProps) {
         const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
         children.push(
             <div className={'service-member'}  data-start-position={startPosition} >
-                {/* <TopLevelPlus
-            <div className={"service-member"} data-start-position={startPosition}>
-                <TopLevelPlus
-                    kind={model.kind}
-                    targetPosition={member.position}
-                    isTriggerType={isTriggerType}
-                    showCategorized={true}
-                /> */}
                 {getSTComponent(member)}
             </div>
         );
