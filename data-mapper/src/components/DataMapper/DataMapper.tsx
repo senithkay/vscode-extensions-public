@@ -81,6 +81,7 @@ export interface DataMapperProps {
         path: string,
         size: number
     };
+    dMSupported?: boolean;
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => void;
     onSave: (fnName: string) => void;

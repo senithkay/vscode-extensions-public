@@ -28,7 +28,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Contexts/Diagram";
-import { RecordEditor } from "../FormComponents/ConfigForms/RecordEditor";
+import { RecordEditor } from "../FormComponents/ConfigForms";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
@@ -36,12 +36,13 @@ import { dataMapperStyles } from "./style";
 export interface DataMapperProps {
   model?: STNode;
   targetPosition?: NodePosition;
+  dMSupported?: boolean;
   onCancel?: () => void;
   configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
-  const { targetPosition, onCancel: onClose, model } = props;
+  const { targetPosition, dMSupported, onCancel: onClose, model } = props;
 
   const dataMapperClasses = dataMapperStyles();
 
@@ -125,6 +126,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
             filePath={currentFile.path}
             currentFile={currentFile}
             stSymbolInfo={stSymbolInfo}
+            dMSupported={dMSupported}
             applyModifications={modifyDiagram}
             onClose={onClose}
             onSave={onSave}

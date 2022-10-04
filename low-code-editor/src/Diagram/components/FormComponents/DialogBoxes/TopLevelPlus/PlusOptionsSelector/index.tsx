@@ -11,13 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 import { Margin } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { DataMapperOverlay } from "../../../../DataMapperOverlay";
 import { FormGenerator } from "../../../FormGenerator";
+import { isDMSupported } from "../../../Utils";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
 
 export interface PlusOptionsProps {
@@ -74,9 +76,13 @@ export const triggerEntries: PlusMenuEntry[] = [
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
 
+    const { props: { ballerinaVersion } } = useDiagramContext();
+
     const defaultOption = ((kind === "ServiceDeclaration") && !isTriggerType) ?
         {name: "Resource", type: "ResourceAccessorDefinition"} : undefined;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(defaultOption);
+
+    const dMSupported = isDMSupported(ballerinaVersion);
 
     let menuEntries: PlusMenuEntry[] = [];
 
@@ -138,6 +144,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                         isLoading: false,
                         isLastMember: isLastMember
                     }}
+                    dMSupported={dMSupported}
                     onCancel={handleOnClose}
                 />
             )}
