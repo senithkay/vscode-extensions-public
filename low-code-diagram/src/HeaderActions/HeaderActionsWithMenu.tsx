@@ -90,7 +90,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
       return function cleanup() {
           document.removeEventListener("mousedown", closeOpenMenus);
       };
-    }, []);
+    }, [isMenuVisible]);
 
     const handleEditBtnClick = (e: any) => {
       e.stopPropagation();
