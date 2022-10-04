@@ -93,7 +93,7 @@ class ExpressionDeletingVisitor implements Visitor {
             if (isPositionsEquals(this.deletePosition, node.expression.position)) {
                 this.setProperties(DEFAULT_EXPR, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.fieldName.position)) {
-                this.setProperties(DEFAULT_EXPR, node.fieldName.position);
+                this.setProperties(node.expression.source, node.position);
             }
         }
     }
@@ -103,7 +103,7 @@ class ExpressionDeletingVisitor implements Visitor {
             if (isPositionsEquals(this.deletePosition, node.expression.position)) {
                 this.setProperties(DEFAULT_EXPR, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.fieldName.position)) {
-                this.setProperties(DEFAULT_EXPR, node.fieldName.position);
+                this.setProperties(node.expression.source, node.position);
             }
         }
     }
