@@ -12,7 +12,7 @@
  */
 
 import {
-    BlockStatement, ElseBlock, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
+    BlockStatement, ElseBlock, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NamedWorkerDeclaration, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
 import { BlockViewState, CollapseViewState, FunctionViewState, IfViewState, StatementViewState, ViewState } from "../ViewState";
@@ -26,7 +26,7 @@ export class CollapseInitVisitor implements Visitor {
         this.position = position;
     }
 
-    beginVisitFunctionDefinition(node: FunctionDefinition) {
+    beginVisitFunctionDefinition(node: FunctionDefinition): void {
         const viewState: FunctionViewState = node.viewState as FunctionViewState;
         const trigger = viewState.trigger;
         const end = viewState?.end?.bBox;
@@ -35,6 +35,17 @@ export class CollapseInitVisitor implements Visitor {
         trigger.offsetFromTop = DefaultConfig.interactionModeOffset;
         end.offsetFromBottom = DefaultConfig.interactionModeOffset;
         end.offsetFromTop = DefaultConfig.interactionModeOffset;
+    }
+
+    beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration, parent?: STNode): void {
+        // const viewState: FunctionViewState = node.viewState as FunctionViewState;
+        // const trigger = viewState.trigger;
+        // const end = viewState?.end?.bBox;
+
+        // trigger.offsetFromBottom = DefaultConfig.interactionModeOffset;
+        // trigger.offsetFromTop = DefaultConfig.interactionModeOffset;
+        // end.offsetFromBottom = DefaultConfig.interactionModeOffset;
+        // end.offsetFromTop = DefaultConfig.interactionModeOffset;
     }
 
     endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
@@ -104,7 +115,8 @@ export class CollapseInitVisitor implements Visitor {
                 statementVS.bBox.offsetFromBottom = DefaultConfig.interactionModeOffset;
                 statementVS.bBox.offsetFromTop = DefaultConfig.interactionModeOffset;
                 if (isPositionWithinRange(statement.position, this.position)) {
-                    if (!(statementVS.isAction || statementVS.isEndpoint || this.isSkippedConstruct(statement)) || statementVS.collapsed) {
+                    if (!(statementVS.isAction || statementVS.isEndpoint || statementVS.isSend || statementVS.isReceive
+                        || this.isSkippedConstruct(statement)) || statementVS.collapsed) {
                         statementVS.collapsed = true;
                         range.endLine = statement.position.endLine;
                         range.endColumn = statement.position.endColumn;
@@ -115,7 +127,8 @@ export class CollapseInitVisitor implements Visitor {
                         }
                     } else {
                         if (!blockViewState.containsAction) {
-                            blockViewState.containsAction = statementVS.isAction || statementVS.isEndpoint;
+                            blockViewState.containsAction = statementVS.isAction || statementVS.isEndpoint
+                                || statementVS.isSend || statementVS.isReceive;
                         }
 
                         if (!(range.startLine === statement.position.startLine

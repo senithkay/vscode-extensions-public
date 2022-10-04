@@ -701,10 +701,10 @@ export class SizingVisitor implements Visitor {
 
             if (sendHeight > receiveHeight) {
                 const targetVS = matchedPair.targetViewState as StatementViewState;
-                targetVS.bBox.offsetFromTop = DefaultConfig.offSet + (sendHeight - receiveHeight);
+                targetVS.bBox.offsetFromTop += (sendHeight - receiveHeight);
             } else {
                 const sourceVS = matchedPair.sourceViewState as StatementViewState;
-                sourceVS.bBox.offsetFromTop = DefaultConfig.offSet + (receiveHeight - sendHeight);
+                sourceVS.bBox.offsetFromTop += (receiveHeight - sendHeight);
             }
 
             const sourceWorkerIndex = workerNameArr.indexOf(matchedPair.sourceName);
