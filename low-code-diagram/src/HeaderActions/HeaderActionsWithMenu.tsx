@@ -15,13 +15,13 @@
 import React, { useContext, useRef, useState } from "react";
 
 import {
-  DeleteButton,
-  EditButton,
-  LabelDeleteIcon,
-  LabelEditIcon,
-  LabelRunIcon,
-  LabelTryIcon,
-  ShowMenuIcon,
+    DeleteButton,
+    EditButton,
+    LabelDeleteIcon,
+    LabelEditIcon,
+    LabelRunIcon,
+    LabelTryIcon,
+    ShowMenuIcon,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -45,15 +45,15 @@ export interface HeaderActionsProps {
 
 export function HeaderActionsWithMenu(props: HeaderActionsProps) {
     const {
-      model,
-      isExpanded,
-      onExpandClick,
-      formType,
-      onConfirmDelete,
-      onClickTryIt,
-      onClickRun,
-      unsupportedType,
-      isResource,
+        model,
+        isExpanded,
+        onExpandClick,
+        formType,
+        onConfirmDelete,
+        onClickTryIt,
+        onClickRun,
+        unsupportedType,
+        isResource,
     } = props;
 
     const diagramContext = useContext(Context);
@@ -64,8 +64,8 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
 
     const [isDeleteViewVisible, setIsDeleteViewVisible] = useState(false);
     const handleDeleteBtnClick = (e: any) => {
-      e.stopPropagation();
-      onConfirmDelete();
+        e.stopPropagation();
+        onConfirmDelete();
     };
 
     const [isEditViewVisible, setIsEditViewVisible] = useState(false);
@@ -76,170 +76,170 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
     const catMenu = useRef(null);
 
     const closeOpenMenus = (e: any) => {
-      if (
-        catMenu.current &&
-        isMenuVisible &&
-        !catMenu.current.contains(e.target)
-      ) {
-        setIsMenuVisible(false);
-      }
+        if (
+            catMenu.current &&
+            isMenuVisible &&
+            !catMenu.current.contains(e.target)
+        ) {
+            setIsMenuVisible(false);
+        }
     };
 
     React.useEffect(() => {
-      document.addEventListener("mousedown", closeOpenMenus);
-      return function cleanup() {
-          document.removeEventListener("mousedown", closeOpenMenus);
-      };
+        document.addEventListener("mousedown", closeOpenMenus);
+        return function cleanup() {
+            document.removeEventListener("mousedown", closeOpenMenus);
+        };
     }, [isMenuVisible]);
 
     const handleEditBtnClick = (e: any) => {
-      e.stopPropagation();
-      if (unsupportedType) {
-        if (renderDialogBox) {
-          renderDialogBox(
-            "Unsupported",
-            unsupportedEditConfirm,
-            unSupportedEditCancel
-          );
+        e.stopPropagation();
+        if (unsupportedType) {
+            if (renderDialogBox) {
+                renderDialogBox(
+                    "Unsupported",
+                    unsupportedEditConfirm,
+                    unSupportedEditCancel
+                );
+            }
+        } else {
+            if (renderEditForm) {
+                renderEditForm(
+                    model,
+                    model?.position,
+                    { formType: formType ? formType : model.kind, isLoading: false },
+                    handleEditBtnCancel,
+                    handleEditBtnCancel
+                );
+            }
         }
-      } else {
-        if (renderEditForm) {
-          renderEditForm(
-            model,
-            model?.position,
-            { formType: formType ? formType : model.kind, isLoading: false },
-            handleEditBtnCancel,
-            handleEditBtnCancel
-          );
-        }
-      }
     };
 
     const handleEditBtnCancel = () => setIsEditViewVisible(false);
 
     const unsupportedEditConfirm = () => {
-      if (model && gotoSource) {
-        const targetposition = model.position;
-        setIsUnSupported(false);
-        gotoSource({
-          startLine: targetposition.startLine,
-          startColumn: targetposition.startColumn,
-        });
-      }
+        if (model && gotoSource) {
+            const targetposition = model.position;
+            setIsUnSupported(false);
+            gotoSource({
+                startLine: targetposition.startLine,
+                startColumn: targetposition.startColumn,
+            });
+        }
     };
 
     const unSupportedEditCancel = () => setIsUnSupported(false);
 
     React.useEffect(() => {
-      setIsDeleteViewVisible(false);
+        setIsDeleteViewVisible(false);
     }, [model]);
 
     const showMenuClick = (e: any) => {
-      setIsMenuVisible(!isMenuVisible);
+        setIsMenuVisible(!isMenuVisible);
     };
 
     const handleOnClickRun = (e: any) => {
-      e.stopPropagation();
-      onClickRun();
+        e.stopPropagation();
+        onClickRun();
     };
 
     const handleOnClickTryIt = (e: any) => {
-      e.stopPropagation();
-      onClickTryIt();
+        e.stopPropagation();
+        onClickTryIt();
     };
 
     const optionMenu = (
-      <div ref={catMenu} className={"rectangle-menu"}>
-        <>
-          <div
-            onClick={handleOnClickRun}
-            className={classNames("menu-option", "line-vertical", "left")}
-            id="run-button"
-          >
-            <div className="icon">
-              <LabelRunIcon />
-            </div>
-            <div className="other">Run</div>
-          </div>
-          <div
-            onClick={handleOnClickTryIt}
-            className={classNames("menu-option", "line-vertical", "middle")}
-            id="try-button"
-          >
-            <div className="icon">
-              <LabelTryIcon />
-            </div>
-            <div className="other">Try It</div>
-          </div>
-          <div
-            onClick={handleEditBtnClick}
-            className={classNames("menu-option", "line-vertical", "middle")}
-            id="edit-button"
-          >
-            <div className={classNames("icon", "icon-adjust")}>
-              <LabelEditIcon />
-            </div>
-            <div className="other">Edit</div>
-          </div>
-          <div
-            onClick={handleDeleteBtnClick}
-            className={classNames("menu-option", "right")}
-            id="delete-button"
-          >
-            <div className={classNames("icon", "icon-adjust")}>
-              <LabelDeleteIcon />
-            </div>
-            <div className="delete">Delete</div>
-          </div>
-        </>
-      </div>
+        <div ref={catMenu} className={"rectangle-menu"}>
+            <>
+                <div
+                    onClick={handleOnClickRun}
+                    className={classNames("menu-option", "line-vertical", "left")}
+                    id="run-button"
+                >
+                    <div className="icon">
+                        <LabelRunIcon />
+                    </div>
+                    <div className="other">Run</div>
+                </div>
+                <div
+                    onClick={handleOnClickTryIt}
+                    className={classNames("menu-option", "line-vertical", "middle")}
+                    id="try-button"
+                >
+                    <div className="icon">
+                        <LabelTryIcon />
+                    </div>
+                    <div className="other">Try It</div>
+                </div>
+                <div
+                    onClick={handleEditBtnClick}
+                    className={classNames("menu-option", "line-vertical", "middle")}
+                    id="edit-button"
+                >
+                    <div className={classNames("icon", "icon-adjust")}>
+                        <LabelEditIcon />
+                    </div>
+                    <div className="other">Edit</div>
+                </div>
+                <div
+                    onClick={handleDeleteBtnClick}
+                    className={classNames("menu-option", "right")}
+                    id="delete-button"
+                >
+                    <div className={classNames("icon", "icon-adjust")}>
+                        <LabelDeleteIcon />
+                    </div>
+                    <div className="delete">Delete</div>
+                </div>
+            </>
+        </div>
     );
 
     const resourceOptionMenu = (
-      <div ref={catMenu} className={"rectangle-menu-resource"}>
-        <>
-          <div
-            onClick={handleEditBtnClick}
-            className={classNames("menu-option", "line-vertical", "left")}
-            id="edit-button"
-          >
-            <div className={classNames("icon", "icon-adjust")}>
-              <LabelEditIcon />
-            </div>
-            <div className="other">Edit</div>
-          </div>
-          <div
-            onClick={handleDeleteBtnClick}
-            className={classNames("menu-option", "right")}
-            id="delete-button"
-          >
-            <div className={classNames("icon", "icon-adjust")}>
-              <LabelDeleteIcon />
-            </div>
-            <div className="delete">Delete</div>
-          </div>
-        </>
-      </div>
+        <div ref={catMenu} className={"rectangle-menu-resource"}>
+            <>
+                <div
+                    onClick={handleEditBtnClick}
+                    className={classNames("menu-option", "line-vertical", "left")}
+                    id="edit-button"
+                >
+                    <div className={classNames("icon", "icon-adjust")}>
+                        <LabelEditIcon />
+                    </div>
+                    <div className="other">Edit</div>
+                </div>
+                <div
+                    onClick={handleDeleteBtnClick}
+                    className={classNames("menu-option", "right")}
+                    id="delete-button"
+                >
+                    <div className={classNames("icon", "icon-adjust")}>
+                        <LabelDeleteIcon />
+                    </div>
+                    <div className="delete">Delete</div>
+                </div>
+            </>
+        </div>
     );
 
     return (
-      <>
-        {isMenuVisible && (!isResource ? optionMenu : resourceOptionMenu)}
-        <div ref={catMenu} className={"header-amendment-options"}>
-          {!isReadOnly && (
-            <>
-              <div className={classNames("amendment-option", "margin-top-5")}>
-                <ShowMenuIcon onClick={showMenuClick} />
-              </div>
-            </>
-          )}
-          <div className={classNames("amendment-option")}>
-            <ComponentExpandButton
-              isExpanded={isExpanded}
-              onClick={onExpandClick}
-            />
-          </div>
-        </div>
-      </>
+        <>
+            {isMenuVisible && (!isResource ? optionMenu : resourceOptionMenu)}
+            <div ref={catMenu} className={"header-amendment-options"}>
+                {!isReadOnly && (
+                    <>
+                        <div className={classNames("amendment-option", "margin-top-5")}>
+                            <ShowMenuIcon onClick={showMenuClick} />
+                        </div>
+                    </>
+                )}
+                <div className={classNames("amendment-option")}>
+                    <ComponentExpandButton
+                        isExpanded={isExpanded}
+                        onClick={onExpandClick}
+                    />
+                </div>
+            </div>
+        </>
     );
 }
