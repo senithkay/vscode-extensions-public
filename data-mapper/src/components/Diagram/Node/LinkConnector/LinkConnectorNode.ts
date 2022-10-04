@@ -1,4 +1,4 @@
-import { FieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, OptionalFieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -31,7 +31,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public valueNode: STNode,
         public editorLabel: string,
         public parentNode: STNode,
-        public fieldAccessNodes: FieldAccess[],
+        public fieldAccessNodes: (FieldAccess | OptionalFieldAccess)[],
         public fields: STNode[],
         public isPrimitiveTypeArrayElement?: boolean) {
         super(
@@ -163,7 +163,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         return this.diagnostics.length > 0;
     }
 
-    private deleteLink(specificField: SpecificField | FieldAccess) {
+    private deleteLink(specificField: SpecificField | FieldAccess | OptionalFieldAccess) {
         const linkDeleteVisitor = new LinkDeletingVisitor(specificField.position, this.parentNode);
         traversNode(this.parentNode, linkDeleteVisitor);
         const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
