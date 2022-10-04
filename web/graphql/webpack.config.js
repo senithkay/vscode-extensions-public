@@ -12,17 +12,17 @@ module.exports = {
   },
   resolve: {
     mainFields: ['browser', 'main', 'module'],
-    extensions: [".mjs", ".js", ".ts", ".tsx",],
+    extensions: [".mjs", ".js", ".json", ".ts", ".tsx",],
     preferRelative: false,
   },
   module: {
     rules: [
       {
         test: /\.ts$|tsx/,
-        loader: "awesome-typescript-loader",
+        loader: "ts-loader",
       },
       {
-        test: /\.m?js/,
+        test: /\.m?js$/,
         type: "javascript/auto",
       },
       {
