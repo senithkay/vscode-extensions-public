@@ -38,7 +38,7 @@ describe('Add connector to resource via Low Code', () => {
             getCurrentSpecFolder() + "add-http-connector-to-resource.expected.bal");
     });
 
-    it.skip('Add google sheet connector to resource', () => {
+    it('Add google sheet connector to resource', () => {
 
         cy.exec('bal pull ballerinax/googleapis.sheets', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
