@@ -29,6 +29,9 @@ export const useStyles = makeStyles((theme: Theme) =>
         treeLabelArray: {
             flexDirection: "column"
         },
+        ArrayFieldRow: {
+            display: "flex"
+        },
         innerTreeLabel: {
             display: "flex",
             flexDirection: "column",
