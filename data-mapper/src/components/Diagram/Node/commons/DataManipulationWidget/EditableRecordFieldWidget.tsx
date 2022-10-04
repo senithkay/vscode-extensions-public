@@ -89,7 +89,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             portIn.ancestorHasValue = true;
             isDisabled = true;
         }
-        if(hasValue && !connectedViaLink && (isArray || isRecord)) {
+        if (hasValue
+            && !connectedViaLink
+            && (isArray && !STKindChecker.isQueryExpression(specificField.valueExpr) || isRecord))
+        {
             portIn.setDescendantHasValue();
             isDisabled = true;
         }

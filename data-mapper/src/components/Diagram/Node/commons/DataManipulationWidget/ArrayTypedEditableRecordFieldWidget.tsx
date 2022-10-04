@@ -63,6 +63,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const valExpr = field.hasValue()
         && (STKindChecker.isSpecificField(field.value) ? field.value.valueExpr : field.value);
     const hasValue = valExpr && !!valExpr.source;
+    const isValQueryExpr = STKindChecker.isQueryExpression(valExpr);
     const typeName = getTypeName(field.type);
     const elements = field.elements;
 
@@ -99,7 +100,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const label = (
         <span style={{ marginRight: "auto" }}>
-            <span className={classes.valueLabel} style={{ marginLeft: (hasValue && !connectedViaLink) ? 0 : indentation + 24 }}>
+            <span
+                className={classes.valueLabel}
+                style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
+            >
                 {fieldName}
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {fieldName && typeName && ":"}
@@ -212,7 +216,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         }
                     </span>
                     <span className={classes.label}>
-                        {(hasValue && !connectedViaLink) && 
+                        {(hasValue && !connectedViaLink && !isValQueryExpr) &&
                             <IconButton
                                 className={classes.expandIcon}
                                 style={{ marginLeft: indentation }}
