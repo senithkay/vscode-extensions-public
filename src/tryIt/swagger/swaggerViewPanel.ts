@@ -18,11 +18,11 @@
  */
 
 import { ViewColumn, window, WebviewPanel } from "vscode";
-import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
+import { WebViewRPCHandler, getCommonWebViewOptions } from '../../utils';
 import { render } from './render';
-import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient, OASpec } from "../core";
+import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient, OASpec } from "../../core";
 import { SwaggerServer } from "./server";
-import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../telemetry";
+import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../../telemetry";
 import { getPortPromise } from "portfinder";
 
 let swaggerViewPanel: WebviewPanel | undefined;

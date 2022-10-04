@@ -17,7 +17,7 @@
  *
  */
 
-import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
+import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../../utils';
 
 export function render(data: any)
     : string {

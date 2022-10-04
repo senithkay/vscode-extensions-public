@@ -34,7 +34,7 @@ import { activate as activateChoreoAuth } from './choreo-auth/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { activate as activatePerformanceForecaster } from './forecaster';
-import { activate as activateSwaggerView } from './swagger';
+import { activate as activateSwaggerView } from './tryIt/swagger';
 import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
 import { debug, log } from './utils';

@@ -17,12 +17,12 @@
  *
  */
 
-import { PALETTE_COMMANDS } from "../project";
+import { PALETTE_COMMANDS } from "../../project";
 import { commands, window } from "vscode";
-import { BallerinaExtension, ExtendedLangClient, OpenAPIConverterResponse } from "../core";
+import { BallerinaExtension, ExtendedLangClient, OpenAPIConverterResponse } from "../../core";
 import { showSwaggerView } from "./swaggerViewPanel";
-import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
-import { log } from "../utils";
+import { MESSAGE_TYPE, showMessage } from "../../utils/showMessage";
+import { log } from "../../utils";
 import path from "path";
 
 let langClient: ExtendedLangClient;
