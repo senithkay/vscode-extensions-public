@@ -71,7 +71,7 @@ describe('Test statement editor diagnostics', () => {
     });
 
 
-    it('Test syntax diagnostics with disabled save button', () => {
+    it('Test syntax diagnostics with highlighting', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -85,14 +85,6 @@ describe('Test statement editor diagnostics', () => {
             .shouldBeVisible();
 
         EditorPane
-            .getStatementRenderer()
-            .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var');
-
-        InputEditor
-            .typeInput("int");
-
-        EditorPane
             .getExpression("SimpleNameReference")
             .doubleClickExpressionContent(`<add-expression>`);
 
@@ -101,6 +93,9 @@ describe('Test statement editor diagnostics', () => {
 
         EditorPane
             .validateDiagnosticMessage("missing identifier");
+
+        EditorPane
+            .checkForSyntaxDiagnosticsHighlighting();
 
         StatementEditor
             .saveDisabled();

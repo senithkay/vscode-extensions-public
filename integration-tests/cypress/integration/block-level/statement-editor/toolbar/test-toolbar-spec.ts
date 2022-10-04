@@ -28,61 +28,6 @@ describe('Test statement editor toolbar functionality', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Test Delete option', () => {
-        Canvas.getFunction("testStatementEditorComponents")
-            .nameShouldBe("testStatementEditorComponents")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2);
-
-        BlockLevelPlusWidget.clickOption("Variable");
-
-        StatementEditor
-            .shouldBeVisible();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var');
-
-        InputEditor
-            .typeInput("int");
-
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "int")
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent('<add-expression>');
-
-        InputEditor
-            .typeInput("var1");
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .clickExpressionContent('var1');
-
-        Toolbar
-            .clickDeleteButton();
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`);
-
-        InputEditor
-            .typeInput("456");
-
-        EditorPane
-            .validateNewExpression("NumericLiteral", "456")
-            .validateEmptyDiagnostics();
-
-        StatementEditor
-            .save();
-
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "toolbar-functionality.expected.bal");
-
-    });
-
     it('Test Undo, Redo options', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
@@ -105,22 +50,13 @@ describe('Test statement editor toolbar functionality', () => {
             .typeInput("int");
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int")
-            .getExpression("TypedBindingPattern")
-            .clickExpressionContent('int');
-
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('float');
-
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "float");
+            .validateNewExpression("TypedBindingPattern", "int");
 
         Toolbar
             .clickUndoButton();
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int");
+            .validateNewExpression("TypedBindingPattern", "var");
 
         EditorPane
             .getExpression("SimpleNameReference")
@@ -160,7 +96,7 @@ describe('Test statement editor toolbar functionality', () => {
             .clickDeleteButton();
 
         EditorPane
-            .getExpression("IntTypeDesc")
+            .getExpression("SimpleNameReference")
             .doubleClickExpressionContent(`<add-type>`);
 
         InputEditor
@@ -219,32 +155,18 @@ describe('Test statement editor toolbar functionality', () => {
 
         StatementEditor
             .shouldBeVisible();
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var');
-
-        InputEditor
-            .typeInput("string");
-
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "string")
-            .getExpression("CaptureBindingPattern")
-            .doubleClickExpressionContent("variable");
-
-        InputEditor
-            .typeInput("var3");
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .clickExpressionContent(`<add-expression>`);
     
         Toolbar
             .clickConfigurableButton();
 
+        EditorPane
+            .validateNewExpression("TypedBindingPattern", "conf");
+
         StatementEditor
             .add();
+        
+        EditorPane
+            .validateNewExpression("SimpleNameReference", "conf");
 
         StatementEditor
             .save();
