@@ -45,7 +45,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 
 				if (this.targetPort) {
 					curve.getTargetControl().translate(...this.calculateControlOffset(this.getTargetPort()));
-				}				
+				}
 			}
 			return curve.getSVGCurve();
 		}

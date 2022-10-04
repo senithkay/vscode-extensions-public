@@ -40,6 +40,7 @@ export interface IDataMapperContext {
     isStmtEditorCanceled: boolean;
     fieldToBeEdited: string;
     handleFieldToBeEdited: (fieldId: string) => void;
+    handleOverlay: (showOverlay: boolean) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -63,7 +64,8 @@ export class DataMapperContext implements IDataMapperContext {
         public handleCollapse: (fieldName: string, expand?: boolean) => void,
         public isStmtEditorCanceled: boolean,
         public fieldToBeEdited: string,
-        public handleFieldToBeEdited: (fieldId: string) => void
+        public handleFieldToBeEdited: (fieldId: string) => void,
+        public handleOverlay: (showOverlay: boolean) => void
     ){}
 
     public get functionST(): FunctionDefinition {
