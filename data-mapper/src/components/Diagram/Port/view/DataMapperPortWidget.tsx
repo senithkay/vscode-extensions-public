@@ -43,7 +43,8 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 						setPortState(PortState.PortSelected);
 					} else if (event.function === "link-selected") {
 						setPortState(PortState.LinkSelected);
-					} else if (event.function === "link-unselected") {
+					} else if (event.function === "link-unselected"
+						|| event.function === "mappingStartedFromSelectedAgain") {
 						setPortState(PortState.Unselected);
 					}
 				},
