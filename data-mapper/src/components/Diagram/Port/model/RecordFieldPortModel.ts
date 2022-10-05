@@ -37,6 +37,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public parentModel?: RecordFieldPortModel,
 		public collapsed?: boolean,
 		public hidden?: boolean,
+		public isWithinSelectClause?: boolean,
 		public descendantHasValue?: boolean,
 		public ancestorHasValue?: boolean) {
 		super({

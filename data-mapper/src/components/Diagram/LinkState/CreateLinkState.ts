@@ -66,6 +66,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 					} else if (element === this.link.getLastPoint()) {
 						this.link.point(0, 0, -1);
 					} else if (element === this.sourcePort) {
+						element.fireEvent({}, "mappingStartedFromSelectedAgain");
 						this.link.remove();
 						this.clearState();
 						this.eject();

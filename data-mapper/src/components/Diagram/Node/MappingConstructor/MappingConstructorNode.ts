@@ -71,7 +71,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
 
         if (this.typeDef) {
-            const parentPort = this.addPortsForHeaderField(this.typeDef, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, "IN", this.context.collapsedFields);
+            const parentPort = this.addPortsForHeaderField(this.typeDef, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+                "IN", this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
 
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
             this.typeName = getTypeName(valueEnrichedType.type);
@@ -93,7 +94,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", '', undefined,
                             MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
-                            this.context.collapsedFields, parentPort.collapsed);
+                            this.context.collapsedFields, parentPort.collapsed, true);
                     });
                 }
             } else {

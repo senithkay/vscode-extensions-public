@@ -16,6 +16,7 @@ import * as React from 'react';
 import { IconButton } from "@material-ui/core";
 import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import QueryIcon from '@material-ui/icons/StorageOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import ExitToApp from "@material-ui/icons/ExitToApp";
 import { ViewOption } from "../../../DataMapper/DataMapper";
@@ -38,6 +39,27 @@ const styles = (theme: Theme) => createStyles({
         boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
         borderRadius: "10px",
     },
+    element: {
+        backgroundColor: theme.palette.common.white,
+        padding: "10px",
+        cursor: "pointer",
+        transitionDuration: "0.2s",
+        userSelect: "none",
+        pointerEvents: "auto",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        "&:hover": {
+            filter: "brightness(0.95)",
+        },
+    },
+    iconWrapper: {
+        height: "22px",
+        width: "22px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+    },
     fromClause: {
         padding: "5px",
         fontFamily: "GilmerMedium",
@@ -58,7 +80,13 @@ const styles = (theme: Theme) => createStyles({
         padding: '5px'
     },
     openQueryIcon: {
-        color: theme.palette.grey[300]
+        color: theme.palette.grey[300],
+        padding: "10px",
+        height: "42px",
+        width: "42px"
+    },
+    editIcon: {
+        color: theme.palette.grey[300],
     },
     deleteIcon: {
         color: theme.palette.error.main
@@ -104,26 +132,22 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
             <>
                 {/* TODO: Identify inner query expressions and render minimized boxes to denote those with links */}
                 {!!node.sourcePort && (
-                    <div
-                        className={classes.root}
-                    >
+                    <div className={classes.root} >
                         <div className={classes.header}>
                             <DataMapperPortWidget engine={engine} port={node.inPort} />
-                            <div className={classes.fromClause}>
-                                Query
+                            <span className={classes.openQueryIcon} >
+                                <QueryIcon  />
+                            </span>
+                            <div className={classes.element} onClick={onClickOnExpand}>
+                                <div className={classes.iconWrapper}>
+                                    <ExitToApp className={clsx(classes.editIcon)}/>
+                                </div>
                             </div>
-                            <IconButton
-                                onClick={onClickOnExpand}
-                                className={clsx(classes.icons, classes.openQueryIcon)}
-                            >
-                                <ExitToApp />
-                            </IconButton>
-                            <IconButton
-                                onClick={deleteQueryLink}
-                                className={clsx(classes.icons, classes.deleteIcon)}
-                            >
-                                <DeleteIcon />
-                            </IconButton>
+                            <div className={classes.element} onClick={deleteQueryLink}>
+                                <div className={classes.iconWrapper}>
+                                    <DeleteIcon className={clsx(classes.deleteIcon)}/>
+                                </div>
+                            </div>
                             <DataMapperPortWidget engine={engine} port={node.outPort} />
                         </div>
                     </div>
