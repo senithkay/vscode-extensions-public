@@ -51,6 +51,7 @@ export class ResourceFunction {
     }
     
     public editDiagram() {
+        this.showMenu();
         this.container.within(() => {
             cy.get('#edit-button')
                 .click();
