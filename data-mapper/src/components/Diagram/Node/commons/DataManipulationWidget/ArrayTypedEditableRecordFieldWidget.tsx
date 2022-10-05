@@ -200,42 +200,39 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     return (
-        <>
-            <div
-                className={classes.treeLabel}
-                style={{ flexDirection: hasValue && !connectedViaLink && expanded ? "column" : "initial" }}
-            >
-                <div>
-                    <span className={classes.treeLabelInPort}>
-                        {portIn && 
-                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled} />
-                        }
-                    </span>
-                    <span className={classes.label}>
-                        {(hasValue && !connectedViaLink) && 
-                            <IconButton
-                                className={classes.expandIcon}
-                                style={{ marginLeft: indentation }}
-                                onClick={handleExpand}
-                            >
-                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                            </IconButton>
-                        }
-                        {label}
-                    </span>
-                    {((hasValue && !connectedViaLink) || !isDisabled) &&
-                        <ValueConfigMenu
-                            menuItems={[
-                                {
-                                    title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
-                                    onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
-                                }
-                            ]}
-                        />
+        <div className={classNames(classes.treeLabel, classes.treeLabelArray)}>
+            <div className={classes.ArrayFieldRow}>
+                <span className={classes.treeLabelInPort}>
+                    {portIn &&
+                        <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled} />
                     }
-                </div>
-                {expanded && hasValue && listConstructor && (
-                    <div className={classNames(classes.treeLabel, classes.innerTreeLabel)}>
+                </span>
+                <span className={classes.label}>
+                    {(hasValue && !connectedViaLink) && (
+                        <IconButton
+                            className={classes.expandIcon}
+                            style={{ marginLeft: indentation }}
+                            onClick={handleExpand}
+                        >
+                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                        </IconButton>
+                    )}
+                    {label}
+                </span>
+                {((hasValue && !connectedViaLink) || !isDisabled) && (
+                    <ValueConfigMenu
+                        menuItems={[
+                            {
+                                title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
+                                onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
+                            }
+                        ]}
+                    />
+                )}
+            </div>
+            {expanded && hasValue && listConstructor && (
+                <div>
+                    <div className={classes.innerTreeLabel}>
                         <span>[</span>
                         {arrayElements}
                         <Button
@@ -248,8 +245,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         </Button>
                         <span>]</span>
                     </div>
-                )}
-            </div>
-        </>
+                </div>
+            )}
+        </div>
     );
 }

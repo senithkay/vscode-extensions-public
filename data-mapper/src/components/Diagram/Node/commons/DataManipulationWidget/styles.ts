@@ -26,11 +26,19 @@ export const useStyles = makeStyles((theme: Theme) =>
             minHeight: "24px",
             width: "100%"
         },
+        treeLabelArray: {
+            flexDirection: "column"
+        },
+        ArrayFieldRow: {
+            display: "flex"
+        },
         innerTreeLabel: {
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-start",
+            width: "inherit",
             padding: "10px 12px",
+            margin: "10px",
             background: "#F7F8FB",
             border: "1px #A9D7DD solid",
             borderRadius: "4px",
@@ -99,17 +107,19 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: 'fit-content',
             marginLeft: "auto"
         },
-        label:{
+        label: {
             width: "300px",
             whiteSpace: "nowrap",
             overflow: "hidden",
-            display: "inline-block",
             textOverflow: "ellipsis",
+            pointerEvents: "none",
             "&:hover": {
                 overflow: "visible"
             }
         },
         expandIcon: {
+            cursor: "pointer",
+            pointerEvents: "all",
             color:  theme.palette.common.black,
             height: "25px",
             width: "25px",
