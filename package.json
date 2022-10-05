@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "publisher": "wso2",
     "repository": {
         "type": "git",
@@ -184,6 +184,19 @@
                                 "type": "boolean",
                                 "default": false,
                                 "description": "Indicates whether to capture network logs."
+                            },
+                            "terminal": {
+                                "type": "string",
+                                "enum": [
+                                    "integrated",
+                                    "external"
+                                ],
+                                "enumDescriptions": [
+                                    "Launch program in an integrated VSCode terminal.",
+                                    "Launch program in an external terminal."
+                                ],
+                                "default": "integrated",
+                                "description": "Indicates the terminal kind to launch the debugging process in."
                             }
                         }
                     },

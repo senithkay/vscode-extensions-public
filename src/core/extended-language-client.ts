@@ -40,7 +40,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
-import { showChoreoSigninMessage, Values } from "../forecaster";
+import { showChoreoSigninMessage } from "../forecaster";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 import { DefinitionParams, Location, LocationLink } from 'vscode-languageserver-protocol';
@@ -321,6 +321,7 @@ export interface PerformanceAnalyzerGraphRequest {
 
 export interface PerformanceAnalyzerRequest {
     documentIdentifier: DocumentIdentifier;
+    isWorkerSupported: boolean;
 }
 
 export interface PerformanceAnalyzerResponse {
@@ -330,38 +331,6 @@ export interface PerformanceAnalyzerResponse {
     type: string;
     message: string;
     name: string;
-}
-
-export interface PerformanceAnalyzerGraphResponse {
-    message: string;
-    type: any;
-    sequenceDiagramData: SequenceGraphPoint[];
-    graphData: GraphPoint[];
-}
-
-export interface PerformanceAnalyzerRealtimeResponse {
-    message: string;
-    type: any;
-    concurrency: Values;
-    latency: Values;
-    tps: Values;
-}
-
-export interface GraphPoint {
-    concurrency: String;
-    latency: String;
-    tps: String;
-}
-
-export interface SequenceGraphPoint {
-    concurrency: String;
-    values: SequenceGraphPointValue[];
-}
-
-export interface SequenceGraphPointValue {
-    name: String;
-    latency: String;
-    tps: String;
 }
 
 export interface OpenAPIConverterRequest {

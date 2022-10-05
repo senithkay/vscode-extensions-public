@@ -24,13 +24,14 @@ import { isWindows } from "../utils";
 
 const newLine: string = isWindows() ? '\r\n' : '\n';
 const STRING_LITERAL: string = 'STRING_LITERAL';
+const WHITESPACE: string = 'WHITESPACE_MINUTIAE';
 
 /**
  * Provides string split capablity upon new line event.
  */
 export class StringSplitter {
 
-    public updateDocument(event: TextDocumentChangeEvent) {
+    public async updateDocument(event: TextDocumentChangeEvent) {
         const editor = window.activeTextEditor;
         if (!editor || !editor.document.fileName.endsWith('.bal') || event.contentChanges.length === 0 ||
             event.document.fileName.includes("extension-output-wso2.ballerina")) {
@@ -61,6 +62,29 @@ export class StringSplitter {
                 return;
             }
 
+            let stResponse = await this.langClient.getSyntaxTreeNode({
+                documentIdentifier: {
+                    uri: editor.document.uri.toString()
+                },
+                range: {
+                    start: {
+                        line: range.start.line,
+                        character: range.start.character - 1
+                    },
+                    end: {
+                        line: range.end.line,
+                        character: range.end.character - 1
+                    }
+                }
+            });
+            const response = stResponse as SyntaxTreeNodeResponse;
+            if (!response.kind) {
+                return;
+            }
+            if (response.kind !== STRING_LITERAL) {
+                return;
+            }
+
             this.langClient.getSyntaxTreeNode({
                 documentIdentifier: {
                     uri: editor.document.uri.toString()
@@ -80,7 +104,7 @@ export class StringSplitter {
                 if (!response.kind) {
                     return;
                 }
-                if (response.kind === STRING_LITERAL) {
+                if (response.kind === WHITESPACE) {
                     sendTelemetryEvent(extension, TM_EVENT_STRING_SPLIT, CMP_STRING_SPLIT);
                     editor.edit(editBuilder => {
                         const startPosition = new Position(range.start.line, range.start.character);
