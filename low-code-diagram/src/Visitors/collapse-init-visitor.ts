@@ -16,6 +16,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { BlockViewState, CollapseViewState, FunctionViewState, IfViewState, StatementViewState, ViewState } from "../ViewState";
+import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
 import { isPositionWithinRange } from "./util";
@@ -38,14 +39,14 @@ export class CollapseInitVisitor implements Visitor {
     }
 
     beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration, parent?: STNode): void {
-        // const viewState: FunctionViewState = node.viewState as FunctionViewState;
-        // const trigger = viewState.trigger;
-        // const end = viewState?.end?.bBox;
+        const viewState: WorkerDeclarationViewState = node.viewState as WorkerDeclarationViewState;
+        const trigger = viewState.trigger;
+        const end = viewState?.end?.bBox;
 
-        // trigger.offsetFromBottom = DefaultConfig.interactionModeOffset;
-        // trigger.offsetFromTop = DefaultConfig.interactionModeOffset;
-        // end.offsetFromBottom = DefaultConfig.interactionModeOffset;
-        // end.offsetFromTop = DefaultConfig.interactionModeOffset;
+        trigger.offsetFromBottom = DefaultConfig.interactionModeOffset;
+        trigger.offsetFromTop = DefaultConfig.interactionModeOffset;
+        end.offsetFromBottom = DefaultConfig.interactionModeOffset;
+        end.offsetFromTop = DefaultConfig.interactionModeOffset;
     }
 
     endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
