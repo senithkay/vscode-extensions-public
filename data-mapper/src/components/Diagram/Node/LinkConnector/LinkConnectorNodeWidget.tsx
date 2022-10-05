@@ -2,6 +2,8 @@ import * as React from 'react';
 
 import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
+import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { DataMapperPortWidget } from '../../Port';
@@ -9,9 +11,10 @@ import { LinkConnectorNode } from './LinkConnectorNode';
 import { getFieldLabel } from '../../utils/dm-utils';
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
 
+import clsx from 'clsx';
+
 const styles = makeStyles((theme: Theme) => createStyles({
     root: {
-        verticalAlign: "middle",
         width: '100%',
         backgroundColor: theme.palette.common.white,
         padding: "5px",
@@ -20,7 +23,28 @@ const styles = makeStyles((theme: Theme) => createStyles({
         gap: "5px",
         color: theme.palette.grey[400],
         boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
-        borderRadius: "8px",
+        borderRadius: "10px",
+    },
+    element: {
+        backgroundColor: theme.palette.common.white,
+        padding: "10px",
+        cursor: "pointer",
+        transitionDuration: "0.2s",
+        userSelect: "none",
+        pointerEvents: "auto",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        "&:hover": {
+            filter: "brightness(0.95)",
+        },
+    },
+    iconWrapper: {
+        height: "22px",
+        width: "22px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
     },
     fromClause: {
         padding: "5px",
@@ -35,6 +59,7 @@ const styles = makeStyles((theme: Theme) => createStyles({
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
+        alignItems: "center"
     },
     icons: {
         padding: '8px',
@@ -58,6 +83,15 @@ const styles = makeStyles((theme: Theme) => createStyles({
         width: "1px",
         backgroundColor: theme.palette.grey[200],
     },
+    editIcon: {
+        color: theme.palette.grey[300],
+        padding: "10px",
+        height: "42px",
+        width: "42px"
+    },
+    deleteIcon: {
+        color: theme.palette.error.main
+    }
 }),);
 
 export interface LinkConnectorNodeWidgetProps {
@@ -85,17 +119,27 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         <div className={classes.root}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} />
-                <CodeOutlinedIcon onClick={onClickEdit} style={{ color: hasError && '#FE523C' }} />
+                <span className={classes.editIcon} >
+                    <ExpressionIcon  />
+                </span>
+                <div className={classes.element} onClick={onClickEdit}>
+                    <div className={classes.iconWrapper}>
+                        <CodeOutlinedIcon className={clsx(classes.icons, classes.editIcon)}/>
+                    </div>
+                </div>
+                <div className={classes.element} onClick={() => node.deleteLink()}>
+                    <div className={classes.iconWrapper}>
+                        <DeleteIcon className={clsx(classes.deleteIcon)}/>
+                    </div>
+                </div>
                 { diagnostic &&(
-                    <>
-                        <div style={{paddingRight: "5px", paddingLeft: "5px"}}>
-                            <div className={classes.separator} />
-                        </div>
+                    <div className={classes.element}>
                         <DiagnosticWidget 
                             diagnostic={diagnostic} 
                             value={ props.node.valueNode.source}
-                            onClick={onClickEdit} />
-                    </>
+                            onClick={onClickEdit}
+                        />
+                    </div>
                 )}
                 <DataMapperPortWidget engine={engine} port={node.outPort} />
             </div>
