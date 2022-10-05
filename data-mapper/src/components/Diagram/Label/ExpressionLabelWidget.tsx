@@ -52,17 +52,31 @@ export const useStyles = makeStyles((theme: Theme) =>
 			visibility: "hidden",
 		},
 		element: {
-			backgroundColor: theme.palette.common.white,
-			userSelect: "none",
-			pointerEvents: "auto",
-		},
+            backgroundColor: theme.palette.common.white,
+            padding: "10px",
+            cursor: "pointer",
+            transitionDuration: "0.2s",
+            userSelect: "none",
+            pointerEvents: "auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            "&:hover": {
+                filter: "brightness(0.95)",
+            },
+        },
+		iconWrapper: {
+            height: "22px",
+            width: "22px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+        },
 		codeIconButton: {
 			color: theme.palette.grey[400],
-			padding: "10px",
 		},
 		deleteIconButton: {
 			color: theme.palette.grey[400],
-			padding: "10px",
 		},
 		separator: {
 			height: "35px",
@@ -165,21 +179,15 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 				) : (
 					<>
 						<div className={classes.element} >
-							<IconButton
-								className={classes.codeIconButton}
-								onClick={onClickEdit}
-							>
-								<CodeOutlinedIcon />
-							</IconButton>
+							<div className={classes.iconWrapper}>
+								<CodeOutlinedIcon className={classes.codeIconButton} onClick={onClickEdit} />
+							</div>
 						</div>
 						<div className={classes.separator} />
 						<div className={classes.element}>
-							<IconButton
-								className={classes.deleteIconButton}
-								onClick={onClickDelete}
-							>
-								<DeleteIcon />
-							</IconButton>
+							<div className={classes.iconWrapper}>
+								<DeleteIcon className={classes.deleteIconButton} onClick={onClickDelete} />
+							</div>
 						</div>
 					</>
 				)}
