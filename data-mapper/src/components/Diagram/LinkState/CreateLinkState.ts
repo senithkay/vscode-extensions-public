@@ -34,6 +34,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 							} else {
 								// TODO: show a message: select input port first
+								element.fireEvent({}, "mappingStartedTo");
+								this.clearState();
+								this.eject();
 							}
 						}
 					} else if (element instanceof PortModel && this.sourcePort && element !== this.sourcePort) {

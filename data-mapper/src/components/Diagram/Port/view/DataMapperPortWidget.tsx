@@ -58,15 +58,19 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		disable
 	};
 
-	return (
+	return !disable ? (
 		<PortWidget
 			port={port}
 			engine={engine}
 		>
-			<PortContainer {...containerProps}>
+			<ActivePortContainer {...containerProps}>
 				{hasLinks || portState === PortState.PortSelected ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>}
-			</PortContainer>
+			</ActivePortContainer>
 		</PortWidget>
+	) : (
+		<DisabledPortContainer>
+			<RadioButtonUncheckedIcon/>
+		</DisabledPortContainer>
 	);
 }
 
@@ -74,14 +78,19 @@ interface PortsContainerProps {
 	active: boolean;
 	hasLinks: boolean;
 	hasError: boolean;
-	disable: boolean
 }
 
-const PortContainer = styled.div((props: PortsContainerProps) => ({
-	cursor: props.disable ? "not-allowed" : "pointer",
+const ActivePortContainer = styled.div((props: PortsContainerProps) => ({
+	cursor: "pointer",
 	display: "inline",
 	color: (props.active ? "rgb(0, 192, 255)" : props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : "#8D91A3"),
 	"&:hover": {
-		color: !props.disable && "rgb(0, 192, 255)"
+		color: "rgb(0, 192, 255)"
 	}
 }));
+
+const DisabledPortContainer = styled.div`
+	cursor: not-allowed;
+	color: #b7bcd3
+`;
+
