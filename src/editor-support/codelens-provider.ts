@@ -118,7 +118,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
         await langClient.onReady().then(async () => {
             const activeEditor = this.activeTextEditorUri ? this.activeTextEditorUri
-                                                          : window.activeTextEditor!.document.uri;
+                : window.activeTextEditor!.document.uri;
             await langClient!.getExecutorPositions({
                 documentIdentifier: {
                     uri: activeEditor.toString()
@@ -134,9 +134,9 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                             const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
                             codeLens.command = {
                                 title: "Try it",
-                                tooltip: "Try running this service on swagger view",
-                                command: PALETTE_COMMANDS.SWAGGER_VIEW,
-                                arguments: [position.name]
+                                tooltip: "Try running this service",
+                                command: PALETTE_COMMANDS.TRY_IT,
+                                arguments: [activeEditor.toString(), position.name]
                             };
                             codeLenses.push(codeLens);
                         }

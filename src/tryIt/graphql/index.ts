@@ -17,13 +17,11 @@
  *
  */
 
-import { Meta } from '@storybook/react';
-import React from 'react';
-import { GraphqlView } from './GraphqlView';
+import { showGraphqlView } from "./graphqlViewPanel";
+import { MESSAGE_TYPE, showMessage } from "../../utils/showMessage";
+import { ExtendedLangClient, RUN_PROJECT_TO_TRYIT } from "../../core";
 
-export default {
-  component: GraphqlView,
-  title: 'Components/SwaggerView',
-} as Meta;
-
-export const Primary: React.VFC<{}> = () => <GraphqlView data={{ "serviceAPI": "http://localhost:8090", "proxy": "http://localhost:1025/" }}></GraphqlView>;
+export async function createGraphqlView(langClient: ExtendedLangClient, serviceAPI: string) {
+    showMessage(RUN_PROJECT_TO_TRYIT, MESSAGE_TYPE.INFO, true);
+    showGraphqlView(langClient, serviceAPI);
+}

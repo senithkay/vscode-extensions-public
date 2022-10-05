@@ -34,7 +34,7 @@ import { activate as activateChoreoAuth } from './choreo-auth/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { activate as activatePerformanceForecaster } from './forecaster';
-import { activate as activateSwaggerView } from './tryIt/swagger';
+import { activate as activateTryIt } from './tryIt/tryit';
 import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
 import { debug, log } from './utils';
@@ -92,8 +92,8 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateEditorSupport(ballerinaExtInstance);
         // Enable performance forecaster
         activatePerformanceForecaster(ballerinaExtInstance);
-        // Enable swagger view
-        activateSwaggerView(ballerinaExtInstance);
+        // Enable try it views
+        activateTryIt(ballerinaExtInstance);
         // Enable the Choreo authentication
         activateChoreoAuth(ballerinaExtInstance);
         // Enable Ballerina Telemetry listener

@@ -24,14 +24,15 @@ import { buildClientSchema, getIntrospectionQuery, GraphQLSchema } from "graphql
 import "graphiql/graphiql.css";
 import "./style.css";
 
-function fetcher(params: Object): Promise<any> {
+function fetcher(api: string, proxy: string, params: Object): Promise<any> {
     return fetch(
-        "https://api.spacex.land/graphql/",
+        `${proxy}${api}`,
+
         {
             method: "POST",
             headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json"
+                Accept: "/*/",
+                "Content-Type": "application/json",
             },
             body: JSON.stringify(params)
         }
@@ -49,17 +50,16 @@ function fetcher(params: Object): Promise<any> {
 }
 
 export const GraphqlView = (props: any) => {
-    // const file: string | undefined = props.data.file;
-    // const serviceName: string | undefined = props.data.serviceName;
-    // const proxy: string | undefined = props.data.proxy;
-    // let response: Response;
+    const serviceAPI: string = props.data.serviceAPI;
+    const proxy: string = props.data.proxy;
+
     const [query, setQuery] = useState<string | undefined>('');
     const [schema, setSchema] = useState<GraphQLSchema | null>();
     const [showExplorer, setShowExplorer] = useState(false);
     let _graphiql;
 
     useEffect(() => {
-        fetcher({
+        fetcher(serviceAPI, proxy, {
             query: getIntrospectionQuery()
         }).then(result => {
             setSchema(buildClientSchema(result.data));
@@ -68,6 +68,9 @@ export const GraphqlView = (props: any) => {
 
     const _handleEditQuery = (query?: string): void => setQuery(query);
     const _handleToggleExplorer = (): void => setShowExplorer(!showExplorer);
+    const _fetcher = (params: Object) => {
+        return fetcher(serviceAPI, proxy, params);
+    };
 
     return (
         <div className="graphiql-container">
@@ -75,17 +78,12 @@ export const GraphqlView = (props: any) => {
                 schema={schema}
                 query={query}
                 onEdit={_handleEditQuery}
-                // onRunOperation={operationName =>
-                //     this._graphiql.handleRunQuery(operationName)
-                // }
                 explorerIsOpen={showExplorer}
-            // onToggleExplorer={this._handleToggleExplorer}
-            // getDefaultScalarArgValue={getDefaultScalarArgValue}
-            // makeDefaultArg={makeDefaultArg}
+                onToggleExplorer={_handleToggleExplorer}
             />
             <GraphiQL
                 ref={ref => (_graphiql = ref!)}
-                fetcher={fetcher}
+                fetcher={_fetcher}
                 schema={schema}
                 query={query}
                 onEditQuery={_handleEditQuery}

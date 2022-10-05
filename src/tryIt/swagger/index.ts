@@ -17,49 +17,14 @@
  *
  */
 
-import { PALETTE_COMMANDS } from "../../project";
-import { commands, window } from "vscode";
-import { BallerinaExtension, ExtendedLangClient, OpenAPIConverterResponse } from "../../core";
+import { CodeServerContext, ExtendedLangClient, OpenAPIConverterResponse, RUN_PROJECT_TO_TRYIT } from "../../core";
 import { showSwaggerView } from "./swaggerViewPanel";
 import { MESSAGE_TYPE, showMessage } from "../../utils/showMessage";
 import { log } from "../../utils";
 import path from "path";
 
-let langClient: ExtendedLangClient;
-let codeServerContext;
-export async function activate(ballerinaExtInstance: BallerinaExtension) {
-    langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-    codeServerContext = ballerinaExtInstance.getCodeServerContext();
-    commands.registerCommand(PALETTE_COMMANDS.SWAGGER_VIEW, async (...args: any[]) => {
-        const editor = window.activeTextEditor;
-
-        if (!args) {
-            return;
-        }
-
-        let serviceName;
-        let documentFilePath;
-
-        if (args.length == 1) {
-            serviceName = args[0];
-
-        } else if (args.length == 2) {
-            serviceName = args[0];
-            documentFilePath = args[1];
-        }
-
-        if (!documentFilePath) {
-            if (!editor) {
-                return;
-            }
-            documentFilePath = editor.document.fileName!;
-        }
-
-        await createSwaggerView(documentFilePath, serviceName);
-    });
-}
-
-async function createSwaggerView(documentFilePath: string, serviceName: any) {
+export async function createSwaggerView(langClient: ExtendedLangClient, documentFilePath: string,
+    serviceName: any, codeServerContext: CodeServerContext) {
     const file = path.basename(documentFilePath);
 
     if (!langClient) {
@@ -74,7 +39,7 @@ async function createSwaggerView(documentFilePath: string, serviceName: any) {
                 MESSAGE_TYPE.ERROR, false);
             return;
         }
-        showMessage("Please make sure the project is already running to use the try out feature", MESSAGE_TYPE.INFO, true);
+        showMessage(RUN_PROJECT_TO_TRYIT, MESSAGE_TYPE.INFO, true);
         showSwaggerView(langClient, response.content, file, serviceName, codeServerContext);
     }).catch((err) => {
         log(err);
