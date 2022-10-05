@@ -35,7 +35,7 @@ import { COLLAPSE_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/C
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
 import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
-import { START_SVG_SHADOW_OFFSET, START_SVG_WIDTH } from "../Components/RenderingComponents/Start/StartSVG";
+import { START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET, START_SVG_WIDTH } from "../Components/RenderingComponents/Start/StartSVG";
 import { Endpoint } from "../Types/type";
 import { isVarTypeDescriptor } from "../Utils";
 import {
@@ -429,8 +429,11 @@ export class PositioningVisitor implements Visitor {
         this.cleanMaps();
     }
 
-    public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
+    public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
+        console.log('begin functionbody  position >>>', parent);
+        const functionViewState: FunctionViewState = parent?.viewState as FunctionViewState;
+        const functionTrigger = functionViewState?.trigger;
         this.allEndpoints = blockViewState.connectors;
         epCount = 0;
         let height = 0;
@@ -442,7 +445,8 @@ export class PositioningVisitor implements Visitor {
                 workerInitStatements,
                 blockViewState, height, index, DefaultConfig.epGap));
 
-            blockViewState.workerIndicatorLine.y = blockViewState.bBox.cy + height + (DefaultConfig.dotGap * 6);
+            blockViewState.workerIndicatorLine.y = blockViewState.bBox.cy + height + functionTrigger.offsetFromBottom
+                + START_SVG_HEIGHT / 2;
             blockViewState.workerIndicatorLine.x = blockViewState.bBox.cx;
 
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
@@ -454,7 +458,7 @@ export class PositioningVisitor implements Visitor {
                     : (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.x
                     + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.rw
                     + workerBodyViewState.bBox.lw;
-                workerDeclViewState.bBox.y = height + DefaultConfig.dotGap * 10;
+                workerDeclViewState.bBox.y = height + functionTrigger.offsetFromBottom * 2 + START_SVG_HEIGHT;
             });
 
 
@@ -466,7 +470,7 @@ export class PositioningVisitor implements Visitor {
                 plusForIndex.bBox.cx = blockViewState.bBox.cx;
             }
 
-            height += DefaultConfig.dotGap * 10;
+            height += START_SVG_HEIGHT + (functionTrigger.offsetFromBottom * 2);
         }
 
         this.beginBlockPosition(node, index + node.statements.length, height, index);

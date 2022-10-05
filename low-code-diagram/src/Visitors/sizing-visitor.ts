@@ -483,7 +483,7 @@ export class SizingVisitor implements Visitor {
 
                 totalWorkerWidth += workerVS.bBox.w;
             });
-            this.endVisitFunctionBodyBlock(body);
+            this.endVisitFunctionBodyBlock(body, node);
 
             lifeLine.h = trigger.offsetFromBottom + bodyViewState.bBox.h + end.bBox.offsetFromTop;
 
@@ -841,8 +841,12 @@ export class SizingVisitor implements Visitor {
         this.cleanMaps();
     }
 
-    public endVisitFunctionBodyBlock(node: FunctionBodyBlock) {
+    public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const viewState = node.viewState as BlockViewState;
+        console.log('end functionbody sizing >>>', parent);
+        const functionViewState: FunctionViewState = parent?.viewState as FunctionViewState;
+        const triggerVS = functionViewState?.trigger;
+
         let index = 0;
         let height = 0;
         let width = 0;
@@ -860,7 +864,8 @@ export class SizingVisitor implements Visitor {
                 plusAfterWorker.allowWorker = true;
             }
 
-            height += DefaultConfig.dotGap * 10;
+            // height += DefaultConfig.dotGap * 10;
+            height += START_SVG_HEIGHT + (triggerVS.offsetFromBottom * 2);
         }
 
         this.endSizingBlock(node, index + node.statements.length, width, height, index, leftWidth, rightWidth);
