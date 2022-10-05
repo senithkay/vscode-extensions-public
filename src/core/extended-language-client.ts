@@ -459,7 +459,6 @@ export interface TypesFromSymbolResponse {
     types: ResolvedTypeForSymbol[];
 }
 
-
 interface NOT_SUPPORTED_TYPE {
 
 };
