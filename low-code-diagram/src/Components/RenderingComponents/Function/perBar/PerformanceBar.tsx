@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import { ANALYZE_TYPE } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Context/diagram";
@@ -17,19 +18,19 @@ export function PerformanceBar(props: PerformanceProps) {
     const openPerformanceChart = diagramContext?.api?.edit?.openPerformanceChart;
     const { diagramCleanDraw } = diagramContext?.actions;
     const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const { performanceData } = diagramContext?.props;
     const [tooltip, setTooltip] = useState(undefined);
 
-    const { concurrency, latency, tps, isPerfDataAvailable, isAdvancedPerfDataAvailable } = generatePerfData(model, performanceData);
+    const { concurrency, latency, tps, analyzeType, isDataAvailable } = generatePerfData(model);
 
     const onClickPerformance = async () => {
-        if (!isAdvancedPerfDataAvailable) {
-            return;
-        }
-
         let fullPath = "";
         for (const path of model.relativeResourcePath) {
-            fullPath += (path as any).value;
+            const p = path as any;
+            if (p.kind === "ResourcePathSegmentParam") {
+                fullPath += p.source;
+            } else {
+                fullPath += p.value;
+            }
         }
 
         if (openPerformanceChart) {
@@ -38,28 +39,32 @@ export function PerformanceBar(props: PerformanceProps) {
         }
     };
     const element = (
-        <p className={"more"} onClick={onClickPerformance}>{"Show More →"}</p>
+        <p className={"more"} onClick={onClickPerformance}>{"Reveal performance-critical path"}</p>
     );
 
-    const content = isAdvancedPerfDataAvailable ? "Click here to open the performance graph" : "Insufficient data to provide detailed estimations";
+    const content = "Click here to open the performance graph";
 
     useEffect(() => {
-        if (showTooltip) {
+        if (model && showTooltip) {
             setTooltip(showTooltip(element, content));
         }
-    }, [isAdvancedPerfDataAvailable]);
+    }, [model]);
 
     const perBar = (
         <div className={"performance-bar"}>
             <div className={"rectangle"}>&nbsp;</div>
             <p>
-                {isAdvancedPerfDataAvailable ? `Forecasted performance for concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}` : `Forecasted performance for a single user: Latency: ${latency} | Tps: ${tps}`}
+                {`Forecasted performance of the ${isRealtime() ? "performance-critical" : "selected"} path: Concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}`}
             </p>
-            {tooltip ? tooltip : element}
+            {isRealtime() && (tooltip ? tooltip : element)}
         </div>
     );
 
     return (
-        isPerfDataAvailable && perBar
+        isDataAvailable && perBar
     );
+
+    function isRealtime() {
+        return analyzeType === ANALYZE_TYPE.REALTIME;
+    }
 }

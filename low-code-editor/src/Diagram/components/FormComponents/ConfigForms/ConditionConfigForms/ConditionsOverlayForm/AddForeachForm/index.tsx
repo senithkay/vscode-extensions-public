@@ -62,14 +62,16 @@ export function AddForeachForm(props: ForeachProps) {
             currentFile,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
 
@@ -279,7 +281,9 @@ export function AddForeachForm(props: ForeachProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        ballerinaVersion
+                        ballerinaVersion,
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

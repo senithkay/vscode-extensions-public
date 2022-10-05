@@ -58,12 +58,14 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             syntaxTree,
             importStatements,
             experimentalEnabled,
-            stSymbolInfo
+            stSymbolInfo,
+            isCodeServerInstance
         },
         api: {
             code: { modifyDiagram },
             ls: { getExpressionEditorLangClient },
-            library
+            library,
+            openExternalUrl
         },
     } = useContext(Context);
     const { onSave, onCancel, targetPosition, model, formType, isLastMember } = props;
@@ -201,7 +203,9 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                         importStatements,
                         experimentalEnabled,
                         isModuleVar: true,
-                        ballerinaVersion
+                        ballerinaVersion,
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

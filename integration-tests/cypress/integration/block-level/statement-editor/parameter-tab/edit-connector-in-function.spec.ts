@@ -56,7 +56,7 @@ describe('Edit connector with custom configurations via Low Code', () => {
             .cancel();
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-connector-to-function.expected.bal");
+            getCurrentSpecFolder() + "edit-connector-in-http-endpoint.expected.bal");
     });
 
 });

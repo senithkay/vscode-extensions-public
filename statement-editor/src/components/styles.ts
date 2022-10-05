@@ -249,7 +249,7 @@ export const useStatementRendererStyles = makeStyles(() =>
         },
         syntaxErrorTooltip : {
             position: 'absolute',
-            top: '-60px',
+            top: '-26px',
             left: '80%'
         }
     }),
@@ -258,6 +258,9 @@ export const useStatementRendererStyles = makeStyles(() =>
 export const useStatementEditorDiagnosticStyles = makeStyles(() =>
     createStyles({
         diagnosticsPane: {
+            maxHeight: '125px',
+            overflowY: 'scroll',
+            marginRight: '-25px',
             color: '#ea4c4d',
             paddingTop: '13px',
             "& .MuiList-padding": {
@@ -888,11 +891,14 @@ export const useStatementEditorStyles = makeStyles(() =>
         statementExpressionTitle: {
             display: 'flex',
             alignItems: 'center',
-            paddingBottom: '15px',
             fontWeight: 500
         },
         statementExpressionContent: {
-           ...statementFontStyles
+            maxHeight: '275px',
+            overflowY: 'scroll',
+            marginRight: '-25px',
+            paddingTop: '25px',
+            ...statementFontStyles
         },
         footer: {
             height: 'auto',
@@ -958,6 +964,17 @@ export const useStatementEditorStyles = makeStyles(() =>
                 paddingRight: '12.5px'
             },
             ...removePadding
+        },
+        help: {
+            paddingRight: '24px',
+            display: "flex"
+        },
+        helpLink: {
+            marginLeft: '8px',
+            color: '#5567D5',
+            "&:hover": {
+                cursor: "pointer"
+            }
         }
     }),
 );

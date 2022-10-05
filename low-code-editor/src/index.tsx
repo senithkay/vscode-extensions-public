@@ -69,7 +69,7 @@ export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as S
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
 export { createPropertyStatement } from "./Diagram/utils/modification-util";
 export { renderDiagramEditor } from "./DiagramGenerator/vscode";
-export { updatePerformanceLabels } from "./DiagramGenerator/performanceUtil";
+export { updatePerfPath } from "./DiagramGenerator/performanceUtil";
 
 const LowCodeEditor: React.FC<Props> = (props: Props) => {
     // TODO: Remove these as these are no longer in use

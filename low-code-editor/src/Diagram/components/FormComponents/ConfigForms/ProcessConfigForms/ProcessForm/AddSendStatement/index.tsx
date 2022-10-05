@@ -38,7 +38,8 @@ export function AddSendStatement(props: AddSendStatementProps) {
             stSymbolInfo,
             syntaxTree,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -46,7 +47,8 @@ export function AddSendStatement(props: AddSendStatementProps) {
                 modifyDiagram
             },
             insights: { onEvent },
-            library
+            library,
+            openExternalUrl
         }
     } = useContext(Context);
     const saveVariableButtonText = intl.formatMessage({
@@ -86,7 +88,9 @@ export function AddSendStatement(props: AddSendStatementProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
-            ballerinaVersion
+            ballerinaVersion,
+            isCodeServerInstance,
+            openExternalUrl
         }
     );
 

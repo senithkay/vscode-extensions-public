@@ -65,14 +65,16 @@ export function AddIfForm(props: IfProps) {
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
-            ballerinaVersion
+            ballerinaVersion,
+            isCodeServerInstance
         },
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
                 modifyDiagram
             },
-            library
+            library,
+            openExternalUrl
         },
     } = useContext(Context);
     const { condition, formArgs, onCancel, onSave, onWizardClose } = props;
@@ -309,7 +311,9 @@ export function AddIfForm(props: IfProps) {
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,
-                        ballerinaVersion
+                        ballerinaVersion,
+                        isCodeServerInstance,
+                        openExternalUrl
                     }
                 )
             ) : (

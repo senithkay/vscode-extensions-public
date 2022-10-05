@@ -31,7 +31,8 @@ export class Toolbar {
 
     static clickConfigurableButton() {
         cy.get(`[data-testid="toolbar-configurable"]`)
-            .click()
+            .should('not.be.disabled', {timeout:10000})
+            .click({ force: true })
         return this;
     }
 

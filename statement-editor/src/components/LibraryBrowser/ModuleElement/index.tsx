@@ -24,6 +24,7 @@ import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-
 import { InputEditorContext } from '../../../store/input-editor-context';
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getModuleIconStyle } from "../../../utils";
+import { PARAMETER_PLACEHOLDER } from '../../../utils/expressions';
 import { getFQModuleName, keywords } from "../../../utils/statement-modifications";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -74,7 +75,7 @@ export function ModuleElement(props: ModuleElementProps) {
                 const parameters: string[] = [];
                 functionProperties.parameters.map((param: FunctionParams) => {
                     if (!(param.type.isInclusion || param.type.isNullable)) {
-                        parameters.push(`${param.name}`);
+                        parameters.push(`${PARAMETER_PLACEHOLDER}`);
                     }
                 });
 

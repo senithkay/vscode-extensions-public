@@ -10,21 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { ParameterTab } from "../../../../utils/components/statement-editor/parameter-tab";
 import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
 import { Canvas } from "../../../../utils/components/canvas";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../../utils/components/statement-editor/editor-pane";
+import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
+import { SourceCode } from "../../../../utils/components/code-view";
+import { getCurrentSpecFolder } from "../../../../utils/file-utils";
 import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
 import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
-describe('Test statement editor syntax diagnostics highlights', () => {
+describe('Test helper pane functionality', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Test syntax diagnostics with highlighting', () => {
+    it('Test parameter count of method with no params', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -35,22 +39,50 @@ describe('Test statement editor syntax diagnostics highlights', () => {
         BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
-            .shouldBeVisible();
+            .shouldBeVisible()
+            .getEditorPane();
 
         EditorPane
+            .getStatementRenderer()
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`);
+            .clickExpressionContent(`<add-expression>`);
 
-        InputEditor
-            .typeInput("1 +");
+        SuggestionsPane
+            .clickSuggestionsTab("Suggestions")
+            .clickLsTypeSuggestion('var2')
+            .clickLsTypeSuggestion('toString()', 1000);
 
-        EditorPane
-            .validateDiagnosticMessage("missing identifier");
+        ParameterTab
+            .validateNoParameters();
 
-        EditorPane
-            .checkForSyntaxDiagnosticsHighlighting();
+    });
+
+    it('Test parameter count of method with multiple params', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(2);
+
+        BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
-            .saveDisabled();
+            .shouldBeVisible()
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent(`<add-expression>`);
+
+        SuggestionsPane
+            .clickSuggestionsTab("Suggestions")
+            .clickLsTypeSuggestion('var2')
+            .clickLsTypeSuggestion('max(int... ns)', 1000);
+
+        ParameterTab
+            .shouldHaveParameters(1);
+
     });
 })
