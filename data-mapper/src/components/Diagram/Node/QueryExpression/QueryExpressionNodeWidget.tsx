@@ -15,6 +15,7 @@ import * as React from 'react';
 
 import { IconButton } from "@material-ui/core";
 import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
+import TooltipBase from '@material-ui/core/Tooltip';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import QueryIcon from '@material-ui/icons/StorageOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
@@ -27,17 +28,31 @@ import {
 } from './QueryExpressionNode';
 import clsx from 'clsx';
 
+export const tooltipBaseStyles = {
+    tooltip: {
+        color: "#8d91a3",
+        backgroundColor: "#fdfdfd",
+        border: "1px solid #e6e7ec",
+        borderRadius: 6,
+        padding: "1rem"
+    },
+    arrow: {
+        color: "#fdfdfd"
+    }
+};
+
 const styles = (theme: Theme) => createStyles({
     root: {
         width: '100%',
         backgroundColor: theme.palette.common.white,
-        padding: "5px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
         color: theme.palette.grey[400],
         boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
         borderRadius: "10px",
+		alignItems: "center",
+		overflow: "hidden",
     },
     element: {
         backgroundColor: theme.palette.common.white,
@@ -128,6 +143,8 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
             node.context.applyModifications(modifications);
         }
 
+        const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
+
         return (
             <>
                 {/* TODO: Identify inner query expressions and render minimized boxes to denote those with links */}
@@ -135,9 +152,11 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
                     <div className={classes.root} >
                         <div className={classes.header}>
                             <DataMapperPortWidget engine={engine} port={node.inPort} />
-                            <span className={classes.openQueryIcon} >
-                                <QueryIcon  />
-                            </span>
+                            <TooltipComponent interactive={false} arrow={true} title={"Query Expression"}>
+                                <span className={classes.openQueryIcon} >
+                                    <QueryIcon  />
+                                </span>
+                            </TooltipComponent>
                             <div className={classes.element} onClick={onClickOnExpand}>
                                 <div className={classes.iconWrapper}>
                                     <ExitToApp className={clsx(classes.editIcon)}/>
