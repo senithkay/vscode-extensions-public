@@ -205,7 +205,7 @@ export class RecordForm {
     static panelDone() {
         this.getForm()
             .get('button')
-            .contains("Done")
+            .contains("Done", { timeout: 10000 })
             .click();
         return this;
     }
