@@ -18,7 +18,7 @@
  */
 
 import { ClientCapabilities, LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
-import { CodeAction, CodeActionParams, DocumentSymbol, DocumentSymbolParams, ExecuteCommandParams, SymbolInformation } from "monaco-languageclient";
+import { CodeAction, CodeActionParams, DocumentSymbol, DocumentSymbolParams, ExecuteCommandParams, SymbolInformation, WorkspaceEdit } from "monaco-languageclient";
 import {
     DidOpenParams, DidCloseParams, DidChangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse,
     BallerinaConnectorsResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaRecordRequest,
@@ -459,6 +459,14 @@ export interface TypesFromSymbolResponse {
     types: ResolvedTypeForSymbol[];
 }
 
+export interface RenameRequest {
+    textDocument: {
+        uri: string;
+    };
+    position: Position;
+    newName: string;
+}
+
 interface NOT_SUPPORTED_TYPE {
 
 };
@@ -614,6 +622,10 @@ export class ExtendedLangClient extends LanguageClient {
         return isSupported
             ? this.sendRequest<TypesFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL, params)
             : Promise.resolve(null);
+    }
+
+    async rename(params: RenameRequest): Promise<WorkspaceEdit | null> {
+        return this.sendRequest("textDocument/rename", params);
     }
 
     public getDocumentSymbol(params: DocumentSymbolParams): Thenable<DocumentSymbol[] | SymbolInformation[] | null> {
