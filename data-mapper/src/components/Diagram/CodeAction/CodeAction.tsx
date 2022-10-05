@@ -99,12 +99,9 @@ export function CodeActionWidget(props: CodeActionWidgetProps) {
 
     return (
         <div className={classes.element} >
-            <IconButton
-                className={classes.iconButton}
-                onClick={onClickCodeAction}
-            >
+            <span  className={classes.lightBulbWrapper} onClick={onClickCodeAction}>
                 <LightBulbSVG />
-            </IconButton>
+            </span>
             <Menu
                 anchorEl={anchorEl}
                 open={open}
