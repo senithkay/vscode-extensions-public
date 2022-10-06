@@ -20,6 +20,7 @@ import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
@@ -144,12 +145,15 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickEdit = () => {
-        props.node.context.enableStatementEditor({
-            valuePosition: props.node.valueNode.position,
-            value: props.node.valueNode.source,
-            label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
+        const valueNode = props.node.valueNode;
+        if (STKindChecker.isSpecificField(valueNode)) {
+            props.node.context.enableStatementEditor({
+                valuePosition: valueNode.valueExpr.position,
+                value: valueNode.valueExpr.source,
+                label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
                     : props.node.editorLabel)
-        });
+            });
+        }
     };
 
     const onClickDelete = () => {
@@ -158,7 +162,6 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             node.deleteLink();
         }
     };
-
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
 
     const loadingScreen = (
