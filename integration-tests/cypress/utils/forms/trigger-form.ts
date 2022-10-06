@@ -29,7 +29,7 @@ export class TriggerForm {
         this.getTriggerMarketplace()
             .get('[data-testid="marketplace-search-loader"]',
                 { timeout: 100000 }).should('not.exist')
-            .get(`[data-testid="${type.toLowerCase()}"]`, { timeout: 50000 })
+            .get(`[data-testid="${type.toLowerCase()}"]`, { timeout: 120000 })
             .should("be.visible")
             .click();
         return this;
@@ -37,7 +37,7 @@ export class TriggerForm {
 
     static searchTrigger(type: string) {
         this.getTriggerMarketplace()
-            .get('[data-testid="search-input"]', { timeout: 10000 })
+            .get('[data-testid="search-input"]', { timeout: 20000 })
             .should("be.visible")
             .click()
             .type(type);
@@ -84,7 +84,7 @@ export class TriggerForm {
         this.getTriggerMarketplace().get('[data-testid="marketplace-search-loader"]',
             { timeout: 10000 }).should('be.visible');
         this.getTriggerMarketplace().get('[data-testid="marketplace-search-loader"]',
-            { timeout: 50000 }).should('not.exist');
+            { timeout: 120000 }).should('not.exist');
         return this;
     }
 
@@ -96,7 +96,7 @@ export class TriggerForm {
 
     static createBtnShouldNotBeClickable() {
         this.getTriggerForm()
-            .get('[data-testid="save-btn"]', { timeout: 50000 })
+            .get('[data-testid="save-btn"]', { timeout: 120000 })
             .should("have.attr", "disabled");
         return this;
     }
