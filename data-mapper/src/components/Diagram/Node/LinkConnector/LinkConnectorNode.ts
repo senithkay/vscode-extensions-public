@@ -1,4 +1,4 @@
-import { FieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, OptionalFieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -30,7 +30,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public valueNode: STNode,
         public editorLabel: string,
         public parentNode: STNode,
-        public fieldAccessNodes: FieldAccess[],
+        public fieldAccessNodes: (FieldAccess | OptionalFieldAccess)[],
         public fields: STNode[],
         public isPrimitiveTypeArrayElement?: boolean) {
         super(
