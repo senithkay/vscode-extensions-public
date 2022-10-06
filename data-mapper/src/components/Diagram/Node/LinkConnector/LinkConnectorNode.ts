@@ -81,7 +81,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
             const inPort = this.inPort;
 
-            const lm = new DataMapperLinkModel();
+            const lm = new DataMapperLinkModel(undefined, undefined, true);
             lm.setTargetPort(this.inPort);
             lm.setSourcePort(sourcePort);
 
@@ -105,7 +105,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             const outPort = this.outPort;
             const targetPort = this.targetMappedPort;
 
-            const lm = new DataMapperLinkModel(undefined, this.diagnostics);
+            const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
             lm.setTargetPort(this.targetMappedPort);
             lm.setSourcePort(this.outPort);
 
@@ -143,7 +143,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     public updatePosition() {
         const position = this.targetMappedPort.getPosition()
-        this.setPosition(this.hasError() ? 758 : 800, position.y - 12)
+        this.setPosition(this.hasError() ? 758 : 800, position.y - 10)
     }
 
     public hasError(): boolean {

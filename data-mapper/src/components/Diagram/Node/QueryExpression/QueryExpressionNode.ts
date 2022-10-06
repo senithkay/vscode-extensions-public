@@ -125,7 +125,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     initLinks(): void {
         // Currently, we create links from "IN" ports and back tracing the inputs.
         if (this.sourcePort && this.inPort) {
-            const link = new DataMapperLinkModel(undefined);
+            const link = new DataMapperLinkModel(undefined, undefined, true);
             link.setSourcePort(this.sourcePort);
             link.setTargetPort(this.inPort);
             link.registerListener({
@@ -145,7 +145,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
         // TODO - temp hack to render link
         if (this.outPort && this.targetPort) {
-            const link = new DataMapperLinkModel(undefined);
+            const link = new DataMapperLinkModel(undefined, undefined, true);
             link.setSourcePort(this.outPort);
             link.setTargetPort(this.targetPort);
             link.registerListener({
@@ -167,7 +167,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public updatePosition() {
         if (this.targetPort){
             const position = this.targetPort.getPosition()
-            this.setPosition(800, position.y - 12)
+            this.setPosition(800, position.y - 10)
         }
     }
 }

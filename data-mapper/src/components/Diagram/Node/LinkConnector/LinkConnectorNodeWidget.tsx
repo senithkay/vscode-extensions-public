@@ -1,9 +1,10 @@
 import * as React from 'react';
 
-import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
+import { createStyles, Theme, makeStyles, withStyles } from "@material-ui/core/styles";
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
+import TooltipBase from '@material-ui/core/Tooltip';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { DataMapperPortWidget } from '../../Port';
@@ -13,17 +14,31 @@ import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
 
 import clsx from 'clsx';
 
+export const tooltipBaseStyles = {
+    tooltip: {
+        color: "#8d91a3",
+        backgroundColor: "#fdfdfd",
+        border: "1px solid #e6e7ec",
+        borderRadius: 6,
+        padding: "1rem"
+    },
+    arrow: {
+        color: "#fdfdfd"
+    }
+};
+
 const styles = makeStyles((theme: Theme) => createStyles({
     root: {
         width: '100%',
         backgroundColor: theme.palette.common.white,
-        padding: "5px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
         color: theme.palette.grey[400],
         boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
         borderRadius: "10px",
+		alignItems: "center",
+		overflow: "hidden",
     },
     element: {
         backgroundColor: theme.palette.common.white,
@@ -114,14 +129,19 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                     : props.node.editorLabel)
         });
     };
+    
+    const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
+
 
     return (
         <div className={classes.root}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} />
-                <span className={classes.editIcon} >
-                    <ExpressionIcon  />
-                </span>
+                <TooltipComponent interactive={false} arrow={true} title={"Multi-Input Expression"}>
+                    <span className={classes.editIcon} >
+                        <ExpressionIcon  />
+                    </span>
+                </TooltipComponent>
                 <div className={classes.element} onClick={onClickEdit}>
                     <div className={classes.iconWrapper}>
                         <CodeOutlinedIcon className={clsx(classes.icons, classes.editIcon)}/>

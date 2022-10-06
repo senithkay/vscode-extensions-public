@@ -15,7 +15,7 @@ export class DataMapperLinkFactory extends DefaultLinkFactory {
         return new DataMapperLinkModel();
     }
 
-    generateReactWidget(event: { model: any }): JSX.Element {
+    generateReactWidget(event: { model: DataMapperLinkModel }): JSX.Element {
         return (
             <DefaultLinkWidget link={event.model} diagramEngine={this.engine} />
         );
