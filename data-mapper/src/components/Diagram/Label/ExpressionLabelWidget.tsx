@@ -102,7 +102,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const [linkSelected, setLinkSelected] = React.useState(false);
 	const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
 	const [codeActions, setCodeActions] = React.useState([]);
-	const [mutationInProgress, setMutationInProgress] = React.useState(false);
+	const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 	const classes = useStyles();
 	const diagnostic = props.model.link.hasError() ? props.model.link.diagnostics[0] : null;
 
@@ -117,8 +117,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	}, [props.model]);
 
 	const onClickDelete = () => {
-		setMutationInProgress(true);
-		props.model.context.handleOverlay(true);
+		setDeleteInProgress(true);
 		if (props.model.deleteLink) {
 			props.model.deleteLink();
 		}
@@ -172,24 +171,22 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const elements: React.ReactNode[] = [
 		(
 			<>
-				{mutationInProgress ? (
+				<div className={classes.element} >
+					<div className={classes.iconWrapper}>
+						<CodeOutlinedIcon className={classes.codeIconButton} onClick={onClickEdit} />
+					</div>
+				</div>
+				<div className={classes.separator} />
+				{deleteInProgress ? (
 					<div className={clsx(classes.element, classes.loadingContainer)}>
 						{loadingScreen}
 					</div>
 				) : (
-					<>
-						<div className={classes.element} >
-							<div className={classes.iconWrapper}>
-								<CodeOutlinedIcon className={classes.codeIconButton} onClick={onClickEdit} />
-							</div>
+					<div className={classes.element}>
+						<div className={classes.iconWrapper}>
+							<DeleteIcon className={classes.deleteIconButton} onClick={onClickDelete} />
 						</div>
-						<div className={classes.separator} />
-						<div className={classes.element}>
-							<div className={classes.iconWrapper}>
-								<DeleteIcon className={classes.deleteIconButton} onClick={onClickDelete} />
-							</div>
-						</div>
-					</>
+					</div>
 				)}
 			</>
 		),
@@ -279,7 +276,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		<div
 			className={clsx(
 				classes.container,
-				!linkSelected && !mutationInProgress && classes.containerHidden
+				!linkSelected && !deleteInProgress && classes.containerHidden
 			)}
 		>
 			{elements}
