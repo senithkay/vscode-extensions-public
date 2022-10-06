@@ -78,7 +78,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             padding: "5px",
             backgroundColor: theme.palette.error.light,
-            borderRadius: "5px"
+            borderRadius: "5px",
+            pointerEvents: 'auto'
         },
         errorIconWrapper: {
             height: "22px",
