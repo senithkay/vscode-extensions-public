@@ -1,14 +1,18 @@
 import { MouseEvent, TouchEvent } from 'react';
+
 import {
-	SelectingState,
-	State,
 	Action,
-	InputType,
 	ActionEvent,
-	DragCanvasState
+	DragCanvasState,
+	InputType,
+	SelectingState,
+	State
 } from '@projectstorm/react-canvas-core';
-import { PortModel, DiagramEngine, DragDiagramItemsState } from '@projectstorm/react-diagrams-core';
+import { DiagramEngine, DragDiagramItemsState, PortModel } from '@projectstorm/react-diagrams-core';
+
+
 import { CreateLinkState } from './CreateLinkState';
+import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -31,7 +35,13 @@ export class DefaultState extends State<DiagramEngine> {
 
 					// the canvas was clicked on, transition to the dragging canvas state
 					if (!element) {
-						this.transitionWithEvent(this.dragCanvas, event);
+						const targetElement = event.event.target as Element;
+						const linkOveralyContainer = targetElement.closest(`#${LinkOverayContainerID}`);
+						if (linkOveralyContainer) {
+							// Clicked on an link overlay item, hence, do not propagate as a canvas drag
+						} else {
+							this.transitionWithEvent(this.dragCanvas, event);
+						}
 					}
 					// initiate dragging a new link
 					else if (element instanceof PortModel) {

@@ -14,6 +14,7 @@ import {
 	ListConstructor,
 	MappingConstructor,
 	NodePosition,
+	OptionalFieldAccess,
 	RecordField,
 	RequiredParam, SimpleNameReference,
 	SpecificField,
@@ -38,15 +39,16 @@ import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, MAPPING_CONSTRUCTOR_TARGET_PORT_PREF
 import { getModification } from "./modifications";
 import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
 
-export function getFieldNames(expr: FieldAccess) {
+export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: string[] = [];
-	let nextExp: FieldAccess = expr;
-	while (nextExp && STKindChecker.isFieldAccess(nextExp)) {
+	let nextExp: FieldAccess | OptionalFieldAccess = expr;
+	while (nextExp && (STKindChecker.isFieldAccess(nextExp) || STKindChecker.isOptionalFieldAccess(nextExp))) {
 		fieldNames.push((nextExp.fieldName as SimpleNameReference).name.value);
 		if (STKindChecker.isSimpleNameReference(nextExp.expression)) {
 			fieldNames.push(nextExp.expression.name.value);
 		}
-		nextExp = STKindChecker.isFieldAccess(nextExp.expression) ? nextExp.expression : undefined;
+		nextExp = (STKindChecker.isFieldAccess(nextExp.expression) || STKindChecker.isFieldAccess(nextExp.expression))
+					? nextExp.expression : undefined;
 	}
 	return fieldNames.reverse();
 }
@@ -102,7 +104,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	while (parent != null && parent.parentModel) {
 		if (parent.field?.name
 			&& !(parent.field.typeName === PrimitiveBalType.Record
-				&& parent.parentModel.field.typeName === PrimitiveBalType.Array)
+				&& parent.parentModel.field.typeName === PrimitiveBalType.Array
+				&& !parent.isWithinSelectClause)
 		) {
 			parentFieldNames.push(parent.field.name);
 		}
@@ -353,9 +356,10 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 		if(paramNode){
 			return findNodeByValueNode(paramNode, dmNode);
 		}
-	} else if (STKindChecker.isFieldAccess(expr)) {
+	} else if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 		let valueExpr = expr.expression;
-		while (valueExpr && STKindChecker.isFieldAccess(valueExpr)) {
+		while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
+				|| STKindChecker.isOptionalFieldAccess(valueExpr))) {
 			valueExpr = valueExpr.expression;
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
@@ -394,7 +398,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 		: EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
 		+ (node as FromClauseNode).sourceBindingPattern.variableName.value;
 	if (typeDesc.typeName === PrimitiveBalType.Record) {
-		if (STKindChecker.isFieldAccess(expr)) {
+		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 			const fieldNames = getFieldNames(expr);
 			let nextTypeNode: Type = typeDesc;
 			for (let i = 1; i < fieldNames.length; i++) {
@@ -492,6 +496,7 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 		}
 		return [port, mappedPort];
 	}
+	return [null,null]
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
@@ -564,6 +569,8 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 				valueNode = node;
 				nextNode = valueNode;
 			}
+		} else {
+			valueNode = node;
 		}
 	} else {
 		nextNode = node;

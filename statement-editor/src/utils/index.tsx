@@ -65,6 +65,7 @@ import {
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
+    RECORD_EDITOR,
     StatementNodes,
     SymbolParameterType,
     WHITESPACE_MINUTIAE
@@ -498,6 +499,10 @@ export function isNodeDeletable(selectedNode: STNode, formType: string): boolean
     if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
         exprDeletable = stmtViewState.templateExprDeletable;
     } else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
+        exprDeletable = false;
+    }
+
+    if (formType === RECORD_EDITOR && STKindChecker.isTypeDefinition(selectedNode.parent)) {
         exprDeletable = false;
     }
 

@@ -15,7 +15,9 @@ import * as React from 'react';
 
 import { IconButton } from "@material-ui/core";
 import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
+import TooltipBase from '@material-ui/core/Tooltip';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import QueryIcon from '@material-ui/icons/StorageOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import ExitToApp from "@material-ui/icons/ExitToApp";
 import { ViewOption } from "../../../DataMapper/DataMapper";
@@ -26,17 +28,52 @@ import {
 } from './QueryExpressionNode';
 import clsx from 'clsx';
 
+export const tooltipBaseStyles = {
+    tooltip: {
+        color: "#8d91a3",
+        backgroundColor: "#fdfdfd",
+        border: "1px solid #e6e7ec",
+        borderRadius: 6,
+        padding: "1rem"
+    },
+    arrow: {
+        color: "#fdfdfd"
+    }
+};
+
 const styles = (theme: Theme) => createStyles({
     root: {
         width: '100%',
         backgroundColor: theme.palette.common.white,
-        padding: "5px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
         color: theme.palette.grey[400],
         boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
         borderRadius: "10px",
+		alignItems: "center",
+		overflow: "hidden",
+    },
+    element: {
+        backgroundColor: theme.palette.common.white,
+        padding: "10px",
+        cursor: "pointer",
+        transitionDuration: "0.2s",
+        userSelect: "none",
+        pointerEvents: "auto",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        "&:hover": {
+            filter: "brightness(0.95)",
+        },
+    },
+    iconWrapper: {
+        height: "22px",
+        width: "22px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
     },
     fromClause: {
         padding: "5px",
@@ -58,7 +95,13 @@ const styles = (theme: Theme) => createStyles({
         padding: '5px'
     },
     openQueryIcon: {
-        color: theme.palette.grey[300]
+        color: theme.palette.grey[300],
+        padding: "10px",
+        height: "42px",
+        width: "42px"
+    },
+    editIcon: {
+        color: theme.palette.grey[300],
     },
     deleteIcon: {
         color: theme.palette.error.main
@@ -100,30 +143,30 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
             node.context.applyModifications(modifications);
         }
 
+        const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
+
         return (
             <>
                 {/* TODO: Identify inner query expressions and render minimized boxes to denote those with links */}
                 {!!node.sourcePort && (
-                    <div
-                        className={classes.root}
-                    >
+                    <div className={classes.root} >
                         <div className={classes.header}>
                             <DataMapperPortWidget engine={engine} port={node.inPort} />
-                            <div className={classes.fromClause}>
-                                Query
+                            <TooltipComponent interactive={false} arrow={true} title={"Query Expression"}>
+                                <span className={classes.openQueryIcon} >
+                                    <QueryIcon  />
+                                </span>
+                            </TooltipComponent>
+                            <div className={classes.element} onClick={onClickOnExpand}>
+                                <div className={classes.iconWrapper}>
+                                    <ExitToApp className={clsx(classes.editIcon)}/>
+                                </div>
                             </div>
-                            <IconButton
-                                onClick={onClickOnExpand}
-                                className={clsx(classes.icons, classes.openQueryIcon)}
-                            >
-                                <ExitToApp />
-                            </IconButton>
-                            <IconButton
-                                onClick={deleteQueryLink}
-                                className={clsx(classes.icons, classes.deleteIcon)}
-                            >
-                                <DeleteIcon />
-                            </IconButton>
+                            <div className={classes.element} onClick={deleteQueryLink}>
+                                <div className={classes.iconWrapper}>
+                                    <DeleteIcon className={clsx(classes.deleteIcon)}/>
+                                </div>
+                            </div>
                             <DataMapperPortWidget engine={engine} port={node.outPort} />
                         </div>
                     </div>

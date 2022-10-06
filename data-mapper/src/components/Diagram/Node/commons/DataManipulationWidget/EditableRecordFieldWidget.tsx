@@ -102,7 +102,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             portIn.ancestorHasValue = true;
             isDisabled = true;
         }
-        if (hasValue && !connectedViaLink && (isArray || isRecord)) {
+        if (hasValue
+            && !connectedViaLink
+            && (isArray && !STKindChecker.isQueryExpression(specificField.valueExpr) || isRecord))
+        {
             portIn.setDescendantHasValue();
             isDisabled = true;
         }
@@ -193,7 +196,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 <div className={classes.treeLabel}>
                     <span className={classes.treeLabelInPort}>
                         {portIn &&
-                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled} />
+                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
                         }
                     </span>
                     <span className={classes.label}>

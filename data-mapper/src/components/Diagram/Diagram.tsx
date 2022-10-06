@@ -13,8 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import createEngine, { DagreEngine, DefaultDiagramState, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
+import { DagreEngine, DefaultDiagramState, DefaultLabelFactory, DefaultLinkFactory, DefaultNodeFactory, DefaultPortFactory, DiagramEngine, DiagramModel, NodeLayerFactory, PathFindingLinkFactory } from '@projectstorm/react-diagrams';
 import "reflect-metadata";
 import {container} from "tsyringe";
 
@@ -36,6 +35,9 @@ import { QueryExpressionNode } from './Node/QueryExpression';
 import * as Ports from "./Port";
 import { FromClauseNode } from './Node/FromClause';
 import { LetClauseNode } from './Node/LetClause';
+import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
+import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
+import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -53,10 +55,26 @@ function initDiagramEngine() {
 	// END TODO
 
 	const diContext = container.resolve(DataMapperDIContext);
-	const engine = createEngine({
+
+	const engine = new DiagramEngine({
 		registerDefaultPanAndZoomCanvasAction: true,
 		registerDefaultZoomCanvasAction: false
 	});
+
+	// register model factories
+	engine.getLayerFactories().registerFactory(new NodeLayerFactory());
+	engine.getLayerFactories().registerFactory(new OverriddenLinkLayerFactory());
+	// engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
+
+	engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
+	engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
+	engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
+	engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
+	engine.getPortFactories().registerFactory(new DefaultPortFactory());
+
+	// register the default interaction behaviours
+	engine.getStateMachine().pushState(new DefaultDiagramState());
+	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
 	diContext.nodeFactories.forEach((nf) =>
 		engine.getNodeFactories().registerFactory(nf));
@@ -109,11 +127,15 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			newModel.setOffset(offSetX, offSetY);
 			newModel.addAll(...nodes);
 			for (let i = 0; i < nodes.length; i++) {
-				const node = nodes[i];
-				node.setModel(newModel);
-				await node.initPorts();
-				await node.initLinks();
-				engine.repaintCanvas();
+				try {
+					const node = nodes[i];
+					node.setModel(newModel);
+					await node.initPorts();
+					await node.initLinks();
+					engine.repaintCanvas();
+				} catch (e) {
+					console.error(e)
+				}
 			}
 			model.setLocked(true);
 			engine.setModel(newModel);
@@ -142,6 +164,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					additionalSpace += node.initialYPosition
 				}
 			});
+			newModel.addLayer(new OverlayLayerModel());
 			setModel(newModel);
         }
   genModel();

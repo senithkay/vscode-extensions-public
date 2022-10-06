@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+import styled from "@emotion/styled";
 import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 // tslint:disable-next-line: no-implicit-dependencies
@@ -8,7 +9,6 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { DataMapperLinkModel } from "../../Link"
 import { IntermediatePortModel } from "../IntermediatePort";
 import { RecordFieldPortModel } from "../model/RecordFieldPortModel";
-import styled from "@emotion/styled";
 
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
@@ -16,9 +16,15 @@ export interface DataMapperPortWidgetProps {
 	disable?: boolean;
 }
 
+enum PortState {
+	PortSelected,
+	LinkSelected,
+	Unselected
+}
+
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {
 	const { engine, port, disable } = props;
-	const [ active, setActive ] = useState(false);
+	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
 	const hasLinks = Object.entries(port.links).length > 0;
 
@@ -34,46 +40,57 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 			port.registerListener({
 				eventDidFire(event) {
 					if (event.function === "mappingStartedFrom" || event.function === "mappingFinishedTo") {
-						// setActive(true);
+						setPortState(PortState.PortSelected);
 					} else if (event.function === "link-selected") {
-						setActive(true);
-					} else if (event.function === "link-unselected") {
-						setActive(false);
+						setPortState(PortState.LinkSelected);
+					} else if (event.function === "link-unselected"
+						|| event.function === "mappingStartedFromSelectedAgain") {
+						setPortState(PortState.Unselected);
 					}
 				},
 			})
-		
 	}, []);
 
 	const containerProps = {
 		hasError,
 		hasLinks,
-		active,
-		disable: disable
+		active: portState === PortState.PortSelected,
+		disable
 	};
 
-	return <PortWidget
-		port={port}
-		engine={engine}
-	>
-		<PortContainer { ...containerProps }>
-			{active && !disable ? <RadioButtonCheckedIcon/> : (hasLinks ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>)}
-		</PortContainer>
-	</PortWidget>
+	return !disable ? (
+		<PortWidget
+			port={port}
+			engine={engine}
+		>
+			<ActivePortContainer {...containerProps}>
+				{hasLinks || portState === PortState.PortSelected ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>}
+			</ActivePortContainer>
+		</PortWidget>
+	) : (
+		<DisabledPortContainer>
+			<RadioButtonUncheckedIcon/>
+		</DisabledPortContainer>
+	);
 }
 
 interface PortsContainerProps {
 	active: boolean;
 	hasLinks: boolean;
 	hasError: boolean;
-	disable: boolean
 }
 
-const PortContainer = styled.div((props: PortsContainerProps) => ({
-	cursor: props.disable ? "not-allowed" : "pointer",
+const ActivePortContainer = styled.div((props: PortsContainerProps) => ({
+	cursor: "pointer",
 	display: "inline",
-	color: (props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : (props.active ? "rgb(0, 192, 255)" : "#8D91A3")),
+	color: (props.active ? "rgb(0, 192, 255)" : props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : "#8D91A3"),
 	"&:hover": {
-		color: !props.disable && "rgb(0, 192, 255)"
+		color: "rgb(0, 192, 255)"
 	}
 }));
+
+const DisabledPortContainer = styled.div`
+	cursor: not-allowed;
+	color: #b7bcd3
+`;
+

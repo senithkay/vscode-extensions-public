@@ -25,7 +25,12 @@ export function PerformanceBar(props: PerformanceProps) {
     const onClickPerformance = async () => {
         let fullPath = "";
         for (const path of model.relativeResourcePath) {
-            fullPath += (path as any).value;
+            const p = path as any;
+            if (p.kind === "ResourcePathSegmentParam") {
+                fullPath += p.source;
+            } else {
+                fullPath += p.value;
+            }
         }
 
         if (openPerformanceChart) {
@@ -34,7 +39,7 @@ export function PerformanceBar(props: PerformanceProps) {
         }
     };
     const element = (
-        <p className={"more"} onClick={onClickPerformance}>{"Reveal critical path"}</p>
+        <p className={"more"} onClick={onClickPerformance}>{"Reveal performance-critical path"}</p>
     );
 
     const content = "Click here to open the performance graph";
@@ -49,7 +54,7 @@ export function PerformanceBar(props: PerformanceProps) {
         <div className={"performance-bar"}>
             <div className={"rectangle"}>&nbsp;</div>
             <p>
-                {`Forecasted performance of the ${isRealtime() ? "critical" : "selected"} path: Concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}`}
+                {`Forecasted performance of the ${isRealtime() ? "performance-critical" : "selected"} path: Concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}`}
             </p>
             {isRealtime() && (tooltip ? tooltip : element)}
         </div>

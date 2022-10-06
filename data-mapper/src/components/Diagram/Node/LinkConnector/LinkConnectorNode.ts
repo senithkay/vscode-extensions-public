@@ -1,9 +1,8 @@
-import { FieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FieldAccess, OptionalFieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import { getInputNodeExpr, getInputPortsForExpr, getOutputPortForField } from "../../utils/dm-utils";
@@ -31,7 +30,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public valueNode: STNode,
         public editorLabel: string,
         public parentNode: STNode,
-        public fieldAccessNodes: FieldAccess[],
+        public fieldAccessNodes: (FieldAccess | OptionalFieldAccess)[],
         public fields: STNode[],
         public isPrimitiveTypeArrayElement?: boolean) {
         super(
@@ -82,17 +81,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
             const inPort = this.inPort;
 
-            const lm = new DataMapperLinkModel();
+            const lm = new DataMapperLinkModel(undefined, undefined, true);
             lm.setTargetPort(this.inPort);
             lm.setSourcePort(sourcePort);
 
             const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
-
-            lm.addLabel(new ExpressionLabelModel({
-                context: this.context,
-                link: lm,
-                deleteLink: () => this.deleteLink(fieldAccessNode),
-            }));
 
             lm.registerListener({
                 selectionChanged(event) {
@@ -112,15 +105,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             const outPort = this.outPort;
             const targetPort = this.targetMappedPort;
 
-            const lm = new DataMapperLinkModel(undefined, this.diagnostics);
+            const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
             lm.setTargetPort(this.targetMappedPort);
             lm.setSourcePort(this.outPort);
-
-            lm.addLabel(new ExpressionLabelModel({
-                context: this.context,
-                link: lm,
-                deleteLink: () => this.targetLinkDelete(this.valueNode),
-            }));
 
             lm.registerListener({
                 selectionChanged(event) {
@@ -156,37 +143,21 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     public updatePosition() {
         const position = this.targetMappedPort.getPosition()
-        this.setPosition(800, position.y - 4)
+        this.setPosition(this.hasError() ? 758 : 800, position.y - 10)
     }
 
     public hasError(): boolean {
         return this.diagnostics.length > 0;
     }
 
-    private deleteLink(specificField: SpecificField | FieldAccess) {
-        const linkDeleteVisitor = new LinkDeletingVisitor(specificField.position, this.parentNode);
-        traversNode(this.parentNode, linkDeleteVisitor);
+    public deleteLink() {
+        const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position, this.parentNode);
+        traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
         const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
 
         this.context.applyModifications([{
             type: "DELETE",
             ...nodePositionsToDelete
         }]);
-    }
-
-    private targetLinkDelete(node: STNode) {
-        const selectedST = this.context.selection.selectedST.stNode;
-        if (STKindChecker.isSpecificField(node)) {
-            if (STKindChecker.isSpecificField(selectedST)
-                && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
-                // If query targetPort, should delete only value expression position
-                this.context.applyModifications([{
-                    type: "DELETE",
-                    ...node.valueExpr.position
-                }]);
-            } else {
-                this.deleteLink(node);
-            }
-        }
     }
 }
