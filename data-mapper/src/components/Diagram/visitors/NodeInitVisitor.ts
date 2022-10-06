@@ -82,7 +82,7 @@ export class NodeInitVisitor implements Visitor {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
                 const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 65;
                 const addInitialClauseHeight = 65;
-                const yPosition = intermediateClausesHeight  || addInitialClauseHeight;
+                const yPosition = 50 + (intermediateClausesHeight  || addInitialClauseHeight);
                 // create output node
                 this.outputNode = new MappingConstructorNode(
                     this.context,

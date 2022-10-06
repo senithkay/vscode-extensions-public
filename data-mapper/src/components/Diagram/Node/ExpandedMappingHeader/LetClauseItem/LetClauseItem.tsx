@@ -83,8 +83,8 @@ export function LetClauseItem(props: {
         <>
             <div className={clsx(classes.element, classes.clauseWrap)}>
                 <div className={classes.clause}>
-                    <span>{intermediateNode.letKeyword.value}</span>
-                    <span>{` ${letVarDeclaration.typedBindingPattern.typeDescriptor.source}`}</span>
+                    <span className={classes.clauseBold}>{intermediateNode.letKeyword.value}</span>
+                    <span className={classes.clauseItem}>{` ${letVarDeclaration.typedBindingPattern.typeDescriptor.source}`}</span>
                     <span className={classes.clauseExpression}>
                         {nameEditable ? (
                             <input
@@ -116,7 +116,7 @@ export function LetClauseItem(props: {
                             </span>
                         )}
                     </span>
-                    <span>{` ${letVarDeclaration.equalsToken.value} `}</span>
+                    <span className={classes.clauseItem}>{` ${letVarDeclaration.equalsToken.value} `}</span>
                     <span
                         className={classes.clauseExpression}
                         onClick={onEditClick}
