@@ -5,16 +5,25 @@ export class ResourceFunction {
     public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) {
     }
 
-    public editResource() {
+    public showMenu() {
         this.container.within(() => {
-            cy.get(".header-amendment-options [id=edit-button]")
+            cy.get(".header-amendment-options [id=menu-button]")
+                .click({force: true});
+        });
+    }
+
+    public editResource() {
+        this.showMenu();
+        this.container.within(() => {
+            cy.get(".rectangle-menu-resource .menu-option [id=edit-button]")
                 .click();
         });
     }
 
     public deleteResource() {
+        this.showMenu();
         this.container.within(() => {
-            cy.get(".header-amendment-options [id=delete-button]")
+            cy.get(".rectangle-menu-resource .menu-option [id=delete-button]")
                 .click();
         });
     }
@@ -42,6 +51,7 @@ export class ResourceFunction {
     }
     
     public editDiagram() {
+        this.showMenu();
         this.container.within(() => {
             cy.get('#edit-button')
                 .click();

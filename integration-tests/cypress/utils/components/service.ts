@@ -6,21 +6,26 @@ export class Service {
     public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) {
     }
 
-    public clickRun() {
+    public showMenu() {
         this.container.within(() => {
-            cy.get('.action-container')
-                .contains("Run")
-                .should("have.text", "Run")
+            cy.get(".service-header .header-amendment-options [id=menu-button]")
+                .click();
+        });
+    }
+
+    public clickRun() {
+        this.showMenu();
+        this.container.within(() => {
+            cy.get(".rectangle-menu .menu-option [id=run-button]")
                 .click({ force: true });
         });
         return this;
     }
 
     public clickTryIt() {
+        this.showMenu();
         this.container.within(() => {
-            cy.get('.action-container')
-                .contains("Try it")
-                .should("have.text", "Try it")
+            cy.get(".rectangle-menu .menu-option [id=try-button]")
                 .click({ force: true });
         });
         return this;
@@ -28,19 +33,17 @@ export class Service {
 
 
     public clickEdit() {
+        this.showMenu();
         this.container.within(() => {
-            cy.get('.service-header')
-                .realHover()
-                .get('#edit-button')
+            cy.get(".rectangle-menu .menu-option [id=edit-button]")
                 .click({ force: true });
         });
     }
 
     public clickDelete() {
+        this.showMenu();
         this.container.within(() => {
-            cy.get('.service-header')
-                .realHover()
-                .get('#delete-button')
+            cy.get(".rectangle-menu .menu-option [id=delete-button]")
                 .click({ force: true });
         });
     }
