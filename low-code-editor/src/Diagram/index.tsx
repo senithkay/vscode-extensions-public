@@ -63,7 +63,8 @@ export function Diagram() {
             error,
             selectedPosition,
             zoomStatus,
-            experimentalEnabled
+            experimentalEnabled,
+            openInDiagram
         },
     } = useContext(DiagramContext);
 
@@ -100,29 +101,29 @@ export function Diagram() {
     }, []);
 
     React.useEffect(() => {
-        const targetPosition = {
-            startLine: 16,
-            startColumn: 4,
-            endLine: 16,
-            endColumn: 14
-        };
-        STFindingVisitor.setPosition(targetPosition);
-        traversNode(syntaxTree, STFindingVisitor);
-        const stNode = STFindingVisitor.getSTNode();
-        if (stNode) {
-            let formType = stNode.kind;
-            if (STKindChecker.isFunctionDefinition(stNode) && STKindChecker.isExpressionFunctionBody(stNode.functionBody)) {
-                isDataMapperOpen = true;
-                formType = 'DataMapper'
-            } else if (STKindChecker.isTypeDefinition(stNode) && STKindChecker.isRecordTypeDesc(stNode.typeDescriptor)) {
-                formType = 'RecordEditor'
+        if (Object.keys(openInDiagram).some(k => k !== null)) {
+            STFindingVisitor.setPosition(openInDiagram);
+            traversNode(syntaxTree, STFindingVisitor);
+            const stNode = STFindingVisitor.getSTNode();
+            if (stNode) {
+                let formType = stNode.kind;
+                if (STKindChecker.isFunctionDefinition(stNode)
+                    && STKindChecker.isExpressionFunctionBody(stNode.functionBody)
+                ) {
+                    isDataMapperOpen = true;
+                    formType = 'DataMapper'
+                } else if (STKindChecker.isTypeDefinition(stNode)
+                    && STKindChecker.isRecordTypeDesc(stNode.typeDescriptor)
+                ) {
+                    formType = 'RecordEditor'
+                }
+                handleDiagramEdit(stNode, openInDiagram, {
+                    formType,
+                    isLoading: false
+                });
             }
-            handleDiagramEdit(stNode, targetPosition, {
-                formType,
-                isLoading: false
-            });
         }
-    }, []);
+    }, [openInDiagram]);
 
     const openErrorDialog = () => {
         // setIsErrorStateDialogOpen(true);
