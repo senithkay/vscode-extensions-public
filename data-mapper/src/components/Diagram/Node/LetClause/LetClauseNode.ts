@@ -49,7 +49,6 @@ export class LetClauseNode extends DataMapperNodeModel {
     async initPorts() {
         await this.getSourceType();
         if (this.sourceBindingPattern) {
-            // const parentId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
             const parentId = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${this.sourceBindingPattern.variableName.value}`;
 
             const parentPort = this.addPortsForHeaderField(this.typeDef, parentId, "OUT", this.context.collapsedFields);

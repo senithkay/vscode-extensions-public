@@ -55,7 +55,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             cursor: 'pointer',
             padding: 5,
             marginRight: 5,
-            // marginLeft: 5,
             transition: 'border 0.2s',
             border: `1px solid transparent`,
             '&:hover': {
