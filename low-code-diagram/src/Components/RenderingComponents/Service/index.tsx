@@ -110,7 +110,7 @@ export function Service(props: ServiceProps) {
             } else if (
                 expression &&
                 STKindChecker.isSimpleNameReference(expression) &&
-                expression.typeData?.typeSymbol?.moduleID.moduleName === "http"
+                expression.typeData?.typeSymbol?.moduleID?.moduleName === "http"
             ) {
                 return true;
             }
@@ -124,7 +124,7 @@ export function Service(props: ServiceProps) {
             if (
                 expression &&
                 STKindChecker.isSimpleNameReference(expression) &&
-                expression.typeData?.typeSymbol?.moduleID.moduleName.includes("trigger")
+                expression.typeData?.typeSymbol?.moduleID?.moduleName?.includes("trigger")
             ) {
                 return true;
             }
