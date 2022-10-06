@@ -21,6 +21,11 @@ export class SuggestionsPane {
         return this;
     }
 
+    static waitForLoading() {
+        cy.get('.MuiCircularProgress-svg', { timeout: 100000 }).should('not.exist')
+        return this;
+    }
+
     static tabShouldFocused(selectedTab: string) {
         cy.get(`[data-testid="tab-panel-wrapper"]`).within(() => {
             cy.contains(selectedTab).should('have.attr', 'aria-selected').and('eq', 'true')
