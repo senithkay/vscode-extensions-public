@@ -488,8 +488,8 @@ export function IfElse(props: IfElseProps) {
                     {isDefaultElseExist && <Else diagnostics={diagnostics} defaultViewState={viewState.defaultElseVS as ElseViewState} />}
                     {isElseIfExist && <IfElse model={ifStatement.elseBody.elseBody} name={componentName} />}
                     {controlFlowLines}
-                    {children}
                     {collapsedComponents}
+                    {children}
                     {!isReadOnly && pluses}
                     {drafts}
                 </g>

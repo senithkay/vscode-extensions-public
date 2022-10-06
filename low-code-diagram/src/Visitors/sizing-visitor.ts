@@ -526,7 +526,7 @@ export class SizingVisitor implements Visitor {
      * Sync heights of the send receive pairs
      * @param funcitonDef Function definition ST
      * @param offset Bottom offset of the trigger head this is constant in any mode
-     * @returns 
+     * @returns paired viewstates of sends and receives
      */
     private syncAsyncStatements(funcitonDef: FunctionDefinition, offset: number): SendRecievePairInfo[] {
         const matchedStatements: SendRecievePairInfo[] = [];

@@ -29,6 +29,11 @@ export class CollapsedRangeExpandVisitor implements Visitor {
     }
 
     beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
+        const blockViewState: BlockViewState = node.viewState as BlockViewState;
+        if (blockViewState.hasWorkerDecl) {
+            const statements: STNode[] = node.namedWorkerDeclarator.workerInitStatements;
+            this.expandCollapseWithMatchingRange(blockViewState, statements);
+        }
         this.beginVisitBlock(node);
     }
 
@@ -38,7 +43,12 @@ export class CollapsedRangeExpandVisitor implements Visitor {
 
     beginVisitBlock(node: BlockStatement) {
         const blockVS: BlockViewState = node.viewState as BlockViewState;
+        const statements: STNode[] = node.statements;
 
+        this.expandCollapseWithMatchingRange(blockVS, statements);
+    }
+
+    private expandCollapseWithMatchingRange(blockVS: BlockViewState, statements: STNode[]) {
         blockVS.collapsedViewStates.forEach(collapsedVS => {
             if (collapsedVS.range.startLine === this.expandRange.startLine
                 && collapsedVS.range.endLine === this.expandRange.endLine
@@ -51,7 +61,7 @@ export class CollapsedRangeExpandVisitor implements Visitor {
                 let lastStatementInRange: StatementViewState;
 
 
-                node.statements.forEach(statement => {
+                statements.forEach(statement => {
                     const stmtVS: StatementViewState = statement.viewState as StatementViewState;
 
                     if (isPositionWithinRange(statement.position, collapsedVS.range)) {
