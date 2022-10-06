@@ -58,6 +58,8 @@ import {
 } from "../library-browser/model";
 import { getSentryConfig, SentryConfig } from './sentry';
 import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-editor-distribution';
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { PALETTE_COMMANDS } from '../project';
 
 export let hasDiagram: boolean = false;
 
@@ -69,10 +71,12 @@ let ballerinaExtension: BallerinaExtension;
 let webviewRPCHandler: WebViewRPCHandler;
 let currentDocumentURI: Uri;
 let experimentalEnabled: boolean;
+let openNodeInDiagram: NodePosition;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
-	isCommand: boolean = false): Promise<void> {
+	isCommand: boolean = false, openInDiagram?): Promise<void> {
 
+	openNodeInDiagram = openInDiagram;
 	const editor = window.activeTextEditor;
 	if (isCommand) {
 		if (!editor || !editor.document.fileName.endsWith('.bal')) {
@@ -182,12 +186,26 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_CODE_EDITOR, CMP_DIAGRAM_VIEW);
 	});
 
-	const diagramRenderDisposable = commands.registerCommand('ballerina.show.diagram', () => {
+	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path) => {
+		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
+			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, position);
+		} else {
+			const args = [{
+				filePath: path,
+				startLine: 0,
+				startColumn: 0,
+				openInDiagram: position
+			}];
+			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+		}
+	});
+
+	const diagramRenderDisposable = commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (...args: any[]) => {
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(0, 0, '', true);
+				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : {});
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
@@ -544,7 +562,7 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, experimentalEnabled);
+					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram);
 			} else {
 				callUpdateDiagramMethod();
 			}

@@ -29,6 +29,7 @@ import {
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
 import { openConfigEditor } from '../config-editor/configEditorPanel';
+import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -118,10 +119,11 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
         await langClient.onReady().then(async () => {
             const activeEditor = this.activeTextEditorUri ? this.activeTextEditorUri
-                                                          : window.activeTextEditor!.document.uri;
+                : window.activeTextEditor!.document.uri;
+            const filePath = activeEditor.toString();
             await langClient!.getExecutorPositions({
                 documentIdentifier: {
-                    uri: activeEditor.toString()
+                    uri: filePath
                 }
             }).then(executorsResponse => {
                 const response = executorsResponse as ExecutorPositionsResponse;
@@ -144,6 +146,36 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 }
             }, _error => {
                 return codeLenses;
+            });
+
+            // Open in diagram code lenses
+            await langClient!.getSyntaxTree({
+                documentIdentifier: {
+                    uri: filePath
+                }
+            }).then(syntaxTreeResponse => {
+                const response = syntaxTreeResponse as GetSyntaxTreeResponse;
+                if (response.parseSuccess && response.syntaxTree) {
+                    const syntaxTree = response.syntaxTree;
+
+                    syntaxTree.members.forEach(member => {
+                        if (member.kind === 'FunctionDefinition') {
+                            const functionBody = member.functionBody;
+                            if (functionBody.kind === 'ExpressionFunctionBody') {
+                                const position = functionBody.position;
+                                const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
+                                codeLens.command = {
+                                    title: "Open in diagram",
+                                    tooltip: "Open this code block in diagram view",
+                                    command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                    arguments: [member.position, filePath]
+                                };
+                                codeLenses.push(codeLens);
+                            }
+                        }
+                    });
+                }
+
             });
 
         });
