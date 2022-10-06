@@ -14,6 +14,8 @@ import { ExpressionRange, LinePosition } from "@wso2-enterprise/ballerina-low-co
 import {
     FromClause,
     FunctionSignature,
+    LetClause,
+    LetVarDecl,
     SpecificField,
     STKindChecker,
     STNode,
@@ -67,6 +69,20 @@ export class RecordTypeFindingVisitor implements Visitor {
         this.symbolNodesPositions.push({
             line: fieldNamePosition.startLine,
             offset: fieldNamePosition.startColumn
+        });
+    }
+
+    public beginVisitLetClause(node: LetClause){
+        const typePosition = (node.letVarDeclarations[0] as LetVarDecl)?.expression?.position;
+        this.expressionNodeRanges.push({
+            startLine: {
+                line: typePosition.startLine,
+                offset: typePosition.startColumn
+            },
+            endLine: {
+                line: typePosition.endLine,
+                offset: typePosition.endColumn
+            }
         });
     }
 

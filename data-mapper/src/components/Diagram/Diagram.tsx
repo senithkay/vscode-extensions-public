@@ -34,6 +34,8 @@ import { LinkConnectorNode } from './Node/LinkConnector';
 import { MappingConstructorNode } from './Node/MappingConstructor';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import * as Ports from "./Port";
+import { FromClauseNode } from './Node/FromClause';
+import { LetClauseNode } from './Node/LetClause';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -121,16 +123,23 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			}
 			let requiredParamFields = 0;
 			let numberOfRequiredParamNodes = 0;
+			let additionalSpace = 0;
 			nodes.forEach((node) => {
 				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode
 					|| node instanceof MappingConstructorNode)
 				{
 						node.updatePosition();
 				}
-				if (node instanceof RequiredParamNode) {
-					node.setPosition(100, (requiredParamFields * 40) + 100 * (numberOfRequiredParamNodes + 1));
+				if (node instanceof RequiredParamNode || node instanceof LetClauseNode) {
+					node.setPosition(100, additionalSpace + (requiredParamFields * 40) + 100 * (numberOfRequiredParamNodes + 1));
 					requiredParamFields = requiredParamFields + node.numberOfFields;
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+				}
+				if (node instanceof FromClauseNode) {
+					node.setPosition(100, additionalSpace + (requiredParamFields * 40) + 100 * (numberOfRequiredParamNodes + 1) + node.initialYPosition);
+					requiredParamFields = requiredParamFields + node.numberOfFields;
+					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+					additionalSpace += node.initialYPosition
 				}
 			});
 			setModel(newModel);

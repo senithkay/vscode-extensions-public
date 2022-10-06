@@ -13,19 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import styled from '@emotion/styled';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
-import { getTypeName } from "../../../utils/dm-utils";
+import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
+import { getTypeName } from "../../utils/dm-utils";
 
-import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
-import { TreeContainer, TreeHeader, TreeBody } from '../Tree/Tree';
-import { IconButton } from '@material-ui/core';
+import { TreeContainer, TreeHeader, TreeBody } from './Tree/Tree';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -47,7 +42,6 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         treeLabelInPort: {
             float: "left",
-            // marginRight: "5px",
             width: 'fit-content',
         },
         label: {
@@ -59,12 +53,6 @@ const useStyles = makeStyles((theme: Theme) =>
             "&:hover": {
                 overflow: "visible"
             }
-        },
-        expandIcon: {
-            color: theme.palette.common.black,
-            height: "25px",
-            width: "25px",
-            marginLeft: "auto"
         }
     }),
 );
@@ -74,12 +62,11 @@ export interface RecordTypeTreeWidgetProps {
     typeDesc: Type;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
-    handleCollapse: (portName: string, isExpanded?: boolean) => void;
     valueLabel?: string;
 }
 
-export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
-    const { engine, typeDesc, id, getPort, handleCollapse, valueLabel } = props;
+export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
+    const { engine, typeDesc, id, getPort, valueLabel } = props;
     const classes = useStyles();
 
     const typeName = getTypeName(typeDesc);
@@ -107,10 +94,6 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
         </span>
     );
 
-    const handleExpand = () => {
-        handleCollapse(id, !expanded);
-    }
-
 
     return (
         <TreeContainer>
@@ -121,12 +104,6 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                     }
                 </span>
                 <span className={classes.label}>
-                    <IconButton
-                        className={classes.expandIcon}
-                        onClick={handleExpand}
-                    >
-                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                    </IconButton>
                     {label}
                 </span>
                 <span className={classes.treeLabelOutPort}>
@@ -135,23 +112,6 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                     }
                 </span>
             </TreeHeader>
-            <TreeBody>
-                {expanded &&
-                    typeDesc?.fields?.map((field) => {
-                        return (
-                            <RecordFieldTreeItemWidget
-                                key={id}
-                                engine={engine}
-                                field={field}
-                                getPort={getPort}
-                                parentId={id}
-                                handleCollapse={handleCollapse}
-                                treeDepth={0}
-                            />
-                        );
-                    })
-                }
-            </TreeBody>
         </TreeContainer>
     );
 }

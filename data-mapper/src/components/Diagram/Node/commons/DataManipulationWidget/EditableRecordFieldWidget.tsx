@@ -34,6 +34,8 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
+import ErrorIcon from "../../../../../assets/icons/Error";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -83,19 +85,30 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
+
+    const handleEditValue = () => {
+        if (STKindChecker.isSpecificField(field.value)) {
+            props.context.enableStatementEditor({
+                value: field.value.valueExpr.source,
+                valuePosition: field.value.valueExpr.position,
+                label: field.value.fieldName.value
+            });
+        }
+    };
+
     let isDisabled = portIn.descendantHasValue;
-    if (!isDisabled){
-        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)){
+    if (!isDisabled) {
+        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)) {
             portIn.ancestorHasValue = true;
             isDisabled = true;
         }
-        if(hasValue && !connectedViaLink && (isArray || isRecord)) {
+        if (hasValue && !connectedViaLink && (isArray || isRecord)) {
             portIn.setDescendantHasValue();
             isDisabled = true;
         }
     }
 
-    const value: string = !connectedViaLink && !isArray && !isRecord && hasValue && specificField.valueExpr.source;
+    const value: string = !isArray && !isRecord && hasValue && specificField.valueExpr.source;
     let expanded = true;
     if (portIn && portIn.collapsed) {
         expanded = false;
@@ -108,6 +121,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     if (!fieldName && isWithinArray) {
         fieldName = field.parentType.type?.name ? `${field.parentType.type?.name}Item` : 'item';
     }
+
+    const diagnostic = specificField.valueExpr?.typeData?.diagnostics[0]
 
     const label = (
         <span style={{ marginRight: "auto" }}>
@@ -122,27 +137,32 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 </span>
             )}
             {value && (
-                <span className={classes.value}>
-                    {value}
-                </span>
+                <>
+                    {diagnostic ? (
+                        <DiagnosticTooltip
+                            placement="right"
+                            diagnostic={diagnostic}
+                            value={value}
+                            onClick={handleEditValue}
+                        >
+                            <span className={classes.valueWithError}>
+                                {value}
+                                <span className={classes.errorIconWrapper}>
+                                    <ErrorIcon />
+                                </span>
+                            </span>
+                        </DiagnosticTooltip>
+                    ) : (
+                        !connectedViaLink && <span className={classes.value}>{value}</span>
+                    )}
+                </>
             )}
-
         </span>
     );
 
     const handleAddValue = async () => {
         await createSourceForUserInput(field, mappingConstruct, 'EXPRESSION', context.applyModifications);
         context.handleFieldToBeEdited(fieldId);
-    };
-
-    const handleEditValue = () => {
-        if (STKindChecker.isSpecificField(field.value)) {
-            props.context.enableStatementEditor({
-                value: field.value.valueExpr.source,
-                valuePosition: field.value.valueExpr.position,
-                label: field.value.fieldName.value
-            });
-        }
     };
 
     const handleDeleteValue = () => {
@@ -172,7 +192,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {!isArray && (
                 <div className={classes.treeLabel}>
                     <span className={classes.treeLabelInPort}>
-                        {portIn && 
+                        {portIn &&
                             <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled} />
                         }
                     </span>

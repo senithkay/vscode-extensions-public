@@ -66,6 +66,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#f5f1fb",
             borderRadius: "5px"
         },
+        valueWithError: {
+            verticalAlign: "middle",
+            padding: "5px",
+            backgroundColor: theme.palette.error.light,
+            borderRadius: "5px"
+        },
+        errorIconWrapper: {
+            height: "22px",
+            width: "22px",
+            marginLeft: '5px',
+            verticalAlign: 'middle',
+        },
         valueLabel: {
             verticalAlign: "middle",
             padding: "5px",

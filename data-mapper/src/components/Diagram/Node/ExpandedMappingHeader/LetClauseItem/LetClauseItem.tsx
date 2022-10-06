@@ -24,6 +24,8 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { useStyles } from "../styles";
 import { ClauseAddButton } from "../ClauseAddButton";
 import clsx from "clsx";
+import { getRenameEdits } from "../../../utils/ls-utils";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;
@@ -51,21 +53,29 @@ export function LetClauseItem(props: {
     )?.variableName?.value;
     const [updatedName, setUpdatedName] = useState(variableName);
 
-    const onKeyUp = (key: string, node?: STNode) => {
+    const onKeyUp = async (key: string, node?: STNode) => {
         if (key === "Escape") {
             setNameEditable(false);
             setUpdatedName("");
         }
         if (key === "Enter") {
-            context.applyModifications([
-                {
-                    type: "INSERT",
-                    config: {
-                        STATEMENT: updatedName,
-                    },
-                    ...node.position,
-                },
-            ]);
+            const workspaceEdit = await getRenameEdits(context.filePath, updatedName, node.position, context.langClientPromise);
+            const modifications: STModification[] = []
+
+            Object.values(workspaceEdit?.changes).forEach(edits => {
+                edits.forEach(edit => {
+                    modifications.push({
+                        type: "INSERT",
+                        config: { STATEMENT: edit.newText },
+                        endColumn: edit.range.end.character,
+                        endLine: edit.range.end.line,
+                        startColumn: edit.range.start.character,
+                        startLine: edit.range.start.line,
+                    })
+                })
+            })
+
+            context.applyModifications(modifications);
         }
     };
 

@@ -2,6 +2,7 @@ import {
     BinaryExpression,
     ExpressionFunctionBody,
     FunctionDefinition,
+    LetClause,
     ListConstructor,
     QueryExpression,
     SpecificField,
@@ -21,6 +22,7 @@ import {
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
+import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { getFieldAccessNodes } from "../utils/dm-utils";
 
@@ -78,10 +80,9 @@ export class NodeInitVisitor implements Visitor {
             && node.position.startColumn === selectedSTNode.valueExpr.position.startColumn)
         {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
-                const fromClauseHeight = 90;
                 const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 65;
                 const addInitialClauseHeight = 65;
-                const yPosition = fromClauseHeight + (intermediateClausesHeight  || addInitialClauseHeight);
+                const yPosition = intermediateClausesHeight  || addInitialClauseHeight;
                 // create output node
                 this.outputNode = new MappingConstructorNode(
                     this.context,
@@ -89,7 +90,7 @@ export class NodeInitVisitor implements Visitor {
                     parent.fieldName
                 );
 
-                this.outputNode.setPosition(1000, yPosition);
+                this.outputNode.setPosition(1000, yPosition + 100);
 
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(
@@ -98,9 +99,17 @@ export class NodeInitVisitor implements Visitor {
                 );
                 fromClauseNode.setPosition(100, yPosition);
                 this.inputNodes.push(fromClauseNode);
+                fromClauseNode.initialYPosition = yPosition;
+
+                const letClauses = node.queryPipeline.intermediateClauses?.filter(item=>STKindChecker.isLetClause(item));
+                for (let [index, item] of letClauses.entries()) {
+                    const paramNode = new LetClauseNode(this.context, item as LetClause);
+                    paramNode.setPosition(100,  100 + (index + 1) * 400);
+                    this.inputNodes.push(paramNode);
+                }
 
                 const queryNode = new ExpandedMappingHeaderNode(this.context, node);
-                queryNode.setPosition(385, 10);
+                queryNode.setPosition(100, 10);
                 this.intermediateNodes.push(queryNode);
             }
         } else {
