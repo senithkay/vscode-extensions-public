@@ -19,12 +19,13 @@
 
 import { Uri } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
-    return renderDiagram(filePath, startLine, startColumn, experimental);
+export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition): string {
+    return renderDiagram(filePath, startLine, startColumn, experimental, openInDiagram);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition): string {
 
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
@@ -252,7 +253,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 startLine,
                 startColumn,
                 lastUpdatedAt,
-                experimentalEnabled
+                experimentalEnabled,
+                openInDiagram
             }) {
                 try {
                     const options = {
@@ -282,7 +284,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             getSentryConfig,
                             getBallerinaVersion,
                             getEnv,                           
-                            experimentalEnabled
+                            experimentalEnabled,
+                            openInDiagram
                         }
                     };
                     BLCEditor.renderDiagramEditor(options);
@@ -368,7 +371,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     startLine: args[0].startLine,
                     startColumn: args[0].startColumn,
                     lastUpdatedAt: (new Date()).toISOString(),
-                    experimentalEnabled: ${experimental}
+                    experimentalEnabled: ${experimental},
+                    openInDiagram: ${JSON.stringify(openInDiagram)}
                 });
                 return Promise.resolve({});
             });
@@ -381,7 +385,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 startLine: ${startLine},
                 startColumn: ${startColumn},
                 lastUpdatedAt: (new Date()).toISOString(),
-                experimentalEnabled: ${experimental}
+                experimentalEnabled: ${experimental},
+                openInDiagram: ${JSON.stringify(openInDiagram)}
             });
 
             window.addEventListener('focus', event => {
