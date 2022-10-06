@@ -1,18 +1,19 @@
 import * as React from 'react';
 
-import { createStyles, Theme, makeStyles, withStyles } from "@material-ui/core/styles";
+import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
+import TooltipBase from '@material-ui/core/Tooltip';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
-import TooltipBase from '@material-ui/core/Tooltip';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-
-import { DataMapperPortWidget } from '../../Port';
-import { LinkConnectorNode } from './LinkConnectorNode';
-import { getFieldLabel } from '../../utils/dm-utils';
-import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
-
+import {STKindChecker} from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
+
+import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
+import { DataMapperPortWidget } from '../../Port';
+import { getFieldLabel } from '../../utils/dm-utils';
+
+import { LinkConnectorNode } from './LinkConnectorNode';
 
 export const tooltipBaseStyles = {
     tooltip: {
@@ -122,14 +123,17 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const diagnostic = hasError ? node.diagnostics[0] : null;
 
     const onClickEdit = () => {
-        props.node.context.enableStatementEditor({
-            valuePosition: props.node.valueNode.position,
-            value: props.node.valueNode.source,
-            label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
+        const valueNode = props.node.valueNode;
+        if (STKindChecker.isSpecificField(valueNode)) {
+            props.node.context.enableStatementEditor({
+                valuePosition: valueNode.valueExpr.position,
+                value: valueNode.valueExpr.source,
+                label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
                     : props.node.editorLabel)
-        });
+            });
+        }
     };
-    
+
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
 
 
