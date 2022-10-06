@@ -27,6 +27,8 @@ export class TriggerForm {
 
     static selectTriggerType(type: string) {
         this.getTriggerMarketplace()
+            .get('[data-testid="marketplace-search-loader"]',
+                { timeout: 100000 }).should('not.exist')
             .get(`[data-testid="${type.toLowerCase()}"]`, { timeout: 50000 })
             .should("be.visible")
             .click();
