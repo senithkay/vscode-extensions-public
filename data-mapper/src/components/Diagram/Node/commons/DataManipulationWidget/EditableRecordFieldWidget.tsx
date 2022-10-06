@@ -34,6 +34,7 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import classnames from "classnames";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -114,13 +115,18 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const label = (
         <span style={{ marginRight: "auto" }}>
-            <span className={classes.valueLabel} style={{ marginLeft: !!fields ? 0 : indentation + 24 }}>
+            <span 
+                className={classnames(classes.valueLabel,
+                            (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
+                style={{ marginLeft: !!fields ? 0 : indentation + 24 }}
+            >
                 {fieldName}
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {typeName && ":"}
             </span>
             {typeName && (
-                <span className={classes.typeLabel}>
+                <span className={classnames(classes.typeLabel,
+                    (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}>
                     {typeName}
                 </span>
             )}
@@ -173,7 +179,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     return (
         <>
             {!isArray && (
-                <div className={classes.treeLabel}>
+                <div className={classnames(classes.treeLabel , 
+                                    (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
                     <span className={classes.treeLabelInPort}>
                         {portIn &&
                             <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
