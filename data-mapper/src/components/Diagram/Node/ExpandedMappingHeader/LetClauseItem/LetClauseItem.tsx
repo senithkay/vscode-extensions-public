@@ -105,7 +105,10 @@ export function LetClauseItem(props: {
                                         )?.variableName
                                     )
                                 }
-                                onBlur={() => setNameEditable(false)}
+                                onBlur={() => {
+                                    setNameEditable(false);
+                                    setUpdatedName(variableName);
+                                }}
                             />
                         ) : (
                             <span onClick={() => setNameEditable(true)}>
