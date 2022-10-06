@@ -58,7 +58,7 @@ import { Endpoint } from "../Types/type";
 import { getNodeSignature, isVarTypeDescriptor, recalculateSizingAndPositioning } from "../Utils";
 import expandTracker from "../Utils/expand-tracker";
 import {
-    BlockViewState, CompilationUnitViewState, ElseViewState, EndViewState,
+    BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndViewState,
     ForEachViewState, FunctionViewState, IfViewState, PlusViewState, SimpleBBox, StatementViewState, ViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
@@ -69,7 +69,7 @@ import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { ConflictResolutionVisitor } from "./conflict-resolution-visitor";
 import { DefaultConfig } from "./default";
-import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isSTActionInvocation } from "./util";
+import { getDraftComponentSizes, getPlusViewState, haveBlockStatement, isPositionWithinRange, isSTActionInvocation } from "./util";
 
 export interface AsyncSendInfo {
     to: string;
@@ -428,7 +428,7 @@ export class SizingVisitor implements Visitor {
 
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
-        const matchedStatements = this.syncAsyncStatements(node);
+        const matchedStatements = this.syncAsyncStatements(node, trigger.offsetFromBottom);
         const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
         const startDate = new Date();
         let conflictResolved = false;
@@ -522,7 +522,13 @@ export class SizingVisitor implements Visitor {
         }
     }
 
-    private syncAsyncStatements(funcitonDef: FunctionDefinition): SendRecievePairInfo[] {
+    /**
+     * Sync heights of the send receive pairs
+     * @param funcitonDef Function definition ST
+     * @param offset Bottom offset of the trigger head this is constant in any mode
+     * @returns 
+     */
+    private syncAsyncStatements(funcitonDef: FunctionDefinition, offset: number): SendRecievePairInfo[] {
         const matchedStatements: SendRecievePairInfo[] = [];
         const mainWorkerBody: FunctionBodyBlock = funcitonDef.functionBody as FunctionBodyBlock;
 
@@ -547,6 +553,8 @@ export class SizingVisitor implements Visitor {
 
                     targetViewState.isReceive = true;
                     sourceViewstate.isSend = true;
+                    sourceViewstate.bBox.offsetFromTop = offset;
+                    targetViewState.bBox.offsetFromTop = offset;
 
                     if (key === DEFAULT_WORKER_NAME) {
                         targetViewState.arrowFrom = 'Right';
@@ -592,6 +600,8 @@ export class SizingVisitor implements Visitor {
 
                     sourceViewState.isSend = true;
                     targetViewState.isReceive = true;
+                    sourceViewState.bBox.offsetFromTop = offset;
+                    targetViewState.bBox.offsetFromTop = offset;
                     // to figure out from which direction the arrow is approaching/starting to displace the text
                     if (sendInfo.to === DEFAULT_WORKER_NAME) {
                         sourceViewState.arrowFrom = 'Left';
@@ -630,6 +640,8 @@ export class SizingVisitor implements Visitor {
 
                     sourceViewState.isSend = true;
                     targetViewState.isReceive = true;
+                    sourceViewState.bBox.offsetFromTop = offset;
+                    targetViewState.bBox.offsetFromTop = offset;
                     // to figure out from which direction the arrow is approaching/starting to displace the text
                     if (receiveInfo.from === DEFAULT_WORKER_NAME) {
                         sourceViewState.arrowFrom = 'Right';
@@ -727,9 +739,23 @@ export class SizingVisitor implements Visitor {
         let index = 0;
         let height = 0;
         const workerBodyVS = workerBody.viewState as BlockViewState;
+        const collapsedViewStates: CollapseViewState[] = [...workerBodyVS.collapsedViewStates];
+
         while (targetIndex !== index) {
-            const viewState: ViewState = workerBody.statements[index].viewState as ViewState;
-            height += viewState.getHeight();
+            const statement = workerBody.statements[index];
+            const viewState: ViewState = statement.viewState as ViewState;
+
+            if (viewState.collapsed) {
+                for (let i = 0; i < collapsedViewStates.length; i++) {
+                    if (isPositionWithinRange(statement.position, collapsedViewStates[i].range)) {
+                        height += COLLAPSED_BLOCK_HEIGHT / 2;
+                        collapsedViewStates.splice(i, 1);
+                        break;
+                    }
+                }
+            } else {
+                height += viewState.getHeight();
+            }
             index++;
         }
 
@@ -843,7 +869,6 @@ export class SizingVisitor implements Visitor {
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const viewState = node.viewState as BlockViewState;
-        console.log('end functionbody sizing >>>', parent);
         const functionViewState: FunctionViewState = parent?.viewState as FunctionViewState;
         const triggerVS = functionViewState?.trigger;
 

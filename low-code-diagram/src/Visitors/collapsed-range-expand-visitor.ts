@@ -32,21 +32,9 @@ export class CollapsedRangeExpandVisitor implements Visitor {
         this.beginVisitBlock(node);
     }
 
-    // beginVisitIfElseStatement(node: IfElseStatement, parent?: STNode) {
-    //     this.beginVisitBlock(node.ifBody);
-    //     if (node.elseBody && STKindChecker.isElseBlock(node.elseBody)
-    //         && STKindChecker.isBlockStatement(node.elseBody.elseBody)) {
-    //         this.beginVisitBlock(node.elseBody.elseBody)
-    //     }
-    // }
-
     beginVisitBlockStatement(node: BlockStatement, parent?: STNode): void {
         this.beginVisitBlock(node);
     }
-
-    // beginVisitWhileStatement(node: WhileStatement, parent?: STNode): void {
-    //     console.log('expand visitor >>>', node);
-    // }
 
     beginVisitBlock(node: BlockStatement) {
         const blockVS: BlockViewState = node.viewState as BlockViewState;

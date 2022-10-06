@@ -431,7 +431,6 @@ export class PositioningVisitor implements Visitor {
 
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
-        console.log('begin functionbody  position >>>', parent);
         const functionViewState: FunctionViewState = parent?.viewState as FunctionViewState;
         const functionTrigger = functionViewState?.trigger;
         this.allEndpoints = blockViewState.connectors;
