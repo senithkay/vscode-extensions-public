@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { TextareaAutosize } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography';
@@ -37,6 +37,7 @@ export function FormTextArea(props: FormElementProps<FormTextAreaProps>) {
     const classes = useStyles();
     const defaultText: string = defaultValue ? defaultValue : "";
     const errorClass = customProps?.isInvalid ? cn("error-class") : cn("valid");
+    const codeAreaRef = useRef<HTMLTextAreaElement>(null);
 
     const [inputValue, setInputValue] = useState(defaultText);
 
@@ -53,14 +54,29 @@ export function FormTextArea(props: FormElementProps<FormTextAreaProps>) {
         setInputValue(defaultText);
     }, [defaultText]);
 
+    const handleOnKeyDown = (event: any) => {
+        if (event.keyCode === 9) {
+            event.preventDefault();
+            const { selectionStart } = event.target;
+            codeAreaRef.current.setRangeText(
+                "  ",
+                selectionStart,
+                selectionStart,
+                "end"
+              );
+          }
+    }
+
     return (
         <div className="textarea-wrapper">
             <div className={errorClass}>
                 <TextareaAutosize
+                    ref={codeAreaRef}
                     className={classes.textArea}
                     placeholder={placeholder}
                     rowsMax={rowsMax}
                     onChange={handleOnChange}
+                    onKeyDown={handleOnKeyDown}
                     value={inputValue}
                 />
                 {customProps?.text ? (

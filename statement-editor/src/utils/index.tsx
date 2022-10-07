@@ -10,14 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { ReactNode } from 'react';
-import { IconType } from "react-icons";
+import React, {ReactNode} from 'react';
+import {IconType} from "react-icons";
 import {
     VscSymbolEnum,
-    VscSymbolEnumMember, VscSymbolEvent,
-    VscSymbolField, VscSymbolInterface, VscSymbolKeyword,
+    VscSymbolEnumMember,
+    VscSymbolEvent,
+    VscSymbolField,
+    VscSymbolInterface,
+    VscSymbolKeyword,
     VscSymbolMethod,
-    VscSymbolParameter, VscSymbolRuler,
+    VscSymbolParameter,
+    VscSymbolRuler,
     VscSymbolStructure,
     VscSymbolVariable
 } from "react-icons/vsc";
@@ -35,9 +39,13 @@ import {
 import {
     Minutiae,
     NodePosition,
+    RecordField,
+    RecordFieldWithDefaultValue,
+    RecordTypeDesc,
     STKindChecker,
     STNode,
-    traversNode
+    traversNode,
+    TypeReference
 } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -53,22 +61,23 @@ import {
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
-    FUNCTION_CALL,
     IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
     PLACEHOLDER_DIAGNOSTICS,
-    StatementNodes, SymbolParameterType,
+    RECORD_EDITOR,
+    StatementNodes,
+    SymbolParameterType,
     WHITESPACE_MINUTIAE
 } from "../constants";
 import {
-    EditorModel, MinutiaeJSX,
+    EditorModel,
+    MinutiaeJSX,
     RemainingContent,
     StatementSyntaxDiagnostics,
     StmtOffset,
     SuggestionIcon,
-    SuggestionItem,
-    SymbolIcon
+    SuggestionItem
 } from '../models/definitions';
 import { visitor as ClearDiagnosticVisitor } from "../visitors/clear-diagnostics-visitor";
 import { visitor as DeleteConfigSetupVisitor } from "../visitors/delete-config-setup-visitor";
@@ -83,17 +92,18 @@ import { visitor as ParentModelFindingVisitor } from "../visitors/parent-model-f
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { ExpressionGroup, PARAMETER_PLACEHOLDER } from "./expressions";
+import { Expression, ExpressionGroup, PARAMETER_PLACEHOLDER } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
 export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
-                                 modulesToBeImported?: string[]): STModification[] {
+                                 modulesToBeImported?: string[], isExpressionMode?: boolean): STModification[] {
 
     const modifications: STModification[] = [];
     let source = model.source;
 
-    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model) && source.trim().slice(-1) !== ';') {
+    if (configType === CUSTOM_CONFIG_TYPE && !isEndsWithoutSemicolon(model)
+            && source.trim().slice(-1) !== ';' && !isExpressionMode) {
         source += ';';
     }
     modifications.push(getStatementModification(source, targetPosition));
@@ -107,8 +117,9 @@ export function getModifications(model: STNode, configType: string, targetPositi
     return modifications;
 }
 
-export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition): ReactNode {
-    let ExprTypeComponent = (expressionTypeComponents as any)[expression.kind];
+export function getExpressionTypeComponent(expression: STNode, stmtPosition?: NodePosition,
+                                           isHovered?: boolean): ReactNode {
+    let ExprTypeComponent = (expressionTypeComponents as any)[expression?.kind]; // TODO: Find the issue why the expression value getting null.
 
     if (!ExprTypeComponent) {
         ExprTypeComponent = (expressionTypeComponents as any)[OTHER_EXPRESSION];
@@ -118,6 +129,7 @@ export function getExpressionTypeComponent(expression: STNode, stmtPosition?: No
         <ExprTypeComponent
             model={expression}
             stmtPosition={stmtPosition}
+            isHovered={isHovered}
         />
     );
 }
@@ -302,6 +314,11 @@ export function getUpdatedSource(statement: string, currentFileContent: string,
     return updatedContent;
 }
 
+export function isModuleMember(model: STNode): boolean {
+    return (STKindChecker.isModuleVarDecl(model) || STKindChecker.isConstDeclaration(model) ||
+        STKindChecker.isTypeDefinition(model));
+}
+
 export function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {
 
     const splitContent: string[] = currentContent.split(/\n/g) || [];
@@ -482,6 +499,10 @@ export function isNodeDeletable(selectedNode: STNode, formType: string): boolean
     if (INPUT_EDITOR_PLACEHOLDERS.has(currentModelSource)) {
         exprDeletable = stmtViewState.templateExprDeletable;
     } else if (formType === CALL_CONFIG_TYPE && STKindChecker.isFunctionCall(selectedNode)) {
+        exprDeletable = false;
+    }
+
+    if (formType === RECORD_EDITOR && STKindChecker.isTypeDefinition(selectedNode.parent)) {
         exprDeletable = false;
     }
 
@@ -909,6 +930,55 @@ export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
                     "rgba(204,209,242,0.61)" : 'inherit'
             } : undefined
     );
+}
+
+export function getRecordFieldSource(model: RecordField): string {
+    return `${model.typeName.source}${model.fieldName.value}`;
+}
+
+export const getRecordFieldsSource = (fields: (RecordField | RecordFieldWithDefaultValue | TypeReference)[]) => {
+    let source = "";
+    fields.forEach(field => {
+        source += field.source;
+    });
+    return source;
+};
+
+export function getOpenRecordTypeDescSource(model: RecordTypeDesc): string {
+    return `${getRecordFieldsSource(model.fields)}`;
+}
+
+export function getClosedRecordTypeDescSource(model: RecordTypeDesc): string {
+    return `|${getRecordFieldsSource(model.fields)}|`;
+}
+
+export function isClosedRecord(model: RecordTypeDesc): boolean {
+    return (STKindChecker.isOpenBracePipeToken(model.bodyStartDelimiter) &&
+        STKindChecker.isCloseBracePipeToken(model.bodyEndDelimiter));
+}
+
+export function getRecordSwitchedSource(model: RecordTypeDesc): string {
+    return isClosedRecord(model) ? getOpenRecordTypeDescSource(model) :
+        getClosedRecordTypeDescSource(model)
+}
+
+export function getRecordUpdatePosition(model: RecordTypeDesc): NodePosition {
+    const position = {
+        startLine: model.bodyStartDelimiter.position.endLine,
+        startColumn: model.bodyStartDelimiter.position.endColumn,
+        endLine: model.bodyEndDelimiter.position.startLine,
+        endColumn: model.bodyEndDelimiter.position.startColumn
+    };
+    return isClosedRecord(model) ?
+        {
+            ...position,
+            startColumn: model.bodyStartDelimiter.position.startColumn + 1,
+            endColumn: model.bodyEndDelimiter.position.endColumn - 1
+        } : position;
+}
+
+export function displayCheckBoxAsExpression(model: STNode, e: Expression): boolean {
+    return model && STKindChecker.isRecordTypeDesc(model) && (e.name === "Switches Open/Close record to Close/Open");
 }
 
 export function isBalVersionUpdateOne(version: string): boolean{
