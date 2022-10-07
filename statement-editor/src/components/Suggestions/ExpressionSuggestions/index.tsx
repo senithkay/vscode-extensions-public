@@ -41,16 +41,16 @@ import {
     getFilteredExpressions,
     getRecordFieldSource,
     getRecordSwitchedSource,
-    getRecordUpdatePosition, isClosedRecord
+    getRecordUpdatePosition, isClosedRecord, isQuestionMarkFromRecordField, isRecordFieldName
 } from "../../../utils";
 import {
     Expression,
     ExpressionGroup,
     expressions,
     EXPR_PLACEHOLDER,
+    optionalRecordField,
     recordFiledOptions,
-    SELECTED_EXPRESSION,
-    switchOpenClose
+    SELECTED_EXPRESSION, switchOpenClose
 } from "../../../utils/expressions";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -110,7 +110,14 @@ export function ExpressionSuggestions() {
                     (exprGroup) => exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
             } else if ((config.type === CALL_CONFIG_TYPE) && STKindChecker.isFunctionCall(currentModel.model)) {
                 filteredGroups = []
-            } else if (STKindChecker.isRecordField(currentModel.model)) {
+            } else if (isRecordFieldName(currentModel.model)) {
+                filteredGroups = [optionalRecordField]
+            } else if (STKindChecker.isRecordTypeDesc(currentModel.model)) {
+                filteredGroups = [switchOpenClose].concat(filteredGroups);
+            } else if (isQuestionMarkFromRecordField(currentModel.model)) {
+                filteredGroups = []
+            }
+            else if (STKindChecker.isRecordField(currentModel.model)) {
                 filteredGroups = [recordFiledOptions]
             } else if (STKindChecker.isRecordTypeDesc(currentModel.model)) {
                 filteredGroups = [switchOpenClose].concat(filteredGroups);

@@ -17,7 +17,7 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getJSXForMinutiae, isPositionsEquals } from "../../utils";
+import { getJSXForMinutiae, isPositionsEquals, isQuestionMarkFromRecordField } from "../../utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementRendererStyles } from "../styles";
 
@@ -43,7 +43,12 @@ export function TokenComponent(props: TokenComponentProps) {
     const [isHovered, setHovered] = React.useState(false);
 
     const isSelected = selectedModel.model && model && model.parent &&
-        isPositionsEquals(selectedModel.model.position, model.parent.position);
+        (
+            isPositionsEquals(selectedModel.model.position, model.parent.position) ||
+            (
+                isQuestionMarkFromRecordField(model) && isPositionsEquals(selectedModel.model.position, model.position)
+            )
+        );
 
     const styleClassName = classNames(
         isSelected && !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,
@@ -81,6 +86,10 @@ export function TokenComponent(props: TokenComponentProps) {
             if (model.parent) {
                 changeCurrentModel(model.parent, model.parent.position, e.shiftKey);
             }
+        } else if (!hasSyntaxDiagnostics && isQuestionMarkFromRecordField(model)) {
+            e.stopPropagation();
+            e.preventDefault();
+            changeCurrentModel(model);
         }
     }
 
