@@ -43,7 +43,7 @@ export function Diagram() {
                 loaderText
             },
             webView: {
-                showSwaggerView,
+                showTryitView,
                 showDocumentationView
             },
             project: {
@@ -378,7 +378,7 @@ export function Diagram() {
                             },
                             webView: {
                                 showDocumentationView,
-                                showSwaggerView
+                                showTryitView
                             },
                             project: {
                                 run
