@@ -19,7 +19,6 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { useDiagramContext } from "../../../../../../Contexts/Diagram";
 import { DataMapperOverlay } from "../../../../DataMapperOverlay";
 import { FormGenerator } from "../../../FormGenerator";
-import { isDMSupported } from "../../../Utils";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
 
 export interface PlusOptionsProps {
@@ -82,8 +81,6 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
         {name: "Resource", type: "ResourceAccessorDefinition"} : undefined;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(defaultOption);
 
-    const dMSupported = isDMSupported(ballerinaVersion);
-
     let menuEntries: PlusMenuEntry[] = [];
 
     const handleOnClose = () => {
@@ -144,7 +141,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                         isLoading: false,
                         isLastMember: isLastMember
                     }}
-                    dMSupported={dMSupported}
+                    ballerinaVersion={ballerinaVersion}
                     onCancel={handleOnClose}
                 />
             )}

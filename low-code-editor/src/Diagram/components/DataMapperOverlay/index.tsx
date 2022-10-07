@@ -36,13 +36,13 @@ import { dataMapperStyles } from "./style";
 export interface DataMapperProps {
   model?: STNode;
   targetPosition?: NodePosition;
-  dMSupported?: boolean;
+  ballerinaVersion?: string;
   onCancel?: () => void;
   configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
-  const { targetPosition, dMSupported, onCancel: onClose, model } = props;
+  const { targetPosition, ballerinaVersion, onCancel: onClose, model } = props;
 
   const dataMapperClasses = dataMapperStyles();
 
@@ -126,7 +126,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
             filePath={currentFile.path}
             currentFile={currentFile}
             stSymbolInfo={stSymbolInfo}
-            dMSupported={dMSupported}
+            ballerinaVersion={ballerinaVersion}
             applyModifications={modifyDiagram}
             onClose={onClose}
             onSave={onSave}

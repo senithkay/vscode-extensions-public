@@ -62,6 +62,7 @@ export function Diagram() {
             error,
             selectedPosition,
             zoomStatus,
+            ballerinaVersion,
             experimentalEnabled
         },
     } = useContext(DiagramContext);
@@ -316,6 +317,8 @@ export function Diagram() {
         h = h + (window.innerHeight - h);
     }
 
+    const dataMapperArgs = {ballerinaVersion, ...formConfig};
+
     // let hasConfigurable = false;
     // if (originalSyntaxTree) {
     //     hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
@@ -366,7 +369,7 @@ export function Diagram() {
                     )}
                     {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
                         <DataMapperOverlay
-                            {...formConfig}
+                            {...dataMapperArgs}
                         />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (
