@@ -31,11 +31,10 @@ export class ConnectorMarketplace {
     }
 
     static waitForConnectorsLoading() {
-        cy.wait(5000);
-        this.getConnectorMarketplace().get(`[data-testid="marketplace-search-loader"]`).should(($div) => {
-            const element = $div;
-            expect(element).to.be.not.exist;
-        })
+        this.getConnectorMarketplace().get('[data-testid="marketplace-search-loader"]',
+            { timeout: 20000 }).should('be.visible');
+        this.getConnectorMarketplace().get('[data-testid="marketplace-search-loader"]',
+            { timeout: 100000 }).should('not.exist');
         return this;
     }
 

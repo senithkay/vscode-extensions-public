@@ -59,7 +59,7 @@ export function FormActionButtons(props: FormActionButtonsProps) {
                 </div>
                 <div className={classes.spaceBetween}>
                     <PrimaryButton
-                        data-testid="save-btn"
+                        dataTestId="save-btn"
                         text={saveBtnText}
                         disabled={isClicked || !validForm}
                         fullWidth={false}
