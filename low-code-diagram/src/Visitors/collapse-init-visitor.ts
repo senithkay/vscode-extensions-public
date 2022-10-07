@@ -139,7 +139,7 @@ export class CollapseInitVisitor implements Visitor {
 
                             const collapseVS = new CollapseViewState();
                             collapseVS.range = { ...range };
-                            blockViewState.collapsedViewStates.push(collapseVS);
+                            if (statementIndex > 0) blockViewState.collapsedViewStates.push(collapseVS);
                         }
 
                         if (statementIndex !== statements.length - 1) {

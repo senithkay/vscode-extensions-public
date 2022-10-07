@@ -38,14 +38,16 @@ export class ConflictResolutionVisitor implements Visitor {
     private endPointPositions: ConflictRestrictSpace[];
     private workerCount: number;
     private evaluatingIf: boolean;
+    private defaultOffset: number;
 
-    constructor(matchedPairInfo: SendRecievePairInfo[], workerCount: number) {
+    constructor(matchedPairInfo: SendRecievePairInfo[], workerCount: number, defaultOffset: number) {
         this.matchedPairInfo = matchedPairInfo;
         this.workerNames = [];
         this.hasConflict = false;
         this.workerCount = workerCount;
         this.endPointPositions = [];
         this.evaluatingIf = false;
+        this.defaultOffset = defaultOffset;
     }
 
     public conflictFound() {
@@ -162,19 +164,19 @@ export class ConflictResolutionVisitor implements Visitor {
             if (STKindChecker.isIfElseStatement(statementNode)) {
                 const ifViewState: IfViewState = statementNode.viewState as IfViewState;
                 const ifStatementStartHeight = height + ifViewState.bBox.offsetFromTop + IFELSE_SVG_HEIGHT
-                    + DefaultConfig.offSet;
+                    + this.defaultOffset;
                 this.fixIfElseStatementConflicts(statementNode, ifStatementStartHeight);
             }
 
             if (STKindChecker.isForeachStatement(statementNode)) {
                 const forEachViewstate: ForEachViewState = statementNode.viewState as ForEachViewState;
-                const forStatementStartHeight = height + forEachViewstate.bBox.offsetFromTop + DefaultConfig.offSet;
+                const forStatementStartHeight = height + forEachViewstate.bBox.offsetFromTop + this.defaultOffset;
                 this.fixForEachBlockConflicts(statementNode, forStatementStartHeight)
             }
 
             if (STKindChecker.isWhileStatement(statementNode)) {
                 const whileViewstate: WhileViewState = statementNode.viewState as WhileViewState;
-                const forStatementStartHeight = height + whileViewstate.bBox.offsetFromTop + DefaultConfig.offSet;
+                const forStatementStartHeight = height + whileViewstate.bBox.offsetFromTop + this.defaultOffset;
                 this.fixWhileBlockConflicts(statementNode, forStatementStartHeight)
             }
 
@@ -255,7 +257,7 @@ export class ConflictResolutionVisitor implements Visitor {
                     && this.workerNames.length - 1 < restrictedSpaceCoords.x2))) {
                 this.hasConflict = true;
                 updatedAsConflict = true;
-                const newOffset = (restrictedSpaceCoords.y2 - boxStartHeight) + DefaultConfig.offSet * 2;
+                const newOffset = (restrictedSpaceCoords.y2 - boxStartHeight) + this.defaultOffset * 2;
 
                 viewState.bBox.offsetFromTop += newOffset;
 
@@ -302,7 +304,7 @@ export class ConflictResolutionVisitor implements Visitor {
 
                 this.hasConflict = true;
                 updatedAsConflict = true;
-                const newOffset = (position.y2 - boxStartHeight) + DefaultConfig.offSet * 2;
+                const newOffset = (position.y2 - boxStartHeight) + this.defaultOffset * 2;
 
                 viewState.bBox.offsetFromTop += newOffset;
 

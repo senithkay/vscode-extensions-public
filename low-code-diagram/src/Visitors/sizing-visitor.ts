@@ -429,7 +429,7 @@ export class SizingVisitor implements Visitor {
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
         const matchedStatements = this.syncAsyncStatements(node, trigger.offsetFromBottom);
-        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1);
+        const resolutionVisitor = new ConflictResolutionVisitor(matchedStatements, this.workerMap.size + 1, trigger.offsetFromBottom);
         const startDate = new Date();
         let conflictResolved = false;
 
