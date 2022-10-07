@@ -365,4 +365,51 @@ describe('Test helper pane functionality', () => {
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "second-level-suggestion.expected.bal");
     });
+
+    it('Validate correct expression suggestions in query expressions', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(2);
+
+        BlockLevelPlusWidget.clickOption("Variable");
+
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent(`<add-expression>`);
+
+        SuggestionsPane
+            .clickSuggestionsTab("Expressions")
+            .typeExpressionInSearchBar("query")
+            .clickExpressionSuggestion('from var i in Ex1 where Ex2 select Ex3');
+
+        EditorPane
+            .ClickHoverPlusOfExpression("FromClause", 0, `<add-expression>`);
+
+        SuggestionsPane
+            .validateUnrelatedSuggestions("record{Es Ex;}")
+            .clickExpressionSuggestion("limit Ex");
+
+        EditorPane
+            .getExpression("LimitClause")
+            .ClickHoverPlusOfExpression("LimitClause", 1, `<add-expression>`);
+
+        SuggestionsPane
+            .clickExpressionSuggestion('order by Ex ascending');
+
+        EditorPane
+            .getExpression("OrderByClause")
+            .clickExpressionContent(`ascending`);
+
+        SuggestionsPane
+            .validateUnrelatedSuggestions("limit Ex")
+            .clickExpressionSuggestion("descending");
+    });
 })

@@ -56,6 +56,8 @@ export function ExpressionArrayElementComponent(props: ExpressionArrayElementPro
             updateModel(`, ${LET_VAR_DECL}`, newPosition);
         } else if (arrayType === ArrayType.INTERMEDIATE_CLAUSE){
             updateModel(`\n ${DEFAULT_WHERE_INTERMEDIATE_CLAUSE}`, newPosition);
+        } else if (STKindChecker.isOrderKey(model)) {
+            updateModel(`, ${EXPR_CONSTRUCTOR} ascending`, newPosition);
         } else {
             const template = arrayType === ArrayType.MAPPING_CONSTRUCTOR ? MAPPING_CONSTRUCTOR : EXPR_CONSTRUCTOR;
             const newField = `,\n${template}`;

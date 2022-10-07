@@ -59,6 +59,16 @@ export class EditorPane {
         return this;
     }
 
+    static ClickHoverPlusOfExpression(modelType:string, plusBtnPos?:number, text?:string){
+            cy.get(`[data-testid="${modelType}"]`)
+                .contains(text)
+                .trigger('mouseover');
+            cy.get(`[data-testid="plus-button"]`).eq(plusBtnPos)
+                .click();
+            cy.wait(1000);
+        return this;
+    }
+
     static clickPlusButton() {
         cy.contains(`[data-testid="plus-button"]`,`+`)
             .click();
