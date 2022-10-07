@@ -1,12 +1,26 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
+import { CircularProgress } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
 import TooltipBase from '@material-ui/core/Tooltip';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import {STKindChecker} from "@wso2-enterprise/syntax-tree";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
@@ -107,8 +121,14 @@ const styles = makeStyles((theme: Theme) => createStyles({
     },
     deleteIcon: {
         color: theme.palette.error.main
+    },
+    loadingContainer: {
+        padding: "10px"
+    },
+    circularProgress: {
+        color: "#CBCEDB"
     }
-}),);
+}));
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -122,6 +142,8 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const hasError = node.hasError();
     const diagnostic = hasError ? node.diagnostics[0] : null;
 
+    const [deleteInProgress, setDeleteInProgress] = React.useState(false);
+
     const onClickEdit = () => {
         const valueNode = props.node.valueNode;
         if (STKindChecker.isSpecificField(valueNode)) {
@@ -134,8 +156,21 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         }
     };
 
+    const onClickDelete = () => {
+        setDeleteInProgress(true);
+        if (node.deleteLink) {
+            node.deleteLink();
+        }
+    };
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
 
+    const loadingScreen = (
+        <CircularProgress
+            size={22}
+            thickness={3}
+            className={classes.circularProgress}
+        />
+    );
 
     return (
         <div className={classes.root}>
@@ -151,16 +186,22 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         <CodeOutlinedIcon className={clsx(classes.icons, classes.editIcon)}/>
                     </div>
                 </div>
-                <div className={classes.element} onClick={() => node.deleteLink()}>
-                    <div className={classes.iconWrapper}>
-                        <DeleteIcon className={clsx(classes.deleteIcon)}/>
+                {deleteInProgress ? (
+                    <div className={clsx(classes.element, classes.loadingContainer)}>
+                        {loadingScreen}
                     </div>
-                </div>
-                { diagnostic &&(
+                ) : (
+                    <div className={classes.element} onClick={onClickDelete}>
+                        <div className={classes.iconWrapper}>
+                            <DeleteIcon className={clsx(classes.deleteIcon)}/>
+                        </div>
+                    </div>
+                )}
+                { diagnostic && (
                     <div className={classes.element}>
-                        <DiagnosticWidget 
-                            diagnostic={diagnostic} 
-                            value={ props.node.valueNode.source}
+                        <DiagnosticWidget
+                            diagnostic={diagnostic}
+                            value={props.node.valueNode.source}
                             onClick={onClickEdit}
                         />
                     </div>
@@ -170,4 +211,3 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         </div>
     );
 }
-
