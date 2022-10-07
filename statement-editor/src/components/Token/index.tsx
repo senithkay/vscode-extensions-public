@@ -45,9 +45,7 @@ export function TokenComponent(props: TokenComponentProps) {
     const isSelected = selectedModel.model && model && model.parent &&
         (
             isPositionsEquals(selectedModel.model.position, model.parent.position) ||
-            (
-                isQuestionMarkFromRecordField(model) && isPositionsEquals(selectedModel.model.position, model.position)
-            )
+            (isQuestionMarkFromRecordField(model) && isPositionsEquals(selectedModel.model.position, model.position))
         );
 
     const styleClassName = classNames(

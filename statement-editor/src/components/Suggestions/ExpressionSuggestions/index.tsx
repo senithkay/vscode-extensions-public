@@ -50,7 +50,8 @@ import {
     EXPR_PLACEHOLDER,
     optionalRecordField,
     recordFiledOptions,
-    SELECTED_EXPRESSION, switchOpenClose
+    SELECTED_EXPRESSION,
+    switchOpenClose
 } from "../../../utils/expressions";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -112,12 +113,9 @@ export function ExpressionSuggestions() {
                 filteredGroups = []
             } else if (isRecordFieldName(currentModel.model)) {
                 filteredGroups = [optionalRecordField]
-            } else if (STKindChecker.isRecordTypeDesc(currentModel.model)) {
-                filteredGroups = [switchOpenClose].concat(filteredGroups);
             } else if (isQuestionMarkFromRecordField(currentModel.model)) {
                 filteredGroups = []
-            }
-            else if (STKindChecker.isRecordField(currentModel.model)) {
+            } else if (STKindChecker.isRecordField(currentModel.model)) {
                 filteredGroups = [recordFiledOptions]
             } else if (STKindChecker.isRecordTypeDesc(currentModel.model)) {
                 filteredGroups = [switchOpenClose].concat(filteredGroups);
