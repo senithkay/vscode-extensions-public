@@ -101,7 +101,7 @@ export function Diagram() {
     }, []);
 
     React.useEffect(() => {
-        if (Object.keys(openInDiagram).some(k => k !== null)) {
+        if (openInDiagram && Object.keys(openInDiagram).some(k => k !== null)) {
             STFindingVisitor.setPosition(openInDiagram);
             traversNode(syntaxTree, STFindingVisitor);
             const stNode = STFindingVisitor.getSTNode();

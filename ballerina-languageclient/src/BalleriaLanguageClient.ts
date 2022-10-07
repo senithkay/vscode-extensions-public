@@ -3,7 +3,7 @@ import {
     InitializeParams, InitializeRequest, InitializeResult, ProtocolConnection,
     Trace, DidOpenTextDocumentNotification,
     DidOpenTextDocumentParams, CodeAction, CodeActionParams, TextDocumentItem, InitializedNotification, ShutdownRequest, ExitNotification, PublishDiagnosticsNotification, PublishDiagnosticsParams,
-    TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation, DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification, DefinitionParams, LocationLink
+    TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation, DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification, DefinitionParams, LocationLink, RenameParams, WorkspaceEdit
 } from 'vscode-languageserver-protocol';
 
 import { BLCTracer } from "./BLCTracer";
@@ -281,5 +281,9 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public getTypeFromSymbol(params: TypeFromSymbolRequest): Thenable<TypesFromSymbolResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_SYMBOL, params);
+    }
+
+    public rename(params: RenameParams): Promise<WorkspaceEdit> {
+        return this._clientConnection.sendRequest("textDocument/rename", params);
     }
 }

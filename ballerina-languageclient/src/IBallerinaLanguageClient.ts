@@ -11,7 +11,7 @@ import {
     DocumentSymbolParams,
     InitializeParams, InitializeResult, Location, LocationLink, Position,
     PublishDiagnosticsParams,
-    Range, SymbolInformation, TextDocumentPositionParams
+    Range, SymbolInformation, TextDocumentPositionParams, WorkspaceEdit, RenameParams
 } from "vscode-languageserver-protocol";
 
 import {
@@ -868,5 +868,6 @@ export interface IBallerinaLangClient {
 
     convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
 
+    rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
     // close: () => void;
 }

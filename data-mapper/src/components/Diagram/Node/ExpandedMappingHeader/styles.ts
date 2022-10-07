@@ -32,20 +32,29 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             color: theme.palette.primary.main
         },
+        clauseBold: {
+            fontWeight: 'bold',
+            marginRight: 10,
+            flex: 1,
+        },
         clause: {
-            padding: "5px",
             fontFamily: "monospace",
             flex: 1,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
+            display: 'flex',
+            alignItems: 'center',
+        },
+        clauseItem: {
+            marginRight: 5,
         },
         clauseExpression: {
             background: theme.palette.grey[100],
             borderRadius: 5,
             cursor: 'pointer',
             padding: 5,
-            // marginLeft: 5,
+            marginRight: 5,
             transition: 'border 0.2s',
             border: `1px solid transparent`,
             '&:hover': {
@@ -93,6 +102,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             opacity: 0,
             transitionDuration: '0.2s',
             marginRight: 2,
+            marginLeft: 5,
             '&:hover': {
                 backgroundColor: '#F0F1FB',
             }

@@ -5,9 +5,12 @@ import {
 	Type
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+	CaptureBindingPattern,
 	FieldAccess,
 	FromClause,
 	FunctionDefinition,
+	LetClause,
+	LetVarDecl,
 	ListConstructor,
 	MappingConstructor,
 	NodePosition,
@@ -27,12 +30,14 @@ import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordFie
 import { MappingConstructorNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from "../Node/FromClause";
+import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "./constants";
 import { getModification } from "./modifications";
+import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: string[] = [];
@@ -85,8 +90,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	if (!isArrayOrRecord(targetPort.field)
 		&& targetPort.editableRecordField?.value
-		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value))
-	{
+		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value)) {
 		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
 	}
 	lhs = getBalRecFieldName(targetPort.field.name);
@@ -135,8 +139,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				if (STKindChecker.isMappingConstructor(valueExpr)) {
 					mappingConstruct = valueExpr;
 				} else if (STKindChecker.isListConstructor(valueExpr)
-					&& fieldIndexes !== undefined && !!fieldIndexes.length)
-				{
+					&& fieldIndexes !== undefined && !!fieldIndexes.length) {
 					mappingConstruct = getNextMappingConstructor(valueExpr);
 				}
 
@@ -197,8 +200,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 }
 
 export async function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
-										                                     newValue: string,
-										                                     applyModifications: (modifications: STModification[]) => void) {
+	newValue: string,
+	applyModifications: (modifications: STModification[]) => void) {
 
 	let source;
 	let targetMappingConstructor = mappingConstruct;
@@ -232,8 +235,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 				&& STKindChecker.isMappingConstructor(rootField.valueExpr.expressions[0])) {
 				for (const expr of rootField.valueExpr.expressions) {
 					if (STKindChecker.isMappingConstructor(expr)
-						&& isPositionsEquals(expr.position, mappingConstruct.position))
-					{
+						&& isPositionsEquals(expr.position, mappingConstruct.position)) {
 						const specificField = getSpecificField(expr, fieldName);
 						if (specificField && !specificField.valueExpr.source) {
 							return createValueExprSource(fieldName, newValue, parentFields, 1,
@@ -282,21 +284,21 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 		rhs = sourcePort.fieldFQN;
 	}
 
-	if (link.getTargetPort()){
+	if (link.getTargetPort()) {
 		const targetPort = link.getTargetPort();
 		const targetNode = targetPort.getNode();
-		if (targetNode instanceof LinkConnectorNode){
+		if (targetNode instanceof LinkConnectorNode) {
 			targetNode.value = targetNode.value + " + " + rhs;
 			targetNode.updateSource();
 		}
 		else {
 			let targetPos: NodePosition;
 			Object.keys(targetPort.getLinks()).forEach((linkId) => {
-				if (linkId !== link.getID()){
+				if (linkId !== link.getID()) {
 					const link = targetPort.getLinks()[linkId]
-					if (sourcePort instanceof IntermediatePortModel){
-						if (sourcePort.getParent( ) instanceof LinkConnectorNode) {
-							targetPos = (sourcePort.getParent( ) as LinkConnectorNode).valueNode.position
+					if (sourcePort instanceof IntermediatePortModel) {
+						if (sourcePort.getParent() instanceof LinkConnectorNode) {
+							targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position
 						}
 					}
 					else {
@@ -305,7 +307,7 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 
 				}
 			})
-			if (targetPos){
+			if (targetPos) {
 				modifications.push({
 					type: "INSERT",
 					config: {
@@ -324,14 +326,16 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 
 }
 
-export function findNodeByValueNode(value: RequiredParam | FromClause, dmNode: DataMapperNodeModel)
-									: RequiredParamNode | FromClauseNode{
-	let foundNode: RequiredParamNode | FromClauseNode;
+export function findNodeByValueNode(value: RequiredParam | FromClause | LetClause, dmNode: DataMapperNodeModel)
+	: RequiredParamNode | FromClauseNode | LetClauseNode {
+	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode;
 	dmNode.getModel().getNodes().find((node) => {
 		if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
-				&& STKindChecker.isRequiredParam(node.value))
+			&& STKindChecker.isRequiredParam(node.value))
 			|| (STKindChecker.isFromClause(value) && node instanceof FromClauseNode
-				&& STKindChecker.isFromClause(node.value)))
+				&& STKindChecker.isFromClause(node.value))
+			|| (STKindChecker.isLetClause(value) && node instanceof LetClauseNode
+				&& STKindChecker.isLetClause(node.value)))
 			&& isPositionsEquals(value.position, node.value.position)) {
 			foundNode = node;
 		}
@@ -340,21 +344,45 @@ export function findNodeByValueNode(value: RequiredParam | FromClause, dmNode: D
 }
 
 export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
-	const nameRef = STKindChecker.isSimpleNameReference(expr) ? expr : undefined;
-	if (!nameRef && (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr))) {
+	if (STKindChecker.isSimpleNameReference(expr)){
+		const dmNodes = dmNode.getModel().getNodes();
+		const paramNode: LetClause = (dmNodes.find((node) => {
+			if (node instanceof LetClauseNode) {
+				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
+				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
+				return bindingPattern?.variableName?.value === expr.source;
+			}
+		}) as LetClauseNode)?.value;
+		if(paramNode){
+			return findNodeByValueNode(paramNode, dmNode);
+		}
+	} else if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 		let valueExpr = expr.expression;
 		while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
 				|| STKindChecker.isOptionalFieldAccess(valueExpr))) {
 			valueExpr = valueExpr.expression;
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-			let paramNode: RequiredParam | FromClause =
-					dmNode.context.functionST.functionSignature.parameters.find((param) =>
+			let paramNode: RequiredParam | FromClause | LetClause =
+				dmNode.context.functionST.functionSignature.parameters.find((param) =>
 					STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
 				) as RequiredParam;
+
+			if (!paramNode) {
+				// Check if value expression source matches with any of the let clause variable names
+				const dmNodes = dmNode.getModel().getNodes();
+				paramNode = (dmNodes.find((node) => {
+					if (node instanceof LetClauseNode) {
+						const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
+						const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
+						return bindingPattern?.variableName?.value === valueExpr.source;
+					}
+				}) as LetClauseNode)?.value;
+			}
+
 			const selectedST = dmNode.context.selection.selectedST.stNode;
-			if (STKindChecker.isSpecificField(selectedST)
+			if (!paramNode && STKindChecker.isSpecificField(selectedST)
 				&& STKindChecker.isQueryExpression(selectedST.valueExpr)) {
 				paramNode = selectedST.valueExpr.queryPipeline.fromClause
 			}
@@ -363,12 +391,12 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	}
 }
 
-export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, expr: STNode)
-									: RecordFieldPortModel {
+export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | LetClauseNode, expr: STNode)
+	: RecordFieldPortModel {
 	const typeDesc = node.typeDef;
 	let portIdBuffer = node instanceof RequiredParamNode ? node.value.paramName.value
-						: EXPANDED_QUERY_SOURCE_PORT_PREFIX  + "."
-							+ (node as FromClauseNode).sourceBindingPattern.variableName.value;
+		: EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
+		+ (node as FromClauseNode).sourceBindingPattern.variableName.value;
 	if (typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 			const fieldNames = getFieldNames(expr);
@@ -377,7 +405,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 				const fieldName = fieldNames[i];
 				portIdBuffer += `.${fieldName}`;
 				const recField = nextTypeNode.fields.find(
-									(field: any) => getBalRecFieldName(field.name) === fieldName);
+					(field: any) => getBalRecFieldName(field.name) === fieldName);
 				if (recField) {
 					if (i === fieldNames.length - 1) {
 						const portId = portIdBuffer + ".OUT";
@@ -392,14 +420,21 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode, e
 				}
 			}
 		} else {
-		// handle this when direct mapping parameters is enabled
+			// handle this when direct mapping parameters is enabled
 		}
+	} else if (STKindChecker.isSimpleNameReference(expr)) {
+		const portId = portIdBuffer + ".OUT";
+		let port = (node.getPort(portId) as RecordFieldPortModel);
+		while (port && port.hidden) {
+			port = port.parentModel;
+		}
+		return port;
 	}
 	return null;
 }
 
 export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode)
-									: [RecordFieldPortModel, RecordFieldPortModel]{
+	: [RecordFieldPortModel, RecordFieldPortModel] {
 	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
 	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
 	let recField: EditableRecordField;
@@ -465,7 +500,7 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
-	                     nextFieldPosition: NodePosition): [EditableRecordField, number] {
+	nextFieldPosition: NodePosition): [EditableRecordField, number] {
 	let memberIndex = -1;
 	const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
 		if (node.member.type.typeName === PrimitiveBalType.Record) {
@@ -498,7 +533,7 @@ function getNextNodes(nextField: EditableRecordField): [EditableRecordField[], A
 }
 
 export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: EditableRecordField,
-									                             childrenTypes?: EditableRecordField[]) {
+	childrenTypes?: EditableRecordField[]) {
 	let editableRecordField: EditableRecordField = null;
 	let fields = null;
 	let valueNode: STNode;
@@ -511,7 +546,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 			) as SpecificField;
 			if (specificField) {
 				valueNode = specificField;
-				nextNode =  specificField?.valueExpr ? specificField.valueExpr : undefined;
+				nextNode = specificField?.valueExpr ? specificField.valueExpr : undefined;
 			} else if (parentType && parentType.type.typeName === PrimitiveBalType.Array) {
 				valueNode = node;
 				nextNode = valueNode;
@@ -586,7 +621,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 }
 
 export function getEnrichedArrayType(field: Type, node?: ListConstructor, parentType?: EditableRecordField,
-									                            childrenTypes?: EditableRecordField[]) {
+	childrenTypes?: EditableRecordField[]) {
 	const members: ArrayElement[] = [];
 
 	node.expressions.forEach((expr) => {
@@ -607,7 +642,7 @@ export function getEnrichedArrayType(field: Type, node?: ListConstructor, parent
 	return members;
 }
 
-export function getBalRecFieldName(fieldName : string) {
+export function getBalRecFieldName(fieldName: string) {
 	if (fieldName) {
 		return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;
 	}
@@ -636,6 +671,9 @@ export function isConnectedViaLink(field: STNode) {
 }
 
 export function getTypeName(field: Type): string {
+	if (!field) {
+		return '';
+	}
 	if (field.typeName === PrimitiveBalType.Record) {
 		return field?.typeInfo ? field.typeInfo.name : 'record';
 	} else if (field.typeName === PrimitiveBalType.Array) {
@@ -691,7 +729,7 @@ export function isArrayOrRecord(field: Type) {
 }
 
 export function getFieldAccessNodes(node: STNode) {
-	const fieldAccessFindingVisitor : FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
+	const fieldAccessFindingVisitor: FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
 	traversNode(node, fieldAccessFindingVisitor);
 	return fieldAccessFindingVisitor.getFieldAccessNodes();
 }
@@ -721,9 +759,9 @@ export function getFieldLabel(fieldId: string) {
 }
 
 function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
-							                        fieldIndex: number,
-							                        targetPosition: NodePosition,
-							                        applyModifications: (modifications: STModification[]) => void) {
+	fieldIndex: number,
+	targetPosition: NodePosition,
+	applyModifications: (modifications: STModification[]) => void) {
 	let source = "";
 
 	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
@@ -753,7 +791,7 @@ function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 }
 
 function updateValueExprSource(value: string, targetPosition: NodePosition,
-							                        applyModifications: (modifications: STModification[]) => void) {
+	applyModifications: (modifications: STModification[]) => void) {
 	applyModifications([getModification(value, {
 		...targetPosition
 	})]);

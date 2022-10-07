@@ -13,8 +13,10 @@
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
-    FromClause,
+    LetClause,
+    LetVarDecl,
     RecordTypeDesc,
+    SimpleNameReference,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 import { Point } from "@projectstorm/geometry";
@@ -24,26 +26,24 @@ import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-st
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 
-export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
+export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc-let";
 
-export class FromClauseNode extends DataMapperNodeModel {
+export class LetClauseNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
     public typeDef: Type;
     public sourceBindingPattern: CaptureBindingPattern;
     public x: number;
     public numberOfFields:  number;
-    public initialYPosition: number;
 
     constructor(
         public context: IDataMapperContext,
-        public value: FromClause) {
+        public value: LetClause) {
         super(
             context,
             QUERY_EXPR_SOURCE_NODE_TYPE
         );
         this.numberOfFields = 1;
-        this.initialYPosition = 0;
     }
 
     async initPorts() {
@@ -53,13 +53,17 @@ export class FromClauseNode extends DataMapperNodeModel {
 
             const parentPort = this.addPortsForHeaderField(this.typeDef, parentId, "OUT", this.context.collapsedFields);
 
-            if (this.typeDef && this.typeDef.typeName === PrimitiveBalType.Record) {
+            if (this.typeDef && (this.typeDef.typeName === PrimitiveBalType.Record)) {
                 const fields = this.typeDef.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,
                         EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
-                        this.context.collapsedFields, parentPort.collapsed);
+                         this.context.collapsedFields, parentPort.collapsed);
                 });
+            } else {
+                this.numberOfFields += this.addPortsForInputRecordField(this.typeDef, "OUT", this.sourceBindingPattern.variableName.value,
+                        EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
+                         this.context.collapsedFields, parentPort.collapsed);
             }
         }
     }
@@ -69,8 +73,8 @@ export class FromClauseNode extends DataMapperNodeModel {
     }
 
     private async getSourceType() {
-        const expr = this.value.expression;
-        const bindingPattern = this.value.typedBindingPattern.bindingPattern;
+        const expr = (this.value.letVarDeclarations[0] as LetVarDecl)?.expression;
+        const bindingPattern = (this.value.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
 
@@ -81,8 +85,15 @@ export class FromClauseNode extends DataMapperNodeModel {
                 endLine: expr.position.endLine,
                 endColumn: expr.position.endColumn
             });
-            if (type && type.typeName === PrimitiveBalType.Array) {
-                this.typeDef = type.memberType;
+            if (type && type.typeName === PrimitiveBalType.Record) {
+                this.typeDef = type;
+            } else if (type && type.typeName === PrimitiveBalType.Array) {
+                this.typeDef = type;
+            } else {
+                this.typeDef = {
+                    ...type,
+                    name: (expr as SimpleNameReference)?.name?.value
+                }
             }
         }
     }
