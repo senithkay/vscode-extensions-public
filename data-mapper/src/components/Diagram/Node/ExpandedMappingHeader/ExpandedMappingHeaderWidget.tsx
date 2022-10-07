@@ -81,7 +81,8 @@ export function ExpandedMappingHeaderWidget(
         <div className={classes.root}>
             <div className={classes.element}>
                 <div className={classes.clause}>
-                    {`${fromClause.fromKeyword.value} ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value} `}
+                    <span className={classes.clauseBold}>{fromClause.fromKeyword.value}</span>
+                    <span className={classes.clauseItem}>{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
                     <span
                         className={classes.clauseExpression}
                         onClick={() => onClickEdit(fromClause)}

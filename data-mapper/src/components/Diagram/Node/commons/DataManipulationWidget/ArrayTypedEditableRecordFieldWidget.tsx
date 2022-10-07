@@ -38,6 +38,7 @@ import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
+import classnames from "classnames";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -63,6 +64,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const valExpr = field.hasValue()
         && (STKindChecker.isSpecificField(field.value) ? field.value.valueExpr : field.value);
     const hasValue = valExpr && !!valExpr.source;
+    const isValQueryExpr = STKindChecker.isQueryExpression(valExpr);
     const typeName = getTypeName(field.type);
     const elements = field.elements;
 
@@ -99,13 +101,18 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const label = (
         <span style={{ marginRight: "auto" }}>
-            <span className={classes.valueLabel} style={{ marginLeft: (hasValue && !connectedViaLink) ? 0 : indentation + 24 }}>
+            <span
+                className={classnames(classes.valueLabel,
+                            (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
+                style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
+            >
                 {fieldName}
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {fieldName && typeName && ":"}
             </span>
             {typeName && (
-                <span className={classes.typeLabel}>
+                <span className={classnames(classes.typeLabel,
+                                (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}>
                     {typeName}
                 </span>
             )}
@@ -200,42 +207,40 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     return (
-        <>
-            <div
-                className={classes.treeLabel}
-                style={{ flexDirection: hasValue && !connectedViaLink && expanded ? "column" : "initial" }}
-            >
-                <div>
-                    <span className={classes.treeLabelInPort}>
-                        {portIn && 
-                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled} />
-                        }
-                    </span>
-                    <span className={classes.label}>
-                        {(hasValue && !connectedViaLink) && 
-                            <IconButton
-                                className={classes.expandIcon}
-                                style={{ marginLeft: indentation }}
-                                onClick={handleExpand}
-                            >
-                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                            </IconButton>
-                        }
-                        {label}
-                    </span>
-                    {((hasValue && !connectedViaLink) || !isDisabled) &&
-                        <ValueConfigMenu
-                            menuItems={[
-                                {
-                                    title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
-                                    onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
-                                }
-                            ]}
-                        />
+        <div className={classNames(classes.treeLabel, classes.treeLabelArray,
+                        (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
+            <div className={classes.ArrayFieldRow}>
+                <span className={classes.treeLabelInPort}>
+                    {portIn &&
+                        <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
                     }
-                </div>
-                {expanded && hasValue && listConstructor && (
-                    <div className={classNames(classes.treeLabel, classes.innerTreeLabel)}>
+                </span>
+                <span className={classes.label}>
+                    {(hasValue && !connectedViaLink) && (
+                        <IconButton
+                            className={classes.expandIcon}
+                            style={{ marginLeft: indentation }}
+                            onClick={handleExpand}
+                        >
+                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                        </IconButton>
+                    )}
+                    {label}
+                </span>
+                {((hasValue && !connectedViaLink) || !isDisabled) && (
+                    <ValueConfigMenu
+                        menuItems={[
+                            {
+                                title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
+                                onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
+                            }
+                        ]}
+                    />
+                )}
+            </div>
+            {expanded && hasValue && listConstructor && (
+                <div>
+                    <div className={classes.innerTreeLabel}>
                         <span>[</span>
                         {arrayElements}
                         <Button
@@ -248,8 +253,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         </Button>
                         <span>]</span>
                     </div>
-                )}
-            </div>
-        </>
+                </div>
+            )}
+        </div>
     );
 }

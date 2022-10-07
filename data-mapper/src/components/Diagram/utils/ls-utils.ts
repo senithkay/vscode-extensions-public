@@ -15,7 +15,7 @@ import {
     PublishDiagnosticsParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
+import { CodeAction, Diagnostic, WorkspaceEdit } from "vscode-languageserver-protocol";
 
 export async function getDiagnostics(
     docUri: string,
@@ -96,6 +96,20 @@ export async function getCodeAction(filePath: string, diagnostic: Diagnostic, la
     return codeAction
 }
 
+export async function getRenameEdits(fileURI: string, newName: string, position: NodePosition, langClientPromise: Promise<IBallerinaLangClient>): Promise<WorkspaceEdit> {
+	const langClient = await langClientPromise;
+    const renameEdits = await langClient.rename({
+		textDocument: { uri: `file://${fileURI}` },
+		position: {
+			line: position.startLine,
+			character: position?.startColumn
+		},
+		newName
+	});
+
+    return renameEdits;
+}
+
 export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic[],
 	langClientPromise: Promise<IBallerinaLangClient>):
 	Promise<CodeAction[]> => {
@@ -108,5 +122,5 @@ export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic
 		codeActions = [...codeActions, ...codeAction]
 	}
 
-return codeActions;
+	return codeActions;
 }

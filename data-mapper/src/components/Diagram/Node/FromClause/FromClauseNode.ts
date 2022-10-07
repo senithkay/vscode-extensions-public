@@ -32,7 +32,8 @@ export class FromClauseNode extends DataMapperNodeModel {
     public typeDef: Type;
     public sourceBindingPattern: CaptureBindingPattern;
     public x: number;
-    public y: number;
+    public numberOfFields:  number;
+    public initialYPosition: number;
 
     constructor(
         public context: IDataMapperContext,
@@ -41,6 +42,8 @@ export class FromClauseNode extends DataMapperNodeModel {
             context,
             QUERY_EXPR_SOURCE_NODE_TYPE
         );
+        this.numberOfFields = 1;
+        this.initialYPosition = 0;
     }
 
     async initPorts() {
@@ -53,7 +56,7 @@ export class FromClauseNode extends DataMapperNodeModel {
             if (this.typeDef && this.typeDef.typeName === PrimitiveBalType.Record) {
                 const fields = this.typeDef.fields;
                 fields.forEach((subField) => {
-                    this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,
+                    this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,
                         EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
                         this.context.collapsedFields, parentPort.collapsed);
                 });
@@ -88,11 +91,10 @@ export class FromClauseNode extends DataMapperNodeModel {
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
         if ( typeof x === 'number' && typeof y === 'number'){
-            if (!this.x || !this.y){
+            if (!this.x){
                 this.x = x;
-                this.y = y;
-                super.setPosition(x,y);
             }
+            super.setPosition(this.x,y);
         }
     }
 }

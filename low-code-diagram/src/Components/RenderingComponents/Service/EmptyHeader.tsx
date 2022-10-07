@@ -47,7 +47,7 @@ export function EmptyHeader(props: EmptyHeaderProps) {
         ) {
             serviceType = expression.typeDescriptor.modulePrefix.value.toUpperCase();
         } else if (STKindChecker.isSimpleNameReference(expression)) {
-            serviceType = expression.typeData?.typeSymbol?.moduleID.moduleName.toUpperCase();
+            serviceType = expression.typeData?.typeSymbol?.moduleID?.moduleName?.toUpperCase();
         }
     }
 

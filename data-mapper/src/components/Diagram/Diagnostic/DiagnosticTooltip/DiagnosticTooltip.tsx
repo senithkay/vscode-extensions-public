@@ -14,7 +14,7 @@
 import React from "react";
 
 import { Divider, withStyles } from "@material-ui/core";
-import TooltipBase from '@material-ui/core/Tooltip';
+import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
 import * as MonacoEditor from 'monaco-editor';
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -22,15 +22,14 @@ import ErrorIcon from "../../../../assets/icons/Error";
 import { tooltipBaseStyles, useStyles } from "../style";
 
 
-interface TooltipProps{
+interface Props extends TooltipProps{
     diagnostic: Diagnostic
     value?: string
     onClick?: () => void;
-    children?: React.ReactElement<any, any>;
 }
 
-export function DiagnosticTooltip(props: Partial<TooltipProps>) {
-    const { diagnostic, value, children, onClick } = props;
+export function DiagnosticTooltip(props: Partial<Props>) {
+    const { diagnostic, value, children, onClick, ...rest } = props;
     const classes = useStyles();
     const iconComponent =  <ErrorIcon /> ;
     const source = diagnostic.source || value
@@ -80,7 +79,7 @@ export function DiagnosticTooltip(props: Partial<TooltipProps>) {
     );
 
     return (
-        <TooltipComponent interactive={false} arrow={true} title={tooltipTitleComponent}>
+        <TooltipComponent interactive={false} arrow={true} title={tooltipTitleComponent} {...rest}>
             {children}
         </TooltipComponent>
     )

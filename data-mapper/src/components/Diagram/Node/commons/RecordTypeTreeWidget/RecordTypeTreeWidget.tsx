@@ -137,7 +137,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
             </TreeHeader>
             <TreeBody>
                 {expanded &&
-                    typeDesc.fields.map((field) => {
+                    typeDesc?.fields?.map((field) => {
                         return (
                             <RecordFieldTreeItemWidget
                                 key={id}

@@ -27,7 +27,9 @@ export class TriggerForm {
 
     static selectTriggerType(type: string) {
         this.getTriggerMarketplace()
-            .get(`[data-testid="${type.toLowerCase()}"]`)
+            .get('[data-testid="marketplace-search-loader"]',
+                { timeout: 100000 }).should('not.exist')
+            .get(`[data-testid="${type.toLowerCase()}"]`, { timeout: 120000 })
             .should("be.visible")
             .click();
         return this;
@@ -35,7 +37,7 @@ export class TriggerForm {
 
     static searchTrigger(type: string) {
         this.getTriggerMarketplace()
-            .get('[data-testid="search-input"]')
+            .get('[data-testid="search-input"]', { timeout: 20000 })
             .should("be.visible")
             .click()
             .type(type);
@@ -79,11 +81,10 @@ export class TriggerForm {
     }
 
     static waitForConnectorsLoading() {
-        cy.wait(5000);
-        this.getTriggerMarketplace().get(`[data-testid="marketplace-search-loader"]`).should(($div) => {
-            const element = $div;
-            expect(element).to.be.not.exist;
-        })
+        this.getTriggerMarketplace().get('[data-testid="marketplace-search-loader"]',
+            { timeout: 10000 }).should('be.visible');
+        this.getTriggerMarketplace().get('[data-testid="marketplace-search-loader"]',
+            { timeout: 120000 }).should('not.exist');
         return this;
     }
 
@@ -95,7 +96,7 @@ export class TriggerForm {
 
     static createBtnShouldNotBeClickable() {
         this.getTriggerForm()
-            .get('[data-testid="save-btn"]')
+            .get('[data-testid="save-btn"]', { timeout: 120000 })
             .should("have.attr", "disabled");
         return this;
     }

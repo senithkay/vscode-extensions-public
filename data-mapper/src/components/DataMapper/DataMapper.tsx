@@ -166,7 +166,20 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 function DataMapperC(props: DataMapperProps) {
 
 
-    const { fnST, ballerinaVersion, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose, importStatements, recordPanel } = props;
+    const {
+        fnST,
+        ballerinaVersion,
+        langClientPromise,
+        filePath,
+        currentFile,
+        stSymbolInfo,
+        applyModifications,
+        library,
+        onClose,
+        onSave,
+        importStatements,
+        recordPanel
+    } = props;
 
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -196,6 +209,11 @@ function DataMapperC(props: DataMapperProps) {
         if (!fnST) {
             onClose();
         }
+    }
+
+    const onConfigSave = (fnName: string) => {
+        setConfigPanelOpen(false);
+        onSave(fnName);
     }
 
     const enableStatementEditor = (expressionInfo: ExpressionInfo) => {
@@ -287,6 +305,7 @@ function DataMapperC(props: DataMapperProps) {
     const cPanelProps = {
         ...props,
         onClose: onConfigClose,
+        onSave: onConfigSave,
         recordPanel
     }
 

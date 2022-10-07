@@ -52,17 +52,31 @@ export const useStyles = makeStyles((theme: Theme) =>
 			visibility: "hidden",
 		},
 		element: {
-			backgroundColor: theme.palette.common.white,
-			userSelect: "none",
-			pointerEvents: "auto",
-		},
+            backgroundColor: theme.palette.common.white,
+            padding: "10px",
+            cursor: "pointer",
+            transitionDuration: "0.2s",
+            userSelect: "none",
+            pointerEvents: "auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            "&:hover": {
+                filter: "brightness(0.95)",
+            },
+        },
+		iconWrapper: {
+            height: "22px",
+            width: "22px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+        },
 		codeIconButton: {
 			color: theme.palette.grey[400],
-			padding: "10px",
 		},
 		deleteIconButton: {
 			color: theme.palette.grey[400],
-			padding: "10px",
 		},
 		separator: {
 			height: "35px",
@@ -88,7 +102,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const [linkSelected, setLinkSelected] = React.useState(false);
 	const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
 	const [codeActions, setCodeActions] = React.useState([]);
-	const [mutationInProgress, setMutationInProgress] = React.useState(false);
+	const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 	const classes = useStyles();
 	const diagnostic = props.model.link.hasError() ? props.model.link.diagnostics[0] : null;
 
@@ -103,8 +117,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	}, [props.model]);
 
 	const onClickDelete = () => {
-		setMutationInProgress(true);
-		props.model.context.handleOverlay(true);
+		setDeleteInProgress(true);
 		if (props.model.deleteLink) {
 			props.model.deleteLink();
 		}
@@ -158,30 +171,22 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const elements: React.ReactNode[] = [
 		(
 			<>
-				{mutationInProgress ? (
+				<div className={classes.element} >
+					<div className={classes.iconWrapper}>
+						<CodeOutlinedIcon className={classes.codeIconButton} onClick={onClickEdit} />
+					</div>
+				</div>
+				<div className={classes.separator} />
+				{deleteInProgress ? (
 					<div className={clsx(classes.element, classes.loadingContainer)}>
 						{loadingScreen}
 					</div>
 				) : (
-					<>
-						<div className={classes.element} >
-							<IconButton
-								className={classes.codeIconButton}
-								onClick={onClickEdit}
-							>
-								<CodeOutlinedIcon />
-							</IconButton>
+					<div className={classes.element}>
+						<div className={classes.iconWrapper}>
+							<DeleteIcon className={classes.deleteIconButton} onClick={onClickDelete} />
 						</div>
-						<div className={classes.separator} />
-						<div className={classes.element}>
-							<IconButton
-								className={classes.deleteIconButton}
-								onClick={onClickDelete}
-							>
-								<DeleteIcon />
-							</IconButton>
-						</div>
-					</>
+					</div>
 				)}
 			</>
 		),
@@ -271,7 +276,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		<div
 			className={clsx(
 				classes.container,
-				!linkSelected && !mutationInProgress && classes.containerHidden
+				!linkSelected && !deleteInProgress && classes.containerHidden
 			)}
 		>
 			{elements}

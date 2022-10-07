@@ -26,11 +26,22 @@ export const useStyles = makeStyles((theme: Theme) =>
             minHeight: "24px",
             width: "100%"
         },
+        treeLabelDisabled: {
+            backgroundColor: "#F7F8FB",
+        },
+        treeLabelArray: {
+            flexDirection: "column"
+        },
+        ArrayFieldRow: {
+            display: "flex"
+        },
         innerTreeLabel: {
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-start",
+            width: "inherit",
             padding: "10px 12px",
+            margin: "10px",
             background: "#F7F8FB",
             border: "1px #A9D7DD solid",
             borderRadius: "4px",
@@ -60,11 +71,29 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: "24px",
             fontWeight: 400
         },
+        typeLabelDisabled: {
+            backgroundColor: "#F7F8FB",
+            color: "#40404B",
+            opacity: 0.5
+        },
         value: {
             verticalAlign: "middle",
             padding: "5px",
             backgroundColor: "#f5f1fb",
             borderRadius: "5px"
+        },
+        valueWithError: {
+            verticalAlign: "middle",
+            padding: "5px",
+            backgroundColor: theme.palette.error.light,
+            borderRadius: "5px",
+            pointerEvents: 'auto'
+        },
+        errorIconWrapper: {
+            height: "22px",
+            width: "22px",
+            marginLeft: '5px',
+            verticalAlign: 'middle',
         },
         valueLabel: {
             verticalAlign: "middle",
@@ -73,6 +102,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontFamily: "GilmerMedium",
             fontSize: "13px",
             backgroundColor: "#FFFFFF",
+        },
+        valueLabelDisabled: {
+            backgroundColor: "#F7F8FB",
+            color: "#1D2028",
+            opacity: 0.5
         },
         group: {
             marginLeft: "0px",
@@ -99,17 +133,19 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: 'fit-content',
             marginLeft: "auto"
         },
-        label:{
+        label: {
             width: "300px",
             whiteSpace: "nowrap",
             overflow: "hidden",
-            display: "inline-block",
             textOverflow: "ellipsis",
+            pointerEvents: "none",
             "&:hover": {
                 overflow: "visible"
             }
         },
         expandIcon: {
+            cursor: "pointer",
+            pointerEvents: "all",
             color:  theme.palette.common.black,
             height: "25px",
             width: "25px",

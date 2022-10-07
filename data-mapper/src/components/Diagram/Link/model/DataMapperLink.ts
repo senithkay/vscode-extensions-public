@@ -8,7 +8,8 @@ export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
 
-	constructor(public value: STNode = undefined, public diagnostics: Diagnostic[] = []) {
+	constructor(public value: STNode = undefined, public diagnostics: Diagnostic[] = [],
+				public notContainsLabel?: boolean) {
 		super({
 			type: LINK_TYPE_ID,
 			width: 1,

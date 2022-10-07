@@ -1,26 +1,80 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
+import { CircularProgress } from "@material-ui/core";
+import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
+import TooltipBase from '@material-ui/core/Tooltip';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
+import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import clsx from 'clsx';
 
-import { DataMapperPortWidget } from '../../Port';
-import { LinkConnectorNode } from './LinkConnectorNode';
-import { getFieldLabel } from '../../utils/dm-utils';
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
+import { DataMapperPortWidget } from '../../Port';
+import { getFieldLabel } from '../../utils/dm-utils';
+
+import { LinkConnectorNode } from './LinkConnectorNode';
+
+export const tooltipBaseStyles = {
+    tooltip: {
+        color: "#8d91a3",
+        backgroundColor: "#fdfdfd",
+        border: "1px solid #e6e7ec",
+        borderRadius: 6,
+        padding: "1rem"
+    },
+    arrow: {
+        color: "#fdfdfd"
+    }
+};
 
 const styles = makeStyles((theme: Theme) => createStyles({
     root: {
-        verticalAlign: "middle",
         width: '100%',
         backgroundColor: theme.palette.common.white,
-        padding: "5px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
         color: theme.palette.grey[400],
         boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
-        borderRadius: "8px",
+        borderRadius: "10px",
+		alignItems: "center",
+		overflow: "hidden",
+    },
+    element: {
+        backgroundColor: theme.palette.common.white,
+        padding: "10px",
+        cursor: "pointer",
+        transitionDuration: "0.2s",
+        userSelect: "none",
+        pointerEvents: "auto",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        "&:hover": {
+            filter: "brightness(0.95)",
+        },
+    },
+    iconWrapper: {
+        height: "22px",
+        width: "22px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
     },
     fromClause: {
         padding: "5px",
@@ -35,6 +89,7 @@ const styles = makeStyles((theme: Theme) => createStyles({
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
+        alignItems: "center"
     },
     icons: {
         padding: '8px',
@@ -58,7 +113,22 @@ const styles = makeStyles((theme: Theme) => createStyles({
         width: "1px",
         backgroundColor: theme.palette.grey[200],
     },
-}),);
+    editIcon: {
+        color: theme.palette.grey[300],
+        padding: "10px",
+        height: "42px",
+        width: "42px"
+    },
+    deleteIcon: {
+        color: theme.palette.error.main
+    },
+    loadingContainer: {
+        padding: "10px"
+    },
+    circularProgress: {
+        color: "#CBCEDB"
+    }
+}));
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -72,34 +142,72 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const hasError = node.hasError();
     const diagnostic = hasError ? node.diagnostics[0] : null;
 
+    const [deleteInProgress, setDeleteInProgress] = React.useState(false);
+
     const onClickEdit = () => {
-        props.node.context.enableStatementEditor({
-            valuePosition: props.node.valueNode.position,
-            value: props.node.valueNode.source,
-            label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
+        const valueNode = props.node.valueNode;
+        if (STKindChecker.isSpecificField(valueNode)) {
+            props.node.context.enableStatementEditor({
+                valuePosition: valueNode.valueExpr.position,
+                value: valueNode.valueExpr.source,
+                label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
                     : props.node.editorLabel)
-        });
+            });
+        }
     };
+
+    const onClickDelete = () => {
+        setDeleteInProgress(true);
+        if (node.deleteLink) {
+            node.deleteLink();
+        }
+    };
+    const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
+
+    const loadingScreen = (
+        <CircularProgress
+            size={22}
+            thickness={3}
+            className={classes.circularProgress}
+        />
+    );
 
     return (
         <div className={classes.root}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} />
-                <CodeOutlinedIcon onClick={onClickEdit} style={{ color: hasError && '#FE523C' }} />
-                { diagnostic &&(
-                    <>
-                        <div style={{paddingRight: "5px", paddingLeft: "5px"}}>
-                            <div className={classes.separator} />
+                <TooltipComponent interactive={false} arrow={true} title={"Multi-Input Expression"}>
+                    <span className={classes.editIcon} >
+                        <ExpressionIcon  />
+                    </span>
+                </TooltipComponent>
+                <div className={classes.element} onClick={onClickEdit}>
+                    <div className={classes.iconWrapper}>
+                        <CodeOutlinedIcon className={clsx(classes.icons, classes.editIcon)}/>
+                    </div>
+                </div>
+                {deleteInProgress ? (
+                    <div className={clsx(classes.element, classes.loadingContainer)}>
+                        {loadingScreen}
+                    </div>
+                ) : (
+                    <div className={classes.element} onClick={onClickDelete}>
+                        <div className={classes.iconWrapper}>
+                            <DeleteIcon className={clsx(classes.deleteIcon)}/>
                         </div>
-                        <DiagnosticWidget 
-                            diagnostic={diagnostic} 
-                            value={ props.node.valueNode.source}
-                            onClick={onClickEdit} />
-                    </>
+                    </div>
+                )}
+                { diagnostic && (
+                    <div className={classes.element}>
+                        <DiagnosticWidget
+                            diagnostic={diagnostic}
+                            value={props.node.valueNode.source}
+                            onClick={onClickEdit}
+                        />
+                    </div>
                 )}
                 <DataMapperPortWidget engine={engine} port={node.outPort} />
             </div>
         </div>
     );
 }
-

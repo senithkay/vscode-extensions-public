@@ -41,7 +41,7 @@ export function WhereClauseItem(props: {
         <>
             <div className={clsx(classes.element, classes.clauseWrap)}>
                 <div className={classes.clause}>
-                    <span>{`${intermediateNode.whereKeyword.value} `}</span>
+                    <span className={classes.clauseBold}>{`${intermediateNode.whereKeyword.value} `}</span>
                     <span
                         className={classes.clauseExpression}
                         onClick={onEditClick}

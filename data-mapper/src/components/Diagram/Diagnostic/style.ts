@@ -45,7 +45,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         iconWrapper: {
             height: "22px",
             width: "22px",
-
             display: "flex",
             justifyContent: "center",
             alignItems: "center",

@@ -27,7 +27,7 @@ describe('delete resource after adding it', () => {
       .save();
 
     Canvas.getService('/hello')
-        .clickPlusIcon(3);
+        .clickPlusIcon(5);
 
     ResourceForm
       .selectMethod("GET")

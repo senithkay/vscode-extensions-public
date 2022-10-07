@@ -14,25 +14,36 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        element: {
-          backgroundColor: theme.palette.common.white,
-          userSelect: "none",
-          pointerEvents: "auto",
+      element: {
+        backgroundColor: theme.palette.common.white,
+        padding: "10px",
+        cursor: "pointer",
+        transitionDuration: "0.2s",
+        userSelect: "none",
+        pointerEvents: "auto",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        "&:hover": {
+            filter: "brightness(0.95)",
         },
-        lightBulbWrapper: {
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        iconButton: {
-          padding: "10px 14px",
-        },
-        menu: {
-          '& .MuiMenuItem-root': {
-              fontSize: '11px',
-              paddingBottom: "1px",
-              paddingTop: "1px"
-          }
+      },
+      lightBulbWrapper: {
+        height: "22px",
+        width: "22px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      },
+      iconButton: {
+        padding: "10px 14px",
+      },
+      menu: {
+        '& .MuiMenuItem-root': {
+            fontSize: '11px',
+            paddingBottom: "1px",
+            paddingTop: "1px"
+        }
       }
     })
 );
