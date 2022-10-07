@@ -36,15 +36,12 @@ interface Request {
     body?: string,
 }
 
-function fetcher(api: string, params: Object): Promise<any> {
+function fetcher(api: string, body: Object, headers: string | undefined): Promise<any> {
     const request: Request = {
         url: api,
         method: "POST",
-        headers: {
-            "Accept": "/*/",
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(params),
+        headers: JSON.parse(headers ?? ''),
+        body: JSON.stringify(body),
     }
 
     vscode.postMessage({
@@ -72,20 +69,23 @@ export const GraphqlView = (props: any) => {
     const [query, setQuery] = useState<string | undefined>('');
     const [schema, setSchema] = useState<GraphQLSchema | null>();
     const [showExplorer, setShowExplorer] = useState(false);
+    const [headers, setHeaders] = useState<string | undefined>(JSON.stringify({
+        "Content-Type": "application/json",
+    }));
     let _graphiql;
 
     useEffect(() => {
-        fetcher(serviceAPI, {
-            query: getIntrospectionQuery()
-        }).then(result => {
-            setSchema(buildClientSchema(result.data));
-        });
+        fetcher(serviceAPI, { query: getIntrospectionQuery() }, headers)
+            .then(result => {
+                setSchema(buildClientSchema(result.data));
+            });
     }, []);
 
     const _handleEditQuery = (query?: string): void => setQuery(query);
+    const _handleEditHeaders = (headers?: string): void => setHeaders(headers);
     const _handleToggleExplorer = (): void => setShowExplorer(!showExplorer);
     const _fetcher = (params: Object) => {
-        return fetcher(serviceAPI, params);
+        return fetcher(serviceAPI, params, headers);
     };
 
     return (
@@ -100,9 +100,11 @@ export const GraphqlView = (props: any) => {
             <GraphiQL
                 ref={ref => (_graphiql = ref!)}
                 fetcher={_fetcher}
+                headers={headers}
                 schema={schema}
                 query={query}
                 onEditQuery={_handleEditQuery}
+                onEditHeaders={_handleEditHeaders}
             >
                 <GraphiQL.Logo>
                     <div></div>
