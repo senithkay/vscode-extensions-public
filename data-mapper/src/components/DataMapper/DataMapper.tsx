@@ -22,6 +22,7 @@ import {
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import {
     FunctionDefinition,
     NodePosition,
@@ -65,7 +66,21 @@ const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             height: '100%',
             background: theme.palette.common.white,
-            opacity: 0.5
+            opacity: 0.5,
+            marginTop: 50
+        },
+        dmUnsupportedOverlay: {
+            zIndex: 1,
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            background: theme.palette.common.white,
+            opacity: 0.5,
+            marginTop: 50
+        },
+        dmUnsupportedMessage: {
+            zIndex: 1,
+            position: 'absolute'
         }
     }),
 );
@@ -149,7 +164,7 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 function DataMapperC(props: DataMapperProps) {
 
 
-    const { fnST, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose, importStatements, recordPanel } = props;
+    const { fnST, dMSupported, langClientPromise, filePath, currentFile, stSymbolInfo, applyModifications, library, onClose, importStatements, recordPanel } = props;
 
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -273,6 +288,8 @@ function DataMapperC(props: DataMapperProps) {
         recordPanel
     }
 
+    const dmUnsupportedMessage = `Current installed ballerina version 2201.0.1 does not support Data Mapper. Please update ballerina. Supported ballerina versions are 2201.1.2, 2201.2.1 or higher version.`;
+
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {
             onClose();
@@ -288,19 +305,27 @@ function DataMapperC(props: DataMapperProps) {
             <CurrentFileContext.Provider value={currentFile}>
                 {selection.state === DMState.INITIALIZED && (
                     <div className={classes.root}>
-                        {!!showDMOverlay && <div className={classes.overlay} />}
-                        {fnST && (
+                        {!!showDMOverlay &&
+                            <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
+                        }
+                        {fnST || !dMSupported && (
                             <DataMapperHeader
                                 selection={selection}
+                                dmSupported={dMSupported}
                                 changeSelection={handleSelectedST}
                                 onClose={onClose}
                                 onConfigOpen={onConfigOpen}
                             />
                         )}
+                        {!dMSupported && (
+                            <div className={classes.dmUnsupportedMessage}>
+                                <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"}/>
+                            </div>
+                        )}
                         <DataMapperDiagram
                             nodes={nodes}
                         />
-                        {(!selection?.selectedST?.stNode || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
+                        {(!selection?.selectedST?.stNode || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
                         {!!currentEditableField && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}

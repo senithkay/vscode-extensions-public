@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
 import styled from "@emotion/styled";
@@ -33,13 +34,14 @@ const useStyles = makeStyles(() =>
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
+    dmSupported: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onClose: () => void;
     onConfigOpen: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { selection, changeSelection, onClose, onConfigOpen } = props;
+    const { selection, dmSupported, changeSelection, onClose, onConfigOpen } = props;
     const classes = useStyles();
     return (
         <HeaderContainer>
@@ -51,7 +53,9 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     changeSelection={changeSelection}
                 />
             </BreadCrumb>
-            <EditButton className={classes.editButton} onClick={onConfigOpen} />
+            {dmSupported && (
+                <EditButton className={classes.editButton} onClick={onConfigOpen} />
+            )}
         </HeaderContainer>
     );
 }
