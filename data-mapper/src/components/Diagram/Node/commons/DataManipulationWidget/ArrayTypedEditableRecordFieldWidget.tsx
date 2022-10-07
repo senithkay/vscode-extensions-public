@@ -38,6 +38,7 @@ import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
+import classnames from "classnames";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -101,7 +102,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const label = (
         <span style={{ marginRight: "auto" }}>
             <span
-                className={classes.valueLabel}
+                className={classnames(classes.valueLabel,
+                            (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
                 style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
             >
                 {fieldName}
@@ -109,7 +111,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 {fieldName && typeName && ":"}
             </span>
             {typeName && (
-                <span className={classes.typeLabel}>
+                <span className={classnames(classes.typeLabel,
+                                (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}>
                     {typeName}
                 </span>
             )}
@@ -204,7 +207,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     return (
-        <div className={classNames(classes.treeLabel, classes.treeLabelArray)}>
+        <div className={classNames(classes.treeLabel, classes.treeLabelArray,
+                        (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
             <div className={classes.ArrayFieldRow}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
