@@ -13,14 +13,14 @@
 
 import React, { ReactNode } from 'react';
 
-import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
+import { Warning } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useStyles } from './style';
 
 export interface WarningBannerProps {
-  message: ReactNode | string;
-  testId: string;
+    message: ReactNode | string;
+    testId?: string;
 }
 
 export const WarningBanner = (props: WarningBannerProps) => {
@@ -28,15 +28,13 @@ export const WarningBanner = (props: WarningBannerProps) => {
     const { message, testId } = props;
 
     return (
-        <Box className={classes.warningContainer} data-testid="warning-banner">
-            <Box display="flex" flexDirection="row">
-                <Box display="flex" flexDirection="row" ml={1} data-testid={testId}>
-                    <Typography variant="body1">{message}</Typography>
-                </Box>
-                <Box display="flex" ml={1} mr={1} pl={2}>
-                    <img src="/images/warning_orange_filled.svg" alt="" width={16}/>
-                </Box>
-            </Box>
-        </Box>
+        <div className={classes.warningContainer} data-testid="warning-banner">
+            <div className={classes.warningIcon}>
+                <Warning/>
+            </div>
+            <div data-test-id={testId} >
+                <Typography variant="body1">{message}</Typography>
+            </div>
+        </div>
     );
 };

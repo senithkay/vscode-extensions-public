@@ -15,15 +15,25 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-      warningContainer: {
-        backgroundColor: '#ffcc8c2b',
-        borderLeftStyle: 'solid',
-        borderLeftColor: '#FF9D52',
-        padding: theme.spacing(1),
-        minWidth: 120,
-        width: 'fit-content',
-        marginBottom: theme.spacing(0.5),
-        textAlign: 'left',
-      },
+        warningContainer: {
+            marginTop: 20,
+            marginLeft: 16,
+            marginRight: 16,
+            backgroundColor: '#FFF5EB',
+            borderStyle: 'solid',
+            borderRadius: 8,
+            padding: theme.spacing(1),
+            minWidth: 120,
+            width: 'fit-content',
+            textAlign: 'left',
+            display: 'flex',
+            flexDirection: 'row',
+            borderColor: '#FFCC8C'
+        },
+        warningIcon: {
+            width: 16,
+            marginRight: 8,
+            marginTop: 5
+        },
     })
 );
