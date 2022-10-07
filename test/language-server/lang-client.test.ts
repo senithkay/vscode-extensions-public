@@ -586,10 +586,10 @@ suite("Language Server Tests", function () {
 
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
                     assert.equal(response.length, 2, 'Invalid number of code actions.');
-                    assert.equal(response[1].title, 'Create variable', 'Invalid create variable action.');
-                    assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 1st.");
-                    assert.equal(response[0].title, 'Ignore return value', 'Invalid ignore return value action.');
-                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 0th.");
+                    assert.equal(response[0].title, 'Create variable', 'Invalid create variable action.');
+                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 1st.");
+                    assert.equal(response[1].title, 'Ignore return value', 'Invalid ignore return value action.');
+                    assert.equal(response[1].kind, "quickfix", "Invalid code action kind - 0th.");
                     done();
                 });
             });

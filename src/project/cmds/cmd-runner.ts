@@ -40,7 +40,9 @@ export enum PALETTE_COMMANDS {
     CHOREO_SYNC_CHANGES = 'ballerina.choreo.sync',
     PERFORMANCE_FORECAST_ENABLE = 'performance.forecasting.enable',
     PERFORMANCE_FORECAST_DISABLE = 'performance.forecasting.disable',
-    TRY_IT = 'ballerina.tryit'
+    TRY_IT = 'ballerina.tryit',
+    OPEN_IN_DIAGRAM = 'ballerina.openIn.diagram',
+    SHOW_DIAGRAM = 'ballerina.show.diagram'
 }
 
 

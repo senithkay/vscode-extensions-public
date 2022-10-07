@@ -35,3 +35,6 @@ export const NO_SUCH_FILE = "No such file or directory";
 export const ERROR = "Error:";
 export const OLD_PLUGIN_INSTALLED = "You have an older version of the Ballerina extension installed. Please uninstall the `ballerina.ballerina` extension and continue.";
 export const RUN_PROJECT_TO_TRYIT = "Please make sure the project is already running to use the try out feature";
+export const OLD_BALLERINA_VERSION_DEBUGGER_RUNINTERMINAL = "Debugger: Your Ballerina version does not support the run in terminal feature. Please update to 2201.3.0 or later version.";
+export const UNSUPPORTED_DEBUGGER_RUNINTERMINAL_KIND = "Debugger: The run in external terminal capability is not supported. Launching program in integrated terminal."
+export const INVALID_DEBUGGER_RUNINTERMINAL_KIND = "Debugger: Invalid terminal kind provided. Failed to launch debugger.";

@@ -29,7 +29,7 @@ export const DIST_LIB_LIST_CACHE = "DISTRIBUTION_LIB_LIST_CACHE";
 export const LANG_LIB_LIST_CACHE = "LANG_LIB_LIST_CACHE";
 export const STD_LIB_LIST_CACHE = "STD_LIB_LIST_CACHE";
 export const LIBRARY_SEARCH_CACHE = "LIBRARY_SEARCH_CACHE";
-const BAL_VERSION_CAPTURING_REGEXP = /\/ballerina-([a-z]+\d+)/g;
+const BAL_VERSION_CAPTURING_REGEXP = /\/ballerina-(\d{4}.\d+.\d+)/g;
 const options = {
     hostname: 'api.central.ballerina.io',
     port: 443,
@@ -40,7 +40,7 @@ const options = {
 };
 let balVersion = 'slbeta6'; // This will overwrite if the ballerina version can be derived from the ballerina home (Cannot be derived when using the custom packs).
 const DOC_API_PATH = '/2.0/docs';
-const LIBRARIES_LIST_ENDPOINT = DOC_API_PATH + '/stdlib' + balVersion;
+const LIBRARIES_LIST_ENDPOINT = DOC_API_PATH + '/stdlib/' + balVersion;
 const LIBRARIES_SEARCH_ENDPOINT = LIBRARIES_LIST_ENDPOINT + '/search';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {

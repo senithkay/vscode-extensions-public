@@ -461,6 +461,15 @@ function getLangClient() {
                     resolve(resp);
                 });
             });
+        },
+        rename: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('rename', [params], (resp) => {
+                    consoleLog(start, 'rename');
+                    resolve(resp);
+                });
+            });
         }
     }
 }

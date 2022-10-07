@@ -1,5 +1,9 @@
 # Change Log
 
+## **3.2.0**
+### Improved
+- New performance analyzer introduced. This will help users to identify the performance of the multiple execution paths of the code.
+
 ## **3.1.0**
 ### Added
 - Ballerina Notebook. [#183](https://github.com/wso2/ballerina-plugin-vscode/issues/183)
