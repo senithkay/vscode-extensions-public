@@ -167,6 +167,7 @@ export interface JsonToRecordRequest {
     recordName?: string;
     isRecordTypeDesc?: boolean;
     isClosed?: boolean;
+    forceFormatRecordFields?: boolean;
 }
 
 export interface JsonToRecordResponse {
