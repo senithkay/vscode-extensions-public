@@ -26,6 +26,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             minHeight: "24px",
             width: "100%"
         },
+        treeLabelDisabled: {
+            backgroundColor: "#F7F8FB",
+        },
         treeLabelArray: {
             flexDirection: "column"
         },
@@ -68,6 +71,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: "24px",
             fontWeight: 400
         },
+        typeLabelDisabled: {
+            backgroundColor: "#F7F8FB",
+            color: "#40404B",
+            opacity: 0.5
+        },
         value: {
             verticalAlign: "middle",
             padding: "5px",
@@ -94,6 +102,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontFamily: "GilmerMedium",
             fontSize: "13px",
             backgroundColor: "#FFFFFF",
+        },
+        valueLabelDisabled: {
+            backgroundColor: "#F7F8FB",
+            color: "#1D2028",
+            opacity: 0.5
         },
         group: {
             marginLeft: "0px",
