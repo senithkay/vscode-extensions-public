@@ -14,11 +14,8 @@ import React from 'react';
 
 import { Divider } from '@material-ui/core';
 import { getConstructIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import classNames from 'classnames';
 
-import { useDiagramContext } from "../../../../../../Contexts/Diagram";
-import { isDMSupported } from "../../../Utils";
 import { PlusMenuCategories, PlusMenuEntry } from '../PlusOptionsSelector';
 
 import './style.scss';
@@ -32,11 +29,6 @@ export function TopLevelPlusHolder(props: TopLevelPlusHolderProps) {
 
     const { entries, onOptionSelect } = props;
 
-    const { props: { ballerinaVersion } } = useDiagramContext();
-
-    const dMSupported = isDMSupported(ballerinaVersion);
-    const dmMessage = `Current installed ballerina version (${ballerinaVersion}) does not support Data mapper. Please install ballerina 2201.1.2, 2201.2.1 or higher version`;
-
     const entryPoints: JSX.Element[] = [];
     const constructs: JSX.Element[] = [];
     const moduleInit: JSX.Element[] = [];
@@ -49,28 +41,17 @@ export function TopLevelPlusHolder(props: TopLevelPlusHolderProps) {
 
         switch (entry.category) {
             case PlusMenuCategories.CONSTRUCT:
-                {/* TODO: Add tooltip messages for other constructs */}
-                const isDMDisabled = ((entry.name === "Data Mapper") && !dMSupported);
                 constructs.push((
-                    <Tooltip
-                        title={"UnSupported Ballerina Version"}
-                        toolTipContent={dmMessage}
-                        placement="right"
-                        arrow={true}
-                        disabled={!isDMDisabled}
-                        interactive={true}
+                    <div
+                        className={classNames("sub-option enabled", { height: 'unset' })}
+                        data-testid="addcustom"
+                        onClick={onEntryClick}
                     >
-                        <div
-                            className={classNames("sub-option", { height: 'unset' }, { enabled: !isDMDisabled })}
-                            data-testid="addrespond"
-                            onClick={!isDMDisabled && onEntryClick}
-                        >
-                            <div className="icon-wrapper">
-                                {getConstructIcon(entry.type)}
-                            </div>
-                            <div className="text-label"> {entry.name} </div>
+                        <div className="icon-wrapper">
+                            {getConstructIcon(entry.type)}
                         </div>
-                    </Tooltip>
+                        <div className="text-label">{entry.name}</div>
+                    </div>
                 ));
                 break;
             case PlusMenuCategories.ENTRY_POINT:
