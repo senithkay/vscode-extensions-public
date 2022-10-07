@@ -131,16 +131,7 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
         }
 
         const deleteQueryLink = () => {
-            const modifications = [
-                {
-                    type: "INSERT",
-                    config: {
-                        "STATEMENT": this.props.node.value.queryPipeline.fromClause.expression.source?.trim(),
-                    },
-                    ...this.props.node.value.position
-                }
-            ];
-            node.context.applyModifications(modifications);
+            node.deleteLink();
         }
 
         const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
