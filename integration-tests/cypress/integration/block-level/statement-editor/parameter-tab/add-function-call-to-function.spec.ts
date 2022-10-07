@@ -88,14 +88,14 @@ describe('Test helper plane parameter tab functionality', () => {
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`str`);
+            .doubleClickExpressionContent(`<add-param>`);
 
         InputEditor
             .typeInput('"str"');
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`n`);
+            .doubleClickExpressionContent(`<add-param>`);
 
         InputEditor
             .typeInput("0");       

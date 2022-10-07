@@ -49,13 +49,7 @@ export function Service(props: ServiceProps) {
     model.members.forEach((member) => {
         const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
         children.push(
-            <div className={"service-member"} data-start-position={startPosition}>
-                <TopLevelPlus
-                    kind={model.kind}
-                    targetPosition={member.position}
-                    isTriggerType={isTriggerType}
-                    showCategorized={true}
-                />
+            <div className={'service-member'}  data-start-position={startPosition} >
                 {getSTComponent(member)}
             </div>
         );
@@ -110,7 +104,7 @@ export function Service(props: ServiceProps) {
             } else if (
                 expression &&
                 STKindChecker.isSimpleNameReference(expression) &&
-                expression.typeData?.typeSymbol?.moduleID.moduleName === "http"
+                expression.typeData?.typeSymbol?.moduleID?.moduleName === "http"
             ) {
                 return true;
             }
@@ -124,7 +118,7 @@ export function Service(props: ServiceProps) {
             if (
                 expression &&
                 STKindChecker.isSimpleNameReference(expression) &&
-                expression.typeData?.typeSymbol?.moduleID.moduleName.includes("trigger")
+                expression.typeData?.typeSymbol?.moduleID?.moduleName?.includes("trigger")
             ) {
                 return true;
             }
@@ -136,8 +130,7 @@ export function Service(props: ServiceProps) {
         <>
             {(isHttpService() || isTrigger()) && (
                 <div className={"service"}>
-                    <div className={"action-container"}>{!isReadOnly && renderButtons()}</div>
-                    <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} />
+                    <ServiceHeader model={model} isExpanded={isExpanded} onExpandClick={onExpandClick} onClickTryIt={onClickTryIt} onClickRun={onClickRun} />
                     <div className={"content-container"}>
                         {isExpanded && (
                             <>

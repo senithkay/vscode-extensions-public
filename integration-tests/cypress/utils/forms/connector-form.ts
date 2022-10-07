@@ -32,9 +32,9 @@ export class ConnectorMarketplace {
 
     static waitForConnectorsLoading() {
         this.getConnectorMarketplace().get('[data-testid="marketplace-search-loader"]',
-            { timeout: 10000 }).should('be.visible');
+            { timeout: 20000 }).should('be.visible');
         this.getConnectorMarketplace().get('[data-testid="marketplace-search-loader"]',
-            { timeout: 50000 }).should('not.exist');
+            { timeout: 100000 }).should('not.exist');
         return this;
     }
 
