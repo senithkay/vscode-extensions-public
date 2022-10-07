@@ -245,7 +245,7 @@ export class ConflictResolutionVisitor implements Visitor {
     }
 
     private fixConflictsWithMessages(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
-        statementIndex: number): boolean {
+                                     statementIndex: number): boolean {
         let updatedAsConflict: boolean = false;
 
         this.matchedPairInfo.forEach(matchedPair => {
@@ -293,7 +293,7 @@ export class ConflictResolutionVisitor implements Visitor {
     }
 
     private fixConflictsWithEndpoints(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
-        statementIndex: number): boolean {
+                                      statementIndex: number): boolean {
         let updatedAsConflict = false;
         this.endPointPositions.forEach(position => {
             if (((boxStartHeight >= position.y1 && boxStartHeight <= position.y2)
