@@ -21,7 +21,6 @@ import {
     LimitClause,
     ListConstructor,
     LocalVarDecl,
-    MappingConstructor,
     MethodCall,
     OrderKey,
     QueryExpression,
@@ -29,10 +28,9 @@ import {
     RecordField,
     RecordFieldWithDefaultValue,
     ReturnStatement,
-    SimpleNameReference,
     STKindChecker,
     STNode,
-    TupleTypeDesc,
+    TupleTypeDesc, TypeCastExpression,
     TypedBindingPattern,
     Visitor, WhereClause
 } from "@wso2-enterprise/syntax-tree";
@@ -49,12 +47,6 @@ class DeleteConfigSetupVisitor implements Visitor {
     public beginVisitListConstructor(node: ListConstructor) {
         node.expressions.map((expr: STNode) => {
             (expr.viewState as StatementEditorViewState).templateExprDeletable = true;
-        });
-    }
-
-    public beginVisitMappingConstructor(node: MappingConstructor) {
-        node.fields.map((field: STNode) => {
-            (field.viewState as StatementEditorViewState).templateExprDeletable = true;
         });
     }
 
@@ -75,6 +67,10 @@ class DeleteConfigSetupVisitor implements Visitor {
         if (node.expression) {
             (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
+    }
+
+    public beginVisitTypeCastExpression(node: TypeCastExpression) {
+        (node.typeCastParam.viewState as StatementEditorViewState).templateExprDeletable = true;
     }
 
     public beginVisitLocalVarDecl(node: LocalVarDecl, parent?: STNode) {
@@ -106,14 +102,9 @@ class DeleteConfigSetupVisitor implements Visitor {
     }
 
     public beginVisitIndexedExpression(node: IndexedExpression) {
-        if (node.keyExpression.length === 1) {
-            (node.keyExpression[0].viewState as StatementEditorViewState).exprNotDeletable = true;
-            (node.keyExpression[0].viewState as StatementEditorViewState).templateExprDeletable = false;
-        } else {
-            node.keyExpression.map((fieldNames: STNode) => {
-                (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
-            });
-        }
+        node.keyExpression.map((fieldNames: STNode) => {
+            (fieldNames.viewState as StatementEditorViewState).templateExprDeletable = true;
+        });
     }
 
     public beginVisitMethodCall(node: MethodCall) {
@@ -129,7 +120,7 @@ class DeleteConfigSetupVisitor implements Visitor {
     }
 
     public beginVisitOrderKey(node: OrderKey) {
-        (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        (node.orderDirection.viewState as StatementEditorViewState).exprNotDeletable = true;
     }
 
     public beginVisitLetVarDecl(node: LetVarDecl) {
@@ -138,10 +129,12 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitWhereClause(node: WhereClause) {
         (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
     }
 
     public beginVisitLimitClause(node: LimitClause) {
         (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
     }
 
     public beginVisitRecordField(node: RecordField) {
@@ -166,13 +159,6 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitIdentifierToken(node: IdentifierToken, parent?: STNode) {
         if (parent && (parent.viewState as StatementEditorViewState).templateExprDeletable) {
-            (node.viewState as StatementEditorViewState).templateExprDeletable = true;
-        }
-    }
-
-    public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
-        if (parent && !STKindChecker.isIndexedExpression(parent) &&
-            (parent.viewState as StatementEditorViewState).templateExprDeletable) {
             (node.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }

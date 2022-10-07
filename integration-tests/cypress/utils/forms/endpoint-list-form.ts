@@ -15,7 +15,7 @@ export class EndpointListForm {
 
     static selectEndpoint(endpoint: string) {
         this.getEndpointListForm()
-            .get(`[data-testid="${endpoint.toLowerCase()}"]`)
+            .get(`[data-testid="${endpoint.toLowerCase()}"]`, { timeout: 50000 })
             .should("be.visible")
             .click();
         return this;
