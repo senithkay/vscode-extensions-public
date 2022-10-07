@@ -768,7 +768,7 @@ suite("Language Server Tests", function () {
     test("Test json to record", function (done): void {
         const json: string = readFileSync(join(PROJECT_ROOT, 'record.json'), 'utf-8');
         const expected: string = readFileSync(join(PROJECT_ROOT, 'record.bal'), 'utf-8');
-        langClient.convertJsonToRecord({ jsonString: json, isClosed: false, isRecordTypeDesc: false, recordName: "" })
+        langClient.convertJsonToRecord({ jsonString: json, isClosed: false, isRecordTypeDesc: false, recordName: "", forceFormatRecordFields: false })
             .then(lSResponse => {
                 const response = lSResponse as JsonToRecordResponse;
                 expect(response).to.contain.keys("codeBlock");
