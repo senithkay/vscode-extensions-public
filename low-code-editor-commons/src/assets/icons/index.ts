@@ -80,3 +80,4 @@ export { ParamIcon } from './ParamIcon';
 export { ParamEditButton } from './ParamEditButton';
 export { SettingsIcon } from './SettingsIcon';
 export { SettingsIconSelected } from './SettingsIconSelected';
+export { Warning } from "./WarningIcon";
