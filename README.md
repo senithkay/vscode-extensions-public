@@ -17,7 +17,7 @@ Before getting started, make sure you have installed the [Visual Studio Code edi
 Follow the steps below to install the Ballerina extension.
 
 1. Download and install [Ballerina](https://ballerina.io/learn/installing-ballerina/setting-up-ballerina/).
-2. Install the [Ballerina VS Code Extension](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/quick-start/#installing-the-ballerina-extension). 
+2. Install the Ballerina VS Code Extension. 
 
   >**Tip:** Alternatively, click `Ctrl + P` or (`Cmd + P` in macOS) to launch the VS Code **Quick Open** screen, and enter `ext install WSO2.ballerina` to install the Ballerina VS Code Extension.
 
