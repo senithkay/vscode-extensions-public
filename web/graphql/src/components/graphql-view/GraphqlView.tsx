@@ -24,34 +24,50 @@ import { buildClientSchema, getIntrospectionQuery, GraphQLSchema } from "graphql
 import "graphiql/graphiql.css";
 import "./style.css";
 
-function fetcher(api: string, proxy: string, params: Object): Promise<any> {
-    return fetch(
-        `${proxy}${api}`,
+declare const vscode: vscode;
+interface vscode {
+    postMessage(message: any): void;
+}
 
-        {
-            method: "POST",
-            headers: {
-                Accept: "/*/",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(params)
-        }
-    )
-        .then(function (response) {
-            return response.text();
-        })
-        .then(function (responseBody) {
-            try {
-                return JSON.parse(responseBody);
-            } catch (e) {
-                return responseBody;
+interface Request {
+    url: string,
+    headers: any,
+    method: string,
+    body?: string,
+}
+
+function fetcher(api: string, params: Object): Promise<any> {
+    const request: Request = {
+        url: api,
+        method: "POST",
+        headers: {
+            "Accept": "/*/",
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(params),
+    }
+
+    vscode.postMessage({
+        command: 'graphqlRequest',
+        req: request
+    });
+
+    return new Promise(resolve => {
+        window.addEventListener('message', event => {
+            const message = event.data;
+            switch (message.command) {
+                case 'graphqlResponse':
+                    if (!message.res) {
+                        resolve(false);
+                    }
+                    resolve(message.res);
             }
-        });
+        })
+    });
 }
 
 export const GraphqlView = (props: any) => {
     const serviceAPI: string = props.data.serviceAPI;
-    const proxy: string = props.data.proxy;
 
     const [query, setQuery] = useState<string | undefined>('');
     const [schema, setSchema] = useState<GraphQLSchema | null>();
@@ -59,7 +75,7 @@ export const GraphqlView = (props: any) => {
     let _graphiql;
 
     useEffect(() => {
-        fetcher(serviceAPI, proxy, {
+        fetcher(serviceAPI, {
             query: getIntrospectionQuery()
         }).then(result => {
             setSchema(buildClientSchema(result.data));
@@ -69,7 +85,7 @@ export const GraphqlView = (props: any) => {
     const _handleEditQuery = (query?: string): void => setQuery(query);
     const _handleToggleExplorer = (): void => setShowExplorer(!showExplorer);
     const _fetcher = (params: Object) => {
-        return fetcher(serviceAPI, proxy, params);
+        return fetcher(serviceAPI, params);
     };
 
     return (

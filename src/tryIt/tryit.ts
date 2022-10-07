@@ -20,31 +20,36 @@
 import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension, CodeServerContext, ExtendedLangClient } from "src/core";
 import { PALETTE_COMMANDS } from "../project";
-import { commands } from "vscode";
+import { commands, Uri } from "vscode";
 import { createGraphqlView } from "./graphql";
 import { createSwaggerView } from "./swagger";
+import { Position } from "src/forecaster";
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     const codeServerContext: CodeServerContext = ballerinaExtInstance.getCodeServerContext();
 
-    commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (...args: any[]) => {
-        if (!args) {
+    commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (documentPath: string, serviceName: string, range: Position) => {
+        if (!documentPath) {
             return;
         }
 
-        const documentPath = args[0];
-        const serviceName = args[1];
+        const filePath: Uri = Uri.parse(documentPath);
+
         await langClient.getSyntaxTree({
             documentIdentifier: {
-                uri: documentPath
+                uri: filePath.toString()
             }
         }).then(stResponse => {
             const response = stResponse as GetSyntaxTreeResponse;
             if (response.parseSuccess && response.syntaxTree) {
                 response.syntaxTree.members.forEach(async member => {
-                    if (member.kind == 'ServiceDeclaration') {
-                        if (member.typeData.symbol.moduleID.moduleName === 'graphql') {
+                    const position = member.position;
+                    const servicePosition = member.serviceKeyword.position;
+                    if (servicePosition.startLine == range.startLine && position.endLine == range.endLine &&
+                        servicePosition.startColumn == range.startColumn && position.endColumn == range.endColumn &&
+                        member.kind == 'ServiceDeclaration') {
+                        if (member.expressions[0].typeDescriptor.modulePrefix.value === 'graphql') {
                             const port = member.expressions[0].parenthesizedArgList.arguments[0].source;
                             let path = "";
                             member.absoluteResourcePath.forEach(pathElement => {
@@ -53,7 +58,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 
                             await createGraphqlView(langClient, `http://localhost:${port}${path}`);
                         } else {
-                            await createSwaggerView(langClient, documentPath, serviceName, codeServerContext);
+                            await createSwaggerView(langClient, filePath.fsPath, serviceName, codeServerContext);
                         }
                     }
                 })

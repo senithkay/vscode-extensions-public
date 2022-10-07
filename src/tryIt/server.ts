@@ -39,7 +39,7 @@ const CONNECTION_REFUSED = 'ECONNREFUSED';
 const EAI_AGAIN = 'EAI_AGAIN';
 export class SwaggerServer {
 
-  async sendRequest(data: Request): Promise<Response | boolean> {
+  async sendRequest(data: Request, isOriginalResponse: boolean): Promise<Response | boolean> {
     const headers = data.headers as unknown as Record<string, string>;
     return new Promise<Response | boolean>((resolve, reject) => {
       axios({
@@ -59,7 +59,7 @@ export class SwaggerServer {
             obj: responseData,
             headers: response.headers
           };
-          resolve(res);
+          resolve(isOriginalResponse ? responseData : res);
         })
         .catch((error) => {
           let res: Response;
@@ -80,7 +80,7 @@ export class SwaggerServer {
             const errorCode = error.code;
             // Something happened in setting up the request that triggered an Error
             if (errorCode === CONNECTION_REFUSED || errorCode === EAI_AGAIN) {
-              resolve(false);
+              resolve(isOriginalResponse ? errorCode : false);
             }
           }
         });

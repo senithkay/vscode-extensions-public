@@ -26,4 +26,4 @@ export default {
   title: 'Components/SwaggerView',
 } as Meta;
 
-export const Primary: React.VFC<{}> = () => <GraphqlView data={{ "serviceAPI": "http://localhost:8090", "proxy": "http://localhost:1025/" }}></GraphqlView>;
+export const Primary: React.VFC<{}> = () => <GraphqlView data={{ "serviceAPI": "http://localhost:8090" }}></GraphqlView>;

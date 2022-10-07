@@ -22,22 +22,14 @@ import { WebViewRPCHandler, getCommonWebViewOptions } from '../../utils';
 import { render } from './render';
 import { ballerinaExtInstance, ExtendedLangClient } from "../../core";
 import { CMP_TRYIT_GRAPHQL_VIEW, sendTelemetryEvent, TM_EVENT_GRAPHQL_RUN } from "../../telemetry";
-import { getPortPromise } from "portfinder";
+import { SwaggerServer } from "../server";
 
 let graphqlViewPanel: WebviewPanel | undefined;
-let cors_proxy = require('cors-anywhere');
 
 export async function showGraphqlView(langClient: ExtendedLangClient, serviceAPI: string): Promise<void> {
     if (graphqlViewPanel) {
         graphqlViewPanel.dispose();
     }
-
-    const port = await getPortPromise({ port: 1000, stopPort: 3000 });
-
-    cors_proxy.createServer({
-        originWhitelist: [], // Allow all origins
-        requireHeader: ['origin', 'x-requested-with']
-    }).listen(port, '0.0.0.0');
 
     // Create and show a new GraphqlView
     graphqlViewPanel = window.createWebviewPanel(
@@ -47,9 +39,24 @@ export async function showGraphqlView(langClient: ExtendedLangClient, serviceAPI
         getCommonWebViewOptions()
     );
 
-    const proxy = `http://localhost:${port}/`;
+    // Graphql Request
+    const swaggerServer: SwaggerServer = new SwaggerServer();
+    graphqlViewPanel.webview.onDidReceiveMessage(
+        async message => {
+            if (message.command !== 'graphqlRequest') {
+                return;
+            }
+            await swaggerServer.sendRequest(message.req, true).then((response) => {
+                graphqlViewPanel!.webview.postMessage({
+                    command: 'graphqlResponse',
+                    res: response
+                });
+            });
+        }
+    );
+
     WebViewRPCHandler.create(graphqlViewPanel, langClient);
-    const html = render({ serviceAPI, proxy });
+    const html = render({ serviceAPI });
     if (graphqlViewPanel && html) {
         graphqlViewPanel.webview.html = html;
     }

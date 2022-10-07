@@ -21,7 +21,7 @@ import { ViewColumn, window, WebviewPanel } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../../utils';
 import { render } from './render';
 import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient, OASpec } from "../../core";
-import { SwaggerServer } from "./server";
+import { SwaggerServer } from "../server";
 import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../../telemetry";
 import { getPortPromise } from "portfinder";
 
@@ -59,7 +59,7 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
             if (message.command !== 'swaggerRequest') {
                 return;
             }
-            await swaggerServer.sendRequest(message.req).then((response) => {
+            await swaggerServer.sendRequest(message.req, false).then((response) => {
                 swaggerViewPanel!.webview.postMessage({
                     command: 'swaggerResponse',
                     res: response
