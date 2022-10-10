@@ -152,9 +152,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             placement="right"
                             diagnostic={diagnostic}
                             value={value}
-                            onClick={handleEditValue}
                         >
-                            <span className={classes.valueWithError}>
+                            <span className={classes.valueWithError} onClick={handleEditValue}>
                                 {value}
                                 <span className={classes.errorIconWrapper}>
                                     <ErrorIcon />
@@ -162,7 +161,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             </span>
                         </DiagnosticTooltip>
                     ) : (
-                        !connectedViaLink && <span className={classes.value}>{value}</span>
+                        !connectedViaLink && <span className={classes.value} onClick={handleEditValue}>{value}</span>
                     )}
                 </>
             )}
