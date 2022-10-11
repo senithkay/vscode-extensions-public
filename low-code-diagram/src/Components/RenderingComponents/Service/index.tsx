@@ -35,7 +35,7 @@ export function Service(props: ServiceProps) {
     const { model } = props;
     const diagramContext = useContext(Context);
     const { isReadOnly, stSymbolInfo } = diagramContext.props;
-    const showSwaggerView = diagramContext?.api?.webView?.showSwaggerView;
+    const showTryitView = diagramContext?.api?.webView?.showTryitView;
     const run = diagramContext?.api?.project?.run;
     const [isExpanded, setIsExpanded] = useSelectedStatus(model);
     const onExpandClick = () => {
@@ -61,7 +61,7 @@ export function Service(props: ServiceProps) {
         model.absoluteResourcePath.forEach((pathSegment) => {
             servicePath += pathSegment.value;
         });
-        showSwaggerView(servicePath);
+        showTryitView(servicePath, model.position);
     };
 
     const onClickRun = async () => {

@@ -43,7 +43,7 @@ export function Diagram() {
                 loaderText
             },
             webView: {
-                showSwaggerView,
+                showTryitView,
                 showDocumentationView
             },
             project: {
@@ -63,6 +63,7 @@ export function Diagram() {
             error,
             selectedPosition,
             zoomStatus,
+            ballerinaVersion,
             experimentalEnabled,
             openInDiagram
         },
@@ -343,6 +344,8 @@ export function Diagram() {
         h = h + (window.innerHeight - h);
     }
 
+    const dataMapperArgs = {ballerinaVersion, ...formConfig};
+
     // let hasConfigurable = false;
     // if (originalSyntaxTree) {
     //     hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
@@ -378,7 +381,7 @@ export function Diagram() {
                             },
                             webView: {
                                 showDocumentationView,
-                                showSwaggerView
+                                showTryitView
                             },
                             project: {
                                 run
@@ -393,7 +396,7 @@ export function Diagram() {
                     )}
                     {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
                         <DataMapperOverlay
-                            {...formConfig}
+                            {...dataMapperArgs}
                         />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (

@@ -80,14 +80,27 @@ export const useStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             padding: "5px",
             backgroundColor: "#f5f1fb",
-            borderRadius: "5px"
+            borderRadius: "5px",
+            cursor: 'pointer',
+            pointerEvents: 'auto',
+            transition: 'border 0.2s',
+            border: `1px solid #f5f1fb`,
+            '&:hover': {
+                border: `1px solid ${theme.palette.grey[300]}`
+            }
         },
         valueWithError: {
             verticalAlign: "middle",
             padding: "5px",
             backgroundColor: theme.palette.error.light,
             borderRadius: "5px",
-            pointerEvents: 'auto'
+            cursor: 'pointer',
+            pointerEvents: 'auto',
+            transition: 'border 0.2s',
+            border: `1px solid ${theme.palette.error.light}`,
+            '&:hover': {
+                border: `1px solid ${theme.palette.error.main}`
+            }
         },
         errorIconWrapper: {
             height: "22px",

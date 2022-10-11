@@ -1,9 +1,11 @@
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
+    MappingConstructor,
     QueryExpression,
     STKindChecker,
-    STNode
+    STNode,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 
@@ -14,6 +16,7 @@ import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { getFieldNames } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
 import { MappingConstructorNode } from "../MappingConstructor";
@@ -168,6 +171,22 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         if (this.targetPort){
             const position = this.targetPort.getPosition()
             this.setPosition(800, position.y - 10)
+        }
+    }
+
+    public deleteLink() {
+        const mappingNode = (this.getModel().getNodes().find((node) => node instanceof MappingConstructorNode) as MappingConstructorNode)
+        const mappingConstructor = mappingNode?.value?.expression as MappingConstructor;
+
+        if(mappingConstructor){
+            const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode.position, mappingConstructor);
+            traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
+            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+    
+            this.context.applyModifications([{
+                type: "DELETE",
+                ...nodePositionsToDelete
+            }]);
         }
     }
 }

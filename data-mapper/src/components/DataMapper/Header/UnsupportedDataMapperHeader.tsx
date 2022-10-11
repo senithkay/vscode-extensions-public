@@ -14,48 +14,18 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
 import HomeIcon from '@material-ui/icons/Home';
-import { EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-
-import { SelectionState, ViewOption } from "../DataMapper";
-
-import HeaderBreadcrumb from "./HeaderBreadcrumb";
-
-const useStyles = makeStyles(() =>
-    createStyles({
-        editButton: {
-            cursor: "pointer",
-            position: "absolute",
-            right: "10px"
-        }
-    })
-);
 
 export interface DataMapperHeaderProps {
-    selection: SelectionState;
-    dmSupported: boolean;
-    changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onClose: () => void;
-    onConfigOpen: () => void;
 }
 
-export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { selection, dmSupported, changeSelection, onClose, onConfigOpen } = props;
-    const classes = useStyles();
+export function UnsupportedDataMapperHeader(props: DataMapperHeaderProps) {
+    const { onClose } = props;
     return (
         <HeaderContainer>
             <HomeButton onClick={onClose} />
-            <BreadCrumb>
-                <Title> Data Mapper: </Title>
-                <HeaderBreadcrumb
-                    selection={selection}
-                    changeSelection={changeSelection}
-                />
-            </BreadCrumb>
-            {dmSupported && (
-                <EditButton className={classes.editButton} onClick={onConfigOpen} />
-            )}
+            <Title> Data Mapper: </Title>
         </HeaderContainer>
     );
 }
@@ -76,9 +46,4 @@ const HomeButton = styled(HomeIcon)`
 const Title = styled.div`
     font-weight: 600;
     margin-right: 10px;
-`;
-
-const BreadCrumb = styled.div`
-    width: 90%;
-    display: flex;
 `;

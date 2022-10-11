@@ -51,7 +51,12 @@ export function RecordFieldComponent(props: RecordFieldProps) {
             <ExpressionComponent model={model.typeName} />
             <ExpressionComponent model={model.fieldName} />
             {model.questionMarkToken && <TokenComponent model={model.questionMarkToken}/>}
-            <TokenComponent model={model.semicolonToken} isHovered={isHovered} onPlusClick={onClickOnPlusIcon}/>
+            <TokenComponent
+                model={model.semicolonToken}
+                parentIdentifier={model.fieldName.value}
+                isHovered={isHovered}
+                onPlusClick={onClickOnPlusIcon}
+            />
         </>
     );
 }

@@ -23,7 +23,7 @@ import {
     STD_LIBS_IDENTIFIER
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { isConfigurableEditor, isFunctionOrMethodCall, isInsideConnectorParams } from "../../utils";
+import { isConfigurableEditor, isFunctionOrMethodCall, isInsideConnectorParams, isRecordFieldName } from "../../utils";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
@@ -89,7 +89,8 @@ export function HelperPane(props: HelperPaneProps) {
         ) {
             (currentModel.model?.source?.trim() === FUNCTION_CALL) ?
                 setSelectedTab(TabElements.libraries) : setSelectedTab(TabElements.parameters);
-        } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
+        } else if (currentModel.model && (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE ||
+            isRecordFieldName(currentModel.model))) {
             setSelectedTab(TabElements.expressions);
         }
     }, [docExpandClicked, currentModel.model]);
