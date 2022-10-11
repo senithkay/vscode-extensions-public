@@ -39,12 +39,13 @@ import {
     getPreviousNode,
     getSelectedModelPosition,
     getUpdatedSource,
-    isBindingPattern, isDocumentationSupportedModel,
+    isBindingPattern, isDocumentationSupportedModel, isModuleMember,
     isOperator,
 } from "../../utils";
 import {
     getCompletions,
     getDiagnostics,
+    getPartialSTForExpression,
     getPartialSTForModuleMembers,
     getPartialSTForStatement,
     getSymbolDocumentation,
@@ -91,6 +92,7 @@ export function StatementEditor(props: StatementEditorProps) {
         experimentalEnabled,
         extraModules,
         runBackgroundTerminalCommand,
+        isExpressionMode,
         ballerinaVersion,
         openExternalUrl,
         isCodeServerInstance
@@ -137,7 +139,7 @@ export function StatementEditor(props: StatementEditorProps) {
             handleChange(currentSource).then();
         } else if (undoItem) {
             const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
-                targetPosition, moduleList);
+                targetPosition, moduleList, isExpressionMode);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(undoItem.oldModel.model.source);
             setStmtModel(undoItem.oldModel.model, diagnostics);
@@ -153,7 +155,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
             const updatedContent = getUpdatedSource(redoItem.newModel.model.source, currentFile.content,
-                targetPosition, moduleList);
+                targetPosition, moduleList, isExpressionMode);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(redoItem.newModel.model.source);
             setStmtModel(redoItem.newModel.model, diagnostics);
@@ -168,7 +170,7 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (!newConfigurableName || isPullingModule) {
-                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList, isExpressionMode);
 
                 sendDidChange(fileURI, updatedContent, getLangClient).then();
                 const diagnostics = await handleDiagnostics(source);
@@ -206,7 +208,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     for (const statement of statements) {
                         const index = statements.indexOf(statement);
                         const updatedContent = getUpdatedSource(statement, currentFile.content,
-                            targetPosition, moduleList);
+                            targetPosition, moduleList, isExpressionMode);
                         await sendDidChange(fileURI, updatedContent, getLangClient);
                         let completions: SuggestionItem[];
 
@@ -222,7 +224,7 @@ export function StatementEditor(props: StatementEditorProps) {
                             }));
 
                             const content = getUpdatedSource(model.source, currentFile.content,
-                                targetPosition, moduleList);
+                                targetPosition, moduleList, isExpressionMode);
                             await sendDidChange(fileURI, content, getLangClient);
                         }
                     }
@@ -250,13 +252,24 @@ export function StatementEditor(props: StatementEditorProps) {
         })();
     }, [currentFile.content]);
 
+    useEffect(() => {
+        (async () => {
+            if (editorModel) {
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
+                sendDidChange(fileURI, updatedContent, getLangClient).then();
+                const diagnostics = await handleDiagnostics(source);
+                setStmtModel(editorModel, diagnostics);
+            }
+        })();
+    }, [editorModel, currentFile.content]);
+
     const restArg = (restCheckClicked: boolean) => {
         setRestArg(restCheckClicked);
     }
 
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
-        const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
+        const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, isExpressionMode);
 
         sendDidChange(fileURI, updatedContent, getLangClient).then();
         handleDiagnostics(updatedStatement).then();
@@ -282,9 +295,10 @@ export function StatementEditor(props: StatementEditorProps) {
                 endColumn: position.endColumn,
                 newCodeSnippet: codeSnippet
             }
-            partialST = (STKindChecker.isModuleVarDecl(existingModel) || STKindChecker.isConstDeclaration(existingModel))
+            partialST = isModuleMember(existingModel)
                 ? await getPartialSTForModuleMembers({ codeSnippet: existingModel.source , stModification }, getLangClient)
-                : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient);
+                : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: existingModel.source , stModification }, getLangClient)
+                : await getPartialSTForStatement({ codeSnippet: existingModel.source , stModification }, getLangClient));
         } else {
             partialST = (isConfigurableStmt || isModuleVar)
                 ? await getPartialSTForModuleMembers({ codeSnippet }, getLangClient)
@@ -292,7 +306,7 @@ export function StatementEditor(props: StatementEditorProps) {
         }
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
-            const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList);
+            const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList, isExpressionMode);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
@@ -313,7 +327,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
         } else if (partialST.syntaxDiagnostics.length){
             const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
-            const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList);
+            const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, isExpressionMode);
 
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             handleDiagnostics(updatedStatement).then();
@@ -368,7 +382,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 documentation: await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient)
             });
         } else {
-            if (newCurrentModel && (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos){
+            if (newCurrentModel && (newCurrentModel.parent?.viewState as StatementEditorViewState)?.parentFunctionPos){
                 const parentModel =
                     getCurrentModel((newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
                         enrichModel(model, targetPosition));
@@ -541,6 +555,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     updateSyntaxDiagnostics={updateSyntaxDiagnostics}
                     editing={isEditing}
                     updateEditing={updateEditing}
+                    isExpressionMode={isExpressionMode}
                     ballerinaVersion={ballerinaVersion}
                     isCodeServerInstance={isCodeServerInstance}
                     openExternalUrl={openExternalUrl}

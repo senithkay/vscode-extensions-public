@@ -5,6 +5,7 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const APP_DIR = path.resolve(__dirname, './src');
 const MONACO_DIR = path.resolve(__dirname, '../node_modules/monaco-editor');
+const DATA_MAPPER_DIR = path.resolve(__dirname, '../data-mapper');
 
 module.exports = (env, argv) => ({
     mode: 'none',
@@ -62,12 +63,12 @@ module.exports = (env, argv) => ({
             },
             {
                 test: /\.css$/,
-                include: [MONACO_DIR],
+                include: [MONACO_DIR, DATA_MAPPER_DIR],
                 use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.(woff|woff2|ttf|otf|eot)$/,
-                include: [APP_DIR, MONACO_DIR],
+                include: [APP_DIR, MONACO_DIR, DATA_MAPPER_DIR],
                 type: 'asset/inline'
             },
             {
@@ -79,6 +80,16 @@ module.exports = (env, argv) => ({
                     }
                 }
             },
+            {
+                test: /\.svg/,
+                include: DATA_MAPPER_DIR,
+                use: {
+                    loader: 'svg-url-loader',
+                    options: {
+
+                    }
+                }
+            }
         ],
     },
     ignoreWarnings: [/Failed to parse source map/],

@@ -44,8 +44,8 @@ export function Panel(props: PanelProps) {
     return (
         <div onClick={onDivClick} >
             <DiagramOverlayContainer>
-                <div className={classnames("panel")}>
-                    <div className="panel-form-wrapper">
+                <div className={classnames("panel", isVisible ? 'panel-slide-in' : 'panel-slide-out')}>
+                    <div className={"panel-form-wrapper"}>
                         {children}
                     </div>
                 </div>
