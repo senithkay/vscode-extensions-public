@@ -270,6 +270,14 @@ export function getDocDescription(doc: string): string[] {
     return doc.split(BAL_SOURCE);
 }
 
+export function isQuestionMarkFromRecordField(model: STNode): boolean {
+   return STKindChecker.isQuestionMarkToken(model) && STKindChecker.isRecordField(model.parent);
+}
+
+export function isRecordFieldName(model: STNode): boolean {
+    return STKindChecker.isIdentifierToken(model) && STKindChecker.isRecordField(model.parent);
+}
+
 export function getFilteredDiagnosticMessages(statement: string, targetPosition: NodePosition,
                                               diagnostics: Diagnostic[]): StatementSyntaxDiagnostics[] {
 

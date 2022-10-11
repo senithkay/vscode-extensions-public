@@ -68,7 +68,7 @@ const api = {
         closeConfigPanel: dummyFunctionWithoutArgs,
     },
     webView: {
-        showSwaggerView: dummyFunction,
+        showTryitView: dummyFunction,
     },
     project: {
         run: dummyFunction

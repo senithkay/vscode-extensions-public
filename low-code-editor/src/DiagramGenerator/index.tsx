@@ -27,6 +27,7 @@ import { CommandResponse, ConditionConfig,
     LibraryDocResponse,
     LibraryKind,
     LibrarySearchResponse,
+    LineRange,
     LowcodeEvent,
     SentryConfig,
     STModification,
@@ -198,8 +199,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         setZoomStatus(newZoomStatus);
     }
 
-    async function showSwaggerView(serviceName: string) {
-        runCommand(PALETTE_COMMANDS.SWAGGER_VIEW, [serviceName, filePath]);
+    async function showTryitView(serviceName: string, range: LineRange) {
+        runCommand(PALETTE_COMMANDS.TRY_IT, [filePath, serviceName, range]);
     }
 
     async function showDocumentationView(url: string) {
@@ -435,7 +436,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     closeConfigPanel: () => undefined,
                                 },
                                 webView: {
-                                    showSwaggerView,
+                                    showTryitView,
                                     showDocumentationView
                                 },
                                 project: {
