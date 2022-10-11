@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useMemo, useReducer, useState } from "react";
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
@@ -43,6 +43,7 @@ import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
+import { getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -187,9 +188,7 @@ function DataMapperC(props: DataMapperProps) {
 
     const onConfigClose = () => {
         setConfigPanelOpen(false);
-        if (!fnST) {
-            onClose();
-        }
+        onClose();
     }
 
     const onConfigSave = (fnName: string) => {
@@ -296,9 +295,20 @@ function DataMapperC(props: DataMapperProps) {
         }
     }, [selection.state])
 
+    const showConfigPanel = useMemo(()=>{
+        if(!fnST){
+            return true
+        }
+        const inputParams = getInputsFromST(fnST);
+        const outputType = getOutputTypeFromST(fnST);
+        if(inputParams.length === 0 || !outputType){
+            return true
+        }
+    },[fnST])
+
     useEffect(() => {
-        handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen);
-    }, [currentEditableField, selection.selectedST, isConfigPanelOpen])
+        handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen || showConfigPanel);
+    }, [currentEditableField, selection.selectedST, isConfigPanelOpen, showConfigPanel])
 
     return (
         <LSClientContext.Provider value={langClientPromise}>
@@ -317,7 +327,7 @@ function DataMapperC(props: DataMapperProps) {
                         <DataMapperDiagram
                             nodes={nodes}
                         />
-                        {(!selection?.selectedST?.stNode || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
+                        {(showConfigPanel || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
                         {!!currentEditableField && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}
