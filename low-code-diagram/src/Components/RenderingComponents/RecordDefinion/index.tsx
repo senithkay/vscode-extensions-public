@@ -19,7 +19,7 @@ import { RecordFieldWithDefaultValue, RecordTypeDesc, STKindChecker, TypeDefinit
 import classNames from "classnames";
 
 import { Context } from "../../../Context/diagram";
-import { HeaderActionsWithMenu } from "../../../HeaderActions";
+import { HeaderActions } from "../../../HeaderActions";
 
 import "./style.scss";
 
@@ -118,9 +118,11 @@ export function RecordDefinitionComponent(props: RecordDefComponentProps) {
                             {model.source.trim()}
                         </div>
                     </div>
-                    <HeaderActionsWithMenu
+                    <HeaderActions
                         model={model}
+                        deleteText="Delete this Type Definition?"
                         isExpanded={isExpanded}
+                        showOnRight={true}
                         onExpandClick={onExpandClick}
                         onConfirmDelete={handleDeleteConfirm}
                     />
