@@ -399,9 +399,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         createButtonWrapper: {
             display: "flex",
-            marginLeft: 15,
+            margin: 16,
             flexDirection: "column",
-            alignItems: "flex-start"
+            "& button" : {
+                marginBottom: 16
+            }
         },
         headerWrapper: {
             background: "white",

@@ -85,3 +85,4 @@ export { default as LabelEditIcon } from './LabelEditIcon';
 export { default as LabelRunIcon } from './LabelRunIcon';
 export { default as LabelTryIcon } from './LabelTryIcon';
 export { default as ShowMenuIcon } from './ShowMenuIcon';
+export { default as FileUploadIcon } from './FileUploadIcon';
