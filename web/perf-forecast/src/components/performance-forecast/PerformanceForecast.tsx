@@ -24,6 +24,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { ConnectorPosition, PerformanceForecastProps, Values, VSCode } from './model';
 
 declare const vscode: VSCode;
+let pathsWidth = 0;
 export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) => {
     const criticalPathId = data.criticalPath;
     const paths = data.paths;
@@ -129,7 +130,7 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
         },
         {
             field: "PATH",
-            minWidth: 700,
+            minWidth: pathsWidth * 6.5,
             flex: 1,
             sortable: false
         }
@@ -203,6 +204,7 @@ function createData(id: number, connectors: string[], positions: Record<string, 
         pathName += ` - ${position.pkgID}/${position.name}`;
     });
     pathName += " - End";
+    if (pathName.length > pathsWidth) pathsWidth = pathName.length;
     return { id, "LATENCY": latency, "PATH": pathName };
 }
 
