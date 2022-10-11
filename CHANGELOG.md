@@ -1,5 +1,13 @@
 # Change Log
 
+## **3.3.0**
+### Added
+- Graphql try it view. 
+- Add code lense to open code elements in diagram view.
+
+### Improved
+- The low-code diagram editor - New data mapper introduced.
+
 ## **3.2.0**
 ### Improved
 - New performance analyzer introduced. This will help users to identify the performance of the multiple execution paths of the code.
