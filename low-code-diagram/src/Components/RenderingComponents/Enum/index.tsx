@@ -19,7 +19,7 @@ import { EnumIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { EnumDeclaration, EnumMember, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
-import { HeaderActions } from "../../../HeaderActions";
+import { HeaderActionsWithMenu } from "../../../HeaderActions";
 
 import "./style.scss";
 
@@ -82,13 +82,11 @@ export function EnumDeclarationComponent(props: EnumDeclarationComponentProps) {
                             {model.identifier.value}
                         </div>
                     </div>
-                    <HeaderActions
+                    <HeaderActionsWithMenu
                         model={model}
-                        deleteText="Delete this Enum?"
                         isExpanded={isExpanded}
                         onExpandClick={onExpandClick}
                         onConfirmDelete={handleDeleteConfirm}
-                        onConfirmEdit={handleEditBtnConfirm}
                     />
                 </div>
                 <div className="enum-separator" />
