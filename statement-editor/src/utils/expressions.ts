@@ -590,6 +590,18 @@ export const switchOpenClose: ExpressionGroup = {
     relatedModelType: ModelType.EXPRESSION
 }
 
+export const optionalRecordField: ExpressionGroup = {
+    name: "Optional Record Field",
+    expressions: [
+        {
+            name: "Optional record field",
+            template: `${SELECTED_EXPRESSION}?`,
+            example: "Es?"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+
 const operatorSymbols : ExpressionGroup = {
     name: "Operators",
     expressions: [
