@@ -57,7 +57,7 @@ describe('Swagger view UI Tests', () => {
         await wait(PROJECT_RUN_TIME);
 
         // open swagger view
-        (await (await (await (await service.getHeader()).getServiceOptions()).click()).getTryIt()).click();
+        (await service.getTryIt()).click();
         await webview.switchBack();
         await wait(5000);
 
@@ -117,7 +117,7 @@ describe('Swagger view UI Tests', () => {
         await wait(PROJECT_RUN_TIME);
 
         // open swagger view
-        (await (await (await (await service.getHeader()).getServiceOptions()).click()).getTryIt()).click();
+        (await service.getTryIt()).click();
         await webview2.switchBack();
         await wait(5000);
 
