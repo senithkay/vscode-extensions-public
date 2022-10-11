@@ -14,7 +14,7 @@ import React from "react";
 
 import { NilLiteral } from "@wso2-enterprise/syntax-tree";
 
-import { TokenComponent } from "../../Token";
+import { InputEditor } from "../../InputEditor";
 
 interface NilLiteralProps {
     model: NilLiteral;
@@ -23,10 +23,11 @@ interface NilLiteralProps {
 export function NilLiteralComponent(props: NilLiteralProps) {
     const { model } = props;
 
+    const inputEditorProps = {
+        model
+    };
+
     return (
-        <>
-            <TokenComponent model={model.openParenToken} />
-            <TokenComponent model={model.closeParenToken} />
-        </>
+        <InputEditor {...inputEditorProps} />
     );
 }
