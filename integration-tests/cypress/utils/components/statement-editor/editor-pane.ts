@@ -35,6 +35,12 @@ export class EditorPane {
         return this;
     }
 
+    static clickStatementContent(text:string){
+        cy.contains(`[data-testid="input-editor-span"]`,text)
+            .click();
+        return this;
+    }
+
     static doubleClickExpressionContent(text:string){
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
@@ -71,8 +77,16 @@ export class EditorPane {
 
     static clickPlusButton() {
         cy.contains(`[data-testid="plus-button"]`,`+`)
+            .realHover()
             .click();
         cy.wait(1000);
+        return this;
+    }
+
+    static clickPlusRecordFieldPlus(fieldName: string) {
+        cy.get(`#${fieldName}`)
+            .realHover()
+            .click();
         return this;
     }
 

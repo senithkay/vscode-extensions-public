@@ -22,6 +22,7 @@ import {
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import {
     FunctionDefinition,
     NodePosition,
@@ -43,6 +44,9 @@ import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
+import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
+import { isDMSupported } from "./utils";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -65,7 +69,21 @@ const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             height: '100%',
             background: theme.palette.common.white,
-            opacity: 0.5
+            opacity: 0.5,
+            marginTop: 50
+        },
+        dmUnsupportedOverlay: {
+            zIndex: 1,
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            background: theme.palette.common.white,
+            opacity: 0.5,
+            marginTop: 50
+        },
+        dmUnsupportedMessage: {
+            zIndex: 1,
+            position: 'absolute'
         }
     }),
 );
@@ -81,6 +99,7 @@ export interface DataMapperProps {
         path: string,
         size: number
     };
+    ballerinaVersion?: string;
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => void;
     onSave: (fnName: string) => void;
@@ -150,6 +169,7 @@ function DataMapperC(props: DataMapperProps) {
 
     const {
         fnST,
+        ballerinaVersion,
         langClientPromise,
         filePath,
         currentFile,
@@ -290,6 +310,12 @@ function DataMapperC(props: DataMapperProps) {
         recordPanel
     }
 
+    const dMSupported = isDMSupported(ballerinaVersion);
+    const dmUnsupportedMessage = `The current ballerina version ${
+        ballerinaVersion.replace(
+            "(swan lake)", "").trim()
+    } does not support the Data Mapper feature. Please update your Ballerina versions to 2201.1.2, 2201.2.1, or higher version.`;
+
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {
             onClose();
@@ -305,20 +331,31 @@ function DataMapperC(props: DataMapperProps) {
             <CurrentFileContext.Provider value={currentFile}>
                 {selection.state === DMState.INITIALIZED && (
                     <div className={classes.root}>
-                        {!!showDMOverlay && <div className={classes.overlay} />}
+                        {!!showDMOverlay &&
+                            <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
+                        }
                         {fnST && (
                             <DataMapperHeader
                                 selection={selection}
+                                dmSupported={dMSupported}
                                 changeSelection={handleSelectedST}
                                 onClose={onClose}
                                 onConfigOpen={onConfigOpen}
                             />
                         )}
+                        {!dMSupported && (
+                            <>
+                                {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
+                                <div className={classes.dmUnsupportedMessage}>
+                                    <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"}/>
+                                </div>
+                            </>
+                        )}
                         <DataMapperDiagram
                             nodes={nodes}
                         />
-                        {(!selection?.selectedST?.stNode || isConfigPanelOpen) && <DataMapperConfigPanel {...cPanelProps} />}
-                        {!!currentEditableField && (
+                        {(!selection?.selectedST?.stNode || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
+                        {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}
                                 langClientPromise={langClientPromise}
