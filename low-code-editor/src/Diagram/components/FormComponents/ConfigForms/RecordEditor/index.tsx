@@ -11,13 +11,15 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext, useState} from 'react';
+import React, { useContext } from 'react';
 
+import { FormControl } from "@material-ui/core";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { NodePosition, RecordTypeDesc, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
-import {createPropertyStatement, mutateTypeDefinition} from "../../../../utils";
+import { createPropertyStatement } from "../../../../utils";
+import { wizardStyles } from "../style";
 
 import { CreateRecord } from "./CreateRecord";
 import { RecordModel } from "./types";
@@ -35,6 +37,8 @@ export interface RecordEditorProps {
 
 export function RecordEditor(props: RecordEditorProps) {
     const { name, onCancel, onSave, model, targetPosition, formType, isTypeDefinition = true, isDataMapper } = props;
+
+    const overlayClasses = wizardStyles();
 
     const {
         props: {
@@ -91,7 +95,9 @@ export function RecordEditor(props: RecordEditorProps) {
         <>
             {model ? (
                 // Edit existing record
-                getStatementEditor()
+                <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>
+                    {getStatementEditor()}
+                </FormControl>
             ) : (
                 // Create new record
                 <CreateRecord

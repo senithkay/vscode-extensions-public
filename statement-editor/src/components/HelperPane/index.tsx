@@ -27,7 +27,8 @@ import {
     isConfigurableEditor,
     isFunctionOrMethodCall,
     isImplicitOrExplicitNewExpr,
-    isInsideConnectorParams
+    isInsideConnectorParams,
+    isRecordFieldName
 } from "../../utils";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
@@ -95,7 +96,8 @@ export function HelperPane(props: HelperPaneProps) {
         ) {
             (currentModel.model?.source?.trim() === FUNCTION_CALL) ?
                 setSelectedTab(TabElements.libraries) : setSelectedTab(TabElements.parameters);
-        } else if (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
+        } else if (currentModel.model && (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE ||
+            isRecordFieldName(currentModel.model))) {
             setSelectedTab(TabElements.expressions);
         }
     }, [docExpandClicked, currentModel.model]);
