@@ -46,6 +46,7 @@ import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { isDMSupported } from "./utils";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -310,10 +311,10 @@ function DataMapperC(props: DataMapperProps) {
     }
 
     const dMSupported = isDMSupported(ballerinaVersion);
-    const dmUnsupportedMessage = `Current installed ballerina version ${
+    const dmUnsupportedMessage = `The current ballerina version ${
         ballerinaVersion.replace(
             "(swan lake)", "").trim()
-    } does not support Data Mapper. Please update ballerina. Supported ballerina versions are 2201.1.2, 2201.2.1 or higher version.`;
+    } does not support the Data Mapper feature. Please update your Ballerina versions to 2201.1.2, 2201.2.1, or higher version.`;
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {

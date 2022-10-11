@@ -33,7 +33,7 @@ export const WarningBanner = (props: WarningBannerProps) => {
                 <Warning/>
             </div>
             <div data-test-id={testId} >
-                <Typography variant="body1">{message}</Typography>
+                {(typeof message === 'string' ? <Typography variant="body1">{message}</Typography> : (message))}
             </div>
         </div>
     );
