@@ -29,6 +29,7 @@ import {
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
 import { openConfigEditor } from '../config-editor/configEditorPanel';
+import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 export enum EXEC_POSITION_TYPE {
@@ -134,11 +135,15 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
                         if (position.kind == 'source' && position.name != 'main') {
                             const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
+                            const range: Position = {
+                                startLine: position.range.startLine.line, startColumn: position.range.startLine.offset,
+                                endLine: position.range.endLine.line, endColumn: position.range.endLine.offset
+                            };
                             codeLens.command = {
                                 title: "Try it",
-                                tooltip: "Try running this service on swagger view",
-                                command: PALETTE_COMMANDS.SWAGGER_VIEW,
-                                arguments: [position.name]
+                                tooltip: "Try running this service",
+                                command: PALETTE_COMMANDS.TRY_IT,
+                                arguments: [activeEditor.fsPath, position.name, range]
                             };
                             codeLenses.push(codeLens);
                         }

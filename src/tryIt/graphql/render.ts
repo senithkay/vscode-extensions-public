@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,13 +17,13 @@
  *
  */
 
-import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
+import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../../utils';
 
 export function render(data: any)
     : string {
 
-    const body = `<div id="swagger-view" class="swagger-container"><div class="loader" /></div>`;
-    const bodyCss = "swagger";
+    const body = `<div id="graphql-view" class="graphql-container"><div class="loader" /></div>`;
+    const bodyCss = "graphql";
     const styles = `
         .loader {
             border: 3px solid #edf0ff;
@@ -39,15 +39,18 @@ export function render(data: any)
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        body {
+            padding: 0;
+        }
     `;
     const scripts = `
              function loadedScript() {
-                window.swaggerView.renderSwagger(${JSON.stringify(data)});
+                window.Graphql.renderGraphql(${JSON.stringify(data)});
              }
          `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("SwaggerView"),
+        ...getComposerWebViewOptions("Graphql"),
         body, scripts, styles, bodyCss
     };
 
