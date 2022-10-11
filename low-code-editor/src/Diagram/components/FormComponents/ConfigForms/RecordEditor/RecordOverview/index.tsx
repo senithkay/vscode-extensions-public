@@ -123,7 +123,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                         />
                     </div>
                 </>
-            ) : ( 
+            ) : (
                 <RecordEditor
                     name={actualSelectedRecordSt.typeName.value}
                     targetPosition={actualSelectedRecordSt.position}
