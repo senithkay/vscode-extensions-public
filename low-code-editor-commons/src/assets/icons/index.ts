@@ -80,6 +80,7 @@ export { ParamIcon } from './ParamIcon';
 export { ParamEditButton } from './ParamEditButton';
 export { SettingsIcon } from './SettingsIcon';
 export { SettingsIconSelected } from './SettingsIconSelected';
+export { Warning } from "./WarningIcon";
 export { default as LabelDeleteIcon } from './LabelDeleteIcon';
 export { default as LabelEditIcon } from './LabelEditIcon';
 export { default as LabelRunIcon } from './LabelRunIcon';
