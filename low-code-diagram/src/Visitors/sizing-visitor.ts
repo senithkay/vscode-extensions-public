@@ -501,7 +501,10 @@ export class SizingVisitor implements Visitor {
             viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
 
             if (bodyViewState.hasWorkerDecl) {
-                const maxWorkerFullHeight = body.namedWorkerDeclarator.workerInitStatements.length * 72 + maxWorkerHeight;
+                const maxWorkerFullHeight = body.namedWorkerDeclarator
+                    .workerInitStatements
+                    .reduce((sum, statement) => sum + (statement.viewState as ViewState).getHeight(), 0)
+                    + maxWorkerHeight;
 
                 if (bodyViewState.bBox.h < maxWorkerFullHeight) {
                     viewState.bBox.h += (maxWorkerFullHeight - bodyViewState.bBox.h);
@@ -1443,7 +1446,7 @@ export class SizingVisitor implements Visitor {
     }
 
     private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0,
-                           index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
+        index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }
@@ -1639,8 +1642,8 @@ export class SizingVisitor implements Visitor {
     }
 
     private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState,
-                                     height: number, width: number, lastStatementIndex: any, leftWidth: number,
-                                     rightWidth: number) {
+        height: number, width: number, lastStatementIndex: any, leftWidth: number,
+        rightWidth: number) {
         const startIndex = index;
 
         blockViewState.collapsedViewStates.forEach(collapsedVS => {
