@@ -100,7 +100,7 @@ export interface LowCodeEditorAPI {
         closeConfigPanel: () => void;
     }
     webView: {
-        showSwaggerView: (serviceName: string) => void;
+        showTryitView: (serviceName: string) => void;
         showDocumentationView?: (url: string) => void;
     }
     project: {

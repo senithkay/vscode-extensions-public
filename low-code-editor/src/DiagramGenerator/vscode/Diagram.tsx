@@ -49,7 +49,7 @@ export interface EditorAPI {
 
 export enum PALETTE_COMMANDS {
     RUN = 'ballerina.project.run',
-    SWAGGER_VIEW = 'ballerina.swaggerView.open',
+    TRY_IT = 'ballerina.tryit',
     DOCUMENTATION_VIEW = 'ballerina.documentationView.open'
 }
 
