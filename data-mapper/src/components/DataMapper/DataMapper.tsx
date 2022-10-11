@@ -44,7 +44,7 @@ import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
-import { UnSupportedDataMapperHeader } from "./Header/UnSupportedDataMapperHeader";
+import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { isDMSupported } from "./utils";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -310,7 +310,10 @@ function DataMapperC(props: DataMapperProps) {
     }
 
     const dMSupported = isDMSupported(ballerinaVersion);
-    const dmUnsupportedMessage = `Current installed ballerina version ${ballerinaVersion} does not support Data Mapper. Please update ballerina. Supported ballerina versions are 2201.1.2, 2201.2.1 or higher version.`;
+    const dmUnsupportedMessage = `Current installed ballerina version ${
+        ballerinaVersion.replace(
+            "(swan lake)", "").trim()
+    } does not support Data Mapper. Please update ballerina. Supported ballerina versions are 2201.1.2, 2201.2.1 or higher version.`;
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {
@@ -341,7 +344,7 @@ function DataMapperC(props: DataMapperProps) {
                         )}
                         {!dMSupported && (
                             <>
-                                {!fnST && (<UnSupportedDataMapperHeader onClose={onClose} />)}
+                                {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
                                 <div className={classes.dmUnsupportedMessage}>
                                     <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"}/>
                                 </div>

@@ -14,12 +14,12 @@ export function isDMSupported(version: string): boolean {
     if (!version) {
         return false;
     }
-    const versionRegex = new RegExp("^[0-9]{4}.[0-9].[0-9]");
+    const versionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
     const versionStr = version.match(versionRegex);
     const splittedVersions = versionStr[0]?.split(".");
     if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) === 1)) {
         // 2201.1.x
-        return (parseInt(splittedVersions[2], 10) === 2);
+        return (parseInt(splittedVersions[2], 10) >= 2);
     } else  if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) === 2)) {
         // 2201.2.x
         return (parseInt(splittedVersions[2], 10) >= 1);

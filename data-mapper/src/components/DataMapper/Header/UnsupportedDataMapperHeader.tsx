@@ -20,7 +20,7 @@ export interface DataMapperHeaderProps {
     onClose: () => void;
 }
 
-export function UnSupportedDataMapperHeader(props: DataMapperHeaderProps) {
+export function UnsupportedDataMapperHeader(props: DataMapperHeaderProps) {
     const { onClose } = props;
     return (
         <HeaderContainer>
