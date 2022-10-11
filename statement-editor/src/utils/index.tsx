@@ -612,6 +612,10 @@ export function isFunctionOrMethodCall(currentModel: STNode): boolean {
     return STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel);
 }
 
+export function isImplicitOrExplicitNewExpr(currentModel: STNode): boolean {
+    return  STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel);
+}
+
 export function isInsideConnectorParams(currentModel: STNode, editorConfigType: string): boolean {
     const paramPosition = (currentModel.viewState as StatementEditorViewState)?.parentFunctionPos;
     const modelPosition = currentModel.position as NodePosition;
