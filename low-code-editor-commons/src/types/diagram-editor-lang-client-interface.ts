@@ -13,6 +13,8 @@
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import {
+    CodeAction,
+    CodeActionParams,
     DocumentSymbol,
     DocumentSymbolParams,
     SymbolInformation,
@@ -151,4 +153,10 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     getSTForFunction: (
         params: BallerinaFunctionSTRequest
     ) => Thenable<BallerinaSTModifyResponse>;
+    getDiagnostics: (
+        params: BallerinaProjectParams
+    ) => Thenable<PublishDiagnosticsParams[]>;
+    codeAction: (
+        params: CodeActionParams
+    ) => Thenable<CodeAction[]> ;
 }

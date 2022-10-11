@@ -63,6 +63,43 @@ describe('Add variable to function via Low Code', () => {
             getCurrentSpecFolder() + "add-variable-to-function.expected.bal");
     })
 
+    it('Edit a variable with raw-expression-template', () => {
+        Canvas.getFunction("myfunction")
+            .nameShouldBe("myfunction")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
+
+        BlockLevelPlusWidget.clickOption("Variable");
+
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
+
+        InputEditor
+            .typeInput("``");
+
+        EditorPane
+            .validateNewExpression("RawTemplateExpression", "``")
+            .getExpression("RawTemplateExpression")
+            .doubleClickExpressionContent("``");
+
+        InputEditor
+            .typeInput("`CREATE DATABASE CUSTOMER`");
+
+        EditorPane
+            .validateNewExpression("RawTemplateExpression", "`CREATE DATABASE CUSTOMER`");
+
+        EditorPane
+            .validateEmptyDiagnostics();
+    })
+
     it('Open and Cancel Form', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")

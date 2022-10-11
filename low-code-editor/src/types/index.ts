@@ -148,6 +148,7 @@ export interface LowCodeEditorProperties {
     ballerinaVersion?: string;
     environment?: string;
     isCodeServerInstance?: boolean;
+    openInDiagram?: NodePosition;
 }
 
 export interface SelectedPosition {

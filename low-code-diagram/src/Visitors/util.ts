@@ -94,7 +94,7 @@ export function getPlusViewState(index: number, viewStates: PlusViewState[]): Pl
     return matchingPlusViewState;
 }
 
-export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>, startCY?: number, haveParent?: boolean, blockBBox?: SimpleBBox) {
+export function updateConnectorCX(maxContainerRightWidth: number, containerCX: number, allEndpoints: Map<string, Endpoint>, startCY?: number) {
     const containerRightMostConerCX = maxContainerRightWidth + containerCX;
     let prevX = 0;
     let foundFirst: boolean = false;
@@ -105,14 +105,7 @@ export function updateConnectorCX(maxContainerRightWidth: number, containerCX: n
         mainEp.collapsed = value.firstAction?.collapsed;
 
         if (!foundFirst) {
-            if (mainEp.lifeLine.cx <= containerRightMostConerCX) {
-                mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
-            } else if (mainEp.lifeLine.cx > containerRightMostConerCX) {
-                const diff = mainEp.lifeLine.cx - containerRightMostConerCX;
-                if (diff < DefaultConfig.epGap) {
-                    mainEp.lifeLine.cx = mainEp.lifeLine.cx + (mainEp.bBox.w / 2) + (DefaultConfig.epGap - diff);
-                }
-            }
+            mainEp.lifeLine.cx = containerRightMostConerCX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;
             foundFirst = true;
         } else {
             mainEp.lifeLine.cx = prevX + (mainEp.bBox.w / 2) + DefaultConfig.epGap;

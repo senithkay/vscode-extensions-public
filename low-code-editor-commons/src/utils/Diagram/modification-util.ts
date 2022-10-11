@@ -79,7 +79,7 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
 }
 
 export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
-                                        targetPosition: NodePosition, isLastMember?: boolean): STModification {
+                                        targetPosition: NodePosition, isLastMember?: boolean, isExpressionBodied?: boolean): STModification {
     const functionStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: isLastMember ? targetPosition.endColumn : 0,
@@ -90,7 +90,8 @@ export function createFunctionSignature(accessModifier: string, name: string, pa
             "ACCESS_MODIFIER": accessModifier,
             "NAME": name,
             "PARAMETERS": parameters,
-            "RETURN_TYPE": returnTypes
+            "RETURN_TYPE": returnTypes,
+            "IS_EXPRESSION_BODIED": isExpressionBodied
         }
     };
 

@@ -16,6 +16,7 @@ import React, { useContext, useState } from "react";
 import { Margin } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { DataMapperOverlay } from "../../../../DataMapperOverlay";
 import { FormGenerator } from "../../../FormGenerator";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
 
@@ -55,7 +56,8 @@ export const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.MODULE_INIT },
     { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.MODULE_INIT },
     { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.MODULE_INIT },
-    { name: 'Other', type: 'Custom', category: PlusMenuCategories.MODULE_INIT }
+    { name: 'Other', type: 'Custom', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Data Mapper', type: 'DataMapper', category: PlusMenuCategories.CONSTRUCT }
 ];
 
 export const classMemberEntries: PlusMenuEntry[] = [
@@ -114,7 +116,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     />
                 )
             }
-            {selectedOption && (
+            {selectedOption && selectedOption.type !== "DataMapper"  && (
                 <FormGenerator
                     targetPosition={targetPosition}
                     configOverlayFormStatus={{
@@ -125,6 +127,18 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     }}
                     onCancel={handleOnClose}
                     onSave={handleOnSave}
+                />
+            )}
+            {selectedOption && selectedOption.type === "DataMapper"  && (
+                <DataMapperOverlay
+                    targetPosition={targetPosition}
+                    configOverlayFormStatus={{
+                        formType: selectedOption.type,
+                        formName: selectedOption.name,
+                        isLoading: false,
+                        isLastMember: isLastMember
+                    }}
+                    onCancel={handleOnClose}
                 />
             )}
         </>
