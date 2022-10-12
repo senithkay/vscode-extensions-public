@@ -136,7 +136,7 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
 
         const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
 
-        return (
+        return (!node.hidden &&(
             <>
                 {/* TODO: Identify inner query expressions and render minimized boxes to denote those with links */}
                 {!!node.sourcePort && (
@@ -163,7 +163,7 @@ class QueryExprAsSFVNodeWidgetC extends React.Component<QueryExprAsSFVNodeWidget
                     </div>
                 )}
             </>
-        );
+        ));
     }
 }
 

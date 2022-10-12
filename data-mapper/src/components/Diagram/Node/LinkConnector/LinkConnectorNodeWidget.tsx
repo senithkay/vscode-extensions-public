@@ -172,7 +172,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         />
     );
 
-    return (
+    return (!node.hidden && (
         <div className={classes.root}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} />
@@ -209,5 +209,6 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 <DataMapperPortWidget engine={engine} port={node.outPort} />
             </div>
         </div>
+        )
     );
 }
