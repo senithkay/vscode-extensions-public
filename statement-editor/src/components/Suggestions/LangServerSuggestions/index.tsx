@@ -151,7 +151,7 @@ export function LSSuggestions() {
         setKeyword('');
         const completionKind = suggestion.completionKind;
         let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
-        const prefix = (inputEditorCtx.userInput.includes('.') && currentModel?.value?.includes('.') && resourceAccessRegex.exec(inputEditorCtx.userInput)[0])
+        const prefix = (inputEditorCtx.userInput.includes('.') && resourceAccessRegex.exec(inputEditorCtx.userInput)[0])
             || suggestion.prefix;
         if (config.type === ACTION && completionKind === FUNCTION_COMPLETION_KIND) {
             value = getActionExprWithArgs(value, connector);
