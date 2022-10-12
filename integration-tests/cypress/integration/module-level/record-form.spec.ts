@@ -26,7 +26,7 @@ const EXISTING_RECORD_FILE_PATH = "module-level/record.bal";
 
 describe('Record', () => {
 
-    it('Add Record', () => {
+    it.skip('Add Record', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         Canvas
             .welcomeMessageShouldBeVisible()
