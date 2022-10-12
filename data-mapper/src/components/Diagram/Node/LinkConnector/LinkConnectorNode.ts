@@ -24,6 +24,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     public value: string;
     public diagnostics: Diagnostic[];
+    public hidden: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -72,56 +73,88 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode) {
                     [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
+                    if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
+                        this.hidden = true;
+                    }
                 }
             });
         }
     }
 
     initLinks(): void {
-        this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
-            const inPort = this.inPort;
 
-            const lm = new DataMapperLinkModel(undefined, undefined, true);
-            lm.setTargetPort(this.inPort);
-            lm.setSourcePort(sourcePort);
+        if (!this.hidden) {
 
-            const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
+            this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
+                const inPort = this.inPort;
 
-            lm.registerListener({
-                selectionChanged(event) {
-                    if (event.isSelected) {
-                        inPort.fireEvent({}, "link-selected");
-                        sourcePort.fireEvent({}, "link-selected");
-                    } else {
-                        inPort.fireEvent({}, "link-unselected");
-                        sourcePort.fireEvent({}, "link-unselected");
-                    }
-                },
-            })
-            this.getModel().addAll(lm);
-        })
+                const lm = new DataMapperLinkModel(undefined, undefined, true);
+                lm.setTargetPort(this.inPort);
+                lm.setSourcePort(sourcePort);
 
-        if (this.targetMappedPort) {
-            const outPort = this.outPort;
-            const targetPort = this.targetMappedPort;
+                const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
 
-            const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
-            lm.setTargetPort(this.targetMappedPort);
-            lm.setSourcePort(this.outPort);
-
-            lm.registerListener({
-                selectionChanged(event) {
-                    if (event.isSelected) {
-                        outPort.fireEvent({}, "link-selected");
-                        targetPort.fireEvent({}, "link-selected");
-                    } else {
-                        outPort.fireEvent({}, "link-unselected");
-                        targetPort.fireEvent({}, "link-unselected");
-                    }
-                },
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            inPort.fireEvent({}, "link-selected");
+                            sourcePort.fireEvent({}, "link-selected");
+                        } else {
+                            inPort.fireEvent({}, "link-unselected");
+                            sourcePort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(lm);
             })
 
-            this.getModel().addAll(lm);
+            if (this.targetMappedPort) {
+                const outPort = this.outPort;
+                const targetPort = this.targetMappedPort;
+
+                const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
+                lm.setTargetPort(this.targetMappedPort);
+                lm.setSourcePort(this.outPort);
+
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            outPort.fireEvent({}, "link-selected");
+                            targetPort.fireEvent({}, "link-selected");
+                        } else {
+                            outPort.fireEvent({}, "link-unselected");
+                            targetPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+
+                this.getModel().addAll(lm);
+            }
+        } else {
+            if (this.targetMappedPort) {
+                this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
+                    const inPort = this.targetMappedPort;
+    
+                    const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
+                    lm.setTargetPort(this.targetMappedPort);
+                    lm.setSourcePort(sourcePort);
+    
+                    const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
+    
+                    lm.registerListener({
+                        selectionChanged(event) {
+                            if (event.isSelected) {
+                                inPort.fireEvent({}, "link-selected");
+                                sourcePort.fireEvent({}, "link-selected");
+                            } else {
+                                inPort.fireEvent({}, "link-unselected");
+                                sourcePort.fireEvent({}, "link-unselected");
+                            }
+                        },
+                    })
+                    this.getModel().addAll(lm);
+                })
+            }
         }
     }
 
