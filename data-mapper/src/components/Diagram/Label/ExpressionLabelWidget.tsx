@@ -116,7 +116,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		}
 	}, [props.model]);
 
-	const onClickDelete = (evt?: React.MouseEvent<SVGSVGElement>) => {
+	const onClickDelete = (evt?: React.MouseEvent<HTMLDivElement>) => {
 		if (evt) {
 			evt.preventDefault();
 			evt.stopPropagation();
@@ -127,7 +127,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		}
 	};
 
-	const onClickEdit = (evt?: React.MouseEvent<SVGSVGElement>) => {
+	const onClickEdit = (evt?: React.MouseEvent<HTMLDivElement>) => {
 		if (evt) {
 			evt.preventDefault();
 			evt.stopPropagation();
@@ -181,9 +181,9 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	const elements: React.ReactNode[] = [
 		(
 			<>
-				<div className={classes.element} >
+				<div className={classes.element} onClick={onClickEdit}>
 					<div className={classes.iconWrapper}>
-						<CodeOutlinedIcon className={classes.codeIconButton} onClick={onClickEdit} />
+						<CodeOutlinedIcon className={classes.codeIconButton} />
 					</div>
 				</div>
 				<div className={classes.separator} />
@@ -192,9 +192,9 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 						{loadingScreen}
 					</div>
 				) : (
-					<div className={classes.element}>
+					<div className={classes.element} onClick={onClickDelete} >
 						<div className={classes.iconWrapper}>
-							<DeleteIcon className={classes.deleteIconButton} onClick={onClickDelete} />
+							<DeleteIcon className={classes.deleteIconButton} />
 						</div>
 					</div>
 				)}
