@@ -18,6 +18,9 @@ namespace S {
 	export const Foreign = styled.foreignObject`
 		pointer-events: none;
 		overflow: visible;
+		&:focus {
+			outline: none;
+		}
 	`;
 }
 

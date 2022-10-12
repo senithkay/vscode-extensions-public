@@ -14,7 +14,7 @@ import {
   Panel,
   useStyles as useFormStyles,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperProps } from "../DataMapper";
 
@@ -63,6 +63,17 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
           startColumn: fnST?.functionName?.position?.startColumn,
         })
       );
+
+      const functionExpression = (fnST.functionBody as ExpressionFunctionBody)?.expression;
+      if (functionExpression && STKindChecker.isNilLiteral(functionExpression)) {
+        // if function returns (), replace it with {}
+        modifications.push({
+          type: "INSERT",
+          config: { "STATEMENT": "{}" },
+          ...functionExpression.position
+        })
+      }
+
     } else {
       modifications.push(
         createFunctionSignature(
@@ -160,7 +171,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
               <FormDivider />
               <OutputTypeConfigPanel>
                 <Title>Output Type</Title>
-                {showOutputType && <TypeBrowser type={outputType} onChange={setOutputType} /> }
+                {showOutputType && <TypeBrowser type={outputType} onChange={setOutputType} />}
                 <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
               </OutputTypeConfigPanel>
             </FormBody>
