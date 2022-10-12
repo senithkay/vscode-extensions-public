@@ -127,7 +127,7 @@ export class ParameterTab {
             .children(`[data-testid="optional-toggle-button"]`)
             .scrollIntoView()
             .click({ force: true })
-            .wait(500);
+            .should('have.text', 'Hide', { timeout: 5000 })
         return this;
     }
 
@@ -167,7 +167,7 @@ export class ParameterTab {
             .children()
             .children(`[data-testid="optional-toggle-button"]`)
             .click({ force: true })
-            .wait(500);
+            .should('have.text', 'Hide', { timeout: 5000 })
         return this;
     }
 

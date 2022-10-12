@@ -32,19 +32,12 @@ describe("Add module-level statements via Low Code", () => {
             .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput('"Hello World"');
+            .typeInput('123');
 
         EditorPane
-            .validateNewExpression("StringLiteral", "Hello World")
-            .getExpression("IntTypeDesc")
-            .clickExpressionContent('int');
-
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('string');
+            .validateNewExpression("NumericLiteral", "123")
 
         EditorPane
-            .validateNewExpression("StringTypeDesc", "string")
             .getExpression("CaptureBindingPattern")
             .doubleClickExpressionContent('variable');
 
