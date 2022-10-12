@@ -19,7 +19,8 @@ export class InputEditor {
         this.getInputEditor()
             .focus()
             .clear()
-            .type(text, { parseSpecialCharSequences: parseSpecialCharSequences, delay: 100 });
+            .wait(2000)
+            .type(text, { parseSpecialCharSequences: parseSpecialCharSequences });
 
         cy.wait(3000);
 
