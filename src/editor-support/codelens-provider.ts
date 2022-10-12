@@ -170,8 +170,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                 const position = functionBody.position;
                                 const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
                                 codeLens.command = {
-                                    title: "Open in diagram",
-                                    tooltip: "Open this code block in diagram view",
+                                    title: "Design",
+                                    tooltip: "Open this code block in data mapping view",
                                     command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
                                     arguments: [member.position, filePath]
                                 };
