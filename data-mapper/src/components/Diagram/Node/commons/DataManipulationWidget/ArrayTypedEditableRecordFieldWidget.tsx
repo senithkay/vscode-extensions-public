@@ -18,6 +18,7 @@ import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
@@ -121,7 +122,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const arrayElements = elements && (
         elements.map((element, index) => {
-            if (element.elementNode && STKindChecker.isMappingConstructor(element.elementNode)) {
+            if (element.elementNode && (STKindChecker.isMappingConstructor(element.elementNode)
+                || element.member?.type.typeName === PrimitiveBalType.Record)) {
                 return (
                     <>
                         <TreeBody>

@@ -3,8 +3,10 @@ import {
     ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
+    LetVarDecl,
     ListConstructor,
     QueryExpression,
+    SimpleNameReference,
     SpecificField,
     STKindChecker,
     STNode,
@@ -37,9 +39,9 @@ export class NodeInitVisitor implements Visitor {
     constructor(
         private context: DataMapperContext,
         private selection: SelectionState
-    ) {}
+    ) { }
 
-    beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode){
+    beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
         if (typeDesc) {
             this.outputNode = new MappingConstructorNode(
@@ -77,12 +79,11 @@ export class NodeInitVisitor implements Visitor {
         const selectedSTNode = this.selection.selectedST.stNode;
         if (STKindChecker.isSpecificField(selectedSTNode)
             && node.position.startLine === selectedSTNode.valueExpr.position.startLine
-            && node.position.startColumn === selectedSTNode.valueExpr.position.startColumn)
-        {
+            && node.position.startColumn === selectedSTNode.valueExpr.position.startColumn) {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
                 const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 65;
                 const addInitialClauseHeight = 65;
-                const yPosition = 50 + (intermediateClausesHeight  || addInitialClauseHeight);
+                const yPosition = 50 + (intermediateClausesHeight || addInitialClauseHeight);
                 // create output node
                 this.outputNode = new MappingConstructorNode(
                     this.context,
@@ -101,10 +102,19 @@ export class NodeInitVisitor implements Visitor {
                 this.inputNodes.push(fromClauseNode);
                 fromClauseNode.initialYPosition = yPosition;
 
-                const letClauses = node.queryPipeline.intermediateClauses?.filter(item=>STKindChecker.isLetClause(item));
+                const letClauses =
+                    node.queryPipeline.intermediateClauses?.filter(
+                        (item) =>
+                            STKindChecker.isLetClause(item) &&
+                            (
+                                (item.letVarDeclarations[0] as LetVarDecl)
+                                    ?.expression as SimpleNameReference
+                            )?.name?.value !== "EXPRESSION"
+                    );
+
                 for (let [index, item] of letClauses.entries()) {
                     const paramNode = new LetClauseNode(this.context, item as LetClause);
-                    paramNode.setPosition(100,  100 + (index + 1) * 400);
+                    paramNode.setPosition(100, 100 + (index + 1) * 400);
                     this.inputNodes.push(paramNode);
                 }
 
@@ -133,7 +143,7 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isListConstructor(node.valueExpr)
         ) {
             const fieldAccessNodes = getFieldAccessNodes(node.valueExpr);
-            if (fieldAccessNodes.length > 1){
+            if (fieldAccessNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
@@ -151,9 +161,9 @@ export class NodeInitVisitor implements Visitor {
     beginVisitListConstructor(node: ListConstructor, parent?: STNode): void {
         if (this.isWithinQuery === 0 && node.expressions) {
             node.expressions.forEach((expr) => {
-                if(!STKindChecker.isMappingConstructor(expr)){
+                if (!STKindChecker.isMappingConstructor(expr)) {
                     const fieldAccessNodes = getFieldAccessNodes(expr);
-                    if (fieldAccessNodes.length > 1){
+                    if (fieldAccessNodes.length > 1) {
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
                             expr,
@@ -169,7 +179,7 @@ export class NodeInitVisitor implements Visitor {
                 }
             })
         }
-        
+
     }
 
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {

@@ -93,6 +93,13 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value)) {
 		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
 	}
+
+	if (targetPort.field?.typeName === PrimitiveBalType.Record
+		&& targetPort.editableRecordField?.value
+		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value)) {
+		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
+	}
+
 	lhs = getBalRecFieldName(targetPort.field.name);
 
 	// Inserting a new specific field
@@ -503,7 +510,8 @@ function getNextField(nextTypeMemberNodes: ArrayElement[],
 	nextFieldPosition: NodePosition): [EditableRecordField, number] {
 	let memberIndex = -1;
 	const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
-		if (node.member.type.typeName === PrimitiveBalType.Record) {
+		if (node.member.type.typeName === PrimitiveBalType.Record && node.member.value 
+			&& STKindChecker.isMappingConstructor(node.member.value)) {
 			for (let i = 0; i < node.member.childrenTypes.length; i++) {
 				const field = node.member.childrenTypes[i];
 				if (field?.value && isPositionsEquals(nextFieldPosition, field.value.position)) {
