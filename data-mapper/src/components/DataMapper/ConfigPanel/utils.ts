@@ -22,13 +22,13 @@ export function getInputsFromST(fnST: FunctionDefinition): DataMapperInputParam[
 }
 
 export function getOutputTypeFromST(fnST: FunctionDefinition) {
-    return getTypeFromTypeDesc(fnST.functionSignature.returnTypeDesc.type)
+    return getTypeFromTypeDesc(fnST.functionSignature?.returnTypeDesc?.type)
 }
 
 export function getTypeFromTypeDesc(typeDesc: TypeDescriptor) {
-    if (STKindChecker.isSimpleNameReference(typeDesc)) {
+    if (typeDesc && STKindChecker.isSimpleNameReference(typeDesc)) {
         return typeDesc.name.value;
     }
-    throw new Error("Unkown type desc. ");
+    return "";
 }
 
