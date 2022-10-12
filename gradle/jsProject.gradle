@@ -23,11 +23,13 @@ task npmInstall() {
     inputs.file("package-lock.json")
     outputs.dir("node_modules")
     doFirst {
-        exec {
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'install', '-f'
-            } else {
-                commandLine 'npm', 'ci'
+        if (project.name != 'graphql-viewer') {
+            exec {
+                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                    commandLine 'cmd', '/c', 'npm', 'install', '-f'
+                } else {
+                    commandLine 'npm', 'install'
+                }
             }
         }
         
