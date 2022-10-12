@@ -11,6 +11,8 @@ import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
 
 import { RequiredParamNode, REQ_PARAM_NODE_TYPE } from './RequiredParamNode';
+import { PrimitiveTypeItemWidget } from '../commons/PrimitiveTypeItemWidget';
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 @injectable()
 @singleton()
@@ -20,15 +22,27 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
 	}
 
 	generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
-		return (
-			<RecordTypeTreeWidget
-				engine={this.engine}
+        if(event.model.typeDef.typeName === PrimitiveBalType.Record ){
+            return (
+                <RecordTypeTreeWidget
+					engine={this.engine}
+					id={event.model.value.paramName.value}
+					typeDesc={event.model.typeDef}
+					getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+					handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                />
+            );
+        }
+        
+        return (
+            <PrimitiveTypeItemWidget
+                engine={this.engine}
 				id={event.model.value.paramName.value}
-				typeDesc={event.model.typeDef}
-				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-				handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-			/>
-		);
+                typeDesc={event.model.typeDef}
+                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                valueLabel={event.model.value.paramName.value}
+            />
+        )
 	}
 
 	generateModel(event: { initialConfig: any }): any {

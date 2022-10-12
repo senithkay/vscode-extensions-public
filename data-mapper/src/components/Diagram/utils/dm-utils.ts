@@ -353,16 +353,19 @@ export function findNodeByValueNode(value: RequiredParam | FromClause | LetClaus
 export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	if (STKindChecker.isSimpleNameReference(expr)){
 		const dmNodes = dmNode.getModel().getNodes();
-		const paramNode: LetClause = (dmNodes.find((node) => {
+		const paramNode = (dmNodes.find((node) => {
 			if (node instanceof LetClauseNode) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
 				return bindingPattern?.variableName?.value === expr.source;
 			}
-		}) as LetClauseNode)?.value;
+			if (node instanceof RequiredParamNode) {
+				return expr.name.value === node.value.paramName.value
+			}
+		}) as LetClauseNode | RequiredParamNode)?.value;
 		if(paramNode){
 			return findNodeByValueNode(paramNode, dmNode);
-		}
+		}		
 	} else if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 		let valueExpr = expr.expression;
 		while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
