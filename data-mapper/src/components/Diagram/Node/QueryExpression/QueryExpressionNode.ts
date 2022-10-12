@@ -170,7 +170,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public updatePosition() {
         if (this.targetPort){
             const position = this.targetPort.getPosition()
-            this.setPosition(800, position.y - 10)
+            this.setPosition(800, position.y - 7)
         }
     }
 

@@ -137,7 +137,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					console.error(e)
 				}
 			}
-			model.setLocked(true);
+			newModel.setLocked(true);
 			engine.setModel(newModel);
 			if (newModel.getLinks().length > 0){
 				dagreEngine.redistribute(newModel);
