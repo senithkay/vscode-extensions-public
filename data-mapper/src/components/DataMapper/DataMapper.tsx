@@ -38,16 +38,16 @@ import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
+import { ViewStateSetupVisitor } from "../Diagram/visitors/ViewStateSetupVisitor";
 import { StatementEditorComponent } from "../StatementEditorComponent/StatementEditorComponent"
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
+import { getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { isDMSupported } from "./utils";
-import Typography from "@material-ui/core/Typography";
-import { getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -254,6 +254,7 @@ function DataMapperC(props: DataMapperProps) {
         if (fnST) {
             const defaultSt = { stNode: fnST, fieldPath: fnST.functionName.value };
             if (selection.selectedST) {
+                traversNode(fnST, new ViewStateSetupVisitor());
                 const selectedSTFindingVisitor = new SelectedSTFindingVisitor([...selection.prevST, selection.selectedST]);
                 traversNode(fnST, selectedSTFindingVisitor);
                 const { selectedST, prevST } = selectedSTFindingVisitor.getST();
@@ -321,16 +322,16 @@ function DataMapperC(props: DataMapperProps) {
         }
     }, [selection.state])
 
-    const showConfigPanel = useMemo(()=>{
-        if(!fnST){
+    const showConfigPanel = useMemo(() => {
+        if (!fnST){
             return true
         }
         const inputParams = getInputsFromST(fnST);
         const outputType = getOutputTypeFromST(fnST);
-        if(inputParams.length === 0 || !outputType){
+        if (inputParams.length === 0 || !outputType){
             return true
         }
-    },[fnST])
+    }, [fnST])
 
     useEffect(() => {
         handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen || showConfigPanel);
