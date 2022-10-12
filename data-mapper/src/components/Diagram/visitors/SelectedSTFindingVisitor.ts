@@ -66,6 +66,7 @@ export class SelectedSTFindingVisitor implements Visitor {
                 node.fieldName.value === item.stNode.fieldName?.value
             ) {
                 this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }]
+                this.pathSegmentIndex = 0;
             } else if (
                 STKindChecker.isFunctionDefinition(node) &&
                 STKindChecker.isFunctionDefinition(item.stNode) &&
