@@ -84,7 +84,7 @@ describe('Record', () => {
         EditorPane
             .getStatementRenderer()
             .getExpression("IdentifierToken")
-            .doubleClickExpressionContent(`Person`);
+            .doubleClickExpressionContent("Person");
         InputEditor.typeInput("Individual");
 
         EditorPane.clickPlusRecordFieldPlus("name");
