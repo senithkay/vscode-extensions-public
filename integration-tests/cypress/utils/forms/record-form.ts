@@ -85,8 +85,7 @@ export class RecordForm {
 
     static importFromJsonFile() {
         this.getForm().within(() => {
-            cy.contains("Select JSON file").parent()
-                .click();
+            cy.get("#file-upload").parent().click();
         });
 
         const jsonFile = 'record.json';
@@ -197,7 +196,7 @@ export class RecordForm {
     static save() {
         this.getForm()
             .get('button')
-            .contains("Finish")
+            .contains("Save")
             .click();
         return this;
     }
@@ -205,7 +204,7 @@ export class RecordForm {
     static panelDone() {
         this.getForm()
             .get('button')
-            .contains("Done", { timeout: 10000 })
+            .contains("Finish", { timeout: 10000 })
             .click();
         return this;
     }

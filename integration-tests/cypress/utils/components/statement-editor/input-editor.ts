@@ -19,10 +19,10 @@ export class InputEditor {
         this.getInputEditor()
             .focus()
             .clear()
-            .wait(2000)
+            .wait(1000)
             .type(text, { parseSpecialCharSequences: parseSpecialCharSequences });
 
-        cy.wait(3000);
+        cy.wait(1000);
 
         this.getInputEditor()
             .type('{enter}');

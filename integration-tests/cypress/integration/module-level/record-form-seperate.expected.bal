@@ -4,7 +4,6 @@ type Address record {
 };
 
 type Person record {
-
     string name;
     Address address;
 };

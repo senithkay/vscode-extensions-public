@@ -105,8 +105,9 @@ describe('Record', () => {
     });
 
     it('Delete Record', () => {
+        cy.visit(getIntegrationTestPageURL(EXISTING_RECORD_FILE_PATH));
         Canvas
-            .getRecord('Individual')
+            .getRecord('Person')
             .clickDelete();
 
         SourceCode.shouldBeEqualTo(
