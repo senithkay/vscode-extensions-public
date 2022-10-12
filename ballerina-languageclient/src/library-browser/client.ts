@@ -36,9 +36,9 @@ const options = {
         'Content-Type': 'application/json'
     }
 };
-const balVersion = 'slbeta6'; // This will overwrite if the ballerina version can be derived from the ballerina home (Cannot be derived when using the custom packs).
+const balVersion = '2201.2.0'; // This will overwrite if the ballerina version can be derived from the ballerina home (Cannot be derived when using the custom packs).
 const DOC_API_PATH = '/2.0/docs';
-const LIBRARIES_LIST_ENDPOINT = DOC_API_PATH + '/stdlib' + balVersion;
+const LIBRARIES_LIST_ENDPOINT = DOC_API_PATH + '/stdlib/' + balVersion;
 const LIBRARIES_SEARCH_ENDPOINT = LIBRARIES_LIST_ENDPOINT + '/search';
 
 export function getLibrariesList(kind?: LibraryKind): Promise<LibrariesListResponse | undefined> {
