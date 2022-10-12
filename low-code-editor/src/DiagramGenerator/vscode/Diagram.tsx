@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { ANALYZE_TYPE, CommandResponse, DiagramEditorLangClientInterface, GetSyntaxTreeResponse, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
@@ -14,6 +15,7 @@ export interface EditorState {
     startColumn: number;
     startLine: number;
     lastUpdatedAt: string;
+    openInDiagram?: NodePosition;
     experimentalEnabled?: boolean;
 }
 
@@ -47,7 +49,7 @@ export interface EditorAPI {
 
 export enum PALETTE_COMMANDS {
     RUN = 'ballerina.project.run',
-    SWAGGER_VIEW = 'ballerina.swaggerView.open',
+    TRY_IT = 'ballerina.tryit',
     DOCUMENTATION_VIEW = 'ballerina.documentationView.open'
 }
 

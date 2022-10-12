@@ -20,7 +20,7 @@ import classNames from 'classnames';
 import { truncateText } from '../../../../Utils';
 import { FunctionViewState } from '../../../../ViewState';
 import { ComponentExpandButton } from '../../../ComponentExpandButton';
-import '../style.scss';
+import '../RegularFunction/style.scss';
 
 interface FunctionSignatureProps {
     model: FunctionDefinition | ResourceAccessorDefinition | ObjectMethodDefinition;

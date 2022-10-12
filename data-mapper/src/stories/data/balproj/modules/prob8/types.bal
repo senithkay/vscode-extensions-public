@@ -1,0 +1,91 @@
+
+type InputMessage record {
+    string ContentType;
+    record {
+        string EventType;
+        string AuditId;
+        string MessageId;
+    } MessageProperties;
+    record {
+        int Type;
+        string Id;
+        boolean Confirmed?;
+    }[] Assets;
+    record {
+        record {
+            decimal WorkDayDriveRemaining?;
+            decimal DayDrive?;
+            decimal CycleDutyRemaining?;
+            decimal WorkDayOnDutyRemaining?;
+            decimal DaySleeperBerth?;
+            decimal DayOnDuty?;
+            decimal DayOffDuty?;
+        } Metrics;
+        record {
+            string CreateDateUtc;
+        } HeaderInformation;
+        record {
+            string Label;
+            string Value;
+        }[]|() AdditionalDataElements;
+        record {
+             decimal OrderHeader;
+            string TripName;
+            decimal Move;
+            decimal Stop;
+            record {
+                string Label;
+                string Value;
+            }[]|() AdditionalDataElements;
+            decimal Leg;
+        
+        }|() TripInformation;
+    } Content;
+    string CreateDate;
+};
+
+
+type TransformedMessage record {
+    record {
+        record {
+            string MessageContentType;
+            record {
+                record {
+                    decimal WorkDayDriveRemaining?;
+                    decimal DayDrive?;
+                    decimal CycleDutyRemaining?;
+                    decimal WorkDayOnDutyRemaining?;
+                    decimal DaySleeperBerth?;
+                    decimal DayOnDuty?;
+                    decimal DayOffDuty?;
+                } Metrics;
+                record {
+                    string CreateDateUtc;
+                } HeaderInformation;
+                record {
+                    string Label;
+                    string Value;
+                }[]? AdditionalDataElements;
+                record {
+                    decimal OrderHeader;
+                    string TripName;
+                    decimal Move;
+                    decimal Stop;
+                    record {
+                        int Type;
+                        string Id;
+                        boolean Confirmed;
+                    }[] Assets;
+                    record {
+                        string Label;
+                        string Value;
+                    }[]? AdditionalDataElements;
+                    decimal Leg;
+                } TripInformation;
+            } MessageContent;
+            string ParentMessageGuid;
+            string MessageGuid;
+        } data;
+        string 'type;
+    }[] dtos;
+};

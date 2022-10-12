@@ -82,7 +82,8 @@ export const StatementEditorContext = React.createContext({
     currentFile: {
         content: "",
         path: "",
-        size: 0
+        size: 0,
+        originalContent: null
     },
     documentation: null,
     syntaxTree: null,
@@ -91,6 +92,7 @@ export const StatementEditorContext = React.createContext({
     onWizardClose: () => undefined,
     onCancel: () => undefined,
     experimentalEnabled: false,
+    isExpressionMode: false,
     ballerinaVersion: null,
     isCodeServerInstance: false,
     openExternalUrl: (url: string) => {}
@@ -160,6 +162,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         updateSyntaxDiagnostics,
         editing,
         updateEditing,
+        isExpressionMode,
+        currentFile,
         ballerinaVersion,
         isCodeServerInstance,
         openExternalUrl,
@@ -212,6 +216,11 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 targetPosition,
                 importStatements,
                 experimentalEnabled,
+                isExpressionMode,
+                currentFile: {
+                    ...currentFile,
+                    originalContent: currentFile.originalContent
+                },
                 ballerinaVersion,
                 isCodeServerInstance,
                 openExternalUrl,

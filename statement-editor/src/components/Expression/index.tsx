@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
-import { useIntl } from "react-intl";
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
@@ -28,26 +27,34 @@ export interface ExpressionComponentProps {
     children?: React.ReactElement[];
     classNames?: string;
     stmtPosition?: NodePosition;
+    isHovered?: boolean;
+    onPlusClick?: (evt: any) => void;
 }
 
 export function ExpressionComponent(props: ExpressionComponentProps) {
-    const { model, children, classNames, stmtPosition } = props;
+    const { model, children, classNames, stmtPosition, isHovered: hovered } = props;
 
-    const component = getExpressionTypeComponent(model, stmtPosition);
+    const component = getExpressionTypeComponent(model, stmtPosition, hovered);
 
     const [isHovered, setHovered] = React.useState(false);
 
-    const { modelCtx } = useContext(StatementEditorContext);
+    const { modelCtx, isExpressionMode } = useContext(StatementEditorContext);
     const {
         currentModel: selectedModel,
         changeCurrentModel,
-        hasSyntaxDiagnostics
+        hasSyntaxDiagnostics,
+        statementModel
     } = modelCtx;
 
-    const intl = useIntl();
     const statementRendererClasses = useStatementRendererStyles();
 
-    const isSelected = selectedModel.model && model && isPositionsEquals(selectedModel.model.position, model.position);
+    if (isExpressionMode && !selectedModel.model) {
+        changeCurrentModel(statementModel);
+    }
+
+    const isSelected = selectedModel.model && model &&
+        (isPositionsEquals(selectedModel.model.position, model.position) ||
+            (isPositionsEquals(selectedModel.model.position, statementModel.position)));
     const hasError = model?.viewState?.diagnosticsInPosition?.length > 0 && !isPlaceHolderExists(model?.source ? model.source : model?.value);
 
     const onMouseOver = (e: React.MouseEvent) => {

@@ -2,9 +2,10 @@ import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import {
     InitializeParams, InitializeRequest, InitializeResult, ProtocolConnection,
     Trace, DidOpenTextDocumentNotification,
-    DidOpenTextDocumentParams, TextDocumentItem, InitializedNotification, ShutdownRequest, ExitNotification, PublishDiagnosticsNotification, PublishDiagnosticsParams,
-    TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation, DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification
+    DidOpenTextDocumentParams, CodeAction, CodeActionParams, TextDocumentItem, InitializedNotification, ShutdownRequest, ExitNotification, PublishDiagnosticsNotification, PublishDiagnosticsParams,
+    TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation, DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification, DefinitionParams, LocationLink, RenameParams, WorkspaceEdit
 } from 'vscode-languageserver-protocol';
+
 import { BLCTracer } from "./BLCTracer";
 import { BLCLogger } from "./BLCLogger";
 import { initializeRequest, didOpenTextDocumentParams } from "./messages"
@@ -50,7 +51,11 @@ import {
     PerformanceAnalyzerResponse,
     RevealRangeParams,
     SymbolInfoRequest, SymbolInfoResponse,
-    TriggerModifyRequest
+    TriggerModifyRequest,
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromExpressionResponse,
+    TypesFromSymbolResponse
 } from './IBallerinaLanguageClient'
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { LSConnection } from "./LSConnection";
@@ -109,6 +114,10 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         });
 
         return this._lsConnection.stop();
+    }
+
+    public definition(params: DefinitionParams): Promise<Location | Location[] | LocationLink[]> {
+        return this._clientConnection.sendRequest<Location | Location[] | LocationLink[]>("textDocument/definition", params);
     }
 
     public didOpen(params: DidOpenTextDocumentParams) {
@@ -262,4 +271,19 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_DOC, params);
     }
 
+    public codeAction(params: CodeActionParams): Promise<CodeAction[]> {
+        return this._clientConnection.sendRequest("textDocument/codeAction", params);
+    }
+
+    public getTypeFromExpression(params: TypeFromExpressionRequest): Thenable<TypesFromExpressionResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_EXPRESSION, params);
+    }
+
+    public getTypeFromSymbol(params: TypeFromSymbolRequest): Thenable<TypesFromSymbolResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_SYMBOL, params);
+    }
+
+    public rename(params: RenameParams): Promise<WorkspaceEdit> {
+        return this._clientConnection.sendRequest("textDocument/rename", params);
+    }
 }

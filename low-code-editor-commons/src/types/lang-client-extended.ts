@@ -19,6 +19,14 @@ import { FunctionDefinitionInfo } from "./config-spec";
 
 export type STModificationConfig = {};
 
+export enum DIAGNOSTIC_SEVERITY {
+    INTERNAL = "INTERNAL",
+    HINT = "HINT",
+    INFO = "INFO",
+    WARNING = "WARNING",
+    ERROR = "ERROR"
+}
+
 export interface STModification {
     startLine?: number;
     startColumn?: number;
@@ -279,6 +287,12 @@ export interface JsonToRecordRequest {
 
 export interface JsonToRecordResponse {
     codeBlock: string;
+    diagnostics?: JsonToRecordMapperDiagnostic[];
+}
+
+export interface JsonToRecordMapperDiagnostic {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
 }
 
 export interface DocumentIdentifier {

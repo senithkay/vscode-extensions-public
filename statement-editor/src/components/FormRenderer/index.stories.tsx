@@ -63,7 +63,7 @@
 //         closeConfigPanel: dummyFunctionWithoutArgs,
 //     },
 //     webView: {
-//         showSwaggerView: dummyFunction,
+//         showTryitView: dummyFunction,
 //     }
 // }
 //

@@ -1,14 +1,17 @@
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import {
+    CodeAction,
+    CodeActionParams,
+    DefinitionParams,
     Diagnostic,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     DocumentSymbol,
     DocumentSymbolParams,
-    InitializeParams, InitializeResult, Location, Position,
+    InitializeParams, InitializeResult, Location, LocationLink, Position,
     PublishDiagnosticsParams,
-    Range, SymbolInformation, TextDocumentPositionParams
+    Range, SymbolInformation, TextDocumentPositionParams, WorkspaceEdit, RenameParams
 } from "vscode-languageserver-protocol";
 
 import {
@@ -43,9 +46,18 @@ export enum EXTENDED_APIS {
     PERF_ANALYZER_ENDPOINTS = 'performanceAnalyzer/getResourcesWithEndpoints',
     RESOLVE_MISSING_DEPENDENCIES = 'ballerinaDocument/resolveMissingDependencies',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
-    SYMBOL_DOC = 'ballerinaSymbol/getSymbol'
+    SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
+    SYMBOL_GET_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
+    SYMBOL_GET_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol'
 }
 
+export enum DIAGNOSTIC_SEVERITY {
+    INTERNAL = "INTERNAL",
+    HINT = "HINT",
+    INFO = "INFO",
+    WARNING = "WARNING",
+    ERROR = "ERROR"
+}
 
 export interface GetProjectASTParams {
     sourceRoot: string;
@@ -608,6 +620,12 @@ export interface JsonToRecordRequest {
 
 export interface JsonToRecordResponse {
     codeBlock: string;
+    diagnostics?: JsonToRecordMapperDiagnostic[];
+}
+
+export interface JsonToRecordMapperDiagnostic {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
 }
 export interface DocumentIdentifier {
     uri: string;
@@ -674,6 +692,100 @@ export interface SymbolDocumentation {
 export interface SymbolInfoResponse {
     symbolKind: string,
     documentation : SymbolDocumentation
+}
+
+export interface DiagramDiagnostic {
+    message: string;
+    diagnosticInfo: {
+        code: string;
+        severity: string;
+    };
+    range: NodePosition;
+}
+
+export interface NonPrimitiveBal {
+    orgName: string;
+    moduleName: string;
+    name: string;
+    version?: string;
+}
+
+export interface Type {
+    typeName: string;
+    name?: string;
+    displayName?: string;
+    memberType?: Type;
+    inclusionType?: Type;
+    paramType?: Type;
+    selectedDataType?: string;
+    description?: string;
+    defaultValue?: any;
+    value?: any;
+    optional?: boolean;
+    defaultable?: boolean;
+    fields?: Type[];
+    members?: Type[];
+    references?: Type[];
+    isReturn?: boolean;
+    isTypeDef?: boolean;
+    isReference?: boolean;
+    isStream?: boolean;
+    typeInfo?: NonPrimitiveBal;
+    hide?: boolean;
+    aiSuggestion?: string;
+    noCodeGen?: boolean;
+    requestName?: string;
+    tooltip?: string;
+    tooltipActionLink?: string;
+    tooltipActionText?: string;
+    isErrorType?: boolean;
+    isRestParam?: boolean;
+    customAutoComplete?: string[];
+    validationRegex?: any;
+    leftTypeParam?: any;
+    rightTypeParam?: any;
+    initialDiagnostics?: DiagramDiagnostic[];
+    documentation?: string;
+    position?: NodePosition;
+    selected?: boolean;
+}
+
+export interface ExpressionRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
+    filePath?: string;
+}
+
+export interface TypeFromExpressionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    expressionRanges: ExpressionRange[];
+}
+
+export interface ResolvedTypeForExpression {
+    type: Type;
+    requestedRange: ExpressionRange;
+}
+
+export interface TypesFromExpressionResponse {
+    types: ResolvedTypeForExpression[];
+}
+
+export interface TypeFromSymbolRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    positions: LinePosition[];
+}
+
+export interface ResolvedTypeForSymbol {
+    type: FormField;
+    requestedPosition: LinePosition;
+}
+
+export interface TypesFromSymbolResponse {
+    types: ResolvedTypeForSymbol[];
 }
 
 export interface IBallerinaLangClient {
@@ -746,5 +858,16 @@ export interface IBallerinaLangClient {
 
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>;
 
+    definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
+
+    codeAction: (params: CodeActionParams) => Promise<CodeAction[]> ;
+
+    getTypeFromExpression: (params: TypeFromExpressionRequest) => Thenable<TypesFromExpressionResponse>;
+
+    getTypeFromSymbol: (params: TypeFromSymbolRequest) => Thenable<TypesFromSymbolResponse>;
+
+    convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
+
+    rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
     // close: () => void;
 }

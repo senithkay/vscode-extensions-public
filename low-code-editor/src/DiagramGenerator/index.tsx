@@ -26,6 +26,7 @@ import { CommandResponse, ConditionConfig,
     LibraryDocResponse,
     LibraryKind,
     LibrarySearchResponse,
+    LineRange,
     LowcodeEvent,
     SentryConfig,
     STModification,
@@ -66,7 +67,19 @@ const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
-    const { langClientPromise, filePath, startLine, startColumn, lastUpdatedAt, scale, panX, panY, resolveMissingDependency, experimentalEnabled } = props;
+    const {
+        langClientPromise,
+        filePath,
+        startLine,
+        startColumn,
+        lastUpdatedAt,
+        scale,
+        panX,
+        panY,
+        resolveMissingDependency,
+        openInDiagram,
+        experimentalEnabled
+    } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
     const defaultPanX = panX ? Number(panX) : 0;
@@ -185,8 +198,8 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         setZoomStatus(newZoomStatus);
     }
 
-    async function showSwaggerView(serviceName: string) {
-        runCommand(PALETTE_COMMANDS.SWAGGER_VIEW, [serviceName, filePath]);
+    async function showTryitView(serviceName: string, range: LineRange) {
+        runCommand(PALETTE_COMMANDS.TRY_IT, [filePath, serviceName, range]);
     }
 
     async function showDocumentationView(url: string) {
@@ -293,6 +306,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                             lowCodeResourcesVersion={lowCodeResourcesVersion}
                             ballerinaVersion={balVersion}
                             isCodeServerInstance={isCodeServer}
+                            openInDiagram={openInDiagram}
                             // tslint:disable-next-line: jsx-no-multiline-js
                             api={{
                                 helpPanel: {
@@ -409,7 +423,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     closeConfigPanel: () => undefined,
                                 },
                                 webView: {
-                                    showSwaggerView,
+                                    showTryitView,
                                     showDocumentationView
                                 },
                                 project: {

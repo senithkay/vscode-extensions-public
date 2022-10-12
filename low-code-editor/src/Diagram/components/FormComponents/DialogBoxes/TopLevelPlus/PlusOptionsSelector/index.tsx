@@ -11,11 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline object-literal-shorthand align
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 import { Margin } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { useDiagramContext } from "../../../../../../Contexts/Diagram";
+import { DataMapperOverlay } from "../../../../DataMapperOverlay";
 import { FormGenerator } from "../../../FormGenerator";
 import { PlusOptionRenderer } from "../PlusOptionRenderer";
 
@@ -55,7 +57,8 @@ export const moduleLevelEntries: PlusMenuEntry[] = [
     { name: 'Variable', type: 'ModuleVarDecl', category: PlusMenuCategories.MODULE_INIT },
     { name: 'Configurable', type: 'Configurable', category: PlusMenuCategories.MODULE_INIT },
     { name: 'Constant', type: 'ConstDeclaration', category: PlusMenuCategories.MODULE_INIT },
-    { name: 'Other', type: 'Custom', category: PlusMenuCategories.MODULE_INIT }
+    { name: 'Other', type: 'Custom', category: PlusMenuCategories.MODULE_INIT },
+    { name: 'Data Mapper', type: 'DataMapper', category: PlusMenuCategories.CONSTRUCT }
 ];
 
 export const classMemberEntries: PlusMenuEntry[] = [
@@ -71,6 +74,8 @@ export const triggerEntries: PlusMenuEntry[] = [
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
+
+    const { props: { ballerinaVersion } } = useDiagramContext();
 
     const defaultOption = ((kind === "ServiceDeclaration") && !isTriggerType) ?
         {name: "Resource", type: "ResourceAccessorDefinition"} : undefined;
@@ -114,7 +119,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     />
                 )
             }
-            {selectedOption && (
+            {selectedOption && selectedOption.type !== "DataMapper"  && (
                 <FormGenerator
                     targetPosition={targetPosition}
                     configOverlayFormStatus={{
@@ -125,6 +130,19 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     }}
                     onCancel={handleOnClose}
                     onSave={handleOnSave}
+                />
+            )}
+            {selectedOption && selectedOption.type === "DataMapper"  && (
+                <DataMapperOverlay
+                    targetPosition={targetPosition}
+                    configOverlayFormStatus={{
+                        formType: selectedOption.type,
+                        formName: selectedOption.name,
+                        isLoading: false,
+                        isLastMember: isLastMember
+                    }}
+                    ballerinaVersion={ballerinaVersion}
+                    onCancel={handleOnClose}
                 />
             )}
         </>

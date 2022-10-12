@@ -100,7 +100,7 @@ export interface LowCodeEditorAPI {
         closeConfigPanel: () => void;
     }
     webView: {
-        showSwaggerView: (serviceName: string) => void;
+        showTryitView: (serviceName: string) => void;
         showDocumentationView?: (url: string) => void;
     }
     project: {
@@ -147,6 +147,7 @@ export interface LowCodeEditorProperties {
     ballerinaVersion?: string;
     environment?: string;
     isCodeServerInstance?: boolean;
+    openInDiagram?: NodePosition;
 }
 
 export interface SelectedPosition {

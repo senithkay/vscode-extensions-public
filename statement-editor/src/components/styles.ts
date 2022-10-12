@@ -728,10 +728,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         paramTreeDescriptionText: {
             flex: "inherit",
-            width: '320px',
             whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
             ...removePadding
         },
         listItemMultiLine: {

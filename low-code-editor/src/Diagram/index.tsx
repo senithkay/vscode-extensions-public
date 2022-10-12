@@ -16,12 +16,13 @@ import React, { useContext, useState } from "react";
 import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
+import { DataMapperOverlay } from "./components/DataMapperOverlay";
 import { ConnectorWizard } from "./components/FormComponents/ConfigForms/ConnectorWizard";
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
@@ -29,6 +30,7 @@ import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/F
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
+import { visitor as STFindingVisitor } from "./visitors/st-finder-visitor";
 
 export function Diagram() {
     const {
@@ -41,7 +43,7 @@ export function Diagram() {
                 loaderText
             },
             webView: {
-                showSwaggerView,
+                showTryitView,
                 showDocumentationView
             },
             project: {
@@ -61,7 +63,9 @@ export function Diagram() {
             error,
             selectedPosition,
             zoomStatus,
-            experimentalEnabled
+            ballerinaVersion,
+            experimentalEnabled,
+            openInDiagram
         },
     } = useContext(DiagramContext);
 
@@ -82,6 +86,8 @@ export function Diagram() {
     const [activePlusWidget, setActivePlusWidget] = useState(undefined);
     const [isPlusWidgetActive, setIsPlusWidgetActive] = useState(false);
 
+    let isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
+
     // React.useEffect(() => {
     //     setIsErrorStateDialogOpen(diagramErrors);
     //     setIsErrorDetailsOpen(diagramErrors);
@@ -94,6 +100,31 @@ export function Diagram() {
         };
         onEvent(event);
     }, []);
+
+    React.useEffect(() => {
+        if (openInDiagram && Object.keys(openInDiagram).some(k => k !== null)) {
+            STFindingVisitor.setPosition(openInDiagram);
+            traversNode(syntaxTree, STFindingVisitor);
+            const stNode = STFindingVisitor.getSTNode();
+            if (stNode) {
+                let formType = stNode.kind;
+                if (STKindChecker.isFunctionDefinition(stNode)
+                    && STKindChecker.isExpressionFunctionBody(stNode.functionBody)
+                ) {
+                    isDataMapperOpen = true;
+                    formType = 'DataMapper'
+                } else if (STKindChecker.isTypeDefinition(stNode)
+                    && STKindChecker.isRecordTypeDesc(stNode.typeDescriptor)
+                ) {
+                    formType = 'RecordEditor'
+                }
+                handleDiagramEdit(stNode, openInDiagram, {
+                    formType,
+                    isLoading: false
+                });
+            }
+        }
+    }, [openInDiagram]);
 
     const openErrorDialog = () => {
         // setIsErrorStateDialogOpen(true);
@@ -313,6 +344,8 @@ export function Diagram() {
         h = h + (window.innerHeight - h);
     }
 
+    const dataMapperArgs = {ballerinaVersion, ...formConfig};
+
     // let hasConfigurable = false;
     // if (originalSyntaxTree) {
     //     hasConfigurable = hasConfigurables(originalSyntaxTree as ModulePart)
@@ -348,7 +381,7 @@ export function Diagram() {
                             },
                             webView: {
                                 showDocumentationView,
-                                showSwaggerView
+                                showTryitView
                             },
                             project: {
                                 run
@@ -358,8 +391,13 @@ export function Diagram() {
                             }
                         }}
                     />
-                    {isFormOpen && !isConnectorConfigWizardOpen && (
+                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && (
                         <FormGenerator {...formConfig} />
+                    )}
+                    {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
+                        <DataMapperOverlay
+                            {...dataMapperArgs}
+                        />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (
                         <ConnectorWizard {...connectorWizardProps} />
