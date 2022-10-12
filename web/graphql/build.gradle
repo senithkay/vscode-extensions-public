@@ -22,7 +22,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply from: "$rootDir/gradle/jsProject.gradle"
 
 configurations {
-    graphqlviewer
+    graphql-viewer
 }
 
 task buildGraphqlViewer {
@@ -40,7 +40,7 @@ task buildGraphqlViewer {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', 'npm', 'install'
             } else {
-                commandLine 'npm', 'install'
+                commandLine 'npm', 'install', '--legacy-peer-deps'
             }
         }
         exec {
