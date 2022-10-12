@@ -27,7 +27,7 @@ task npmInstall() {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', 'npm', 'install', '-f'
             } else {
-                commandLine 'npm', 'install'
+                commandLine 'npm', 'ci'
             }
         }
         

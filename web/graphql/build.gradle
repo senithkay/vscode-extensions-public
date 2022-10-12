@@ -38,9 +38,9 @@ task buildGraphqlViewer {
     doFirst {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'ci'
+                commandLine 'cmd', '/c', 'npm', 'install'
             } else {
-                commandLine 'npm', 'ci', ''
+                commandLine 'npm', 'install'
             }
         }
         exec {
