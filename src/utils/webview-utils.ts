@@ -207,13 +207,6 @@ export function getComposerPath(disableComDebug: boolean): string {
         : getComposerURI();
 }
 
-function getComposerCSSFiles(disableComDebug: boolean): string[] {
-    const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
-    return [
-        isCodeServer ? (`${RESOURCES_CDN}/jslibs/themes/ballerina-default.min.css`) : join(getComposerPath(disableComDebug), 'themes', 'ballerina-default.min.css')
-    ];
-}
-
 function getComposerJSFiles(componentName: string, disableComDebug: boolean): string[] {
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
@@ -224,7 +217,7 @@ function getComposerJSFiles(componentName: string, disableComDebug: boolean): st
 
 export function getComposerWebViewOptions(componentName: string, disableComDebug: boolean = false): Partial<WebViewOptions> {
     return {
-        cssFiles: getComposerCSSFiles(disableComDebug),
+        cssFiles: [],
         jsFiles: getComposerJSFiles(componentName, disableComDebug)
     };
 }
