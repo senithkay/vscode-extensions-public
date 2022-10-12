@@ -41,6 +41,9 @@ export class RequiredParamNode extends DataMapperNodeModel {
                 this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, '',
                                             parentPort, this.context.collapsedFields, parentPort.collapsed);
             });
+        } else {
+            this.numberOfFields += this.addPortsForInputRecordField(this.typeDef, "OUT", this.value.paramName.value,
+                        '', parentPort,this.context.collapsedFields, parentPort.collapsed);
         }
     }
 
