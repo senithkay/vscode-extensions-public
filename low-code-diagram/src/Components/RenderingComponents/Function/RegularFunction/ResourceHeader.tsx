@@ -18,7 +18,7 @@ import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/synta
 import classNames from "classnames";
 
 import { Context } from "../../../../Context/diagram";
-import { HeaderActions, HeaderActionsWithMenu } from "../../../../HeaderActions";
+import { HeaderActionsWithMenu } from "../../../../HeaderActions";
 import { HeaderWrapper } from "../../../../HeaderWrapper";
 import { getDiagnosticInfo } from "../../../../Utils";
 
