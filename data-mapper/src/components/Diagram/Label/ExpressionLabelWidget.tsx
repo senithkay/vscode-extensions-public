@@ -116,20 +116,30 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		}
 	}, [props.model]);
 
-	const onClickDelete = () => {
+	const onClickDelete = (evt?: React.MouseEvent<SVGSVGElement>) => {
+		if (evt) {
+			evt.preventDefault();
+			evt.stopPropagation();
+		}
 		setDeleteInProgress(true);
 		if (props.model.deleteLink) {
 			props.model.deleteLink();
 		}
 	};
 
-	const onClickEdit = () => {
+	const onClickEdit = (evt?: React.MouseEvent<SVGSVGElement>) => {
+		if (evt) {
+			evt.preventDefault();
+			evt.stopPropagation();
+		}
 		props.model.context.enableStatementEditor({
 			valuePosition: props.model.field.position,
 			value: props.model.field.source,
 			label: props.model.editorLabel
 		});
 	};
+
+
 
 	const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: Type) => {
 		if (link.value
