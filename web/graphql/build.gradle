@@ -22,7 +22,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply from: "$rootDir/gradle/jsProject.gradle"
 
 configurations {
-    graphqlviewer
+    graphql-viewer
 }
 
 task buildGraphqlViewer {
