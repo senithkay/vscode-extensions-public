@@ -35,7 +35,7 @@ describe("Add module-level statements via Low Code", () => {
             .typeInput('123');
 
         EditorPane
-            .validateNewExpression("StringLiteral", "123")
+            .validateNewExpression("NumericLiteral", "123")
 
         EditorPane
             .getExpression("CaptureBindingPattern")
