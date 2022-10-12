@@ -90,7 +90,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	if (!isArrayOrRecord(targetPort.field)
 		&& targetPort.editableRecordField?.value
-		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value)) {
+		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value)
+		&& !isEmptyValue(targetPort.editableRecordField.value.position)) {
 		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
 	}
 
@@ -811,4 +812,8 @@ function getSpecificField(mappingConstruct: MappingConstructor, targetFieldName:
 	return mappingConstruct.fields.find((val) =>
 		STKindChecker.isSpecificField(val) && val.fieldName.value === targetFieldName
 	) as SpecificField;
+}
+
+function isEmptyValue(position: NodePosition): boolean {
+	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
 }
