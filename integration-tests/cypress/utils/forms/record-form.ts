@@ -202,9 +202,9 @@ export class RecordForm {
     }
 
     static panelDone() {
+        cy.wait(1000);
         this.getForm()
-            .get('button')
-            .contains("Finish", { timeout: 10000 })
+            .get(`[data-testid="done-btn"]`)
             .click();
         return this;
     }
