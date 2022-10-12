@@ -17,37 +17,37 @@ import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-com
 @injectable()
 @singleton()
 export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParamNode, DiagramEngine> implements IDataMapperNodeFactory {
-	constructor() {
-		super(REQ_PARAM_NODE_TYPE);
-	}
+    constructor() {
+        super(REQ_PARAM_NODE_TYPE);
+    }
 
-	generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
-        if(event.model.typeDef.typeName === PrimitiveBalType.Record ){
+    generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
+        if (event.model.typeDef.typeName === PrimitiveBalType.Record) {
             return (
                 <RecordTypeTreeWidget
-					engine={this.engine}
-					id={event.model.value.paramName.value}
-					typeDesc={event.model.typeDef}
-					getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-					handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                    engine={this.engine}
+                    id={event.model.value.paramName.value}
+                    typeDesc={event.model.typeDef}
+                    getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                    handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
                 />
             );
         }
-        
+
         return (
             <PrimitiveTypeItemWidget
                 engine={this.engine}
-				id={event.model.value.paramName.value}
+                id={event.model.value.paramName.value}
                 typeDesc={event.model.typeDef}
                 getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
                 valueLabel={event.model.value.paramName.value}
             />
         )
-	}
+    }
 
-	generateModel(event: { initialConfig: any }): any {
-		return undefined;
-	}
+    generateModel(event: { initialConfig: any }): any {
+        return undefined;
+    }
 }
 
 container.register("NodeFactory", { useClass: RequiredParamNodeFactory });

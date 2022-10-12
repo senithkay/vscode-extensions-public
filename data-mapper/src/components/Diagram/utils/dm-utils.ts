@@ -48,7 +48,7 @@ export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 			fieldNames.push(nextExp.expression.name.value);
 		}
 		nextExp = (STKindChecker.isFieldAccess(nextExp.expression) || STKindChecker.isFieldAccess(nextExp.expression))
-					? nextExp.expression : undefined;
+			? nextExp.expression : undefined;
 	}
 	return fieldNames.reverse();
 }
@@ -351,7 +351,7 @@ export function findNodeByValueNode(value: RequiredParam | FromClause | LetClaus
 }
 
 export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
-	if (STKindChecker.isSimpleNameReference(expr)){
+	if (STKindChecker.isSimpleNameReference(expr)) {
 		const dmNodes = dmNode.getModel().getNodes();
 		const paramNode = (dmNodes.find((node) => {
 			if (node instanceof LetClauseNode) {
@@ -363,13 +363,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				return expr.name.value === node.value.paramName.value
 			}
 		}) as LetClauseNode | RequiredParamNode)?.value;
-		if(paramNode){
+		if (paramNode) {
 			return findNodeByValueNode(paramNode, dmNode);
-		}		
+		}
 	} else if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 		let valueExpr = expr.expression;
 		while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
-				|| STKindChecker.isOptionalFieldAccess(valueExpr))) {
+			|| STKindChecker.isOptionalFieldAccess(valueExpr))) {
 			valueExpr = valueExpr.expression;
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
@@ -506,14 +506,14 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 		}
 		return [port, mappedPort];
 	}
-	return [null,null]
+	return [null, null]
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
 	nextFieldPosition: NodePosition): [EditableRecordField, number] {
 	let memberIndex = -1;
 	const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
-		if (node.member.type.typeName === PrimitiveBalType.Record && node.member.value 
+		if (node.member.type.typeName === PrimitiveBalType.Record && node.member.value
 			&& STKindChecker.isMappingConstructor(node.member.value)) {
 			for (let i = 0; i < node.member.childrenTypes.length; i++) {
 				const field = node.member.childrenTypes[i];
