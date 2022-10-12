@@ -72,7 +72,7 @@ describe('Record', () => {
             getCurrentSpecFolder() + "record-form.expected.bal");
     });
 
-    it.skip('Edit Record', () => {
+    it('Edit Record', () => {
         cy.visit(getIntegrationTestPageURL(EXISTING_RECORD_FILE_PATH));
         Canvas
             .getRecord('Person')
@@ -104,7 +104,7 @@ describe('Record', () => {
             getCurrentSpecFolder() + "record-form-edited.expected.bal");
     });
 
-    it.skip('Delete Record', () => {
+    it('Delete Record', () => {
         Canvas
             .getRecord('Individual')
             .clickDelete();

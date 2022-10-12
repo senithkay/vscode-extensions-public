@@ -164,7 +164,7 @@ export class RecordForm {
     static save() {
         this.getForm()
             .get('button')
-            .contains("Save")
+            .contains("Finish")
             .click();
         return this;
 
