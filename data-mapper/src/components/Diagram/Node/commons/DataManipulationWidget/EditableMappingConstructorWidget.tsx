@@ -107,9 +107,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const { id, editableRecordFields, typeName, value, engine, getPort, context, valueLabel, deleteField } = props;
 	const classes = useStyles();
 
-	const hasValue = editableRecordFields.length > 0;
-
-
+	const hasValue = editableRecordFields && editableRecordFields.length > 0;
 
 	const portIn = getPort(`${id}.IN`);
 	const portOut = getPort(`${id}.OUT`);
@@ -166,7 +164,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 				</span>
 			</TreeHeader>
 			<TreeBody>
-				{expanded &&
+				{expanded && editableRecordFields &&
 					editableRecordFields.map((item) => {
 						return (
 							<EditableRecordFieldWidget

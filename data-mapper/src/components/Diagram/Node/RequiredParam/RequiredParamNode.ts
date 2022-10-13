@@ -1,6 +1,6 @@
+import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { RequiredParam } from "@wso2-enterprise/syntax-tree";
-import { Point } from "@projectstorm/geometry";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -33,17 +33,19 @@ export class RequiredParamNode extends DataMapperNodeModel {
             endColumn: this.value.typeName.position.startColumn
         });
 
-        const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", this.context.collapsedFields);
+        if (this.typeDef) {
+            const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", this.context.collapsedFields);
 
-        if (this.typeDef && this.typeDef.typeName === PrimitiveBalType.Record) {
-            const fields = this.typeDef.fields;
-            fields.forEach((subField) => {
-                this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, '',
-                                            parentPort, this.context.collapsedFields, parentPort.collapsed);
-            });
-        } else {
-            this.numberOfFields += this.addPortsForInputRecordField(this.typeDef, "OUT", this.value.paramName.value,
-                        '', parentPort,this.context.collapsedFields, parentPort.collapsed);
+            if (this.typeDef.typeName === PrimitiveBalType.Record) {
+                const fields = this.typeDef.fields;
+                fields.forEach((subField) => {
+                    this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, '',
+                        parentPort, this.context.collapsedFields, parentPort.collapsed);
+                });
+            } else {
+                this.numberOfFields += this.addPortsForInputRecordField(this.typeDef, "OUT", this.value.paramName.value,
+                    '', parentPort, this.context.collapsedFields, parentPort.collapsed);
+            }
         }
     }
 
