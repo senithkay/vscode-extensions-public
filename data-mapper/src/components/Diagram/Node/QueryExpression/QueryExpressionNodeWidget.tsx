@@ -56,7 +56,7 @@ const styles = (theme: Theme) => createStyles({
     },
     element: {
         backgroundColor: theme.palette.common.white,
-        padding: "10px",
+        padding: "5px",
         cursor: "pointer",
         transitionDuration: "0.2s",
         userSelect: "none",
@@ -96,9 +96,9 @@ const styles = (theme: Theme) => createStyles({
     },
     openQueryIcon: {
         color: theme.palette.grey[300],
-        padding: "10px",
-        height: "42px",
-        width: "42px"
+        padding: "5px",
+        height: "32px",
+        width: "32px"
     },
     editIcon: {
         color: theme.palette.grey[300],
