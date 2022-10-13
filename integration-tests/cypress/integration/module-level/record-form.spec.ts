@@ -72,7 +72,7 @@ describe('Record', () => {
             getCurrentSpecFolder() + "record-form.expected.bal");
     });
 
-    it('Edit Record', () => {
+    it.skip('Edit Record', () => {
         cy.visit(getIntegrationTestPageURL(EXISTING_RECORD_FILE_PATH));
         Canvas
             .getRecord('Person')
