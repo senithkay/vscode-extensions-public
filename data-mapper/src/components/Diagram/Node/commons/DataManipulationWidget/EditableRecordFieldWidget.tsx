@@ -152,6 +152,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             placement="right"
                             diagnostic={diagnostic}
                             value={value}
+                            onClick={handleEditValue}
                         >
                             <span className={classes.valueWithError} onClick={handleEditValue}>
                                 {value}
