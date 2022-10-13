@@ -83,6 +83,7 @@ const HeaderContainer = styled.div`
     padding: 15px;
     background-color: white;
     align-items: center;
+    border-bottom: 1px solid rgba(102,103,133,0.15);
 `;
 
 const HomeButton = styled(HomeIcon)`
