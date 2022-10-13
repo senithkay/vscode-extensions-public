@@ -72,7 +72,6 @@ const useStyles = makeStyles((theme: Theme) =>
             height: '100%',
             background: theme.palette.common.white,
             opacity: 0.5,
-            marginTop: 50
         },
         dmUnsupportedOverlay: {
             zIndex: 1,
@@ -81,7 +80,6 @@ const useStyles = makeStyles((theme: Theme) =>
             height: '100%',
             background: theme.palette.common.white,
             opacity: 0.5,
-            marginTop: 50
         },
         dmUnsupportedMessage: {
             zIndex: 1,

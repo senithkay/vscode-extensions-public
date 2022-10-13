@@ -66,6 +66,7 @@ const HeaderContainer = styled.div`
     display: flex;
     padding: 15px;
     background-color: white;
+    border-bottom: 1px solid rgba(102,103,133,0.15);
 `;
 
 const HomeButton = styled(HomeIcon)`
