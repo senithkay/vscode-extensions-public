@@ -678,8 +678,9 @@ export function isConnectedViaLink(field: STNode) {
 
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field);
 	const isListConstruct = STKindChecker.isListConstructor(field);
+	const isQueryExpression = STKindChecker.isQueryExpression(field)
 
-	return !!fieldAccessNodes.length && !isMappingConstruct && !isListConstruct;
+	return (!!fieldAccessNodes.length || isQueryExpression) && !isMappingConstruct && !isListConstruct;
 }
 
 export function getTypeName(field: Type): string {

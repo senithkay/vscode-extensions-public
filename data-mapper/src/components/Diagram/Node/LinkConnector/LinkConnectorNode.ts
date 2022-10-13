@@ -176,7 +176,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     public updatePosition() {
         const position = this.targetMappedPort.getPosition()
-        this.setPosition(this.hasError() ? 758 : 800, position.y - 7)
+        this.setPosition(this.hasError() ? 768 : 800, position.y - 2)
     }
 
     public hasError(): boolean {
