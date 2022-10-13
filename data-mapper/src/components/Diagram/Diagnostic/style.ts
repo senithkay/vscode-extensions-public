@@ -81,8 +81,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             letterSpacing: '0',
         },
         source: {
-            display: "inline-flex",
-            alignItems: "center"
+            display: "flex",
+            flexDirection: "column"
+        },
+        editText: {
+            color: "#5567D5",
+            textTransform: "none",
+            justifyContent: "left",
+            fontSize: "11px",
+        },
+        editButton: {
+            height: "11px",
+            width: "11px"
         }
     })
 );

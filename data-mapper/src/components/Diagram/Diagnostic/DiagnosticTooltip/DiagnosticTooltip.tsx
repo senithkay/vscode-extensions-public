@@ -13,12 +13,12 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useState } from "react";
 
-import { Divider, IconButton, withStyles } from "@material-ui/core";
+import { Button, Divider, withStyles } from "@material-ui/core";
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
+import { Build } from "@material-ui/icons";
 import * as MonacoEditor from 'monaco-editor';
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import EditIcon from "../../../../assets/icons/EditIcon";
 import ErrorIcon from "../../../../assets/icons/Error";
 import { tooltipBaseStyles, useStyles } from "../style";
 
@@ -57,12 +57,6 @@ export function DiagnosticTooltip(props: Partial<Props>) {
         <>
             <Divider className={classes.divider} light={true} />
             <div className={classes.source}>
-                <IconButton
-                    aria-label="edit"
-                    onClick={onCLickOnEdit}
-                >
-                    <EditIcon />
-                </IconButton>
                 <code
                     ref={codeRef}
                     data-lang="ballerina"
@@ -70,6 +64,18 @@ export function DiagnosticTooltip(props: Partial<Props>) {
                 >
                     {source.trim()}
                 </code>
+                <Button
+                    aria-label="edit"
+                    className={classes.editText}
+                    onClick={onCLickOnEdit}
+                    startIcon={(
+                        <Build
+                            className={classes.editButton}
+                        />
+                    )}
+                >
+                    Fix by editing expression
+                </Button>
             </div>
         </>
 
