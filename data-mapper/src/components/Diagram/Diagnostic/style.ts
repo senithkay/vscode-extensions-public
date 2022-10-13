@@ -79,6 +79,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontFamily: "Droid Sans Mono",
             fontSize: '12px',
             letterSpacing: '0',
+        },
+        source: {
+            display: "inline-flex",
+            alignItems: "center"
         }
     })
 );
