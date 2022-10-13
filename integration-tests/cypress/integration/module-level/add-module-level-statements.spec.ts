@@ -51,27 +51,6 @@ describe("Add module-level statements via Low Code", () => {
             .save();
     });
 
-    it("Add a record to empty file", () => {
-        Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-        TopLevelPlusWidget.clickOption("Record");
-
-        RecordForm.shouldBeVisible()
-            .typeRecordName("Animal")
-            .clickWhiteSpace()
-            .haveRecordName("Animal")
-            .editRecord()
-            .typeRecordName("Foo")
-            .clickWhiteSpace()
-            .haveRecordName("Foo")
-            .makePublicRecord()
-            .toggleClosedRecord()
-            .addNewField("int", "hello")
-            .clickWhiteSpace()
-            .addNewField("int", "world")
-            .deleteFirstField("hello")
-            .save()
-    });
-
     it("Add a configurable to empty file", () => {
         Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
         TopLevelPlusWidget.clickOption("Configurable");

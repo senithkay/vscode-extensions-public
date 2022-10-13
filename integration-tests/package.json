@@ -34,9 +34,13 @@
         "registry": "https://npm.pkg.github.com/"
     },
     "dependencies": {
+        "cypress-file-upload": "^5.0.8",
         "cypress-real-events": "^1.7.0"
     },
-    "nyc": { 
-        "reporter": ["cobertura", "html"]
+    "nyc": {
+        "reporter": [
+            "cobertura",
+            "html"
+        ]
     }
 }
