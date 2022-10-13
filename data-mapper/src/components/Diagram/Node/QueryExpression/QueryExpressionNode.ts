@@ -76,7 +76,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     endColumn: sourceFieldAccess.position.endColumn
                 });
 
-                if (type && type.typeName === PrimitiveBalType.Array) {
+                if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
                     this.sourceTypeDesc = type.memberType;
                 }
 
