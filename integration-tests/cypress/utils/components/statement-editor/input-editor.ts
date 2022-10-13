@@ -16,6 +16,7 @@ export class InputEditor {
     }
 
     static typeInput(text: string, parseSpecialCharSequences: boolean = true) {
+        cy.wait(1000);
         this.getInputEditor()
             .focus()
             .clear()
