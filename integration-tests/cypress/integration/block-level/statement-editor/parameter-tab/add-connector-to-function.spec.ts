@@ -58,11 +58,11 @@ describe('Add connector with custom configurations via Low Code', () => {
         EditorPane
             .validateNewExpression("IdentifierToken", "auth")
 
-        StatementEditor
-            .save();
-
         EditorPane
             .validateEmptyDiagnostics();
+
+        StatementEditor
+            .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-connector-to-function.expected.bal");
