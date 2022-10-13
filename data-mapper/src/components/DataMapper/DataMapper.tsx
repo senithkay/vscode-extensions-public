@@ -208,7 +208,10 @@ function DataMapperC(props: DataMapperProps) {
 
     const onConfigClose = () => {
         setConfigPanelOpen(false);
-        onClose();
+        if(showConfigPanel){
+            // Close data mapper when having incomplete fnST
+            onClose();
+        }
     }
 
     const onConfigSave = (fnName: string) => {
