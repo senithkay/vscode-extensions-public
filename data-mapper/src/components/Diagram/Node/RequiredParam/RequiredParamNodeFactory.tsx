@@ -22,7 +22,7 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
     }
 
     generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
-        if (event.model.typeDef.typeName === PrimitiveBalType.Record) {
+        if (event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record) {
             return (
                 <RecordTypeTreeWidget
                     engine={this.engine}

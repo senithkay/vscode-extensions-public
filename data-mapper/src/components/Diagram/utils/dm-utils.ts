@@ -600,7 +600,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 			});
 		}
 		editableRecordField.childrenTypes = children;
-	} else if (type.typeName === PrimitiveBalType.Array) {
+	} else if (type.typeName === PrimitiveBalType.Array && type?.memberType) {
 		if (nextNode) {
 			if (type.memberType.typeName === PrimitiveBalType.Record) {
 				if (STKindChecker.isListConstructor(nextNode)) {

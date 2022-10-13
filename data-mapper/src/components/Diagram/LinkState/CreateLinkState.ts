@@ -30,7 +30,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								link.setSourcePort(this.sourcePort);
 								link.getFirstPoint().setPosition(0, 0);
 								link.getLastPoint().setPosition(0, 0);
-								this.link = this.engine.getModel().addLink(link);
+								this.link = link;
 
 							} else {
 								// TODO: show a message: select input port first
