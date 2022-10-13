@@ -16,6 +16,7 @@ import * as React from 'react';
 import { DagreEngine, DefaultDiagramState, DefaultLabelFactory, DefaultLinkFactory, DefaultNodeFactory, DefaultPortFactory, DiagramEngine, DiagramModel, NodeLayerFactory, PathFindingLinkFactory } from '@projectstorm/react-diagrams';
 import "reflect-metadata";
 import {container} from "tsyringe";
+import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 
 import { useDMStore } from '../../store/store';
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
@@ -64,7 +65,7 @@ function initDiagramEngine() {
 	// register model factories
 	engine.getLayerFactories().registerFactory(new NodeLayerFactory());
 	engine.getLayerFactories().registerFactory(new OverriddenLinkLayerFactory());
-	// engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
+	engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
 
 	engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
 	engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
