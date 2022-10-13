@@ -227,7 +227,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     return (
-        <div className={classNames(classes.treeLabel, classes.treeLabelArray,
+        <div className={classnames(classes.treeLabel, classes.treeLabelArray,
                         (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
             <div className={classes.ArrayFieldRow}>
                 <span className={classes.treeLabelInPort}>

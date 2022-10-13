@@ -14,23 +14,27 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
+import TooltipBase from "@material-ui/core/Tooltip";
 import HomeIcon from '@material-ui/icons/Home';
-import { EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import EditIcon from "../../../assets/icons/EditIcon";
 import { SelectionState, ViewOption } from "../DataMapper";
 
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        editButton: {
-            cursor: "pointer",
-            position: "absolute",
-            right: "10px"
-        }
-    })
-);
+export const tooltipStyles = {
+    tooltip: {
+        color: "#8d91a3",
+        backgroundColor: "#fdfdfd",
+        border: "1px solid #e6e7ec",
+        borderRadius: 6,
+        padding: "1rem"
+    },
+    arrow: {
+        color: "#fdfdfd"
+    }
+};
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
@@ -42,7 +46,8 @@ export interface DataMapperHeaderProps {
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
     const { selection, dmSupported, changeSelection, onClose, onConfigOpen } = props;
-    const classes = useStyles();
+    const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
+
     return (
         <HeaderContainer>
             <HomeButton onClick={onClose} />
@@ -54,7 +59,18 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 />
             </BreadCrumb>
             {dmSupported && (
-                <EditButton className={classes.editButton} onClick={onConfigOpen} />
+                <TooltipComponent
+                    interactive={false}
+                    arrow={true}
+                    title={"Edit data mapper name, inputs and the output"}
+                >
+                    <ConfigurationButton
+                        onClick={onConfigOpen}
+                    >
+                        <EditIcon/>
+                        <ConfBtnText>Configure</ConfBtnText>
+                    </ConfigurationButton>
+                </TooltipComponent>
             )}
         </HeaderContainer>
     );
@@ -66,6 +82,7 @@ const HeaderContainer = styled.div`
     display: flex;
     padding: 15px;
     background-color: white;
+    align-items: center;
 `;
 
 const HomeButton = styled(HomeIcon)`
@@ -76,6 +93,31 @@ const HomeButton = styled(HomeIcon)`
 const Title = styled.div`
     font-weight: 600;
     margin-right: 10px;
+`;
+
+const ConfigurationButton = styled.div`
+    :hover {
+        background: #e5e6ea;
+        cursor: pointer;
+    },
+    box-sizing: border-box;
+    padding: 4px 16px 4px 10px;
+    background: #F7F8FB;
+    border: 1px solid #E0E2E9;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    display: inline-flex;
+    color: #40404B;
+    align-items: center;
+    position: absolute;
+    right: 15px;
+`;
+
+const ConfBtnText = styled.div`
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 24px;
+    margin-left: 5px;
 `;
 
 const BreadCrumb = styled.div`
