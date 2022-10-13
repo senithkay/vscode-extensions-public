@@ -83,6 +83,8 @@ const inputEditorTemplateStyles = {
     }
 }
 
+const HEADER_FOOTER_HEIGHT = '115px';
+
 export const useStatementEditorToolbarStyles = makeStyles(() =>
     createStyles({
         toolbar: {
@@ -829,7 +831,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             ...stmtEditorPadding
         },
         statementExpressionWrapper: {
-            height: 'calc(100vh - 110px)',
+            height: 'calc(100vh - ' + HEADER_FOOTER_HEIGHT + ')',
             '&.overlay': {
                 display: 'block',
                 position: 'relative',
@@ -901,7 +903,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             height: 'auto',
             display: 'flex',
             width: '100%',
-            padding: '10px 25px 0 25px',
+            padding: '10px 25px',
             borderTop: '1px solid #e6e7ec'
         },
         buttonWrapper: {
