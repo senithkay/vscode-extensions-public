@@ -1,10 +1,8 @@
 import ballerina/http;
 
-service /wso2 on new http:Listener(8080) {
-    resource function get .() returns error? {
-    }
+service /hello on new http:Listener(8080) {
 
-    resource function get path1/path2(string query, @http:Payload string reqPayload, http:Request request, http:Caller caller) returns error? {
+    resource function post test/[string user](string test, @http:Payload string param, http:Headers contentType) returns error|int? {
 
     }
 }
