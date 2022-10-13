@@ -1,4 +1,3 @@
-import { ExpressionEditor } from "../components/expression-editor"
 
 export class RecordForm {
 
@@ -84,6 +83,39 @@ export class RecordForm {
         return this;
     }
 
+    static importFromJsonFile() {
+        this.getForm().within(() => {
+            cy.get("#file-upload").parent().click();
+        });
+
+        const jsonFile = 'record.json';
+        cy.get('input[type="file"]').attachFile(jsonFile).wait(2000);
+
+        return this;
+    }
+
+    static checkSeperateRecords() {
+        this.getForm().within(() => {
+            cy.contains("Make Separate Record Definitions").parent()
+            .click();
+        });
+        return this;
+    }
+
+    static importFromJsonSave() {
+        const inputContainer = cy.get('#json-input-container');
+        inputContainer.get('[data-testid="save-btn"]')
+            .last()
+            .click();
+        return this;
+    }
+
+    static seperateRecordsVisible() {
+        this.getForm().get('[data-testid="Address-item"]').should("be.visible");
+        this.getForm().get('[data-testid="Person-item"]').should("be.visible");
+        return this;
+    }
+
     static editField(name: string, newName?: string, newType?: string, optionalValue?: string) {
         this.getForm().within(() => {
             cy.get(`[data-field-name="${name}"]`)
@@ -164,10 +196,17 @@ export class RecordForm {
     static save() {
         this.getForm()
             .get('button')
-            .contains("Finish")
+            .contains("Save")
             .click();
         return this;
+    }
 
+    static panelDone() {
+        cy.wait(1000);
+        this.getForm()
+            .get(`[data-testid="done-btn"]`)
+            .click();
+        return this;
     }
 
     static cancel() {

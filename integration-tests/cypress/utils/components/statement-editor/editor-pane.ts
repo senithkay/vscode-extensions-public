@@ -44,7 +44,7 @@ export class EditorPane {
     static doubleClickExpressionContent(text:string){
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
-                .dblclick();
+                .dblclick()
         })
         return this;
     }

@@ -72,7 +72,7 @@ describe('Record', () => {
             getCurrentSpecFolder() + "record-form.expected.bal");
     });
 
-    it('Edit Record', () => {
+    it.skip('Edit Record', () => {
         cy.visit(getIntegrationTestPageURL(EXISTING_RECORD_FILE_PATH));
         Canvas
             .getRecord('Person')
@@ -84,7 +84,7 @@ describe('Record', () => {
         EditorPane
             .getStatementRenderer()
             .getExpression("IdentifierToken")
-            .doubleClickExpressionContent(`Person`);
+            .doubleClickExpressionContent("Person");
         InputEditor.typeInput("Individual");
 
         EditorPane.clickPlusRecordFieldPlus("name");
@@ -105,8 +105,9 @@ describe('Record', () => {
     });
 
     it('Delete Record', () => {
+        cy.visit(getIntegrationTestPageURL(EXISTING_RECORD_FILE_PATH));
         Canvas
-            .getRecord('Individual')
+            .getRecord('Person')
             .clickDelete();
 
         SourceCode.shouldBeEqualTo(
@@ -150,12 +151,64 @@ describe('Record', () => {
                         "id": 10
                     }
                 }
-            `)
-            .save();
+            `);
+
         RecordForm
             .shouldBeVisible()
-            .save();
+            .panelDone();
 
         SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "record-form.expected.bal");
+    });
+
+    it('Add from JSON File Upload', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget.clickOption('Record');
+
+        RecordForm
+            .shouldBeVisible()
+            .clickImportAJSON();
+
+        RecordForm
+            .shouldBeVisible()
+            .typeRecordName('Person')
+            .importFromJsonFile()
+            .importFromJsonSave();
+
+        RecordForm
+            .shouldBeVisible()
+            .panelDone();
+
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "record-form.expected.bal");
+    });
+
+    it('Add from JSON File Upload Panel Test', () => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+        Canvas
+            .welcomeMessageShouldBeVisible()
+            .clickTopLevelPlusButton();
+
+        TopLevelPlusWidget.clickOption('Record');
+
+        RecordForm
+            .shouldBeVisible()
+            .clickImportAJSON();
+
+        RecordForm
+            .shouldBeVisible()
+            .typeRecordName('Person')
+            .importFromJsonFile()
+            .checkSeperateRecords()
+            .importFromJsonSave();
+
+        RecordForm
+            .shouldBeVisible()
+            .seperateRecordsVisible()
+            .panelDone();
+
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "record-form-seperate.expected.bal");
     });
 });
