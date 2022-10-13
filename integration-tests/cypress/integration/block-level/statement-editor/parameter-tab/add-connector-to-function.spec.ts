@@ -61,6 +61,9 @@ describe('Add connector with custom configurations via Low Code', () => {
         StatementEditor
             .save();
 
+        EditorPane
+            .validateEmptyDiagnostics();
+
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-connector-to-function.expected.bal");
     });
