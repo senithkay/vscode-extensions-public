@@ -450,7 +450,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '14px'
         },
         selectionSubHeader: {
-            height: '24px',
+            height: 'fit-content',
             width: 'fit-content',
             color: '#40404B',
             padding: '0 10px',
