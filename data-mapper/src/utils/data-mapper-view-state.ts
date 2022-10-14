@@ -10,24 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
 
-import { NilLiteral } from "@wso2-enterprise/syntax-tree";
-
-import { InputEditor } from "../../InputEditor";
-
-interface NilLiteralProps {
-    model: NilLiteral;
-}
-
-export function NilLiteralComponent(props: NilLiteralProps) {
-    const { model } = props;
-
-    const inputEditorProps = {
-        model
-    };
-
-    return (
-        <InputEditor {...inputEditorProps} />
-    );
+export class DataMapperViewState {
+    public elementIndex: number;
 }

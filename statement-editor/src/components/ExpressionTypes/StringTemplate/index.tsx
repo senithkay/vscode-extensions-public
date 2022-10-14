@@ -14,8 +14,7 @@ import React from "react";
 
 import { StringTemplateExpression} from "@wso2-enterprise/syntax-tree";
 
-import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { TokenComponent } from "../../Token";
+import { InputEditor } from "../../InputEditor";
 
 interface StringTemplateExpressionProps {
     model: StringTemplateExpression;
@@ -24,12 +23,11 @@ interface StringTemplateExpressionProps {
 export function StringTemplateExpressionComponent(props: StringTemplateExpressionProps) {
     const { model } = props;
 
+    const inputEditorProps = {
+        model
+    };
+
     return (
-        <>
-            <TokenComponent model={model.type} className={"keyword"} />
-            <TokenComponent model={model.startBacktick} />
-            <ExpressionArrayComponent expressions={model.content} />
-            <TokenComponent model={model.endBacktick} />
-        </>
+        <InputEditor {...inputEditorProps} />
     );
 }

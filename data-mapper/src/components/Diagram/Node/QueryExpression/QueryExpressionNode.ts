@@ -35,6 +35,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     public sourceBindingPattern: CaptureBindingPattern;
     public targetFieldFQN: string;
+    public hidden: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -75,7 +76,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     endColumn: sourceFieldAccess.position.endColumn
                 });
 
-                if (type && type.typeName === PrimitiveBalType.Array) {
+                if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
                     this.sourceTypeDesc = type.memberType;
                 }
 
@@ -118,6 +119,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         this.targetPort = port;
                     }
                 });
+                if (this.targetPort?.hidden){
+                    this.hidden = true;
+                }
                 while (this.targetPort && this.targetPort.hidden){
                     this.targetPort = this.targetPort.parentModel;
                 }
@@ -126,51 +130,72 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
-        // Currently, we create links from "IN" ports and back tracing the inputs.
-        if (this.sourcePort && this.inPort) {
-            const link = new DataMapperLinkModel(undefined, undefined, true);
-            link.setSourcePort(this.sourcePort);
-            link.setTargetPort(this.inPort);
-            link.registerListener({
-                selectionChanged(event) {
-                    if (event.isSelected) {
-                        this.sourcePort.fireEvent({}, "link-selected");
-                        this.inPort.fireEvent({}, "link-selected");
-                    } else {
+        if (!this.hidden) {
+            // Currently, we create links from "IN" ports and back tracing the inputs.
+            if (this.sourcePort && this.inPort) {
+                const link = new DataMapperLinkModel(undefined, undefined, true);
+                link.setSourcePort(this.sourcePort);
+                link.setTargetPort(this.inPort);
+                link.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            this.sourcePort.fireEvent({}, "link-selected");
+                            this.inPort.fireEvent({}, "link-selected");
+                        } else {
 
-                        this.sourcePort.fireEvent({}, "link-unselected");
-                        this.inPort.fireEvent({}, "link-unselected");
-                    }
-                },
-            })
-            this.getModel().addAll(link);
-        }
+                            this.sourcePort.fireEvent({}, "link-unselected");
+                            this.inPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(link);
+            }
 
-        // TODO - temp hack to render link
-        if (this.outPort && this.targetPort) {
-            const link = new DataMapperLinkModel(undefined, undefined, true);
-            link.setSourcePort(this.outPort);
-            link.setTargetPort(this.targetPort);
-            link.registerListener({
-                selectionChanged(event) {
-                    if (event.isSelected) {
-                        this.targetPort[1].fireEvent({}, "link-selected");
-                        this.outPort.fireEvent({}, "link-selected");
-                    } else {
-                        this.targetPort[1].fireEvent({}, "link-unselected");
-                        this.outPort.fireEvent({}, "link-unselected");
-                    }
-                },
-            })
-            this.getModel().addAll(link);
-            this.targetFieldFQN = this.targetPort.fieldFQN;
+            // TODO - temp hack to render link
+            if (this.outPort && this.targetPort) {
+                const link = new DataMapperLinkModel(undefined, undefined, true);
+                link.setSourcePort(this.outPort);
+                link.setTargetPort(this.targetPort);
+                link.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            this.targetPort[1].fireEvent({}, "link-selected");
+                            this.outPort.fireEvent({}, "link-selected");
+                        } else {
+                            this.targetPort[1].fireEvent({}, "link-unselected");
+                            this.outPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(link);
+                this.targetFieldFQN = this.targetPort.fieldFQN;
+            }
+        } else {
+            if (this.sourcePort && this.targetPort) {
+                const link = new DataMapperLinkModel(undefined, undefined, true);
+                link.setSourcePort(this.sourcePort);
+                link.setTargetPort(this.targetPort);
+                link.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            this.sourcePort.fireEvent({}, "link-selected");
+                            this.targetPort[1].fireEvent({}, "link-selected");
+                        } else {
+
+                            this.sourcePort.fireEvent({}, "link-unselected");
+                            this.targetPort[1].fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(link);
+            }
         }
     }
 
     public updatePosition() {
         if (this.targetPort){
             const position = this.targetPort.getPosition()
-            this.setPosition(800, position.y - 7)
+            this.setPosition(800, position.y - 2)
         }
     }
 

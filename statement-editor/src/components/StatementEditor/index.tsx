@@ -72,6 +72,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     extraModules?: Set<string>;
     onWizardClose: () => void;
     onCancel: () => void;
+    isHeaderHidden?: boolean;
 }
 
 export function StatementEditor(props: StatementEditorProps) {
@@ -95,7 +96,8 @@ export function StatementEditor(props: StatementEditorProps) {
         isExpressionMode,
         ballerinaVersion,
         openExternalUrl,
-        isCodeServerInstance
+        isCodeServerInstance,
+        isHeaderHidden
     } = props;
 
     const {
@@ -305,7 +307,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-        if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+        if (!partialST.syntaxDiagnostics.length || (!isExpressionMode && config.type === CUSTOM_CONFIG_TYPE)) {
             const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList, isExpressionMode);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(partialST.source);
@@ -564,6 +566,7 @@ export function StatementEditor(props: StatementEditorProps) {
                         isStatementValid={!stmtDiagnostics.length}
                         isConfigurableStmt={isConfigurableStmt}
                         isPullingModule={isPullingModule}
+                        isHeaderHidden={isHeaderHidden}
                     />
                 </StatementEditorContextProvider>
             </>
