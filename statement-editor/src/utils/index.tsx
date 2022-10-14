@@ -765,12 +765,12 @@ export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterI
     if (param.kind === SymbolParameterType.DEFAULTABLE) {
         containsMultipleDefaultableParams(parameters) ? (
             modelParams.push((keywords.includes(param.name) ?
-                `'${param.name} = ${EXPR_CONSTRUCTOR}` :
-                `${param.name} = ${EXPR_CONSTRUCTOR}`))
+                `'${param.name} = ${PARAMETER_PLACEHOLDER}` :
+                `${param.name} = ${PARAMETER_PLACEHOLDER}`))
         ) :
-            modelParams.push(`${EXPR_CONSTRUCTOR}`);
+            modelParams.push(`${PARAMETER_PLACEHOLDER}`);
     } else if (param.kind === SymbolParameterType.REST) {
-        modelParams.push(EXPR_CONSTRUCTOR);
+        modelParams.push(PARAMETER_PLACEHOLDER);
     } else {
         modelParams.push(param.name);
     }
@@ -817,7 +817,7 @@ export function getUpdatedContentOnUncheck(currentModel: STNode, paramPosition: 
 
 export function getUpdatedContentForNewNamedArg(currentModel: STNode, userInput: string): string {
     const modelParams: string[] = getModelParamSourceList(currentModel);
-    modelParams.push(`${userInput} = ${EXPR_CONSTRUCTOR}`);
+    modelParams.push(`${userInput} = ${PARAMETER_PLACEHOLDER}`);
     const content: string = "(" + modelParams.join(",") + ")";
     return content
 }

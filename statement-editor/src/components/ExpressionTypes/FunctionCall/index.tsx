@@ -48,7 +48,7 @@ export function FunctionCallComponent(props: FunctionCallProps) {
 
     const addNewExpression = () => {
         const isEmpty = model.arguments.length === 0;
-        const expr = isEmpty ? EXPR_CONSTRUCTOR : `, ${EXPR_CONSTRUCTOR}`;
+        const expr = isEmpty ? PARAMETER_PLACEHOLDER : `, ${PARAMETER_PLACEHOLDER}`;
         const newPosition = isEmpty ? {
             ...model.closeParenToken.position,
             endColumn: model.closeParenToken.position.startColumn
