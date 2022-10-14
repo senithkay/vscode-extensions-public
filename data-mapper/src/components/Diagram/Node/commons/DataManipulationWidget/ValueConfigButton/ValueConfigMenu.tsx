@@ -52,10 +52,11 @@ export enum ValueConfigOption {
 
 export interface ValueConfigMenuProps {
     menuItems: ValueConfigMenuItem[]
+    isDisabled?: boolean;
 }
 
 export function ValueConfigMenu(props: ValueConfigMenuProps) {
-    const { menuItems } = props;
+    const { menuItems, isDisabled } = props;
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
     const open = Boolean(anchorEl);
@@ -74,6 +75,7 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                 aria-label="valueConfig"
                 className={classes.tripleDotsIcon}
                 onClick={(e) => handleClick(e)}
+                disabled={isDisabled}
             >
                 <TripleDotsIcon />
             </IconButton>

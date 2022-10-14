@@ -600,7 +600,7 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 			});
 		}
 		editableRecordField.childrenTypes = children;
-	} else if (type.typeName === PrimitiveBalType.Array) {
+	} else if (type.typeName === PrimitiveBalType.Array && type?.memberType) {
 		if (nextNode) {
 			if (type.memberType.typeName === PrimitiveBalType.Record) {
 				if (STKindChecker.isListConstructor(nextNode)) {
@@ -678,8 +678,9 @@ export function isConnectedViaLink(field: STNode) {
 
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field);
 	const isListConstruct = STKindChecker.isListConstructor(field);
+	const isQueryExpression = STKindChecker.isQueryExpression(field)
 
-	return !!fieldAccessNodes.length && !isMappingConstruct && !isListConstruct;
+	return (!!fieldAccessNodes.length || isQueryExpression) && !isMappingConstruct && !isListConstruct;
 }
 
 export function getTypeName(field: Type): string {

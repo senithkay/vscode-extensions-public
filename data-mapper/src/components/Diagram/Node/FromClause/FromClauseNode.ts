@@ -81,7 +81,7 @@ export class FromClauseNode extends DataMapperNodeModel {
                 endLine: expr.position.endLine,
                 endColumn: expr.position.endColumn
             });
-            if (type && type.typeName === PrimitiveBalType.Array) {
+            if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
                 this.typeDef = type.memberType;
             }
         }
