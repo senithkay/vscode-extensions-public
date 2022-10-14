@@ -19,7 +19,13 @@ import {
     ListenerConfigFormState,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+    ListenerDeclaration,
+    NodePosition,
+    ServiceDeclaration,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 
 export function recalculateItemIds(items: any[]) {
     items.forEach((item, index) => {
@@ -103,6 +109,26 @@ export function getListenerConfig(model: ServiceDeclaration, isEdit: boolean): L
             };
         } else {
             return { listenerName: "", listenerPort: "", fromVar: true };
+        }
+    }
+}
+
+export function getUpdatedServiceInsertPosition(listeners: Map<string, STNode>, selectedListener: string,
+                                                createdListenerCount: number, targetPosition: NodePosition): NodePosition {
+    if (createdListenerCount > 0) {
+        const selectedListenerPosition = listeners.get(selectedListener)?.position;
+        return {
+            startColumn: 0,
+            endColumn: 0,
+            endLine: selectedListenerPosition.endLine + 1,
+            startLine: selectedListenerPosition.endLine + 1
+        }
+    } else {
+        return {
+            startColumn: 0,
+            endColumn: 0,
+            endLine: targetPosition.endLine,
+            startLine: targetPosition.startLine
         }
     }
 }
