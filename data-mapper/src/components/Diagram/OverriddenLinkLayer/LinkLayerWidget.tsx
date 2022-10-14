@@ -19,8 +19,16 @@ export class OveriddenLinkLayerWidget extends React.Component<LinkLayerWidgetPro
 						return <OveriddenLinkWidget key={link.getID()} link={link} diagramEngine={this.props.engine} />;
 					})
 				}
-				<g id={LinkOverayContainerID} ></g>
+				<LinkOverlayContainer id={LinkOverayContainerID} />
 			</>
 		);
 	}
 }
+
+
+const LinkOverlayContainer = styled.g`
+	pointer-events: none;
+	&:focus {
+		outline: none;
+	}
+`;

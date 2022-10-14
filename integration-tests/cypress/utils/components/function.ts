@@ -5,6 +5,13 @@ export class Function {
     public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) {
     }
 
+    public showMenu() {
+        this.container.within(() => {
+            cy.get(".function-signature .header-amendment-options [id=menu-button]")
+                .click();
+        });
+    }
+
     public nameShouldBe(fnName: string) {
         this.container.within(() => {
             cy.get('.param-wrapper .param-container .path-text')
@@ -28,6 +35,7 @@ export class Function {
     }
 
     public edit() {
+        this.showMenu();
         this.container.within(() => {
             cy.get('#edit-button')
             .click({ force: true });
@@ -36,6 +44,7 @@ export class Function {
     }
 
     public delete() {
+        this.showMenu();
         this.container.within(() => {
             cy.get('#delete-button')
             .click({ force: true });

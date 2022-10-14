@@ -13,6 +13,7 @@
 
 import React from "react";
 
+import { FileUploadIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LinePrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import "../../style.scss";
@@ -55,11 +56,7 @@ export function FileSelector(props: FileSelectorProps) {
                 onChange={showFile}
                 ref={hiddenFileInput}
             />
-            <LinePrimaryButton
-                text={label}
-                fullWidth={false}
-                onClick={handleClick}
-            />
+            <FileUploadIcon onClick={handleClick}/>
         </div>
     )
 

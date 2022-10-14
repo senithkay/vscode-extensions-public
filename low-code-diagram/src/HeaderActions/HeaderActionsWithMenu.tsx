@@ -41,6 +41,7 @@ export interface HeaderActionsProps {
     onClickRun?: () => void;
     unsupportedType?: boolean;
     isResource?: boolean;
+    isFunction?: boolean;
 }
 
 export function HeaderActionsWithMenu(props: HeaderActionsProps) {
@@ -54,6 +55,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         onClickRun,
         unsupportedType,
         isResource,
+        isFunction
     } = props;
 
     const diagramContext = useContext(Context);
@@ -151,26 +153,34 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
     const optionMenu = (
         <div ref={catMenu} className={"rectangle-menu"}>
             <>
-                <div
-                    onClick={handleOnClickRun}
-                    className={classNames("menu-option", "line-vertical", "left")}
-                    id="run-button"
-                >
-                    <div className="icon">
-                        <LabelRunIcon />
-                    </div>
-                    <div className="other">Run</div>
-                </div>
-                <div
-                    onClick={handleOnClickTryIt}
-                    className={classNames("menu-option", "line-vertical", "middle")}
-                    id="try-button"
-                >
-                    <div className="icon">
-                        <LabelTryIcon />
-                    </div>
-                    <div className="other">Try It</div>
-                </div>
+                {onClickRun &&
+                    (
+                        <div
+                            onClick={handleOnClickRun}
+                            className={classNames("menu-option", "line-vertical", "left")}
+                            id="run-button"
+                        >
+                            <div className="icon">
+                                <LabelRunIcon />
+                            </div>
+                            <div className="other">Run</div>
+                        </div>
+                    )
+                }
+                {!isFunction &&
+                    (
+                        <div
+                            onClick={handleOnClickTryIt}
+                            className={classNames("menu-option", "line-vertical", "middle")}
+                            id="try-button"
+                        >
+                            <div className="icon">
+                                <LabelTryIcon />
+                            </div>
+                            <div className="other">Try It</div>
+                        </div>
+                    )
+                }
                 <div
                     onClick={handleEditBtnClick}
                     className={classNames("menu-option", "line-vertical", "middle")}

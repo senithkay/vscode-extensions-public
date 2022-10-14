@@ -17,9 +17,9 @@ import { useIntl } from "react-intl";
 import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ModulePart, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
-import { PrimaryButtonSquare} from "../../../../../../components/Buttons/PrimaryButtonSquare";
+import { PrimaryButtonSquare } from "../../../../../../components/Buttons/PrimaryButtonSquare";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { removeStatement}  from "../../../../../utils";
+import { removeStatement } from "../../../../../utils";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { wizardStyles } from "../../style";
 import { RecordEditor } from "../index";
@@ -40,12 +40,17 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
 
-    const { props : { syntaxTree } , api : { code: { modifyDiagram } } } = useContext(Context);
+    const { props: { syntaxTree }, api: { code: { modifyDiagram } } } = useContext(Context);
 
     const intl = useIntl();
     const doneButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.overview.doneBtnText",
-        defaultMessage: "Done"
+        defaultMessage: "Finish"
+    });
+
+    const successMsgText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.overview.doneBtnText",
+        defaultMessage: "Succcesfully imported the JSON Please use following section to further edit"
     });
 
     const [selectedRecord, setSelectedRecord] = useState<string>();
@@ -88,6 +93,10 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
 
     const actualSelectedRecordSt = selectedRecord ? getActualRecordST(syntaxTree, selectedRecord) : undefined;
 
+    const onCancelEdit = () => {
+        setSelectedRecord("");
+    }
+
     return (
         <>
             {!selectedRecord ? (
@@ -99,9 +108,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                     />
                     {records?.length > 0 && (
                         <div className={recordClasses.inputLabelWrapper}>
-                            <p className={recordClasses.inputLabel}>Successfully created following records. Click</p>
-                            <p onClick={onDeleteAllClick} className={recordClasses.inputLink}>Here</p>
-                            <p className={recordClasses.inputLabel}>to Undo</p>
+                            <p className={recordClasses.inputLabel}>{successMsgText}</p>
                         </div>
                     )}
                     <div className={overlayClasses.recordFormWrapper}>
@@ -124,7 +131,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                     model={actualSelectedRecordSt}
                     isTypeDefinition={true}
                     formType={""}
-                    onCancel={onCancel}
+                    onCancel={onCancelEdit}
                 />
             )}
         </>

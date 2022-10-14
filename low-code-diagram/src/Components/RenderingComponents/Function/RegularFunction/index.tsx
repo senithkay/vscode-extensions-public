@@ -182,11 +182,11 @@ export function RegularFuncComponent(props: FunctionProps) {
                 />
             ) : (
                 <div >
-                    {!isReadOnly && renderButtons()}
                     <FunctionHeader
                         isExpanded={diagramExpanded}
                         model={model}
                         onExpandClick={onExpandClick}
+                        onClickRun={model.isRunnable && onClickRun}
                     />
                 </div>
             ))}
