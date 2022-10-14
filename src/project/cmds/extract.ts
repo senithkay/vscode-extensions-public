@@ -16,65 +16,65 @@
  * under the License.
  *
  */
- import { commands, Uri, workspace, WorkspaceEdit, QuickPickItem, window } from "vscode";
+import { commands, Uri, workspace, WorkspaceEdit, QuickPickItem, window } from "vscode";
 
- function activateExtractCommand() {
-     // register ballerina extract command
-     commands.registerCommand("ballerina.action.extract", async (command:string, url:string, textEditMap:any) => {
-         try {
-                const expression = await getExpression(command, textEditMap);
-                if (!expression) {
-                        return;
-                }
+function activateExtractCommand() {
+    // register ballerina extract command
+    commands.registerCommand("ballerina.action.extract", async (command: string, url: string, textEditMap: any) => {
+        try {
+            const expression = await getExpression(command, textEditMap);
+            if (!expression) {
+                return;
+            }
 
-                const edit = new WorkspaceEdit();
-                const selectedItem = expression.textEditList;
+            const edit = new WorkspaceEdit();
+            const selectedItem = expression.textEditList;
 
-                for (let textEdit in selectedItem) {
-                        edit.replace(Uri.file(url), selectedItem[textEdit].range, selectedItem[textEdit].newText);
-                }
-                await workspace.applyEdit(edit);
-         } catch (error) {
-             // do nothing.
-         }
-     })
- }
- 
- export { activateExtractCommand };
+            for (let textEdit in selectedItem) {
+                edit.replace(Uri.file(url), selectedItem[textEdit].range, selectedItem[textEdit].newText);
+            }
+            await workspace.applyEdit(edit);
+        } catch (error) {
+            // do nothing.
+        }
+    })
+}
+
+export { activateExtractCommand };
 
 
 async function getExpression(commandMessage: string, textEditMap: any): Promise<OptionItem | undefined> {
-        const options: OptionItem[] = [];
-        for (let value in textEditMap) {
-            const extractItem: OptionItem = {
-                label: value,
-                textEditList : textEditMap[value]
-            };
-            options.push(extractItem);
-          }
-
-        let resultItem: OptionItem | undefined;
-
-        if (options.length === 1) {
-            resultItem = options[0];
-        } else if (options.length > 1) {
-            resultItem = await window.showQuickPick<OptionItem>(options, {
-                placeHolder: `Select an expression you want to ${commandMessage}`,
-            });
-        }
-
-        if (!resultItem) {
-            return undefined;
-        }
-
-        const resultExpression: OptionItem = {
-            label: resultItem.label,
-            textEditList: resultItem.textEditList
+    const options: OptionItem[] = [];
+    for (let value in textEditMap) {
+        const extractItem: OptionItem = {
+            label: value,
+            textEditList: textEditMap[value]
         };
-        return resultExpression;
+        options.push(extractItem);
+    }
+
+    let resultItem: OptionItem | undefined;
+
+    if (options.length === 1) {
+        resultItem = options[0];
+    } else if (options.length > 1) {
+        resultItem = await window.showQuickPick<OptionItem>(options, {
+            placeHolder: `Select an expression you want to ${commandMessage}`,
+        });
+    }
+
+    if (!resultItem) {
+        return undefined;
+    }
+
+    const resultExpression: OptionItem = {
+        label: resultItem.label,
+        textEditList: resultItem.textEditList
+    };
+    return resultExpression;
 }
-    
+
 interface OptionItem extends QuickPickItem {
-        label: string;
-        textEditList: object;
+    label: string;
+    textEditList: object;
 }
