@@ -58,6 +58,6 @@ export function activate() {
     // activate the rename command
     activateRenameCommand();
 
-    // activate the extract to constant command
+    // activate the extract command
     activateExtractCommand();
 }
