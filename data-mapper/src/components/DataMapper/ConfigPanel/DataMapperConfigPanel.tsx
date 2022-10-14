@@ -8,7 +8,10 @@ import {
     STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
+
 import {
+    ButtonWithIcon,
     FormActionButtons,
     FormHeaderSection,
     Panel,
@@ -127,14 +130,19 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     const handleShowOutputType = () => {
         setShowOutputType(true);
-    }
+    };
 
     // For Output Value
     const handleShowRecordEditor = () => {
         enableAddNewRecord();
         handleShowOutputType();
         setNewRecordBy("output");
-    }
+    };
+
+    const handleOutputDeleteClick = () => {
+        setOutputType("");
+        setShowOutputType(false);
+    };
 
     const breadCrumb = (
         <FormHeaderSection
@@ -177,8 +185,17 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                             <FormDivider />
                             <OutputTypeConfigPanel>
                                 <Title>Output Type</Title>
-                                {showOutputType && <TypeBrowser type={outputType} onChange={setOutputType} />}
-                                <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
+                                {!outputType ? (
+                                    <>
+                                        {showOutputType && <TypeBrowser type={outputType} onChange={setOutputType} />}
+                                        <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
+                                    </>
+                                ) : (
+                                    <OutputTypeContainer>
+                                        <TypeName>{outputType}</TypeName>
+                                        <DeleteButton onClick={handleOutputDeleteClick} icon={<DeleteOutLineIcon fontSize="small" />} />
+                                    </OutputTypeContainer>
+                                )}
                             </OutputTypeConfigPanel>
                         </FormBody>
                         <FormActionButtons
@@ -198,18 +215,18 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 }
 
 const FormBody = styled.div`
-  width: 100%;
-  flexdirection: row;
-  padding: 15px 20px;
-  fontfamily: Gilmer;
+    width: 100%;
+    flexdirection: row;
+    padding: 15px 20px;
+    fontfamily: Gilmer;
 `;
 
 const FormDivider = styled(Divider)`
-  margin: 1.5rem 0;
+    margin: 1.5rem 0;
 `;
 
 const OutputTypeConfigPanel = styled.div`
-  width: 100%;
+    width: 100%;
 `;
 
 export const Title = styled.div(() => ({
@@ -222,3 +239,24 @@ export const Title = styled.div(() => ({
     paddingBottom: "0.6rem",
     fontWeight: 500,
 }));
+
+const OutputTypeContainer = styled.div((props) => ({
+    background: "white",
+    padding: 10,
+    borderRadius: 5,
+    border: "1px solid #dee0e7",
+    margin: "1rem 0 0.25rem",
+    justifyContent: "space-between",
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+}));
+
+const DeleteButton = styled(ButtonWithIcon)`
+    padding: 0;
+    color: #fe523c;
+`;
+
+const TypeName = styled.span`
+    font-weight: 500;
+`;
