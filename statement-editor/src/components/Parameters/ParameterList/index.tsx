@@ -13,6 +13,7 @@
 import React, { useContext } from "react";
 
 import { Checkbox, IconButton, ListItem, ListItemText, ListSubheader, Typography } from "@material-ui/core";
+import { withStyles } from "@material-ui/core/styles";
 import { AddCircleOutline } from "@material-ui/icons";
 import { ParameterInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -29,7 +30,7 @@ import {
     isDocumentationSupportedModel,
 } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
-import { useStmtEditorHelperPanelStyles } from "../../styles";
+import { parameterHeader, useStmtEditorHelperPanelStyles } from "../../styles";
 import { IncludedRecord } from "../IncludedRecord";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { RequiredArg } from "../RequiredArg";
@@ -42,6 +43,7 @@ export interface ParameterListProps {
 export function ParameterList(props: ParameterListProps) {
     const { paramDocumentation } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const ParamListSubheader = withStyles(parameterHeader)(ListSubheader);
     const {
         modelCtx: {
             currentModel : {
@@ -121,12 +123,12 @@ export function ParameterList(props: ParameterListProps) {
         <>
             {!!paramDocumentation.parameters?.length && (
                 <div data-testid="parameter-list">
-                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                    <ParamListSubheader>
                         Configure Parameters
                         <ListItemText
                             secondary={"Select parameters from the list given below"}
                         />
-                    </ListSubheader>
+                    </ParamListSubheader>
                     <div className={stmtEditorHelperClasses.paramList}>
                     {paramDocumentation.parameters?.map((param: ParameterInfo, value: number) => (
                             <>
