@@ -35,7 +35,7 @@ export async function showGraphqlView(langClient: ExtendedLangClient, serviceAPI
     graphqlViewPanel = window.createWebviewPanel(
         'ballerinaGraphql',
         `Graphql`,
-        { viewColumn: ViewColumn.Beside, preserveFocus: true },
+        { viewColumn: ViewColumn.Active, preserveFocus: true },
         getCommonWebViewOptions()
     );
 
