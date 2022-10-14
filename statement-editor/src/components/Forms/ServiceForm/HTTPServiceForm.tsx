@@ -45,7 +45,7 @@ import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModulePart } from "../../../utils/ls-utils";
 import { FormEditor } from "../../FormEditor/FormEditor";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
-import { getListenerConfig } from "../Utils/FormUtils";
+import { getListenerConfig, getUpdatedServiceInsertPosition } from "../Utils/FormUtils";
 
 interface HttpServiceFormProps {
     model?: ServiceDeclaration | ModulePart;
@@ -97,6 +97,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const [basePath, setBsePath] = useState<string>(path);
     const [listenerPort, setListenerPort] = useState<string>(listenerConfig.listenerPort);
     const [listenerName, setListenerName] = useState<string>(listenerConfig.listenerName);
+    const [finallyAddedListenerName, setFinallyAddedListenerName] = useState<string>(listenerConfig.listenerName);
     const [shouldAddNewLine, setShouldAddNewLine] = useState<boolean>(false);
     const [createdListnerCount, setCreatedListnerCount] = useState<number>(0);
     const [isInline, setIsInline] = useState<boolean>(!listenerName);
@@ -194,6 +195,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             setIsAddListenerInProgress(true);
         } else {
             setListenerName(name);
+            setFinallyAddedListenerName(name);
             setIsAddListenerInProgress(false);
         }
 
@@ -223,22 +225,14 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
             ]);
 
         } else {
-            const serviceInsertPosition: NodePosition = {
-                startColumn: 0, endColumn: 0, endLine: targetPosition.endLine + (createdListnerCount * 2),
-                startLine: targetPosition.startLine + (createdListnerCount * 2)
-            }
-
             applyModifications([
                 createImportStatement('ballerina', 'http', { startColumn: 0, startLine: 0 }),
                 createServiceDeclartion({
                     serviceBasePath: basePath, listenerConfig:
                         { createNewListener: false, listenerName, listenerPort, fromVar: listenerPort && listenerPort.length === 0 }
                 },
-                    shouldAddNewLine ? {
-                        ...serviceInsertPosition,
-                        startLine: serviceInsertPosition.startLine + 1,
-                        endLine: serviceInsertPosition.endLine + 1
-                    } : serviceInsertPosition,
+                    getUpdatedServiceInsertPosition(stSymbolInfo.listeners, listenerName, createdListnerCount,
+                        targetPosition),
                     isLastMember
                 )
 
@@ -296,6 +290,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         }
 
         setListenerName(listenerMod.config.LISTENER_NAME);
+        setFinallyAddedListenerName(listenerMod.config.LISTENER_NAME);
         setListenerPort("");
         setCreatedListnerCount(createdListnerCount + 1);
         applyModifications(modifications);
@@ -323,7 +318,8 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                     <FormEditor
                         initialSource={undefined}
                         initialModel={undefined}
-                        targetPosition={targetPosition}
+                        targetPosition={getUpdatedServiceInsertPosition(stSymbolInfo.listeners,
+                            finallyAddedListenerName, createdListnerCount, targetPosition)}
                         onCancel={onListenerFormCancel}
                         type={"Listener"}
                         currentFile={currentFile}
