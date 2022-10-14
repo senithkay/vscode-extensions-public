@@ -26,6 +26,7 @@ import { activateAddCommand } from "./cmds/add";
 import { activatePasteJsonAsRecord } from "./cmds/json-to-record";
 import { activatePackCommand } from "./cmds/pack";
 import { activateRenameCommand } from "./cmds/rename";
+import { activateExtractCommand } from "./cmds/extract";
 
 export * from "./cmds/cmd-runner";
 
@@ -56,4 +57,7 @@ export function activate() {
 
     // activate the rename command
     activateRenameCommand();
+
+    // activate the extract to constant command
+    activateExtractCommand();
 }
