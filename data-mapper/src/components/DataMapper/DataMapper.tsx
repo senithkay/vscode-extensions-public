@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useMemo, useReducer, useState } from "react";
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
@@ -38,21 +38,23 @@ import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
+import { ViewStateSetupVisitor } from "../Diagram/visitors/ViewStateSetupVisitor";
 import { StatementEditorComponent } from "../StatementEditorComponent/StatementEditorComponent"
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
+import { getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { isDMSupported } from "./utils";
-import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             flexGrow: 1,
-            height: "100%"
+            height: "100%",
+            overflow: "hidden"
         },
         gridContainer: {
             height: "100%",
@@ -70,7 +72,6 @@ const useStyles = makeStyles((theme: Theme) =>
             height: '100%',
             background: theme.palette.common.white,
             opacity: 0.5,
-            marginTop: 50
         },
         dmUnsupportedOverlay: {
             zIndex: 1,
@@ -79,7 +80,6 @@ const useStyles = makeStyles((theme: Theme) =>
             height: '100%',
             background: theme.palette.common.white,
             opacity: 0.5,
-            marginTop: 50
         },
         dmUnsupportedMessage: {
             zIndex: 1,
@@ -207,7 +207,8 @@ function DataMapperC(props: DataMapperProps) {
 
     const onConfigClose = () => {
         setConfigPanelOpen(false);
-        if (!fnST) {
+        if(showConfigPanel){
+            // Close data mapper when having incomplete fnST
             onClose();
         }
     }
@@ -255,6 +256,7 @@ function DataMapperC(props: DataMapperProps) {
         if (fnST) {
             const defaultSt = { stNode: fnST, fieldPath: fnST.functionName.value };
             if (selection.selectedST) {
+                traversNode(fnST, new ViewStateSetupVisitor());
                 const selectedSTFindingVisitor = new SelectedSTFindingVisitor([...selection.prevST, selection.selectedST]);
                 traversNode(fnST, selectedSTFindingVisitor);
                 const { selectedST, prevST } = selectedSTFindingVisitor.getST();
@@ -322,9 +324,20 @@ function DataMapperC(props: DataMapperProps) {
         }
     }, [selection.state])
 
+    const showConfigPanel = useMemo(() => {
+        if (!fnST){
+            return true
+        }
+        const inputParams = getInputsFromST(fnST);
+        const outputType = getOutputTypeFromST(fnST);
+        if (inputParams.length === 0 || !outputType){
+            return true
+        }
+    }, [fnST])
+
     useEffect(() => {
-        handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen);
-    }, [currentEditableField, selection.selectedST, isConfigPanelOpen])
+        handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen || showConfigPanel);
+    }, [currentEditableField, selection.selectedST, isConfigPanelOpen, showConfigPanel])
 
     return (
         <LSClientContext.Provider value={langClientPromise}>
@@ -354,7 +367,7 @@ function DataMapperC(props: DataMapperProps) {
                         <DataMapperDiagram
                             nodes={nodes}
                         />
-                        {(!selection?.selectedST?.stNode || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
+                        {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
                         {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}

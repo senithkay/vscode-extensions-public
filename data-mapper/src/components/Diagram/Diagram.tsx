@@ -15,7 +15,8 @@ import * as React from 'react';
 
 import { DagreEngine, DefaultDiagramState, DefaultLabelFactory, DefaultLinkFactory, DefaultNodeFactory, DefaultPortFactory, DiagramEngine, DiagramModel, NodeLayerFactory, PathFindingLinkFactory } from '@projectstorm/react-diagrams';
 import "reflect-metadata";
-import {container} from "tsyringe";
+import { container } from "tsyringe";
+import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 
 import { useDMStore } from '../../store/store';
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
@@ -38,6 +39,36 @@ import { LetClauseNode } from './Node/LetClause';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
+import { makeStyles, Theme, createStyles } from '@material-ui/core';
+import CachedIcon from '@material-ui/icons/Cached';
+import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
+import FitToScreenIcon from "../../assets/icons/fitToScreen";
+
+
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		buttonWrap: {
+			position: 'absolute',
+			bottom: 10,
+			right: 20
+		},
+		iconWrap: {
+			marginBottom: 10,
+			background: theme.palette.common.white,
+			height: 32,
+			width: 32,
+			borderRadius: 32,
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			cursor: 'pointer',
+			boxShadow: '0 1px 1px 0 #cbcfda;',
+			transitionDuration: '0.2s',
+			'&:hover': { opacity: 0.5 },
+		},
+		icon: { color: '#8d91a3' }
+	}),
+);
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -64,7 +95,7 @@ function initDiagramEngine() {
 	// register model factories
 	engine.getLayerFactories().registerFactory(new NodeLayerFactory());
 	engine.getLayerFactories().registerFactory(new OverriddenLinkLayerFactory());
-	// engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
+	engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
 
 	engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
 	engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
@@ -95,6 +126,7 @@ function initDiagramEngine() {
 }
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
+	const classes = useStyles();
 
 	const { nodes, hideCanvas } = props;
 
@@ -137,9 +169,9 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					console.error(e)
 				}
 			}
-			model.setLocked(true);
+			newModel.setLocked(true);
 			engine.setModel(newModel);
-			if (newModel.getLinks().length > 0){
+			if (newModel.getLinks().length > 0) {
 				dagreEngine.redistribute(newModel);
 				engine.repaintCanvas(true);
 			}
@@ -148,9 +180,8 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			let additionalSpace = 0;
 			nodes.forEach((node) => {
 				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode
-					|| node instanceof MappingConstructorNode)
-				{
-						node.updatePosition();
+					|| node instanceof MappingConstructorNode) {
+					node.updatePosition();
 				}
 				if (node instanceof RequiredParamNode || node instanceof LetClauseNode) {
 					node.setPosition(100, additionalSpace + (requiredParamFields * 40) + 100 * (numberOfRequiredParamNodes + 1));
@@ -166,16 +197,33 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			});
 			newModel.addLayer(new OverlayLayerModel());
 			setModel(newModel);
-        }
-  genModel();
+		}
+		genModel();
 	}, [nodes]);
+
+	const resetZoomAndOffset = () => {
+		const model = engine.getModel();
+		model.setZoomLevel(100);
+		model.setOffset(0, 0);
+		engine.setModel(model);
+	}
 
 	return (
 		<>
 			{engine && engine.getModel() && (
-				<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
-					<DataMapperCanvasWidget engine={engine} />
-				</DataMapperCanvasContainerWidget>
+				<>
+					<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
+						<DataMapperCanvasWidget engine={engine} />
+					</DataMapperCanvasContainerWidget>
+					<div className={classes.buttonWrap}>
+						<div className={classes.iconWrap} onClick={resetZoomAndOffset}>
+							<CachedIcon className={classes.icon} />
+						</div>
+						<div className={classes.iconWrap} onClick={() => engine.zoomToFitNodes({ margin: 20 })}>
+							<FitToScreenIcon />
+						</div>
+					</div>
+				</>
 			)}
 		</>
 	);

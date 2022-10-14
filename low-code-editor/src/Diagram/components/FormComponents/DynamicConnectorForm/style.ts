@@ -921,7 +921,14 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         fileSelect: {
             marginLeft: "auto",
-            padding: theme.spacing(0.2)
+            padding: theme.spacing(0.2),
+            '& svg': {
+                margin: 5
+            },
+            '& svg:hover': {
+                WebkitFilter: "drop-shadow( 1px 1px 3px rgba(0, 0, 0, .3))",
+                filter: "drop-shadow( 1px 1px 3px rgba(0, 0, 0, .3))"
+            }
         }
     }),
     { index: 1 }

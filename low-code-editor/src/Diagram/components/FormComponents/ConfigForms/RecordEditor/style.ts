@@ -399,9 +399,11 @@ export const recordStyles = makeStyles((theme: Theme) =>
         },
         createButtonWrapper: {
             display: "flex",
-            marginLeft: 15,
+            margin: 16,
             flexDirection: "column",
-            alignItems: "flex-start"
+            "& button" : {
+                marginBottom: 16
+            }
         },
         headerWrapper: {
             background: "white",
@@ -415,7 +417,6 @@ export const recordStyles = makeStyles((theme: Theme) =>
             display: "flex",
             flexDirection: 'row',
             height: 40,
-            width: '50%',
             alignItems: 'center'
         },
         contentSection: {
@@ -444,7 +445,8 @@ export const recordStyles = makeStyles((theme: Theme) =>
         doneButtonWrapper: {
             display: 'flex',
             justifyContent: 'flex-end',
-            marginRight: 20
+            marginRight: 20,
+            marginTop: 16,
         },
         inputLabelWrapper: {
             display: "flex",

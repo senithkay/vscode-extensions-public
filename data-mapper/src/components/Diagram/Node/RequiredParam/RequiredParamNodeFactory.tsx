@@ -11,29 +11,43 @@ import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
 
 import { RequiredParamNode, REQ_PARAM_NODE_TYPE } from './RequiredParamNode';
+import { PrimitiveTypeItemWidget } from '../commons/PrimitiveTypeItemWidget';
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 @injectable()
 @singleton()
 export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParamNode, DiagramEngine> implements IDataMapperNodeFactory {
-	constructor() {
-		super(REQ_PARAM_NODE_TYPE);
-	}
+    constructor() {
+        super(REQ_PARAM_NODE_TYPE);
+    }
 
-	generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
-		return (
-			<RecordTypeTreeWidget
-				engine={this.engine}
-				id={event.model.value.paramName.value}
-				typeDesc={event.model.typeDef}
-				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-				handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-			/>
-		);
-	}
+    generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
+        if (event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record) {
+            return (
+                <RecordTypeTreeWidget
+                    engine={this.engine}
+                    id={event.model.value.paramName.value}
+                    typeDesc={event.model.typeDef}
+                    getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                    handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                />
+            );
+        }
 
-	generateModel(event: { initialConfig: any }): any {
-		return undefined;
-	}
+        return (
+            <PrimitiveTypeItemWidget
+                engine={this.engine}
+                id={event.model.value.paramName.value}
+                typeDesc={event.model.typeDef}
+                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                valueLabel={event.model.value.paramName.value}
+            />
+        )
+    }
+
+    generateModel(event: { initialConfig: any }): any {
+        return undefined;
+    }
 }
 
 container.register("NodeFactory", { useClass: RequiredParamNodeFactory });

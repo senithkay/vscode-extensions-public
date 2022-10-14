@@ -10,24 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import { ListConstructor, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
-import { NilLiteral } from "@wso2-enterprise/syntax-tree";
+import { DataMapperViewState } from "../../../utils/data-mapper-view-state";
 
-import { InputEditor } from "../../InputEditor";
+export class ViewStateSetupVisitor implements Visitor {
 
-interface NilLiteralProps {
-    model: NilLiteral;
-}
-
-export function NilLiteralComponent(props: NilLiteralProps) {
-    const { model } = props;
-
-    const inputEditorProps = {
-        model
-    };
-
-    return (
-        <InputEditor {...inputEditorProps} />
-    );
+    public beginVisitListConstructor(node: ListConstructor, parent?: STNode) {
+        if (!node.dataMapperViewState) {
+            node.expressions.forEach((expr) => {
+                if (!STKindChecker.isCommaToken(expr)) {
+                    expr.dataMapperViewState = new DataMapperViewState();
+                }
+            });
+        }
+    }
 }

@@ -12,12 +12,13 @@
  */
 import {
     FunctionDefinition,
-    QueryExpression,
     SpecificField,
     STKindChecker,
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
+
+import { DataMapperViewState } from "../../../utils/data-mapper-view-state";
 import { DMNode } from "../../DataMapper/DataMapper";
 
 export class SelectedSTFindingVisitor implements Visitor {
@@ -26,14 +27,37 @@ export class SelectedSTFindingVisitor implements Visitor {
 
     private updatedPrevST: DMNode[];
 
+    private pathSegmentIndex: number;
+
     constructor(
         private prevST: DMNode[],
     ) {
-        this.updatedPrevST = []
+        this.updatedPrevST = [];
+        this.pathSegmentIndex = 0;
     }
 
     beginVisitSTNode(node: FunctionDefinition | SpecificField, parent?: STNode) {
         const item = this.prevST[0];
+
+        if (item && item.stNode && STKindChecker.isSpecificField(item.stNode)) {
+           const pathSegments = item.fieldPath.split('.');
+           if (STKindChecker.isSpecificField(node) && node.fieldName.value === pathSegments[this.pathSegmentIndex]) {
+               this.pathSegmentIndex++;
+           } else if (STKindChecker.isListConstructor(node) && !isNaN(+pathSegments[this.pathSegmentIndex])) {
+                node.expressions.forEach((exprNode, index) => {
+                    if (!STKindChecker.isCommaToken(exprNode)) {
+                        (exprNode.dataMapperViewState as DataMapperViewState).elementIndex = index / 2;
+                    }
+                });
+           } else if (node.dataMapperViewState) {
+               const elementIndex = (node.dataMapperViewState as DataMapperViewState).elementIndex;
+               if (elementIndex === +pathSegments[this.pathSegmentIndex]) {
+                   this.pathSegmentIndex++;
+               }
+           } else {
+               return;
+           }
+        }
 
         if (item?.stNode && node && (STKindChecker.isFunctionDefinition(node) || STKindChecker.isSpecificField(node))) {
             if (
@@ -42,6 +66,7 @@ export class SelectedSTFindingVisitor implements Visitor {
                 node.fieldName.value === item.stNode.fieldName?.value
             ) {
                 this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }]
+                this.pathSegmentIndex = 0;
             } else if (
                 STKindChecker.isFunctionDefinition(node) &&
                 STKindChecker.isFunctionDefinition(item.stNode) &&

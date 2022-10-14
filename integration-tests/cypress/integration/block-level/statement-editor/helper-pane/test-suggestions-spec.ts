@@ -261,15 +261,16 @@ describe('Test helper pane functionality', () => {
             .clickSearchedLibSuggestion('lang.int:abs')
 
         EditorPane
-            .validateNewExpression("FunctionCall", "int0:abs(n)")
+            .validateNewExpression("FunctionCall", "int0:abs(<add-param>)")
             .getExpression("IdentifierToken")
-            .doubleClickExpressionContent('n');
+            .doubleClickExpressionContent('<add-param>');
 
         InputEditor
             .typeInput("285");
 
         SuggestionsPane
             .clickSuggestionsTab("Libraries")
+            .waitForLoading()
             .clickOnLibraryDropdown("Standard")
             .validateFilteredLib("lang.int")
             .clickSuggestionsTab("Libraries")

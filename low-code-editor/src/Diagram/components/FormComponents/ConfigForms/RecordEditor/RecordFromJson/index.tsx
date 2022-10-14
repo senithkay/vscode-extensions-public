@@ -134,7 +134,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 let recordST: STNode;
                 let modulePart: STNode;
                 let newPosition: NodePosition;
-                const updatedBlock = formatRecord(recordResponse.codeBlock);
+                const updatedBlock = formState.isSeparateDef ? recordResponse.codeBlock : formatRecord(recordResponse.codeBlock);
                 if (recordResponse?.diagnostics?.length === 0) {
                     if (formState.isSeparateDef) {
                         // Uses module part since we receive multiple records
