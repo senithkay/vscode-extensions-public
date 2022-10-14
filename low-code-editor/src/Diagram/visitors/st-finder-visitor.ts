@@ -12,6 +12,7 @@
  */
 import {
     NodePosition,
+    STKindChecker,
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
@@ -22,7 +23,7 @@ class STFindingVisitor implements Visitor {
     private stNode: STNode;
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        if (!this.stNode) {
+        if (!this.stNode && !STKindChecker.isModulePart(node)) {
             const isPositionsEquals = node.position?.startLine === this.position?.startLine &&
                 node.position?.startColumn === this.position?.startColumn &&
                 node.position?.endLine === this.position?.endLine &&
