@@ -153,8 +153,7 @@ export class BallerinaExtension {
             initializationOptions: {
                 "enableSemanticHighlighting": <string>workspace.getConfiguration().get(ENABLE_SEMANTIC_HIGHLIGHTING),
                 "supportBalaScheme": "true",
-                "supportRenamePopup": "true",
-                "supportQuickPick": "true"
+                "supportRenamePopup": "true"
             }
         };
         this.telemetryReporter = createTelemetryReporter(this);
