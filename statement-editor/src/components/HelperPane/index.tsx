@@ -23,7 +23,13 @@ import {
     STD_LIBS_IDENTIFIER
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { isConfigurableEditor, isFunctionOrMethodCall, isInsideConnectorParams, isRecordFieldName } from "../../utils";
+import {
+    isConfigurableEditor,
+    isFunctionOrMethodCall,
+    isImplicitOrExplicitNewExpr,
+    isInsideConnectorParams,
+    isRecordFieldName
+} from "../../utils";
 import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
@@ -84,7 +90,8 @@ export function HelperPane(props: HelperPaneProps) {
     useEffect(() => {
         if (
             currentModel.model &&
-            (isFunctionOrMethodCall(currentModel.model) || isInsideConnectorParams(currentModel.model, config.type)) &&
+            (isFunctionOrMethodCall(currentModel.model) || isInsideConnectorParams(currentModel.model, config.type) ||
+                isImplicitOrExplicitNewExpr(currentModel.model)) &&
             !isConfigurableEditor(editors, activeEditorId)
         ) {
             (currentModel.model?.source?.trim() === FUNCTION_CALL) ?
