@@ -35,13 +35,15 @@ export interface ViewContainerProps {
     isStatementValid: boolean;
     isConfigurableStmt: boolean;
     isPullingModule: boolean;
+    isHeaderHidden?: boolean;
 }
 
 export function ViewContainer(props: ViewContainerProps) {
     const {
         isStatementValid,
         isConfigurableStmt,
-        isPullingModule
+        isPullingModule,
+        isHeaderHidden
     } = props;
     const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
@@ -71,7 +73,7 @@ export function ViewContainer(props: ViewContainerProps) {
         syntaxTree,
         isExpressionMode,
         isCodeServerInstance
-    } =  useContext(StatementEditorContext);
+    } = useContext(StatementEditorContext);
     const exprSchemeURI = `expr://${currentFile.path}`;
     const fileSchemeURI = `file://${currentFile.path}`;
 
@@ -114,7 +116,7 @@ export function ViewContainer(props: ViewContainerProps) {
 
         updateEditor(activeEditorId - 1, {
             ...nextEditor,
-            newConfigurableName : model.typedBindingPattern.bindingPattern.source
+            newConfigurableName: model.typedBindingPattern.bindingPattern.source
         });
 
         dropLastEditor(noOfLines);
@@ -130,11 +132,11 @@ export function ViewContainer(props: ViewContainerProps) {
         onCancel();
     };
 
-    const handleModifications = async (addImports= true) => {
+    const handleModifications = async (addImports = true) => {
         await sendDidClose(exprSchemeURI, getLangClient);
         await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
         const imports = addImports ? Array.from(modulesToBeImported) as string[] : [];
-        if (statementModel){
+        if (statementModel) {
             const modifications = getModifications(statementModel, config.type, targetPosition, imports, isExpressionMode);
             applyModifications(modifications);
         }
@@ -148,13 +150,16 @@ export function ViewContainer(props: ViewContainerProps) {
     return (
         (
             <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor">
-                <div className={overlayClasses.statementEditorHeader}>
-                    <Breadcrumb/>
-                    {isCodeServerInstance && <Help/>}
-                    <div className={overlayClasses.closeButton} data-testid="close-btn">
-                        {onCancel && <CloseButton onCancel={onCancel} />}
+                {!isHeaderHidden && (
+                    <div className={overlayClasses.statementEditorHeader}>
+                        <Breadcrumb />
+                        {isCodeServerInstance && <Help />}
+                        <div className={overlayClasses.closeButton} data-testid="close-btn">
+                            {onCancel && <CloseButton onCancel={onCancel} />}
+                        </div>
                     </div>
-                </div>
+                )
+                }
                 {isPullingModule && (
                     <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
                         <div className={overlayClasses.loadingWrapper}>Pulling package...</div>
@@ -163,9 +168,8 @@ export function ViewContainer(props: ViewContainerProps) {
                 {!isPullingModule && (
                     <>
                         <div
-                            className={`${overlayClasses.statementExpressionWrapper} ${
-                                activeEditorId !== editors.length - 1 && "overlay"
-                            }`}
+                            className={`${overlayClasses.statementExpressionWrapper} ${activeEditorId !== editors.length - 1 && "overlay"
+                                }`}
                         >
                             <EditorPane data-testid="editor-pane" />
                         </div>

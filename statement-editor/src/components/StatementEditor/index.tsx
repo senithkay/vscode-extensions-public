@@ -72,6 +72,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     extraModules?: Set<string>;
     onWizardClose: () => void;
     onCancel: () => void;
+    isHeaderHidden?: boolean;
 }
 
 export function StatementEditor(props: StatementEditorProps) {
@@ -95,7 +96,8 @@ export function StatementEditor(props: StatementEditorProps) {
         isExpressionMode,
         ballerinaVersion,
         openExternalUrl,
-        isCodeServerInstance
+        isCodeServerInstance,
+        isHeaderHidden
     } = props;
 
     const {
@@ -564,6 +566,7 @@ export function StatementEditor(props: StatementEditorProps) {
                         isStatementValid={!stmtDiagnostics.length}
                         isConfigurableStmt={isConfigurableStmt}
                         isPullingModule={isPullingModule}
+                        isHeaderHidden={isHeaderHidden}
                     />
                 </StatementEditorContextProvider>
             </>
