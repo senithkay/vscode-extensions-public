@@ -104,7 +104,7 @@ export function CreateRecord(props: CreateRecordProps) {
                 importStatements,
                 experimentalEnabled,
                 isModuleVar: true,
-                isHeaderHidden: isDataMapper 
+                isHeaderHidden: isDataMapper
             }
         )
     )

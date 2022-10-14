@@ -190,12 +190,14 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 <RecordOverview definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
             ) : (
                 <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
-                    {!isHeaderHidden && <FormHeaderSection
-                        onCancel={onCancel}
-                        formTitle="Import Sample JSON"
-                        formType={""}
-                        defaultMessage=""
-                    />}
+                    {!isHeaderHidden && (
+                        <FormHeaderSection
+                            onCancel={onCancel}
+                            formTitle="Import Sample JSON"
+                            formType={""}
+                            defaultMessage=""
+                        />
+                    )}
                     <div id="json-input-container" test-id="json-input-container" className={classes.formWrapper}>
                         <FormTextInput
                             label="Record Name"
