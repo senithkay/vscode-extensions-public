@@ -372,7 +372,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     startColumn: args[0].startColumn,
                     lastUpdatedAt: (new Date()).toISOString(),
                     experimentalEnabled: ${experimental},
-                    openInDiagram: ${JSON.stringify(openInDiagram)}
+                    openInDiagram: args[0].openInDiagram
                 });
                 return Promise.resolve({});
             });

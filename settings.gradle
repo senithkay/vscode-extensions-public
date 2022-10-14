@@ -21,6 +21,10 @@ include(':swagger-viewer')
 
 project(':swagger-viewer').projectDir = file('web/swagger')
 
+include(':graphql-viewer')
+
+project(':graphql-viewer').projectDir = file('web/graphql')
+
 include(':notebook-renderer')
 
 project(':notebook-renderer').projectDir = file('web/notebook-renderer')

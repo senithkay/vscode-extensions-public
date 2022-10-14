@@ -23,6 +23,7 @@ import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
 import { wait, getDiagramExplorer } from './util';
 import { DIAGRAM_LOADING_TIME, PROJECT_RUN_TIME } from './constants';
+import { Service } from './utils/Service';
 
 describe('Swagger view UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
@@ -51,15 +52,12 @@ describe('Swagger view UI Tests', () => {
         await webview.switchToFrame();
 
         // run project
-        const runButton = (await webview.findWebElements(By.className("action-button")))[0];
-        expect(runButton).is.not.undefined;
-        await runButton.click();
-        await wait(PROJECT_RUN_TIME)
+        const service = new Service(webview);
+        (await (await (await (await service.getHeader()).getServiceOptions()).click()).getRun()).click();
+        await wait(PROJECT_RUN_TIME);
 
         // open swagger view
-        const tryItButton = (await webview.findWebElements(By.className("action-button")))[1];
-        expect(tryItButton).is.not.undefined;
-        await tryItButton.click();
+        (await service.getTryIt()).click();
         await webview.switchBack();
         await wait(5000);
 
@@ -114,15 +112,12 @@ describe('Swagger view UI Tests', () => {
         await webview2.switchToFrame();
 
         // run project
-        const runButton = (await webview2.findWebElements(By.className("action-button")))[0];
-        expect(runButton).is.not.undefined;
-        await runButton.click();
-        await wait(PROJECT_RUN_TIME)
+        const service = new Service(webview2);
+        (await (await (await (await service.getHeader()).getServiceOptions()).click()).getRun()).click();
+        await wait(PROJECT_RUN_TIME);
 
         // open swagger view
-        const tryItButton = (await webview2.findWebElements(By.className("action-button")))[1];
-        expect(tryItButton).is.not.undefined;
-        await tryItButton.click();
+        (await service.getTryIt()).click();
         await webview2.switchBack();
         await wait(5000);
 

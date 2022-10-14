@@ -173,7 +173,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                     title: "Design",
                                     tooltip: "Open this code block in data mapping view",
                                     command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                    arguments: [member.position, filePath]
+                                    arguments: [member.position, activeEditor.fsPath]
                                 };
                                 codeLenses.push(codeLens);
                             }
