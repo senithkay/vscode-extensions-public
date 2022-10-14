@@ -95,15 +95,15 @@ interface SequenceDiagramData {
  * @param showMsg Show alerts in vscode side
  */
 export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
-    showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
-    getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) =>
-        Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse
-            | undefined>, setSyntaxTree: any): Promise<void> {
+                                         showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
+                                         getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) =>
+        Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>,
+                                         setSyntaxTree: any): Promise<void> {
     if (!st || !file || !lc) {
         return;
     }
 
-    syntaxTree = Object.assign({}, st);
+    syntaxTree = { ...st };
     langClient = lc;
     filePath = file;
     showPerformanceGraph = showPerf;
