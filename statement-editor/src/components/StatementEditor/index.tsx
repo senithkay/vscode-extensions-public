@@ -307,7 +307,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 : await getPartialSTForStatement({ codeSnippet }, getLangClient);
         }
 
-        if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+        if (!partialST.syntaxDiagnostics.length || (!isExpressionMode && config.type === CUSTOM_CONFIG_TYPE)) {
             const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList, isExpressionMode);
             sendDidChange(fileURI, updatedContent, getLangClient).then();
             const diagnostics = await handleDiagnostics(partialST.source);
