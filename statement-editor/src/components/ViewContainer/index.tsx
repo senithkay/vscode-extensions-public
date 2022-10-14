@@ -157,7 +157,8 @@ export function ViewContainer(props: ViewContainerProps) {
                         <div className={overlayClasses.closeButton} data-testid="close-btn">
                             {onCancel && <CloseButton onCancel={onCancel} />}
                         </div>
-                    </div>)
+                    </div>
+                )
                 }
                 {isPullingModule && (
                     <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
