@@ -97,14 +97,20 @@ export const useStyles = makeStyles((theme: Theme) =>
 	})
 );
 
+export enum LinkState {
+	TemporaryLink,
+	LinkSelected,
+	LinkNotSelected
+}
+
 // now we can render all what we want in the label
 export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetProps> = (props) => {
-	const [linkSelected, setLinkSelected] = React.useState(false);
+	const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
 	const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
 	const [codeActions, setCodeActions] = React.useState([]);
 	const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 	const classes = useStyles();
-	const diagnostic = props.model.link.hasError() ? props.model.link.diagnostics[0] : null;
+	const diagnostic = props.model?.link && props.model.link.hasError() ? props.model.link.diagnostics[0] : null;
 
 	React.useEffect(() => {
 		async function genModel() {
@@ -161,13 +167,17 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 	};
 
 	React.useEffect(() => {
-		const link = props.model.link;
-		link.registerListener({
-			selectionChanged(event) {
-				setLinkSelected(event.isSelected);
-			},
-		});
-		setCanUseQueryExpr(canConvertLinkToQueryExpr(link));
+		if (props.model?.link) {
+			const link = props.model.link;
+			link.registerListener({
+				selectionChanged(event) {
+					setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
+				},
+			});
+			setCanUseQueryExpr(canConvertLinkToQueryExpr(link));
+		} else {
+			setLinkStatus(LinkState.TemporaryLink);
+		}
 	}, [props.model]);
 
 	const loadingScreen = (
@@ -230,7 +240,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 			<CodeActionWidget
 				codeActions={codeActions}
 				context={props.model.context}
-				labelWidgetVisible={linkSelected}
+				labelWidgetVisible={linkStatus === LinkState.LinkSelected}
 				additionalActions={additionalActions}
 			/>
 		);
@@ -282,14 +292,25 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 		return null;
 	}
 
-	return (
-		<div
-			className={clsx(
-				classes.container,
-				!linkSelected && !deleteInProgress && classes.containerHidden
-			)}
-		>
-			{elements}
-		</div>
-	);
+	return linkStatus === LinkState.TemporaryLink
+		? (
+			<div
+				className={clsx(
+					classes.container
+				)}
+			>
+				<div className={clsx(classes.element, classes.loadingContainer)}>
+					{loadingScreen}
+				</div>
+			</div>
+		) : (
+			<div
+				className={clsx(
+					classes.container,
+					linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden
+				)}
+			>
+				{elements}
+			</div>
+		);
 };

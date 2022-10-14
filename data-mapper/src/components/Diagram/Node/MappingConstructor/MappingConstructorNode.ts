@@ -122,7 +122,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
             const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
-            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
+            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
