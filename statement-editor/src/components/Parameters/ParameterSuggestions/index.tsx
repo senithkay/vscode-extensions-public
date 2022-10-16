@@ -92,7 +92,7 @@ export function ParameterSuggestions() {
             paramDocumentation = updateParamDocWithParamPositions(paramsInModel, paramDocumentation);
             setParamDoc(paramDocumentation);
         }
-    }, [currentModel.model, documentation]);
+    }, [documentation]);
 
     useEffect(() => {
         if (config.type === ACTION && activeMethod && statementModel && connectorInfo?.functions.length > 0) {
