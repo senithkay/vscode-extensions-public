@@ -19,7 +19,7 @@ import { BlockViewState, CollapseViewState, FunctionViewState, IfViewState, Stat
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
-import { isPositionWithinRange } from "./util";
+import { isPositionEquals, isPositionWithinRange } from "./util";
 
 export class CollapseInitVisitor implements Visitor {
     private position: NodePosition;
@@ -57,6 +57,7 @@ export class CollapseInitVisitor implements Visitor {
         const whileViewstate = node.viewState as StatementViewState;
         const whileBodyBlock = node.whileBody as BlockStatement;
         const whileBodyVS = whileBodyBlock.viewState as BlockViewState;
+        // mark the statement as collapsed if it doesn't contain an action statement.
         whileViewstate.collapsed = !whileBodyVS.containsAction;
     }
 
@@ -64,6 +65,7 @@ export class CollapseInitVisitor implements Visitor {
         const foreachViewstate = node.viewState as StatementViewState;
         const foreachBodyBlock = node.blockStatement as BlockStatement;
         const foreachBodyVS = foreachBodyBlock.viewState as BlockViewState;
+        // mark the statement as collapsed if it doesn't contain an action statement.
         foreachViewstate.collapsed = !foreachBodyVS.containsAction;
     }
 
@@ -76,6 +78,7 @@ export class CollapseInitVisitor implements Visitor {
         const ifBodyBlock: BlockStatement = node.ifBody as BlockStatement;
         const ifBodyVS = ifBodyBlock.viewState as BlockViewState;
         const elseBody: ElseBlock = node.elseBody as ElseBlock;
+        // mark the statement as collapsed if it doesn't contain an action statement.
         ifElseVS.collapsed = !ifBodyVS.containsAction;
 
         if (elseBody && elseBody.elseBody) {
@@ -118,9 +121,15 @@ export class CollapseInitVisitor implements Visitor {
                 if (isPositionWithinRange(statement.position, this.position)) {
                     if (!(statementVS.isAction || statementVS.isEndpoint || statementVS.isSend || statementVS.isReceive
                         || this.isSkippedConstruct(statement)) || statementVS.collapsed) {
+                        // when the statement is neither an end point or a construct that contains an action 
+                        // collapse that construct
                         statementVS.collapsed = true;
+
+                        // update the range last line and end column
                         range.endLine = statement.position.endLine;
                         range.endColumn = statement.position.endColumn;
+
+                        // if the last staetement is reached we can collapse the range upto that position
                         if (statementIndex === statements.length - 1) {
                             const collapseVS = new CollapseViewState();
                             collapseVS.range = { ...range };
@@ -128,20 +137,19 @@ export class CollapseInitVisitor implements Visitor {
                         }
                     } else {
                         if (!blockViewState.containsAction) {
+                            // mark if a block contains a action statement
                             blockViewState.containsAction = statementVS.isAction || statementVS.isEndpoint
                                 || statementVS.isSend || statementVS.isReceive;
                         }
 
-                        if (!(range.startLine === statement.position.startLine
-                            && range.endLine === statement.position.endLine
-                            && range.startColumn === statement.position.startColumn
-                            && range.endColumn === statement.position.endColumn)) {
-
+                        if (!isPositionEquals(range, statement.position)) {
+                            // populate the collapsed range array if the range isn't an action/endpoint statement
                             const collapseVS = new CollapseViewState();
                             collapseVS.range = { ...range };
                             if (statementIndex > 0) blockViewState.collapsedViewStates.push(collapseVS);
                         }
 
+                        // re initiate range variable once an action is found
                         if (statementIndex !== statements.length - 1) {
                             range = {
                                 startLine: statements[statementIndex + 1].position.startLine,
