@@ -121,7 +121,7 @@ export class CollapseInitVisitor implements Visitor {
                 if (isPositionWithinRange(statement.position, this.position)) {
                     if (!(statementVS.isAction || statementVS.isEndpoint || statementVS.isSend || statementVS.isReceive
                         || this.isSkippedConstruct(statement)) || statementVS.collapsed) {
-                        // when the statement is neither an end point or a construct that contains an action 
+                        // when the statement is neither an end point or a construct that contains an action
                         // collapse that construct
                         statementVS.collapsed = true;
 
