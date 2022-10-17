@@ -35,7 +35,7 @@ import {
     enrichModel,
     getCurrentModel,
     getFilteredDiagnosticMessages,
-    getNextNode,
+    getNextNode, getParentFunctionModel,
     getPreviousNode,
     getSelectedModelPosition,
     getUpdatedSource,
@@ -386,8 +386,8 @@ export function StatementEditor(props: StatementEditorProps) {
         } else {
             if (newCurrentModel && (newCurrentModel.parent?.viewState as StatementEditorViewState)?.parentFunctionPos){
                 const parentModel =
-                    getCurrentModel((newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
-                        enrichModel(model, targetPosition));
+                    getParentFunctionModel((newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
+                        model);
 
                 if (isDocumentationSupportedModel(parentModel) && parentModel.position !== documentation.modelPosition){
                     setDocumentation({
