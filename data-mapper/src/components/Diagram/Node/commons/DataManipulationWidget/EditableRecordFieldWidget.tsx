@@ -19,8 +19,11 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classnames from "classnames";
 
+import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
+import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
@@ -34,9 +37,6 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
-import ErrorIcon from "../../../../../assets/icons/Error";
-import classnames from "classnames";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -87,16 +87,38 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
+    const handleAddValue = async () => {
+        setIsLoading(true);
+        try {
+            await createSourceForUserInput(field, mappingConstruct, 'EXPRESSION', context.applyModifications);
+            // Adding field to the context to identify this newly initialized field in the next rendering
+            context.handleFieldToBeEdited(fieldId);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleEditValue = () => {
         if (STKindChecker.isSpecificField(field.value)) {
-            context.handleFieldToBeEdited(fieldId);
             props.context.enableStatementEditor({
                 value: field.value.valueExpr.source,
                 valuePosition: field.value.valueExpr.position,
                 label: field.value.fieldName.value
             });
         }
+    };
+
+    const handleDeleteValue = async () => {
+        setIsLoading(true);
+        try {
+            await deleteField(field.value);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleExpand = () => {
+        context.handleCollapse(fieldId, !expanded);
     };
 
     let isDisabled = portIn.descendantHasValue;
@@ -169,29 +191,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             )}
         </span>
     );
-
-    const handleAddValue = async () => {
-        setIsLoading(true);
-        try {
-            await createSourceForUserInput(field, mappingConstruct, 'EXPRESSION', context.applyModifications);
-            context.handleFieldToBeEdited(fieldId);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleDeleteValue = async () => {
-        setIsLoading(true);
-        try {
-            await deleteField(field.value);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleExpand = () => {
-        context.handleCollapse(fieldId, !expanded);
-    };
 
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
