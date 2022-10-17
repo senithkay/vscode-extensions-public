@@ -209,7 +209,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 export async function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
 	newValue: string,
-	applyModifications: (modifications: STModification[]) => void) {
+	applyModifications: (modifications: STModification[]) => Promise<void>) {
 
 	let source;
 	let targetMappingConstructor = mappingConstruct;
@@ -275,7 +275,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 		startLine: targetMappingConstructor.openBrace.position.endLine,
 		startColumn: targetMappingConstructor.openBrace.position.endColumn
 	}));
-	applyModifications(modifications);
+	await applyModifications(modifications);
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 1
@@ -771,10 +771,10 @@ export function getFieldLabel(fieldId: string) {
 	return fieldLabel;
 }
 
-function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
+async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 	fieldIndex: number,
 	targetPosition: NodePosition,
-	applyModifications: (modifications: STModification[]) => void) {
+	applyModifications: (modifications: STModification[]) => Promise<void>) {
 	let source = "";
 
 	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
@@ -784,7 +784,7 @@ function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 		source = rhs;
 	}
 
-	applyModifications([getModification(source, {
+	await applyModifications([getModification(source, {
 		...targetPosition,
 		startLine: targetPosition.endLine,
 		startColumn: targetPosition.endColumn

@@ -155,10 +155,10 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
     }
 
-    deleteField(field: STNode) {
+    async deleteField(field: STNode) {
         if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
             // if Within query expression expanded view
-            this.context.applyModifications([{
+            await this.context.applyModifications([{
                 type: "DELETE",
                 ...field.valueExpr?.position
             }]);
@@ -167,7 +167,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             traversNode(this.value.expression, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
 
-            this.context.applyModifications([{
+            await this.context.applyModifications([{
                 type: "DELETE",
                 ...nodePositionsToDelete
             }]);
