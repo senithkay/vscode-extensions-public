@@ -10,8 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { ListSubheader } from "@material-ui/core";
 // tslint:disable: ordered-imports
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, withStyles } from '@material-ui/core/styles';
 import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const syntaxHighlightingRules = {
@@ -80,6 +81,17 @@ const inputEditorTemplateStyles = {
     position: 'relative' as 'relative',
     '&:focus': {
         outline: 'none'
+    }
+}
+
+export const parameterHeader = {
+    root: {
+        fontSize: '13px',
+        color: '#1D2028',
+        letterSpacing: '0',
+        lineHeight: '14px',
+        paddingLeft: '0px',
+        marginBottom: '7px'
     }
 }
 
@@ -438,7 +450,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             marginBottom: '14px'
         },
         selectionSubHeader: {
-            height: '24px',
+            height: 'fit-content',
             width: 'fit-content',
             color: '#40404B',
             padding: '0 10px',
@@ -604,14 +616,6 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
                     borderRadius: 3,
                 }
             }
-        },
-        parameterHeader :  {
-            fontSize: '13px',
-            color: '#1D2028',
-            letterSpacing: '0',
-            lineHeight: '14px',
-            paddingLeft: '0px',
-            marginBottom: '7px'
         },
         docParamSuggestions: {
             height: '100%',
