@@ -2,6 +2,7 @@ import { BezierCurve } from "@projectstorm/geometry";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
+
 import { IntermediatePortModel } from "../../Port";
 
 export const LINK_TYPE_ID = "datamapper-link";
@@ -9,14 +10,18 @@ export const LINK_TYPE_ID = "datamapper-link";
 export class DataMapperLinkModel extends DefaultLinkModel {
 
 	constructor(public value: STNode = undefined, public diagnostics: Diagnostic[] = [],
-				public notContainsLabel?: boolean) {
+				public isActualLink: boolean = false, public notContainsLabel?: boolean) {
 		super({
 			type: LINK_TYPE_ID,
 			width: 1,
 			curvyness: 0,
 			locked: true,
-			color: "#5567D5"
+			color: "#00c0ff"
 		});
+
+		if (isActualLink){
+			this.setColor('#5567D5');
+		}
 
 		if (diagnostics.length > 0){
 			this.setColor('#FE523C');

@@ -1,6 +1,9 @@
+import { KeyboardEvent, MouseEvent } from 'react';
+
 import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canvas-core';
-import { PortModel, LinkModel, DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { MouseEvent, KeyboardEvent } from 'react';
+import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
+
+import { ExpressionLabelModel } from "../Label";
 import { LinkConnectorNode } from '../Node/LinkConnector';
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
@@ -28,8 +31,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 								element.fireEvent({}, "mappingStartedFrom");
 								const link = this.sourcePort.createLinkModel();
 								link.setSourcePort(this.sourcePort);
-								link.getFirstPoint().setPosition(0, 0);
-								link.getLastPoint().setPosition(0, 0);
+								link.addLabel(new ExpressionLabelModel({
+									value: undefined,
+									context: undefined
+								}));
 								this.link = link;
 
 							} else {
@@ -47,8 +52,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								if (this.sourcePort.canLinkToPort(element)) {
 
 									this.link.setTargetPort(element);
-									// element.reportPosition();
-									this.link.getLastPoint().setPosition(0, 0);
+									this.engine.getModel().addAll(this.link)
 									this.clearState();
 									this.eject();
 								}
@@ -58,8 +62,6 @@ export class CreateLinkState extends State<DiagramEngine> {
 								this.sourcePort.removeLink(this.link);
 								this.sourcePort = element;
 								this.link.setSourcePort(element);
-								this.link.getFirstPoint().setPosition(0, 0);
-								this.link.getLastPoint().setPosition(0, 0);
 								element.fireEvent({}, "mappingStartedFrom");
 							}
 						}
@@ -83,7 +85,6 @@ export class CreateLinkState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<React.MouseEvent>) => {
 					if (!this.link) return;
 					const { event } = actionEvent;
-					this.link.getLastPoint().setPosition(0, 0);
 					this.engine.repaintCanvas();
 				}
 			})
