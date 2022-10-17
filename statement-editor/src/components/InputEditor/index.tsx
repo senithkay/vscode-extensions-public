@@ -17,10 +17,10 @@ import { ClickAwayListener } from "@material-ui/core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
-import { CALL_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE, FUNCTION_CALL } from "../../constants";
+import { CALL_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE, FUNCTION_CALL, PARAM_CONSTRUCTOR } from "../../constants";
 import { InputEditorContext } from "../../store/input-editor-context";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { isPositionsEquals } from "../../utils";
+import { getFunctionParamPlaceholders, isPositionsEquals } from "../../utils";
 import { EXPR_PLACEHOLDER, FUNCTION_CALL_PLACEHOLDER, STMT_PLACEHOLDER, TYPE_DESC_PLACEHOLDER } from "../../utils/expressions";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementRendererStyles } from "../styles";
@@ -86,11 +86,15 @@ export function InputEditor(props: InputEditorProps) {
                                 (config.type === CALL_CONFIG_TYPE && userInput === FUNCTION_CALL) ? FUNCTION_CALL_PLACEHOLDER :
                                     userInput.trim() :
                                 EXPR_PLACEHOLDER;
-        if (statementModel && INPUT_EDITOR_PLACEHOLDERS.has(trimmedInput)) {
+        const isFunctionParam = trimmedInput.substring(0, 10) === PARAM_CONSTRUCTOR;
+        if (statementModel && (INPUT_EDITOR_PLACEHOLDERS.has(trimmedInput) || isFunctionParam)) {
             if (isPositionsEquals(statementModel.position, model.position) && !isExpressionMode) {
                 // override the placeholder when the statement is empty
                 return INPUT_EDITOR_PLACEHOLDERS.get(STMT_PLACEHOLDER);
             } else {
+                if (isFunctionParam) {
+                    return getFunctionParamPlaceholders(trimmedInput);
+                }
                 return INPUT_EDITOR_PLACEHOLDERS.get(trimmedInput);
             }
         } else {
