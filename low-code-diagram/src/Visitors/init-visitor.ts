@@ -44,7 +44,6 @@ import {
     ServiceViewState,
     SimpleBBox,
     StatementViewState,
-    ViewState,
     WhileViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
@@ -249,7 +248,6 @@ export class InitVisitor implements Visitor {
             const currentVp = this.allEndpoints?.get(key);
             if (currentVp && parentEp.visibleEndpoint.moduleName === currentVp.visibleEndpoint.moduleName
                 && parentEp.visibleEndpoint.orgName === currentVp.visibleEndpoint.orgName) {
-                // node.viewState.expandOffSet = this.offsetValue;
                 parentEp.isExpandedPoint = true;
                 parentEp.offsetValue = this.offsetValue;
                 this.allEndpoints.set(key, parentEp);
@@ -336,17 +334,6 @@ export class InitVisitor implements Visitor {
                     stmtViewState.isCallerAction = callerParam && callerParam.name === varRef.name.value;
                 }
             }
-
-            // Do we need this.... here we only need to identify actions.
-            // else if (STKindChecker.isMethodCall(node.expression)) {
-            //     const expression: MethodCall = node.expression as MethodCall;
-            //     const expressionVS: StatementViewState = expression.viewState;
-            //     const varRef: SimpleNameReference = expression.expression as SimpleNameReference;
-            //     stmtViewState.isCallerAction = expressionVS.isCallerAction;
-            //     stmtViewState.isAction = expressionVS.isAction;
-            //     stmtViewState.action.actionName = expression.methodName.name.value;
-            //     stmtViewState.action.endpointName = varRef.name.value;
-            // }
         }
     }
 
@@ -355,9 +342,7 @@ export class InitVisitor implements Visitor {
     }
 
     private initStatement(node: STNode, parent?: STNode) {
-        // if (!node.viewState) {
         node.viewState = new StatementViewState();
-        // }
         const stmtViewState: StatementViewState = node.viewState;
         // todo: In here we need to catch only the action invocations.
         if (isSTActionInvocation(node) && !haveBlockStatement(node)) {

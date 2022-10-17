@@ -16,11 +16,6 @@ import { ViewState } from "./view-state";
 
 export class CollapseViewState extends ViewState {
     public collapsed: boolean = true;
-    // public index: number;
-    // public cx: number;
-    // public cy: number;
-    // public w: number;
-    // public h: number;
     public range: NodePosition;
     constructor() {
         super();

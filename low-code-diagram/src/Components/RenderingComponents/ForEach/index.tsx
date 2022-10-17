@@ -114,10 +114,6 @@ export function ForEach(props: ForeachProps) {
         }
     }
 
-    if (bodyViewState.collapseView) {
-        // TODO: Fix rendering collapsed view components in ForEach
-        // children.push(<Collapse blockViewState={bodyViewState} />)
-    }
 
     for (const plusView of modelForeach.blockStatement.viewState.plusButtons) {
         if (viewMode === ViewMode.INTERACTION) break;
@@ -126,7 +122,6 @@ export function ForEach(props: ForeachProps) {
 
     const collapsedComponents: JSX.Element[] = []
     if (bodyViewState.collapsedViewStates.length > 0) {
-        // TODO: handle collapse ranges rendering
         bodyViewState.collapsedViewStates.forEach((collapseVS) => {
             const onExpandClick = () => {
                 diagramRedraw(

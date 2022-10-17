@@ -1418,20 +1418,6 @@ export class SizingVisitor implements Visitor {
             const stmtViewState: StatementViewState = element.viewState;
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
-            // if (plusForIndex && plusForIndex.collapsedClicked) {
-            //     // setting up collapse view once the collapse button is clicked
-            //     const collapsedView = new CollapseViewState();
-            //     blockViewState.collapseView = collapsedView;
-            //     blockViewState.collapsedFrom = index;
-            //     stmtViewState.collapsed = true;
-            // } else if (blockViewState.collapsed
-            //     || (blockViewState.collapsedFrom <= index && blockViewState.collapseView)) {
-            //     stmtViewState.collapsed = true;
-            // } else if (!blockViewState.collapsed
-            //     || (blockViewState.collapsedFrom <= index && blockViewState.collapseView)) {
-            //     stmtViewState.collapsed = false;
-            // }
-
             if (isSTActionInvocation(element)
                 && !haveBlockStatement(element)
                 && this.allEndpoints
