@@ -82,62 +82,6 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
 
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     const resourceRoot = isCodeServer ? RESOURCES_CDN : getVSCodeResourceURI(getWebViewResourceRoot());
-    const whatFixUrl = process.env.BALLERINA_DEV_CENTRAL || process.env.BALLERINA_STAGE_CENTRAL ?
-        'https://whatfix.com/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js' :
-        'https://cdn.whatfix.com/prod/c9fb1d90-71f0-11ec-a69b-2a8342861064/embed/embed.nocache.js';
-    const whatFix = isCodeServer ?
-        `<script language='javascript' async='true' type='text/javascript' src='${whatFixUrl}'></script>` : '';
-
-    // const sentryScript = isCodeServer ?
-    //     `<script>
-    //     window.SENTRY_SDK = {
-    //     url: "https://cdn.ravenjs.com/3.26.4/raven.min.js",
-    //     dsn: "https://42f7b8a64c79469f8dd38f75c176681e@o350818.ingest.sentry.io/6250789",
-    //     options: {
-    //         release: "3.12.0",
-    //         environment: "${process.env.VSCODE_CHOREO_SENTRY_ENV}"
-    //     },
-    //     };
-    //     (function(a, b, g, e, h) {
-    //     var k = a.SENTRY_SDK,
-    //         f = function(a) {
-    //         f.data.push(a);
-    //         };
-    //     f.data = [];
-    //     var l = a[e];
-    //     a[e] = function(c, b, e, d, h) {
-    //         f({ e: [].slice.call(arguments) });
-    //         l && l.apply(a, arguments);
-    //     };
-    //     var m = a[h];
-    //     a[h] = function(c) {
-    //         f({ p: c.reason });
-    //         m && m.apply(a, arguments);
-    //     };
-    //     var n = b.getElementsByTagName(g)[0];
-    //     b = b.createElement(g);
-    //     b.src = k.url;
-    //     b.crossorigin = "anonymous";
-    //     b.addEventListener("load", function() {
-    //         try {
-    //         a[e] = l;
-    //         a[h] = m;
-    //         var c = f.data,
-    //             b = a.Raven;
-    //         b.config(k.dsn, k.options).install();
-    //         var g = a[e];
-    //         if (c.length)
-    //             for (var d = 0; d < c.length; d++)
-    //             c[d].e
-    //                 ? g.apply(b.TraceKit, c[d].e)
-    //                 : c[d].p && b.captureException(c[d].p);
-    //         } catch (p) {
-    //         console.log(p);
-    //         }
-    //     });
-    //     n.parentNode.insertBefore(b, n);
-    //     })(window, document, "script", "onerror", "onunhandledrejection");
-    // </script>` : '';
 
     return `
             <!DOCTYPE html>
@@ -181,7 +125,6 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                     }
                     ${styles}
                 </style>
-                ${whatFix}
             </head>
             
             <body class="${bodyCss}" style="background: #fff;">
