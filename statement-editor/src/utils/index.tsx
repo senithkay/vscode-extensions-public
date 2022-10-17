@@ -298,10 +298,10 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
         const diagnosticStartLine = start?.line;
         const diagnosticEndLine = end?.line;
         return (diagTargetPosition.startLine < diagnosticStartLine
-                || (diagTargetPosition.startLine < diagnosticStartLine
+                || (diagTargetPosition.startLine === diagnosticStartLine
                 && diagTargetPosition.startLine <= diagnosticStartCol))
                 && (diagTargetPosition.endLine > diagnosticEndLine
-                || (diagTargetPosition.endLine == diagnosticEndLine
+                || (diagTargetPosition.endLine === diagnosticEndLine
                 && diagTargetPosition.endColumn >= diagnosticEndCol));
     })
 
