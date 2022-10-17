@@ -5,9 +5,9 @@
 const SentryPlugin = require("@sentry/webpack-plugin");
 const path = require('path');
 const MergeIntoSingleFile = require('webpack-merge-and-include-globally');
-const APP_VERSION = "20221014-0954";
+const APP_VERSION = "20221017-1241";
 const optionalPlugins = [];
-const BALLERINA_VS_CODE_PATH = "~/config/extensions/wso2.ballerina-3.3.0-beta2/resources/jslibs";
+const BALLERINA_VS_CODE_PATH = "~/config/extensions/wso2.ballerina-3.3.0-beta3/resources/jslibs";
 const logging = require('webpack/lib/logging/runtime');
 
 logging.getLogger("plugin-vscode").info('IS_RELEASE: ' + process.env.IS_RELEASE);
