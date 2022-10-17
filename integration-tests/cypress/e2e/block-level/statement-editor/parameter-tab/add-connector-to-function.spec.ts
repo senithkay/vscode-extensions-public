@@ -58,6 +58,9 @@ describe('Add connector with custom configurations via Low Code', () => {
         EditorPane
             .validateNewExpression("IdentifierToken", "auth")
 
+        EditorPane
+            .validateEmptyDiagnostics();
+
         StatementEditor
             .save();
 
