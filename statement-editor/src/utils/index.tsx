@@ -291,7 +291,21 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
         endColumn: targetPosition?.endColumn || 0
     };
 
-    getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
+    const diagInPosition = diag.filter((diagnostic) => {
+        const { start, end } = diagnostic.range || {};
+        const diagnosticStartCol = start?.character;
+        const diagnosticEndCol = end?.character;
+        const diagnosticStartLine = start?.line;
+        const diagnosticEndLine = end?.line;
+        return (diagTargetPosition.startLine < diagnosticStartLine
+                || (diagTargetPosition.startLine < diagnosticStartLine
+                && diagTargetPosition.startLine <= diagnosticStartCol))
+                && (diagTargetPosition.endLine > diagnosticEndLine
+                || (diagTargetPosition.endLine == diagnosticEndLine
+                && diagTargetPosition.endColumn >= diagnosticEndCol));
+    })
+
+    getDiagnosticMessage(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
         let isPlaceHolderDiag = false;
         if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
             || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
