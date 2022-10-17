@@ -221,7 +221,7 @@ export function InputEditor(props: InputEditorProps) {
             <ClickAwayListener  mouseEvent="onMouseDown" onClickAway={clickAwayHandler}>
                 <input
                     data-testid="input-editor"
-                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) ? "" : userInput}
+                    value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) || userInput.substring(0, 10) === PARAM_CONSTRUCTOR ? "" : userInput}
                     className={statementRendererClasses.inputEditorEditingState + ' ' + classNames}
                     onKeyDown={inputEnterHandler}
                     onInput={inputChangeHandler}
