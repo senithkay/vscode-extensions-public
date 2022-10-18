@@ -19,12 +19,13 @@
 
 import {
     workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
-    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment
+    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
     NO_SUCH_FILE, CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT,
-    OLD_PLUGIN_INSTALLED
+    OLD_PLUGIN_INSTALLED,
+    COOKIE_SETTINGS
 } from "./messages";
 import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
@@ -169,6 +170,7 @@ export class BallerinaExtension {
         };
         if (this.isCodeServerEnv()) {
             commands.executeCommand('workbench.action.closeAllEditors');
+            this.showCookieConsentMessage();
             this.getCodeServerContext().telemetryTracker = new TelemetryTracker();
         }
         this.webviewContext = { isOpen: false };
@@ -430,6 +432,17 @@ export class BallerinaExtension {
         window.showWarningMessage(OLD_BALLERINA_VERSION, download).then((selection) => {
             if (download === selection) {
                 commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
+            }
+        });
+    }
+
+    showCookieConsentMessage(): any {
+        const go: string = 'Go to console';
+        window.showWarningMessage(COOKIE_SETTINGS, go).then(async (selection) => {
+            const url = process.env.VSCODE_CHOREO_DEPLOY_URI;
+            if (go === selection && url) {
+                const callbackUri = await env.asExternalUri(Uri.parse(url));
+                commands.executeCommand("vscode.open", callbackUri);
             }
         });
     }
