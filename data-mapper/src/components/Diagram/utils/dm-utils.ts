@@ -430,8 +430,8 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 					}
 				}
 			}
-		} else {
-			// handle this when direct mapping parameters is enabled
+		} else if (STKindChecker.isSimpleNameReference(expr)){
+			return (node.getPort(portIdBuffer + ".OUT") as RecordFieldPortModel);
 		}
 	} else if (STKindChecker.isSimpleNameReference(expr)) {
 		const portId = portIdBuffer + ".OUT";
@@ -679,8 +679,10 @@ export function isConnectedViaLink(field: STNode) {
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field);
 	const isListConstruct = STKindChecker.isListConstructor(field);
 	const isQueryExpression = STKindChecker.isQueryExpression(field)
+	const isSimpleNameRef = STKindChecker.isSimpleNameReference(field)
 
-	return (!!fieldAccessNodes.length || isQueryExpression) && !isMappingConstruct && !isListConstruct;
+	return (!!fieldAccessNodes.length || isQueryExpression || isSimpleNameRef)
+		&& !isMappingConstruct && !isListConstruct;
 }
 
 export function getTypeName(field: Type): string {
