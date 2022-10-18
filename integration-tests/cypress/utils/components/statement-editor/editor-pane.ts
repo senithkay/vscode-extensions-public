@@ -55,6 +55,12 @@ export class EditorPane {
         return this;
     }
 
+    static clickTokenContent(token:string){
+        cy.contains(`[class*="expressionBlock"]`,token)
+            .click();
+        return this;
+    }
+
     static clickSpecificExpression(modelType:string, position?:number, text?:string){
         cy.get(`${this.parentSelector}`).within(() =>{
             cy.get(`[data-testid="${modelType}"]`).eq(position)

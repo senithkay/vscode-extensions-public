@@ -1,4 +1,6 @@
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
+// tslint:disable-next-line: no-implicit-dependencies
+import { Uri } from "monaco-editor";
 
 import devproject from "./data/devproject.json";
 
@@ -47,7 +49,7 @@ export function getComponentDataPath(componentName: string, fileName: string) {
 export async function fetchSyntaxTree(filePath: string) {
   const text = await getFileContent(filePath);
   const langClient = await langClientPromise;
-  const uri = `file://${filePath}`;
+  const uri =  Uri.file(filePath).toString();
 
   await langClient.didOpen({
     textDocument: {
