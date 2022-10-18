@@ -299,10 +299,7 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
         const diagnosticEndLine = end?.line;
         return (diagTargetPosition.startLine < diagnosticStartLine
                 || (diagTargetPosition.startLine === diagnosticStartLine
-                && diagTargetPosition.startLine <= diagnosticStartCol))
-                && (diagTargetPosition.endLine > diagnosticEndLine
-                || (diagTargetPosition.endLine === diagnosticEndLine
-                && diagTargetPosition.endColumn >= diagnosticEndCol));
+                && diagTargetPosition.startColumn <= diagnosticStartCol));
     })
 
     getDiagnosticMessage(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
