@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 
+import { Uri } from 'monaco-editor';
+
 import { DiagramGenerator, DiagramGeneratorProps } from '../DiagramGenerator';
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
@@ -30,7 +32,7 @@ export function DiagramGeneratorWrapper(props: DiagramGeneratorProps) {
                 textDocument: {
                   languageId: "ballerina",
                   text,
-                  uri: `file://${filePath}`,
+                  uri: Uri.file(filePath).toString(),
                   version: 1
                 }
             });
@@ -42,7 +44,7 @@ export function DiagramGeneratorWrapper(props: DiagramGeneratorProps) {
             const langClient = await langClientPromise;
             langClient.didClose({
                 textDocument: {
-                  uri: `file://${filePath}`,
+                  uri: Uri.file(filePath).toString(),
                 }
             });
             setDidOpen(true);
@@ -70,7 +72,7 @@ export function DiagramGeneratorWrapper(props: DiagramGeneratorProps) {
                         langClientPromise.then((langClient) => {
                             langClient.didChange({
                                 textDocument: {
-                                    uri: `file://${filePath}`,
+                                    uri: Uri.file(filePath).toString(),
                                     version: 1
                                 },
                                 contentChanges: [
