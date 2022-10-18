@@ -21,6 +21,7 @@ import {
     STNode,
     traversNode
 } from "@wso2-enterprise/syntax-tree";
+import { Uri } from "monaco-editor";
 
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
@@ -45,7 +46,7 @@ export class RecordTypeDescriptorStore {
     public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext){
         this.recordTypeDescriptors.clear();
         const langClient = await context.langClientPromise;
-        const fileUri = `file://${context.currentFile.path}`;
+        const fileUri = Uri.file(context.currentFile.path).toString();
         const visitor = new RecordTypeFindingVisitor();
         traversNode(stNode, visitor);
 
