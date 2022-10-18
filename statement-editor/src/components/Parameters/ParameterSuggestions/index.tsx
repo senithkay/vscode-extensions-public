@@ -13,6 +13,7 @@
 import React, { useContext, useEffect } from "react";
 
 import { List, ListItem, ListItemText, ListSubheader } from "@material-ui/core";
+import { withStyles } from "@material-ui/core/styles";
 import { BallerinaConnectorInfo, FunctionDefinitionInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -31,13 +32,14 @@ import {
     updateParamListFordMethodCallDoc
 } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+import { parameterHeader, useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 import { ParameterList } from "../ParameterList";
 import { ParameterTree } from "../ParameterTree";
 import { retrieveUsedAction } from "../ParameterTree/utils";
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export function ParameterSuggestions() {
+    const ParamListSubheader = withStyles(parameterHeader)(ListSubheader);
     const {
         modelCtx: {
             currentModel,
@@ -92,7 +94,7 @@ export function ParameterSuggestions() {
             paramDocumentation = updateParamDocWithParamPositions(paramsInModel, paramDocumentation);
             setParamDoc(paramDocumentation);
         }
-    }, [currentModel.model, documentation]);
+    }, [documentation]);
 
     useEffect(() => {
         if (config.type === ACTION && activeMethod && statementModel && connectorInfo?.functions.length > 0) {
@@ -144,9 +146,9 @@ export function ParameterSuggestions() {
                                         {paramDoc?.parameters?.length > 0 && (
                                             <hr className={stmtEditorHelperClasses.returnSeparator}/>
                                         )}
-                                        <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                                        <ParamListSubheader>
                                             Description
-                                        </ListSubheader>
+                                        </ParamListSubheader>
                                         <ListItem className={stmtEditorHelperClasses.docDescription}>
                                             {getDocumentationDescription()}
                                         </ListItem>
@@ -155,9 +157,9 @@ export function ParameterSuggestions() {
                                 {documentation.documentation.returnValueDescription && (
                                     <>
                                         <hr className={stmtEditorHelperClasses.returnSeparator}/>
-                                        <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                                        <ParamListSubheader>
                                             Return
-                                        </ListSubheader>
+                                        </ParamListSubheader>
                                         <ListItem className={stmtEditorHelperClasses.returnDescription}>
                                             <ListItemText primary={documentation.documentation.returnValueDescription}/>
                                         </ListItem>
@@ -179,9 +181,9 @@ export function ParameterSuggestions() {
                     )}
                     {(connectorInfo?.documentation || activeMethod.documentation) && (
                         <>
-                            <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                            <ParamListSubheader>
                                 Description
-                            </ListSubheader>
+                            </ParamListSubheader>
                             <ListItem className={stmtEditorHelperClasses.docDescription}>
                                 {connectorInfo?.documentation || activeMethod.documentation}
                             </ListItem>
@@ -190,7 +192,7 @@ export function ParameterSuggestions() {
                     {activeMethod.returnType?.documentation && (
                         <>
                             <hr className={stmtEditorHelperClasses.returnSeparator} />
-                            <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>Return</ListSubheader>
+                            <ParamListSubheader>Return</ParamListSubheader>
                             <ListItem className={stmtEditorHelperClasses.returnDescription}>
                                 <ListItemText primary={activeMethod.returnType?.documentation} />
                             </ListItem>

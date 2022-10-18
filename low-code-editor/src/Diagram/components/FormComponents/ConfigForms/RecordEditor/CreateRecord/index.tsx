@@ -103,7 +103,8 @@ export function CreateRecord(props: CreateRecordProps) {
                 stSymbolInfo,
                 importStatements,
                 experimentalEnabled,
-                isModuleVar: true
+                isModuleVar: true,
+                isHeaderHidden: isDataMapper
             }
         )
     )
@@ -124,6 +125,7 @@ export function CreateRecord(props: CreateRecordProps) {
                         targetPosition={targetPosition}
                         onCancel={onCancel}
                         onSave={handleImportJsonSave}
+                        isHeaderHidden={isDataMapper}
                     />
                 )}
                 {(editorState === ConfigState.CREATE_FROM_SCRATCH) && (

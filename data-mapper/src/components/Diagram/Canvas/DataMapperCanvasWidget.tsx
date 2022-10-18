@@ -13,6 +13,9 @@ namespace S {
 		position: relative;
 		cursor: move;
 		overflow: hidden;
+		& > svg {
+			overflow: visible;
+		}
 	`;
 }
 

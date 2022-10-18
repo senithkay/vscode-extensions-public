@@ -72,6 +72,7 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
 
+        inputEditorCtx.onInputChange(source.trim());
         return source.trim();
     }, [model]);
 

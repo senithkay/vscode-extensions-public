@@ -46,7 +46,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             position: 'absolute',
             left: 124,
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            '& svg': {
+                marginTop: 4
+            }
         }
     }),
     { index: 1 }

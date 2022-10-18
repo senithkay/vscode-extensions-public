@@ -20,9 +20,11 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import classNames from "classnames";
+import classnames from "classnames";
 
+import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
+import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
@@ -39,7 +41,6 @@ import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
-import classnames from "classnames";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -111,11 +112,28 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {fieldName && typeName && ":"}
             </span>
-            {typeName && (
-                <span className={classnames(classes.typeLabel,
-                                (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}>
+            {typeName !== '[]' ? (
+                <span
+                    className={classnames(
+                        classes.typeLabel, (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}
+                >
                     {typeName}
                 </span>
+            ) : (
+                <DiagnosticTooltip
+                    placement="right"
+                    diagnostic={{
+                        message: "Type information is missing",
+                        range: null
+                    }}
+                >
+                        <span className={classes.valueWithError}>
+                            {typeName}
+                            <span className={classes.errorIconWrapper}>
+                                <ErrorIcon />
+                            </span>
+                        </span>
+                </DiagnosticTooltip>
             )}
         </span>
     );
@@ -190,7 +208,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const handleAddArrayElement = () => {
         const fieldsAvailable = !!listConstructor.expressions.length;
-        const defaultValue = getDefaultValue(field.type.memberType);
+        const defaultValue = field.type?.memberType && getDefaultValue(field.type.memberType);
         let targetPosition: NodePosition;
         let newElementSource: string;
         if (fieldsAvailable) {
@@ -209,7 +227,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     return (
-        <div className={classNames(classes.treeLabel, classes.treeLabelArray,
+        <div className={classnames(classes.treeLabel, classes.treeLabelArray,
                         (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
             <div className={classes.ArrayFieldRow}>
                 <span className={classes.treeLabelInPort}>
@@ -237,6 +255,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                 onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
                             }
                         ]}
+                        isDisabled={!typeName || typeName === '[]'}
                     />
                 )}
             </div>
