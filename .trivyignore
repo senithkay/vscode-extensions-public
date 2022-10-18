@@ -207,3 +207,6 @@ CVE-2022-3116
 
 # CRITICAL: Ballerina
 CVE-2022-42889
+
+# HIGH: Codeserver
+CVE-2022-3515
