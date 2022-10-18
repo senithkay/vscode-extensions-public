@@ -13,6 +13,8 @@
 
 import { Canvas } from "../../utils/components/canvas";
 import { SourceCode } from "../../utils/components/code-view";
+import { StatementEditor } from "../../utils/components/statement-editor/statement-editor";
+import { Toolbar } from "../../utils/components/statement-editor/toolbar";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
 import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { RecordForm } from "../../utils/forms/record-form";
@@ -112,6 +114,39 @@ describe('Record', () => {
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "delete-record.expected.bal");
+    });
+
+    it('Make Record field optional', () => {
+        cy.visit(getIntegrationTestPageURL(EXISTING_RECORD_FILE_PATH));
+        Canvas
+            .getRecord('Person')
+            .clickEdit();
+
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
+
+        EditorPane
+            .getExpression("IdentifierToken")
+            .clickExpressionContent(`city`);
+
+        SuggestionsPane
+            .tabShouldFocused("Expressions")
+            .clickExpressionSuggestion("Es?");
+
+        EditorPane
+            .validateNewExpression("RecordField", "string city?")
+            .getExpression("RecordField")
+            .clickTokenContent(`?`);
+
+        Toolbar
+            .clickDeleteButton();
+
+        EditorPane
+            .validateNewExpression("RecordField", "string city");
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "record-form.expected.bal");
     });
 
     it('Open and Cancel Form', () => {
