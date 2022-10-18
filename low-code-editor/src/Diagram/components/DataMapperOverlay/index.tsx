@@ -26,6 +26,7 @@ import {
   STKindChecker,
   STNode,
 } from "@wso2-enterprise/syntax-tree";
+import { Uri } from "monaco-editor";
 
 import { Context } from "../../../Contexts/Diagram";
 import { RecordEditor } from "../FormComponents/ConfigForms";
@@ -76,7 +77,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
       await getDiagramEditorLangClient();
     const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
       documentIdentifier: {
-        uri: `file://${currentFile.path}`,
+        uri: Uri.file(currentFile.path).toString(),
       },
     });
     if (parseSuccess) {
