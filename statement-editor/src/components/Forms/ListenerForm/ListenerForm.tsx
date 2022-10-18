@@ -28,6 +28,7 @@ import {
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ListenerDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
@@ -99,6 +100,7 @@ export function ListenerForm(props: FunctionProps) {
         setListenerName({value, isInteracted: true});
         await listenerParamChange(value, listenerPort.value);
     }
+    const debouncedNameChange = debounce(handleNameChange, 800);
 
     // Functions related to port
     const handlePortFocus = (value: string) => {
@@ -108,6 +110,7 @@ export function ListenerForm(props: FunctionProps) {
         setListenerPort({value, isInteracted: true});
         await listenerParamChange(listenerName.value, value);
     }
+    const debouncedPortChange = debounce(handlePortChange, 800);
 
     const handleOnSave = () => {
         applyModifications([
@@ -157,7 +160,7 @@ export function ListenerForm(props: FunctionProps) {
                         label="Listener Name"
                         dataTestId="listener-name"
                         defaultValue={listenerName.value}
-                        onChange={handleNameChange}
+                        onChange={debouncedNameChange}
                         customProps={{
                             isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Name") ||
                                 model?.variableName?.viewState?.diagnosticsInRange[0]?.message)
@@ -175,7 +178,7 @@ export function ListenerForm(props: FunctionProps) {
                         label="Listener Port"
                         dataTestId="listener-port"
                         defaultValue={listenerPort.value}
-                        onChange={handlePortChange}
+                        onChange={debouncedPortChange}
                         customProps={{
                             isErrored: ((currentComponentSyntaxDiag !== undefined && currentComponentName === "Port") ||
                                 (model?.initializer?.viewState?.
