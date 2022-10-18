@@ -177,7 +177,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             value={value}
                             onClick={handleEditValue}
                         >
-                            <span className={classes.valueWithError} onClick={handleEditValue}>
+                            <span className={classes.valueWithError}>
                                 {value}
                                 <span className={classes.errorIconWrapper}>
                                     <ErrorIcon />
