@@ -68,7 +68,7 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
                                 axisLine={false}
                                 tickSize={0}
                                 tickMargin={15}
-                                label={{ value: 'Throughput (req/s)', angle: -90, position: 'insideBottomLeft' }} />
+                                label={{ value: 'Throughput (req/s)', angle: -90, dx: -30, position: 'insideCenterLeft' }} />
                             <YAxis />
                             <Tooltip cursor={{ strokeWidth: 2 }} />
                             <CartesianGrid strokeDasharray="0" />
@@ -104,7 +104,7 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
                                 axisLine={false}
                                 tickSize={0}
                                 tickMargin={15}
-                                label={{ value: 'Latency (ms)', angle: -90, position: 'insideBottomLeft' }} />
+                                label={{ value: 'Latency (ms)', angle: -90, dx: -30, position: 'insideCenterLeft' }} />
                             <YAxis />
                             <Tooltip cursor={{ strokeWidth: 2 }} />
                             <CartesianGrid strokeDasharray="0" />
@@ -123,13 +123,14 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
     const columns = [
         {
             field: `LATENCY`,
-            headerName: `LATENCY (User Count ${maxUsers === 1 ? `1` : `1 - ${maxUsers}`})`,
+            headerName: `Latency (User Count ${maxUsers === 1 ? `1` : `1 - ${maxUsers}`})`,
             minWidth: 215,
             flex: 0.2,
             sortable: false,
         },
         {
             field: "PATH",
+            headerName: "Path",
             minWidth: pathsWidth * 6.5,
             flex: 1,
             sortable: false
@@ -138,8 +139,8 @@ export const PerformanceForecast = ({ name, data }: PerformanceForecastProps) =>
 
     return (
         <div className="performance-forcast">
-            <h1 className="center">Performance Graph - {name}</h1>
-            <h3>Paths</h3>
+            <h1 className="center">Performance Forecast - {name}</h1>
+            <h3>Execution Paths</h3>
 
             <div>
                 <DataGrid
