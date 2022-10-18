@@ -21,6 +21,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
+import debounce from "lodash.debounce";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
@@ -117,6 +118,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
             }
         });
     };
+    const debouncedNameChange = debounce(onNameChange, 800);
 
     const onSeparateDefinitionSelection = (mode: string[]) => {
         dispatchFromState({ type: 'checkSeparateDef', payload: mode.length > 0 });
@@ -205,7 +207,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             placeholder="Enter Record Name"
                             defaultValue={formState.recordName}
                             customProps={{ readonly: false, isErrored: formState?.recordNameDiag }}
-                            onChange={onNameChange}
+                            onChange={debouncedNameChange}
                             errorMessage={formState?.recordNameDiag}
                         />
                         <div className={classNames(classes.inputWrapper, classes.flexItems)}>
