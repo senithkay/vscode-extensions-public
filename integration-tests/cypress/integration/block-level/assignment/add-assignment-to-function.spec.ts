@@ -53,7 +53,8 @@ describe('Add assignment to function via Low Code', () => {
             getCurrentSpecFolder() + "add-assignment-to-function.expected.bal");
     })
 
-    it('Delete an assignment in function', () => {
+    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
+    it.skip('Delete an assignment in function', () => {
         Canvas.getFunction("myFunction")
             .nameShouldBe("myFunction")
             .shouldBeExpanded()
