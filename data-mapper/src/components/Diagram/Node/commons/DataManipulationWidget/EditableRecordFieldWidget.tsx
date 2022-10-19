@@ -99,7 +99,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     };
 
     const handleEditValue = () => {
-        if (STKindChecker.isSpecificField(field.value)) {
+        if (field.value && STKindChecker.isSpecificField(field.value)) {
             props.context.enableStatementEditor({
                 value: field.value.valueExpr.source,
                 valuePosition: field.value.valueExpr.position,
