@@ -33,7 +33,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             flexDirection: "column"
         },
         ArrayFieldRow: {
-            display: "flex"
+            display: "flex",
+            alignItems: 'center'
         },
         innerTreeLabel: {
             display: "flex",
@@ -168,6 +169,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: theme.palette.error.main,
             margin: '0 2px',
             fontSize: '18px'
+        },
+        loader: {
+            float: "right",
+            marginLeft: "auto",
+            marginRight: '3px',
+            alignSelf: 'center'
         }
     }),
 );

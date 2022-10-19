@@ -32,7 +32,7 @@ export interface IDataMapperContext {
     };
     stSymbolInfo: STSymbolInfo;
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
-    applyModifications: (modifications: STModification[]) => void;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
     diagnostics: Diagnostic[];
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     collapsedFields: string[];
@@ -57,7 +57,7 @@ export class DataMapperContext implements IDataMapperContext {
         },
         public stSymbolInfo: STSymbolInfo,
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
-        public applyModifications: (modifications: STModification[]) => void,
+        public applyModifications: (modifications: STModification[]) => Promise<void>,
         public diagnostics: Diagnostic[],
         public enableStatementEditor: (expressionInfo: ExpressionInfo) => void,
         public collapsedFields: string[],

@@ -64,13 +64,8 @@ export function ExpandedMappingHeaderWidget(
         }
     };
 
-    const deleteWhereClause = (clauseItem: STNode) => {
-        node.context.applyModifications([
-            {
-                type: "DELETE",
-                ...clauseItem.position,
-            },
-        ]);
+    const deleteWhereClause = async (clauseItem: STNode) => {
+        await node.context.applyModifications([{ type: "DELETE", ...clauseItem.position }]);
     };
 
     const fromClause = props.node.queryExpr.queryPipeline.fromClause;
@@ -92,13 +87,12 @@ export function ExpandedMappingHeaderWidget(
                 </div>
             </div>
             {intermediateClauses.length > 0 && (
-                <div className={classes.addIconWrap}>
-                    <ClauseAddButton
-                        context={node.context}
-                        queryExprNode={node.queryExpr}
-                        addIndex={-1}
-                    />
-                </div>
+                <ClauseAddButton
+                    context={node.context}
+                    queryExprNode={node.queryExpr}
+                    addIndex={-1}
+                    visibleOnlyOnHover
+                />
             )}
             {intermediateClauses.length > 0 ? (
                 intermediateClauses?.map((clauseItem, index) => {

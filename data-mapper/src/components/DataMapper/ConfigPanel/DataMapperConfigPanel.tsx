@@ -97,9 +97,14 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     useEffect(() => {
         if (fnST) {
             setFnName(getFnNameFromST(fnST));
-            setInputParams(getInputsFromST(fnST));
-            console.log(getOutputTypeFromST(fnST));
-            setOutputType(getOutputTypeFromST(fnST));
+            const inputs = getInputsFromST(fnST);
+            if (inputs && inputs.length > 0) {
+                setInputParams(getInputsFromST(fnST));
+            }
+            const output = getOutputTypeFromST(fnST);
+            if (output && output.length > 0) {
+                setOutputType(getOutputTypeFromST(fnST));
+            }
         }
     }, [fnST]);
 

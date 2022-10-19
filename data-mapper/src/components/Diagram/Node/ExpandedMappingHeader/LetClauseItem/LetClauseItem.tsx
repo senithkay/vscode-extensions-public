@@ -26,11 +26,12 @@ import { ClauseAddButton } from "../ClauseAddButton";
 import clsx from "clsx";
 import { getRenameEdits } from "../../../utils/ls-utils";
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { CircularProgress } from "@material-ui/core";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;
     onEditClick: () => void;
-    onDeleteClick: () => void;
+    onDeleteClick: () => Promise<void>;
     context: IDataMapperContext;
     queryExprNode: QueryExpression;
     itemIndex: number;
@@ -52,6 +53,21 @@ export function LetClauseItem(props: {
             .bindingPattern as CaptureBindingPattern
     )?.variableName?.value;
     const [updatedName, setUpdatedName] = useState(variableName);
+    const [isLoading, setLoading] = useState(false);
+
+    const onDelete = async () => {
+        setLoading(true);
+        try {
+            await onDeleteClick();
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const onEdit = async () => {
+        context.handleFieldToBeEdited(`${itemIndex}`);
+        onEditClick();
+    }
 
     const onKeyUp = async (key: string, node?: STNode) => {
         if (key === "Escape") {
@@ -59,25 +75,31 @@ export function LetClauseItem(props: {
             setUpdatedName("");
         }
         if (key === "Enter") {
-            const workspaceEdit = await getRenameEdits(context.filePath, updatedName, node.position, context.langClientPromise);
-            const modifications: STModification[] = []
+            setLoading(true);
+            try {
+                const workspaceEdit = await getRenameEdits(context.filePath, updatedName, node.position, context.langClientPromise);
+                const modifications: STModification[] = []
 
-            Object.values(workspaceEdit?.changes).forEach(edits => {
-                edits.forEach(edit => {
-                    modifications.push({
-                        type: "INSERT",
-                        config: { STATEMENT: edit.newText },
-                        endColumn: edit.range.end.character,
-                        endLine: edit.range.end.line,
-                        startColumn: edit.range.start.character,
-                        startLine: edit.range.start.line,
+                Object.values(workspaceEdit?.changes).forEach(edits => {
+                    edits.forEach(edit => {
+                        modifications.push({
+                            type: "INSERT",
+                            config: { STATEMENT: edit.newText },
+                            endColumn: edit.range.end.character,
+                            endLine: edit.range.end.line,
+                            startColumn: edit.range.start.character,
+                            startLine: edit.range.start.line,
+                        })
                     })
                 })
-            })
 
-            context.applyModifications(modifications);
+                await context.applyModifications(modifications);
+            } finally {
+                setLoading(false);
+            }
         }
     };
+
 
     return (
         <>
@@ -119,23 +141,26 @@ export function LetClauseItem(props: {
                     <span className={classes.clauseItem}>{` ${letVarDeclaration.equalsToken.value} `}</span>
                     <span
                         className={classes.clauseExpression}
-                        onClick={onEditClick}
+                        onClick={onEdit}
                     >
                         {letVarDeclaration.expression.source}
                     </span>
                 </div>
-                <DeleteOutline
-                    className={clsx(classes.deleteIcon)}
-                    onClick={onDeleteClick}
-                />
+                {isLoading || context.fieldToBeEdited === `${itemIndex}` ? (
+                    <CircularProgress size={18} />
+                ) : (
+                    <DeleteOutline
+                        className={clsx(classes.deleteIcon)}
+                        onClick={onDelete}
+                    />
+                )}
             </div>
-            <div className={classes.addIconWrap}>
-                <ClauseAddButton
-                    context={context}
-                    queryExprNode={queryExprNode}
-                    addIndex={itemIndex}
-                />
-            </div>
+            <ClauseAddButton
+                context={context}
+                queryExprNode={queryExprNode}
+                addIndex={itemIndex}
+                visibleOnlyOnHover
+            />
         </>
     );
 }

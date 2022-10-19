@@ -209,7 +209,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 export async function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
 	newValue: string,
-	applyModifications: (modifications: STModification[]) => void) {
+	applyModifications: (modifications: STModification[]) => Promise<void>) {
 
 	let source;
 	let targetMappingConstructor = mappingConstruct;
@@ -275,7 +275,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 		startLine: targetMappingConstructor.openBrace.position.endLine,
 		startColumn: targetMappingConstructor.openBrace.position.endColumn
 	}));
-	applyModifications(modifications);
+	await applyModifications(modifications);
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 1
@@ -430,8 +430,8 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 					}
 				}
 			}
-		} else {
-			// handle this when direct mapping parameters is enabled
+		} else if (STKindChecker.isSimpleNameReference(expr)){
+			return (node.getPort(portIdBuffer + ".OUT") as RecordFieldPortModel);
 		}
 	} else if (STKindChecker.isSimpleNameReference(expr)) {
 		const portId = portIdBuffer + ".OUT";
@@ -686,8 +686,10 @@ export function isConnectedViaLink(field: STNode) {
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field);
 	const isListConstruct = STKindChecker.isListConstructor(field);
 	const isQueryExpression = STKindChecker.isQueryExpression(field)
+	const isSimpleNameRef = STKindChecker.isSimpleNameReference(field)
 
-	return (!!fieldAccessNodes.length || isQueryExpression) && !isMappingConstruct && !isListConstruct;
+	return (!!fieldAccessNodes.length || isQueryExpression || isSimpleNameRef)
+		&& !isMappingConstruct && !isListConstruct;
 }
 
 export function getTypeName(field: Type): string {
@@ -778,10 +780,10 @@ export function getFieldLabel(fieldId: string) {
 	return fieldLabel;
 }
 
-function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
+async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 	fieldIndex: number,
 	targetPosition: NodePosition,
-	applyModifications: (modifications: STModification[]) => void) {
+	applyModifications: (modifications: STModification[]) => Promise<void>) {
 	let source = "";
 
 	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
@@ -791,7 +793,7 @@ function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 		source = rhs;
 	}
 
-	applyModifications([getModification(source, {
+	await applyModifications([getModification(source, {
 		...targetPosition,
 		startLine: targetPosition.endLine,
 		startColumn: targetPosition.endColumn
