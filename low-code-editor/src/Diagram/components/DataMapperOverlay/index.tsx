@@ -62,12 +62,12 @@ export function DataMapperOverlay(props: DataMapperProps) {
 
   useEffect(() => {
     (async () => {
-      if (model && STKindChecker.isFunctionDefinition(model)) {
+      if (newFnName !== "") {
+        handleFunctionST(newFnName).then();
+      } else if (model && STKindChecker.isFunctionDefinition(model)) {
         handleFunctionST(model.functionName.value).then();
       } else if (!!functionST) {
         handleFunctionST(functionST.functionName.value).then();
-      } else {
-        handleFunctionST(newFnName).then();
       }
     })();
   }, [currentFile.content]);

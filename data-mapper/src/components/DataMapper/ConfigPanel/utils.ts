@@ -5,7 +5,7 @@ import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
 
 export function getFnNameFromST(fnST: FunctionDefinition) {
-    return fnST.functionName.value;
+    return fnST && fnST.functionName.value;
 }
 
 export function getInputsFromST(fnST: FunctionDefinition): DataMapperInputParam[] {
