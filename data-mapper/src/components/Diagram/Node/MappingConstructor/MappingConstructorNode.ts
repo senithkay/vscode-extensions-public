@@ -122,7 +122,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
             const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
-            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position));
+            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
@@ -155,10 +155,10 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
     }
 
-    deleteField(field: STNode) {
+    async deleteField(field: STNode) {
         if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
             // if Within query expression expanded view
-            this.context.applyModifications([{
+            await this.context.applyModifications([{
                 type: "DELETE",
                 ...field.valueExpr?.position
             }]);
@@ -167,7 +167,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             traversNode(this.value.expression, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
 
-            this.context.applyModifications([{
+            await this.context.applyModifications([{
                 type: "DELETE",
                 ...nodePositionsToDelete
             }]);

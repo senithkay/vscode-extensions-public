@@ -11,16 +11,16 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React from "react";
+import React, { useState } from "react";
 
-import { Divider, withStyles } from "@material-ui/core";
+import { Button, Divider, withStyles } from "@material-ui/core";
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
+import { Build } from "@material-ui/icons";
 import * as MonacoEditor from 'monaco-editor';
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import ErrorIcon from "../../../../assets/icons/Error";
 import { tooltipBaseStyles, useStyles } from "../style";
-
 
 interface Props extends TooltipProps{
     diagnostic: Diagnostic
@@ -28,11 +28,15 @@ interface Props extends TooltipProps{
     onClick?: () => void;
 }
 
+export const DiagnosticTooltipID = "data-mapper-diagnostic-tooltip";
+
 export function DiagnosticTooltip(props: Partial<Props>) {
     const { diagnostic, value, children, onClick, ...rest } = props;
     const classes = useStyles();
     const iconComponent =  <ErrorIcon /> ;
     const source = diagnostic.source || value
+
+    const [isInteractive, setIsInteractive] = useState(true);
 
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
 
@@ -42,44 +46,66 @@ export function DiagnosticTooltip(props: Partial<Props>) {
         }
     }
 
+    const onCLickOnEdit = () => {
+        setIsInteractive(false);
+        onClick();
+    }
+
+    const onOpen = () => {
+        setIsInteractive(true);
+    }
+
     const Code = () => (
-        <React.Fragment>
+        <>
             <Divider className={classes.divider} light={true} />
-            <code
-                ref={codeRef}
-                data-lang="ballerina"
-                className={classes.code}
-            >
-                {source.trim()}
-            </code></React.Fragment>
+            <div className={classes.source}>
+                <code
+                    ref={codeRef}
+                    data-lang="ballerina"
+                    className={classes.code}
+                >
+                    {source.trim()}
+                </code>
+                <Button
+                    aria-label="edit"
+                    className={classes.editText}
+                    onClick={onCLickOnEdit}
+                    startIcon={(
+                        <Build
+                            className={classes.editButton}
+                        />
+                    )}
+                >
+                    Fix by editing expression
+                </Button>
+            </div>
+        </>
 
     );
     const Diagnostic = () => (
-        <div>
+        <>
             <div className={classes.iconWrapper}>{iconComponent}</div>
             <div className={classes.diagnosticWrapper}>{diagnostic.message}</div>
-        </div>
+        </>
 
     );
-    const OpenInCodeLink = () => (
-        <></>
-        //Enable once the onClick is fixed
-        // <React.Fragment>
-        //     <Divider className={classes.divider} light={true} />
-        //     <div className={classes.editorLink} onClick={onClick}>View in Statement Editor</div>
-        // </React.Fragment>
-    )
 
     const tooltipTitleComponent = (
         <pre className={classes.pre}>
             {diagnostic.message && <Diagnostic />}
             {source && <Code />}
-            {onClick && <OpenInCodeLink />}
         </pre>
     );
 
     return (
-        <TooltipComponent interactive={false} arrow={true} title={tooltipTitleComponent} {...rest}>
+        <TooltipComponent
+            id={DiagnosticTooltipID}
+            interactive={isInteractive}
+            arrow={true}
+            title={tooltipTitleComponent}
+            onOpen={onOpen}
+            {...rest}
+        >
             {children}
         </TooltipComponent>
     )

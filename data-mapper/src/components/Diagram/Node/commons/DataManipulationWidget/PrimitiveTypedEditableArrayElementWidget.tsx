@@ -31,7 +31,7 @@ export interface PrimitiveTypedEditableArrayElementWidgetProps {
     getPort: (portId: string) => RecordFieldPortModel;
     context: IDataMapperContext;
     fieldIndex?: number;
-    deleteField?: (node: STNode) => void;
+    deleteField?: (node: STNode) => Promise<void>;
 }
 
 export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEditableArrayElementWidgetProps) {

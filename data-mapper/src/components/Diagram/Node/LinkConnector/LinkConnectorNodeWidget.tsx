@@ -57,7 +57,7 @@ const styles = makeStyles((theme: Theme) => createStyles({
     },
     element: {
         backgroundColor: theme.palette.common.white,
-        padding: "10px",
+        padding: "5px",
         cursor: "pointer",
         transitionDuration: "0.2s",
         userSelect: "none",
@@ -115,9 +115,9 @@ const styles = makeStyles((theme: Theme) => createStyles({
     },
     editIcon: {
         color: theme.palette.grey[300],
-        padding: "10px",
-        height: "42px",
-        width: "42px"
+        padding: "5px",
+        height: "32px",
+        width: "32px"
     },
     deleteIcon: {
         color: theme.palette.error.main
@@ -172,7 +172,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         />
     );
 
-    return (
+    return (!node.hidden && (
         <div className={classes.root}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} />
@@ -209,5 +209,6 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 <DataMapperPortWidget engine={engine} port={node.outPort} />
             </div>
         </div>
+        )
     );
 }

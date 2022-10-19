@@ -461,7 +461,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         const currentTime: number = Date.now();
         const langClient = await langClientPromise;
         if (currentTime - lastPerfUpdate > debounceTime) {
-            await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo);
+            await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setSyntaxTree);
             lastPerfUpdate = currentTime;
         }
     }

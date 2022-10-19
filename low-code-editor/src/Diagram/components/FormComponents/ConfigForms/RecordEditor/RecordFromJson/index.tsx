@@ -21,6 +21,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
+import debounce from "lodash.debounce";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
@@ -48,24 +49,25 @@ interface RecordFromJsonProps {
     targetPosition?: NodePosition;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
     onCancel: () => void;
+    isHeaderHidden?: boolean;
 }
 
-const reducer = (state: RecordState, action: {type: string, payload: any }) => {
+const reducer = (state: RecordState, action: { type: string, payload: any }) => {
     switch (action.type) {
         case 'jsonConversionStart':
-            return {...state, isLoading: action.payload};
+            return { ...state, isLoading: action.payload };
         case 'setJsonDiagnostics':
-            return {...state, jsonDiagnostics: action.payload, isLoading: false};
+            return { ...state, jsonDiagnostics: action.payload, isLoading: false };
         case 'setJsonValue':
-            return {...state, jsonValue: action.payload, jsonDiagnostics: ""};
+            return { ...state, jsonValue: action.payload, jsonDiagnostics: "" };
         case 'recordNameChange':
-            return {...state, recordName: action.payload.recordName, recordNameDiag: action.payload.recordNameDiag};
+            return { ...state, recordName: action.payload.recordName, recordNameDiag: action.payload.recordNameDiag };
         case 'setRecordNameDiag':
-            return {...state, recordNameDiag: action.payload.recordNameDiag};
+            return { ...state, recordNameDiag: action.payload.recordNameDiag };
         case 'checkSeparateDef':
-            return {...state, isSeparateDef: action.payload};
+            return { ...state, isSeparateDef: action.payload };
         case 'jsonConversionSuccess':
-            return {...state, importedRecord: action.payload.importedRecord, modifiedPosition: action.payload.modifiedPosition, jsonValue: "", isLoading: false, jsonDiagnostics: ""};
+            return { ...state, importedRecord: action.payload.importedRecord, modifiedPosition: action.payload.modifiedPosition, jsonValue: "", isLoading: false, jsonDiagnostics: "" };
         default:
             break;
     }
@@ -74,7 +76,7 @@ const reducer = (state: RecordState, action: {type: string, payload: any }) => {
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     const classes = useStyles();
 
-    const { targetPosition, onSave, onCancel } = recordFromJsonProps;
+    const { targetPosition, isHeaderHidden, onSave, onCancel } = recordFromJsonProps;
 
     const { props, api } = useContext(Context);
 
@@ -92,11 +94,11 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     });
 
     const convertToJSon = () => {
-        dispatchFromState({type: 'jsonConversionStart', payload: true});
+        dispatchFromState({ type: 'jsonConversionStart', payload: true });
     };
 
     const onJsonChange = (jsonText: string) => {
-        dispatchFromState({type: 'setJsonValue', payload: jsonText});
+        dispatchFromState({ type: 'setJsonValue', payload: jsonText });
     };
 
     const onNameChange = async (name: string) => {
@@ -109,14 +111,17 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
             && (diagnostics[0]?.range?.start?.line - 1) === targetPosition.startLine) {
             filteredDiagnostics = diagnostics;
         }
-        dispatchFromState({type: 'recordNameChange', payload: {
-            recordName: name,
-            recordNameDiag: filteredDiagnostics ? filteredDiagnostics[0].message : ""
-        }});
+        dispatchFromState({
+            type: 'recordNameChange', payload: {
+                recordName: name,
+                recordNameDiag: filteredDiagnostics ? filteredDiagnostics[0].message : ""
+            }
+        });
     };
+    const debouncedNameChange = debounce(onNameChange, 800);
 
     const onSeparateDefinitionSelection = (mode: string[]) => {
-        dispatchFromState({type: 'checkSeparateDef', payload: mode.length > 0});
+        dispatchFromState({ type: 'checkSeparateDef', payload: mode.length > 0 });
     };
 
     const formatRecord = (block: string) => {
@@ -150,11 +155,13 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                                 endColumn: recordST.position.endColumn,
                             }
                         }
-                        dispatchFromState({type: 'jsonConversionSuccess', payload: {
+                        dispatchFromState({
+                            type: 'jsonConversionSuccess', payload: {
                                 importedRecord: modulePart, modifiedPosition: newPosition
-                        }});
+                            }
+                        });
                     } else {
-                        recordST = await getRecordST({ codeSnippet: updatedBlock.trim()},
+                        recordST = await getRecordST({ codeSnippet: updatedBlock.trim() },
                             langServerURL, ls);
                         newPosition = {
                             startLine: targetPosition.startLine,
@@ -162,13 +169,15 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             endLine: targetPosition.startLine + recordST.position.endLine,
                             endColumn: recordST.position.endColumn,
                         }
-                        dispatchFromState({type: 'jsonConversionSuccess', payload: {
+                        dispatchFromState({
+                            type: 'jsonConversionSuccess', payload: {
                                 importedRecord: recordST, modifiedPosition: newPosition
-                        }});
+                            }
+                        });
                     }
                     onSave(updatedBlock, newPosition);
                 } else {
-                    dispatchFromState({type: 'setJsonDiagnostics', payload: recordResponse?.diagnostics[0].message});
+                    dispatchFromState({ type: 'setJsonDiagnostics', payload: recordResponse?.diagnostics[0].message });
                 }
             })();
         }
@@ -180,23 +189,25 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     return (
         <>
             {formState.importedRecord ? (
-                <RecordOverview definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel}/>
+                <RecordOverview definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
             ) : (
                 <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
-                    <FormHeaderSection
-                        onCancel={onCancel}
-                        formTitle="Import Sample JSON"
-                        formType={""}
-                        defaultMessage=""
-                    />
+                    {!isHeaderHidden && (
+                        <FormHeaderSection
+                            onCancel={onCancel}
+                            formTitle="Import Sample JSON"
+                            formType={""}
+                            defaultMessage=""
+                        />
+                    )}
                     <div id="json-input-container" test-id="json-input-container" className={classes.formWrapper}>
                         <FormTextInput
                             label="Record Name"
                             dataTestId="import-record-name"
                             placeholder="Enter Record Name"
                             defaultValue={formState.recordName}
-                            customProps={{ readonly: false, isErrored: formState?.recordNameDiag}}
-                            onChange={onNameChange}
+                            customProps={{ readonly: false, isErrored: formState?.recordNameDiag }}
+                            onChange={debouncedNameChange}
                             errorMessage={formState?.recordNameDiag}
                         />
                         <div className={classNames(classes.inputWrapper, classes.flexItems)}>

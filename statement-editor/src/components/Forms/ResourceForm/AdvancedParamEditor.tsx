@@ -101,20 +101,31 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
             }
 
             const parameterNames = parameters.map(param => !STKindChecker.isCommaToken(param) && param.paramName?.value);
-            let segmentId = parameters.length + 1;
             const lastParamIndex = parameters.findIndex(param => STKindChecker.isRestParam(param) || STKindChecker.isDefaultableParam(param));
             if (lastParamIndex === -1) {
-                newParamString = `${type} ${genParamName('param', parameterNames)}`;
-            } else {
-                segmentId = lastParamIndex;
-                newParamString = parameters.reduce((prev, current, currentIndex) => {
+                const currentParamString = parameters.reduce((prev, current, currentIndex) => {
                     let returnString = prev;
                     if (currentIndex === lastParamIndex) {
-                        returnString = `${type} ${genParamName('param', parameterNames)},`
+                        returnString = `${type} ${genParamName('param', parameterNames)},`;
                     }
 
-                    returnString = `${returnString}${current.source ? current.source : current.value}`
-                    return returnString;
+                    returnString = `${returnString} ${current.source ? current.source : current.value}`
+                    return returnString.trim();
+                }, '');
+                newParamString = `${currentParamString}, ${type} ${genParamName('param', parameterNames)}`;
+            } else {
+                newParamString = parameters.reduce((prev, current, currentIndex) => {
+                    let returnString = prev;
+                    if (!STKindChecker.isCommaToken(current)) {
+                        if (currentIndex === lastParamIndex) {
+                            const paramString = `${type} ${genParamName('param', parameterNames)},`;
+                            returnString = `${paramString} ${returnString},`
+                        } else if (currentIndex !== 0) {
+                            returnString = `${returnString},`;
+                        }
+                        returnString = `${returnString} ${current.source ? current.source : current.value}`
+                    }
+                    return returnString.trim();
                 }, '');
             }
 

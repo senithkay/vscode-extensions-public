@@ -73,7 +73,7 @@ export interface LowCodeEditorAPI {
         onEvent?: (event: any) => void;
     }
     code: {
-        modifyDiagram: (mutations: STModification[], options?: any) => void;
+        modifyDiagram: (mutations: STModification[], options?: any) => Promise<void>;
         onMutate: (type: string, options: any) => void;
         // Reuse go-to-def from LangServer?
         setCodeLocationToHighlight: (position: NodePosition) => void;
