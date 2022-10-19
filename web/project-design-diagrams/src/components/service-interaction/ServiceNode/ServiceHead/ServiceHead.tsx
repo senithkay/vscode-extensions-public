@@ -55,7 +55,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
         >
             {node.isResourceService ?
                 <HttpServiceIcon /> :
-                <GrpcIcon fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY} />
+                <GrpcIcon />
             }
             <ServicePortWidget
                 port={node.getPort(`left-${node.getID()}`)}

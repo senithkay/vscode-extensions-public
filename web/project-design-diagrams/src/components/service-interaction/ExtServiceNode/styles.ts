@@ -22,10 +22,10 @@ import { Colors } from '../../../resources';
 
 export const Container = styled.div`
     align-items: center;
-    color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY};
+    color: ${Colors.PRIMARY};
     display: flex;
 	flex-direction: column;
-    font-family: GilmerRegular;
+    font-family: ${(props: { isSelected: boolean }) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 12px;
     justify-content: center;
     line-height: 16px;

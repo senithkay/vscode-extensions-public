@@ -34,7 +34,7 @@ export const ServiceNode = styled.div`
     border-top-right-radius: 2px;
     border-bottom-left-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
     border-bottom-right-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
-    color: ${(props: StyleProps) => props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY};
+    color: ${Colors.PRIMARY};
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -46,7 +46,7 @@ export const ServiceHead = styled.div`
     border-bottom: ${(props: StyleProps) => props.level === Level.TWO ?
         props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` : `1px solid ${Colors.PRIMARY}` : ``};
     display: flex;
-    font-family: GilmerRegular;
+    font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;
     height: 32px;
     justify-content: center;
@@ -64,7 +64,7 @@ export const ServiceName = styled.span`
 export const FunctionContainer = styled.div`
     align-items: center;
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
-    border-bottom: 0.5px solid ${Colors.SECONDARY};
+    border-bottom: 0.5px solid #cccde3;
     color: #000000;
     display: flex;
     flex-direction: row;

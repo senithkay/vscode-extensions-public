@@ -30,7 +30,7 @@ export const EntityNode = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
     border: ${(props: StyleProps) => props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` : `1px solid ${Colors.PRIMARY}`};
     border-radius: 2px !important;
-    color: ${(props: StyleProps) => props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY};
+    color: ${Colors.PRIMARY};
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -42,7 +42,7 @@ export const EntityHead = styled.div`
     align-items: center;
     border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
     display: flex;
-    font-family: GilmerRegular;
+    font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;
     height: 32px;
     justify-content: center;
@@ -60,7 +60,7 @@ export const EntityHead = styled.div`
 export const AttributeContainer = styled.div`
     align-items: center;
     background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
-    border-bottom: 0.5px solid ${Colors.SECONDARY};
+    border-bottom: 0.5px solid #cccde3;
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
     display: flex;

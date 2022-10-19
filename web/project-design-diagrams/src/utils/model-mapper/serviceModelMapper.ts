@@ -87,10 +87,12 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                 let l1SourceNode: ServiceNodeModel = l1Nodes.get(service.serviceId);
                 let l2SourceNode: ServiceNodeModel = l2Nodes.get(service.serviceId);
 
-                if (service.remoteFunctions.length === 0) {
-                    mapInteractions(l1SourceNode, l2SourceNode, service.resources);
-                } else {
-                    mapInteractions(l1SourceNode, l2SourceNode, service.remoteFunctions);
+                if (l1SourceNode && l2SourceNode) {
+                    if (service.remoteFunctions.length === 0) {
+                        mapInteractions(l1SourceNode, l2SourceNode, service.resources);
+                    } else {
+                        mapInteractions(l1SourceNode, l2SourceNode, service.remoteFunctions);
+                    }
                 }
             });
         }
@@ -115,7 +117,7 @@ function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
     let linkID: string = l1Source.getID() + interaction.resourceId.serviceId;
     if (!l1Links.has(linkID)) {
         let l1Target: ServiceNodeModel = l1Nodes.get(interaction.resourceId.serviceId);
-        if (l1Source && l1Target) {
+        if (l1Target) {
             let link: ServiceLinkModel = setLinkPorts(l1Source, l1Target);
             if (link) {
                 l1Links.set(linkID, link);
@@ -125,7 +127,7 @@ function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 
     // creating L2 service links
     let l2Target: ServiceNodeModel = l2Nodes.get(interaction.resourceId.serviceId);
-    if (l2Source && l2Target) {
+    if (l2Target) {
         let link: ServiceLinkModel = setLinkPorts(l2Source, l2Target, sourceFunction, interaction);
         if (link) {
             l2Links.push(link);

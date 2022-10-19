@@ -54,7 +54,7 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 						<ShortGrpcIcon /> :
 						node.getID().includes('/http:') ?
 							<HttpServiceIcon /> :
-							<EndpointIcon fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY} />
+							<EndpointIcon />
 					}
 				<ServicePortWidget
 					port={node.getPort(`right-${node.getID()}`)}
