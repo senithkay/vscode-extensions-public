@@ -15,6 +15,7 @@ import React, { useContext, useState } from "react";
 
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, ReturnStatement } from "@wso2-enterprise/syntax-tree";
+import cn from "classnames";
 
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
@@ -34,6 +35,7 @@ import "./style.scss";
 export interface ReturnProps {
     model?: ReturnStatement;
     blockViewState?: BlockViewState;
+    expandReadonly?: boolean;
 }
 
 export function Return(props: ReturnProps) {
@@ -44,7 +46,7 @@ export function Return(props: ReturnProps) {
     const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
 
-    const { model, blockViewState } = props;
+    const { model, blockViewState, expandReadonly } = props;
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
 
@@ -143,7 +145,7 @@ export function Return(props: ReturnProps) {
     const expressionSource = model?.expression?.source;
 
     return (
-        <g className="return-contect-wrapper">
+        <g className={expandReadonly ? cn("return-contect-wrapper rect-fill-none") : cn("return-contect-wrapper rect-fill")}>
             {expressionSource && (
                 <VariableName
                     variableName={expressionSource}

@@ -40,7 +40,8 @@ export function Diagram() {
                 gotoSource,
                 isMutationInProgress,
                 isModulePullInProgress,
-                loaderText
+                loaderText,
+                getFunctionDef
             },
             webView: {
                 showTryitView,
@@ -377,7 +378,8 @@ export function Diagram() {
                             },
                             code: {
                                 gotoSource,
-                                modifyDiagram
+                                modifyDiagram,
+                                getFunctionDef
                             },
                             webView: {
                                 showDocumentationView,

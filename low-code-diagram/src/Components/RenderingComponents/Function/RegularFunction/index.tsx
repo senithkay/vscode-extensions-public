@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import {
     FunctionBodyBlock,
@@ -23,7 +23,9 @@ import { v4 as uuid } from "uuid";
 import { Canvas } from "../../../../Canvas";
 import { Context } from "../../../../Context/diagram";
 import { Provider as FunctionProvider } from "../../../../Context/Function";
+import { ViewMode } from "../../../../Context/types";
 import { useOverlayRef, useSelectedStatus } from "../../../../hooks";
+import { initializeCollapseView } from "../../../../Utils";
 import { BlockViewState, FunctionViewState } from "../../../../ViewState";
 import { End } from "../../End";
 import { StartButton } from "../../Start";
@@ -41,46 +43,80 @@ import "./style.scss";
 export function RegularFuncComponent(props: FunctionProps) {
     const [overlayId] = useState(`function-overlay-${uuid()}`);
     const diagramContext = useContext(Context);
-    const { isReadOnly } = diagramContext.props;
+    const { isReadOnly, syntaxTree, experimentalEnabled } = diagramContext.props;
+    const { diagramRedraw, diagramCleanDraw } = diagramContext.actions;
     const run = diagramContext?.api?.project?.run;
 
     const { model, hideHeader } = props;
 
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
+    const isExpressionFuncBody: boolean = STKindChecker.isExpressionFunctionBody(
+        model.functionBody
+    );
 
     const containerRef = useRef(null);
     const [diagramExpanded, setDiagramExpanded] = useSelectedStatus(model, containerRef);
     const [overlayNode, overlayRef] = useOverlayRef();
+    const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.STATEMENT);
+
+    useEffect(() => {
+        if (viewMode === ViewMode.INTERACTION) {
+            diagramRedraw(initializeCollapseView(syntaxTree, model.position));
+        } else {
+            diagramCleanDraw(syntaxTree);
+        }
+    }, [viewMode]);
 
     const onExpandClick = () => {
         setDiagramExpanded(!diagramExpanded);
     };
 
-    const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
-    const bodyViewState: BlockViewState = block.viewState;
+    const toggleViewMode = () => {
+        setViewMode(viewMode === ViewMode.INTERACTION ? ViewMode.STATEMENT : ViewMode.INTERACTION);
+    }
 
-    const component = (
-        <g className="function-body">
-            <>
-                {!isReadOnly &&
-                    isInitPlusAvailable &&
-                    !viewState.initPlus.isTriggerDropdown && (
-                        <WorkerLine viewState={viewState} />
-                    )}
-            </>
+    let component: JSX.Element;
 
-            {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
-            {isInitPlusAvailable && <StartButton model={model} />}
-            {!isInitPlusAvailable && <StartButton model={model} />}
-            {!isInitPlusAvailable && (
-                <WorkerBody model={block} viewState={block.viewState} />
-            )}
-            {
-                (!bodyViewState?.isEndComponentInMain ||
-                    bodyViewState?.collapseView) && <End viewState={viewState.end} />}
-        </g>
-    );
+    if (isExpressionFuncBody) {
+        component = (
+            <g>
+                <StartButton model={model} />
+                <WorkerLine viewState={viewState} />
+                <End
+                    model={model.functionBody}
+                    viewState={viewState.end}
+                    isExpressionFunction={true}
+                />
+            </g>
+        );
+    } else {
+        const block: FunctionBodyBlock = model.functionBody as FunctionBodyBlock;
+        const isStatementsAvailable: boolean = block.statements.length > 0 || !!block.namedWorkerDeclarator;
+        const bodyViewState: BlockViewState = block.viewState;
+
+        component = (
+            <g className="function-body">
+                <>
+                    {!isReadOnly &&
+                        isInitPlusAvailable &&
+                        !viewState.initPlus.isTriggerDropdown && (
+                            <WorkerLine viewState={viewState} />
+                        )}
+                </>
+
+                {!isInitPlusAvailable && <WorkerLine viewState={viewState} />}
+                {isInitPlusAvailable && <StartButton model={model} />}
+                {!isInitPlusAvailable && <StartButton model={model} />}
+                {!isInitPlusAvailable && (
+                    <WorkerBody model={block} viewState={block.viewState} />
+                )}
+                {
+                    (!bodyViewState?.isEndComponentInMain ||
+                        bodyViewState?.collapseView) && <End viewState={viewState.end} />}
+            </g>
+        );
+    }
 
     const functionBody = (
         <div className={"lowcode-diagram"}>
@@ -90,8 +126,12 @@ export function RegularFuncComponent(props: FunctionProps) {
                 overlayNode={overlayNode}
                 functionNode={model}
                 hasWorker={!!(model.functionBody as FunctionBodyBlock).namedWorkerDeclarator}
+                viewMode={viewMode}
             >
-                <PanAndZoom>
+                <PanAndZoom
+                    viewMode={viewMode}
+                    toggleViewMode={toggleViewMode}
+                >
                     <div ref={overlayRef} id={overlayId} className={"function-overlay-container"} />
                     <Canvas h={model.viewState.bBox.h} w={model.viewState.bBox.w}>
                         {component}
@@ -153,4 +193,5 @@ export function RegularFuncComponent(props: FunctionProps) {
             {(diagramExpanded || hideHeader) && functionBody}
         </div>
     );
+
 }

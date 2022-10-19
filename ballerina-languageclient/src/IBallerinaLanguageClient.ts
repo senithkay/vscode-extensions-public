@@ -27,6 +27,7 @@ export enum EXTENDED_APIS {
     DOCUMENT_ST = 'ballerinaDocument/syntaxTree',
     DOCUMENT_AST_MODIFY = 'ballerinaDocument/astModify',
     DOCUMENT_TRIGGER_MODIFY = 'ballerinaDocument/triggerModify',
+    DOCUMENT_ST_FUNCTION_FIND = 'ballerinaDocument/syntaxTreeByName',
     SYMBOL_TYPE = 'ballerinaSymbol/type',
     CONNECTOR_CONNECTORS = 'ballerinaConnector/connectors',
     TRIGGER_TRIGGERS = 'ballerinaTrigger/triggers',
@@ -356,15 +357,15 @@ export interface LinePosition {
 }
 
 export interface ExpressionTypeRequest {
-     documentIdentifier: { uri: string; };
+    documentIdentifier: { uri: string; };
     // tslint:disable-next-line: align
     position: LinePosition;
 }
 
 export interface ExpressionTypeResponse {
     documentIdentifier: { uri: string; };
-       // tslint:disable-next-line: align
-       types: string[];
+    // tslint:disable-next-line: align
+    types: string[];
 }
 
 export interface PartialSTRequest {
@@ -571,6 +572,7 @@ export interface STModification {
 
 export interface BallerinaSTModifyResponse {
     source: string;
+    defFilePath: string;
     syntaxTree: STNode;
     parseSuccess: boolean;
 }
@@ -675,25 +677,29 @@ export interface SymbolInfoRequest {
 }
 
 export interface ParameterInfo {
-    name : string,
-    description : string,
-    kind : string,
-    type : string
+    name: string,
+    description: string,
+    kind: string,
+    type: string
 }
 
 export interface SymbolDocumentation {
-    description : string,
-    parameters? : ParameterInfo[],
-    returnValueDescription? : string,
-    deprecatedDocumentation? : string,
-    deprecatedParams? : ParameterInfo[]
+    description: string,
+    parameters?: ParameterInfo[],
+    returnValueDescription?: string,
+    deprecatedDocumentation?: string,
+    deprecatedParams?: ParameterInfo[]
 }
 
 export interface SymbolInfoResponse {
     symbolKind: string,
-    documentation : SymbolDocumentation
+    documentation: SymbolDocumentation
 }
 
+export interface BallerinaFunctionSTRequest {
+    lineRange: RRange;
+    documentIdentifier: DocumentIdentifier;
+}
 export interface DiagramDiagnostic {
     message: string;
     diagnosticInfo: {
@@ -832,7 +838,7 @@ export interface IBallerinaLangClient {
 
     getSTForSingleStatement: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
 
-    getSTForExpression	: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
+    getSTForExpression: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
 
     getSTForModuleMembers: (param: PartialSTRequest) => Thenable<PartialSTResponse>;
 
@@ -856,11 +862,13 @@ export interface IBallerinaLangClient {
 
     getExecutorPositions: (params: GetBallerinaProjectParams) => Thenable<ExecutorPositionsResponse>;
 
+    getSTForFunction: (params: BallerinaFunctionSTRequest) => Thenable<BallerinaSTModifyResponse>;
+
     getSymbolDocumentation: (params: SymbolInfoRequest) => Thenable<SymbolInfoResponse>;
 
     definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
 
-    codeAction: (params: CodeActionParams) => Promise<CodeAction[]> ;
+    codeAction: (params: CodeActionParams) => Promise<CodeAction[]>;
 
     getTypeFromExpression: (params: TypeFromExpressionRequest) => Thenable<TypesFromExpressionResponse>;
 

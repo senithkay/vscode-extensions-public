@@ -1,8 +1,13 @@
-.collapse-unfold {
-    rect {
-        stroke: #36b475;
-        stroke-miterlimit: 10;
-        stroke-width: 1;
-        fill: url(#CollapseLinearGradient);
+.expanded-block {
+    .collapse-button {
+        .collapse-button-border {
+            stroke: #A6B3FF;
+        }
+
+        :hover {
+            .collapse-button-border {
+                stroke: #5567D5;
+            }
+        }
     }
 }

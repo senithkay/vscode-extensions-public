@@ -14,7 +14,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useRef, useState } from "react";
 
-import { DeleteButton, EditButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DeleteButton, EditButton, ExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
@@ -51,6 +51,8 @@ export function HeaderActions(props: HeaderActionsProps) {
 
     const diagramContext = useContext(Context);
     const { isReadOnly } = diagramContext.props;
+    const {state, actions: { updateState }} = diagramContext;
+
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
@@ -90,6 +92,11 @@ export function HeaderActions(props: HeaderActionsProps) {
 
     const unSupportedEditCancel = () => setIsUnSupported(false);
 
+    const onUpdateFunctionExpand = () => {
+        state.isDiagramFunctionExpanded = !state.isDiagramFunctionExpanded;
+        updateState(state);
+    };
+
     React.useEffect(() => {
         setIsDeleteViewVisible(false);
     }, [model]);
@@ -105,6 +112,12 @@ export function HeaderActions(props: HeaderActionsProps) {
                         <div ref={deleteBtnRef}>
                             <DeleteButton onClick={handleDeleteBtnClick} />
                         </div>
+                    </div>
+                    <div className={classNames("amendment-option", "show-on-hover")}>
+                        <ExpandButton
+                            isExpanded={state.isDiagramFunctionExpanded}
+                            onClick={onUpdateFunctionExpand}
+                        />
                     </div>
                 </>
             )}

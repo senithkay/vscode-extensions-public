@@ -18,6 +18,7 @@ import {
     BallerinaConnectorsResponse,
     BallerinaExampleListParams,
     BallerinaExampleListResponse,
+    BallerinaFunctionSTRequest,
     BallerinaProject,
     BallerinaProjectParams,
     BallerinaRecordRequest,
@@ -265,6 +266,10 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public convert(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
+    }
+
+    public getSTForFunction(params: BallerinaFunctionSTRequest): Thenable<BallerinaSTModifyResponse> {
+        return this._clientConnection.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION_FIND, params);
     }
 
     public getSymbolDocumentation(params: SymbolInfoRequest): Thenable<SymbolInfoResponse> {

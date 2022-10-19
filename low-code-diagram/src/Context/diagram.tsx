@@ -15,7 +15,7 @@ const reducer = (state: LowCodeDiagramState, action: any) => {
             return {
                 ...state,
                 ...action.payload,
-                targetPosition: state.targetPosition
+                targetPosition: state.targetPosition,
             };
         case 'DIAGRAM_CLEAN_DRAW':
             return {
@@ -82,7 +82,7 @@ export const Provider: React.FC<LowCodeDiagramProps> = (props) => {
         diagramCleanDraw: diagramCleanDraw(dispatch),
         diagramRedraw: diagramRedraw(dispatch),
         insertComponentStart: insertComponentStart(dispatch),
-        editorComponentStart: editorComponentStart(dispatch),
+        editorComponentStart: editorComponentStart(dispatch)
     };
 
     return (

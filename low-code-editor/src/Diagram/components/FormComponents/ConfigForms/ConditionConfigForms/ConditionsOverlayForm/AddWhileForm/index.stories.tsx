@@ -44,7 +44,8 @@ const api = {
         gotoSource: dummyFunction,
         isMutationInProgress: false,
         isModulePullInProgress: false,
-        loaderText: ''
+        loaderText: '',
+        getFunctionDef: dummyFunctionReturn
     },
     splitPanel: {
         maximize: dummyFunction,

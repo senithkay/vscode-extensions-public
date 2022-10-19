@@ -37,7 +37,10 @@ export class FunctionViewState extends ViewState {
     public precedingPlus: PlusViewState = undefined;
     public triggerParams: TriggerParamsViewState = new TriggerParamsViewState();
     public isResource: boolean = false;
-
+    public functionNodeFilePath?: string = undefined;
+    public functionNodeSource?: string = undefined;
+    public parentBlock?: any = undefined;
+    public parentConnectors?: any = undefined;
     constructor() {
         super();
     }

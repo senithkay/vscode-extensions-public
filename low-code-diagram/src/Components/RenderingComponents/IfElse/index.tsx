@@ -33,12 +33,14 @@ import {
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
-import { findActualEndPositionOfIfElseStatement, getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents } from "../../../Utils";
-import { BlockViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../../ViewState";
+import { useFunctionContext } from "../../../Context/Function";
+import { ViewMode } from "../../../Context/types";
+import { collapseExpandedRange, expandCollapsedRange, findActualEndPositionOfIfElseStatement, getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents, recalculateSizingAndPositioning } from "../../../Utils";
+import { BlockViewState, CollapseViewState, ControlFlowLineState, ElseViewState, IfViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
-import { Collapse } from "../Collapse";
+import CollapseComponent from "../Collapse";
 import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";
 import { ControlFlowLine } from "../ControlFlowLine";
 
@@ -61,13 +63,14 @@ export interface IfElseProps {
 
 export function IfElse(props: IfElseProps) {
     const diagramContext = useContext(Context);
-    const { syntaxTree, isReadOnly, stSymbolInfo } = diagramContext.props;
+    const { syntaxTree, isReadOnly, stSymbolInfo, experimentalEnabled } = diagramContext.props;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const state = diagramContext?.state;
-    const { diagramCleanDraw, insertComponentStart } = diagramContext.actions;
+    const { diagramCleanDraw, insertComponentStart, diagramRedraw } = diagramContext.actions;
     const { model, blockViewState, name } = props;
+    const { viewMode } = useFunctionContext();
 
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
     const [ifElseConfigOverlayFormState, setIfElseConditionConfigState] = useState(undefined);
@@ -262,10 +265,38 @@ export function IfElse(props: IfElseProps) {
         const children = getSTComponents(ifStatement.ifBody.statements);
         const pluses: React.ReactNode[] = [];
         const controlFlowLines: React.ReactNode[] = [];
+        const collapsedComponents: JSX.Element[] = []
 
         const ifBodyPlusBtns: JSX.Element[] = [];
         for (const plusView of ifStatement.ifBody.viewState.plusButtons) {
-            ifBodyPlusBtns.push(<PlusButton viewState={plusView} model={ifStatement.ifBody} initPlus={false} />)
+            if (viewMode === ViewMode.INTERACTION) break;
+            ifBodyPlusBtns.push(<PlusButton viewState={plusView} model={ifStatement.ifBody} initPlus={false} />);
+        }
+
+        if (ifStatement.ifBody.viewState.collapsedViewStates.length > 0) {
+            ifStatement.ifBody.viewState.collapsedViewStates.forEach((collapseVS: CollapseViewState) => {
+                const onExpandClick = () => {
+                    diagramRedraw(
+                        recalculateSizingAndPositioning(
+                            expandCollapsedRange(syntaxTree, collapseVS.range), experimentalEnabled)
+                    );
+                }
+
+                const onCollapseClick = () => {
+                    diagramRedraw(
+                        recalculateSizingAndPositioning(
+                            collapseExpandedRange(syntaxTree, collapseVS.range)
+                        )
+                    );
+                }
+                collapsedComponents.push((
+                    <CollapseComponent
+                        collapseVS={collapseVS}
+                        onExpandClick={onExpandClick}
+                        onCollapseClick={onCollapseClick}
+                    />
+                ))
+            })
         }
 
         pluses.push(<g className="if-body-pluses">{ifBodyPlusBtns}</g>);
@@ -273,14 +304,42 @@ export function IfElse(props: IfElseProps) {
         const elseBodyPlusBtns: JSX.Element[] = [];
         if (isElseExist) {
             for (const plusView of ifStatement.elseBody.elseBody.viewState.plusButtons) {
+                if (viewMode === ViewMode.INTERACTION) break;
                 elseBodyPlusBtns.push(<PlusButton viewState={plusView} model={ifStatement.elseBody.elseBody as BlockStatement} initPlus={false} />)
+            }
+
+            if (ifStatement.elseBody.elseBody.viewState.collapsedViewStates.length > 0) {
+                ifStatement.elseBody.elseBody.viewState.collapsedViewStates.forEach((collapseVS: CollapseViewState) => {
+                    const onExpandClick = () => {
+                        diagramRedraw(
+                            recalculateSizingAndPositioning(
+                                expandCollapsedRange(syntaxTree, collapseVS.range), experimentalEnabled)
+                        );
+                    }
+
+                    const onCollapseClick = () => {
+                        diagramRedraw(
+                            recalculateSizingAndPositioning(
+                                collapseExpandedRange(syntaxTree, collapseVS.range)
+                            )
+                        );
+                    }
+                    collapsedComponents.push((
+                        <CollapseComponent
+                            collapseVS={collapseVS}
+                            onExpandClick={onExpandClick}
+                            onCollapseClick={onCollapseClick}
+                        />
+                    ))
+                })
             }
         }
         pluses.push(<g className="else-body-pluses">{elseBodyPlusBtns}</g>);
 
 
         if (bodyViewState.collapseView) {
-            children.push(<Collapse blockViewState={bodyViewState} />)
+            // TODO: Fix rendering of collapsed ranges in if blocks
+            // children.push(<Collapse blockViewState={bodyViewState} />)
         }
 
         const getExpressions = (): ElseIfConfig => {
@@ -427,8 +486,9 @@ export function IfElse(props: IfElseProps) {
                     </g>
                     {isElseExist && <Else diagnostics={diagnostics} model={ifStatement.elseBody.elseBody} />}
                     {isDefaultElseExist && <Else diagnostics={diagnostics} defaultViewState={viewState.defaultElseVS as ElseViewState} />}
-                    {isElseIfExist && <IfElse model={ifStatement.elseBody.elseBody} name={componentName} />}
                     {controlFlowLines}
+                    {collapsedComponents}
+                    {isElseIfExist && <IfElse model={ifStatement.elseBody.elseBody} name={componentName} />}
                     {children}
                     {!isReadOnly && pluses}
                     {drafts}
