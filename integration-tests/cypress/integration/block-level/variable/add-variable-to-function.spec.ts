@@ -15,7 +15,8 @@ describe('Add variable to function via Low Code', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Add a variable to function', () => {
+    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
+    it.skip('Add a variable to function', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
