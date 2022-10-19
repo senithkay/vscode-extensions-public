@@ -28,6 +28,8 @@ interface Props extends TooltipProps{
     onClick?: () => void;
 }
 
+export const DiagnosticTooltipID = "data-mapper-diagnostic-tooltip";
+
 export function DiagnosticTooltip(props: Partial<Props>) {
     const { diagnostic, value, children, onClick, ...rest } = props;
     const classes = useStyles();
@@ -97,6 +99,7 @@ export function DiagnosticTooltip(props: Partial<Props>) {
 
     return (
         <TooltipComponent
+            id={DiagnosticTooltipID}
             interactive={isInteractive}
             arrow={true}
             title={tooltipTitleComponent}
