@@ -33,11 +33,10 @@ export class StatementEditor {
         this.getStatementEditor()
             .get('button')
             .contains("Save")
-            .should('not.be.disabled')
+            .should('not.be.disabled', {timeout:20000})
             .wait(1000)
             .click();
         return this;
-
     }
 
     static add() {

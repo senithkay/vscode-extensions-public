@@ -15,6 +15,7 @@ import {
     PublishDiagnosticsParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { Uri }  from "monaco-editor"
 import { CodeAction, Diagnostic, WorkspaceEdit } from "vscode-languageserver-protocol";
 
 export async function getDiagnostics(
@@ -33,7 +34,7 @@ export async function getDiagnostics(
 export const handleDiagnostics = async (fileURI: string,
                                         langClientPromise: Promise<IBallerinaLangClient>):
     Promise<Diagnostic[]> => {
-    const diagResp = await getDiagnostics(`file://${fileURI}`, langClientPromise);
+    const diagResp = await getDiagnostics(Uri.file(fileURI).toString(), langClientPromise);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
     return diag;
 }
@@ -99,7 +100,7 @@ export async function getCodeAction(filePath: string, diagnostic: Diagnostic, la
 export async function getRenameEdits(fileURI: string, newName: string, position: NodePosition, langClientPromise: Promise<IBallerinaLangClient>): Promise<WorkspaceEdit> {
 	const langClient = await langClientPromise;
     const renameEdits = await langClient.rename({
-		textDocument: { uri: `file://${fileURI}` },
+		textDocument: { uri: Uri.file(fileURI).toString() },
 		position: {
 			line: position.startLine,
 			character: position?.startColumn
@@ -118,7 +119,7 @@ export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic
 	let codeActions: any[] = []
 
 	for (const diagnostic of diagnostics) {
-		const codeAction = await getCodeAction(`file://${fileURI}`,diagnostic, langClient)
+		const codeAction = await getCodeAction(Uri.file(fileURI).toString(), diagnostic, langClient)
 		codeActions = [...codeActions, ...codeAction]
 	}
 

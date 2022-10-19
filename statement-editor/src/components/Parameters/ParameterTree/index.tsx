@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { ListItemText, ListSubheader } from "@material-ui/core";
+import { withStyles } from "@material-ui/core/styles";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -21,7 +22,7 @@ import { ACTION, CONNECTOR } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+import { parameterHeader, useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { MemoizedParameterBranch } from "./ParameterBranch";
 import { getDefaultParams, mapActionToFormField, mapEndpointToFormField } from "./utils";
@@ -40,6 +41,7 @@ export function ParameterTree(props: ParameterTreeProps) {
     const { parameters } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const overlayClasses = useStatementEditorStyles();
+    const ParamListSubheader = withStyles(parameterHeader)(ListSubheader);
     const {
         modelCtx: {
             currentModel: { model },
@@ -82,10 +84,10 @@ export function ParameterTree(props: ParameterTreeProps) {
         <div data-testid="parameter-tree">
             {parameters?.length > 0 && (
                 <>
-                    <ListSubheader className={stmtEditorHelperClasses.parameterHeader}>
+                    <ParamListSubheader>
                         Configure Parameters
                         <ListItemText secondary={"Select parameters from the list given below"} />
-                    </ListSubheader>
+                    </ParamListSubheader>
                     {updatingParams && (
                         <div className={stmtEditorHelperClasses.paramList} data-testid="parameter-loader">
                             <div className={overlayClasses.sectionLoadingWrapper}>Loading Parameters...</div>

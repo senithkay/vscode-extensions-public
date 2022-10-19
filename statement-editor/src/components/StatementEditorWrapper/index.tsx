@@ -74,6 +74,7 @@ export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     label: string;
     initialSource: string;
     extraModules?: Set<string>;
+    isHeaderHidden?: boolean;
 }
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
@@ -100,7 +101,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         isExpressionMode,
         ballerinaVersion,
         isCodeServerInstance,
-        openExternalUrl
+        openExternalUrl,
+        isHeaderHidden
     } = props;
 
     const {
@@ -247,6 +249,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             ballerinaVersion={ballerinaVersion}
                             isCodeServerInstance={isCodeServerInstance}
                             openExternalUrl={openExternalUrl}
+                            isHeaderHidden={isHeaderHidden}
                         />
                     </>
                 )}

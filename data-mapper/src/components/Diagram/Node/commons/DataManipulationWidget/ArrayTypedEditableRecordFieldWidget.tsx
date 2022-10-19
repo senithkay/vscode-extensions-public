@@ -31,6 +31,7 @@ import {
     createSourceForUserInput,
     getDefaultValue,
     getFieldName,
+    getLinebreak,
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
@@ -228,10 +229,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             let newElementSource: string;
             if (fieldsAvailable) {
                 targetPosition = listConstructor.expressions[listConstructor.expressions.length - 1].position;
-                newElementSource = `,\n${defaultValue}`
+                newElementSource = `,${getLinebreak()}${defaultValue}`
             } else {
                 targetPosition = listConstructor.openBracket.position;
-                newElementSource = `\n${defaultValue}`
+                newElementSource = `${getLinebreak()}${defaultValue}`
             }
             const modification = [getModification(newElementSource, {
                 ...targetPosition,

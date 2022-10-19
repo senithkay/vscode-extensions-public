@@ -1,6 +1,7 @@
 import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
 import { Canvas } from "../../../../utils/components/canvas";
 import { SourceCode } from "../../../../utils/components/code-view";
+import { EditorPane } from "../../../../utils/components/statement-editor/editor-pane";
 import { ParameterTab } from "../../../../utils/components/statement-editor/parameter-tab";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
@@ -53,6 +54,12 @@ describe('Add connector with custom configurations via Low Code', () => {
             .toggleUnionArg("compression")
             .shouldHaveUnionArg("auth")
             .toggleUnionArg("auth");
+        
+        EditorPane
+            .validateNewExpression("IdentifierToken", "auth")
+
+        EditorPane
+            .validateEmptyDiagnostics();
 
         StatementEditor
             .save();

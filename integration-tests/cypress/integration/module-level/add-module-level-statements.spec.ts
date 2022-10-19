@@ -32,19 +32,12 @@ describe("Add module-level statements via Low Code", () => {
             .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput('"Hello World"');
+            .typeInput('123');
 
         EditorPane
-            .validateNewExpression("StringLiteral", "Hello World")
-            .getExpression("IntTypeDesc")
-            .clickExpressionContent('int');
-
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsSuggestion('string');
+            .validateNewExpression("NumericLiteral", "123")
 
         EditorPane
-            .validateNewExpression("StringTypeDesc", "string")
             .getExpression("CaptureBindingPattern")
             .doubleClickExpressionContent('variable');
 
@@ -56,27 +49,6 @@ describe("Add module-level statements via Low Code", () => {
 
         StatementEditor
             .save();
-    });
-
-    it("Add a record to empty file", () => {
-        Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
-        TopLevelPlusWidget.clickOption("Record");
-
-        RecordForm.shouldBeVisible()
-            .typeRecordName("Animal")
-            .clickWhiteSpace()
-            .haveRecordName("Animal")
-            .editRecord()
-            .typeRecordName("Foo")
-            .clickWhiteSpace()
-            .haveRecordName("Foo")
-            .makePublicRecord()
-            .toggleClosedRecord()
-            .addNewField("int", "hello")
-            .clickWhiteSpace()
-            .addNewField("int", "world")
-            .deleteFirstField("hello")
-            .save()
     });
 
     it("Add a configurable to empty file", () => {

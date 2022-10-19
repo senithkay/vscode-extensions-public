@@ -261,7 +261,7 @@ export function cleanModuleLevelSymbols(){
     configurables.clear();
     recordTypeDescriptions.clear();
     moduleVariables.clear();
-
+    listeners.clear();
 }
 
 export function getSymbolInfo(): STSymbolInfo {

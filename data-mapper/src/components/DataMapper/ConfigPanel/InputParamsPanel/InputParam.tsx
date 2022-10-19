@@ -88,5 +88,5 @@ const InputParamContainer = styled.div((props) => ({
 }));
 
 const TypeName = styled.span`
-    fontWeight: 500;
+    font-weight: 500;
 `;
