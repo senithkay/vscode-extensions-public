@@ -291,7 +291,16 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
         endColumn: targetPosition?.endColumn || 0
     };
 
-    getDiagnosticMessage(diag, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
+    const diagInPosition = diag.filter((diagnostic) => {
+        const { start } = diagnostic.range || {};
+        const diagnosticStartCol = start?.character;
+        const diagnosticStartLine = start?.line;
+        return (diagTargetPosition.startLine < diagnosticStartLine
+                || (diagTargetPosition.startLine === diagnosticStartLine
+                && diagTargetPosition.startColumn <= diagnosticStartCol));
+    })
+
+    getDiagnosticMessage(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
         let isPlaceHolderDiag = false;
         if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
             || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
@@ -618,6 +627,10 @@ export function getModuleIconStyle(label: string): SuggestionIcon {
 
 export function isFunctionOrMethodCall(currentModel: STNode): boolean {
     return STKindChecker.isFunctionCall(currentModel) || STKindChecker.isMethodCall(currentModel);
+}
+
+export function isImplicitOrExplicitNewExpr(currentModel: STNode): boolean {
+    return  STKindChecker.isImplicitNewExpression(currentModel) || STKindChecker.isExplicitNewExpression(currentModel);
 }
 
 export function isInsideConnectorParams(currentModel: STNode, editorConfigType: string): boolean {

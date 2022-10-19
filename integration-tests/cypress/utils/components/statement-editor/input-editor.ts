@@ -12,16 +12,18 @@
  */
 export class InputEditor {
     static getInputEditor() {
-        return cy.get(`[data-testid="input-editor"]`);
+        return cy.get(`[data-testid="input-editor"]`, { timeout: 50000 });
     }
 
     static typeInput(text: string, parseSpecialCharSequences: boolean = true) {
+        cy.wait(1000);
         this.getInputEditor()
             .focus()
             .clear()
+            .wait(1000)
             .type(text, { parseSpecialCharSequences: parseSpecialCharSequences });
 
-        cy.wait(3000);
+        cy.wait(1000);
 
         this.getInputEditor()
             .type('{enter}');
@@ -31,13 +33,13 @@ export class InputEditor {
 
     static checkEditingState() {
         cy.get(`[data-testid="input-editor"]`)
-            .should("be.visible");
+            .should('be.visible', { timeout: 50000 })
         return this;
     }
 
     static checkUneditableState() {
         cy.get(`[data-testid="input-editor"]`)
-            .should("not.exist");
+            .should("not.exist", { timeout: 50000 });
         return this;
     }
 }

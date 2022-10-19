@@ -22,7 +22,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../Context/diagram";
-import { HeaderActions } from "../../../../HeaderActions";
+import { HeaderActionsWithMenu } from "../../../../HeaderActions";
 import { HeaderWrapper } from "../../../../HeaderWrapper";
 import { ComponentExpandButton } from "../../../ComponentExpandButton";
 
@@ -31,11 +31,12 @@ import "./style.scss";
 interface FunctionHeaderProps {
     model: FunctionDefinition | ObjectMethodDefinition;
     onExpandClick: () => void;
+    onClickRun: () => void;
     isExpanded: boolean;
 }
 
 export function FunctionHeader(props: FunctionHeaderProps) {
-    const { model, onExpandClick, isExpanded } = props;
+    const { model, onExpandClick, onClickRun, isExpanded } = props;
     const diagramContext = useContext(Context);
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
 
@@ -70,12 +71,13 @@ export function FunctionHeader(props: FunctionHeaderProps) {
                 </div>
             </div>
             {model.qualifierList.filter(qualifier => STKindChecker.isRemoteKeyword(qualifier)).length === 0 ? (
-                <HeaderActions
+                <HeaderActionsWithMenu
                     model={model}
-                    deleteText="Are you sure you want to delete this function?"
                     isExpanded={isExpanded}
                     onExpandClick={onExpandClick}
                     onConfirmDelete={onDeleteClick}
+                    onClickRun={onClickRun}
+                    isFunction={true}
                 />
             ) : (
                 <ComponentExpandButton

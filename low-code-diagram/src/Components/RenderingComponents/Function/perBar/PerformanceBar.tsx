@@ -42,7 +42,7 @@ export function PerformanceBar(props: PerformanceProps) {
         <p className={"more"} onClick={onClickPerformance}>{"Reveal performance-critical path"}</p>
     );
 
-    const content = "Click here to open the performance graph";
+    const content = "Click here to open the performance forecast";
 
     useEffect(() => {
         if (model && showTooltip) {
@@ -54,7 +54,7 @@ export function PerformanceBar(props: PerformanceProps) {
         <div className={"performance-bar"}>
             <div className={"rectangle"}>&nbsp;</div>
             <p>
-                {`Forecasted performance of the ${isRealtime() ? "performance-critical" : "selected"} path: Concurrency ${concurrency} | Latency: ${latency} | Tps: ${tps}`}
+                {`Forecasted performance of the ${isRealtime() ? "performance-critical" : "selected"} path: User Count: ${concurrency} | Latency: ${latency} | Tps: ${tps}`}
             </p>
             {isRealtime() && (tooltip ? tooltip : element)}
         </div>

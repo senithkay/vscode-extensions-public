@@ -6,7 +6,7 @@ export class FunctionDiagram {
 
     public shouldBeRenderedProperly() {
         this.container.within(() => {
-            cy.get('.diagram-canvas .start-wrapper .start-button .start-text')
+            cy.get('.diagram-canvas .start-wrapper .start-button .start-text', { timeout: 50000 })
                 .should("be.visible")
                 .should("have.text", "STARTSTART");
         })
@@ -15,32 +15,32 @@ export class FunctionDiagram {
 
     public clickDefaultWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .function-body`)
+            cy.get(`.diagram-canvas .function-body`, { timeout: 50000 })
                 .children('g')
                 .not('.worker-body')
-                .find(`.main-plus-wrapper[data-plus-index="${index}"]`)
+                .find(`.main-plus-wrapper[data-plus-index="${index}"]`, { timeout: 50000 })
                 .click();
         })
         return this;
     }
 
     public clickWokerPlusBtn(workerName: string, plusIndex: number = 0) {
-        cy.get(`.diagram-canvas .function-body g#worker-${workerName}`)
-            .find(`.main-plus-wrapper[data-plus-index="${plusIndex}"]`)
+        cy.get(`.diagram-canvas .function-body g#worker-${workerName}`, { timeout: 50000 })
+            .find(`.main-plus-wrapper[data-plus-index="${plusIndex}"]`, { timeout: 50000 })
             .click();
         return this;
     }
 
     public clickExistingReturnStatement() {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .return-contect-wrapper [data-testid="editBtn"]`).click({ force: true });
+            cy.get(`.diagram-canvas .return-contect-wrapper [data-testid="editBtn"]`, { timeout: 50000 }).click({ force: true });
         })
         return this;
     }
 
     public deleteExistingReturnStatement() {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .return-contect-wrapper [data-testid="deleteBtn"]`).click({ force: true });
+            cy.get(`.diagram-canvas .return-contect-wrapper [data-testid="deleteBtn"]`, { timeout: 50000 }).click({ force: true });
         })
         return this;
     }
@@ -48,8 +48,8 @@ export class FunctionDiagram {
     //This is not working
     public clickIfConditionWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .if-else .if-body-pluses`).within(() => {
-                cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
+            cy.get(`.diagram-canvas .if-else .if-body-pluses`, { timeout: 50000 }).within(() => {
+                cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`, { timeout: 50000 })
                     .click();
             })
         })
@@ -58,7 +58,7 @@ export class FunctionDiagram {
 
     public clickIfConditionElseWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .else-line .main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
+            cy.get(`.diagram-canvas .else-line .main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`, { timeout: 50000 })
                 .click();
         })
         return this;
@@ -66,8 +66,8 @@ export class FunctionDiagram {
 
     public clickForEachWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .main-foreach-wrapper`).within(() => {
-                cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
+            cy.get(`.diagram-canvas .main-foreach-wrapper`, { timeout: 50000 }).within(() => {
+                cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`, { timeout: 50000 })
                     .click();
 
             })
@@ -77,8 +77,8 @@ export class FunctionDiagram {
 
     public clickWhileWorkerPlusBtn(index: number = 0) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .while-wrapper`).within(() => {
-                cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
+            cy.get(`.diagram-canvas .while-wrapper`, { timeout: 50000 }).within(() => {
+                cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`, { timeout: 50000 })
                     .not('.else-line')
                     .click();
 
@@ -92,14 +92,14 @@ export class FunctionDiagram {
     }
 
     public clickExistingLogStatement() {
-        cy.get(`.diagram-canvas .main-process-wrapper .process-options-wrapper [data-testid="editBtn"]`)
+        cy.get(`.diagram-canvas .main-process-wrapper .process-options-wrapper [data-testid="editBtn"]`, { timeout: 50000 })
             .click({ force: true });
         return this;
     }
 
     public deleteExistingLogStatement() {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .main-process-wrapper .process-options-wrapper [data-testid="deleteBtn"]`).click({ force: true });
+            cy.get(`.diagram-canvas .main-process-wrapper .process-options-wrapper [data-testid="deleteBtn"]`, { timeout: 50000 }).click({ force: true });
         })
         return this;
     }
@@ -112,7 +112,7 @@ export class FunctionDiagram {
 
     public clickDeleteExistingBlockStatement(targetLine: number) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .main-process-wrapper[target-line="${targetLine}"] .process-options-wrapper [data-testid="deleteBtn"]`)
+            cy.get(`.diagram-canvas .main-process-wrapper[target-line="${targetLine}"] .process-options-wrapper [data-testid="deleteBtn"]`, { timeout: 50000 })
                 .click({ force: true });
         })
         return this;
@@ -120,7 +120,7 @@ export class FunctionDiagram {
 
     public shouldHavePerfBar() {
         this.container.within(() => {
-            cy.get('.performance-bar .rectangle')
+            cy.get('.performance-bar .rectangle', { timeout: 50000 })
                 .should("be.visible");
         })
         return this;
@@ -128,14 +128,14 @@ export class FunctionDiagram {
 
     public getAdvancedPerfData() {
         this.container.within(() => {
-            cy.get('.performance-bar .more').click();
+            cy.get('.performance-bar .more', { timeout: 50000 }).click();
         })
         return this;
     }
 
     public assertPerfText(text: string) {
         this.container.within(() => {
-            return cy.get('.performance-bar').find('p').first().should(
+            return cy.get('.performance-bar', { timeout: 50000 }).find('p').first().should(
                 "have.text",
                 text
             )
@@ -144,7 +144,7 @@ export class FunctionDiagram {
 
     public assertPerfLabel(index: number, text: string) {
         this.container.within(() => {
-            return cy.get('.performance').eq(index).find('tspan').should(
+            return cy.get('.performance', { timeout: 50000 }).eq(index).find('tspan').should(
                 "have.text",
                 text
             )
@@ -153,9 +153,9 @@ export class FunctionDiagram {
 
     public assertPerfButton(text: string) {
         this.container.within(() => {
-            cy.get('.performance-bar .more').as("perfBtn")
+            cy.get('.performance-bar .more', { timeout: 50000 }).as("perfBtn")
         });
-        cy.get('@perfBtn').realClick().invoke('attr', 'aria-describedby').as("perfToolTipId")
+        cy.get('@perfBtn', { timeout: 50000 }).realClick().invoke('attr', 'aria-describedby').as("perfToolTipId")
             .then(($perfToolTipId) => {
                 return cy.get('#' + $perfToolTipId).first().should(
                     "have.text",
@@ -166,7 +166,7 @@ export class FunctionDiagram {
 
     public clickEditExistingBlockStatement(targetLine: number) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .main-process-wrapper[target-line="${targetLine}"] .process-options-wrapper [data-testid="editBtn"]`)
+            cy.get(`.diagram-canvas .main-process-wrapper[target-line="${targetLine}"] .process-options-wrapper [data-testid="editBtn"]`, { timeout: 50000 })
                 .click({ force: true });
         })
         return this;
@@ -175,7 +175,7 @@ export class FunctionDiagram {
 
     public assertControlFlowLineCount(count: number) {
         this.container.within(() => {
-            return cy.get('.control-flow-line').should(
+            return cy.get('.control-flow-line', { timeout: 50000 }).should(
                 "have.length",
                 count
             )
@@ -184,7 +184,7 @@ export class FunctionDiagram {
 
     public clickEditOnExistingEndpointStatement(targetLine: number) {
         this.container.within(() => {
-            cy.get(`.diagram-canvas .main-connector-process-wrapper[target-line="${targetLine}"] .connector-process-options-wrapper [data-testid="editBtn"]`)
+            cy.get(`.diagram-canvas .main-connector-process-wrapper[target-line="${targetLine}"] .connector-process-options-wrapper [data-testid="editBtn"]`, { timeout: 50000 })
                 .click({ force: true });
         });
         return this;

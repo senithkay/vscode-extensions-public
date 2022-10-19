@@ -169,14 +169,14 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			if (specificField && !specificField.valueExpr.source) {
 				return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position, applyModifications);
 			}
-			source = `\n${lhs}: ${rhs}`;
+			source = `${getLinebreak()}${lhs}: ${rhs}`;
 		}
 	} else {
 		const specificField = getSpecificField(targetMappingConstruct, lhs);
 		if (specificField && !specificField.valueExpr.source) {
 			return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position, applyModifications);
 		}
-		source = `\n${lhs}: ${rhs}`;
+		source = `${getLinebreak()}${lhs}: ${rhs}`;
 	}
 
 	const targetPosition = targetMappingConstruct.openBrace.position;
@@ -191,7 +191,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 0
-			? `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
+			? `\t${missingFields[0]}: {${getLinebreak()}${createSpecificField(missingFields.slice(1))}}`
 			: `\t${lhs}: ${rhs}`;
 	}
 
@@ -279,7 +279,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 1
-			? `\t${missingFields[0]}: {\n${createSpecificField(missingFields.slice(1))}}`
+			? `\t${missingFields[0]}: {${getLinebreak()}${createSpecificField(missingFields.slice(1))}}`
 			: `\t${missingFields[0]}: ${newValue}`;
 	}
 }
@@ -508,6 +508,13 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 		return [port, mappedPort];
 	}
 	return [null, null]
+}
+
+export function getLinebreak(){
+	if (navigator.userAgent.indexOf("Windows") !== -1){
+		return "\r\n";
+	}
+	return "\n";
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
@@ -795,8 +802,8 @@ async function createValueExprSource(lhs: string, rhs: string, fieldNames: strin
 	function createValueExpr(missingFields: string[], isRoot?: boolean): string {
 		return !!missingFields.length
 			? isRoot
-				? `{\n${createValueExpr(missingFields.slice(1))}}`
-				: `\t${missingFields[0]}: {\n${createValueExpr(missingFields.slice(1))}}`
+				? `{${getLinebreak()}${createValueExpr(missingFields.slice(1))}}`
+				: `\t${missingFields[0]}: {${getLinebreak()}${createValueExpr(missingFields.slice(1))}}`
 			: isRoot
 				? rhs
 				: `\t${lhs}: ${rhs}`;

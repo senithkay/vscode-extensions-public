@@ -15,6 +15,8 @@ import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget
 import { ResourceForm } from "../../utils/forms/resource-form";
 import { ServiceForm } from "../../utils/forms/service-form"
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils"
+import { SourceCode } from "../../utils/components/code-view";
+import { getCurrentSpecFolder } from "../../utils/file-utils";
 
 const BAL_FILE_PATH = "service/add-service-to-empty-file.bal";
 
@@ -50,7 +52,12 @@ describe('add a http service to an empty file', () => {
             .typeReturnValue('error|int?')
             .addResourceParam('QUERY', 'string', 'test')
             .addPayload()
+            .clickShowButton()
+            .addHeaderParam("contentType")
             .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-advanced-resource.expected.bal");
     })
 
 })

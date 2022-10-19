@@ -199,6 +199,30 @@ export class ResourceForm {
         return this;
     }
 
+    static clickShowButton() {
+        this.getForm()
+            .contains("Show")
+            .click()
+        return this;
+    }
+
+    static addHeaderParam(paramName: string) {
+        this.getForm()
+            .get('[data-test-id="Header-add-button"]', { timeout: 50000 })
+            .click();
+
+        ExpressionEditor
+            .getForField("param-name", this.selector)
+            .clear()
+            .type(paramName);
+        cy.wait(2000);
+
+        this.getForm()
+            .get('[data-testid="path-segment-add-btn"]')
+            .click();
+        return this;
+    }
+
     static addPayload(paramType?: string, paramName?: string) {
         this.getForm()
             .get('[data-test-id="payload-add-button"]')
@@ -270,25 +294,42 @@ export class ResourceForm {
 
     static removePathParam(param: string) {
         this.getForm()
-            .get(`[data-testid=${param}-close-btn]`)
+            .get(`[data-testid=${param}-close-btn]`, { timeout: 50000 }).should("be.visible")
             .click();
+        cy.wait(2000);
+        this.getForm()
+            .get(`[data-testid=${param}-close-btn]`, { timeout: 50000 }).should("not.exist")
         return this;
     }
 
     static removeQueryParam(param: string) {
         this.getForm()
-            .get(`[data-testid=${param}-close-btn]`)
+            .get(`[data-testid=${param}-close-btn]`,{ timeout: 50000 }).should("be.visible")
             .click();
+        cy.wait(2000);
+        this.getForm()
+            .get(`[data-testid=${param}-close-btn]`, { timeout: 50000 }).should("not.exist")
+        return this;
+    }
+
+    static waitForAddBtn(text: string) {
+        this.getForm()
+            .within(() => {
+                cy.contains(text,{ timeout: 50000 }).should("be.visible")
+            });
         return this;
     }
 
     static removeParameter(paramType: string, paramName: string) {
         this.getForm()
-            .get(`[data-testid="${paramType}  ${paramName}-item"]`)
+            .get(`[data-testid="${paramType}  ${paramName}-item"]`, { timeout: 50000 }).should("be.visible")
             .within(() => {
                 cy.get('#delete-button')
                     .click();
-            })
+            });
+        cy.wait(2000);
+        this.getForm()
+            .get(`[data-testid="${paramType}  ${paramName}-item"]`, { timeout: 50000 }).should("not.exist")
         return this;
     }
 
