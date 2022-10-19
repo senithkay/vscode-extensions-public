@@ -2,11 +2,11 @@
 
 ## **3.3.0**
 ### Added
-- Graphql try it view. 
-- Add code lense to open code elements in diagram view.
+- Visual Data Mapper - Helps you write and visualize data transformations easily
+- GraphQL Tryit - Facilitates  trying out the GraphQL services with the integrated client
 
 ### Improved
-- The low-code diagram editor - New data mapper introduced.
+- Improved record editor - Provides a better editing experience with suggestions
 
 ## **3.2.0**
 ### Improved
