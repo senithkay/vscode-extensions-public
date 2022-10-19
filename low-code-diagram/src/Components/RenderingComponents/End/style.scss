@@ -13,10 +13,6 @@
 .end-wrapper {
     font-family: inherit;
 
-    rect {
-        fill: #dce1ff;
-    }
-
     user-select: none;
 
     .end-text {
@@ -72,4 +68,12 @@
             display: inline !important;
         }
     }
+}
+
+.rect-fill {
+    fill: #dce1ff;
+}
+
+.rect-fill-none {
+    fill: url(#ReturnLinearGradient) #fafafc;
 }

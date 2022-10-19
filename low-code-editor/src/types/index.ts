@@ -17,8 +17,8 @@
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     BallerinaConnectorInfo, CommandResponse, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification,
-    STSymbolInfo, WizardType
+    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, FunctionDef, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse,
+    STModification, STSymbolInfo, WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -78,6 +78,7 @@ export interface LowCodeEditorAPI {
         // Reuse go-to-def from LangServer?
         setCodeLocationToHighlight: (position: NodePosition) => void;
         gotoSource: (position: { startLine: number, startColumn: number }) => void;
+        getFunctionDef: (lineRange: Range, defFilePath: string) => Promise<FunctionDef>;
         isMutationInProgress: boolean;
         isModulePullInProgress: boolean;
         loaderText: string;

@@ -10,16 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
 import { ViewState } from "./view-state";
 
 export class CollapseViewState extends ViewState {
-    public collapsed: boolean = false;
-    public index: number;
-    public cx: number;
-    public cy: number;
-    public w: number;
-    public h: number;
+    public collapsed: boolean = true;
+    public range: NodePosition;
     constructor() {
         super();
+        this.bBox = undefined;
     }
 }

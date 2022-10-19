@@ -10,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+
 import { ActionViewState } from "./action";
 import { EndpointViewState } from "./endpoint";
 import { SimpleBBox } from "./simple-bbox";
@@ -29,6 +31,10 @@ export class StatementViewState extends ViewState {
     public isReceive: boolean;
     public isSend: boolean;
     public arrowFrom: 'Left' | 'Right';
+    public functionNodeExpanded: boolean;
+    public functionNode: FunctionDefinition;
+    public parentAction?: boolean;
+    public expandOffSet?: number = 0;
 
     constructor() {
         super();

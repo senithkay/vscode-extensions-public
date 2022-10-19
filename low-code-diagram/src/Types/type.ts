@@ -12,6 +12,9 @@ export interface Endpoint {
     visibleEndpoint: VisibleEndpoint;
     actions?: StatementViewState[];
     firstAction?: StatementViewState;
+    isExpandedPoint?: boolean;
+    offsetValue?: number;
+    isParent?: boolean;
 }
 
 export interface TooltipContent {

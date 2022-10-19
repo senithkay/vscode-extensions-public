@@ -55,7 +55,7 @@ describe('Add variable to function via Low Code', () => {
             .typeInput("varName");
 
         EditorPane
-            .validateNewExpression("CaptureBindingPattern", "varName")
+            .validateNewExpression("CaptureBindingPattern", "varName");
 
         StatementEditor
             .save();
