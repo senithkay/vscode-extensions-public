@@ -1,0 +1,63 @@
+/**
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+import React from 'react';
+import { RestrictedControls } from './DiagramControls/RestrictedControls';
+import { DefaultControls } from './DiagramControls/DefaultControls';
+import { Views } from '../../../resources';
+import { HeaderContainer, DiagramTitle } from './styles/styles';
+import './styles/styles.css';
+
+interface HeaderProps {
+    currentView: Views;
+    prevView: Views;
+    projectPackages: Map<string, boolean>;
+    switchView: (viewType: Views) => void;
+    updateProjectPkgs: (packages: Map<string, boolean>) => void;
+    onRefresh: () => void;
+}
+
+const headings: Map<Views, string> = new Map<Views, string>([
+    [Views.TYPE, 'Type Diagram'],
+    [Views.TYPE_COMPOSITION, 'Composition Diagram'],
+    [Views.L1_SERVICES, 'Service Diagram: Level 1'],
+    [Views.L2_SERVICES, 'Service Diagram: Level 2']
+]);
+
+export function DiagramHeader(props: HeaderProps) {
+    const { currentView, prevView, projectPackages, switchView, updateProjectPkgs, onRefresh } = props;
+
+    return (
+        <HeaderContainer>
+            {currentView === Views.TYPE_COMPOSITION ?
+                <RestrictedControls
+                    previousScreen={prevView}
+                    switchView={switchView}
+                /> :
+                <DefaultControls
+                    projectPackages={projectPackages}
+                    updateProjectPkgs={updateProjectPkgs}
+                    switchView={switchView}
+                    onRefresh={onRefresh}
+                />
+            }
+            <DiagramTitle> {headings.get(currentView)} </DiagramTitle>
+        </HeaderContainer>
+    );
+}

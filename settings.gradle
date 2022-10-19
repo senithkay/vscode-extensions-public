@@ -33,4 +33,19 @@ include(':variable-view')
 
 project(':variable-view').projectDir = file('web/variable-view')
 
+include(':graphql-viewer')
+
+project(':graphql-viewer').projectDir = file('web/graphql')
+
+include(':notebook-renderer')
+
+project(':notebook-renderer').projectDir = file('web/notebook-renderer')
+
+include(':variable-view')
+
+project(':variable-view').projectDir = file('web/variable-view')
+
+include(':design-diagram-viewer')
+
+project(':design-diagram-viewer').projectDir = file('web/project-design-diagrams')
 rootProject.name = 'ballerina-plugin-vscode'

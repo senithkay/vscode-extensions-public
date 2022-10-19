@@ -57,6 +57,10 @@ npmBuild() {
     dependsOn ':graphql-viewer:buildGraphqlViewer'
     dependsOn ':notebook-renderer:buildRenderer'
     dependsOn ':variable-view:buildVariableView'
+    dependsOn ':design-diagram-viewer:buildProjectDesignDiagramViewer'
+    dependsOn ':graphql-viewer:buildGraphqlViewer'
+    dependsOn ':notebook-renderer:buildRenderer'
+    dependsOn ':variable-view:buildVariableView'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
     PatternSet patternSet = new PatternSet();

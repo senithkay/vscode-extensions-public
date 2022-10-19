@@ -1,0 +1,97 @@
+/**
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+import styled from '@emotion/styled';
+import { Level } from '../../../resources';
+
+interface StyleProps {
+    level?: Level;
+    isResource?: boolean;
+    isSelected?: boolean;
+}
+
+export const ServiceNode = styled.div`
+    background-color: ${(props: StyleProps) => props.level === Level.ONE ? `#FFFFFF` :
+        props.isSelected ? '#f7f1e9' : `#F0F1FB`};
+    border: ${(props: StyleProps) => props.isSelected ? `2px solid #ffaf4d` : `1px solid  #5567D5`};
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
+    border-bottom-right-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
+    color: ${(props: StyleProps) => props.isSelected ? `#ffaf4d` : `#5567D5`};
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    min-height: 32px;
+`;
+
+export const ServiceHead = styled.div`
+    align-items: center;
+    border-bottom: ${(props: StyleProps) => props.level === Level.TWO ?
+        props.isSelected ? `2px solid #ffaf4d` : `1px solid #5567D5` : ``};
+    display: flex;
+    font-family: GilmerRegular;
+    font-size: 13px;
+    height: 32px;
+    justify-content: center;
+    line-height: 24px;
+    padding-inline: 8px;
+    min-width: calc(100% - 16px);
+    text-align: center;
+    text-transform: capitalize;
+`;
+
+export const ServiceName = styled.span`
+    margin-left: 8px;
+`;
+
+export const FunctionContainer = styled.div`
+    align-items: center;
+    background-color: ${(props: StyleProps) => props.isSelected ? '#f7f1e9' : '#FFFFFF'};
+    border-bottom: 0.5px solid #F0F1FB;
+    color: #000000;
+    display: flex;
+    flex-direction: row;
+    font-family: GilmerRegular;
+    font-size: 12px;
+    height: 30px;
+    justify-content: ${(props: StyleProps) => props.isResource ? 'flex-start' : 'center'};
+    line-height: 16px;
+    min-width: calc(100% - 16px);
+    padding: 8px 8px 8px 8px;
+    text-align: center;
+`;
+
+export const ResourceAction = styled.div`
+    background-color: ${(props: { color: string }) => `${props.color}`};
+    border-radius: 5px;
+    height: 22px;
+    line-height: 22px;
+    margin-right: 8px;
+    width: 50px;
+`;
+
+export const ResourceName = styled.div`
+    display: flex;
+    flex: 1;
+    height: 30px;
+    line-height: 30px;
+    text-align: left;
+    white-space: nowrap;
+`;

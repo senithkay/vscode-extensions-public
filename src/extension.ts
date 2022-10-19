@@ -37,6 +37,7 @@ import { activate as activatePerformanceForecaster } from './forecaster';
 import { activate as activateTryIt } from './tryIt/tryit';
 import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
+import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, log } from './utils';
 
 let langClient: ExtendedLangClient;
@@ -102,6 +103,7 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Ballerina Notebook
         activateNotebook(ballerinaExtInstance);
         activateLibraryBrowser(ballerinaExtInstance);
+        activateDesignDiagramView(ballerinaExtInstance);
 
         ballerinaExtInstance.onReady().then(() => {
             langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;

@@ -44,6 +44,7 @@ import { showChoreoSigninMessage } from "../forecaster";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 import { DefinitionParams, Location, LocationLink } from 'vscode-languageserver-protocol';
+import { ComponentModel } from "../project-design-diagrams/resources";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -82,7 +83,15 @@ enum EXTENDED_APIS {
     NOTEBOOK_RESTART = "balShell/restartNotebook",
     NOTEBOOK_VARIABLES = "balShell/getVariableValues",
     NOTEBOOK_DELETE_DCLNS = "balShell/deleteDeclarations",
+    NOTEBOOK_RESULT = "balShell/getResult",
+    NOTEBOOK_FILE_SOURCE = "balShell/getShellFileSource",
+    NOTEBOOK_RESTART = "balShell/restartNotebook",
+    NOTEBOOK_VARIABLES = "balShell/getVariableValues",
+    NOTEBOOK_DELETE_DCLNS = "balShell/deleteDeclarations",
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
+    SYMBOL_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
+    SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
+    COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
     SYMBOL_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
     SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol'
 }
@@ -262,6 +271,20 @@ export interface Range {
 export interface Position {
     line: number;
     character: number;
+}
+
+export interface GetPackageComponentModelsRequest {
+    documentUris: string[]
+}
+
+export interface GetPackageComponentModelsResponse {
+    componentModels: Map<string, ComponentModel>;
+    diagnostics: ComponentModelDiagnostics[];
+}
+
+export interface ComponentModelDiagnostics {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
 }
 
 export interface BallerinaServiceListRequest {
@@ -483,6 +506,9 @@ export class ExtendedLangClient extends LanguageClient {
         const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params) :
             Promise.resolve(NOT_SUPPORTED);
+    }
+    async getPackageComponentModels(params: GetPackageComponentModelsRequest): Promise<GetPackageComponentModelsResponse>{
+        return this.sendRequest(EXTENDED_APIS.COMPONENT_MODEL_ENDPOINT, params);
     }
     async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS);
