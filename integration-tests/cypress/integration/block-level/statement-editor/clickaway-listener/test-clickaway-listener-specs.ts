@@ -24,7 +24,7 @@ describe('Test statement editor clickaway listener', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Test statement editor go to non-editing state on click', () => {
+    it.skip('Test statement editor go to non-editing state on click', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
