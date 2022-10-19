@@ -10,9 +10,11 @@ import {
 } from '@projectstorm/react-canvas-core';
 import { DiagramEngine, DragDiagramItemsState, PortModel } from '@projectstorm/react-diagrams-core';
 
+import { DiagnosticTooltipID } from "../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
+import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 import { CreateLinkState } from './CreateLinkState';
-import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -36,15 +38,17 @@ export class DefaultState extends State<DiagramEngine> {
 					// the canvas was clicked on, transition to the dragging canvas state
 					if (!element) {
 						const targetElement = event.event.target as Element;
-						const linkOveralyContainer = targetElement.closest(`#${LinkOverayContainerID}`);
-						if (linkOveralyContainer) {
-							// Clicked on an link overlay item, hence, do not propagate as a canvas drag
+						const linkOverlayContainer = targetElement.closest(`#${LinkOverayContainerID}`);
+						const diagnosticsTooltip = targetElement.closest(`#${DiagnosticTooltipID}`);
+						if (linkOverlayContainer || diagnosticsTooltip) {
+							// Clicked on a link overlay item or a diagnostic tooltip,
+							// hence, do not propagate as a canvas drag
 						} else {
 							this.transitionWithEvent(this.dragCanvas, event);
 						}
 					}
 					// initiate dragging a new link
-					else if (element instanceof PortModel) {
+					else if (element instanceof PortModel || element instanceof DataMapperNodeModel) {
 						return;
 					}
 					// move the items (and potentially link points)
