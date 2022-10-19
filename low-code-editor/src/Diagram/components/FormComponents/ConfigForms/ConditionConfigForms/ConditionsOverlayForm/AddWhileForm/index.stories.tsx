@@ -27,6 +27,7 @@ export default {
 
 // tslint:disable-next-line:no-empty
 const dummyFunction = async (arg: any) => {} ;
+const dummyFunctionReturn = (arg: any): any => { return; };
 // tslint:disable-next-line:no-empty
 const dummyFunctionWithoutArgs =  () => {};
 
