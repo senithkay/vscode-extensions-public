@@ -16,6 +16,8 @@ namespace S {
 	`;
 }
 
+export const DMCanvasContainerID = "data-mapper-canvas-container";
+
 export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 	ref: React.RefObject<HTMLDivElement>;
 	keyUp: any;
@@ -81,6 +83,7 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 
 		return (
 			<S.Canvas
+				id={DMCanvasContainerID}
 				className={this.props.className}
 				ref={this.ref}
 				onWheel={(event) => {

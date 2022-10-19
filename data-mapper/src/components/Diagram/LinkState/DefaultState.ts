@@ -10,6 +10,7 @@ import {
 } from '@projectstorm/react-canvas-core';
 import { DiagramEngine, DragDiagramItemsState, PortModel } from '@projectstorm/react-diagrams-core';
 
+import { DMCanvasContainerID } from "../Canvas/DataMapperCanvasWidget";
 import { DiagnosticTooltipID } from "../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
@@ -38,12 +39,13 @@ export class DefaultState extends State<DiagramEngine> {
 					// the canvas was clicked on, transition to the dragging canvas state
 					if (!element) {
 						const targetElement = event.event.target as Element;
+						const dmCanvasContainer = targetElement.closest(`#${DMCanvasContainerID}`);
 						const linkOverlayContainer = targetElement.closest(`#${LinkOverayContainerID}`);
 						const diagnosticsTooltip = targetElement.closest(`#${DiagnosticTooltipID}`);
 						if (linkOverlayContainer || diagnosticsTooltip) {
 							// Clicked on a link overlay item or a diagnostic tooltip,
 							// hence, do not propagate as a canvas drag
-						} else {
+						} else if (dmCanvasContainer) {
 							this.transitionWithEvent(this.dragCanvas, event);
 						}
 					}
