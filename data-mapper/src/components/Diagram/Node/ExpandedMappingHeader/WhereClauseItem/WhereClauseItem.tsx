@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+import React, { useState } from "react";
 
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import { QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
@@ -18,11 +18,12 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { useStyles } from "../styles";
 import { ClauseAddButton } from "../ClauseAddButton";
 import clsx from "clsx";
+import { CircularProgress } from "@material-ui/core";
 
 export function WhereClauseItem(props: {
     intermediateNode: WhereClause;
     onEditClick: () => void;
-    onDeleteClick: () => void;
+    onDeleteClick: () => Promise<void>;
     context: IDataMapperContext;
     queryExprNode: QueryExpression;
     itemIndex: number;
@@ -36,6 +37,21 @@ export function WhereClauseItem(props: {
         itemIndex,
     } = props;
     const classes = useStyles();
+    const [isLoading, setLoading] = useState(false);
+
+    const onDelete = async () => {
+        setLoading(true);
+        try {
+            await onDeleteClick();
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const onEdit = async () => {
+        context.handleFieldToBeEdited(`${itemIndex}`);
+        onEditClick();
+    }
 
     return (
         <>
@@ -44,23 +60,26 @@ export function WhereClauseItem(props: {
                     <span className={classes.clauseBold}>{`${intermediateNode.whereKeyword.value} `}</span>
                     <span
                         className={classes.clauseExpression}
-                        onClick={onEditClick}
+                        onClick={onEdit}
                     >
                         {intermediateNode.expression.source}
                     </span>
                 </div>
-                <DeleteOutline
-                    className={clsx(classes.deleteIcon)}
-                    onClick={onDeleteClick}
-                />
+                {isLoading || context.fieldToBeEdited === `${itemIndex}` ? (
+                    <CircularProgress size={18} />
+                ) : (
+                    <DeleteOutline
+                        className={clsx(classes.deleteIcon)}
+                        onClick={onDelete}
+                    />
+                )}
             </div>
-            <div className={classes.addIconWrap}>
-                <ClauseAddButton
-                    context={context}
-                    queryExprNode={queryExprNode}
-                    addIndex={itemIndex}
-                />
-            </div>
+            <ClauseAddButton
+                context={context}
+                queryExprNode={queryExprNode}
+                addIndex={itemIndex}
+                visibleOnlyOnHover
+            />
         </>
     );
 }

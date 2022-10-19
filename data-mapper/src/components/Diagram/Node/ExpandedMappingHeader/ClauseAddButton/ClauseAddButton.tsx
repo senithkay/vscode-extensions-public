@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react';
+import React, { useState } from 'react';
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -20,16 +20,19 @@ import { genLetClauseVariableName } from '../../../../../utils/st-utils';
 import { useStyles } from '../styles';
 import clsx from 'clsx';
 import AddIcon from '@material-ui/icons/Add';
+import { CircularProgress } from '@material-ui/core';
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
     context: IDataMapperContext;
     addIndex: number;
+    visibleOnlyOnHover?: boolean;
 }
 
 export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
-    const { context, queryExprNode, addIndex } = props;
+    const { context, queryExprNode, addIndex, visibleOnlyOnHover } = props;
     const classes = useStyles();
+    const [isLoading, setLoading] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | SVGSVGElement>(null);
     const open = Boolean(anchorEl);
 
@@ -40,17 +43,17 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         setAnchorEl(null);
     };
 
-    const getAddFieldPosition = ():NodePosition => {
+    const getAddFieldPosition = (): NodePosition => {
         let addPosition: NodePosition;
         const intermediateClauses: STNode[] = queryExprNode.queryPipeline.intermediateClauses;
         const insertAfterNode = intermediateClauses[addIndex];
 
-        if(addIndex >= 0 && insertAfterNode){
+        if (addIndex >= 0 && insertAfterNode) {
             addPosition = {
                 ...insertAfterNode.position,
                 startColumn: insertAfterNode.position.endColumn
             };
-        }else{
+        } else {
             addPosition = {
                 ...queryExprNode.queryPipeline.fromClause.position,
                 startColumn: queryExprNode.queryPipeline.fromClause.position.endColumn
@@ -60,30 +63,51 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         return addPosition;
     }
 
-    const onClickAddLetClause = () => {
+    const onClickAddLetClause = async () => {
         handleClose();
-        const addPosition = getAddFieldPosition();
-        const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses)
-        context.applyModifications([{
-            type: "INSERT",
-            config: { "STATEMENT": ` let var ${variableName} = EXPRESSION`},
-            ...addPosition
-        }]);
+        setLoading(true)
+        try {
+            const addPosition = getAddFieldPosition();
+            const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses)
+            await context.applyModifications([{
+                type: "INSERT",
+                config: { "STATEMENT": ` let var ${variableName} = EXPRESSION` },
+                ...addPosition
+            }]);
+        } finally {
+            setLoading(false)
+        }
     }
 
-    const onClickAddWhereClause = () => {
+    const onClickAddWhereClause = async () => {
         handleClose();
-        const addPosition = getAddFieldPosition();
-        context.applyModifications([{
-            type: "INSERT",
-            config: { "STATEMENT": ` where EXPRESSION`},
-            ...addPosition
-        }]);
+        setLoading(true)
+        try {
+            const addPosition = getAddFieldPosition();
+            await context.applyModifications([{
+                type: "INSERT",
+                config: { "STATEMENT": ` where EXPRESSION` },
+                ...addPosition
+            }]);
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
         <>
-            <AddIcon className={clsx(classes.addIcon)} onClick={handleClick} />
+            {isLoading ? (
+                <div className={classes.addLoaderWrap}><CircularProgress size={14} /></div>
+            ) : (
+                <div
+                    className={clsx(visibleOnlyOnHover && classes.addIconWrap)}
+                >
+                    <AddIcon
+                        className={classes.addIcon}
+                        onClick={handleClick}
+                    />
+                </div>
+            )}
             <Menu
                 anchorEl={anchorEl}
                 open={open}
