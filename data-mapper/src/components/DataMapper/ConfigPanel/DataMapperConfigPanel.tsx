@@ -39,7 +39,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     } = props;
     const formClasses = useFormStyles();
 
-    const [fnName, setFnName] = useState("transform");
+    const [fnName, setFnName] = useState(getFnNameFromST(fnST) || "transform");
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
     const [outputType, setOutputType] = useState("");
     const [inputType, setInputType] = useState("");
@@ -96,7 +96,6 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     useEffect(() => {
         if (fnST) {
-            setFnName(getFnNameFromST(fnST));
             const inputs = getInputsFromST(fnST);
             if (inputs && inputs.length > 0) {
                 setInputParams(getInputsFromST(fnST));
