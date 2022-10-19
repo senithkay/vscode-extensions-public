@@ -38,3 +38,4 @@ export const RUN_PROJECT_TO_TRYIT = "Please make sure the project is already run
 export const OLD_BALLERINA_VERSION_DEBUGGER_RUNINTERMINAL = "Debugger: Your Ballerina version does not support the run in terminal feature. Please update to 2201.3.0 or later version.";
 export const UNSUPPORTED_DEBUGGER_RUNINTERMINAL_KIND = "Debugger: The run in external terminal capability is not supported. Launching program in integrated terminal."
 export const INVALID_DEBUGGER_RUNINTERMINAL_KIND = "Debugger: Invalid terminal kind provided. Failed to launch debugger.";
+export const COOKIE_SETTINGS = "Please note: To change your current cookie setting you need to go back to the Choreo console. And click on \"Edit Code\" and relaunch for it to take effect.";
