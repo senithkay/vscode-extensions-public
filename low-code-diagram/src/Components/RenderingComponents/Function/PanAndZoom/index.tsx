@@ -15,11 +15,21 @@ import React, { useContext } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { Context } from "../../../../Context/diagram";
+import { ViewMode } from "../../../../Context/types";
 import FitToScreenSVG from "../../../../PanAndZoom/images/fit-to-screen";
+import InteractionMode from "../../../../PanAndZoom/images/interaction-mode";
+import StatementMode from "../../../../PanAndZoom/images/statement-mode";
 import ZoomInSVG from "../../../../PanAndZoom/images/zoom-in";
 import ZoomOutSVG from "../../../../PanAndZoom/images/zoom-out";
 
-export default function PanAndZoom(props: any) {
+
+interface PanAndZoomProps {
+    viewMode: ViewMode;
+    toggleViewMode: () => void;
+}
+
+export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProps>) {
+    const { viewMode, toggleViewMode } = props;
     const diagramContext = useContext(Context);
     const { onDiagramDoubleClick } = diagramContext.props;
 
@@ -46,6 +56,9 @@ export default function PanAndZoom(props: any) {
                             </div>
                         </TransformComponent>
                         <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
+                            <div className={'zoom-control-wrapper'} onClick={toggleViewMode}>
+                                {viewMode === ViewMode.STATEMENT ? <InteractionMode /> : <StatementMode />}
+                            </div>
                             <div className={'zoom-control-wrapper'} onClick={zoomIn}>
                                 <ZoomInSVG />
                             </div>

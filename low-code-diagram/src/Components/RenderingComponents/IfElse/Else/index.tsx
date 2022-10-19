@@ -22,7 +22,6 @@ import { getDiagnosticInfo, getDraftComponent, getSTComponents } from "../../../
 import { ControlFlowLineState, ElseViewState } from "../../../../ViewState";
 import { DefaultConfig } from "../../../../Visitors/default";
 import { PlusButton } from "../../../PlusButtons/Plus";
-import { Collapse } from "../../Collapse";
 import { ControlFlowLine } from "../../ControlFlowLine";
 import ControlFlowElseEnd from "../../ControlFlowLine/ControlFlowElseEnd";
 import ControlFlowElseStart from "../../ControlFlowLine/ControlFlowElseStart";
@@ -144,7 +143,8 @@ export function Else(props: ElseProps) {
     }
 
     if (viewState.collapseView) {
-        children.push(<Collapse blockViewState={viewState} />)
+        // TODO: Fix rendering collapsed ranges in else block
+        // children.push(<Collapse blockViewState={viewState} />)
     }
 
     components.push(topHorizontalLine);

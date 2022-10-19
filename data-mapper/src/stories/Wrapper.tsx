@@ -9,6 +9,7 @@ import { DataMapper } from '../components/DataMapper/DataMapper';
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
 import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
+import { Uri } from 'monaco-editor';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -55,7 +56,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         const langClient = await langClientPromise;
         const stModifyResp = await langClient.stModify({
             documentIdentifier: {
-                uri: `file://${filePath}`
+                uri: Uri.file(filePath).toString()
             },
             astModifications: modifications
         });
@@ -74,7 +75,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                 const langClient = await langClientPromise;
                 const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
                     documentIdentifier: {
-                        uri: `file://${filePath}`
+                        uri: Uri.file(filePath).toString()
                     }
                 });
                 if (parseSuccess) {
@@ -97,7 +98,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                 textDocument: {
                     languageId: "ballerina",
                     text,
-                    uri: `file://${filePath}`,
+                    uri: Uri.file(filePath).toString(),
                     version: 1
                 }
             });
@@ -109,7 +110,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
             const langClient = await langClientPromise;
             langClient.didClose({
                 textDocument: {
-                    uri: `file://${filePath}`,
+                    uri:  Uri.file(filePath).toString(),
                 }
             });
             setDidOpen(true);
@@ -153,7 +154,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                                 langClientPromise.then((langClient) => {
                                     langClient.didChange({
                                         textDocument: {
-                                            uri: `file://${filePath}`,
+                                            uri: Uri.file(filePath).toString(),
                                             version: 1
                                         },
                                         contentChanges: [

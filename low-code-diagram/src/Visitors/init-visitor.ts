@@ -15,7 +15,6 @@ import {
     ModulePart,
     ModuleVarDecl,
     NamedWorkerDeclaration,
-    NamedWorkerDeclarator,
     ObjectMethodDefinition,
     RemoteMethodCallAction,
     RequiredParam,
@@ -29,26 +28,22 @@ import {
     Visitor,
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { Endpoint } from "../Types/type";
 import {
     BlockViewState,
     CollapseViewState,
     CompilationUnitViewState,
-    DoViewState,
     ElseViewState,
     EndpointViewState,
     ForEachViewState,
     FunctionViewState,
     IfViewState,
     ModuleMemberViewState,
-    OnErrorViewState,
     PlusViewState,
     ServiceViewState,
     SimpleBBox,
     StatementViewState,
-    ViewState,
     WhileViewState
 } from "../ViewState";
 import { DraftStatementViewState } from "../ViewState/draft";
@@ -61,45 +56,40 @@ let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 
 export class InitVisitor implements Visitor {
     private allEndpoints: Map<string, Endpoint> = new Map();
+    private parentConnectors: Map<string, Endpoint>;
+    private offsetValue: number;
+
+    constructor(parentConnectors?: Map<string, Endpoint>, offsetValue: number = 0) {
+        this.parentConnectors = parentConnectors;
+        this.offsetValue = offsetValue;
+    }
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
-        if (!node.viewState) {
-            node.viewState = new ViewState();
-        }
+        // node.viewState = new ViewState();
         this.initStatement(node, this.removeXMLNameSpaces(parent));
     }
 
     public beginVisitModulePart(node: ModulePart, parent?: STNode) {
-        if (!node.viewState) {
-            node.viewState = new CompilationUnitViewState();
-        }
+        node.viewState = new CompilationUnitViewState();
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
-        if (!node.viewState) {
-            const viewState = new FunctionViewState();
-            node.viewState = viewState;
-        } else {
-            const viewState = node.viewState as FunctionViewState;
-            if (viewState.initPlus) {
-                viewState.initPlus = undefined;
-            }
+        const viewState = new FunctionViewState();
+        node.viewState = viewState;
+        if (viewState.initPlus) {
+            viewState.initPlus = undefined;
         }
         this.allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitListenerDeclaration(node: ListenerDeclaration, parent?: STNode) {
-        if (!node.viewState) {
-            const viewState = new ModuleMemberViewState();
-            node.viewState = viewState;
-        }
+        const viewState = new ModuleMemberViewState();
+        node.viewState = viewState;
     }
 
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
-        if (!node.viewState) {
-            const viewState = new ModuleMemberViewState();
-            node.viewState = viewState;
-        }
+        const viewState = new ModuleMemberViewState();
+        node.viewState = viewState;
 
         if (node.typeData && node.typeData.isEndpoint) {
             const bindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
@@ -111,10 +101,8 @@ export class InitVisitor implements Visitor {
     }
 
     public beginVisitRequiredParam(node: RequiredParam, parent?: STNode): void {
-        if (!node.viewState) {
-            const viewState = new ModuleMemberViewState();
-            node.viewState = viewState;
-        }
+        const viewState = new ModuleMemberViewState();
+        node.viewState = viewState;
 
         if (node.typeData && node.typeData.isEndpoint) {
             const endpointName = node.paramName?.value;
@@ -126,25 +114,19 @@ export class InitVisitor implements Visitor {
     }
 
     public beginVisitTypeDefinition(node: TypeDefinition) {
-        if (!node.viewState) {
-            const viewState = new ModuleMemberViewState();
-            node.viewState = viewState;
-        }
+        const viewState = new ModuleMemberViewState();
+        node.viewState = viewState;
     }
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode) {
-        if (!node.viewState) {
-            const viewState = new FunctionViewState();
-            node.viewState = viewState;
-        }
+        const viewState = new FunctionViewState();
+        node.viewState = viewState;
         this.allEndpoints = new Map<string, Endpoint>();
     }
 
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
-        if (!node.viewState) {
-            const viewState = new FunctionViewState();
-            node.viewState = viewState;
-        }
+        const viewState = new FunctionViewState();
+        node.viewState = viewState;
         this.allEndpoints = new Map<string, Endpoint>();
     }
 
@@ -168,16 +150,12 @@ export class InitVisitor implements Visitor {
     }
 
     public beginVisitActionStatement(node: ActionStatement, parent?: STNode) {
-        if (!node.viewState) {
-            node.viewState = new StatementViewState();
-        }
+        node.viewState = new StatementViewState();
         this.initStatement(node, parent);
     }
 
     public beginVisitCheckAction(node: CheckAction, parent?: STNode) { // todo: Check panic is also replaced by this method
-        if (!node.viewState) {
-            node.viewState = new StatementViewState();
-        }
+        node.viewState = new StatementViewState();
 
         if (node.expression && isSTActionInvocation(node)) { // todo : need to find the right method from STTypeChecker
             const stmtViewState = node.viewState as StatementViewState;
@@ -195,8 +173,6 @@ export class InitVisitor implements Visitor {
     }
 
     public endVisitCallStatement(node: CallStatement, parent?: STNode) {
-        node.viewState = new StatementViewState();
-
         if (isSTActionInvocation(node) && node.expression) {
             const stmtViewState = node.viewState as StatementViewState;
             const expressionViewState = node.expression.viewState as StatementViewState;
@@ -208,16 +184,15 @@ export class InitVisitor implements Visitor {
     }
 
     public beginVisitCallStatement(node: CallStatement, parent?: STNode) {
-        if (!node.viewState) {
-            node.viewState = new StatementViewState();
-        }
+        node.viewState = new StatementViewState();
     }
 
-    public endVisitForeachStatement(node: ForeachStatement) {
+
+    public beginVisitForeachStatement(node: ForeachStatement) {
         node.viewState = new ForEachViewState();
     }
 
-    public endVisitWhileStatement(node: WhileStatement) {
+    public beginVisitWhileStatement(node: WhileStatement) {
         node.viewState = new WhileViewState();
     }
 
@@ -238,8 +213,11 @@ export class InitVisitor implements Visitor {
         }
     }
 
-    public endVisitTypeCastExpression(node: TypeCastExpression, parent?: STNode) {
+    public beginVisitTypeCastExpression(node: TypeCastExpression, parent?: STNode) {
         node.viewState = new StatementViewState();
+    }
+
+    public endVisitTypeCastExpression(node: TypeCastExpression, parent?: STNode) {
         if (isSTActionInvocation(node) && node.expression) {
             if (STKindChecker.isRemoteMethodCallAction(node.expression)) {
                 const remoteCall = node.expression;
@@ -264,17 +242,29 @@ export class InitVisitor implements Visitor {
         }
     }
 
+    private mapParentEndpointsWithCurrentEndpoints(node: FunctionBodyBlock) {
+        this.parentConnectors?.forEach((parentEp: Endpoint, key: string) => {
+            // TODO: Check all the conditions to map the correct endpoint
+            const currentVp = this.allEndpoints?.get(key);
+            if (currentVp && parentEp.visibleEndpoint.moduleName === currentVp.visibleEndpoint.moduleName
+                && parentEp.visibleEndpoint.orgName === currentVp.visibleEndpoint.orgName) {
+                parentEp.isExpandedPoint = true;
+                parentEp.offsetValue = this.offsetValue;
+                this.allEndpoints.set(key, parentEp);
+            }
+        })
+    }
+
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
+        this.mapParentEndpointsWithCurrentEndpoints(node);
         blockViewState.connectors = this.allEndpoints;
         blockViewState.hasWorkerDecl = !!node.namedWorkerDeclarator;
         currentFnBody = undefined;
     }
 
     public beginVisitLocalVarDecl(node: LocalVarDecl, parent?: STNode) {
-        if (!node.viewState) {
-            node.viewState = new StatementViewState();
-        }
+        node.viewState = new StatementViewState();
     }
 
     public endVisitLocalVarDecl(node: LocalVarDecl, parent?: STNode) {
@@ -344,24 +334,11 @@ export class InitVisitor implements Visitor {
                     stmtViewState.isCallerAction = callerParam && callerParam.name === varRef.name.value;
                 }
             }
-
-            // Do we need this.... here we only need to identify actions.
-            // else if (STKindChecker.isMethodCall(node.expression)) {
-            //     const expression: MethodCall = node.expression as MethodCall;
-            //     const expressionVS: StatementViewState = expression.viewState;
-            //     const varRef: SimpleNameReference = expression.expression as SimpleNameReference;
-            //     stmtViewState.isCallerAction = expressionVS.isCallerAction;
-            //     stmtViewState.isAction = expressionVS.isAction;
-            //     stmtViewState.action.actionName = expression.methodName.name.value;
-            //     stmtViewState.action.endpointName = varRef.name.value;
-            // }
         }
     }
 
     public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
-        if (!node.viewState) {
-            node.viewState = new WorkerDeclarationViewState();
-        }
+        node.viewState = new WorkerDeclarationViewState();
     }
 
     private initStatement(node: STNode, parent?: STNode) {

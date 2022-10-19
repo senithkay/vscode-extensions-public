@@ -20,6 +20,7 @@ import {
     StatementEditorButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModuleVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Uri } from 'monaco-editor';
 
 import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -74,8 +75,8 @@ export function ViewContainer(props: ViewContainerProps) {
         isExpressionMode,
         isCodeServerInstance
     } = useContext(StatementEditorContext);
-    const exprSchemeURI = `expr://${currentFile.path}`;
-    const fileSchemeURI = `file://${currentFile.path}`;
+    const exprSchemeURI = Uri.file(currentFile.path).toString().replace("file", "expr");
+    const fileSchemeURI = Uri.file(currentFile.path).toString();
 
     const saveButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.statementEditor.saveButton.text",

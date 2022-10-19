@@ -137,6 +137,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             '&:hover': { outline: 0 },
             '&:focus': { outline: 0 },
             background: 'transparent'
+        },
+        addLoaderWrap :{
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
         }
     })
 );

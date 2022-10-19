@@ -29,6 +29,7 @@ export class EditorPane {
     static clickExpressionContent(text:string){
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
+                .should('be.visible', { timeout: 50000 })
                 .click()
                 // .parent('[class*="expressionElementSelected"]',{timeout:20000})
         });
@@ -37,6 +38,7 @@ export class EditorPane {
 
     static clickStatementContent(text:string){
         cy.contains(`[data-testid="input-editor-span"]`,text)
+            .should('be.visible', { timeout: 50000 })
             .click();
         return this;
     }
@@ -44,6 +46,7 @@ export class EditorPane {
     static doubleClickExpressionContent(text:string){
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
+                .should('be.visible', { timeout: 50000 })
                 .dblclick()
         })
         return this;
@@ -51,7 +54,14 @@ export class EditorPane {
 
     static doubleClickStatementContent(text:string){
         cy.contains(`[data-testid="input-editor-span"]`,text)
+            .should('be.visible', { timeout: 50000 })
             .dblclick();
+        return this;
+    }
+
+    static clickTokenContent(token:string){
+        cy.contains(`[class*="expressionBlock"]`,token)
+            .click();
         return this;
     }
 

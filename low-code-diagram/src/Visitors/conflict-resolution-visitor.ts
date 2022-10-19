@@ -17,16 +17,19 @@ import {
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
+import { COLLAPSE_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ColapseButtonSVG";
 import { FOREACH_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ForeachSVG";
 import { IFELSE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/IfElseSVG";
+import { WHILE_SVG_HEIGHT } from "../Components/RenderingComponents/While/WhileSVG";
 import {
-    BlockViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, StatementViewState,
+    BlockViewState, CollapseViewState, EndViewState, ForEachViewState, FunctionViewState, IfViewState, StatementViewState,
     WhileViewState
 } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
 import { ConflictRestrictSpace, DEFAULT_WORKER_NAME, SendRecievePairInfo, SizingVisitor } from "./sizing-visitor";
+import { isPositionWithinRange } from "./util";
 
 export class ConflictResolutionVisitor implements Visitor {
     private matchedPairInfo: SendRecievePairInfo[];
@@ -35,14 +38,16 @@ export class ConflictResolutionVisitor implements Visitor {
     private endPointPositions: ConflictRestrictSpace[];
     private workerCount: number;
     private evaluatingIf: boolean;
+    private defaultOffset: number;
 
-    constructor(matchedPairInfo: SendRecievePairInfo[], workerCount: number) {
+    constructor(matchedPairInfo: SendRecievePairInfo[], workerCount: number, defaultOffset: number) {
         this.matchedPairInfo = matchedPairInfo;
         this.workerNames = [];
         this.hasConflict = false;
         this.workerCount = workerCount;
         this.endPointPositions = [];
         this.evaluatingIf = false;
+        this.defaultOffset = defaultOffset;
     }
 
     public conflictFound() {
@@ -73,43 +78,53 @@ export class ConflictResolutionVisitor implements Visitor {
 
     private visitBlockStatement(node: BlockStatement, parent?: STNode, height: number = 0) {
         const blockViewState: BlockViewState = node.viewState as BlockViewState;
+        let collapsedViewStates: CollapseViewState[] = [...blockViewState.collapsedViewStates];
 
         node.statements.forEach((statementNode, statementIndex) => {
             const statementViewState: StatementViewState = statementNode.viewState as StatementViewState;
 
+            for (let i = 0; i < collapsedViewStates.length; i++) {
+                if (isPositionWithinRange(statementNode.position, collapsedViewStates[i].range)) {
+                    collapsedViewStates[i].bBox.cx = blockViewState.bBox.cx - collapsedViewStates[i].bBox.lw;
+
+                    if (collapsedViewStates[i].collapsed) {
+                        collapsedViewStates[i].bBox.cy = blockViewState.bBox.cy + collapsedViewStates[i].bBox.offsetFromTop + height;
+                        height += collapsedViewStates[i].getHeight();
+                    } else {
+                        collapsedViewStates[i].bBox.cy = statementViewState.bBox.cy - statementViewState.bBox.offsetFromTop;
+                        collapsedViewStates[i].bBox.h = -COLLAPSE_SVG_HEIGHT / 3;
+                    }
+
+                    collapsedViewStates = [...collapsedViewStates.slice(0, i), ...collapsedViewStates.slice(i + 1)];
+                    break;
+                }
+            }
+
+            if (statementViewState.collapsed) return;
+
             if (blockViewState.draft && blockViewState.draft[0] === statementIndex) {
                 height += blockViewState.draft[1].getHeight();
-            }
-            if (STKindChecker.isIfElseStatement(statementNode)) {
-                const ifViewState: IfViewState = statementNode.viewState as IfViewState;
-                const ifStatementStartHeight = height + ifViewState.bBox.offsetFromTop + IFELSE_SVG_HEIGHT
-                    + DefaultConfig.offSet;
-                this.fixIfElseStatementConflicts(statementNode, ifStatementStartHeight);
-            }
-
-            if (STKindChecker.isForeachStatement(statementNode)) {
-                const forEachViewstate: ForEachViewState = statementNode.viewState as ForEachViewState;
-                const forStatementStartHeight = height + forEachViewstate.bBox.offsetFromTop + FOREACH_SVG_HEIGHT
-                    + DefaultConfig.offSet;
-                this.fixForEachBlockConflicts(statementNode, forStatementStartHeight)
-            }
-
-            if (STKindChecker.isWhileStatement(statementNode)) {
-                const whileViewstate: WhileViewState = statementNode.viewState as WhileViewState;
-                const forStatementStartHeight = height + whileViewstate.bBox.offsetFromTop + FOREACH_SVG_HEIGHT
-                    + DefaultConfig.offSet;
-                this.fixWhileBlockConflicts(statementNode, forStatementStartHeight)
             }
 
             let updatedAsConflict = false;
             const statementBoxStartHeight = height + statementViewState.bBox.offsetFromTop;
-            const statementBoxEndHeight = statementBoxStartHeight + statementViewState.bBox.h;
+            let statementBoxEndHeight = statementBoxStartHeight;
+
+            if (STKindChecker.isIfElseStatement(statementNode)) {
+                statementBoxEndHeight += IFELSE_SVG_HEIGHT;
+            } else if (STKindChecker.isWhileStatement(statementNode)) {
+                statementBoxEndHeight += WHILE_SVG_HEIGHT;
+            } else if (STKindChecker.isForeachStatement(statementNode)) {
+                statementBoxEndHeight += FOREACH_SVG_HEIGHT;
+            } else {
+                statementBoxEndHeight += statementViewState.bBox.h
+            }
 
             if (!this.hasConflict) {
-                updatedAsConflict = this.fixIfConflictWithEndPoint(statementBoxStartHeight, statementBoxEndHeight,
+                updatedAsConflict = this.fixConflictsWithEndpoints(statementBoxStartHeight, statementBoxEndHeight,
                     statementViewState, statementIndex);
                 if (!this.hasConflict) {
-                    updatedAsConflict = this.fixIfConflictsWithMessage(statementBoxStartHeight, statementBoxEndHeight,
+                    updatedAsConflict = this.fixConflictsWithMessages(statementBoxStartHeight, statementBoxEndHeight,
                         statementViewState, statementIndex);
                 }
             }
@@ -146,6 +161,25 @@ export class ConflictResolutionVisitor implements Visitor {
                 }
             }
 
+            if (STKindChecker.isIfElseStatement(statementNode)) {
+                const ifViewState: IfViewState = statementNode.viewState as IfViewState;
+                const ifStatementStartHeight = height + ifViewState.bBox.offsetFromTop + IFELSE_SVG_HEIGHT
+                    + this.defaultOffset;
+                this.fixIfElseStatementConflicts(statementNode, ifStatementStartHeight);
+            }
+
+            if (STKindChecker.isForeachStatement(statementNode)) {
+                const forEachViewstate: ForEachViewState = statementNode.viewState as ForEachViewState;
+                const forStatementStartHeight = height + forEachViewstate.bBox.offsetFromTop + this.defaultOffset;
+                this.fixForEachBlockConflicts(statementNode, forStatementStartHeight)
+            }
+
+            if (STKindChecker.isWhileStatement(statementNode)) {
+                const whileViewstate: WhileViewState = statementNode.viewState as WhileViewState;
+                const forStatementStartHeight = height + whileViewstate.bBox.offsetFromTop + this.defaultOffset;
+                this.fixWhileBlockConflicts(statementNode, forStatementStartHeight)
+            }
+
             if (blockViewState.draft && blockViewState.draft[0] === node.statements.length) {
                 height += blockViewState.draft[1].getHeight();
             }
@@ -171,11 +205,11 @@ export class ConflictResolutionVisitor implements Visitor {
                 const endBlockStartHeight = height + endViewState.bBox.offsetFromTop;
                 const endBlockEndHeight = endBlockStartHeight + endViewState.bBox.h;
                 if (!this.hasConflict) {
-                    this.fixIfConflictWithEndPoint(endBlockStartHeight, endBlockEndHeight,
+                    this.fixConflictsWithEndpoints(endBlockStartHeight, endBlockEndHeight,
                         endViewState as StatementViewState, node.statements.length);
 
                     if (!this.hasConflict) {
-                        this.fixIfConflictsWithMessage(endBlockStartHeight, endBlockEndHeight,
+                        this.fixConflictsWithMessages(endBlockStartHeight, endBlockEndHeight,
                             endViewState as StatementViewState, node.statements.length);
                     }
                 }
@@ -210,8 +244,8 @@ export class ConflictResolutionVisitor implements Visitor {
         traversNode(node, new SizingVisitor());
     }
 
-    private fixIfConflictsWithMessage(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
-                                      statementIndex: number): boolean {
+    private fixConflictsWithMessages(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
+                                     statementIndex: number): boolean {
         let updatedAsConflict: boolean = false;
 
         this.matchedPairInfo.forEach(matchedPair => {
@@ -223,7 +257,7 @@ export class ConflictResolutionVisitor implements Visitor {
                     && this.workerNames.length - 1 < restrictedSpaceCoords.x2))) {
                 this.hasConflict = true;
                 updatedAsConflict = true;
-                const newOffset = (restrictedSpaceCoords.y2 - boxStartHeight) + DefaultConfig.offSet * 2;
+                const newOffset = (restrictedSpaceCoords.y2 - boxStartHeight) + this.defaultOffset * 2;
 
                 viewState.bBox.offsetFromTop += newOffset;
 
@@ -258,7 +292,7 @@ export class ConflictResolutionVisitor implements Visitor {
         return updatedAsConflict;
     }
 
-    private fixIfConflictWithEndPoint(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
+    private fixConflictsWithEndpoints(boxStartHeight: number, boxEndHeight: number, viewState: StatementViewState,
                                       statementIndex: number): boolean {
         let updatedAsConflict = false;
         this.endPointPositions.forEach(position => {
@@ -270,7 +304,7 @@ export class ConflictResolutionVisitor implements Visitor {
 
                 this.hasConflict = true;
                 updatedAsConflict = true;
-                const newOffset = (position.y2 - boxStartHeight) + DefaultConfig.offSet * 2;
+                const newOffset = (position.y2 - boxStartHeight) + this.defaultOffset * 2;
 
                 viewState.bBox.offsetFromTop += newOffset;
 

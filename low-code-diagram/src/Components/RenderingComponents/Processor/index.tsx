@@ -19,13 +19,16 @@ import {
     AssignmentStatement,
     CallStatement,
     FunctionCall,
+    IdentifierToken,
     LocalVarDecl,
     NodePosition,
     QualifiedNameReference,
+    SimpleNameReference,
     STKindChecker,
     STNode,
     SyncSendAction
 } from "@wso2-enterprise/syntax-tree";
+import cn from "classnames";
 
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
@@ -36,13 +39,16 @@ import { getDiagnosticInfo, getMethodCallFunctionName, getOverlayFormConfig, get
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
+import { ShowFunctionBtn } from "../../DiagramActions/ShowFunctionBtn";
 import { Assignment } from "../Assignment";
+import { FunctionExpand } from "../FunctionExpand";
 import { MethodCall } from "../MethodCall";
 import { StatementTypes } from "../StatementTypes";
 import { VariableName, VARIABLE_NAME_WIDTH } from "../VariableName";
 
 import { ProcessSVG, PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "./ProcessSVG";
 import "./style.scss";
+
 
 export interface ProcessorProps {
     model: STNode;
@@ -64,6 +70,9 @@ export function DataProcessor(props: ProcessorProps) {
     const { model, blockViewState } = props;
     const [isConfigWizardOpen, setConfigWizardOpen] = useState(false);
 
+    const [functionBlock, setFunctionBlock] = useState(undefined);
+    const [isConfirmDialogActive, setConfirmDialogActive] = useState(false);
+
     const viewState: StatementViewState = model === null ? blockViewState.draft[1] : model.viewState;
     const isDraftStatement: boolean = blockViewState
         && blockViewState.draft[1] instanceof DraftStatementViewState;
@@ -71,6 +80,8 @@ export function DataProcessor(props: ProcessorProps) {
     let processName = "Variable";
     let sourceSnippet = "Source";
     const diagnostics = model?.typeData?.diagnostics;
+    let haveFunction = false;
+    let functionName: IdentifierToken = null;
 
     let isIntializedVariable = false;
     let isLogStmt = false;
@@ -92,6 +103,9 @@ export function DataProcessor(props: ProcessorProps) {
             } else {
                 processType = "Call";
                 processName = processType;
+                haveFunction = true;
+                const simpleName: SimpleNameReference = stmtFunctionCall.functionName as SimpleNameReference;
+                functionName = simpleName.name;
             }
         } else if (STKindChecker.isLocalVarDecl(model)) {
 
@@ -108,6 +122,20 @@ export function DataProcessor(props: ProcessorProps) {
 
             if (model?.initializer && !STKindChecker.isImplicitNewExpression(model?.initializer)) {
                 isIntializedVariable = true;
+            }
+            if (model?.initializer && STKindChecker.isFunctionCall(model?.initializer)) {
+                const callStatement: FunctionCall = model?.initializer as FunctionCall;
+                const nameRef: SimpleNameReference = callStatement.functionName as SimpleNameReference;
+                haveFunction = true;
+                functionName = nameRef.name;
+            }
+            if (model?.initializer && STKindChecker.isCheckExpression(model?.initializer)) {
+                if (STKindChecker.isFunctionCall(model?.initializer.expression)) {
+                    const callStatement: FunctionCall = model?.initializer.expression as FunctionCall;
+                    const nameRef: SimpleNameReference = callStatement.functionName as SimpleNameReference;
+                    haveFunction = true;
+                    functionName = nameRef.name;
+                }
             }
         } else if (STKindChecker.isAssignmentStatement(model)) {
             processType = "AssignmentStatement";
@@ -245,7 +273,7 @@ export function DataProcessor(props: ProcessorProps) {
         statmentTypeText = getStatementTypesFromST(localModel);
     }
 
-    const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
+    // const processWrapper = isDraftStatement ? "main-process-wrapper active-data-processor" : "main-process-wrapper data-processor";
     const assignmentTextStyles = diagnosticMsgs?.severity === "ERROR" ? "assignment-text-error" : "assignment-text-default";
 
     const prosessTypes = (processType === "Log" || processType === "Call");
@@ -281,10 +309,20 @@ export function DataProcessor(props: ProcessorProps) {
             />
         )
     }
+    const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
+    const haveFunctionExpand = (haveFunction && !!functionName);
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
             <g>
+                {isConfirmDialogActive && functionBlock && (
+                    <FunctionExpand
+                        model={functionBlock}
+                        hideHeader={true}
+                        x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3) + 10}
+                        y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)}
+                    />
+                )}
                 <g className={processWrapper} data-testid="data-processor-block" z-index="1000" target-line={model?.position.startLine}>
                     <React.Fragment>
                         {(processType !== "Log" && processType !== "Call" && processType !== "AsyncSend") && !isDraftStatement &&
@@ -317,10 +355,11 @@ export function DataProcessor(props: ProcessorProps) {
                             diagnostics={errorSnippet}
                             componentSTNode={model}
                             openInCodeView={!isReadOnly && model && model.position && onClickOpenInCodeView}
+                            haveFunctionExpand={false}
                         />
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
-                            y={prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2 + rightTextOffset) : (cy + PROCESS_SVG_HEIGHT / 3 + rightTextOffset)}
+                            y={haveFunctionExpand ? (cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2) : (prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3))}
                             assignment={assignmentText}
                             className={assignmentTextStyles}
                             key_id={getRandomInt(1000)}
@@ -332,7 +371,6 @@ export function DataProcessor(props: ProcessorProps) {
                             methodCall={methodCallText}
                             key_id={getRandomInt(1000)}
                         />
-
                         {!isReadOnly &&
                             <g
                                 className="process-options-wrapper"
@@ -353,6 +391,20 @@ export function DataProcessor(props: ProcessorProps) {
                                     </>
                                 )}
                             </g>
+                        }
+                        {haveFunctionExpand ?
+                            <g>
+                                <ShowFunctionBtn
+                                    model={model}
+                                    functionName={functionName}
+                                    x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap / 2) + 3}
+                                    y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2) + 5}
+                                    setConfirmDialogActive={setConfirmDialogActive}
+                                    isConfirmDialogActive={isConfirmDialogActive}
+                                    setFunctionBlock={setFunctionBlock}
+                                />
+                            </g>
+                            : ''
                         }
                     </React.Fragment>
                 </g>

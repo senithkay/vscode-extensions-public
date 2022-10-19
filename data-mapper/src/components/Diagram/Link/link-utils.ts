@@ -2,7 +2,7 @@ import { PortModel } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { RecordFieldPortModel } from "../Port";
-import { getBalRecFieldName } from "../utils/dm-utils";
+import { getBalRecFieldName, getLinebreak } from "../utils/dm-utils";
 
 import { DataMapperLinkModel } from "./model/DataMapperLink";
 
@@ -26,7 +26,7 @@ export function generateQueryExpression(srcExpr: string, targetType: Type) {
     return `from var ${itemName} in ${srcExpr}
         select {
             ${targetType.fields.map((field, index) =>
-                `${getBalRecFieldName(field.name)}: ${(index !== srcFields.length - 1) ? ',\n\t\t\t' : ''}`
+                `${getBalRecFieldName(field.name)}: ${(index !== srcFields.length - 1) ? `,${getLinebreak()}\t\t\t` : ''}`
             ).join("")}
         }`
 }

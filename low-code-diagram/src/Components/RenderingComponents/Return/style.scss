@@ -21,8 +21,15 @@ $active_error_color : #e09f9667;
 .return-rect-styles{
     stroke-miterlimit: 10;
     stroke-width: 1;
-    fill: url(#ReturnLinearGradient) #fafafc;
     filter: url(#ReturnFilter) #fafafc;
+}
+
+.rect-fill {
+    fill: #dce1ff;
+}
+
+.rect-fill-none {
+    fill: url(#ReturnLinearGradient) #fafafc;
 }
 
 .return-rect-active-styles{

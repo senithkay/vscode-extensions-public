@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 
 import { Button, IconButton } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
@@ -31,6 +31,7 @@ import {
     createSourceForUserInput,
     getDefaultValue,
     getFieldName,
+    getLinebreak,
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
@@ -41,6 +42,7 @@ import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
+import { CircularProgress } from "@material-ui/core";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -51,12 +53,14 @@ export interface ArrayTypedEditableRecordFieldWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
-    deleteField?: (node: STNode) => void;
+    deleteField?: (node: STNode) => Promise<void>;
 }
 
 export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRecordFieldWidgetProps) {
     const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
+    const [isLoading, setLoading] = useState(false);
+    const [isAddingElement, setIsAddingElement] = useState(false);
 
     const fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
@@ -95,7 +99,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             portIn.setDescendantHasValue();
             isDisabled = true;
         }
-        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)){
+        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)) {
             portIn.ancestorHasValue = true;
             isDisabled = true;
         }
@@ -105,7 +109,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <span style={{ marginRight: "auto" }}>
             <span
                 className={classnames(classes.valueLabel,
-                            (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
+                    (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
                 style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
             >
                 {fieldName}
@@ -127,12 +131,12 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         range: null
                     }}
                 >
-                        <span className={classes.valueWithError}>
-                            {typeName}
-                            <span className={classes.errorIconWrapper}>
-                                <ErrorIcon />
-                            </span>
+                    <span className={classes.valueWithError}>
+                        {typeName}
+                        <span className={classes.errorIconWrapper}>
+                            <ErrorIcon />
                         </span>
+                    </span>
                 </DiagnosticTooltip>
             )}
         </span>
@@ -199,36 +203,51 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     const handleArrayInitialization = async () => {
-        await createSourceForUserInput(field, mappingConstruct, '[]', context.applyModifications);
+        setLoading(true);
+        try {
+            await createSourceForUserInput(field, mappingConstruct, '[]', context.applyModifications);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleArrayDeletion = async () => {
-        deleteField(field.value);
+        setLoading(true);
+        try {
+            await deleteField(field.value);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleAddArrayElement = () => {
-        const fieldsAvailable = !!listConstructor.expressions.length;
-        const defaultValue = field.type?.memberType && getDefaultValue(field.type.memberType);
-        let targetPosition: NodePosition;
-        let newElementSource: string;
-        if (fieldsAvailable) {
-            targetPosition = listConstructor.expressions[listConstructor.expressions.length - 1].position;
-            newElementSource = `,\n${defaultValue}`
-        } else {
-            targetPosition = listConstructor.openBracket.position;
-            newElementSource = `\n${defaultValue}`
+    const handleAddArrayElement = async () => {
+        setIsAddingElement(true)
+        try{
+            const fieldsAvailable = !!listConstructor.expressions.length;
+            const defaultValue = field.type?.memberType && getDefaultValue(field.type.memberType);
+            let targetPosition: NodePosition;
+            let newElementSource: string;
+            if (fieldsAvailable) {
+                targetPosition = listConstructor.expressions[listConstructor.expressions.length - 1].position;
+                newElementSource = `,${getLinebreak()}${defaultValue}`
+            } else {
+                targetPosition = listConstructor.openBracket.position;
+                newElementSource = `${getLinebreak()}${defaultValue}`
+            }
+            const modification = [getModification(newElementSource, {
+                ...targetPosition,
+                startLine: targetPosition.endLine,
+                startColumn: targetPosition.endColumn
+            })];
+            await context.applyModifications(modification);
+        } finally {
+            setIsAddingElement(false);
         }
-        const modification = [getModification(newElementSource, {
-            ...targetPosition,
-            startLine: targetPosition.endLine,
-            startColumn: targetPosition.endColumn
-        })];
-        context.applyModifications(modification);
     };
 
     return (
         <div className={classnames(classes.treeLabel, classes.treeLabelArray,
-                        (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
+            (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
             <div className={classes.ArrayFieldRow}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
@@ -247,16 +266,22 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     )}
                     {label}
                 </span>
-                {((hasValue && !connectedViaLink) || !isDisabled) && (
-                    <ValueConfigMenu
-                        menuItems={[
-                            {
-                                title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
-                                onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion
-                            }
-                        ]}
-                        isDisabled={!typeName || typeName === '[]'}
-                    />
+                {isLoading ? (
+                    <CircularProgress size={18} className={classes.loader} />
+                ) : (
+                    <>
+                        {((hasValue && !connectedViaLink) || !isDisabled) && (
+                            <ValueConfigMenu
+                                menuItems={[
+                                    {
+                                        title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
+                                        onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion,
+                                    },
+                                ]}
+                                isDisabled={!typeName || typeName === "[]"}
+                            />
+                        )}
+                    </>
                 )}
             </div>
             {expanded && hasValue && listConstructor && (
@@ -268,7 +293,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             aria-label="add"
                             className={classes.addIcon}
                             onClick={handleAddArrayElement}
-                            startIcon={<AddIcon />}
+                            startIcon={isAddingElement ? <CircularProgress size={16} /> : <AddIcon />}
+                            disabled={isAddingElement}
                         >
                             Add Element
                         </Button>
