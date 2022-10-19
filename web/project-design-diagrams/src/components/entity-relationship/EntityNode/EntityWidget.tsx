@@ -40,10 +40,10 @@ export function EntityWidget(props: EntityWidgetProps) {
 
     useEffect(() => {
         node.registerListener({
-            "SELECT": (event: any) => {
+            'SELECT': (event: any) => {
                 setSelectedLink(event.entity as EntityLinkModel);
             },
-            "UNSELECT": () => { setSelectedLink(undefined) }
+            'UNSELECT': () => { setSelectedLink(undefined) }
         })
     }, [node])
 
@@ -65,18 +65,18 @@ export function EntityWidget(props: EntityWidgetProps) {
                         engine={engine}
                         node={node}
                         attribute={attribute}
-                        isSelected={node.isNodeSelected(selectedLink, node.getID() + '/' +attribute.name)}
+                        isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${attribute.name}`)}
                     />
                 )
             })}
 
             <InclusionPortsContainer>
                 <EntityPortWidget
-                    port={node.getPort('top-' + node.getID())}
+                    port={node.getPort(`top-${node.getID()}`)}
                     engine={engine}
                 />
                 <EntityPortWidget
-                    port={node.getPort('bottom-' + node.getID())}
+                    port={node.getPort(`bottom-${node.getID()}`)}
                     engine={engine}
                 />
             </InclusionPortsContainer>

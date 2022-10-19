@@ -23,8 +23,8 @@ export class ServicePortModel extends PortModel {
 	constructor(id: string, portType: PortModelAlignment) {
 		super({
 			type: 'servicePort',
-			name: portType.toString() + '-' + id,
-			id: portType.toString() + '-' + id,
+			name: `${portType}-${id}`,
+			id: `${portType}-${id}`,
 			alignment: portType
 		});
 	}

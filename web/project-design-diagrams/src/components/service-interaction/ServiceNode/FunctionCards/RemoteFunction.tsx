@@ -35,12 +35,12 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
     return (
         <>
             <ServicePortWidget
-                port={node.getPort('left-' + remoteFunc.name)}
+                port={node.getPort(`left-${remoteFunc.name}`)}
                 engine={engine}
             />
                 {remoteFunc.name}
             <ServicePortWidget
-                port={node.getPort('right-' + remoteFunc.name)}
+                port={node.getPort(`right-${remoteFunc.name}`)}
                 engine={engine}
             />
         </>

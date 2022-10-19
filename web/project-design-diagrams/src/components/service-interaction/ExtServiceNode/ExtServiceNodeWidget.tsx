@@ -37,8 +37,8 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 
 	useEffect(() => {
 		node.registerListener({
-			"SELECT": () => { setIsSelected(true) },
-			"UNSELECT": () => { setIsSelected(false) }
+			'SELECT': () => { setIsSelected(true) },
+			'UNSELECT': () => { setIsSelected(false) }
 		})
 	}, [node])
 
@@ -47,7 +47,7 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			{displayName}
 			<IconContainer isSelected={isSelected}>
 				<ServicePortWidget
-					port={node.getPort('left-' + node.getID())}
+					port={node.getPort(`left-${node.getID()}`)}
 					engine={engine}
 				/>
 					{node.getID().includes('/grpc:') ?
@@ -57,7 +57,7 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 							<EndpointIcon fill={isSelected ? '#ffaf4d' : '#5567D5'} />
 					}
 				<ServicePortWidget
-					port={node.getPort('right-' + node.getID())}
+					port={node.getPort(`right-${node.getID()}`)}
 					engine={engine}
 				/>
 			</IconContainer>

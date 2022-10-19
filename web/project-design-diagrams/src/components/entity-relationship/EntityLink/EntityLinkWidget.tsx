@@ -35,8 +35,8 @@ export function EntityLinkWidget(props: WidgetProps) {
 		link.initLinks(engine);
 
 		link.registerListener({
-			"SELECT": selectPath,
-			"UNSELECT": unselectPath
+			'SELECT': selectPath,
+			'UNSELECT': unselectPath
 		})
 	}, [link])
 

@@ -169,12 +169,12 @@ export class SharedLinkModel extends DefaultLinkModel {
 	}
 
 	selectLinkedNodes = () => {
-		this.getSourcePort().getNode().fireEvent({entity: this}, "SELECT");
-		this.getTargetPort().getNode().fireEvent({entity: this}, "SELECT");
+		this.getSourcePort().getNode().fireEvent({entity: this}, 'SELECT');
+		this.getTargetPort().getNode().fireEvent({entity: this}, 'SELECT');
 	}
 
 	resetLinkedNodes = () => {
-		this.getSourcePort().getNode().fireEvent({}, "UNSELECT")
-		this.getTargetPort().getNode().fireEvent({}, "UNSELECT")
+		this.getSourcePort().getNode().fireEvent({}, 'UNSELECT')
+		this.getTargetPort().getNode().fireEvent({}, 'UNSELECT')
 	}
 }

@@ -42,8 +42,8 @@ export function ServiceLinkWidget(props: WidgetProps) {
 		link.initLinks(engine);
 
 		link.registerListener({
-			"SELECT": selectPath,
-			"UNSELECT": unselectPath
+			'SELECT': selectPath,
+			'UNSELECT': unselectPath
 		})
 
 		if (link.level === Level.TWO && link.getSourcePort().getNode().getType() !== 'extServiceNode') {

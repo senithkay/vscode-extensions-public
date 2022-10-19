@@ -38,8 +38,8 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
 		node.serviceObject.path : node.serviceObject.serviceId;
 
     useEffect(() => {
-        headPorts.current.push(node.getPortFromID('left-' + node.getID()));
-        headPorts.current.push(node.getPortFromID('right-' + node.getID()));
+        headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
+        headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
     }, [node])
 
     const handleOnHover = (task: string) => {
@@ -50,20 +50,20 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
         <ServiceHead
             level={node.level}
             isSelected={isSelected}
-            onMouseOver={() => { handleOnHover("SELECT") }}
-            onMouseLeave={() => { handleOnHover("UNSELECT") }}
+            onMouseOver={() => { handleOnHover('SELECT') }}
+            onMouseLeave={() => { handleOnHover('UNSELECT') }}
         >
             {node.isResourceService ?
                 <HttpServiceIcon /> :
                 <GrpcIcon fill={isSelected ? '#ffaf4d' : '#5567D5'} />
             }
             <ServicePortWidget
-                port={node.getPort('left-' + node.getID())}
+                port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
                 <ServiceName>{displayName}</ServiceName>
             <ServicePortWidget
-                port={node.getPort('right-' + node.getID())}
+                port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
             />
         </ServiceHead>

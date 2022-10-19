@@ -22,29 +22,29 @@ export function AttributeWidget(props: AttributeProps) {
     let attributeType: string = extractAttributeType(attribute.type);
 
     useEffect(() => {
-        attributePorts.current.push(node.getPortFromID('left-' + node.getID() + '/' + attribute.name));
-        attributePorts.current.push(node.getPortFromID('right-' + node.getID() + '/' + attribute.name));
+        attributePorts.current.push(node.getPortFromID(`left-${node.getID()}/${attribute.name}`));
+        attributePorts.current.push(node.getPortFromID(`right-${node.getID()}/${attribute.name}`));
     }, [attribute])
 
     const handleOnHover = (task: string) => {
-        setIsHovered(task === "SELECT" ? true : false);
+        setIsHovered(task === 'SELECT' ? true : false);
         node.handleHover(attributePorts.current, task);
     }
 
     return (
         <AttributeContainer
             isSelected={isSelected || isHovered}
-            onMouseOver={() => handleOnHover("SELECT")}
-            onMouseLeave={() => handleOnHover("UNSELECT")}
+            onMouseOver={() => handleOnHover('SELECT')}
+            onMouseLeave={() => handleOnHover('UNSELECT')}
         >
             <EntityPortWidget
-                port={node.getPort('left-' + node.getID() + '/' + attribute.name)}
+                port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
                 engine={engine}
             />
                 <AttributeName>{attribute.name}</AttributeName>
                 <AttributeType isSelected={isSelected || isHovered}>{attributeType}</AttributeType>
             <EntityPortWidget
-                port={node.getPort('right-' + node.getID() + '/' + attribute.name)}
+                port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
                 engine={engine}
             />
         </AttributeContainer>

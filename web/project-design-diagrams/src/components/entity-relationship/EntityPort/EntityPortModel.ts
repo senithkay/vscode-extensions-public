@@ -20,13 +20,12 @@
 import { PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 
 export class EntityPortModel extends PortModel {
-    constructor(id: string, portType: 'left' | 'right' | 'bottom' | 'top') {
+    constructor(id: string, portType: PortModelAlignment) {
         super({
             type: 'entityPort',
-            name: portType + '-' + id,
-            id: portType + '-' + id,
-            alignment: portType === 'left' ? PortModelAlignment.LEFT : portType === 'right' ? PortModelAlignment.RIGHT :
-                portType === 'bottom' ? PortModelAlignment.BOTTOM : PortModelAlignment.TOP
+            name: `${portType}-${id}`,
+            id: `${portType}-${id}`,
+            alignment: portType
         });
     }
 

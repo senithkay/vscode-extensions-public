@@ -41,12 +41,12 @@ export function FunctionCard(props: FunctionCardProps) {
         `${functionElement.resourceId.action}/${functionElement.identifier}` : functionElement.name;
 
     useEffect(() => {
-        functionPorts.current.push(node.getPortFromID('left-' + path));
-        functionPorts.current.push(node.getPortFromID('right-' + path));
+        functionPorts.current.push(node.getPortFromID(`left-${path}`));
+        functionPorts.current.push(node.getPortFromID(`right-${path}`));
     }, [functionElement])
 
     const handleOnHover = (task: string) => {
-        setIsHovered(task === "SELECT" ? true : false);
+        setIsHovered(task === 'SELECT' ? true : false);
         node.handleHover(functionPorts.current, task);
     }
 
@@ -54,8 +54,8 @@ export function FunctionCard(props: FunctionCardProps) {
         <FunctionContainer
             isResource={node.isResourceService}
             isSelected={isHovered || isSelected}
-            onMouseOver={() => handleOnHover("SELECT")}
-            onMouseLeave={() => handleOnHover("UNSELECT")}
+            onMouseOver={() => handleOnHover('SELECT')}
+            onMouseLeave={() => handleOnHover('UNSELECT')}
         >
             {isResource(functionElement) ?
                 <ResourceFunctionWidget

@@ -40,8 +40,8 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     const displayName: string = node.getID().slice(node.getID().lastIndexOf(':') + 1);
 
     useEffect(() => {
-        headPorts.current.push(node.getPortFromID('left-' + node.getID()));
-        headPorts.current.push(node.getPortFromID('right-' + node.getID()));
+        headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
+        headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
     }, [node])
 
     const handleOnHover = (task: string) => {
@@ -53,16 +53,16 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
             isClickable={currentView !== Views.TYPE_COMPOSITION}
             isSelected={isSelected}
             onClick={() => { getTypeComposition(node.getID()) }}
-            onMouseOver={() => handleOnHover("SELECT")}
-            onMouseLeave={() => handleOnHover("UNSELECT")}
+            onMouseOver={() => handleOnHover('SELECT')}
+            onMouseLeave={() => handleOnHover('UNSELECT')}
         >
             <EntityPortWidget
-                port={node.getPort('left-' + node.getID())}
+                port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
                 {displayName}
             <EntityPortWidget
-                port={node.getPort('right-' + node.getID())}
+                port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
             />
         </EntityHead>

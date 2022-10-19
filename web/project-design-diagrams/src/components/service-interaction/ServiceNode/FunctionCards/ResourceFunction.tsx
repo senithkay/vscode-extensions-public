@@ -44,18 +44,18 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
     return (
         <>
             <ServicePortWidget
-                port={node.getPort('left-' + resourcePath)}
+                port={node.getPort(`left-${resourcePath}`)}
                 engine={engine}
             />
-            <ResourceAction color={colors.get(resource.resourceId.action)}>
-                {resource.resourceId.action}
-            </ResourceAction>
+                <ResourceAction color={colors.get(resource.resourceId.action)}>
+                    {resource.resourceId.action}
+                </ResourceAction>
 
-            <ResourceName>
-                {resource.resourceId.path}
-            </ResourceName>
+                <ResourceName>
+                    {resource.resourceId.path}
+                </ResourceName>
             <ServicePortWidget
-                port={node.getPort('right-' + resourcePath)}
+                port={node.getPort(`right-${resourcePath}`)}
                 engine={engine}
             />
         </>

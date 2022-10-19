@@ -37,10 +37,10 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 
 	useEffect(() => {
 		node.registerListener({
-			"SELECT": (event: any) => {
+			'SELECT': (event: any) => {
 				setSelectedLinks(links => [...links, event.entity as ServiceLinkModel]);
 			},
-			"UNSELECT": () => { setSelectedLinks([]) }
+			'UNSELECT': () => { setSelectedLinks([]) }
 		})
 	}, [node])
 
