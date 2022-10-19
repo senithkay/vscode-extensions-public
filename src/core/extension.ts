@@ -438,7 +438,7 @@ export class BallerinaExtension {
 
     showCookieConsentMessage(): any {
         const go: string = 'Go to console';
-        window.showWarningMessage(COOKIE_SETTINGS, go).then(async (selection) => {
+        window.showInformationMessage(COOKIE_SETTINGS, go).then(async (selection) => {
             const url = process.env.VSCODE_CHOREO_DEPLOY_URI;
             if (go === selection && url) {
                 const callbackUri = await env.asExternalUri(Uri.parse(url));
