@@ -83,17 +83,10 @@ enum EXTENDED_APIS {
     NOTEBOOK_RESTART = "balShell/restartNotebook",
     NOTEBOOK_VARIABLES = "balShell/getVariableValues",
     NOTEBOOK_DELETE_DCLNS = "balShell/deleteDeclarations",
-    NOTEBOOK_RESULT = "balShell/getResult",
-    NOTEBOOK_FILE_SOURCE = "balShell/getShellFileSource",
-    NOTEBOOK_RESTART = "balShell/restartNotebook",
-    NOTEBOOK_VARIABLES = "balShell/getVariableValues",
-    NOTEBOOK_DELETE_DCLNS = "balShell/deleteDeclarations",
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
     SYMBOL_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
     SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
-    COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
-    SYMBOL_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
-    SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol'
+    COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels'
 }
 
 enum EXTENDED_APIS_ORG {
