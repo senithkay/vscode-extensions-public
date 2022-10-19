@@ -21,7 +21,7 @@ import React, { useEffect, useRef } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
-import { GrpcIcon, HttpServiceIcon } from '../../../../resources';
+import { Colors, GrpcIcon, HttpServiceIcon } from '../../../../resources';
 import { ServiceHead, ServiceName } from '../styles';
 
 interface ServiceHeadProps {
@@ -55,7 +55,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
         >
             {node.isResourceService ?
                 <HttpServiceIcon /> :
-                <GrpcIcon fill={isSelected ? '#ffaf4d' : '#5567D5'} />
+                <GrpcIcon fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY} />
             }
             <ServicePortWidget
                 port={node.getPort(`left-${node.getID()}`)}

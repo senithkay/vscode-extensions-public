@@ -23,6 +23,7 @@ import AddIcon from '@mui/icons-material/Add';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
+import { Colors } from '../../../resources';
 import { ControlPanel, ExportButton } from './styles/styles';
 import './styles/styles.css';
 
@@ -68,9 +69,7 @@ export function DiagramControls(props: ControlProps) {
             <ExportButton>
                 <IconButton size='small' onClick={onDownload} >
                     <DownloadIcon
-                        sx={{
-                            color: '#5567D5'
-                        }}
+                        sx={{ color: Colors.PRIMARY }}
                         fontSize='medium'
                     />
                 </IconButton>

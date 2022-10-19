@@ -20,6 +20,7 @@
 import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { EntityLinkModel } from './EntityLinkModel';
+import { Colors } from '../../../resources';
 
 interface WidgetProps {
 	engine: DiagramEngine,
@@ -70,14 +71,14 @@ export function EntityLinkWidget(props: WidgetProps) {
 						onMouseLeave={unselectPath}
 						onMouseOver={selectPath}
 						pointerEvents='all'
-						stroke={isSelected ? '#ffaf4d' : '#5567D5'}
+						stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
 						strokeWidth={0.75}
 					/>
 				</> :
 				<>
 					<polygon
 						points={link.getArrowHeadPoints()}
-						fill={isSelected ? '#ffaf4d' : '#5567D5'}
+						fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
 					/>
 					<line
 						id={link.getID()}
@@ -89,7 +90,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 						onMouseLeave={unselectPath}
 						onMouseOver={selectPath}
 						pointerEvents='all'
-						stroke={isSelected ? '#ffaf4d' : '#5567D5'}
+						stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
 						strokeWidth={0.75}
 					/>
 				</>

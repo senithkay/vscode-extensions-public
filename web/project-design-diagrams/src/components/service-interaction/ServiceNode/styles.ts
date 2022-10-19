@@ -18,7 +18,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Level } from '../../../resources';
+import { Colors, Level } from '../../../resources';
 
 interface StyleProps {
     level?: Level;
@@ -28,13 +28,13 @@ interface StyleProps {
 
 export const ServiceNode = styled.div`
     background-color: ${(props: StyleProps) => props.level === Level.ONE ? `#FFFFFF` :
-        props.isSelected ? '#f7f1e9' : `#F0F1FB`};
-    border: ${(props: StyleProps) => props.isSelected ? `2px solid #ffaf4d` : `1px solid  #5567D5`};
+        props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
+    border: ${(props: StyleProps) => props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` : `1px solid  ${Colors.PRIMARY}`};
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     border-bottom-left-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
     border-bottom-right-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
-    color: ${(props: StyleProps) => props.isSelected ? `#ffaf4d` : `#5567D5`};
+    color: ${(props: StyleProps) => props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY};
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -44,7 +44,7 @@ export const ServiceNode = styled.div`
 export const ServiceHead = styled.div`
     align-items: center;
     border-bottom: ${(props: StyleProps) => props.level === Level.TWO ?
-        props.isSelected ? `2px solid #ffaf4d` : `1px solid #5567D5` : ``};
+        props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` : `1px solid ${Colors.PRIMARY}` : ``};
     display: flex;
     font-family: GilmerRegular;
     font-size: 13px;
@@ -63,8 +63,8 @@ export const ServiceName = styled.span`
 
 export const FunctionContainer = styled.div`
     align-items: center;
-    background-color: ${(props: StyleProps) => props.isSelected ? '#f7f1e9' : '#FFFFFF'};
-    border-bottom: 0.5px solid #F0F1FB;
+    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
+    border-bottom: 0.5px solid ${Colors.SECONDARY};
     color: #000000;
     display: flex;
     flex-direction: row;

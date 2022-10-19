@@ -21,7 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ExtServiceNodeModel } from './ExtServiceNodeModel';
 import { ServicePortWidget } from '../ServicePort/ServicePortWidget';
-import { EndpointIcon, HttpServiceIcon, ShortGrpcIcon } from '../../../resources';
+import { Colors, EndpointIcon, HttpServiceIcon, ShortGrpcIcon } from '../../../resources';
 import { Container, IconContainer } from './styles';
 
 interface ServiceNodeWidgetProps {
@@ -54,7 +54,7 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 						<ShortGrpcIcon /> :
 						node.getID().includes('/http:') ?
 							<HttpServiceIcon /> :
-							<EndpointIcon fill={isSelected ? '#ffaf4d' : '#5567D5'} />
+							<EndpointIcon fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY} />
 					}
 				<ServicePortWidget
 					port={node.getPort(`right-${node.getID()}`)}

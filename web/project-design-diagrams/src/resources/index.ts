@@ -17,7 +17,7 @@
  *
  */
 
-export { Level, Views } from './model';
+export { Level, Colors, Views } from './model';
 
 export type {
     Attribute,

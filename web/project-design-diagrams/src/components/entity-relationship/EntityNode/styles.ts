@@ -18,6 +18,7 @@
  */
 
 import styled from '@emotion/styled';
+import { Colors } from '../../../resources';
 
 interface StyleProps {
     isSelected: boolean;
@@ -26,10 +27,10 @@ interface StyleProps {
 }
 
 export const EntityNode = styled.div`
-    background-color: ${(props: StyleProps) => props.isSelected ? '#f7f1e9' : `#F0F1FB`};
-    border: ${(props: StyleProps) => props.isSelected ? `2px solid #ffaf4d` : `1px solid  #5567D5`};
+    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
+    border: ${(props: StyleProps) => props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` : `1px solid ${Colors.PRIMARY}`};
     border-radius: 2px !important;
-    color: ${(props: StyleProps) => props.isSelected ? `#ffaf4d` : `#5567D5`};
+    color: ${(props: StyleProps) => props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY};
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -39,7 +40,7 @@ export const EntityNode = styled.div`
 
 export const EntityHead = styled.div`
     align-items: center;
-    border-bottom: ${(props: StyleProps) => props.isSelected ? `1px solid #ffaf4d` : `1px solid #5567D5`};
+    border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
     display: flex;
     font-family: GilmerRegular;
     font-size: 13px;
@@ -58,8 +59,8 @@ export const EntityHead = styled.div`
 
 export const AttributeContainer = styled.div`
     align-items: center;
-    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? '#f7f1e9' : '#FFFFFF'};
-    border-bottom: 0.5px solid #F0F1FB;
+    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
+    border-bottom: 0.5px solid ${Colors.SECONDARY};
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
     display: flex;
@@ -84,7 +85,7 @@ export const AttributeName = styled.span`
 `;
 
 export const AttributeType = styled.span`
-    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? '#f7e4cb' : '#F0F1FB'};
+    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SHADED_SELECTED : Colors.SECONDARY};
     border-radius: 3px;
     color: #000000;
     font-family: GilmerRegular;

@@ -18,6 +18,7 @@
  */
 
 import styled from '@emotion/styled';
+import { Colors } from '../../../../resources';
 
 export const HeaderContainer = styled.div`
     align-items: center;
@@ -60,7 +61,7 @@ export const TypeCard = styled.p`
     min-width: 150px;
     &:hover {
         cursor: grabbing;
-        color: #5567D5;
+        color: ${Colors.PRIMARY};
     }
 `;
 

@@ -23,7 +23,7 @@ import Popover from '@mui/material/Popover';
 import { ServiceLinkModel } from './ServiceLinkModel';
 import { DataTypesPopup } from './data-types-popup/DataTypePopup';
 import { findCallingFunction } from './link-utils';
-import { Level, RemoteFunction, ResourceFunction } from '../../../resources';
+import { Colors, Level, RemoteFunction, ResourceFunction } from '../../../resources';
 
 interface WidgetProps {
 	engine: DiagramEngine,
@@ -80,7 +80,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 			<g>
 				<polygon
 					points={link.getArrowHeadPoints()}
-					fill={isSelected ? '#ffaf4d' : '#5567D5'}
+					fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
 				/>
 
 				<path
@@ -93,7 +93,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 					onMouseLeave={onMouseLeave}
 					onMouseMove={e => callingFunction ? setPosition({ x: e.pageX, y: e.pageY }) : {}}
 					onMouseOver={onMouseOver}
-					stroke={isSelected ? '#ffaf4d' : '#5567D5'}
+					stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
 					strokeWidth={1}
 				/>
 			</g>
