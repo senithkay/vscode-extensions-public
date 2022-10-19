@@ -286,7 +286,7 @@ describe('Test helper pane functionality', () => {
 
     });
 
-    it('Test a suggestion for partially typed value', () => {
+    it.skip('Test a suggestion for partially typed value', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
