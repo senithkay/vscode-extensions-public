@@ -19,36 +19,35 @@
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { ServicePortModel } from '../ServicePort/ServicePortModel';
-import { Level, Service } from '../../../resources';
+import { Level, Service, ServiceTypes } from '../../../resources';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
 
-export class ServiceNodeModel extends SharedNodeModel{
+export class ServiceNodeModel extends SharedNodeModel {
 	readonly level: Level;
 	readonly serviceObject: Service;
-	readonly isResourceService: boolean;
+	readonly serviceType: ServiceTypes;
 
 	constructor(serviceObject: Service, level: Level) {
-		super( 'serviceNode', serviceObject.serviceId);
+		super('serviceNode', serviceObject.serviceId);
 
 		this.level = level;
 		this.serviceObject = serviceObject;
-		this.isResourceService = this.serviceObject.remoteFunctions.length === 0;
+		this.serviceType = serviceObject.serviceType.includes('/grpc:') ? ServiceTypes.GRPC :
+			serviceObject.serviceType.includes('/graphql:') ? ServiceTypes.GRAPHQL :
+				serviceObject.serviceType.includes('/http:') ? ServiceTypes.HTTP : ServiceTypes.OTHER;
 
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.LEFT));
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.RIGHT));
 
 		if (level === Level.TWO) {
-			if (this.isResourceService) {
-				this.serviceObject.resources.forEach(resource => {
-					this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.LEFT));
-					this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.RIGHT));
-				});
-			} else {
-				this.serviceObject.remoteFunctions.forEach(remoteFunc => {
-					this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.LEFT));
-					this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.RIGHT));
-				})
-			}
+			this.serviceObject.resources.forEach(resource => {
+				this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.LEFT));
+				this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.RIGHT));
+			});
+			this.serviceObject.remoteFunctions.forEach(remoteFunc => {
+				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.LEFT));
+				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.RIGHT));
+			})
 		}
 	}
 }

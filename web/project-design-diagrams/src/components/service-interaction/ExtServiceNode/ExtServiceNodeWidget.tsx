@@ -21,7 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ExtServiceNodeModel } from './ExtServiceNodeModel';
 import { ServicePortWidget } from '../ServicePort/ServicePortWidget';
-import { Colors, EndpointIcon, HttpServiceIcon, ShortGrpcIcon } from '../../../resources';
+import { EndpointIcon, GraphQLIcon, HttpServiceIcon, ShortGrpcIcon } from '../../../resources';
 import { Container, IconContainer } from './styles';
 
 interface ServiceNodeWidgetProps {
@@ -42,6 +42,18 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		})
 	}, [node])
 
+	const getServiceType = (nodeID: string): JSX.Element => {
+		if (nodeID.includes('/grpc:')) {
+			return <ShortGrpcIcon />;
+		} else if (nodeID.includes('/http:')) {
+			return <HttpServiceIcon />;
+		} else if (nodeID.includes('/graphql:')) {
+			return <GraphQLIcon />;
+		} else {
+			return <EndpointIcon />;
+		}
+	}
+
 	return (
 		<Container isSelected={isSelected}>
 			{displayName}
@@ -50,12 +62,7 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 					port={node.getPort(`left-${node.getID()}`)}
 					engine={engine}
 				/>
-					{node.getID().includes('/grpc:') ?
-						<ShortGrpcIcon /> :
-						node.getID().includes('/http:') ?
-							<HttpServiceIcon /> :
-							<EndpointIcon />
-					}
+					{getServiceType(node.getID())}
 				<ServicePortWidget
 					port={node.getPort(`right-${node.getID()}`)}
 					engine={engine}

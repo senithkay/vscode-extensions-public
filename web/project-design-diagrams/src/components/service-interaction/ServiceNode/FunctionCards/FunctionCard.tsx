@@ -37,8 +37,8 @@ export function FunctionCard(props: FunctionCardProps) {
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const functionPorts = useRef<PortModel[]>([]);
-    const path = isResource(functionElement) ?
-        `${functionElement.resourceId.action}/${functionElement.identifier}` : functionElement.name;
+    const path = isResource(functionElement) ? `${functionElement.resourceId.action}/${functionElement.identifier}` :
+        functionElement.name;
 
     useEffect(() => {
         functionPorts.current.push(node.getPortFromID(`left-${path}`));
@@ -52,7 +52,7 @@ export function FunctionCard(props: FunctionCardProps) {
 
     return (
         <FunctionContainer
-            isResource={node.isResourceService}
+            isResource={isResource(functionElement)}
             isSelected={isHovered || isSelected}
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}

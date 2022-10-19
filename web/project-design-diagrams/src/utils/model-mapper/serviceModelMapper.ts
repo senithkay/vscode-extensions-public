@@ -18,7 +18,7 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { ComponentModel, Interaction, Level, RemoteFunction, ResourceFunction, Service, ServiceModels } from '../../resources';
+import { ComponentModel, Interaction, Level, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes } from '../../resources';
 import { ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
 import { autoDistribute } from '../utils';
 
@@ -88,11 +88,8 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                 let l2SourceNode: ServiceNodeModel = l2Nodes.get(service.serviceId);
 
                 if (l1SourceNode && l2SourceNode) {
-                    if (service.remoteFunctions.length === 0) {
-                        mapInteractions(l1SourceNode, l2SourceNode, service.resources);
-                    } else {
-                        mapInteractions(l1SourceNode, l2SourceNode, service.remoteFunctions);
-                    }
+                    mapInteractions(l1SourceNode, l2SourceNode, service.resources);
+                    mapInteractions(l1SourceNode, l2SourceNode, service.remoteFunctions);
                 }
             });
         }
@@ -146,9 +143,13 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
             : `right-${sourceFunction.name}`;
         sourcePort = sourceNode.getPortFromID(sourcePortID);
 
-        let targetPortID = targetNode.isResourceService ? `left-${interaction.resourceId.action}/${interaction.resourceId.path}`
-            : `left-${interaction.resourceId.action}`
-        targetPort = targetNode.getPortFromID(targetPortID);
+        // since HTTP and GraphQL can both have either resource or remote functions
+        if (targetNode.serviceType !== ServiceTypes.GRPC) {
+            targetPort = targetNode.getPortFromID(`left-${interaction.resourceId.action}/${interaction.resourceId.path}`);
+        }
+        if (!targetPort) {
+            targetPort = targetNode.getPortFromID(`left-${interaction.resourceId.action}`);
+        }
     }
 
     // Also redirects L2 links to service heads, if the interacting resources cannot be detected

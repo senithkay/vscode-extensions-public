@@ -95,3 +95,13 @@ export const ResourceName = styled.div`
     text-align: left;
     white-space: nowrap;
 `;
+
+export const ActionColors = new Map<string, string>([
+    ['put', '#fdba68'],
+    ['post', '#74d8ab'],
+    ['get', '#9accfe'],
+    ['delete', '#fb8383'],
+    ['patch', '#6af7d9'],
+    ['head', '#c587fa'],
+    ['options', '#378ee6']
+]);

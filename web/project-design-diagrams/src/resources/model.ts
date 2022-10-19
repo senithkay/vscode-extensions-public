@@ -126,6 +126,13 @@ export enum Level {
     TWO = 2
 }
 
+export enum ServiceTypes {
+    HTTP = "HTTP",
+    GRPC = "GRPC",
+    GRAPHQL = "GraphQL",
+    OTHER = "other"
+}
+
 export enum Colors {
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',

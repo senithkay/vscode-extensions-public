@@ -52,31 +52,32 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 				isSelected={node.checkSelectedList(selectedLinks, node.getID())}
 			/>
 
-			{node.level === Level.TWO && (
-				node.isResourceService ?
-					node.serviceObject.resources.map((resource, index) => {
-						return (
-							<FunctionCard
-								key={index}
-								engine={engine}
-								node={node}
-								functionElement={resource}
-								isSelected={node.checkSelectedList(selectedLinks, `${resource.resourceId.action}/${resource.identifier}`)}
-							/>
-						)
-					}) :
-					node.serviceObject.remoteFunctions.map((remoteFunc, index) => {
-						return (
-							<FunctionCard
-								key={index}
-								engine={engine}
-								node={node}
-								functionElement={remoteFunc}
-								isSelected={node.checkSelectedList(selectedLinks, remoteFunc.name)}
-							/>
-						)
-					})
-			)}
+			{node.level === Level.TWO &&
+				node.serviceObject.resources.map((resource, index) => {
+					return (
+						<FunctionCard
+							key={index}
+							engine={engine}
+							node={node}
+							functionElement={resource}
+							isSelected={node.checkSelectedList(selectedLinks, `${resource.resourceId.action}/${resource.identifier}`)}
+						/>
+					)
+				})
+			}
+			{node.level === Level.TWO &&
+				node.serviceObject.remoteFunctions.map((remoteFunc, index) => {
+					return (
+						<FunctionCard
+							key={index}
+							engine={engine}
+							node={node}
+							functionElement={remoteFunc}
+							isSelected={node.checkSelectedList(selectedLinks, remoteFunc.name)}
+						/>
+					)
+				})
+			}
 		</ServiceNode>
 	);
 }

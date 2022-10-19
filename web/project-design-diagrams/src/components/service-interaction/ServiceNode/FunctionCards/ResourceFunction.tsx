@@ -22,7 +22,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ResourceFunction } from '../../../../resources';
-import { ResourceAction, ResourceName } from '../styles';
+import { ActionColors, ResourceAction, ResourceName } from '../styles';
 
 interface ResourceFunctionProps {
     engine: DiagramEngine;
@@ -30,13 +30,6 @@ interface ResourceFunctionProps {
     resource: ResourceFunction;
     resourcePath: string;
 }
-
-const colors = new Map<string, string>([
-    ['put', '#fdba68'],
-    ['post', '#74d8ab'],
-    ['get', '#9accfe'],
-    ['delete', '#fb8383']
-]);
 
 export function ResourceFunctionWidget(props: ResourceFunctionProps) {
     const { engine, node, resource, resourcePath} = props;
@@ -47,7 +40,7 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 port={node.getPort(`left-${resourcePath}`)}
                 engine={engine}
             />
-                <ResourceAction color={colors.get(resource.resourceId.action)}>
+                <ResourceAction color={ActionColors.get(resource.resourceId.action)}>
                     {resource.resourceId.action}
                 </ResourceAction>
 

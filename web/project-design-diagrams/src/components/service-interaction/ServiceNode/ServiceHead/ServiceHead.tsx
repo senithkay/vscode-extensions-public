@@ -19,9 +19,10 @@
 
 import React, { useEffect, useRef } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
-import { Colors, GrpcIcon, HttpServiceIcon } from '../../../../resources';
+import { GraphQLIcon, GrpcIcon, HttpServiceIcon, ServiceTypes } from '../../../../resources';
 import { ServiceHead, ServiceName } from '../styles';
 
 interface ServiceHeadProps {
@@ -35,7 +36,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.serviceObject.annotation.label ? node.serviceObject.annotation.label : node.serviceObject.path ?
-		node.serviceObject.path : node.serviceObject.serviceId;
+        node.serviceObject.path : node.serviceObject.serviceId;
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
@@ -53,9 +54,13 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
             onMouseOver={() => { handleOnHover('SELECT') }}
             onMouseLeave={() => { handleOnHover('UNSELECT') }}
         >
-            {node.isResourceService ?
-                <HttpServiceIcon /> :
-                <GrpcIcon />
+            {node.serviceType === ServiceTypes.GRPC ?
+                <GrpcIcon /> :
+                node.serviceType === ServiceTypes.GRAPHQL ?
+                    <GraphQLIcon /> :
+                node.serviceType === ServiceTypes.HTTP ?
+                    <HttpServiceIcon /> :
+                    <MiscellaneousServicesIcon fontSize='medium' />
             }
             <ServicePortWidget
                 port={node.getPort(`left-${node.getID()}`)}

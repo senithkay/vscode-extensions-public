@@ -17,7 +17,7 @@
  *
  */
 
-export { Level, Colors, Views } from './model';
+export { Colors, Level, ServiceTypes, Views } from './model';
 
 export type {
     Attribute,
@@ -38,3 +38,4 @@ export { EndpointIcon } from './assets/icons/EndpointIcon';
 export { HttpServiceIcon } from './assets/icons/HttpIcon';
 export { GrpcIcon } from './assets/icons/GrpcIcon';
 export { ShortGrpcIcon } from './assets/icons/ShortGrpcIcon';
+export { GraphQLIcon } from './assets/icons/GraphQL';
