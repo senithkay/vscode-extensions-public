@@ -24,6 +24,7 @@ describe('Test statement editor clickaway listener', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
+    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
     it.skip('Test statement editor go to non-editing state on click', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
