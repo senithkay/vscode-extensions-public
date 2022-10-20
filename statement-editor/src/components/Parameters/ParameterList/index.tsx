@@ -97,6 +97,7 @@ export function ParameterList(props: ParameterListProps) {
                             className={stmtEditorHelperClasses.includedRecordPlusBtn}
                             onClick={handlePlusButton()}
                             disabled={false}
+                            data-testid="named-arg-button"
                         >
                             <AddCircleOutline/>
                         </IconButton>

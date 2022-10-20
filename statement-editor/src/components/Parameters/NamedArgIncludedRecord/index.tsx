@@ -55,6 +55,7 @@ export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
                         onKeyDown={inputEnterHandler}
                         onInput={inputChangeHandler}
                         inputProps={{ style: { padding: '8px'} }}
+                        data-testid="named-arg-input"
                     />
                 </ListItem>
             )}
