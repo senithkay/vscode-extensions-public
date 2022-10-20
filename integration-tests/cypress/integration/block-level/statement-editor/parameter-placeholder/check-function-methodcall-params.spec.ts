@@ -152,5 +152,3 @@ describe('Test function call and method call parameters', () => {
 
     });
 });
-
- 
