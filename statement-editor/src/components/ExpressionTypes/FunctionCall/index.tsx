@@ -14,13 +14,16 @@
 import React, { useContext } from "react";
 
 import { FunctionCall, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import cn from "classnames";
 
 import { CALL_CONFIG_TYPE, EXPR_CONSTRUCTOR, FUNCTION_CALL } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { isPositionsEquals } from "../../../utils";
 import { FUNCTION_CALL_PLACEHOLDER, PARAMETER_PLACEHOLDER } from "../../../utils/expressions";
 import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { InputEditor, InputEditorProps } from "../../InputEditor";
+import { useStatementRendererStyles } from "../../styles";
 import { TokenComponent } from "../../Token";
 
 interface FunctionCallProps {
@@ -34,15 +37,24 @@ export function FunctionCallComponent(props: FunctionCallProps) {
             updateModel,
             hasRestArg,
             currentModel,
-            changeCurrentModel
+            changeCurrentModel,
+            hasSyntaxDiagnostics
         },
         config
     } = useContext(StatementEditorContext);
 
     const isOnPlaceholder = (model.source === FUNCTION_CALL) && config.type === CALL_CONFIG_TYPE;
+    const statementRendererClasses = useStatementRendererStyles();
+
+    const isSelected = currentModel.model && model && isPositionsEquals(currentModel.model.position, model.position);
+
+    const styleClassNames = cn(statementRendererClasses.expressionElement,
+        isSelected && !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected
+    )
 
     const inputEditorProps: InputEditorProps = {
         model: isOnPlaceholder ? model : model.functionName,
+        classNames: styleClassNames,
         notEditable: isOnPlaceholder ? false : true
     }
 
