@@ -35,7 +35,6 @@ import {
     RestParam,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
-import debounce from "lodash.debounce";
 
 import { CurrentModel, StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
@@ -123,7 +122,6 @@ export function FunctionForm(props: FunctionProps) {
         };
         await functionParamChange(value, parametersStr, returnType, currentModel, value);
     }
-    const debouncedNameChange = debounce(onNameChange, 1000);
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
@@ -163,8 +161,6 @@ export function FunctionForm(props: FunctionProps) {
         setCurrentComponentCompletions([]);
         setCurrentComponentName("Return");
     }
-
-    const debouncedReturnChange = debounce(onReturnTypeChange, 1500);
 
     // Param related functions
     const openNewParamView = async () => {
@@ -315,7 +311,7 @@ export function FunctionForm(props: FunctionProps) {
                                 || model?.functionName?.viewState?.diagnosticsInRange
                             }
                             focus={true}
-                            onChange={debouncedNameChange}
+                            onChange={onNameChange}
                             onFocus={onNameFocus}
                             disabled={addingNewParam || isMainFunction || (currentComponentSyntaxDiag && currentComponentName !== "Name")}
                             hideSuggestions={true}
@@ -365,7 +361,7 @@ export function FunctionForm(props: FunctionProps) {
                             testId={"return-type"}
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             defaultValue={returnType}
-                            onChange={debouncedReturnChange}
+                            onChange={onReturnTypeChange}
                             completions={currentComponentCompletions}
                             onFocus={onReturnFocus}
                             disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
