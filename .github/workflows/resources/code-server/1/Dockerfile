@@ -31,6 +31,6 @@ RUN sudo apt-get update && \
     sed -i 's/delete window.parent;//g' $webViewMain && \
     sed -i 's/delete window.top;//g' $webViewMain && \
     sed -i 's/delete window.frameElement;//g' $webViewMain && \
-    sed -i -e 's/{{CS_STATIC_BASE}}/https:\/\/choreo-shared-codeserver-cdne.azureedge.net\/code-server@'$CODE_SERVER_VERSION'/g' $mainHtml && \
+    sed -i -e 's/{{CS_STATIC_BASE}}/https:\/\/choreo-shared-codeserver-cdne.azureedge.net\/code-server@'$CODE_SERVER_VERSION'/g' $mainHtml
 
 RUN echo "{\n\"workbench.startupEditor\": \"none\",\n\"window.dialogStyle\": \"custom\",\n\"git.terminalAuthentication\": false,\n\"github.gitAuthentication\": false}" > /config/data/User/settings.json
