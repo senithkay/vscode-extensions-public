@@ -46,7 +46,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 			'UNSELECT': unselectPath
 		})
 
-		if (link.level === Level.TWO && link.getSourcePort().getNode().getType() !== 'extServiceNode') {
+		if (link.level === Level.TWO && link.getTargetPort().getNode().getType() === 'serviceNode') {
 			setCallingFunction(findCallingFunction(link.getTargetPort()));
 		}
 	}, [link])
@@ -88,7 +88,6 @@ export function ServiceLinkWidget(props: WidgetProps) {
 					cursor={'pointer'}
 					d={link.getCurvePath()}
 					fill='none'
-					markerEnd={`url(#${link.level})`}
 					pointerEvents='all'
 					onMouseLeave={onMouseLeave}
 					onMouseMove={e => callingFunction ? setPosition({ x: e.pageX, y: e.pageY }) : {}}

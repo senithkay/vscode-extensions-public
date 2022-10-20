@@ -20,7 +20,6 @@
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { EntityLinkModel, EntityModel, EntityPortModel } from '../../components/entity-relationship';
 import { ComponentModel, Entity } from '../../resources';
-import { autoDistribute } from '../utils';
 
 export function entityModeller(projectComponents: Map<string, ComponentModel>, packageSelection: Map<string, boolean>)
     : DiagramModel {
@@ -30,8 +29,7 @@ export function entityModeller(projectComponents: Map<string, ComponentModel>, p
     // convert entities in the model to nodes
     packageSelection.forEach((shouldRender, packageName) => {
         if (shouldRender && projectComponents.has(packageName)) {
-            let balPackage: ComponentModel = projectComponents.get(packageName);
-            const entities: Map<string, Entity> = new Map(Object.entries(balPackage.entities));
+            const entities: Map<string, Entity> = new Map(Object.entries(projectComponents.get(packageName).entities));
             entityNodes = new Map([...entityNodes, ...generateNodes(entities)]);
         }
     });
@@ -39,15 +37,13 @@ export function entityModeller(projectComponents: Map<string, ComponentModel>, p
     // convert the associations between entities to links
     packageSelection.forEach((shouldRender, packageName) => {
         if (shouldRender && projectComponents.has(packageName)) {
-            let balPackage: ComponentModel = projectComponents.get(packageName);
-            const entities: Map<string, Entity> = new Map(Object.entries(balPackage.entities));
+            const entities: Map<string, Entity> = new Map(Object.entries(projectComponents.get(packageName).entities));
             entityLinks = entityLinks.concat(generateLinks(entities, entityNodes));
         }
     });
 
     let model = new DiagramModel();
     model.addAll(...Array.from(entityNodes.values()), ...entityLinks);
-    model = autoDistribute(model);
     return model;
 }
 
@@ -124,7 +120,6 @@ export function generateCompositionModel(projectComponents: Map<string, Componen
 
     let model = new DiagramModel();
     model.addAll(...Array.from(entityNodes.values()), ...entityLinks);
-    model = autoDistribute(model);
     return model;
 }
 
@@ -156,11 +151,10 @@ function getPackageName(entityID: string): string {
     // removes record type name from the entity ID to give package name
     let packageName: string = entityID.slice(0, entityID.lastIndexOf(':'));
 
-    // if the entityID includes a module name, the package name should be split and rebuilt
+    // if the entityID includes a module name, the package name should be removed
     if (packageName.split(':').length === 3) {
         let nameComponents: string[] = packageName.split(':');
         packageName = nameComponents[0] + ':' + nameComponents[2];
     }
-
     return packageName;
 }

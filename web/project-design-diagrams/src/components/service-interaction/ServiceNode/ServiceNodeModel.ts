@@ -32,9 +32,7 @@ export class ServiceNodeModel extends SharedNodeModel {
 
 		this.level = level;
 		this.serviceObject = serviceObject;
-		this.serviceType = serviceObject.serviceType.includes('/grpc:') ? ServiceTypes.GRPC :
-			serviceObject.serviceType.includes('/graphql:') ? ServiceTypes.GRAPHQL :
-				serviceObject.serviceType.includes('/http:') ? ServiceTypes.HTTP : ServiceTypes.OTHER;
+		this.serviceType = this.getServiceType();
 
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.LEFT));
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.RIGHT));
@@ -48,6 +46,18 @@ export class ServiceNodeModel extends SharedNodeModel {
 				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.LEFT));
 				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.RIGHT));
 			})
+		}
+	}
+
+	getServiceType = (): ServiceTypes => {
+		if (this.serviceObject.serviceType.includes('/grpc:')) {
+			return ServiceTypes.GRPC;
+		} else if (this.serviceObject.serviceType.includes('/http:')) {
+			return ServiceTypes.HTTP;
+		} else if (this.serviceObject.serviceType.includes('/graphql:')) {
+			return ServiceTypes.GRAPHQL;
+		} else {
+			return ServiceTypes.OTHER;
 		}
 	}
 }

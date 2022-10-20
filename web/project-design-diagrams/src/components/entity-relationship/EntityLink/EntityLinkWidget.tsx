@@ -17,8 +17,9 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
-import { DiagramEngine } from '@projectstorm/react-diagrams';
+import React, { SVGProps, useEffect, useState } from 'react';
+import { DiagramEngine, PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
+import { Point } from '@projectstorm/geometry';
 import { EntityLinkModel } from './EntityLinkModel';
 import { Colors } from '../../../resources';
 
@@ -33,7 +34,9 @@ export function EntityLinkWidget(props: WidgetProps) {
 	const [isSelected, setIsSelected] = useState<boolean>(false);
 
 	useEffect(() => {
-		link.initLinks(engine);
+		if (link.cardinality) {
+			link.initLinks(engine);
+		}
 
 		link.registerListener({
 			'SELECT': selectPath,
@@ -51,15 +54,29 @@ export function EntityLinkWidget(props: WidgetProps) {
 		link.resetLinkedNodes();
 	}
 
+	const getCardinalityProps = (port: PortModel): SVGProps<SVGTextElement> => {
+		let position: Point = port.getPosition();
+		let props: SVGProps<SVGTextElement> = {
+			y: position.y - 5,
+			fontSize: 11
+		};
+
+		if (port.getOptions().alignment === PortModelAlignment.LEFT) {
+			return { ...props, x: position.x - 20};
+		} else {
+			return { ...props, x: position.x + 12};
+		}
+	}
+
 	return (
 		<g>
 			{link.cardinality ?
 				<>
-					<text {...link.getCardinalityProps(link.getSourcePort())}>
+					<text {...getCardinalityProps(link.getSourcePort())}>
 						{transformCardinality(link.cardinality.self)}
 					</text>
 
-					<text {...link.getCardinalityProps(link.getTargetPort())}>
+					<text {...getCardinalityProps(link.getTargetPort())}>
 						{transformCardinality(link.cardinality.associate)}
 					</text>
 

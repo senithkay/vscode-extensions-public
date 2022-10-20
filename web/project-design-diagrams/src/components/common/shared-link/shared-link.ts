@@ -17,14 +17,10 @@
  *
  */
 
-import { SVGProps } from 'react';
 import { DefaultLinkModel, DiagramEngine, PortModelAlignment } from '@projectstorm/react-diagrams';
 import { BezierCurve, Point } from '@projectstorm/geometry';
 import { debounce } from 'lodash';
-import { ServicePortModel } from '../../service-interaction';
-import { EntityPortModel } from '../../entity-relationship';
-
-type PortPosition = 'left' | 'right';
+import { getOpposingPort } from './utils';
 
 export class SharedLinkModel extends DefaultLinkModel {
 	diagramEngine: DiagramEngine;
@@ -40,10 +36,20 @@ export class SharedLinkModel extends DefaultLinkModel {
 		this.getSourcePort().registerListener({
 			positionChanged: () => this.onPositionChange()
 		})
-	
+
 		this.getTargetPort().registerListener({
 			positionChanged: () => this.onPositionChange()
 		})
+	}
+
+	selectLinkedNodes = () => {
+		this.getSourcePort().getNode().fireEvent({ entity: this }, 'SELECT');
+		this.getTargetPort().getNode().fireEvent({ entity: this }, 'SELECT');
+	}
+
+	resetLinkedNodes = () => {
+		this.getSourcePort().getNode().fireEvent({}, 'UNSELECT')
+		this.getTargetPort().getNode().fireEvent({}, 'UNSELECT')
 	}
 
 	getCurvePath = (): string => {
@@ -79,51 +85,23 @@ export class SharedLinkModel extends DefaultLinkModel {
 		return lineCurve.getSVGCurve();
 	}
 
-	getArrowHeadPoints = (): string => {
-		let points: string;
-		let targetPortPos: Point = this.getTargetPort().getPosition();
-
-		if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
-			points = `${targetPortPos.x + 2} ${targetPortPos.y},
-				${targetPortPos.x + 12} ${targetPortPos.y + 8}, ${targetPortPos.x + 12} ${targetPortPos.y - 8}`;
-		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-			points = `${targetPortPos.x - 2} ${targetPortPos.y},
-				${targetPortPos.x - 12} ${targetPortPos.y + 8}, ${targetPortPos.x - 12} ${targetPortPos.y - 8}`;
-		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
-			points = `${targetPortPos.x} ${targetPortPos.y + 2},
-				${targetPortPos.x + 12} ${targetPortPos.y + 14}, ${targetPortPos.x - 12} ${targetPortPos.y + 14}`;
-		}
-
-		return points;
-	}
-
-	getCardinalityProps = (port: ServicePortModel | EntityPortModel): SVGProps<SVGTextElement> => {
-		let portPos: Point = port.getPosition();
-
-		if (port.getOptions().alignment === PortModelAlignment.LEFT) {
-			return { x: portPos.x - 20, y: portPos.y - 5, fontSize: 11 }
-		} else {
-			return { x: portPos.x + 12, y: portPos.y - 5, fontSize: 11 }
-		}
-	}
-
 	onPositionChange = debounce(() => {
 		if (this.getSourcePort() && this.getTargetPort()) {
 			const { sourceLeft, sourceRight, targetLeft, targetRight } = this.getPortPositions();
 
 			if (sourceLeft <= targetLeft) {
 				if (sourceRight <= targetLeft) {
-					this.checkPorts('right', 'left');
+					this.checkPorts(PortModelAlignment.RIGHT, PortModelAlignment.LEFT);
 				} else if (targetRight <= sourceRight) {
-					this.checkPorts('right', 'right');
+					this.checkPorts(PortModelAlignment.RIGHT, PortModelAlignment.RIGHT);
 				} else {
-					this.checkPorts('left', 'left');
+					this.checkPorts(PortModelAlignment.LEFT, PortModelAlignment.LEFT);
 				}
 			} else {
 				if (targetRight <= sourceLeft) {
-					this.checkPorts('left', 'right');
+					this.checkPorts(PortModelAlignment.LEFT, PortModelAlignment.RIGHT);
 				} else {
-					this.checkPorts('left', 'left');
+					this.checkPorts(PortModelAlignment.LEFT, PortModelAlignment.LEFT);
 				}
 			}
 		}
@@ -154,27 +132,32 @@ export class SharedLinkModel extends DefaultLinkModel {
 		return { sourceLeft, sourceRight, targetLeft, targetRight };
 	}
 
-	checkPorts = (source: PortPosition, target: PortPosition) => {
-		if (this.getSourcePort().getID().startsWith(source === 'left' ? 'right' : 'left')) {
-			this.setSourcePort(this.getSourcePort().getNode().getPortFromID
-				(this.getSourcePort().getID().replace(source === 'left' ? 'right' : 'left', source)));
+	checkPorts = (source: PortModelAlignment, target: PortModelAlignment) => {
+		if (!this.getSourcePort().getID().startsWith(source)) {
+			this.setSourcePort(this.getSourcePort().getNode().getPortFromID(getOpposingPort(this.getSourcePort().getID(), source)));
 			this.diagramEngine.repaintCanvas();
 		}
 
-		if (this.getTargetPort().getID().startsWith(target === 'left' ? 'right' : 'left')) {
-			this.setTargetPort(this.getTargetPort().getNode().getPortFromID
-				(this.getTargetPort().getID().replace(target === 'left' ? 'right' : 'left', target)));
+		if (!this.getTargetPort().getID().startsWith(target)) {
+			this.setTargetPort(this.getTargetPort().getNode().getPortFromID(getOpposingPort(this.getTargetPort().getID(), target)));
 			this.diagramEngine.repaintCanvas();
 		}
 	}
 
-	selectLinkedNodes = () => {
-		this.getSourcePort().getNode().fireEvent({entity: this}, 'SELECT');
-		this.getTargetPort().getNode().fireEvent({entity: this}, 'SELECT');
-	}
+	getArrowHeadPoints = (): string => {
+		let points: string;
+		let targetPort: Point = this.getTargetPort().getPosition();
 
-	resetLinkedNodes = () => {
-		this.getSourcePort().getNode().fireEvent({}, 'UNSELECT')
-		this.getTargetPort().getNode().fireEvent({}, 'UNSELECT')
+		if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
+			points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 8},
+				${targetPort.x + 12} ${targetPort.y - 8}`;
+		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
+			points = `${targetPort.x - 2} ${targetPort.y}, ${targetPort.x - 12} ${targetPort.y + 8},
+				${targetPort.x - 12} ${targetPort.y - 8}`;
+		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
+			points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 12} ${targetPort.y + 14},
+				${targetPort.x - 12} ${targetPort.y + 14}`;
+		}
+		return points;
 	}
 }

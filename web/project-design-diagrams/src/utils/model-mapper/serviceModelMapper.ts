@@ -18,9 +18,10 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { ComponentModel, Interaction, Level, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes } from '../../resources';
+import {
+    ComponentModel, Interaction, Level, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes
+} from '../../resources';
 import { ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
-import { autoDistribute } from '../utils';
 
 let l1Nodes: Map<string, ServiceNodeModel>;
 let l2Nodes: Map<string, ServiceNodeModel>;
@@ -29,8 +30,7 @@ let l2ExtNodes: Map<string, ExtServiceNodeModel>;
 let l1Links: Map<string, ServiceLinkModel>;
 let l2Links: ServiceLinkModel[];
 
-export function serviceModeller(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>)
-    : ServiceModels {
+export function serviceModeller(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>): ServiceModels {
     // convert services to nodes
     l1Nodes = new Map<string, ServiceNodeModel>();
     l2Nodes = new Map<string, ServiceNodeModel>();
@@ -46,12 +46,10 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     // setup L1 model
     let l1Model = new DiagramModel();
     l1Model.addAll(...Array.from(l1Nodes.values()), ...Array.from(l1ExtNodes.values()), ...Array.from(l1Links.values()));
-    l1Model = autoDistribute(l1Model);
 
     // set L2 model
     let l2Model = new DiagramModel();
     l2Model.addAll(...Array.from(l2Nodes.values()), ...Array.from(l2ExtNodes.values()), ...l2Links);
-    l2Model = autoDistribute(l2Model);
 
     return {
         levelOne: l1Model,
@@ -111,7 +109,7 @@ function mapInteractions(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, interaction: Interaction,
     sourceFunction: ResourceFunction | RemoteFunction) {
     // create L1 service links if not created already
-    let linkID: string = l1Source.getID() + interaction.resourceId.serviceId;
+    let linkID: string = `${l1Source.getID()}-${interaction.resourceId.serviceId}`;
     if (!l1Links.has(linkID)) {
         let l1Target: ServiceNodeModel = l1Nodes.get(interaction.resourceId.serviceId);
         if (l1Target) {
@@ -133,21 +131,21 @@ function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 }
 
 function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel, sourceFunction?: RemoteFunction | ResourceFunction,
-    interaction?: Interaction) {
+    interaction?: Interaction): ServiceLinkModel {
     let sourcePort: ServicePortModel = undefined;
     let targetPort: ServicePortModel = undefined;
 
     // Differentiates L2 links
-    if(sourceFunction && interaction) {
+    if (sourceFunction && interaction) {
         let sourcePortID = isResource(sourceFunction) ? `right-${sourceFunction.resourceId.action}/${sourceFunction.identifier}`
             : `right-${sourceFunction.name}`;
         sourcePort = sourceNode.getPortFromID(sourcePortID);
 
         // since HTTP and GraphQL can both have either resource or remote functions
-        if (targetNode.serviceType !== ServiceTypes.GRPC) {
+        if (targetNode.serviceType !== ServiceTypes.GRPC && targetNode.serviceObject.resources.length > 0) {
             targetPort = targetNode.getPortFromID(`left-${interaction.resourceId.action}/${interaction.resourceId.path}`);
         }
-        if (!targetPort) {
+        if (!targetPort && targetNode.serviceObject.remoteFunctions.length > 0) {
             targetPort = targetNode.getPortFromID(`left-${interaction.resourceId.action}`);
         }
     }

@@ -24,7 +24,7 @@ import { Entity } from '../../../resources';
 
 export class EntityModel extends SharedNodeModel {
     readonly entityObject: Entity;
-    isRootEntity: boolean = false;
+    isRootEntity: boolean = false; // to provide a contrasting opacity in the composition diagram
 
     constructor(entityName: string, entityObject: Entity) {
         super('entityNode', entityName);
@@ -32,6 +32,8 @@ export class EntityModel extends SharedNodeModel {
 
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.LEFT));
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.RIGHT));
+
+        // dedicated ports to connect inheritance links (record inclusions)
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.BOTTOM));
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.TOP));
 

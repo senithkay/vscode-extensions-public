@@ -18,7 +18,6 @@
  */
 
 export {
-    autoDistribute,
     createEntitiesEngine,
     createServicesEngine,
     createRenderPackageObject

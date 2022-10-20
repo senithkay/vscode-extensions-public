@@ -17,39 +17,9 @@
  *
  */
 
-import createEngine, { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import createEngine, { DiagramEngine } from '@projectstorm/react-diagrams';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import { ExtServiceNodeFactory, ServiceLinkFactory, ServiceNodeFactory, ServicePortFactory } from '../components/service-interaction';
-
-const dagreEngine = new DagreEngine({
-    graph: {
-        rankdir: 'LR',
-        ranksep: 200,
-        edgesep: 100,
-        nodesep: 200,
-        ranker: 'longest-path',
-        marginx: 30,
-        marginy: 50
-    }
-});
-
-export function autoDistribute(model: DiagramModel): DiagramModel {
-    dagreEngine.redistribute(model);
-    return refactorLinkLayouts(model);
-}
-
-export function refactorLinkLayouts(model: DiagramModel): DiagramModel {
-    model.getLinks().map((link, _index) => {
-        let sourceNode = link.getSourcePort().getNode();
-        let targetNode = link.getTargetPort().getNode();
-        if (sourceNode.getX() > targetNode.getX()) {
-            link.setSourcePort(sourceNode.getPortFromID(link.getSourcePort().getID().replace('right', 'left')));
-            link.setTargetPort(targetNode.getPortFromID(link.getTargetPort().getID().replace('left', 'right')));
-        }
-    })
-
-    return model;
-}
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();

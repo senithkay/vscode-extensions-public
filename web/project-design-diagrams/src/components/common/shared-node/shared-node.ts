@@ -42,18 +42,18 @@ export class SharedNodeModel extends NodeModel<NodeModelGenerics> {
         }
     }
 
-    isNodeSelected = (selectedLink: ServiceLinkModel | EntityLinkModel, portIdentifier: string) => {
+    isNodeSelected = (selectedLink: ServiceLinkModel | EntityLinkModel, portIdentifier: string): boolean => {
         if (selectedLink) {
-            if (selectedLink.getSourcePort().getID().split('-')[1] === portIdentifier) {
-                return true;
-            } else if (selectedLink.getTargetPort().getID().split('-')[1] === portIdentifier) {
-                return true;
+            if (selectedLink.getSourcePort().getNode().getID() === this.getID()) {
+                return selectedLink.getSourcePort().getID().split('-')[1] === portIdentifier;
+            } else if (selectedLink.getTargetPort().getNode().getID() === this.getID()) {
+                return selectedLink.getTargetPort().getID().split('-')[1] === portIdentifier;
             }
         }
         return false;
     }
 
-    checkSelectedList = (selectedLinks: ServiceLinkModel[], portIdentifier: string) => {
+    checkSelectedList = (selectedLinks: ServiceLinkModel[], portIdentifier: string): boolean => {
         const checkSelection = (link: ServiceLinkModel) => this.isNodeSelected(link, portIdentifier);
         return selectedLinks.some(checkSelection);
     }
