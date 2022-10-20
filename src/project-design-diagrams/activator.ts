@@ -18,13 +18,14 @@
  */
 
 import { commands, ExtensionContext, ViewColumn, WebviewPanel, window, workspace } from "vscode";
+import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { join } from "path";
 import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { ComponentModel, ERROR_MESSAGE, USER_TIP } from "./resources";
+import { ComponentModel, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
 
 let context: ExtensionContext;
@@ -37,7 +38,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const designDiagramRenderer = commands.registerCommand("ballerina.view.ProjectDesigns", () => {
         ballerinaExtInstance.onReady()
             .then(() => {
-                viewProjectDesignDiagrams();
+                if (isCompatible(ballerinaExtInstance)) {
+                    viewProjectDesignDiagrams();
+                } else {
+                    window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
+                    return;
+                }
             })
             .catch((error) => {
                 console.log(`${ERROR_MESSAGE}: ${error}`);
@@ -122,5 +128,17 @@ function terminateActivation(message: string) {
     window.showErrorMessage(message);
     if (designDiagramWebview) {
         designDiagramWebview.dispose();
+    }
+}
+
+function isCompatible(ballerinaExtInstance: BallerinaExtension): boolean {
+    const balVersion: string = ballerinaExtInstance.ballerinaVersion;
+    const majorVersion: decimal = parseFloat(balVersion);
+    const patchVersion: number = parseInt(balVersion.substring(balVersion.lastIndexOf(".") + 1));
+
+    if (majorVersion > 2201.2 || (majorVersion === 2201.2 && patchVersion >= 2)) {
+        return true;
+    } else {
+        return false;
     }
 }
