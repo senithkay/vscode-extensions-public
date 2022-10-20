@@ -14,7 +14,8 @@ describe('Add return statement to resource function', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Add empty return statement to resource function', () => {
+    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
+    it.skip('Add empty return statement to resource function', () => {
         Canvas.getService("/hello")
             .getResourceFunction("POST", "/")
             .getDiagram()

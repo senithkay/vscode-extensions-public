@@ -14,7 +14,8 @@ describe('edit a http service', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  it('Edit service and add statements', () => {
+  // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
+  it.skip('Edit service and add statements', () => {
     Canvas.getService("/hello")
       .getResourceFunction("POST", "/")
       .expand()
