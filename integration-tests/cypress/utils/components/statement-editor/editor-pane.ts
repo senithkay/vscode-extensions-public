@@ -16,13 +16,17 @@ export class EditorPane {
     private static parentSelector;
 
     static getStatementRenderer(){
+        cy.wait(2000);
         cy.get(`[data-testid="statement-renderer"]`);
+        cy.wait(1000);
         return this;
     }
 
     static getExpression(modelType?: modelTypes){
+        cy.wait(2000);
         cy.get(`[data-testid="${modelType}"]`)
         this.parentSelector = `[data-testid="${modelType}"]`;
+        cy.wait(1000);
         return this;
     }
 
