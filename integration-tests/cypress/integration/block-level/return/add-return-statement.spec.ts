@@ -14,7 +14,8 @@ describe('Add return statement', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
     })
 
-    it('Add return statement of type string', () => {
+    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
+    it.skip('Add return statement of type string', () => {
         Canvas.getFunction("getGreetings")
             .shouldBeExpanded()
             .getDiagram()
@@ -45,7 +46,8 @@ describe('Add return statement', () => {
             getCurrentSpecFolder() + "add-return-statement.expected.bal");
     })
 
-    it('Type a return statement and Cancel', () => {
+    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
+    it.skip('Type a return statement and Cancel', () => {
         Canvas.getFunction("getGreetings")
             .shouldBeExpanded()
             .getDiagram()

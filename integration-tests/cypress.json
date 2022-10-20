@@ -1,5 +1,5 @@
 {
-    "defaultCommandTimeout": 15000,
+    "defaultCommandTimeout": 100000,
     "pageLoadTimeout": 15000,
     "responseTimeout": 15000,
     "integrationFolder": "cypress/integration",
