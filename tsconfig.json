@@ -26,7 +26,8 @@
         "moduleResolution": "node",
         "skipLibCheck": true,
         "esModuleInterop": true,
-        "alwaysStrict": true
+        "alwaysStrict": true,
+        "resolveJsonModule": true
     },
     "exclude": [
         "node_modules",
