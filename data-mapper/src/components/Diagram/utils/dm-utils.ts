@@ -622,6 +622,8 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 				}
 			} else if (STKindChecker.isListConstructor(nextNode)) {
 				editableRecordField.elements = getEnrichedArrayType(type.memberType, nextNode, editableRecordField);
+			} else {
+				editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, nextNode, editableRecordField);
 			}
 		} else {
 			if (type.memberType.typeName === PrimitiveBalType.Record) {
@@ -637,6 +639,21 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 	}
 
 	return editableRecordField;
+}
+
+export function getEnrichedPrimitiveType(field: Type, node?: STNode, parentType?: EditableRecordField, childrenTypes?: EditableRecordField[]) {
+	const members: ArrayElement[] = [];
+
+	const childType = getEnrichedRecordType(field, node, parentType, childrenTypes);
+
+	if (childType) {
+		members.push({
+			member: childType,
+			elementNode: node
+		});
+	}
+
+	return members;
 }
 
 export function getEnrichedArrayType(field: Type, node?: ListConstructor, parentType?: EditableRecordField,

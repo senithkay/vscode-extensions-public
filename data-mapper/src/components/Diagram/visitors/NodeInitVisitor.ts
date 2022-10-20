@@ -26,6 +26,7 @@ import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
+import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { getFieldAccessNodes } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
@@ -85,11 +86,19 @@ export class NodeInitVisitor implements Visitor {
                 const addInitialClauseHeight = 65;
                 const yPosition = 50 + (intermediateClausesHeight || addInitialClauseHeight);
                 // create output node
-                this.outputNode = new MappingConstructorNode(
-                    this.context,
-                    node.selectClause,
-                    parent.fieldName
-                );
+                if (STKindChecker.isMappingConstructor(node.selectClause.expression)) {
+                    this.outputNode = new MappingConstructorNode(
+                        this.context,
+                        node.selectClause,
+                        parent.fieldName
+                    );
+                } else {
+                    this.outputNode = new PrimitiveTypeNode(
+                        this.context,
+                        node.selectClause,
+                        parent.fieldName
+                    );
+                }
 
                 this.outputNode.setPosition(1000, yPosition + 100);
 
