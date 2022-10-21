@@ -164,7 +164,6 @@ export class InitVisitor implements Visitor {
         let actionName = remoteActionCall.methodName as SimpleNameReference;
 
         if (node.expression && actionNode) { // todo : need to find the right method from STTypeChecker
-            // console.log('node >>>', node);
             if (STKindChecker.isRemoteMethodCallAction(actionNode)) {
                 stmtViewState = node.viewState as StatementViewState;
                 remoteActionCall = node.expression as RemoteMethodCallAction;
@@ -178,7 +177,21 @@ export class InitVisitor implements Visitor {
                 simpleName = remoteActionCall.expression as SimpleNameReference;
                 stmtViewState.action.endpointName = simpleName.name.value;
                 actionName = remoteActionCall.methodName as SimpleNameReference;
-                stmtViewState.action.actionName = actionName ? actionName.name.value : '';
+                if (actionName) {
+                    stmtViewState.action.actionName = actionName.name.value;
+                } else {
+                    if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                        && currentFnBody.VisibleEndpoints) {
+
+                        const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
+                        switch (vp?.moduleName) {
+                            case 'http':
+                                stmtViewState.action.actionName = 'get';
+                                break;
+                        }
+
+                    }
+                }
             }
 
 
@@ -378,7 +391,7 @@ export class InitVisitor implements Visitor {
 
             // todo: need to fix these with invocation data
             if (node.initializer && stmtViewState.isAction) {
-                if (node.initializer.kind === "RemoteMethodCallAction") {
+                if (node.initializer.kind === "RemoteMethodCallAction" || node.initializer.kind === 'ClientResourceAccessAction') {
                     const remoteActionCall: RemoteMethodCallAction = node.initializer as RemoteMethodCallAction;
                     const typeInfo: any = remoteActionCall?.typeData?.symbol?.typeDescriptor;
                     if (typeInfo?.name === "BaseClient") {
@@ -388,7 +401,21 @@ export class InitVisitor implements Visitor {
                     const simpleName: SimpleNameReference = remoteActionCall.expression as SimpleNameReference;
                     stmtViewState.action.endpointName = simpleName.name.value;
                     const actionName: SimpleNameReference = remoteActionCall.methodName as SimpleNameReference;
-                    stmtViewState.action.actionName = actionName.name.value;
+                    if (actionName) {
+                        stmtViewState.action.actionName = actionName.name.value;
+                    } else if (node.initializer.kind === 'ClientResourceAccessAction') {
+                        if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                            && currentFnBody.VisibleEndpoints) {
+
+                            const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
+                            switch (vp?.moduleName) {
+                                case 'http':
+                                    stmtViewState.action.actionName = 'get';
+                                    break;
+                            }
+
+                        }
+                    }
                     stmtViewState.isAction = true;
                     if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
                         const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);

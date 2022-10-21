@@ -130,14 +130,28 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         if (
             STKindChecker.isLocalVarDecl(actionModel) &&
             STKindChecker.isCheckAction(actionModel.initializer) &&
-            STKindChecker.isRemoteMethodCallAction(actionModel.initializer.expression)
+            // TODO: replace with STKindchecker checks once the syntax tree is updated
+            (STKindChecker.isRemoteMethodCallAction(actionModel.initializer.expression)
+                || actionModel.initializer.expression.kind === 'ClientResourceAccessAction')
         ) {
-            methodName = actionModel.initializer.expression.methodName.name.value;
+            if ((actionModel.initializer.expression as any).methodName) {
+                methodName = (actionModel.initializer.expression as any)?.methodName.name.value;
+            } else if (connector && connector.moduleName === 'http') {
+                methodName = 'get';
+            }
         } else if (
             STKindChecker.isLocalVarDecl(actionModel) &&
-            STKindChecker.isRemoteMethodCallAction(actionModel.initializer)
+            (STKindChecker.isRemoteMethodCallAction(actionModel.initializer)
+                || actionModel.initializer.kind === 'ClientResourceAccessAction')
         ) {
-            methodName = actionModel.initializer.methodName.name.value;
+            if ((actionModel.initializer as any).methodName) {
+                methodName = (actionModel.initializer as any)?.methodName.name.value;
+            } else {
+                if (connector && connector.moduleName === 'http') {
+                    methodName = 'get';
+                }
+            }
+
         } else if (
             STKindChecker.isActionStatement(actionModel) &&
             STKindChecker.isCheckAction(actionModel.expression) &&

@@ -253,16 +253,17 @@ export function getMatchingConnector(actionInvo: STNode): BallerinaConnectorInfo
                     case 'RemoteMethodCallAction':
                         actionVariable = variable.initializer as RemoteMethodCallAction;
                         break;
+                    case 'ClientResourceAccessAction':
+                        actionVariable = variable.initializer as any;
+                        break;
                     default:
                         actionVariable = (variable.initializer as CheckAction).expression as RemoteMethodCallAction;
                 }
                 break;
-
             case "ActionStatement":
                 const statement = actionInvo as ActionStatement;
                 actionVariable = (statement.expression as CheckAction).expression as RemoteMethodCallAction;
                 break;
-
             default:
                 // TODO: need to handle this flow
                 return undefined;
@@ -305,7 +306,6 @@ export function getMatchingConnector(actionInvo: STNode): BallerinaConnectorInfo
             };
         }
     }
-
     return connector;
 }
 
