@@ -10,6 +10,7 @@ import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { MappingConstructorNode } from "../MappingConstructor";
+import { PrimitiveTypeNode } from "../PrimitiveType";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 
@@ -71,7 +72,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
-                if (node instanceof MappingConstructorNode) {
+                if (node instanceof MappingConstructorNode || node instanceof PrimitiveTypeNode) {
                     [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
                     if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
                         this.hidden = true;

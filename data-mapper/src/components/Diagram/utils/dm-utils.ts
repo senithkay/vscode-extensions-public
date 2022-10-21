@@ -32,12 +32,16 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
+import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "./constants";
+import {
+	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+	PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+} from "./constants";
 import { getModification } from "./modifications";
-import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: string[] = [];
@@ -444,12 +448,14 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 	return null;
 }
 
-export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode)
+export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode | PrimitiveTypeNode)
 	: [RecordFieldPortModel, RecordFieldPortModel] {
 	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
 	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
 	let recField: EditableRecordField;
-	let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+	let portIdBuffer = node instanceof MappingConstructorNode
+		? MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX
+		: PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
 	for (let i = 0; i < fields.length; i++) {
 		const field = fields[i];
 		if (STKindChecker.isSpecificField(field)) {

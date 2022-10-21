@@ -6,11 +6,11 @@ import {
     LetVarDecl,
     ListConstructor,
     QueryExpression,
+    SelectClause,
     SimpleNameReference,
     SpecificField,
     STKindChecker,
     STNode,
-    traversNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -189,6 +189,27 @@ export class NodeInitVisitor implements Visitor {
             })
         }
 
+    }
+
+    beginVisitSelectClause(node: SelectClause, parent?: STNode): void {
+        if (this.isWithinQuery === 0
+            && !STKindChecker.isMappingConstructor(node.expression)
+            && !STKindChecker.isListConstructor(node.expression))
+        {
+            const fieldAccessNodes = getFieldAccessNodes(node.expression);
+            if (fieldAccessNodes.length > 1) {
+                const linkConnectorNode = new LinkConnectorNode(
+                    this.context,
+                    node.expression,
+                    "",
+                    parent,
+                    fieldAccessNodes,
+                    [...this.specificFields, node.expression]
+                );
+                linkConnectorNode.setPosition(440, 1200);
+                this.intermediateNodes.push(linkConnectorNode);
+            }
+        }
     }
 
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {

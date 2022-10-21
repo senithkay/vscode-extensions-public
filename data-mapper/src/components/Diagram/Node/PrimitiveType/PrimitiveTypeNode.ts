@@ -19,13 +19,17 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { ExpressionLabelModel } from "../../Label";
+import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
+import { RecordFieldPortModel } from "../../Port";
 import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
-    getEnrichedRecordType,
+    getEnrichedRecordType, getInputNodeExpr, getInputPortsForExpr, getOutputPortForField,
     getTypeName
 } from "../../utils/dm-utils";
+import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -80,7 +84,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     async initLinks() {
-        const mappings = this.genMappings(this.value);
+        const mappings = this.genMappings(this.value.expression);
         this.createLinks(mappings);
     }
 
@@ -92,42 +96,42 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 // Unsupported mapping
                 return;
             }
-            // const inputNode = getInputNodeExpr(value, this);
-            // let inPort: RecordFieldPortModel;
-            // if (inputNode) {
-            //     inPort = getInputPortsForExpr(inputNode, value);
-            // }
-            // const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
-            // const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
-            // if (inPort && mappedOutPort) {
-            //     lm.addLabel(new ExpressionLabelModel({
-            //         value: otherVal?.source || value.source,
-            //         valueNode: otherVal || value,
-            //         context: this.context,
-            //         link: lm,
-            //         field: STKindChecker.isSpecificField(field)
-            //             ? field.valueExpr
-            //             : field,
-            //         editorLabel: STKindChecker.isSpecificField(field)
-            //             ? field.fieldName.value
-            //             : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
-            //         deleteLink: () => this.deleteField(field),
-            //     }));
-            //     lm.setTargetPort(mappedOutPort);
-            //     lm.setSourcePort(inPort);
-            //     lm.registerListener({
-            //         selectionChanged(event) {
-            //             if (event.isSelected) {
-            //                 inPort.fireEvent({}, "link-selected");
-            //                 mappedOutPort.fireEvent({}, "link-selected");
-            //             } else {
-            //                 inPort.fireEvent({}, "link-unselected");
-            //                 mappedOutPort.fireEvent({}, "link-unselected");
-            //             }
-            //         },
-            //     })
-            //     this.getModel().addAll(lm);
-            // }
+            const inputNode = getInputNodeExpr(value, this);
+            let inPort: RecordFieldPortModel;
+            if (inputNode) {
+                inPort = getInputPortsForExpr(inputNode, value);
+            }
+            const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
+            if (inPort && mappedOutPort) {
+                lm.addLabel(new ExpressionLabelModel({
+                    value: otherVal?.source || value.source,
+                    valueNode: otherVal || value,
+                    context: this.context,
+                    link: lm,
+                    field: STKindChecker.isSpecificField(field)
+                        ? field.valueExpr
+                        : field,
+                    editorLabel: STKindChecker.isSpecificField(field)
+                        ? field.fieldName.value
+                        : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
+                    // deleteLink: () => this.deleteField(field),
+                }));
+                lm.setTargetPort(mappedOutPort);
+                lm.setSourcePort(inPort);
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            inPort.fireEvent({}, "link-selected");
+                            mappedOutPort.fireEvent({}, "link-selected");
+                        } else {
+                            inPort.fireEvent({}, "link-unselected");
+                            mappedOutPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(lm);
+            }
         });
     }
 
