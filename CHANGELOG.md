@@ -8,6 +8,8 @@
 ### Improved
 - Improved record editor - Provides a better editing experience with suggestions
 
+##### Please refer to the [release note](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information on these
+
 ## **3.2.0**
 ### Improved
 - New performance analyzer introduced. This will help users to identify the performance of the multiple execution paths of the code.
