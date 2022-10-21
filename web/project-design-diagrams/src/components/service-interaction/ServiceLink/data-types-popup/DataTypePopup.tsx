@@ -65,22 +65,24 @@ export function DataTypesPopup(props: DataTypeProps) {
             <ul>
                 {returnType.length === 0 ? <li>None</li> :
                     returnType.map((returnType, index) => {
-                        let paramName: string = returnType.slice(returnType.lastIndexOf(':') + 1);
-                        let isClickable: boolean = returnType.includes(':');
-                        if (paramName.endsWith('[]')) {
-                            returnType = returnType.slice(0, -2);
-                        }
+                        if (returnType) {
+                            let paramName: string = returnType.slice(returnType.lastIndexOf(':') + 1);
+                            let isClickable: boolean = returnType.includes(':');
+                            if (paramName.endsWith('[]')) {
+                                returnType = returnType.slice(0, -2);
+                            }
 
-                        return (
-                            <li key={index}>
-                                <p
-                                    style={isClickable ? clickableType : defaultType}
-                                    onClick={isClickable ? () => { getTypeComposition(returnType) } : () => { }}
-                                >
-                                    {paramName}
-                                </p>
-                            </li>
-                        )
+                            return (
+                                <li key={index}>
+                                    <p
+                                        style={isClickable ? clickableType : defaultType}
+                                        onClick={isClickable ? () => { getTypeComposition(returnType) } : () => { }}
+                                    >
+                                        {paramName}
+                                    </p>
+                                </li>
+                            )
+                        }
                     })
                 }
             </ul>

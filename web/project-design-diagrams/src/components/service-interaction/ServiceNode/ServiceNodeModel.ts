@@ -50,14 +50,15 @@ export class ServiceNodeModel extends SharedNodeModel {
 	}
 
 	getServiceType = (): ServiceTypes => {
-		if (this.serviceObject.serviceType.includes('/grpc:')) {
-			return ServiceTypes.GRPC;
-		} else if (this.serviceObject.serviceType.includes('/http:')) {
-			return ServiceTypes.HTTP;
-		} else if (this.serviceObject.serviceType.includes('/graphql:')) {
-			return ServiceTypes.GRAPHQL;
-		} else {
-			return ServiceTypes.OTHER;
+		if (this.serviceObject.serviceType) {
+			if (this.serviceObject.serviceType.includes('/grpc:')) {
+				return ServiceTypes.GRPC;
+			} else if (this.serviceObject.serviceType.includes('/http:')) {
+				return ServiceTypes.HTTP;
+			} else if (this.serviceObject.serviceType.includes('/graphql:')) {
+				return ServiceTypes.GRAPHQL;
+			}
 		}
+		return ServiceTypes.OTHER;
 	}
 }
