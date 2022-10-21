@@ -12,7 +12,7 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-const webpackPreprocessor = require('@cypress/webpack-batteries-included-preprocessor')
+const webpackPreprocessor = require('@cypress/webpack-batteries-included-preprocessor', 'cypress-terminal-report/src/installLogsPrinter')
 
 /**
  * @type {Cypress.PluginConfig}
@@ -24,6 +24,16 @@ module.exports = (on, config) => {
   }))
 
   require('@cypress/code-coverage/task')(on, config)
+
+  const logOptions = {
+    outputRoot: config.projectRoot + '/logs/',
+    printLogsToConsole: 'never',
+    printLogsToFile: 'onFail',
+    outputTarget: {
+      'failing-tests-log.json': 'json',
+    }
+  };
+  require('cypress-terminal-report/src/installLogsPrinter')(on, logOptions);
 
   return config
 }
