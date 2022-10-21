@@ -99,7 +99,7 @@ function mapInteractions(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
         sourceFunction.interactions.forEach(interaction => {
             if (l1Nodes.has(interaction.resourceId.serviceId)) {
                 mapLinksByLevel(l1Source, l2Source, interaction, sourceFunction);
-            } else if (!l1ExtNodes.has(interaction.connectorType)) {
+            } else if (interaction.connectorType && !l1ExtNodes.has(interaction.connectorType)) {
                 mapExtServices(l1Source, l2Source, interaction.connectorType, sourceFunction);
             }
         });

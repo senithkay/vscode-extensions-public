@@ -42,9 +42,11 @@ export function mapUnionTypes(parameter: Parameter) {
     let displayParam: Map<string[], boolean> = new Map<string[], boolean>();
 
     parameter.type.map((paramType) => {
-        let entityType: string = paramType.endsWith('[]') ? paramType.slice(0, -2) : paramType;
-        let isClickable: boolean = entityType.includes(':');
-        displayParam.set([paramType, entityType], isClickable);
+        if (paramType) {
+            let entityType: string = paramType.endsWith('[]') ? paramType.slice(0, -2) : paramType;
+            let isClickable: boolean = entityType.includes(':');
+            displayParam.set([paramType, entityType], isClickable);
+        }
     })
 
     return displayParam;
