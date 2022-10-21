@@ -105,7 +105,7 @@ export function DataProcessor(props: ProcessorProps) {
                 processName = processType;
                 haveFunction = true;
                 const simpleName: SimpleNameReference = stmtFunctionCall.functionName as SimpleNameReference;
-                functionName = simpleName.name;
+                functionName = simpleName?.name;
             }
         } else if (STKindChecker.isLocalVarDecl(model)) {
 
