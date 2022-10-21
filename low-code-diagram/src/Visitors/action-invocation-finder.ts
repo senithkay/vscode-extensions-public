@@ -13,6 +13,7 @@
 import { RemoteMethodCallAction, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
 export class ActionInvocationFinder implements Visitor {
+    // TODO: use the correct type once the syntax-tree types are updated
     public action: any = undefined;
     constructor() {
         this.action = undefined;

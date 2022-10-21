@@ -179,18 +179,16 @@ export class InitVisitor implements Visitor {
                 actionName = remoteActionCall.methodName as SimpleNameReference;
                 if (actionName) {
                     stmtViewState.action.actionName = actionName.name.value;
-                } else {
-                    if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
-                        && currentFnBody.VisibleEndpoints) {
+                } else if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                    && currentFnBody.VisibleEndpoints) {
 
-                        const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
-                        switch (vp?.moduleName) {
-                            case 'http':
-                                stmtViewState.action.actionName = 'get';
-                                break;
-                        }
-
+                    const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
+                    switch (vp?.moduleName) {
+                        case 'http':
+                            stmtViewState.action.actionName = 'get';
+                            break;
                     }
+
                 }
             }
 
@@ -403,17 +401,15 @@ export class InitVisitor implements Visitor {
                     const actionName: SimpleNameReference = remoteActionCall.methodName as SimpleNameReference;
                     if (actionName) {
                         stmtViewState.action.actionName = actionName.name.value;
-                    } else if (node.initializer.kind === 'ClientResourceAccessAction') {
-                        if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
-                            && currentFnBody.VisibleEndpoints) {
+                    } else if (node.initializer.kind === 'ClientResourceAccessAction'
+                        && currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                        && currentFnBody.VisibleEndpoints) {
 
-                            const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
-                            switch (vp?.moduleName) {
-                                case 'http':
-                                    stmtViewState.action.actionName = 'get';
-                                    break;
-                            }
-
+                        const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
+                        switch (vp?.moduleName) {
+                            case 'http':
+                                stmtViewState.action.actionName = 'get';
+                                break;
                         }
                     }
                     stmtViewState.isAction = true;

@@ -109,7 +109,6 @@ export { SpecificFieldComponent as SpecificField };
 export { CheckActionComponent as CheckAction };
 export { CheckActionComponent as CheckExpression };
 export { RemoteMethodCallActionComponent as RemoteMethodCallAction };
-export { RemoteMethodCallActionComponent as ClientResourceAccessAction };
 export { ListBindingPatternComponent as ListBindingPattern };
 export { MappingBindingPatternComponent as MappingBindingPattern };
 export { UnaryExpressionComponent as UnaryExpression };

@@ -254,6 +254,7 @@ export function getMatchingConnector(actionInvo: STNode): BallerinaConnectorInfo
                         actionVariable = variable.initializer as RemoteMethodCallAction;
                         break;
                     case 'ClientResourceAccessAction':
+                        // TODO: fix once the syntaxTreeMethods are updated
                         actionVariable = variable.initializer as any;
                         break;
                     default:
