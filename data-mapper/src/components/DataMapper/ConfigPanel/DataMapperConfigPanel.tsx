@@ -97,7 +97,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     useEffect(() => {
         if (fnST) {
             const inputs = getInputsFromST(fnST);
-            if (inputs && inputs.length > 0) {
+            if (inputs && inputs.length > 0 && inputParams.length === 0) {
                 setInputParams(getInputsFromST(fnST));
             }
             const output = getOutputTypeFromST(fnST);
@@ -123,7 +123,12 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         setIsNewRecord(false);
         if (createdNewRecord) {
             if (newRecordBy === "input") {
-                setInputType(createdNewRecord.split(" ")[1]);
+                const newRecordType = createdNewRecord.split(" ")[1];
+
+                setInputParams([...inputParams, {
+                    name: newRecordType,
+                    type: newRecordType
+                }])
             }
             if (newRecordBy === "output") {
                 setOutputType(createdNewRecord.split(" ")[1]);
