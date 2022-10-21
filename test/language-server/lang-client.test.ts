@@ -552,9 +552,9 @@ suite("Language Server Tests", function () {
                 };
 
                 langClient.sendRequest('textDocument/codeAction', actionParam).then((response: any) => {
-                    assert.equal(response.length, 1, 'Invalid number of code actions.');
-                    assert.equal(response[0].title, "Change variable 'piValue' type to 'string'", 'Invalid change variable action.');
-                    assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 1st.");
+                    assert.equal(response.length, 4, 'Invalid number of code actions.');
+                    assert.equal(response[3].title, "Change variable 'piValue' type to 'string'", 'Invalid change variable action.');
+                    assert.equal(response[3].kind, "quickfix", "Invalid code action kind - 1st.");
                     done();
                 });
             });
