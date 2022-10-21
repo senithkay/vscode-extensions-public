@@ -13,12 +13,16 @@
 import { RemoteMethodCallAction, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 
 export class ActionInvocationFinder implements Visitor {
-    public action: RemoteMethodCallAction = undefined;
+    public action: any = undefined;
     constructor() {
         this.action = undefined;
     }
 
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction) {
+        this.action = node;
+    }
+
+    public beginVisitClientResourceAccessAction(node: STNode) {
         this.action = node;
     }
 
