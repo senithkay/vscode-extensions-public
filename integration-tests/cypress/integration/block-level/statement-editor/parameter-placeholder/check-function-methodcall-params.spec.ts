@@ -67,10 +67,6 @@ describe('Test function call and method call parameters', () => {
         InputEditor
             .typeInput('1');
 
-        ParameterTab
-            .toggleOptionalArg("ns")
-            .toggleOptionalArg("ns")
-
         EditorPane
             .validateNewExpression("SimpleNameReference", `<add-ns>`)
             .getExpression("SimpleNameReference")
