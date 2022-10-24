@@ -16,83 +16,75 @@ export class EditorPane {
     private static parentSelector;
 
     static getStatementRenderer(){
-        cy.wait(2000);
-        cy.get(`[data-testid="statement-renderer"]`);
         cy.wait(1000);
+        cy.get(`[data-testid="statement-renderer"]`);
         return this;
     }
 
     static getExpression(modelType?: modelTypes){
-        cy.wait(2000);
+        cy.wait(1000);
         cy.get(`[data-testid="${modelType}"]`)
         this.parentSelector = `[data-testid="${modelType}"]`;
-        cy.wait(1000);
         return this;
     }
 
     static clickExpressionContent(text:string){
-        cy.wait(2000);
+        cy.wait(1000);
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
                 .should('be.visible')
                 .click()
                 // .parent('[class*="expressionElementSelected"]',{timeout:20000})
         });
-        cy.wait(1000);
         return this;
     }
 
     static clickStatementContent(text:string){
-        cy.wait(2000);
+        cy.wait(1000);
         cy.contains(`[data-testid="input-editor-span"]`,text)
             .should('be.visible')
             .click();
-        cy.wait(1000);
         return this;
     }
 
     static doubleClickExpressionContent(text:string){
-        cy.wait(2000);
+        cy.wait(1000);
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
                 .should('be.visible')
                 .dblclick()
         })
-        cy.wait(1000);
         return this;
     }
 
     static doubleClickStatementContent(text:string){
-        cy.wait(2000);
+        cy.wait(1000);
         cy.contains(`[data-testid="input-editor-span"]`,text)
             .should('be.visible')
             .dblclick();
-        cy.wait(1000);
         return this;
     }
 
     static clickTokenContent(token:string){
-        cy.wait(2000);
+        cy.wait(1000);
         cy.contains(`[class*="expressionBlock"]`,token)
             .click();
-        cy.wait(1000);
         return this;
     }
 
     static clickSpecificExpression(modelType:string, position?:number, text?:string){
-        cy.wait(2000);
+        cy.wait(1000);
         cy.get(`${this.parentSelector}`).within(() =>{
             cy.get(`[data-testid="${modelType}"]`).eq(position)
                 .contains(text)
                 .click()
                 .parent('[class*="expressionElementSelected"]')
         });
-        cy.wait(1000);
         return this;
     }
 
     static ClickHoverPlusOfExpression(modelType:string, plusBtnPos?:number, text?:string){
-        cy.wait(2000);
+        cy.wait(1000);
             cy.get(`[data-testid="${modelType}"]`)
                 .contains(text)
                 .trigger('mouseover');
@@ -103,7 +95,7 @@ export class EditorPane {
     }
 
     static clickPlusButton() {
-        cy.wait(2000);
+        cy.wait(1000);
         cy.contains(`[data-testid="plus-button"]`,`+`)
             .realHover()
             .click();
@@ -112,16 +104,15 @@ export class EditorPane {
     }
 
     static clickPlusRecordFieldPlus(fieldName: string) {
-        cy.wait(2000);
+        cy.wait(1000);
         cy.get(`#${fieldName}`)
             .realHover()
             .click();
-        cy.wait(1000);
         return this;
     }
 
     static clickMinusButton() {
-        cy.wait(2000);
+        cy.wait(1000);
         cy.contains(`[data-testid="minus-button"]`,`-`)
             .click();
         cy.wait(1000);
@@ -129,47 +120,41 @@ export class EditorPane {
     }
 
     static validateNewExpression(modelType:string, text:string){
-        cy.wait(2000);
-        cy.contains(`[data-testid="${modelType}"]`,text).should('exist');
         cy.wait(1000);
+        cy.contains(`[data-testid="${modelType}"]`,text).should('exist');
         return this;
     }
 
     static checkForDiagnostics() {
-        cy.wait(2000);
+        cy.wait(1000);
         cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`)
             .should("be.visible");
-        cy.wait(1000);
         return this;
     }
 
     static validateDiagnosticMessage(diagMessage:string){
-        cy.wait(2000);
-        cy.contains(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`,diagMessage);
         cy.wait(1000);
+        cy.contains(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`,diagMessage);
         return this;
     }
 
     static checkForMultipleDiagnostics(){
-        cy.wait(2000);
-        cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`).should('have.length.above',1);
         cy.wait(1000);
+        cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`).should('have.length.above',1);
         return this;
     }
 
     static validateEmptyDiagnostics(){
-        cy.wait(2000);
+        cy.wait(1000);
         cy.get(`[data-testid="diagnostics-pane"] [data-testid="diagnostic-message"]`)
             .should("not.exist");
-        cy.wait(1000);
         return this;
     }
 
     static checkForSyntaxDiagnosticsHighlighting() {
-        cy.wait(2000);
+        cy.wait(1000);
         cy.get(`[data-testid="syntax-error-highlighting"]`)
             .should("be.visible");
-        cy.wait(1000);
         return this;
     }
 }
