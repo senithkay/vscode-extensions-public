@@ -105,7 +105,7 @@ export function DataProcessor(props: ProcessorProps) {
                 processName = processType;
                 haveFunction = true;
                 const simpleName: SimpleNameReference = stmtFunctionCall.functionName as SimpleNameReference;
-                functionName = simpleName.name;
+                functionName = simpleName?.name;
             }
         } else if (STKindChecker.isLocalVarDecl(model)) {
 
@@ -298,10 +298,10 @@ export function DataProcessor(props: ProcessorProps) {
                 y={cy}
                 assignment={
                     STKindChecker.isActionStatement(model)
-                    && (STKindChecker.isSyncSendAction(model.expression)
-                    || STKindChecker.isAsyncSendAction(model.expression))
-                    ? ((model as ActionStatement).expression as SyncSendAction).expression.source.trim()
-                    : ""
+                        && (STKindChecker.isSyncSendAction(model.expression)
+                            || STKindChecker.isAsyncSendAction(model.expression))
+                        ? ((model as ActionStatement).expression as SyncSendAction).expression.source.trim()
+                        : ""
                 }
                 className={assignmentTextStyles}
                 key_id={getRandomInt(1000)}
@@ -311,6 +311,9 @@ export function DataProcessor(props: ProcessorProps) {
     }
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
     const haveFunctionExpand = (haveFunction && !!functionName);
+    const assignmentTextYPosition = haveFunctionExpand ?
+        (cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)
+        : (prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3));
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -359,7 +362,7 @@ export function DataProcessor(props: ProcessorProps) {
                         />
                         <Assignment
                             x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap * 3)}
-                            y={haveFunctionExpand ? (cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2) : (prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3))}
+                            y={assignmentTextYPosition + rightTextOffset}
                             assignment={assignmentText}
                             className={assignmentTextStyles}
                             key_id={getRandomInt(1000)}

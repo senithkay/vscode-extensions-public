@@ -115,7 +115,7 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
             isReferencedVariable = true;
         }
     }
-    if (draftVS){
+    if (draftVS) {
         draftVS.targetPosition = targetPosition;
     }
 
@@ -132,18 +132,18 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
 
     useEffect(() => {
         if ((draftVS || (model && isEditConnector)) && renderConnectorWizard) {
-                renderConnectorWizard({
-                    connectorInfo: connector,
-                    diagramPosition: {
-                        x: viewState.bBox.cx + 80,
-                        y: viewState.bBox.cy,
-                    },
-                    targetPosition,
-                    model,
-                    onClose: onWizardClose,
-                    onSave: onWizardClose,
-                    wizardType: ConnectorWizardType.ENDPOINT
-                });
+            renderConnectorWizard({
+                connectorInfo: connector,
+                diagramPosition: {
+                    x: viewState.bBox.cx + 80,
+                    y: viewState.bBox.cy,
+                },
+                targetPosition,
+                model,
+                onClose: onWizardClose,
+                onSave: onWizardClose,
+                wizardType: ConnectorWizardType.ENDPOINT
+            });
         }
     }, [model, connector, isEditConnector]);
 

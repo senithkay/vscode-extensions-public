@@ -39,7 +39,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     } = props;
     const formClasses = useFormStyles();
 
-    const [fnName, setFnName] = useState(getFnNameFromST(fnST) || "transform");
+    const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
     const [outputType, setOutputType] = useState("");
     const [inputType, setInputType] = useState("");
@@ -49,7 +49,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [showOutputType, setShowOutputType] = useState(false);
     const [newRecordBy, setNewRecordBy] = useState<"input" | "output">(undefined);
 
-    const isValidConfig = fnName && inputParams.length > 0 && outputType !== "";
+    const functionName = fnName === undefined ? "transform" : fnName;
+    const isValidConfig = functionName && inputParams.length > 0 && outputType !== "";
 
     const onSaveForm = () => {
         const parametersStr = inputParams
@@ -81,7 +82,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             modifications.push(
                 createFunctionSignature(
                     "",
-                    fnName,
+                    functionName,
                     parametersStr,
                     returnTypeStr,
                     targetPosition,
@@ -90,12 +91,15 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 )
             );
         }
-        onSave(fnName);
+        onSave(functionName);
         applyModifications(modifications);
     };
 
     useEffect(() => {
         if (fnST) {
+            if (fnName === undefined) {
+                setFnName(getFnNameFromST(fnST));
+            }
             const inputs = getInputsFromST(fnST);
             if (inputs && inputs.length > 0) {
                 setInputParams(getInputsFromST(fnST));
@@ -176,7 +180,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 {!isNewRecord && (
                     <>
                         <FormBody>
-                            <FunctionNameEditor value={fnName} onChange={setFnName} />
+                            <FunctionNameEditor value={functionName} onChange={setFnName} />
                             <FormDivider />
                             <InputParamsPanel
                                 newRecordParam={inputType}
