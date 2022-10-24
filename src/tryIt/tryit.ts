@@ -44,21 +44,24 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
             const response = stResponse as GetSyntaxTreeResponse;
             if (response.parseSuccess && response.syntaxTree) {
                 response.syntaxTree.members.forEach(async member => {
-                    const position = member.position;
-                    const servicePosition = member.serviceKeyword.position;
-                    if (servicePosition.startLine == range.startLine && position.endLine == range.endLine &&
-                        servicePosition.startColumn == range.startColumn && position.endColumn == range.endColumn &&
-                        member.kind == 'ServiceDeclaration') {
-                        if (member.expressions[0].typeDescriptor.modulePrefix.value === 'graphql') {
-                            const port = member.expressions[0].parenthesizedArgList.arguments[0].source;
-                            let path = "";
-                            member.absoluteResourcePath.forEach(pathElement => {
-                                path += pathElement.value;
-                            });
+                    if (member.kind == 'ServiceDeclaration') {
+                        const position = member.position;
+                        const servicePosition = member.serviceKeyword.position;
+                        if (((position.startLine == range.startLine && position.startColumn == range.startColumn) ||
+                            (servicePosition.startLine == range.startLine && servicePosition.startColumn == range.startColumn)) &&
+                            position.endLine == range.endLine &&
+                            position.endColumn == range.endColumn) {
+                            if (member.expressions[0].typeDescriptor.modulePrefix.value === 'graphql') {
+                                const port = member.expressions[0].parenthesizedArgList.arguments[0].source;
+                                let path = "";
+                                member.absoluteResourcePath.forEach(pathElement => {
+                                    path += pathElement.value;
+                                });
 
-                            await createGraphqlView(langClient, `http://localhost:${port}${path}`);
-                        } else {
-                            await createSwaggerView(langClient, filePath.fsPath, serviceName, codeServerContext);
+                                await createGraphqlView(langClient, `http://localhost:${port}${path}`);
+                            } else {
+                                await createSwaggerView(langClient, filePath.fsPath, serviceName, codeServerContext);
+                            }
                         }
                     }
                 })
