@@ -92,9 +92,6 @@ export const parameterHeader = {
         lineHeight: '14px',
         paddingLeft: '0px',
         marginBottom: '7px'
-    },
-    sticky: {
-        position: 'relative'
     }
 }
 
