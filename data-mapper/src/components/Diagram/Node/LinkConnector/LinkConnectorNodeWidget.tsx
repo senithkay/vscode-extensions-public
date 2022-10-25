@@ -153,6 +153,13 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
                     : props.node.editorLabel)
             });
+        } else if(STKindChecker.isBinaryExpression(valueNode)) {
+            props.node.context.enableStatementEditor({
+                valuePosition: valueNode.position,
+                value: valueNode.source,
+                label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.portName)
+                    : props.node.editorLabel)
+            });
         }
     };
 
