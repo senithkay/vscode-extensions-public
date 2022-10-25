@@ -23,6 +23,7 @@ export const TreeHeader = styled.div`
     background: #E6E8F0;
     border-radius: 3px;
     width: 100%;
+    display: flex;
 `;
 
 export const TreeBody = styled.div`
