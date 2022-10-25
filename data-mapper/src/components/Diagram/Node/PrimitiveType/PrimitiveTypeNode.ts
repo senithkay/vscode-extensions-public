@@ -11,11 +11,13 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     IdentifierToken,
     SelectClause,
-    STKindChecker
+    STKindChecker,
+    STNode,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -26,11 +28,16 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
-    getEnrichedRecordType, getInputNodeExpr, getInputPortsForExpr, getOutputPortForField,
+    getDefaultValue,
+    getEnrichedRecordType,
+    getInputNodeExpr,
+    getInputPortsForExpr,
+    getOutputPortForField,
     getTypeName
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
@@ -115,7 +122,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
-                    // deleteLink: () => this.deleteField(field),
+                    deleteLink: () => this.deleteField(field),
                 }));
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
@@ -134,6 +141,34 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             }
         });
     }
+
+    async deleteField(field: STNode) {
+        let modifications: STModification[];
+        if (this.typeDef?.typeName === PrimitiveBalType.Array && this.typeDef.memberType
+            && this.typeDef.memberType.typeName !== PrimitiveBalType.Array
+            && this.typeDef.memberType.typeName !== PrimitiveBalType.Record)
+        {
+            // Fallback to the default value if the target is a primitive type element
+            modifications = [{
+                type: "INSERT",
+                config: {
+                    "STATEMENT": getDefaultValue(this.typeDef.memberType)
+                },
+                ...field.position
+            }];
+        } else {
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
+            traversNode(this.value.expression, linkDeleteVisitor);
+            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+            modifications = [{
+                type: "DELETE",
+                ...nodePositionsToDelete
+            }]
+        }
+
+        await this.context.applyModifications(modifications);
+    }
+
 
     public updatePosition() {
         this.setPosition(this.position.x, this.position.y);

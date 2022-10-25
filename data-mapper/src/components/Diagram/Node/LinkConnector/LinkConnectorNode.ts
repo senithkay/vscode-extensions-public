@@ -1,3 +1,4 @@
+import { PrimitiveBalType, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FieldAccess, OptionalFieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -5,7 +6,12 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
-import { getInputNodeExpr, getInputPortsForExpr, getOutputPortForField } from "../../utils/dm-utils";
+import {
+    getDefaultValue,
+    getInputNodeExpr,
+    getInputPortsForExpr,
+    getOutputPortForField
+} from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
@@ -185,13 +191,30 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     public deleteLink() {
-        const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position, this.parentNode);
-        traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
-        const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+        const targetField = this.targetPort.field;
+        let modifications: STModification[];
+        if (!targetField?.name && targetField?.typeName !== PrimitiveBalType.Array
+            && targetField?.typeName !== PrimitiveBalType.Record)
+        {
+            // Fallback to the default value if the target is a primitive type element
+            modifications = [{
+                type: "INSERT",
+                config: {
+                    "STATEMENT": getDefaultValue(targetField)
+                },
+                ...this.valueNode.position
+            }];
+        } else {
+            const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position, this.parentNode);
+            traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
+            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
 
-        this.context.applyModifications([{
-            type: "DELETE",
-            ...nodePositionsToDelete
-        }]);
+            modifications = [{
+                type: "DELETE",
+                ...nodePositionsToDelete
+            }];
+        }
+
+        this.context.applyModifications(modifications);
     }
 }
