@@ -1,4 +1,9 @@
 # Change Log
+##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
+
+## **3.3.1**
+### Fixed
+- Try it button not working for services with comments issue.
 
 ## **3.3.0**
 ### Added
@@ -8,7 +13,6 @@
 ### Improved
 - Improved record editor - Provides a better editing experience with suggestions
 
-##### Please refer to the [release note](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information on these
 
 ## **3.2.0**
 ### Improved
