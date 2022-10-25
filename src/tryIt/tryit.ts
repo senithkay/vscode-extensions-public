@@ -25,6 +25,7 @@ import { createGraphqlView } from "./graphql";
 import { createSwaggerView } from "./swagger";
 import { Position } from "src/forecaster";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     const codeServerContext: CodeServerContext = ballerinaExtInstance.getCodeServerContext();

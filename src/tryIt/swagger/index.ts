@@ -26,6 +26,7 @@ import path from "path";
 export async function createSwaggerView(langClient: ExtendedLangClient, documentFilePath: string,
     serviceName: any, codeServerContext: CodeServerContext) {
     const file = path.basename(documentFilePath);
+    const ERR = 'Unable to open the swagger view.';
 
     if (!langClient) {
         return;
@@ -35,12 +36,12 @@ export async function createSwaggerView(langClient: ExtendedLangClient, document
     }).then(async (lSesponse) => {
         const response = lSesponse as OpenAPIConverterResponse;
         if (response.content === undefined || response.error) {
-            showMessage(`Unable to open the swagger view. ${response.error}`,
+            showMessage(`${ERR} ${response.error}`,
                 MESSAGE_TYPE.ERROR, false);
             return;
         }
         if (response.content.length == 0) {
-            showMessage(`Unable to open the swagger view. OpenAPI specification not found.`,
+            showMessage(`${ERR} OpenAPI specification not found.`,
                 MESSAGE_TYPE.ERROR, false);
             return;
         }
