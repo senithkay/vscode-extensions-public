@@ -168,7 +168,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     {typeName}
                 </span>
             )}
-            {value && (
+            {value && !connectedViaLink && (
                 <>
                     {diagnostic ? (
                         <DiagnosticTooltip
@@ -185,7 +185,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             </span>
                         </DiagnosticTooltip>
                     ) : (
-                        !connectedViaLink && <span className={classes.value} onClick={handleEditValue}>{value}</span>
+                        <span className={classes.value} onClick={handleEditValue}>{value}</span>
                     )}
                 </>
             )}
