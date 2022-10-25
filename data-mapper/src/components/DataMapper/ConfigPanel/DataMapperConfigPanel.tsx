@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
 import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
+import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import {
+    checkDiagnostics,
     createFunctionSignature,
+    getSource,
+    getUpdatedSource,
     STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
-
 import {
     ButtonWithIcon,
     FormActionButtons,
@@ -18,15 +20,17 @@ import {
     useStyles as useFormStyles,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
+import { LSClientContext } from "../Context/ls-client-context";
 import { DataMapperProps } from "../DataMapper";
 
 import { FunctionNameEditor } from "./FunctionNameEditor";
 import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
+import { RecordButtonGroup } from "./RecordButtonGroup";
 import { TypeBrowser } from "./TypeBrowser";
 import { getFnNameFromST, getInputsFromST, getOutputTypeFromST } from "./utils";
-import { RecordButtonGroup } from "./RecordButtonGroup";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
     const {
@@ -36,8 +40,11 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         targetPosition,
         onSave,
         recordPanel,
+        currentFile
     } = props;
     const formClasses = useFormStyles();
+
+    const langClientPromise = useContext(LSClientContext);
 
     const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
@@ -167,6 +174,41 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         />
     );
 
+    const onNameChange = async (name: string) => {
+        let stModification: STModification;
+        const parametersStr = inputParams
+            .map((item) => `${item.type} ${item.name}`)
+            .join(",");
+
+        const returnTypeStr = `returns string`;
+        if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
+            stModification = updateFunctionSignature(name, parametersStr, returnTypeStr, {
+                ...fnST?.functionSignature?.position,
+                startColumn: fnST?.functionName?.position?.startColumn,
+            });
+        } else {
+            stModification = createFunctionSignature(
+                "",
+                name,
+                parametersStr,
+                returnTypeStr,
+                targetPosition,
+                false,
+                true
+            );
+        }
+        const content = getSource(stModification);
+        const updateContent = getUpdatedSource(content, currentFile.content, targetPosition);
+        const diagnostics = await checkDiagnostics(currentFile?.path, updateContent, langClientPromise, targetPosition);
+        let filteredDiagnostics;
+        if ((diagnostics[0]?.severity === 1)
+            && (diagnostics[0]?.range?.start?.line - 1) === targetPosition.startLine) {
+            filteredDiagnostics = diagnostics;
+        }
+        setFnName(name);
+    };
+    const debouncedNameChange = debounce(onNameChange, 800);
+
     return (
         <Panel onClose={onClose}>
             <FormControl
@@ -185,7 +227,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 {!isNewRecord && (
                     <>
                         <FormBody>
-                            <FunctionNameEditor value={functionName} onChange={setFnName} />
+                            <FunctionNameEditor value={functionName} onChange={debouncedNameChange} />
                             <FormDivider />
                             <InputParamsPanel
                                 newRecordParam={inputType}
