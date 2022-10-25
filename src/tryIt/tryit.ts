@@ -24,6 +24,7 @@ import { commands, Uri } from "vscode";
 import { createGraphqlView } from "./graphql";
 import { createSwaggerView } from "./swagger";
 import { Position } from "src/forecaster";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
@@ -44,15 +45,22 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
             const response = stResponse as GetSyntaxTreeResponse;
             if (response.parseSuccess && response.syntaxTree) {
                 response.syntaxTree.members.forEach(async member => {
-                    if (member.kind == 'ServiceDeclaration') {
+                    if (STKindChecker.isServiceDeclaration(member)) {
+
                         const position = member.position;
                         const servicePosition = member.serviceKeyword.position;
+
                         if (((position.startLine == range.startLine && position.startColumn == range.startColumn) ||
                             (servicePosition.startLine == range.startLine && servicePosition.startColumn == range.startColumn)) &&
                             position.endLine == range.endLine &&
                             position.endColumn == range.endColumn) {
-                            if (member.expressions[0].typeDescriptor.modulePrefix.value === 'graphql') {
-                                const port = member.expressions[0].parenthesizedArgList.arguments[0].source;
+
+                            const expression = member.expressions[0];
+                            if (STKindChecker.isExplicitNewExpression(expression) &&
+                                STKindChecker.isQualifiedNameReference(expression.typeDescriptor) &&
+                                expression.typeDescriptor.modulePrefix.value === 'graphql') {
+
+                                const port = expression.parenthesizedArgList.arguments[0].source;
                                 let path = "";
                                 member.absoluteResourcePath.forEach(pathElement => {
                                     path += pathElement.value;
