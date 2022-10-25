@@ -39,6 +39,11 @@ export async function createSwaggerView(langClient: ExtendedLangClient, document
                 MESSAGE_TYPE.ERROR, false);
             return;
         }
+        if (response.content.length == 0) {
+            showMessage(`Unable to open the swagger view. OpenAPI specification not found.`,
+                MESSAGE_TYPE.ERROR, false);
+            return;
+        }
         showMessage(RUN_PROJECT_TO_TRYIT, MESSAGE_TYPE.INFO, true);
         showSwaggerView(langClient, response.content, file, serviceName, codeServerContext);
     }).catch((err) => {
