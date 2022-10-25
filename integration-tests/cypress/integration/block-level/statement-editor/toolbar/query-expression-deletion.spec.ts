@@ -72,6 +72,7 @@ describe('Test statement editor query expression deletion functionality', () => 
             .clickExpressionSuggestion("let var i = Ex");
 
         EditorPane
+            .getExpression("LetClause")
             .clickExpressionContent("<add-expression>");
 
         Toolbar
@@ -85,6 +86,7 @@ describe('Test statement editor query expression deletion functionality', () => 
             .clickExpressionSuggestion("order by Ex ascending")
 
         EditorPane
+            .getExpression("OrderByClause")
             .clickExpressionContent("ascending");
 
         Toolbar

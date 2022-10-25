@@ -129,7 +129,7 @@ describe('Test statement editor toolbar functionality', () => {
             .clickDeleteButton();
 
         EditorPane
-            .getExpression("NumericLiteral")
+            .getExpression("IdentifierToken")
             .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
