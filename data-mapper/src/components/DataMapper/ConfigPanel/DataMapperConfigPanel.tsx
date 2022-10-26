@@ -100,7 +100,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     targetPosition,
                     false,
                     true,
-                    `()`
+                    `{}`
                 )
             );
         }
@@ -202,7 +202,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     targetPosition,
                     false,
                     true,
-                    `()`
+                    outputType ? `{}` : `()`  // TODO: Find default value for selected output type when DM supports types other than records
                 );
             }
             const content = addToTargetPosition(currentFile.content, targetPosition, getSource(stModification));
@@ -233,8 +233,14 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 }
             });
             const diagnostics = diagResp[0]?.diagnostics || [];
+            const fnNameStartColumn = "function ".length + 1;
             const filteredDiag = diagnostics.find((diagnostic) => {
-                return diagnostic?.severity === 1 && (diagnostic?.range?.start?.line - 1 === targetPosition.startLine);
+                // Filter out the diagnostics related to the function name
+                return diagnostic?.severity === 1
+                    && (diagnostic?.range?.start?.line - 1 === targetPosition.startLine)
+                    && (diagnostic?.range?.start?.character - fnNameStartColumn === targetPosition.startColumn)
+                    && (diagnostic?.range?.end?.character - (fnNameStartColumn + name.length) === targetPosition.endColumn)
+                    && (diagnostic?.range?.end?.line - 1 === targetPosition.endLine);
             });
             setDmFuncDiagnostics(filteredDiag?.message);
         } else {
