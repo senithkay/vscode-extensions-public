@@ -355,7 +355,7 @@ describe('Test helper pane functionality', () => {
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
             .clickLsTypeSuggestion('var2')
-            .clickLsTypeSuggestion('toString()', 1000);
+            .clickLsTypeSuggestion('toString()');
 
         EditorPane
             .validateEmptyDiagnostics();
