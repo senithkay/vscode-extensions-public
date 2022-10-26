@@ -10,23 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import * as monaco from "monaco-editor";
-import { Diagnostic } from "vscode-languageserver-protocol";
-
-import { PublishDiagnosticsParams } from "../../types";
-
-export const FILE_SCHEME = "file://";
-export const EXPR_SCHEME = "expr://";
-
-export function getUpdatedSource(statement: string, currentFileContent: string,
-                                 targetPosition: NodePosition, moduleList?: Set<string>,
-                                 skipSemiColon?: boolean): string {
-
-    const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
-    return addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
-}
 
 export function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {
 
@@ -56,51 +40,6 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
     return splitContent.join('\n');
 }
 
-export async function checkDiagnostics(path: string, updatedContent: string, ls: Promise<IBallerinaLangClient>, targetPosition: NodePosition) {
-    const fileURI = monaco.Uri.file(path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    await sendDidChange(fileURI, updatedContent, ls);
-    return handleDiagnostics(updatedContent, fileURI, targetPosition, ls);
-}
-
-export const handleDiagnostics = async (source: string, fileURI: string, targetPosition: NodePosition,
-                                        langClientPromise: Promise<IBallerinaLangClient>):
-    Promise<Diagnostic[]> => {
-    const diagResp = await getDiagnostics(fileURI, langClientPromise);
-    const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-    return diag;
-}
-
-export async function getDiagnostics(
-    docUri: string,
-    langClientPromise: Promise<IBallerinaLangClient>): Promise<PublishDiagnosticsParams[]> {
-    const langClient = await langClientPromise;
-    const diagnostics = await langClient.getDiagnostics({
-        documentIdentifier: {
-            uri: docUri,
-        }
-    });
-
-    return diagnostics;
-}
-
-export async function sendDidChange(
-    docUri: string,
-    content: string,
-    langClientPromise: Promise<IBallerinaLangClient>)
-{
-    const langClient = await langClientPromise;
-    await langClient.didChange({
-        contentChanges: [
-            {
-                text: content
-            }
-        ],
-        textDocument: {
-            uri: docUri,
-            version: 1
-        }
-    });
-}
 
 
 

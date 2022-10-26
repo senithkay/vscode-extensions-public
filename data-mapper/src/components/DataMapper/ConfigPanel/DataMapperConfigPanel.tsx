@@ -5,10 +5,9 @@ import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
 import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import {
-    checkDiagnostics,
+    addToTargetPosition,
     createFunctionSignature,
     getSource,
-    getUpdatedSource,
     STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -21,6 +20,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
+import * as monaco from "monaco-editor";
 
 import { LSClientContext } from "../Context/ls-client-context";
 import { DataMapperProps } from "../DataMapper";
@@ -32,6 +32,9 @@ import { RecordButtonGroup } from "./RecordButtonGroup";
 import { TypeBrowser } from "./TypeBrowser";
 import { getFnNameFromST, getInputsFromST, getOutputTypeFromST } from "./utils";
 
+export const FILE_SCHEME = "file://";
+export const EXPR_SCHEME = "expr://";
+
 export function DataMapperConfigPanel(props: DataMapperProps) {
     const {
         onClose,
@@ -40,7 +43,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         targetPosition,
         onSave,
         recordPanel,
-        currentFile
+        currentFile,
+        filePath
     } = props;
     const formClasses = useFormStyles();
 
@@ -52,12 +56,13 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [inputType, setInputType] = useState("");
     const [isNewRecord, setIsNewRecord] = useState(false);
     const [isAddExistType, setAddExistType] = useState(false);
+    const [dmFuncDiagnostics, setDmFuncDiagnostics] = useState(undefined);
 
     const [showOutputType, setShowOutputType] = useState(false);
     const [newRecordBy, setNewRecordBy] = useState<"input" | "output">(undefined);
 
     const functionName = fnName === undefined ? "transform" : fnName;
-    const isValidConfig = functionName && inputParams.length > 0 && outputType !== "";
+    const isValidConfig = functionName && inputParams.length > 0 && outputType !== "" && dmFuncDiagnostics === undefined;
 
     const onSaveForm = () => {
         const parametersStr = inputParams
@@ -94,7 +99,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     returnTypeStr,
                     targetPosition,
                     false,
-                    true
+                    true,
+                    `()`
                 )
             );
         }
@@ -175,35 +181,64 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     );
 
     const onNameChange = async (name: string) => {
-        let stModification: STModification;
-        const parametersStr = inputParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(",");
+        if (name !== "") {
+            let stModification: STModification;
+            const parametersStr = inputParams
+                .map((item) => `${item.type} ${item.name}`)
+                .join(",");
 
-        const returnTypeStr = `returns string`;
-        if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
-            stModification = updateFunctionSignature(name, parametersStr, returnTypeStr, {
-                ...fnST?.functionSignature?.position,
-                startColumn: fnST?.functionName?.position?.startColumn,
+            const returnTypeStr = outputType ? `returns ${outputType}` : '';
+            if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
+                stModification = updateFunctionSignature(name, parametersStr, returnTypeStr, {
+                    ...fnST?.functionSignature?.position,
+                    startColumn: fnST?.functionName?.position?.startColumn,
+                });
+            } else {
+                stModification = createFunctionSignature(
+                    "",
+                    name,
+                    parametersStr,
+                    returnTypeStr,
+                    targetPosition,
+                    false,
+                    true,
+                    `()`
+                );
+            }
+            const content = addToTargetPosition(currentFile.content, targetPosition, getSource(stModification));
+            const docUri = monaco.Uri.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+            const langClient = await langClientPromise;
+            langClient.didOpen({
+                textDocument: {
+                    uri: docUri,
+                    languageId: "ballerina",
+                    text: currentFile.content,
+                    version: 1
+                }
             });
+            langClient.didChange({
+                contentChanges: [
+                    {
+                        text: content
+                    }
+                ],
+                textDocument: {
+                    uri: docUri,
+                    version: 1
+                }
+            });
+            const diagResp = await langClient.getDiagnostics({
+                documentIdentifier: {
+                    uri: docUri,
+                }
+            });
+            const diagnostics = diagResp[0]?.diagnostics || [];
+            const filteredDiag = diagnostics.find((diagnostic) => {
+                return diagnostic?.severity === 1 && (diagnostic?.range?.start?.line - 1 === targetPosition.startLine);
+            });
+            setDmFuncDiagnostics(filteredDiag?.message);
         } else {
-            stModification = createFunctionSignature(
-                "",
-                name,
-                parametersStr,
-                returnTypeStr,
-                targetPosition,
-                false,
-                true
-            );
-        }
-        const content = getSource(stModification);
-        const updateContent = getUpdatedSource(content, currentFile.content, targetPosition);
-        const diagnostics = await checkDiagnostics(currentFile?.path, updateContent, langClientPromise, targetPosition);
-        let filteredDiagnostics;
-        if ((diagnostics[0]?.severity === 1)
-            && (diagnostics[0]?.range?.start?.line - 1) === targetPosition.startLine) {
-            filteredDiagnostics = diagnostics;
+            setDmFuncDiagnostics("missing function name");
         }
         setFnName(name);
     };
@@ -227,7 +262,11 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 {!isNewRecord && (
                     <>
                         <FormBody>
-                            <FunctionNameEditor value={functionName} onChange={debouncedNameChange} />
+                            <FunctionNameEditor
+                                value={functionName}
+                                onChange={debouncedNameChange}
+                                errorMessage={dmFuncDiagnostics}
+                            />
                             <FormDivider />
                             <InputParamsPanel
                                 newRecordParam={inputType}

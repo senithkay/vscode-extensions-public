@@ -5,20 +5,19 @@ import React from "react";
 export interface FunctionNameEditorProps {
     value: string;
     onChange: (newVal: string) => void;
+    errorMessage?: string;
 }
 
 export function FunctionNameEditor(props: FunctionNameEditorProps)  {
-    const { value, onChange } = props;
+    const { value, onChange, errorMessage } = props;
     return (
         <FormTextInput
-            customProps={{
-                validate: () => true,
-            }}
+            customProps={{ readonly: false, isErrored: errorMessage !== undefined }}
             onChange={onChange}
             defaultValue={value}
             label="Name"
             placeholder="Data Mapper Name"
-            errorMessage={""}
+            errorMessage={errorMessage}
 
         />
     );
