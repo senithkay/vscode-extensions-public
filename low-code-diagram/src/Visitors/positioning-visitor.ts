@@ -472,7 +472,7 @@ export class PositioningVisitor implements Visitor {
             height += START_SVG_HEIGHT + (functionTrigger.offsetFromBottom * 2);
         }
 
-        this.beginBlockPosition(node, index + node.statements.length, height, index);
+        this.beginBlockPosition(node, index + node.statements.length, height);
     }
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
@@ -485,16 +485,27 @@ export class PositioningVisitor implements Visitor {
             bodyViewState.workerIndicatorLine.w = workerDeclVS.trigger.cx - bodyViewState.workerIndicatorLine.x;
 
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDeclarator => {
+                const workerBodyViewState = workerDeclarator.workerBody.viewState as BlockViewState;
 
                 if (workerDeclarator.workerBody.controlFlow?.isReached) {
-                    const workerBodyViewState = workerDeclarator.workerBody.viewState as BlockViewState;
                     const workerLine: ControlFlowLineState = {
                         x: bodyViewState.workerIndicatorLine.x,
                         y: bodyViewState.workerIndicatorLine.y,
-                        w: bodyViewState.workerIndicatorLine.w - (START_SVG_WIDTH / 2),
+                        w: workerBodyViewState.bBox.cx - bodyViewState.workerIndicatorLine.x - (START_SVG_WIDTH / 2),
                         isDotted: true
                     };
                     workerBodyViewState.controlFlow.lineStates.push(workerLine);
+                }
+                const lastStatement = workerDeclarator.workerBody.statements[workerDeclarator.workerBody.statements.length - 1];
+                if (STKindChecker.isReturnStatement(lastStatement) && lastStatement.controlFlow?.isReached) {
+                    const lastStatementBBox = lastStatement.viewState.bBox;
+                    const bottomLine: ControlFlowLineState = {
+                        x: lastStatementBBox.cx,
+                        y: lastStatementBBox.cy + PROCESS_SVG_HEIGHT / 2,
+                        w: bodyViewState.workerIndicatorLine.x - workerBodyViewState.bBox.cx + 39,
+                        isDotted: true
+                    };
+                    workerBodyViewState.controlFlow.lineStates.push(bottomLine);
                 }
             });
         }
