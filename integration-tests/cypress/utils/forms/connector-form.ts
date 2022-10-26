@@ -31,8 +31,7 @@ export class ConnectorMarketplace {
     }
 
     static waitForConnectorsLoading() {
-        this.getConnectorMarketplace().get('[data-testid="marketplace-search-loader"]',
-            { timeout: 20000 }).should('be.visible');
+        this.getConnectorMarketplace().get('[data-testid="marketplace-search-loader"]').should('be.visible');
         this.getConnectorMarketplace().get('[data-testid="marketplace-search-loader"]',
             { timeout: 100000 }).should('not.exist');
         return this;

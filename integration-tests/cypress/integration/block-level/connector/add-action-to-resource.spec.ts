@@ -14,8 +14,7 @@ describe('Add action to resource via Low Code', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     });
 
-    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping
-    it.skip('Add multiple actions to resource', () => {
+    it('Add multiple actions to resource', () => {
         // Pulling existing connectors.
         cy.exec('bal pull ballerinax/mysql', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));

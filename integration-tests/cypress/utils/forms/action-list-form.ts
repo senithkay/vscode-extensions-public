@@ -36,7 +36,7 @@ export class ActionListForm {
 
     private static getActionListForm() {
         return cy
-            .get(this.actionListForm, { timeout: 50000 });
+            .get(this.actionListForm);
     }
 
 }
