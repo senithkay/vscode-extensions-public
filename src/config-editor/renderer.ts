@@ -17,7 +17,6 @@
  *
  */
 
-import { debugPort } from 'process';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
 export function render(data: any, existingData: any, primaryButton: string): string {
