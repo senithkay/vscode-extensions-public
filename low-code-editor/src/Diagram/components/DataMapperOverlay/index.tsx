@@ -48,7 +48,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
   const dataMapperClasses = dataMapperStyles();
 
   const {
-    props: { currentFile, stSymbolInfo, importStatements },
+    props: { currentFile, stSymbolInfo, importStatements, syntaxTree },
     api: {
       code: { modifyDiagram },
       ls: { getDiagramEditorLangClient },
@@ -95,11 +95,11 @@ export function DataMapperOverlay(props: DataMapperProps) {
     setNewFnName(fnName);
   };
 
-  const renderRecordPanel = (panelProps: {closeAddNewRecord: (createdNewRecord?: string) => void}) => {
+  const renderRecordPanel = (panelProps: { targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void }) => {
     return (
       <RecordEditor
         formType={""}
-        targetPosition={targetPosition}
+        targetPosition={panelProps.targetPosition}
         name={"record"}
         onCancel={panelProps.closeAddNewRecord}
         onSave={onSave}
@@ -133,6 +133,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
             onSave={onSave}
             importStatements={importStatements}
             recordPanel={renderRecordPanel}
+            syntaxTree={syntaxTree}
           />
         </div>
       </DiagramOverlay>
