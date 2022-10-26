@@ -1,5 +1,5 @@
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
-import { FunctionDefinition, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, NodePosition, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -36,6 +36,42 @@ export function getTypeFromTypeDesc(typeDesc: TypeDescriptor) {
         return typeDesc.name.value;
     }
     return "";
+}
+
+export function getModifiedTargetPosition(currentRecords: string[], currentTargetPosition: NodePosition, syntaxTree: STNode) {
+    if (currentRecords.length === 0) {
+        return currentTargetPosition;
+    } else {
+        if(STKindChecker.isModulePart(syntaxTree)) {
+            const modulePart = syntaxTree as ModulePart;
+            const memberPositions: NodePosition[] = [];
+            modulePart.members.forEach((member: STNode) => {
+                if(STKindChecker.isTypeDefinition(member)) {
+                    const name = member.typeName.value;
+                    if(currentRecords.includes(name)) {
+                        memberPositions.push(member.position);
+                    }
+                }
+            });
+
+            let newTargetPosition: NodePosition = {
+                endColumn: 0,
+                endLine: 0,
+                startColumn: 0,
+                startLine: 0
+            }
+
+            memberPositions.forEach(position => {
+                if(position.endLine >= newTargetPosition.endLine) {
+                    newTargetPosition = {...newTargetPosition, startLine: position.endLine + 1, endLine: position.endLine + 1};
+                }
+            })
+
+            return newTargetPosition
+        } else {
+            return currentTargetPosition;
+        }
+    }
 }
 
 export async function getVirtualDiagnostics(filePath: string, currentFileContent: string,
