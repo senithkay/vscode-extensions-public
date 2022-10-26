@@ -15,22 +15,34 @@ import React, { useContext } from "react";
 import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Context/diagram";
-import { getDraftComponent, getSTComponents } from "../../../Utils";
+import { useFunctionContext } from "../../../Context/Function";
+import { ViewMode } from "../../../Context/types";
+import { collapseExpandedRange, expandCollapsedRange, getDraftComponent, getSTComponents, recalculateSizingAndPositioning, sizingAndPositioning } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
-import { Collapse } from "../Collapse";
+import CollapseComponent from "../Collapse";
 import ControlFlowExecutionTime from "../ControlFlowExecutionTime";
 import { ControlFlowLine } from "../ControlFlowLine";
 
 export interface DiagramProps {
     model: FunctionBodyBlock | BlockStatement,
-    viewState: BlockViewState
+    viewState: BlockViewState;
+    expandReadonly?: boolean;
 }
 
 export function WorkerBody(props: DiagramProps) {
-    const { state, actions: { insertComponentStart } } = useContext(Context);
+    const {
+        state,
+        actions: { insertComponentStart, diagramRedraw },
+        props: {
+            syntaxTree,
+            experimentalEnabled
+        }
+    } = useContext(Context);
 
-    const { model, viewState } = props;
+    const { viewMode } = useFunctionContext();
+
+    const { expandReadonly, model, viewState } = props;
     const pluses: React.ReactNode[] = [];
     const workerArrows: React.ReactNode[] = [];
     let children: React.ReactNode[] = [];
@@ -40,17 +52,21 @@ export function WorkerBody(props: DiagramProps) {
     const workerIndicatorLine: React.ReactNode[] = [];
 
     if (STKindChecker.isFunctionBodyBlock(model) && viewState.hasWorkerDecl) {
-        children = children.concat(getSTComponents(model.namedWorkerDeclarator.workerInitStatements));
-        children = children.concat(getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations))
+        children = children.concat(
+            getSTComponents(model.namedWorkerDeclarator.workerInitStatements, viewState, model, expandReadonly));
+        children = children.concat(
+            getSTComponents(model.namedWorkerDeclarator.namedWorkerDeclarations, viewState, model, expandReadonly));
     }
-    children = children.concat(getSTComponents(model.statements))
+    children = children.concat(getSTComponents(model.statements, viewState, model, expandReadonly))
 
     for (const controlFlowLine of viewState.controlFlow.lineStates) {
         controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
     }
 
     for (const plusView of viewState.plusButtons) {
-        pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />)
+        if (!expandReadonly && viewMode === ViewMode.STATEMENT) {
+            pluses.push(<PlusButton viewState={plusView} model={model} initPlus={false} />);
+        }
     }
 
     for (const workerArrow of viewState.workerArrows) {
@@ -69,8 +85,18 @@ export function WorkerBody(props: DiagramProps) {
     if (viewState.hasWorkerDecl) {
         workerIndicatorLine.push((
             <>
-                <circle cx={viewState.workerIndicatorLine.x} cy={viewState.workerIndicatorLine.y} r="6" style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#fff' }} />
-                <circle cx={viewState.workerIndicatorLine.x} cy={viewState.workerIndicatorLine.y} r="4" style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#5567D5' }} />
+                <circle
+                    cx={viewState.workerIndicatorLine.x}
+                    cy={viewState.workerIndicatorLine.y}
+                    r="6"
+                    style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#fff' }}
+                />
+                <circle
+                    cx={viewState.workerIndicatorLine.x}
+                    cy={viewState.workerIndicatorLine.y}
+                    r="4"
+                    style={{ stroke: '#5567D5', strokeWidth: 1, fill: '#5567D5' }}
+                />
                 <line
                     x1={viewState.workerIndicatorLine.x}
                     y1={viewState.workerIndicatorLine.y}
@@ -88,8 +114,35 @@ export function WorkerBody(props: DiagramProps) {
             controlFlowExecutionTime.push(<ControlFlowExecutionTime x={executionTime.x} y={executionTime.y} value={executionTime.value} h={executionTime.h} />);
         }
     }
-    if (viewState?.collapseView) {
-        children.push(<Collapse blockViewState={viewState} />)
+    // if (viewState?.collapseView) {
+    //     children.push(<Collapse blockViewState={viewState} />)
+    // }
+    const collapsedComponents: JSX.Element[] = []
+    if (viewState.collapsedViewStates.length > 0) {
+        // TODO: handle collapse ranges rendering
+        viewState.collapsedViewStates.forEach((collapseVS) => {
+            const onExpandClick = () => {
+                diagramRedraw(
+                    recalculateSizingAndPositioning(
+                        expandCollapsedRange(syntaxTree, collapseVS.range), experimentalEnabled)
+                );
+            }
+
+            const onCollapseClick = () => {
+                diagramRedraw(
+                    recalculateSizingAndPositioning(
+                        collapseExpandedRange(syntaxTree, collapseVS.range)
+                    )
+                );
+            }
+            collapsedComponents.push((
+                <CollapseComponent
+                    collapseVS={collapseVS}
+                    onExpandClick={onExpandClick}
+                    onCollapseClick={onCollapseClick}
+                />
+            ))
+        })
     }
 
     if (viewState?.draft) {
@@ -99,6 +152,7 @@ export function WorkerBody(props: DiagramProps) {
     return (
         <>
             {controlFlowLines}
+            {collapsedComponents}
             {pluses}
             {workerIndicatorLine}
             {workerArrows}

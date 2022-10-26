@@ -207,6 +207,8 @@ class DiagramConfig {
     // default body sizing
     defaultBlockWidth = 200;
     defaultBlockHeight = this.offSet * 2;
+
+    interactionModeOffset = 4;
 }
 
 export const DefaultConfig = new DiagramConfig();

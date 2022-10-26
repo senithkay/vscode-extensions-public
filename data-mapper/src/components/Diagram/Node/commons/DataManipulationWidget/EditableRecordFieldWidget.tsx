@@ -11,16 +11,19 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-import { IconButton } from "@material-ui/core";
+import { CircularProgress, IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classnames from "classnames";
 
+import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
+import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
@@ -34,9 +37,6 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
-import ErrorIcon from "../../../../../assets/icons/Error";
-import classnames from "classnames";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -47,12 +47,13 @@ export interface EditableRecordFieldWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
-    deleteField?: (node: STNode) => void;
+    deleteField?: (node: STNode) => Promise<void>;
 }
 
 export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
     const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
+    const [isLoading, setIsLoading] = useState(false);
 
     let fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
@@ -86,15 +87,38 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
+    const handleAddValue = async () => {
+        setIsLoading(true);
+        try {
+            await createSourceForUserInput(field, mappingConstruct, 'EXPRESSION', context.applyModifications);
+            // Adding field to the context to identify this newly initialized field in the next rendering
+            context.handleFieldToBeEdited(fieldId);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleEditValue = () => {
-        if (STKindChecker.isSpecificField(field.value)) {
+        if (field.value && STKindChecker.isSpecificField(field.value)) {
             props.context.enableStatementEditor({
                 value: field.value.valueExpr.source,
                 valuePosition: field.value.valueExpr.position,
                 label: field.value.fieldName.value
             });
         }
+    };
+
+    const handleDeleteValue = async () => {
+        setIsLoading(true);
+        try {
+            await deleteField(field.value);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleExpand = () => {
+        context.handleCollapse(fieldId, !expanded);
     };
 
     let isDisabled = portIn.descendantHasValue;
@@ -105,8 +129,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
         if (hasValue
             && !connectedViaLink
-            && (isArray && !STKindChecker.isQueryExpression(specificField.valueExpr) || isRecord))
-        {
+            && (isArray && !STKindChecker.isQueryExpression(specificField.valueExpr) || isRecord)) {
             portIn.setDescendantHasValue();
             isDisabled = true;
         }
@@ -130,9 +153,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const label = (
         <span style={{ marginRight: "auto" }}>
-            <span 
+            <span
                 className={classnames(classes.valueLabel,
-                            (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
+                    (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
                 style={{ marginLeft: !!fields ? 0 : indentation + 24 }}
             >
                 {fieldName}
@@ -145,7 +168,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     {typeName}
                 </span>
             )}
-            {value && (
+            {value && !connectedViaLink && (
                 <>
                     {diagnostic ? (
                         <DiagnosticTooltip
@@ -154,7 +177,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             value={value}
                             onClick={handleEditValue}
                         >
-                            <span className={classes.valueWithError} onClick={handleEditValue}>
+                            <span className={classes.valueWithError}>
                                 {value}
                                 <span className={classes.errorIconWrapper}>
                                     <ErrorIcon />
@@ -162,25 +185,12 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             </span>
                         </DiagnosticTooltip>
                     ) : (
-                        !connectedViaLink && <span className={classes.value} onClick={handleEditValue}>{value}</span>
+                        <span className={classes.value} onClick={handleEditValue}>{value}</span>
                     )}
                 </>
             )}
         </span>
     );
-
-    const handleAddValue = async () => {
-        await createSourceForUserInput(field, mappingConstruct, 'EXPRESSION', context.applyModifications);
-        context.handleFieldToBeEdited(fieldId);
-    };
-
-    const handleDeleteValue = () => {
-        deleteField(field.value);
-    };
-
-    const handleExpand = () => {
-        context.handleCollapse(fieldId, !expanded);
-    };
 
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
@@ -199,8 +209,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     return (
         <>
             {!isArray && (
-                <div className={classnames(classes.treeLabel , 
-                                    (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
+                <div className={classnames(classes.treeLabel,
+                    (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
                     <span className={classes.treeLabelInPort}>
                         {portIn &&
                             <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
@@ -216,10 +226,15 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         </IconButton>}
                         {label}
                     </span>
-                    {(!isDisabled) && (
-                        <ValueConfigMenu
-                            menuItems={valConfigMenuItems}
-                        />
+
+                    {!isDisabled && (
+                        <>
+                            {(isLoading || fieldId === props.context.fieldToBeEdited) ? (
+                                <CircularProgress size={18} className={classes.loader} />
+                            ) : (
+                                <ValueConfigMenu menuItems={valConfigMenuItems} />
+                            )}
+                        </>
                     )}
                 </div>
             )}

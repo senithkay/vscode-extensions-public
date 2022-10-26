@@ -12,7 +12,7 @@
  */
 import React, { useEffect, useState } from 'react';
 
-// tslint:disable-next-line:no-submodule-imports
+// tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 import { ForeachStatement, FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 

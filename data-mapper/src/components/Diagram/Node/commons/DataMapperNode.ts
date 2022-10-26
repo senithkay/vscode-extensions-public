@@ -156,7 +156,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const fieldName = getBalRecFieldName(fieldValue);
 		const isCollapsed = collapsedFields && collapsedFields.includes(fieldName);
 		const fieldPort = new RecordFieldPortModel(
-			field, fieldName, type, undefined, undefined, undefined, undefined, undefined,
+			field, fieldName, type, undefined, undefined, undefined, fieldName, undefined,
 			isCollapsed, false, isWithinSelectClause);
 		this.addPort(fieldPort)
 

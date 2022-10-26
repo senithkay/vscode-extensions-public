@@ -1,7 +1,13 @@
-import { BallerinaConnectorInfo, ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, LineRange, LowcodeEvent, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, FunctionDef, LineRange, LowcodeEvent, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { PlusViewState } from "../ViewState";
+
+
+export enum ViewMode {
+    INTERACTION = 'Interaction',
+    STATEMENT = 'Statement'
+}
 
 export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
@@ -37,6 +43,7 @@ export interface LowCodeDiagramState {
     isDataMapperShown: boolean;
     isConfigOverlayFormOpen: boolean;
     targetPosition: NodePosition; // FIXME check and remove usage of update position if not used anymore
+    isDiagramFunctionExpanded: boolean;
     experimentalEnabled?: boolean;
 }
 
@@ -85,6 +92,7 @@ export interface LowCodeDiagramAPI {
     code?: {
         modifyDiagram?: (mutations: STModification[], options?: any) => void;
         gotoSource?: (position: { startLine: number, startColumn: number }) => void;
+        getFunctionDef?: (lineRange: any, defFilePath: string) => Promise<FunctionDef>;
     };
 
     webView?: {
@@ -111,4 +119,5 @@ export interface FunctionProperties {
     overlayNode: HTMLDivElement;
     functionNode: STNode;
     hasWorker: boolean;
+    viewMode: ViewMode;
 }

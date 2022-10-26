@@ -15,6 +15,7 @@ import React, { useContext } from "react";
 
 import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import cn from "classnames";
 
 import { DeleteBtn } from "../../../Components/DiagramActions/DeleteBtn";
 import { DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../Components/DiagramActions/DeleteBtn/DeleteSVG";
@@ -33,6 +34,7 @@ export interface EndProps {
     model?: STNode;
     blockViewState?: BlockViewState;
     isExpressionFunction?: boolean;
+    expandReadonly?: boolean;
 }
 
 export function End(props: EndProps) {
@@ -46,7 +48,7 @@ export function End(props: EndProps) {
     } = diagramContext.props;
     const { diagramCleanDraw } = diagramContext.actions;
 
-    const { viewState, model, blockViewState, isExpressionFunction } = props;
+    const { viewState, model, blockViewState, isExpressionFunction, expandReadonly } = props;
 
     const compType = "end";
     let cx: number;
@@ -98,7 +100,7 @@ export function End(props: EndProps) {
 
     const component: React.ReactElement = ((!model?.viewState.collapsed || blockViewState) &&
         (
-            <g className="end-wrapper" data-testid="end-block">
+            <g className={expandReadonly ? cn("end-wrapper rect-fill-none") : cn("end-wrapper rect-fill")} data-testid="end-block">
                 <StopSVG
                     x={cx - ((STOP_SVG_WIDTH_WITH_SHADOW / 2) + (STOP_SVG_SHADOW_OFFSET / 4))}
                     y={cy - DefaultConfig.shadow}

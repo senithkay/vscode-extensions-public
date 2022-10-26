@@ -37,7 +37,6 @@ import {
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
-import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
@@ -177,8 +176,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         await serviceParamChange(value, listenerPort, listenerName);
     }
 
-    const debouncedPathChange = debounce(onBasePathChange, 1000);
-
     const onPortTextFieldFocus = async () => {
         setCurrentComponentName("port");
     }
@@ -186,7 +183,6 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         setListenerPort(value);
         await serviceParamChange(basePath, value, listenerName, 'port');
     }
-    const debouncedPortChange = debounce(onPortChange, 1000);
 
     const onListenerSelect = async (name: string) => {
         setCurrentComponentName("Listener Selector");
@@ -250,7 +246,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 diagnostics={currentComponentName === 'path' ?
                     currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
                 defaultValue={basePath}
-                onChange={debouncedPathChange}
+                onChange={onBasePathChange}
                 completions={[]}
                 onFocus={onBasePathFocus}
                 customProps={{
@@ -268,7 +264,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
                 diagnostics={currentComponentName === 'port' ?
                     currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
                 defaultValue={listenerPort}
-                onChange={debouncedPortChange}
+                onChange={onPortChange}
                 completions={[]}
                 onFocus={onPortTextFieldFocus}
                 customProps={{

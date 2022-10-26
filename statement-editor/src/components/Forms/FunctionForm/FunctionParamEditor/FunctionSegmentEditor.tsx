@@ -22,7 +22,6 @@ import {
     RequiredParam,
     RestParam
 } from "@wso2-enterprise/syntax-tree";
-import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../../models/definitions";
 
@@ -85,7 +84,6 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
             type: value
         });
     };
-    const debouncedTypeChange = debounce(handleOnTypeChange, 1000);
 
     const onNameEditorFocus = () => {
         setCurrentComponentName("Name");
@@ -99,7 +97,6 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
             type: segmentType
         });
     };
-    const debouncedNameChange = debounce(handleOnNameChange, 1000);
 
     return (
         <div className={classes.functionParamEditorWrap} >
@@ -123,7 +120,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             diagnostics={(syntaxDiag && currentComponentName === "Type"
                                 && syntaxDiag) || param?.typeName?.viewState?.diagnosticsInRange}
                             defaultValue={segmentType}
-                            onChange={debouncedTypeChange}
+                            onChange={handleOnTypeChange}
                             onFocus={onTypeEditorFocus}
                             completions={completions}
                         />
@@ -134,7 +131,7 @@ export function FunctionParamSegmentEditor(props: FunctionParamSegmentEditorProp
                             diagnostics={(syntaxDiag && currentComponentName === "Name"
                                 && syntaxDiag) || param?.paramName?.viewState?.diagnosticsInRange}
                             defaultValue={segmentName}
-                            onChange={debouncedNameChange}
+                            onChange={handleOnNameChange}
                             onFocus={onNameEditorFocus}
                             completions={completions}
                         />

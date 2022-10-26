@@ -101,7 +101,7 @@ export interface DataMapperProps {
     };
     ballerinaVersion?: string;
     stSymbolInfo?: STSymbolInfo
-    applyModifications: (modifications: STModification[]) => void;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
     onSave: (fnName: string) => void;
     onClose: () => void;
     library: {
@@ -303,7 +303,7 @@ function DataMapperC(props: DataMapperProps) {
                 setNodes(nodeInitVisitor.getNodes());
             }
         })();
-    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled])
+    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, fieldTobeEdited])
 
     const cPanelProps = {
         ...props,

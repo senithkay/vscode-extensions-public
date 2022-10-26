@@ -19,6 +19,17 @@ export async function getSyntaxTree(filePath: string, langClient: DiagramEditorL
     return resp.syntaxTree;
 }
 
+export async function getFunctionSyntaxTree(filePath: string, range: any, langClient: DiagramEditorLangClientInterface) {
+    const resp = await langClient.getSTForFunction({
+        documentIdentifier: {
+            uri: filePath
+        },
+        lineRange: range
+    });
+    return { syntaxTree: resp.syntaxTree, defFilePath: resp.defFilePath };
+}
+
+
 export async function resolveMissingDependencies(filePath: string, langClient: DiagramEditorLangClientInterface) {
     const resp = await langClient.resolveMissingDependencies({
         documentIdentifier: {

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { BallerinaConnectorInfo, ConnectorWizardType, WizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConnectorWizardType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
@@ -40,12 +40,9 @@ export interface ProcessorProps {
 export function ActionProcessor(props: ProcessorProps) {
     const diagramContext = useContext(Context);
     const { isReadOnly, syntaxTree, stSymbolInfo } = diagramContext.props;
-    const renderAddForm = diagramContext?.api?.edit?.renderAddForm;
     const renderConnectorWizard = diagramContext?.api?.edit?.renderConnectorWizard;
-    const closeAllOpenedForms = diagramContext?.api?.edit?.closeAllOpenedForms;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const diagramCleanDraw = diagramContext?.actions?.diagramCleanDraw;
-    const diagramRedraw = diagramContext?.actions?.diagramRedraw;
 
     const { functionNode } = useFunctionContext();
     // const { id: appId } = currentApp || {};
@@ -100,7 +97,6 @@ export function ActionProcessor(props: ProcessorProps) {
         processType = draftViewState.subType;
     }
 
-    const h: number = viewState.dataProcess.h;
     const w: number = viewState.dataProcess.w;
     const cx: number = blockViewState ? (viewState.bBox.cx - (PROCESS_SVG_WIDTH / 2)) : (viewState.bBox.cx - (w / 2));
     const cy: number = viewState.bBox.cy;
@@ -150,13 +146,6 @@ export function ActionProcessor(props: ProcessorProps) {
         }
     };
 
-    const onAddConnector = () => {
-        const draftVS = blockViewState.draft[1];
-        draftVS.type = "APIS";
-        draftVS.subType = "New";
-        diagramRedraw(syntaxTree);
-        closeAllOpenedForms();
-    }
 
     const toggleSelection = () => {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
@@ -187,26 +176,6 @@ export function ActionProcessor(props: ProcessorProps) {
         }
     }
 
-    const onSelectEndpoint = (connector: BallerinaConnectorInfo, endpointName: string) => {
-        if (!connector) {
-            return;
-        }
-
-        setConfigWizardOpen(true);
-        renderConnectorWizard({
-            connectorInfo: connector,
-            // endpointName,
-            diagramPosition: {
-                x: viewState.bBox.cx + 80,
-                y: viewState.bBox.cy,
-            },
-            targetPosition: draftViewState.targetPosition,
-            onClose: onWizardClose,
-            onSave: onWizardClose,
-            wizardType: ConnectorWizardType.ACTION,
-            functionNode,
-        });
-    };
 
     const errorSnippet = {
         diagnosticMsgs: diagnosticMsgs?.message,

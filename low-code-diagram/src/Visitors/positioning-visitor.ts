@@ -31,36 +31,35 @@ import {
 
 import { PLUS_SVG_HEIGHT } from "../Components/PlusButtons/Plus/PlusAndCollapse/PlusSVG";
 import { EXECUTION_TIME_DEFAULT_X_OFFSET, EXECUTION_TIME_IF_X_OFFSET } from "../Components/RenderingComponents/ControlFlowExecutionTime";
+import { COLLAPSE_SVG_HEIGHT } from "../Components/RenderingComponents/ForEach/ColapseButtonSVG";
 import { BOTTOM_CURVE_SVG_WIDTH } from "../Components/RenderingComponents/IfElse/Else/BottomCurve";
 import { TOP_CURVE_SVG_HEIGHT } from "../Components/RenderingComponents/IfElse/Else/TopCurve";
 import { PROCESS_SVG_HEIGHT } from "../Components/RenderingComponents/Processor/ProcessSVG";
-import { START_SVG_SHADOW_OFFSET, START_SVG_WIDTH } from "../Components/RenderingComponents/Start/StartSVG";
+import { START_SVG_HEIGHT, START_SVG_SHADOW_OFFSET, START_SVG_WIDTH } from "../Components/RenderingComponents/Start/StartSVG";
 import { Endpoint } from "../Types/type";
 import { isVarTypeDescriptor } from "../Utils";
 import {
     BlockViewState,
+    CollapseViewState,
     CompilationUnitViewState,
     ControlFlowExecutionTimeState,
     ControlFlowLineState,
-    DoViewState,
     ElseViewState,
     EndpointViewState,
     EndViewState,
     ForEachViewState,
     FunctionViewState,
     IfViewState,
-    OnErrorViewState,
     PlusViewState,
     SimpleBBox,
     StatementViewState,
-    ViewState,
     WhileViewState
 } from "../ViewState";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
 import { AsyncReceiveInfo, AsyncSendInfo, SendRecievePairInfo, WaitInfo } from "./sizing-visitor";
-import { getPlusViewState, updateConnectorCX } from "./util";
+import { getPlusViewState, isPositionWithinRange, updateConnectorCX } from "./util";
 
 let epCount: number = 0;
 
@@ -69,14 +68,16 @@ export interface WorkerHighlight {
     highlight: boolean;
 }
 
-// This holds the plus widget height diff to be added to the function when its open.
-// This will be reset on every rerender.
-let plusHolderHeight: number = 0;
 export class PositioningVisitor implements Visitor {
+    private allEndpoints: Map<string, Endpoint> = new Map<string, Endpoint>();
+    private epCount: number = 0;
+
+    // This holds the plus widget height diff to be added to the function when its open.
+    // This will be reset on every rerender.
+    private plusHolderHeight: number = 0;
     private senderReceiverInfo: Map<string, { sends: AsyncSendInfo[], receives: AsyncReceiveInfo[], waits: WaitInfo[] }>;
     private workerMap: Map<string, NamedWorkerDeclaration>;
     private currentWorker: string[] = []
-    private allEndpoints: Map<string, Endpoint>;
 
     constructor() {
         this.senderReceiverInfo = new Map();
@@ -148,7 +149,7 @@ export class PositioningVisitor implements Visitor {
         viewState.end.bBox.cy = viewState.trigger.cy + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
 
         this.currentWorker.push('function');
-        plusHolderHeight = 0;
+        this.plusHolderHeight = 0;
     }
 
     public beginVisitNamedWorkerDeclaration(node: NamedWorkerDeclaration) {
@@ -172,7 +173,7 @@ export class PositioningVisitor implements Visitor {
         viewState.end.bBox.cx = viewState.bBox.cx + viewState.bBox.lw;
         viewState.end.bBox.cy = viewState.workerLine.y + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
         // Reset the plus widget height diff.
-        plusHolderHeight = 0;
+        this.plusHolderHeight = 0;
         this.currentWorker.push(node.workerName.value);
     }
 
@@ -220,9 +221,8 @@ export class PositioningVisitor implements Visitor {
 
         viewState.end.bBox.cx = viewState.bBox.cx;
         viewState.end.bBox.cy = viewState.trigger.cy + viewState.workerLine.h + DefaultConfig.canvas.childPaddingY;
-
         this.currentWorker.push('function');
-        plusHolderHeight = 0;
+        this.plusHolderHeight = 0;
     }
 
     private updateFunctionEdgeControlFlow(viewState: FunctionViewState, body: FunctionBodyBlock) {
@@ -241,7 +241,7 @@ export class PositioningVisitor implements Visitor {
         }
     }
 
-    public endVisitFunctionDefinition(node: FunctionDefinition) {
+    public endVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const viewState: FunctionViewState = node.viewState;
         const bodyViewState: BlockViewState = node.functionBody.viewState;
         const body: FunctionBodyBlock = node.functionBody as FunctionBodyBlock;
@@ -265,6 +265,14 @@ export class PositioningVisitor implements Visitor {
             body.namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDecl => {
                 widthOfWorkers += (workerDecl.viewState as WorkerDeclarationViewState).bBox.w;
             })
+        }
+
+        // Update Function container height if plus is open.
+        // TODO: try to move this to the sizing visitor with a different approach.
+        if ((viewState.workerLine.h + viewState.workerLine.y) < this.plusHolderHeight) {
+            const plusHolderHeightDiff = this.plusHolderHeight - (viewState.workerLine.h + viewState.workerLine.y);
+            viewState.bBox.h += plusHolderHeightDiff;
+            this.plusHolderHeight = 0;
         }
 
         updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy);
@@ -395,12 +403,21 @@ export class PositioningVisitor implements Visitor {
             }
         }
 
+
         let widthOfWorkers = 0;
 
         if (bodyViewState.hasWorkerDecl) {
             body.namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDecl => {
                 widthOfWorkers += (workerDecl.viewState as WorkerDeclarationViewState).bBox.w;
             })
+        }
+
+        // Update Function container height if plus is open.
+        // TODO: try to move this to the sizing visitor with a different approach.
+        if ((viewState.workerLine.h + viewState.workerLine.y) < this.plusHolderHeight) {
+            const plusHolderHeightDiff = this.plusHolderHeight - (viewState.workerLine.h + viewState.workerLine.y);
+            viewState.bBox.h += plusHolderHeightDiff;
+            this.plusHolderHeight = 0;
         }
 
         updateConnectorCX(bodyViewState.bBox.rw + widthOfWorkers, bodyViewState.bBox.cx, bodyViewState.connectors, viewState.trigger.cy);
@@ -412,8 +429,10 @@ export class PositioningVisitor implements Visitor {
         this.cleanMaps();
     }
 
-    public beginVisitFunctionBodyBlock(node: FunctionBodyBlock) {
+    public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         const blockViewState: BlockViewState = node.viewState;
+        const functionViewState: FunctionViewState = parent?.viewState as FunctionViewState;
+        const functionTrigger = functionViewState?.trigger;
         this.allEndpoints = blockViewState.connectors;
         epCount = 0;
         let height = 0;
@@ -425,7 +444,8 @@ export class PositioningVisitor implements Visitor {
                 workerInitStatements,
                 blockViewState, height, index, DefaultConfig.epGap));
 
-            blockViewState.workerIndicatorLine.y = blockViewState.bBox.cy + height + (DefaultConfig.dotGap * 6);
+            blockViewState.workerIndicatorLine.y = blockViewState.bBox.cy + height + functionTrigger.offsetFromBottom
+                + START_SVG_HEIGHT / 2;
             blockViewState.workerIndicatorLine.x = blockViewState.bBox.cx;
 
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach((workerDecl, i) => {
@@ -437,7 +457,7 @@ export class PositioningVisitor implements Visitor {
                     : (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.x
                     + (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations[i - 1].viewState.bBox.rw
                     + workerBodyViewState.bBox.lw;
-                workerDeclViewState.bBox.y = height + DefaultConfig.dotGap * 10;
+                workerDeclViewState.bBox.y = height + functionTrigger.offsetFromBottom * 2 + START_SVG_HEIGHT;
             });
 
 
@@ -449,7 +469,7 @@ export class PositioningVisitor implements Visitor {
                 plusForIndex.bBox.cx = blockViewState.bBox.cx;
             }
 
-            height += DefaultConfig.dotGap * 10;
+            height += START_SVG_HEIGHT + (functionTrigger.offsetFromBottom * 2);
         }
 
         this.beginBlockPosition(node, index + node.statements.length, height, index);
@@ -545,7 +565,7 @@ export class PositioningVisitor implements Visitor {
         if (plusViewState && plusViewState.expanded) {
             // Set plus widget height when it opens
             // So we can calculate how much function should expand to accomodate that.
-            plusHolderHeight = DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT + plusViewState.bBox.cy;
+            this.plusHolderHeight = DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT + plusViewState.bBox.cy;
 
             plusViewState.bBox.cx = blockViewState.bBox.cx;
         } else if (plusViewState && plusViewState.collapsedPlusDuoExpanded) {
@@ -563,10 +583,33 @@ export class PositioningVisitor implements Visitor {
     }
 
     private calculateStatementPosition(statements: STNode[], blockViewState: BlockViewState, height: number, index: number, epGap: number) {
+        let collapsedViewStates: CollapseViewState[] = [...blockViewState.collapsedViewStates];
+
         statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
+
+            // Assign cy of the expanded function to each statement
+            statementViewState.expandOffSet = blockViewState.expandOffSet;
+
             statementViewState.bBox.cx = blockViewState.bBox.cx;
             statementViewState.bBox.cy = blockViewState.bBox.cy + statementViewState.bBox.offsetFromTop + height;
+
+            for (let i = 0; i < collapsedViewStates.length; i++) {
+                if (isPositionWithinRange(statement.position, collapsedViewStates[i].range)) {
+                    collapsedViewStates[i].bBox.cx = blockViewState.bBox.cx - collapsedViewStates[i].bBox.lw;
+
+                    if (collapsedViewStates[i].collapsed) {
+                        collapsedViewStates[i].bBox.cy = blockViewState.bBox.cy + collapsedViewStates[i].bBox.offsetFromTop + height;
+                        height += collapsedViewStates[i].getHeight();
+                    } else {
+                        collapsedViewStates[i].bBox.cy = statementViewState.bBox.cy - statementViewState.bBox.offsetFromTop;
+                        collapsedViewStates[i].bBox.h = -COLLAPSE_SVG_HEIGHT / 3;
+                    }
+
+                    collapsedViewStates = [...collapsedViewStates.slice(0, i), ...collapsedViewStates.slice(i + 1)];
+                    break;
+                }
+            }
 
             const plusForIndex: PlusViewState = getPlusViewState(index, blockViewState.plusButtons);
 
@@ -729,7 +772,7 @@ export class PositioningVisitor implements Visitor {
                 } else if (plusForIndex?.expanded && !plusForIndex.collapsedClicked) {
                     // Set plus widget height when it opens
                     // So we can calculate how much function should expand to accomodate that.
-                    plusHolderHeight = DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT + plusForIndex.bBox.cy;
+                    this.plusHolderHeight = DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT + plusForIndex.bBox.cy;
                 } else {
                     // updating cy of plus since it get ignored once the collapsed statement is reached
                     plusForIndex.bBox.cy = blockViewState.collapseView.bBox.cy - blockViewState.collapseView.bBox.offsetFromTop;
@@ -739,7 +782,7 @@ export class PositioningVisitor implements Visitor {
                 if (plusForIndex && plusForIndex.expanded) {
                     // Set plus widget height when it opens
                     // So we can calculate how much function should expand to accomodate that.
-                    plusHolderHeight = DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT + plusForIndex.bBox.cy;
+                    this.plusHolderHeight = DefaultConfig.PLUS_HOLDER_STATEMENT_HEIGHT + plusForIndex.bBox.cy;
                 } else if (plusForIndex && plusForIndex.collapsedPlusDuoExpanded) {
                     plusForIndex.bBox.cx = blockViewState.bBox.cx;
                     statementViewState.bBox.cy += PLUS_SVG_HEIGHT;
@@ -773,12 +816,12 @@ export class PositioningVisitor implements Visitor {
 
                         // to identify a connector init ( http:Client ep1 = new ("/context") )
                         endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
-                            endpointViewState.bBox.rw + epGap + (epGap * epCount); // (endpointViewState.bBox.w / 2)
+                            endpointViewState.bBox.rw + epGap + (epGap * this.epCount); // (endpointViewState.bBox.w / 2)
                         endpointViewState.lifeLine.cy = statementViewState.bBox.cy - (DefaultConfig.connectorLine.gap);
                         endpointViewState.isExternal = (endpoint.visibleEndpoint as any)?.isExternal;
                         visibleEndpoint.viewState = endpointViewState;
 
-                        epCount++;
+                        this.epCount++;
                     } else if (STKindChecker.isLocalVarDecl(statement) &&
                         STKindChecker.isCheckAction(statement.initializer) &&
                         (statement.initializer?.expression as RemoteMethodCallAction).expression.typeData?.symbol?.kind === "PARAMETER" &&
@@ -788,14 +831,14 @@ export class PositioningVisitor implements Visitor {
                         const endpointViewState: EndpointViewState = statementViewState.endpoint;
                         endpointViewState.typeName = visibleEndpoint.typeName;
                         endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
-                            endpointViewState.bBox.rw + epGap + (epGap * epCount);
+                            endpointViewState.bBox.rw + epGap + (epGap * this.epCount);
                         endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
                         // NOTE: we can remove this section after Ballerina release with these changes ballerina-lang/pull/35604
                         endpointViewState.isExternal = true;
                         endpointViewState.isParameter = true;
                         visibleEndpoint.viewState = endpointViewState;
 
-                        epCount++;
+                        this.epCount++;
                     }
 
                     // to check whether the action is invoked for the first time
@@ -811,8 +854,12 @@ export class PositioningVisitor implements Visitor {
                         // to skip updating EP heights which less than the current EP height
                         mainEp.lifeLine.h = statementViewState.action.trigger.cy - mainEp.lifeLine.cy + statementViewState.action.trigger.h + DefaultConfig.connectorLine.gap;
                     }
-
-                    // Add actions to the corresponding map item.
+                    // let maxOffSet = 0;
+                    // endpoint.actions.forEach((action) => {
+                    //     if (action.expandOffSet > maxOffSet) {
+                    //         maxOffSet = action.expandOffSet;
+                    //     }
+                    // });
                     endpoint.actions.push(statementViewState);
                 }
 
@@ -821,20 +868,27 @@ export class PositioningVisitor implements Visitor {
                     const endpointViewState: EndpointViewState = statementViewState.endpoint;
                     // to identify a connector init ( http:Client ep1 = new ("/context") )
                     endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
-                        endpointViewState.bBox.rw + epGap + (epGap * epCount);
+                        endpointViewState.bBox.rw + epGap + (epGap * this.epCount);
                     endpointViewState.lifeLine.cy = statementViewState.bBox.cy;
                     const endpoint: Endpoint = this.allEndpoints.get(statementViewState.endpoint.epName);
                     if (endpoint) {
                         const visibleEndpoint: VisibleEndpoint = endpoint?.visibleEndpoint;
                         const mainEp = endpointViewState;
                         visibleEndpoint.viewState = mainEp;
-                        epCount++;
+                        this.epCount++;
                     }
                 }
 
                 if ((statementViewState.isEndpoint && statementViewState.isAction && !statementViewState.hidden)
                     || (!statementViewState.collapsed)) {
                     height += statementViewState.getHeight();
+                    for (const collapsedViewState of blockViewState.collapsedViewStates) {
+                        if (!collapsedViewState.collapsed
+                            && isPositionWithinRange(statement.position, collapsedViewState.range)) {
+                            collapsedViewState.bBox.h += statementViewState.getHeight();
+                            break;
+                        }
+                    }
                 }
             }
             ++index;

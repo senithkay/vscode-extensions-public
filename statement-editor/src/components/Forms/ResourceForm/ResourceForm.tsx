@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
@@ -34,7 +34,6 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";

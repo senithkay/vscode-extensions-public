@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,34 +10,31 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 
-import { Context } from "../../../Context/diagram";
-import { BlockViewState } from "../../../ViewState";
+import { BlockViewState, CollapseViewState } from "../../../ViewState";
+import { DefaultConfig } from "../../../Visitors";
+import { COLLAPSE_SVG_HEIGHT, COLLAPSE_SVG_WIDTH } from "../ForEach/ColapseButtonSVG";
 
-import { CollapseSVG, COLLAPSE_SVG_WIDTH_WITH_SHADOW } from "./CollapseSVG";
-import "./style.scss";
+import { CollapseButtonSVG } from "./CollapseButtonSVG";
+import { CollapsedComponentSVG } from "./CollapsedComponentSVG";
+import { ExpandedContainer } from "./ExpandedContainer";
 
-export interface CollapsEProps {
-    blockViewState: BlockViewState | any;
+interface CollapseProps {
+    collapseVS: CollapseViewState;
+    onExpandClick?: () => void;
+    onCollapseClick?: () => void;
 }
 
-export function Collapse(props: CollapsEProps) {
-    const { props: { syntaxTree }, actions: { diagramCleanDraw } } = useContext(Context);
 
-    const { blockViewState } = props;
-    const viewState = blockViewState.collapseView;
-    const handleOnClick = () => {
-        blockViewState.collapseView = undefined;
-        diagramCleanDraw(syntaxTree);
-    };
-
-    const classes = "collapse-button";
-    const x = viewState.bBox.cx;
-    const y = viewState.bBox.cy;
+export default function CollapseComponent(props: CollapseProps) {
+    const { collapseVS, onExpandClick, onCollapseClick } = props;
+    const x = collapseVS.bBox.cx;
+    const y = collapseVS.bBox.cy;
     return (
-        <g className={classes} onClick={handleOnClick}>
-            <CollapseSVG x={x - (COLLAPSE_SVG_WIDTH_WITH_SHADOW / 2)} y={y} />
+        <g >
+            {collapseVS.collapsed && <CollapsedComponentSVG x={x} y={y} onExpandClick={onExpandClick} />}
+            {!collapseVS.collapsed && <ExpandedContainer collapseVS={collapseVS} onCollapseClick={onCollapseClick} />}
         </g>
-    );
+    )
 }

@@ -26,6 +26,7 @@ export interface FunctionProps {
     hideHeader?: boolean;
 }
 
+
 export function Function(props: FunctionProps) {
     const { model, hideHeader } = props;
 
