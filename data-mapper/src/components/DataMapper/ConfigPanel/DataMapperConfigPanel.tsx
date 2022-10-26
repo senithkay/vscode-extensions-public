@@ -232,6 +232,11 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     uri: docUri,
                 }
             });
+            langClient.didClose({
+                textDocument: {
+                    uri: docUri
+                }
+            });
             const diagnostics = diagResp[0]?.diagnostics || [];
             const fnNameStartColumn = "function ".length + 1;
             const filteredDiag = diagnostics.find((diagnostic) => {
