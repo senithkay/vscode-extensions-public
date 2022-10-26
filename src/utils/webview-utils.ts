@@ -144,30 +144,30 @@ function getComposerURI(): string {
         'jslibs'));
 }
 
-export function getComposerPath(disableComDebug: boolean): string {
+export function getComposerPath(disableComDebug: boolean, devHost: string): string {
     return (process.env.COMPOSER_DEBUG === "true" && !disableComDebug)
-        ? process.env.COMPOSER_DEV_HOST as string
+        ? devHost
         : getComposerURI();
 }
 
-function getComposerCSSFiles(disableComDebug: boolean): string[] {
+function getComposerCSSFiles(disableComDebug: boolean, devHost: string): string[] {
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
-        isCodeServer ? (`${RESOURCES_CDN}/jslibs/themes/ballerina-default.min.css`) : join(getComposerPath(disableComDebug), 'themes', 'ballerina-default.min.css')
+        isCodeServer ? (`${RESOURCES_CDN}/jslibs/themes/ballerina-default.min.css`) : join(getComposerPath(disableComDebug, devHost), 'themes', 'ballerina-default.min.css')
     ];
 }
 
-function getComposerJSFiles(componentName: string, disableComDebug: boolean): string[] {
+function getComposerJSFiles(componentName: string, disableComDebug: boolean, devHost: string): string[] {
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
-        isCodeServer ? (`${RESOURCES_CDN}/jslibs/${componentName}.js`) : join(getComposerPath(disableComDebug), componentName + '.js'),
+        isCodeServer ? (`${RESOURCES_CDN}/jslibs/${componentName}.js`) : join(getComposerPath(disableComDebug, devHost), componentName + '.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
 
-export function getComposerWebViewOptions(componentName: string, disableComDebug: boolean = false): Partial<WebViewOptions> {
+export function getComposerWebViewOptions(componentName: string, { disableComDebug = false, devHost = process.env.COMPOSER_DEV_HOST as string } = {}): Partial<WebViewOptions> {
     return {
-        cssFiles: getComposerCSSFiles(disableComDebug),
-        jsFiles: getComposerJSFiles(componentName, disableComDebug)
+        cssFiles: getComposerCSSFiles(disableComDebug, devHost),
+        jsFiles: getComposerJSFiles(componentName, disableComDebug, devHost)
     };
 }
