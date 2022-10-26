@@ -12,7 +12,7 @@ export function FunctionNameEditor(props: FunctionNameEditorProps)  {
     const { value, onChange, errorMessage } = props;
     return (
         <FormTextInput
-            customProps={{ readonly: false, isErrored: errorMessage !== undefined }}
+            customProps={{ readonly: false, isErrored: errorMessage !== "" }}
             onChange={onChange}
             defaultValue={value}
             label="Name"
