@@ -17,6 +17,7 @@
  *
  */
 
+import { debugPort } from 'process';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
 export function render(data: any, existingData: any, primaryButton: string): string {
@@ -62,7 +63,7 @@ export function render(data: any, existingData: any, primaryButton: string): str
         `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("ConfigEditor"),
+        ...getComposerWebViewOptions("ConfigEditor", { disableComDebug: false, devHost: "http://localhost:8080" }),
         body, scripts, styles, bodyCss
     };
 
