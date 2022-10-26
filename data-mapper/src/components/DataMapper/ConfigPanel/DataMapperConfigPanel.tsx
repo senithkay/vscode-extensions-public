@@ -21,7 +21,6 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ExpressionFunctionBody, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
-import * as monaco from "monaco-editor";
 
 import { LSClientContext } from "../Context/ls-client-context";
 import { DataMapperProps } from "../DataMapper";
@@ -31,10 +30,7 @@ import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
 import { RecordButtonGroup } from "./RecordButtonGroup";
 import { TypeBrowser } from "./TypeBrowser";
-import { getFnNameFromST, getInputsFromST, getOutputTypeFromST } from "./utils";
-
-export const FILE_SCHEME = "file://";
-export const EXPR_SCHEME = "expr://";
+import { getFnNameFromST, getInputsFromST, getOutputTypeFromST, getVirtualDiagnostics } from "./utils";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
     const {
@@ -183,23 +179,38 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     const onNameChange = async (name: string) => {
         if (name !== "") {
-            let content;
             const parametersStr = inputParams
                 .map((item) => `${item.type} ${item.name}`)
                 .join(",");
 
             const returnTypeStr = outputType ? `returns ${outputType}` : '';
+
+            let stModification: STModification;
+            let fnConfigPosition: NodePosition;
+            let diagTargetPosition: NodePosition;
             if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
-                const fnSignaturePosition : NodePosition = {
+                fnConfigPosition = {
                     ...fnST?.functionSignature?.position,
                     startLine: fnST.functionName.position?.startLine,
                     startColumn: fnST.functionName.position?.startColumn
                 }
-                const stModification = updateFunctionSignature(name, parametersStr, returnTypeStr, fnSignaturePosition);
-                const source = getSource(stModification);
-                content = addToTargetPosition(currentFile.content, fnSignaturePosition, source);
+                diagTargetPosition = {
+                    startLine: fnST.functionName.position.startLine,
+                    startColumn: fnST.functionName.position.startColumn,
+                    endLine: fnST.functionName.position.endLine,
+                    endColumn: fnST.functionName.position.startColumn + name.length
+                };
+                stModification = updateFunctionSignature(name, parametersStr, returnTypeStr, fnConfigPosition);
             } else {
-                const stModification = createFunctionSignature(
+                fnConfigPosition = targetPosition;
+                const fnNameStartColumn = "function ".length + 1;
+                diagTargetPosition = {
+                    startLine: targetPosition.startLine + 1,
+                    startColumn: targetPosition.startColumn + fnNameStartColumn,
+                    endLine: targetPosition.endLine + 1,
+                    endColumn: targetPosition.endColumn + (fnNameStartColumn + name.length)
+                };
+                stModification = createFunctionSignature(
                     "",
                     name,
                     parametersStr,
@@ -209,66 +220,12 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     true,
                     outputType ? `{}` : `()`  // TODO: Find default value for selected output type when DM supports types other than records
                 );
-                const source = getSource(stModification);
-                content = addToTargetPosition(currentFile.content, targetPosition, source);
             }
-            const docUri = monaco.Uri.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-            const langClient = await langClientPromise;
-            langClient.didOpen({
-                textDocument: {
-                    uri: docUri,
-                    languageId: "ballerina",
-                    text: currentFile.content,
-                    version: 1
-                }
-            });
-            langClient.didChange({
-                contentChanges: [
-                    {
-                        text: content
-                    }
-                ],
-                textDocument: {
-                    uri: docUri,
-                    version: 1
-                }
-            });
-            const diagResp = await langClient.getDiagnostics({
-                documentIdentifier: {
-                    uri: docUri,
-                }
-            });
-            langClient.didClose({
-                textDocument: {
-                    uri: docUri
-                }
-            });
-            const diagnostics = diagResp[0]?.diagnostics || [];
-            const fnNameStartColumn = "function ".length + 1;
-            let diagTargetPosition: NodePosition;
-            if (fnST) {
-                diagTargetPosition = {
-                    startLine: fnST.functionName.position.startLine,
-                    startColumn: fnST.functionName.position.startColumn,
-                    endLine: fnST.functionName.position.endLine,
-                    endColumn: fnST.functionName.position.startColumn + name.length
-                };
-            } else {
-                diagTargetPosition = {
-                    startLine: targetPosition.startLine + 1,
-                    startColumn: targetPosition.startColumn + fnNameStartColumn,
-                    endLine: targetPosition.endLine + 1,
-                    endColumn: targetPosition.endColumn + (fnNameStartColumn + name.length)
-                };
-                // filteredDiag = diagnostics.find((diagnostic) => {
-                //     // Filter out the diagnostics related to the function name
-                //     return diagnostic?.severity === 1
-                //         && (diagnostic?.range?.start?.line === targetPosition.startLine + 1)
-                //         && (diagnostic?.range?.start?.character === targetPosition.startColumn + fnNameStartColumn)
-                //         && (diagnostic?.range?.end?.character === targetPosition.endColumn + (fnNameStartColumn + name.length))
-                //         && (diagnostic?.range?.end?.line === targetPosition.endLine + 1);
-                // });
-            }
+            const source = getSource(stModification);
+            const content = addToTargetPosition(currentFile.content, fnConfigPosition, source);
+
+            const diagnostics = await getVirtualDiagnostics(filePath, currentFile.content, content, langClientPromise);
+
             const filteredDiag = getDiagnosticMessage(diagnostics, diagTargetPosition, 0, name.length, 0, 0).split('. ')[0];
             setDmFuncDiagnostic(filteredDiag);
         } else {

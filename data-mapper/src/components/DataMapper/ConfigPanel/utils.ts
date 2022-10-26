@@ -1,8 +1,14 @@
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import { FunctionDefinition, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import * as monaco from "monaco-editor";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
 
 import { DataMapperInputParam } from "./InputParamsPanel/types";
+
+export const FILE_SCHEME = "file://";
+export const EXPR_SCHEME = "expr://";
 
 export function getFnNameFromST(fnST: FunctionDefinition) {
     return fnST && fnST.functionName.value;
@@ -32,3 +38,40 @@ export function getTypeFromTypeDesc(typeDesc: TypeDescriptor) {
     return "";
 }
 
+export async function getVirtualDiagnostics(filePath: string, currentFileContent: string,
+                                            newContent: string,
+                                            langClientPromise: Promise<IBallerinaLangClient>): Promise<Diagnostic[]> {
+    const docUri = monaco.Uri.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+    const langClient = await langClientPromise;
+    langClient.didOpen({
+        textDocument: {
+            uri: docUri,
+            languageId: "ballerina",
+            text: currentFileContent,
+            version: 1
+        }
+    });
+    langClient.didChange({
+        contentChanges: [
+            {
+                text: newContent
+            }
+        ],
+        textDocument: {
+            uri: docUri,
+            version: 1
+        }
+    });
+    const diagResp = await langClient.getDiagnostics({
+        documentIdentifier: {
+            uri: docUri,
+        }
+    });
+    langClient.didClose({
+        textDocument: {
+            uri: docUri
+        }
+    });
+
+    return diagResp[0]?.diagnostics || [];
+}
