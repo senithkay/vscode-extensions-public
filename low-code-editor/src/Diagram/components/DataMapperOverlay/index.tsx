@@ -48,7 +48,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
   const dataMapperClasses = dataMapperStyles();
 
   const {
-    props: { currentFile, stSymbolInfo, importStatements, syntaxTree },
+    props: { currentFile, stSymbolInfo, importStatements, syntaxTree: lowcodeST },
     api: {
       code: { modifyDiagram },
       ls: { getDiagramEditorLangClient },
@@ -133,7 +133,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
             onSave={onSave}
             importStatements={importStatements}
             recordPanel={renderRecordPanel}
-            syntaxTree={syntaxTree}
+            syntaxTree={lowcodeST}
           />
         </div>
       </DiagramOverlay>
