@@ -21,6 +21,7 @@ import { commands, ExtensionContext, ViewColumn, WebviewPanel, window, workspace
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { join } from "path";
+import _ from "lodash";
 import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
@@ -106,6 +107,12 @@ function setupWebviewPanel() {
             { viewColumn: ViewColumn.One, preserveFocus: false },
             getCommonWebViewOptions()
         );
+
+        workspace.onDidChangeTextDocument(_.debounce(() => {
+            if (designDiagramWebview) {
+                designDiagramWebview.webview.postMessage({ command: "refresh" });
+            }
+        }, 500))
 
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;

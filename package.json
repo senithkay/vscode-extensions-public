@@ -661,6 +661,7 @@
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.18.8",
         "@types/chai": "^4.2.18",
+        "@types/lodash": "^4.14.186",
         "@types/mocha": "^8.2.2",
         "@types/node": "^15.12.2",
         "@types/tcp-port-used": "^1.0.0",

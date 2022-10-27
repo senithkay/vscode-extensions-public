@@ -34,6 +34,14 @@ export function render() {
     `;
     const scripts = `
         function loadedScript() {
+            window.addEventListener('message', event => {
+                let msg = event.data;
+                switch(msg.command){
+                    case 'refresh':
+                        renderDiagrams();
+                }
+            });
+
             function fetchProjectResources() {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
