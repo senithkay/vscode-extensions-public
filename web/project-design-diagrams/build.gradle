@@ -51,8 +51,7 @@ task buildProjectDesignDiagramViewer {
         copy {
             from './build'
             into './../../resources/jslibs'
-            include 'DesignDiagram.js'
-            include '*.ttf';
+            include 'DesignDiagram.js';
         }
     }
 }

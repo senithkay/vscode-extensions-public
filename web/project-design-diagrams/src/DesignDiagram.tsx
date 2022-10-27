@@ -24,7 +24,7 @@ import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
 import { ComponentModel, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
-import './resources/assets/fonts.css';
+import './resources/assets/font/fonts.css';
 
 const background = require('./resources/assets/PatternBg.svg') as string;
 
