@@ -27,12 +27,16 @@ import { DataMapperInputParam } from "./InputParamsPanel/types";
 import { RecordButtonGroup } from "./RecordButtonGroup";
 import { TypeBrowser } from "./TypeBrowser";
 import {
-    getDiagnosticForFnName,
+    getDefaultFnName,
+    getDiagnosticsForFnName,
     getFnNameFromST,
     getInputsFromST,
     getModifiedTargetPosition,
     getOutputTypeFromST
 } from "./utils";
+
+export const DM_DEFAULT_FUNCTION_NAME = "transform";
+export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
     const {
@@ -50,8 +54,9 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     const langClientPromise = useContext(LSClientContext);
 
-    const [fnName, setFnName] = useState(getFnNameFromST(fnST));
+    const [fnNameFromST, setFnNameFromST] = useState(getFnNameFromST(fnST));
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
+    const [fnName, setFnName] = useState(fnNameFromST === undefined ? DM_DEFAULT_FUNCTION_NAME : fnNameFromST);
     const [outputType, setOutputType] = useState("");
     const [inputType, setInputType] = useState("");
     const [isNewRecord, setIsNewRecord] = useState(false);
@@ -62,15 +67,26 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [newRecordBy, setNewRecordBy] = useState<"input" | "output">(undefined);
 
     const [newRecords, setNewRecords] = useState<string[]>([]);
+    const [initiated, setInitiated] = useState(false);
 
-    const functionName = fnName === undefined ? "transform" : fnName;
-    const isValidConfig = functionName && inputParams.length > 0 && outputType !== "" && dmFuncDiagnostic === "";
+    const isValidConfig = fnName && inputParams.length > 0 && outputType !== "" && dmFuncDiagnostic === "";
 
     useEffect(() => {
         (async () => {
-            const diagnostic = await getDiagnosticForFnName(functionName, inputParams, outputType, fnST,
-                targetPosition, currentFile.content, filePath, langClientPromise);
-            setDmFuncDiagnostic(diagnostic);
+            const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType,
+                fnST, targetPosition, currentFile.content, filePath, langClientPromise);
+            if (diagnostics.length > 0) {
+                const redeclaredSymbol = diagnostics.some((diagnostic) => {
+                    return diagnostic.code === REDECLARED_SYMBOL_ERROR_CODE
+                });
+                if (fnNameFromST === undefined && redeclaredSymbol) {
+                    const defaultFnName = await getDefaultFnName(filePath, targetPosition, langClientPromise);
+                    setFnName(defaultFnName);
+                } else {
+                    setDmFuncDiagnostic(diagnostics[0]?.message);
+                }
+            }
+            setInitiated(true);
         })();
     }, []);
 
@@ -104,7 +120,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             modifications.push(
                 createFunctionSignature(
                     "",
-                    functionName,
+                    fnName,
                     parametersStr,
                     returnTypeStr,
                     targetPosition,
@@ -114,14 +130,14 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 )
             );
         }
-        onSave(functionName);
+        onSave(fnName);
         applyModifications(modifications);
     };
 
     useEffect(() => {
-        if (fnST) {
-            if (fnName === undefined) {
-                setFnName(getFnNameFromST(fnST));
+        if (fnST && initiated) {
+            if (fnNameFromST === undefined) {
+                setFnNameFromST(getFnNameFromST(fnST));
             }
             const inputs = getInputsFromST(fnST);
             if (inputs && inputs.length > 0 && inputParams.length === 0) {
@@ -132,13 +148,17 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 setOutputType(getOutputTypeFromST(fnST));
             }
         }
-    }, [fnST]);
+    }, [fnST, initiated]);
 
     useEffect(() => {
         if (outputType) {
             setShowOutputType(true);
         }
     }, [outputType]);
+
+    useEffect(() => {
+        setFnName(fnNameFromST);
+    }, [fnNameFromST]);
 
     // For Input Value
     const enableAddNewRecord = () => {
@@ -192,9 +212,16 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     );
 
     const onNameOutFocus = async (event: any) => {
-        const diagnostic = await getDiagnosticForFnName(event.target.value, inputParams, outputType, fnST,
-            targetPosition, currentFile.content, filePath, langClientPromise);
-        setDmFuncDiagnostic(diagnostic);
+        const name = event.target.value;
+        if (name === "") {
+            setDmFuncDiagnostic("missing function name");
+        } else {
+            const diagnostics = await getDiagnosticsForFnName(event.target.value, inputParams, outputType, fnST,
+                targetPosition, currentFile.content, filePath, langClientPromise);
+            if (diagnostics.length > 0) {
+                setDmFuncDiagnostic(diagnostics[0]?.message);
+            }
+        }
     };
 
     const onNameChange = async (name: string) => {
@@ -216,12 +243,12 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                         defaultMessage={"Data Mapper"}
                     />
                 )}
-                {isNewRecord && recordPanel({ targetPosition: getModifiedTargetPosition(newRecords, targetPosition, syntaxTree), closeAddNewRecord: closeAddNewRecord })}
+                {isNewRecord && recordPanel({ targetPosition: getModifiedTargetPosition(newRecords, targetPosition, syntaxTree), closeAddNewRecord })}
                 {!isNewRecord && (
                     <>
                         <FormBody>
                             <FunctionNameEditor
-                                value={functionName}
+                                value={fnName}
                                 onBlur={onNameOutFocus}
                                 onChange={onNameChange}
                                 errorMessage={dmFuncDiagnostic}

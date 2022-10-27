@@ -1,18 +1,20 @@
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     addToTargetPosition,
+    CompletionParams,
     createFunctionSignature,
-    getDiagnosticMessage,
+    getSelectedDiagnostics,
     getSource,
     STModification,
     updateFunctionSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
-import { Diagnostic } from "vscode-languageserver-protocol";
+import { CompletionItemKind, Diagnostic } from "vscode-languageserver-protocol";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
 
+import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
 
 export const FILE_SCHEME = "file://";
@@ -82,17 +84,14 @@ export function getModifiedTargetPosition(currentRecords: string[], currentTarge
     }
 }
 
-export async function getDiagnosticForFnName(name: string,
-                                             inputParams: DataMapperInputParam[],
-                                             outputType: string,
-                                             fnST: FunctionDefinition,
-                                             targetPosition: NodePosition,
-                                             currentFileContent: string,
-                                             filePath: string,
-                                             langClientPromise: Promise<IBallerinaLangClient>) {
-    if (name === "") {
-        return "missing function name";
-    }
+export async function getDiagnosticsForFnName(name: string,
+                                              inputParams: DataMapperInputParam[],
+                                              outputType: string,
+                                              fnST: FunctionDefinition,
+                                              targetPosition: NodePosition,
+                                              currentFileContent: string,
+                                              filePath: string,
+                                              langClientPromise: Promise<IBallerinaLangClient>) {
     const parametersStr = inputParams
         .map((item) => `${item.type} ${item.name}`)
         .join(",");
@@ -139,7 +138,37 @@ export async function getDiagnosticForFnName(name: string,
 
     const diagnostics = await getVirtualDiagnostics(filePath, currentFileContent, content, langClientPromise);
 
-    return getDiagnosticMessage(diagnostics, diagTargetPosition, 0, name.length, 0, 0).split('. ')[0];
+    return getSelectedDiagnostics(diagnostics, diagTargetPosition, 0, name.length);
+}
+
+export async function getDefaultFnName(filePath: string, targetPosition: NodePosition,
+                                       langClientPromise: Promise<IBallerinaLangClient>): Promise<string> {
+    const langClient = await langClientPromise;
+    const completionParams: CompletionParams = {
+        textDocument: {
+            uri: monaco.Uri.file(filePath).toString()
+        },
+        position: {
+            character: targetPosition.endColumn,
+            line: targetPosition.endLine
+        },
+        context: {
+            triggerKind: 3
+        }
+    };
+    const completions = await langClient.getCompletion(completionParams);
+    const existingFnNames = completions.map((completion) => {
+        if (completion.kind === CompletionItemKind.Function) {
+            return completion?.filterText;
+        }
+    }).filter((name) => name !== undefined);
+
+    let suffixIndex = 2;
+    while (existingFnNames.includes(`${DM_DEFAULT_FUNCTION_NAME}${suffixIndex}`)) {
+        suffixIndex++;
+    }
+
+    return `${DM_DEFAULT_FUNCTION_NAME}${suffixIndex}`;
 }
 
 async function getVirtualDiagnostics(filePath: string,

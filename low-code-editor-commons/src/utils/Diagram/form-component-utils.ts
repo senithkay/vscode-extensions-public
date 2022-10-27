@@ -39,7 +39,3 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
 
     return splitContent.join('\n');
 }
-
-
-
-
