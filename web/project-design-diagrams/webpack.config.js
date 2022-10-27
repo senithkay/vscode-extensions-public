@@ -31,7 +31,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.(jpg|png|svg|gif)$/,
+        test: /\.(woff|woff2|ttf|eot|svg)$/,
         type: 'asset/inline'
       }
     ],
