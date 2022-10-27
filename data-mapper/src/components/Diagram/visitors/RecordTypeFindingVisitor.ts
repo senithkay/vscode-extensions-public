@@ -34,7 +34,9 @@ export class RecordTypeFindingVisitor implements Visitor {
     public beginVisitFunctionSignature(node: FunctionSignature, parent?: STNode) {
         node.parameters.map((param: STNode) => {
             if (STKindChecker.isRequiredParam(param)) {
-                const paramPosition = param.position;
+                const paramPosition = STKindChecker.isQualifiedNameReference(param.typeName)
+                    ? param.typeName.identifier.position
+                    : param.position;
                 this.symbolNodesPositions.push({
                     line: paramPosition.startLine,
                     offset: paramPosition.startColumn
@@ -42,7 +44,9 @@ export class RecordTypeFindingVisitor implements Visitor {
             }
         });
         if (node?.returnTypeDesc) {
-            const typePosition = node.returnTypeDesc.type.position;
+            const typePosition = STKindChecker.isQualifiedNameReference(node.returnTypeDesc.type)
+                ? node.returnTypeDesc.type.identifier.position
+                : node.returnTypeDesc.type.position;
             this.symbolNodesPositions.push({
                 line: typePosition.startLine,
                 offset: typePosition.startColumn
