@@ -105,11 +105,11 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     );
                 })
             }
-            function updateFileContent(url, content) {
+            function updateFileContent(url, content, skipForceSave) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'updateFileContent',
-                        [url, content],
+                        [url, content, skipForceSave],
                         (resp) => {
                             resolve(resp);
                         }
