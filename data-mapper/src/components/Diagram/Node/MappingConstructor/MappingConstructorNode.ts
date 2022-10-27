@@ -63,11 +63,14 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+        const typeIdentifierPosition = STKindChecker.isQualifiedNameReference(this.typeIdentifier)
+            ? this.typeIdentifier.identifier.position
+            : this.typeIdentifier.position;
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: this.typeIdentifier.position.startLine,
-            startColumn: this.typeIdentifier.position.startColumn,
-            endLine: this.typeIdentifier.position.startLine,
-            endColumn: this.typeIdentifier.position.startColumn
+            startLine: typeIdentifierPosition.startLine,
+            startColumn: typeIdentifierPosition.startColumn,
+            endLine: typeIdentifierPosition.startLine,
+            endColumn: typeIdentifierPosition.startColumn
         });
 
         if (this.typeDef) {
