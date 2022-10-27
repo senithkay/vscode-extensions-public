@@ -36,13 +36,14 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         targetPosition,
         onSave,
         recordPanel,
+        currentFile,
+        importStatements,
     } = props;
     const formClasses = useFormStyles();
 
     const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
     const [outputType, setOutputType] = useState("");
-    const [inputType, setInputType] = useState("");
     const [isNewRecord, setIsNewRecord] = useState(false);
     const [isAddExistType, setAddExistType] = useState(false);
 
@@ -167,6 +168,9 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         />
     );
 
+    // TODO; bring type browser type list fetching logic to this component
+    // to avoid making the LS call whenever the type browser is mounted
+
     return (
         <Panel onClose={onClose}>
             <FormControl
@@ -188,19 +192,29 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                             <FunctionNameEditor value={functionName} onChange={setFnName} />
                             <FormDivider />
                             <InputParamsPanel
-                                newRecordParam={inputType}
                                 inputParams={inputParams}
                                 onUpdateParams={setInputParams}
                                 enableAddNewRecord={enableAddNewRecord}
                                 setAddExistType={setAddExistType}
                                 isAddExistType={isAddExistType}
+                                currentFileContent={currentFile?.content}
+                                fnSTPosition={fnST?.position || targetPosition}
+                                imports={importStatements}
                             />
                             <FormDivider />
                             <OutputTypeConfigPanel>
                                 <Title>Output Type</Title>
                                 {!outputType ? (
                                     <>
-                                        {showOutputType && <TypeBrowser type={outputType} onChange={setOutputType} />}
+                                        {showOutputType && (
+                                            <TypeBrowser
+                                                type={outputType}
+                                                onChange={setOutputType}
+                                                fnSTPosition={fnST?.position || targetPosition}
+                                                currentFileContent={currentFile?.content}
+                                                imports={importStatements}
+                                            />
+                                        )}
                                         <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
                                     </>
                                 ) : (

@@ -28,6 +28,8 @@ export function getOutputTypeFromST(fnST: FunctionDefinition) {
 export function getTypeFromTypeDesc(typeDesc: TypeDescriptor) {
     if (typeDesc && STKindChecker.isSimpleNameReference(typeDesc)) {
         return typeDesc.name.value;
+    } else if (typeDesc && STKindChecker.isQualifiedNameReference(typeDesc)) {
+        return typeDesc.source?.trim();
     }
     return "";
 }
