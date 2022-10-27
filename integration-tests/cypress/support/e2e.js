@@ -24,3 +24,5 @@ import "cypress-real-events/support";
 
 // code coverage support
 import '@cypress/code-coverage/support'
+
+require('cypress-terminal-report/src/installLogsCollector')();

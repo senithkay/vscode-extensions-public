@@ -110,7 +110,8 @@ export interface DataMapperProps {
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     importStatements: string[];
-    recordPanel?: (props: { closeAddNewRecord: () => void }) => JSX.Element;
+    recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element;
+    syntaxTree?: STNode;
 }
 
 export enum ViewOption {
@@ -179,7 +180,8 @@ function DataMapperC(props: DataMapperProps) {
         onClose,
         onSave,
         importStatements,
-        recordPanel
+        recordPanel,
+        syntaxTree
     } = props;
 
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
@@ -207,7 +209,7 @@ function DataMapperC(props: DataMapperProps) {
 
     const onConfigClose = () => {
         setConfigPanelOpen(false);
-        if(showConfigPanel){
+        if (showConfigPanel) {
             // Close data mapper when having incomplete fnST
             onClose();
         }
@@ -309,14 +311,14 @@ function DataMapperC(props: DataMapperProps) {
         ...props,
         onClose: onConfigClose,
         onSave: onConfigSave,
-        recordPanel
+        recordPanel,
+        syntaxTree
     }
 
     const dMSupported = isDMSupported(ballerinaVersion);
-    const dmUnsupportedMessage = `The current ballerina version ${
-        ballerinaVersion.replace(
-            "(swan lake)", "").trim()
-    } does not support the Data Mapper feature. Please update your Ballerina versions to 2201.1.2, 2201.2.1, or higher version.`;
+    const dmUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
+        "(swan lake)", "").trim()
+        } does not support the Data Mapper feature. Please update your Ballerina versions to 2201.1.2, 2201.2.1, or higher version.`;
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {
@@ -325,12 +327,12 @@ function DataMapperC(props: DataMapperProps) {
     }, [selection.state])
 
     const showConfigPanel = useMemo(() => {
-        if (!fnST){
+        if (!fnST) {
             return true
         }
         const inputParams = getInputsFromST(fnST);
         const outputType = getOutputTypeFromST(fnST);
-        if (inputParams.length === 0 || !outputType){
+        if (inputParams.length === 0 || !outputType) {
             return true
         }
     }, [fnST])
@@ -360,7 +362,7 @@ function DataMapperC(props: DataMapperProps) {
                             <>
                                 {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
                                 <div className={classes.dmUnsupportedMessage}>
-                                    <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"}/>
+                                    <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"} />
                                 </div>
                             </>
                         )}
