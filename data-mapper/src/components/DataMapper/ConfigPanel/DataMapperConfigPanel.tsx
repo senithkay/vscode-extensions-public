@@ -181,7 +181,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         />
     );
 
-    const onNameChange = async (name: string) => {
+    const onNameOutFocus = async (event: any) => {
+        const name = event.target.value;
         if (name !== "") {
             const parametersStr = inputParams
                 .map((item) => `${item.type} ${item.name}`)
@@ -237,7 +238,11 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         }
         setFnName(name);
     };
-    const debouncedNameChange = debounce(onNameChange, 800);
+
+    const onNameChange = async (name: string) => {
+        setFnName(name);
+        setDmFuncDiagnostic("");
+    };
 
     return (
         <Panel onClose={onClose}>
@@ -259,7 +264,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                         <FormBody>
                             <FunctionNameEditor
                                 value={functionName}
-                                onChange={debouncedNameChange}
+                                onBlur={onNameOutFocus}
+                                onChange={onNameChange}
                                 errorMessage={dmFuncDiagnostic}
                             />
                             <FormDivider />
