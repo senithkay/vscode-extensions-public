@@ -210,7 +210,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
             </div>
             {isLoading ? loadingScreen : (
                 <>
-                    <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                    <div className={stmtEditorHelperClasses.libraryWrapper}>
                         {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
                             <LibrariesList
                                 libraries={libraries}

@@ -101,8 +101,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         dispatchFromState({ type: 'setJsonValue', payload: jsonText });
     };
 
-    const onNameChange = async (name: string) => {
-        const content = getInitialSource(mutateTypeDefinition(name, "record {};", targetPosition,
+    const onNameOutFocus = async (event: any) => {
+        const content = getInitialSource(mutateTypeDefinition(event.target.value, "record {};", targetPosition,
             true));
         const updateContent = getUpdatedSource(content, currentFile.content, targetPosition);
         const diagnostics = await checkDiagnostics(currentFile?.path, updateContent, ls, targetPosition);
@@ -113,12 +113,20 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         }
         dispatchFromState({
             type: 'recordNameChange', payload: {
-                recordName: name,
+                recordName: event.target.value,
                 recordNameDiag: filteredDiagnostics ? filteredDiagnostics[0].message : ""
             }
         });
     };
-    const debouncedNameChange = debounce(onNameChange, 800);
+
+    const onNameChange = async (name: string) => {
+        dispatchFromState({
+            type: 'recordNameChange', payload: {
+                recordName: name,
+                recordNameDiag: ""
+            }
+        });
+    };
 
     const onSeparateDefinitionSelection = (mode: string[]) => {
         dispatchFromState({ type: 'checkSeparateDef', payload: mode.length > 0 });
@@ -207,8 +215,9 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             placeholder="Enter Record Name"
                             defaultValue={formState.recordName}
                             customProps={{ readonly: false, isErrored: formState?.recordNameDiag }}
-                            onChange={debouncedNameChange}
                             errorMessage={formState?.recordNameDiag}
+                            onBlur={onNameOutFocus}
+                            onChange={onNameChange}
                         />
                         <div className={classNames(classes.inputWrapper, classes.flexItems)}>
                             <div className={classes.labelWrapper}>
