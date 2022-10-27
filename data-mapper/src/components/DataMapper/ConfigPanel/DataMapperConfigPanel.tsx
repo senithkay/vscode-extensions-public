@@ -5,10 +5,7 @@ import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
 import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import {
-    addToTargetPosition,
     createFunctionSignature,
-    getDiagnosticMessage,
-    getSource,
     STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -19,8 +16,7 @@ import {
     Panel,
     useStyles as useFormStyles,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ExpressionFunctionBody, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import debounce from "lodash.debounce";
+import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { LSClientContext } from "../Context/ls-client-context";
 import { DataMapperProps } from "../DataMapper";
@@ -30,7 +26,13 @@ import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
 import { RecordButtonGroup } from "./RecordButtonGroup";
 import { TypeBrowser } from "./TypeBrowser";
-import { getFnNameFromST, getInputsFromST, getModifiedTargetPosition, getOutputTypeFromST, getVirtualDiagnostics } from "./utils";
+import {
+    getDiagnosticForFnName,
+    getFnNameFromST,
+    getInputsFromST,
+    getModifiedTargetPosition,
+    getOutputTypeFromST
+} from "./utils";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
     const {
@@ -63,6 +65,14 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     const functionName = fnName === undefined ? "transform" : fnName;
     const isValidConfig = functionName && inputParams.length > 0 && outputType !== "" && dmFuncDiagnostic === "";
+
+    useEffect(() => {
+        (async () => {
+            const diagnostic = await getDiagnosticForFnName(functionName, inputParams, outputType, fnST,
+                targetPosition, currentFile.content, filePath, langClientPromise);
+            setDmFuncDiagnostic(diagnostic);
+        })();
+    }, []);
 
     const onSaveForm = () => {
         const parametersStr = inputParams
@@ -182,61 +192,9 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     );
 
     const onNameOutFocus = async (event: any) => {
-        const name = event.target.value;
-        if (name !== "") {
-            const parametersStr = inputParams
-                .map((item) => `${item.type} ${item.name}`)
-                .join(",");
-
-            const returnTypeStr = outputType ? `returns ${outputType}` : '';
-
-            let stModification: STModification;
-            let fnConfigPosition: NodePosition;
-            let diagTargetPosition: NodePosition;
-            if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
-                fnConfigPosition = {
-                    ...fnST?.functionSignature?.position,
-                    startLine: fnST.functionName.position?.startLine,
-                    startColumn: fnST.functionName.position?.startColumn
-                }
-                diagTargetPosition = {
-                    startLine: fnST.functionName.position.startLine,
-                    startColumn: fnST.functionName.position.startColumn,
-                    endLine: fnST.functionName.position.endLine,
-                    endColumn: fnST.functionName.position.startColumn + name.length
-                };
-                stModification = updateFunctionSignature(name, parametersStr, returnTypeStr, fnConfigPosition);
-            } else {
-                fnConfigPosition = targetPosition;
-                const fnNameStartColumn = "function ".length + 1;
-                diagTargetPosition = {
-                    startLine: targetPosition.startLine + 1,
-                    startColumn: targetPosition.startColumn + fnNameStartColumn,
-                    endLine: targetPosition.endLine + 1,
-                    endColumn: targetPosition.endColumn + (fnNameStartColumn + name.length)
-                };
-                stModification = createFunctionSignature(
-                    "",
-                    name,
-                    parametersStr,
-                    returnTypeStr,
-                    targetPosition,
-                    false,
-                    true,
-                    outputType ? `{}` : `()`  // TODO: Find default value for selected output type when DM supports types other than records
-                );
-            }
-            const source = getSource(stModification);
-            const content = addToTargetPosition(currentFile.content, fnConfigPosition, source);
-
-            const diagnostics = await getVirtualDiagnostics(filePath, currentFile.content, content, langClientPromise);
-
-            const filteredDiag = getDiagnosticMessage(diagnostics, diagTargetPosition, 0, name.length, 0, 0).split('. ')[0];
-            setDmFuncDiagnostic(filteredDiag);
-        } else {
-            setDmFuncDiagnostic("missing function name");
-        }
-        setFnName(name);
+        const diagnostic = await getDiagnosticForFnName(event.target.value, inputParams, outputType, fnST,
+            targetPosition, currentFile.content, filePath, langClientPromise);
+        setDmFuncDiagnostic(diagnostic);
     };
 
     const onNameChange = async (name: string) => {

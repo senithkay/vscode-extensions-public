@@ -1,4 +1,12 @@
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import {
+    addToTargetPosition,
+    createFunctionSignature,
+    getDiagnosticMessage,
+    getSource,
+    STModification,
+    updateFunctionSignature
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -42,13 +50,13 @@ export function getModifiedTargetPosition(currentRecords: string[], currentTarge
     if (currentRecords.length === 0) {
         return currentTargetPosition;
     } else {
-        if(STKindChecker.isModulePart(syntaxTree)) {
+        if (STKindChecker.isModulePart(syntaxTree)) {
             const modulePart = syntaxTree as ModulePart;
             const memberPositions: NodePosition[] = [];
             modulePart.members.forEach((member: STNode) => {
-                if(STKindChecker.isTypeDefinition(member)) {
+                if (STKindChecker.isTypeDefinition(member)) {
                     const name = member.typeName.value;
-                    if(currentRecords.includes(name)) {
+                    if (currentRecords.includes(name)) {
                         memberPositions.push(member.position);
                     }
                 }
@@ -62,7 +70,7 @@ export function getModifiedTargetPosition(currentRecords: string[], currentTarge
             }
 
             memberPositions.forEach(position => {
-                if(position.endLine >= newTargetPosition.endLine) {
+                if (position.endLine >= newTargetPosition.endLine) {
                     newTargetPosition = {...newTargetPosition, startLine: position.endLine + 1, endLine: position.endLine + 1};
                 }
             })
@@ -74,9 +82,70 @@ export function getModifiedTargetPosition(currentRecords: string[], currentTarge
     }
 }
 
-export async function getVirtualDiagnostics(filePath: string, currentFileContent: string,
-                                            newContent: string,
-                                            langClientPromise: Promise<IBallerinaLangClient>): Promise<Diagnostic[]> {
+export async function getDiagnosticForFnName(name: string,
+                                             inputParams: DataMapperInputParam[],
+                                             outputType: string,
+                                             fnST: FunctionDefinition,
+                                             targetPosition: NodePosition,
+                                             currentFileContent: string,
+                                             filePath: string,
+                                             langClientPromise: Promise<IBallerinaLangClient>) {
+    if (name === "") {
+        return "missing function name";
+    }
+    const parametersStr = inputParams
+        .map((item) => `${item.type} ${item.name}`)
+        .join(",");
+    const returnTypeStr = outputType ? `returns ${outputType}` : '';
+
+    let stModification: STModification;
+    let fnConfigPosition: NodePosition;
+    let diagTargetPosition: NodePosition;
+    if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
+        fnConfigPosition = {
+            ...fnST?.functionSignature?.position,
+            startLine: fnST.functionName.position?.startLine,
+            startColumn: fnST.functionName.position?.startColumn
+        }
+        diagTargetPosition = {
+            startLine: fnST.functionName.position.startLine,
+            startColumn: fnST.functionName.position.startColumn,
+            endLine: fnST.functionName.position.endLine,
+            endColumn: fnST.functionName.position.startColumn + name.length
+        };
+        stModification = updateFunctionSignature(name, parametersStr, returnTypeStr, fnConfigPosition);
+    } else {
+        fnConfigPosition = targetPosition;
+        const fnNameStartColumn = "function ".length + 1;
+        diagTargetPosition = {
+            startLine: targetPosition.startLine + 1,
+            startColumn: targetPosition.startColumn + fnNameStartColumn,
+            endLine: targetPosition.endLine + 1,
+            endColumn: targetPosition.endColumn + (fnNameStartColumn + name.length)
+        };
+        stModification = createFunctionSignature(
+            "",
+            name,
+            parametersStr,
+            returnTypeStr,
+            targetPosition,
+            false,
+            true,
+            outputType ? `{}` : `()`  // TODO: Find default value for selected output type when DM supports types other than records
+        );
+    }
+    const source = getSource(stModification);
+    const content = addToTargetPosition(currentFileContent, fnConfigPosition, source);
+
+    const diagnostics = await getVirtualDiagnostics(filePath, currentFileContent, content, langClientPromise);
+
+    return getDiagnosticMessage(diagnostics, diagTargetPosition, 0, name.length, 0, 0).split('. ')[0];
+}
+
+async function getVirtualDiagnostics(filePath: string,
+                                     currentFileContent: string,
+                                     newContent: string,
+                                     langClientPromise: Promise<IBallerinaLangClient>): Promise<Diagnostic[]> {
     const docUri = monaco.Uri.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
     const langClient = await langClientPromise;
     langClient.didOpen({
