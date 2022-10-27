@@ -365,7 +365,7 @@ class DiagramPanel {
 					// Get the active text editor
 					const filePath = args[0];
 					const fileContent = args[1];
-					const skipForceSave = args.length > 2 ? args[2] : true;
+					const skipForceSave = args.length > 2 ? args[2] : false;
 					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
 					if (doc) {
 						const edit = new WorkspaceEdit();
