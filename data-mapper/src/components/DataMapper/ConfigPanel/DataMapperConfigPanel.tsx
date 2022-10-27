@@ -172,9 +172,6 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         />
     );
 
-    // TODO; bring type browser type list fetching logic to this component
-    // to avoid making the LS call whenever the type browser is mounted
-
     return (
         <Panel onClose={onClose}>
             <FormControl
