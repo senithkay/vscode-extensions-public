@@ -503,7 +503,7 @@ export class PositioningVisitor implements Visitor {
                         x: lastStatementBBox.cx,
                         y: lastStatementBBox.cy + PROCESS_SVG_HEIGHT / 2,
                         w: bodyViewState.workerIndicatorLine.x - workerBodyViewState.bBox.cx + 39,
-                        isDotted: true
+                        isDotted: false
                     };
                     workerBodyViewState.controlFlow.lineStates.push(bottomLine);
                 }
