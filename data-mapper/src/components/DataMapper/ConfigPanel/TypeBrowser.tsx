@@ -28,11 +28,16 @@ export interface CompletionResponseWithModule extends CompletionResponse {
 export function TypeBrowser(props: TypeBrowserProps) {
     const { type, onChange, imports, fnSTPosition, currentFileContent } = props;
     const [isLoading, setLoading] = useState(false);
+    const [selectedTypeStr, setSelectedTypeStr] = useState(type?.split(':')?.pop() || '')
 
     const langClientPromise = useContext(LSClientContext);
     const { path, content } = useContext(CurrentFileContext);
 
     const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
+
+    useEffect(() => {
+        setSelectedTypeStr(type?.split(':')?.pop() || '')
+    }, [type])
 
     useEffect(() => {
         (async () => {
@@ -48,6 +53,7 @@ export function TypeBrowser(props: TypeBrowserProps) {
             const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
             recCompletions.forEach((item) => completionMap.set(item.insertText, item));
 
+            // TODO: use constants defined in madusha's PR
             const exprFileUrl = Uri.file(path).toString().replace("file", "expr");
             langClient.didOpen({
                 textDocument: {
@@ -111,18 +117,24 @@ export function TypeBrowser(props: TypeBrowserProps) {
                 key={`type-select-${isLoading}`}
                 getOptionLabel={(option) => option?.insertText}
                 options={recordCompletions}
-                fullWidth
                 disabled={isLoading}
-                defaultValue={recordCompletions.find(item=>item.insertText===type?.split(':')?.pop())}
-                onChange={(_, value:CompletionResponseWithModule)=>onChange(value?.module ? `${value.module}:${value.insertText}` : value?.insertText)}
-                blurOnSelect
-                renderInput={(params) => <TextFieldStyled {...params} />}
-                renderOption={(item) => 
+                inputValue={selectedTypeStr}
+                onInputChange={(_, value) => {
+                    if (!isLoading) {
+                        setSelectedTypeStr(value)
+                    }
+                }}
+                defaultValue={recordCompletions.find(item => item.insertText === type?.split(':')?.pop())}
+                onChange={(_, value: CompletionResponseWithModule) => onChange(value?.module ? `${value.module}:${value.insertText}` : value?.insertText)}
+                renderInput={(params) => <TextFieldStyled {...params} autoFocus={!isLoading && !selectedTypeStr} />}
+                renderOption={(item) =>
                     <TypeSelectItem>
                         <TypeSelectItemLabel>{item.label}</TypeSelectItemLabel>
                         <TypeSelectItemModule>{item.module}</TypeSelectItemModule>
                     </TypeSelectItem>
                 }
+                blurOnSelect
+                openOnFocus
             />
             {isLoading && <LinearProgress />}
         </>
@@ -132,14 +144,17 @@ export function TypeBrowser(props: TypeBrowserProps) {
 const TypeSelectItem = styled.div`
     width: 100%;
     display: flex;
+    align-items: center;
 `;
 
 const TypeSelectItemLabel = styled.div`
+    word-break: break-word;
     flex: 1;
 `;
 
 const TypeSelectItemModule = styled.div`
     color: #8d91a3;
+    font-size: 11px;
 `;
 
 const TextFieldStyled = styled(TextField)`

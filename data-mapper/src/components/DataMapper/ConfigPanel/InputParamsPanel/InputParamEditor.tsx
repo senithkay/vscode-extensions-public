@@ -41,12 +41,6 @@ export function InputParamEditor(props: InputParamEditorProps) {
         type: "",
     };
 
-    useEffect(() => {
-        if (param.type) {
-            handleParamTypeChange(param.type)
-        }
-    }, [param]);
-
     const [paramType, setParamType] = useState<string>(param?.type || "");
     const [paramName, setParamName] = useState<string>(param?.name || "");
     const [pramError, setParamError] = useState<string>("");
@@ -91,19 +85,19 @@ export function InputParamEditor(props: InputParamEditorProps) {
         <ParamEditorContainer>
             <div>
                 <Grid container={true} spacing={1}>
-                    <Grid item={true} xs={7}>
+                    <Grid item={true} xs={8}>
                         <IputLabel>
                             Type
                         </IputLabel>
                     </Grid>
-                    <Grid item={true} xs={5}>
+                    <Grid item={true} xs={4}>
                         <IputLabel>
                             Name
                         </IputLabel>
                     </Grid>
                 </Grid>
                 <Grid container={true} item={true} spacing={2}>
-                    <Grid item={true} xs={7}>
+                    <Grid item={true} xs={8}>
                         <TypeBrowser
                             type={paramType}
                             onChange={handleParamTypeChange}
@@ -111,7 +105,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
                             imports={imports}
                             currentFileContent={currentFileContent} />
                     </Grid>
-                    <Grid item={true} xs={5}>
+                    <Grid item={true} xs={4}>
                         <FormTextInput
                             defaultValue={paramName}
                             customProps={{ validate: validateNameValue }}

@@ -18,7 +18,6 @@ import "reflect-metadata";
 import { container } from "tsyringe";
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 
-import { useDMStore } from '../../store/store';
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
@@ -132,8 +131,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
 	const [model, setModel] = React.useState(new DiagramModel());
-
-	const fnST = useDMStore((state) => state.functionST);
 
 	const dagreEngine = new DagreEngine({
 		graph: {

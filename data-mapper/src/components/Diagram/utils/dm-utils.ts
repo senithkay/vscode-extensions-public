@@ -22,6 +22,7 @@ import {
 	STNode,
 	traversNode
 } from "@wso2-enterprise/syntax-tree";
+import { useDMStore } from "../../../store/store";
 
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
@@ -696,8 +697,13 @@ export function getTypeName(field: Type): string {
 	if (!field) {
 		return '';
 	}
+	const importStatements = useDMStore.getState().imports;
 	if (field.typeName === PrimitiveBalType.Record) {
-		return field?.typeInfo ? field.typeInfo.name : 'record';
+		if(field?.typeInfo && importStatements.some(item=>item.includes(`${field?.typeInfo?.orgName}/${field.typeInfo.moduleName}`))){
+			// If record is from an imported package
+			return `${field?.typeInfo?.moduleName}:${field.typeInfo.name}`;
+		}
+		return field?.typeInfo?.name || 'record';
 	} else if (field.typeName === PrimitiveBalType.Array) {
 		return `${getTypeName(field.memberType)}[]`;
 	} else if (field.typeName === PrimitiveBalType.Union) {
@@ -831,6 +837,7 @@ function isEmptyValue(position: NodePosition): boolean {
 	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
 }
 
+// TODO: remove following function and use addToTargetPosition from madusha's PR
 export const addToTargetPosition = (currentContent: string, position: NodePosition, codeSnippet: string): string => {
 
     const splitContent: string[] = currentContent.split(/\n/g) || [];
