@@ -20,7 +20,7 @@ import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
 import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/ValueConfigButton/PrimitiveTypeOutputWidget";
+import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import {

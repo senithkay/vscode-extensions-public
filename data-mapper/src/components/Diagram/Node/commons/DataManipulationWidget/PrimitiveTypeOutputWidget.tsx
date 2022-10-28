@@ -20,11 +20,12 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { IDataMapperContext } from "../../../../../../utils/DataMapperContext/DataMapperContext";
-import { EditableRecordField } from "../../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel } from "../../../../Port";
-import { TreeBody, TreeContainer, TreeHeader } from "../../Tree/Tree";
-import { PrimitiveTypedEditableArrayElementWidget } from "../PrimitiveTypedEditableArrayElementWidget";
+import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
+import { EditableRecordField } from "../../../Mappings/EditableRecordField";
+import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
+
+import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
