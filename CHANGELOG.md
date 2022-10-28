@@ -1,6 +1,13 @@
 # Change Log
 ##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
 
+## **3.3.2**
+### Added
+- Project Design View (Experimental) - Allows you to visualize service interactions in your project
+
+### Improved
+- The low-code diagram editor
+
 ## **3.3.1**
 ### Fixed
 - Try it button not working for services with comments issue.
