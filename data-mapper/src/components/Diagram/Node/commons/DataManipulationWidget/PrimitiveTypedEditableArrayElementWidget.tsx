@@ -19,7 +19,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getFieldLabel } from "../../../utils/dm-utils";
+import { getDefaultValue, getFieldLabel } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
@@ -86,7 +86,7 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                 title: ValueConfigOption.DeleteElement,
                 onClick: handleDelete
             });
-        } else if (isParentSelectClause && value !== `""`) {
+        } else if (isParentSelectClause && value !== getDefaultValue(field.type)) {
             items.push({
                 title: ValueConfigOption.DeleteValue,
                 onClick: handleDelete
