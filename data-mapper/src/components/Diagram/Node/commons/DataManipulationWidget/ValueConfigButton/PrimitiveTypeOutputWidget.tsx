@@ -18,6 +18,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../../Mappings/EditableRecordField";
@@ -96,11 +97,13 @@ export interface PrimitiveTypeOutputWidgetProps {
 	context: IDataMapperContext;
 	typeName: string;
 	valueLabel?: string;
+	deleteField?: (node: STNode) => Promise<void>;
+	isParentSelectClause?: boolean;
 }
 
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, isParentSelectClause } = props;
 	const classes = useStyles();
 
 	const hasValue = field && field?.elements && field.elements.length > 0;
@@ -166,6 +169,8 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 								getPort={getPort}
 								context={context}
 								fieldIndex={index}
+								deleteField={deleteField}
+								isParentSelectClause={isParentSelectClause}
 							/>
 						);
 					})

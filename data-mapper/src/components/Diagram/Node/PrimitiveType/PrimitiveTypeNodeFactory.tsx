@@ -14,7 +14,7 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
@@ -37,8 +37,10 @@ export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveType
 
 	generateReactWidget(event: { model: PrimitiveTypeNode; }): JSX.Element {
 		let valueLabel;
+		let isParentSelectClause;
 		if (STKindChecker.isSelectClause(event.model.value)){
 			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
+			isParentSelectClause = true;
 		}
 		return (
 			<PrimitiveTypeOutputWidget
@@ -49,34 +51,9 @@ export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveType
 				context={event.model.context}
 				typeName={event.model.typeName}
 				valueLabel={valueLabel}
+				deleteField={(node: STNode) => event.model.deleteField(node)}
+				isParentSelectClause={isParentSelectClause}
 			/>
-			// <ArrayTypedEditableRecordFieldWidget
-			// 	parentId={PRIMITIVE_TYPE_TARGET_PORT_PREFIX}
-			// 	engine={this.engine}
-			// 	field={event.model.recordField}
-			// 	getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-			// 	context={event.model.context}
-			// />
-			// <PrimitiveTypedEditableArrayElementWidget
-			// 	engine={this.engine}
-			// 	parentId={''}
-			// 	field={event.model.recordField}
-			// 	getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-			// 	context={event.model.context}
-			// 	fieldIndex={undefined}
-			// 	deleteField={undefined}
-			// />
-			// <PrimitiveTypedEditableArrayElementWidget
-			// 	engine={this.engine}
-			// 	id={PRIMITIVE_TYPE_TARGET_PORT_PREFIX}
-			// 	editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
-			// 	typeName={event.model.typeName}
-			// 	value={event.model.value.expression as MappingConstructor}
-			// 	getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-			// 	context={event.model.context}
-			// 	valueLabel={valueLabel}
-			// 	deleteField={(node: STNode) => event.model.deleteField(node)}
-			// />
 		);
 	}
 
