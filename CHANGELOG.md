@@ -2,9 +2,6 @@
 ##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
 
 ## **3.3.2**
-### Added
-- Project Design View (Experimental) - Allows you to visualize service interactions in your project
-
 ### Improved
 - The low-code diagram editor
 
@@ -16,6 +13,7 @@
 ### Added
 - Visual Data Mapper - Helps you write and visualize data transformations easily
 - GraphQL Tryit - Facilitates  trying out the GraphQL services with the integrated client
+- Project Design View (Experimental) - Allows you to visualize service interactions in your project
 
 ### Improved
 - Improved record editor - Provides a better editing experience with suggestions
