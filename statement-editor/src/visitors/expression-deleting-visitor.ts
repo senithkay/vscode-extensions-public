@@ -111,9 +111,20 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitMethodCall(node: MethodCall) {
         if (!this.isNodeFound) {
+            const methodNamePosition = {
+                ...node.methodName.position,
+                endLine: 0,
+                endColumn: node.methodName.position.startColumn + node.methodName.source.length
+            };
+
             if (isPositionsEquals(this.deletePosition, node.expression.position)) {
                 this.setProperties(DEFAULT_EXPR, node.position);
             } else if (isPositionsEquals(this.deletePosition, node.methodName.position)) {
+                this.setProperties('', {
+                    ...node.dotToken.position,
+                    endColumn: node.closeParenToken.position.endColumn
+                });
+            } else if (isPositionsEquals(this.deletePosition, methodNamePosition)) {
                 this.setProperties('', {
                     ...node.dotToken.position,
                     endColumn: node.closeParenToken.position.endColumn
