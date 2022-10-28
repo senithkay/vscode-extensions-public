@@ -56,7 +56,9 @@ export function FileSelector(props: FileSelectorProps) {
                 onChange={showFile}
                 ref={hiddenFileInput}
             />
-            <FileUploadIcon onClick={handleClick}/>
+            <div style={{cursor: "pointer"}}>
+                <FileUploadIcon onClick={handleClick}/>
+            </div>
         </div>
     )
 

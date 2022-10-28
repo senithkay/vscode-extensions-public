@@ -492,6 +492,12 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             alignContent: 'center',
             alignItems: 'center',
         },
+        libraryWrapper: {
+            height: 'calc(100vh - 335px)',
+            paddingLeft: '15px',
+            paddingRight: '25px',
+            overflowY: 'scroll',
+        },
         libraryBrowser: {
             height: '100%',
             "& .MuiListItem-root": {

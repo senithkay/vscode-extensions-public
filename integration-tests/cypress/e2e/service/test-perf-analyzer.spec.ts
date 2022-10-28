@@ -43,7 +43,7 @@ describe('Test Performance Analyzer', () => {
       .assertPerfText("Forecasted performance of the selected path: User Count: 1 - 50 | Latency: 107  ms - 7.28  s | Tps: 6.25 - 9.39");
 
     diagram2.assertPerfLabel(0, "106  ms - 7.28  s");
-    diagram2.assertControlFlowLineCount(11);
+    diagram2.assertControlFlowLineCount(14);
 
   })
 })

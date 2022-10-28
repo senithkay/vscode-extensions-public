@@ -23,7 +23,6 @@ export function InputParamsPanel(props: InputConfigWidgetProps)  {
 
     const handleEnableAddNewRecord = () => {
         enableAddNewRecord();
-        enableAddNew();
     }
 
     const enableAddNew = () => {

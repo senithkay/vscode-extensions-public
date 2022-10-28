@@ -25,7 +25,7 @@ import { FunctionNameEditor } from "./FunctionNameEditor";
 import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
 import { TypeBrowser } from "./TypeBrowser";
-import { getFnNameFromST, getInputsFromST, getOutputTypeFromST } from "./utils";
+import { getFnNameFromST, getInputsFromST, getOutputTypeFromST, getModifiedTargetPosition } from "./utils";
 import { RecordButtonGroup } from "./RecordButtonGroup";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
@@ -36,10 +36,11 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         targetPosition,
         onSave,
         recordPanel,
+        syntaxTree
     } = props;
     const formClasses = useFormStyles();
 
-    const [fnName, setFnName] = useState(getFnNameFromST(fnST) || "transform");
+    const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
     const [outputType, setOutputType] = useState("");
     const [inputType, setInputType] = useState("");
@@ -49,7 +50,10 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [showOutputType, setShowOutputType] = useState(false);
     const [newRecordBy, setNewRecordBy] = useState<"input" | "output">(undefined);
 
-    const isValidConfig = fnName && inputParams.length > 0 && outputType !== "";
+    const [newRecords, setNewRecords] = useState<string[]>([]);
+
+    const functionName = fnName === undefined ? "transform" : fnName;
+    const isValidConfig = functionName && inputParams.length > 0 && outputType !== "";
 
     const onSaveForm = () => {
         const parametersStr = inputParams
@@ -81,7 +85,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             modifications.push(
                 createFunctionSignature(
                     "",
-                    fnName,
+                    functionName,
                     parametersStr,
                     returnTypeStr,
                     targetPosition,
@@ -90,14 +94,17 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 )
             );
         }
-        onSave(fnName);
+        onSave(functionName);
         applyModifications(modifications);
     };
 
     useEffect(() => {
         if (fnST) {
+            if (fnName === undefined) {
+                setFnName(getFnNameFromST(fnST));
+            }
             const inputs = getInputsFromST(fnST);
-            if (inputs && inputs.length > 0) {
+            if (inputs && inputs.length > 0 && inputParams.length === 0) {
                 setInputParams(getInputsFromST(fnST));
             }
             const output = getOutputTypeFromST(fnST);
@@ -122,12 +129,18 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const closeAddNewRecord = (createdNewRecord?: string) => {
         setIsNewRecord(false);
         if (createdNewRecord) {
+            const newRecordType = createdNewRecord.split(" ")[1];
             if (newRecordBy === "input") {
-                setInputType(createdNewRecord.split(" ")[1]);
+
+                setInputParams([...inputParams, {
+                    name: newRecordType,
+                    type: newRecordType
+                }])
             }
             if (newRecordBy === "output") {
-                setOutputType(createdNewRecord.split(" ")[1]);
+                setOutputType(newRecordType);
             }
+            setNewRecords([...newRecords, newRecordType]);
         }
         setNewRecordBy(undefined);
     };
@@ -172,11 +185,11 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                         defaultMessage={"Data Mapper"}
                     />
                 )}
-                {isNewRecord && recordPanel({ closeAddNewRecord: closeAddNewRecord })}
+                {isNewRecord && recordPanel({ targetPosition: getModifiedTargetPosition(newRecords, targetPosition, syntaxTree), closeAddNewRecord: closeAddNewRecord })}
                 {!isNewRecord && (
                     <>
                         <FormBody>
-                            <FunctionNameEditor value={fnName} onChange={setFnName} />
+                            <FunctionNameEditor value={functionName} onChange={setFnName} />
                             <FormDivider />
                             <InputParamsPanel
                                 newRecordParam={inputType}
