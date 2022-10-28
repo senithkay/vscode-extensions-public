@@ -10,8 +10,7 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     const sourcePort = link.getSourcePort() as PortModel;
 
     if (sourcePort instanceof RecordFieldPortModel) {
-        const type = sourcePort.field;
-        return type.typeName === PrimitiveBalType.Array && type?.memberType && type.memberType.typeName === PrimitiveBalType.Record;
+        return sourcePort.field.typeName === PrimitiveBalType.Array;
     }
 
     return false;
