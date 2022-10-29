@@ -449,7 +449,7 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
 	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
 	let recField: EditableRecordField;
-	let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+	let portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`;
 	for (let i = 0; i < fields.length; i++) {
 		const field = fields[i];
 		if (STKindChecker.isSpecificField(field)) {
