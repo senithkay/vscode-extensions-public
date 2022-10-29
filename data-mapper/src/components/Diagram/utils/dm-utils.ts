@@ -359,9 +359,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
 				return bindingPattern?.variableName?.value === expr.source;
-			}
-			if (node instanceof RequiredParamNode) {
-				return expr.name.value === node.value.paramName.value
+			} else if (node instanceof RequiredParamNode) {
+				return expr.name.value === node.value.paramName.value;
+			} else if (node instanceof FromClauseNode) {
+				const bindingPattern = node.value.typedBindingPattern.bindingPattern;
+				if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+					return expr.name.value === bindingPattern.variableName.value;
+				}
 			}
 		}) as LetClauseNode | RequiredParamNode)?.value;
 		if (paramNode) {
