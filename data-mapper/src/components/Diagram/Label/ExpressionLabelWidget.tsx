@@ -238,7 +238,6 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
             <CodeActionWidget
                 codeActions={codeActions}
                 context={props.model.context}
-                labelWidgetVisible={linkStatus === LinkState.LinkSelected}
                 additionalActions={additionalActions}
             />
         );
