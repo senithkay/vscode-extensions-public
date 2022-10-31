@@ -335,6 +335,7 @@ export interface CompletionResponse {
     additionalTextEdits?: TextEdit[];
     documentation?: string;
     sortText?: string;
+    filterText?: string;
 }
 
 export interface TextEdit {

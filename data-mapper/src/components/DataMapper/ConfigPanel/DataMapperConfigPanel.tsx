@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
 import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
+import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import {
     createFunctionSignature,
     STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
-
 import {
     ButtonWithIcon,
     FormActionButtons,
@@ -19,14 +18,25 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import { LSClientContext } from "../Context/ls-client-context";
 import { DataMapperProps } from "../DataMapper";
 
 import { FunctionNameEditor } from "./FunctionNameEditor";
 import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
-import { TypeBrowser } from "./TypeBrowser";
-import { getFnNameFromST, getInputsFromST, getOutputTypeFromST, getModifiedTargetPosition } from "./utils";
 import { RecordButtonGroup } from "./RecordButtonGroup";
+import { TypeBrowser } from "./TypeBrowser";
+import {
+    getDefaultFnName,
+    getDiagnosticsForFnName,
+    getFnNameFromST,
+    getInputsFromST,
+    getModifiedTargetPosition,
+    getOutputTypeFromST
+} from "./utils";
+
+export const DM_DEFAULT_FUNCTION_NAME = "transform";
+export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
 
 export function DataMapperConfigPanel(props: DataMapperProps) {
     const {
@@ -38,23 +48,47 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         recordPanel,
         currentFile,
         importStatements,
-        syntaxTree
+        syntaxTree,
+        filePath
     } = props;
     const formClasses = useFormStyles();
 
-    const [fnName, setFnName] = useState(getFnNameFromST(fnST));
+    const langClientPromise = useContext(LSClientContext);
+
+    const [fnNameFromST, setFnNameFromST] = useState(getFnNameFromST(fnST));
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
+    const [fnName, setFnName] = useState(fnNameFromST === undefined ? DM_DEFAULT_FUNCTION_NAME : fnNameFromST);
     const [outputType, setOutputType] = useState("");
     const [isNewRecord, setIsNewRecord] = useState(false);
     const [isAddExistType, setAddExistType] = useState(false);
+    const [dmFuncDiagnostic, setDmFuncDiagnostic] = useState("");
 
     const [showOutputType, setShowOutputType] = useState(false);
     const [newRecordBy, setNewRecordBy] = useState<"input" | "output">(undefined);
 
     const [newRecords, setNewRecords] = useState<string[]>([]);
+    const [initiated, setInitiated] = useState(false);
 
-    const functionName = fnName === undefined ? "transform" : fnName;
-    const isValidConfig = functionName && inputParams.length > 0 && outputType !== "";
+    const isValidConfig = fnName && inputParams.length > 0 && outputType !== "" && dmFuncDiagnostic === "";
+
+    useEffect(() => {
+        (async () => {
+            const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType,
+                fnST, targetPosition, currentFile.content, filePath, langClientPromise);
+            if (diagnostics.length > 0) {
+                const redeclaredSymbol = diagnostics.some((diagnostic) => {
+                    return diagnostic.code === REDECLARED_SYMBOL_ERROR_CODE
+                });
+                if (fnNameFromST === undefined && redeclaredSymbol) {
+                    const defaultFnName = await getDefaultFnName(filePath, targetPosition, langClientPromise);
+                    setFnName(defaultFnName);
+                } else {
+                    setDmFuncDiagnostic(diagnostics[0]?.message);
+                }
+            }
+            setInitiated(true);
+        })();
+    }, []);
 
     const onSaveForm = () => {
         const parametersStr = inputParams
@@ -86,23 +120,24 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             modifications.push(
                 createFunctionSignature(
                     "",
-                    functionName,
+                    fnName,
                     parametersStr,
                     returnTypeStr,
                     targetPosition,
                     false,
-                    true
+                    true,
+                    `{}`
                 )
             );
         }
-        onSave(functionName);
+        onSave(fnName);
         applyModifications(modifications);
     };
 
     useEffect(() => {
-        if (fnST) {
-            if (fnName === undefined) {
-                setFnName(getFnNameFromST(fnST));
+        if (fnST && initiated) {
+            if (fnNameFromST === undefined) {
+                setFnNameFromST(getFnNameFromST(fnST));
             }
             const inputs = getInputsFromST(fnST);
             if (inputs && inputs.length > 0 && inputParams.length === 0) {
@@ -113,13 +148,17 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 setOutputType(getOutputTypeFromST(fnST));
             }
         }
-    }, [fnST]);
+    }, [fnST, initiated]);
 
     useEffect(() => {
         if (outputType) {
             setShowOutputType(true);
         }
     }, [outputType]);
+
+    useEffect(() => {
+        setFnName(fnNameFromST);
+    }, [fnNameFromST]);
 
     // For Input Value
     const enableAddNewRecord = () => {
@@ -172,6 +211,24 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         />
     );
 
+    const onNameOutFocus = async (event: any) => {
+        const name = event.target.value;
+        if (name === "") {
+            setDmFuncDiagnostic("missing function name");
+        } else {
+            const diagnostics = await getDiagnosticsForFnName(event.target.value, inputParams, outputType, fnST,
+                targetPosition, currentFile.content, filePath, langClientPromise);
+            if (diagnostics.length > 0) {
+                setDmFuncDiagnostic(diagnostics[0]?.message);
+            }
+        }
+    };
+
+    const onNameChange = async (name: string) => {
+        setFnName(name);
+        setDmFuncDiagnostic("");
+    };
+
     return (
         <Panel onClose={onClose}>
             <FormControl
@@ -186,11 +243,16 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                         defaultMessage={"Data Mapper"}
                     />
                 )}
-                {isNewRecord && recordPanel({ targetPosition: getModifiedTargetPosition(newRecords, targetPosition, syntaxTree), closeAddNewRecord: closeAddNewRecord })}
+                {isNewRecord && recordPanel({ targetPosition: getModifiedTargetPosition(newRecords, targetPosition, syntaxTree), closeAddNewRecord })}
                 {!isNewRecord && (
                     <>
                         <FormBody>
-                            <FunctionNameEditor value={functionName} onChange={setFnName} />
+                            <FunctionNameEditor
+                                value={fnName}
+                                onBlur={onNameOutFocus}
+                                onChange={onNameChange}
+                                errorMessage={dmFuncDiagnostic}
+                            />
                             <FormDivider />
                             <InputParamsPanel
                                 inputParams={inputParams}
