@@ -12,6 +12,20 @@
  */
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
+export const tooltipBaseStyles = {
+  tooltip: {
+      color: "#8d91a3",
+      backgroundColor: "#fdfdfd",
+      border: "1px solid #e6e7ec",
+      borderRadius: 6,
+      padding: "1rem"
+  },
+  arrow: {
+      color: "#fdfdfd"
+  }
+};
+
+
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
       element: {
@@ -44,6 +58,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingBottom: "1px",
             paddingTop: "1px"
         }
+      },
+      pre: {
+        margin: 0,
+        overflowX: "auto",
+        whiteSpace: "pre-wrap",
+        wordWrap: "break-word",
+        backgroundColor: "white"
       }
     })
 );

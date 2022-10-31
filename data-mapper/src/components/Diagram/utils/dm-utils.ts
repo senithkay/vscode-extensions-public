@@ -22,6 +22,7 @@ import {
 	STNode,
 	traversNode
 } from "@wso2-enterprise/syntax-tree";
+import { useDMStore } from "../../../store/store";
 
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
@@ -32,12 +33,16 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
+import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "./constants";
+import {
+	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+	PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+} from "./constants";
 import { getModification } from "./modifications";
-import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: string[] = [];
@@ -359,9 +364,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
 				return bindingPattern?.variableName?.value === expr.source;
-			}
-			if (node instanceof RequiredParamNode) {
-				return expr.name.value === node.value.paramName.value
+			} else if (node instanceof RequiredParamNode) {
+				return expr.name.value === node.value.paramName.value;
+			} else if (node instanceof FromClauseNode) {
+				const bindingPattern = node.value.typedBindingPattern.bindingPattern;
+				if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+					return expr.name.value === bindingPattern.variableName.value;
+				}
 			}
 		}) as LetClauseNode | RequiredParamNode)?.value;
 		if (paramNode) {
@@ -444,12 +453,14 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 	return null;
 }
 
-export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode)
+export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode | PrimitiveTypeNode)
 	: [RecordFieldPortModel, RecordFieldPortModel] {
 	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
 	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
 	let recField: EditableRecordField;
-	let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+	let portIdBuffer = node instanceof MappingConstructorNode
+		? `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
+		: PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
 	for (let i = 0; i < fields.length; i++) {
 		const field = fields[i];
 		if (STKindChecker.isSpecificField(field)) {
@@ -622,6 +633,8 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 				}
 			} else if (STKindChecker.isListConstructor(nextNode)) {
 				editableRecordField.elements = getEnrichedArrayType(type.memberType, nextNode, editableRecordField);
+			} else {
+				editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, nextNode, editableRecordField);
 			}
 		} else {
 			if (type.memberType.typeName === PrimitiveBalType.Record) {
@@ -637,6 +650,21 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 	}
 
 	return editableRecordField;
+}
+
+export function getEnrichedPrimitiveType(field: Type, node?: STNode, parentType?: EditableRecordField, childrenTypes?: EditableRecordField[]) {
+	const members: ArrayElement[] = [];
+
+	const childType = getEnrichedRecordType(field, node, parentType, childrenTypes);
+
+	if (childType) {
+		members.push({
+			member: childType,
+			elementNode: node
+		});
+	}
+
+	return members;
 }
 
 export function getEnrichedArrayType(field: Type, node?: ListConstructor, parentType?: EditableRecordField,
@@ -696,8 +724,13 @@ export function getTypeName(field: Type): string {
 	if (!field) {
 		return '';
 	}
+	const importStatements = useDMStore.getState().imports;
 	if (field.typeName === PrimitiveBalType.Record) {
-		return field?.typeInfo ? field.typeInfo.name : 'record';
+		if(field?.typeInfo && importStatements.some(item=>item.includes(`${field?.typeInfo?.orgName}/${field.typeInfo.moduleName}`))){
+			// If record is from an imported package
+			return `${field?.typeInfo?.moduleName}:${field.typeInfo.name}`;
+		}
+		return field?.typeInfo?.name || 'record';
 	} else if (field.typeName === PrimitiveBalType.Array) {
 		return `${getTypeName(field.memberType)}[]`;
 	} else if (field.typeName === PrimitiveBalType.Union) {
@@ -829,4 +862,33 @@ function getSpecificField(mappingConstruct: MappingConstructor, targetFieldName:
 
 function isEmptyValue(position: NodePosition): boolean {
 	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
+}
+
+// TODO: remove following function and use addToTargetPosition from madusha's PR
+export const addToTargetPosition = (currentContent: string, position: NodePosition, codeSnippet: string): string => {
+
+    const splitContent: string[] = currentContent.split(/\n/g) || [];
+    const splitCodeSnippet: string[] = codeSnippet.trimEnd().split(/\n/g) || [];
+    const noOfLines: number = position.endLine - position.startLine + 1;
+    const startLine = splitContent[position.startLine].slice(0, position.startColumn);
+    const endLine = isFinite(position?.endLine) ?
+        splitContent[position.endLine].slice(position.endColumn || position.startColumn) : '';
+
+    const replacements = splitCodeSnippet.map((line, index) => {
+        let modifiedLine = line;
+        if (index === 0) {
+            modifiedLine = startLine + modifiedLine;
+        }
+        if (index === splitCodeSnippet.length - 1) {
+            modifiedLine = modifiedLine + endLine;
+        }
+        if (index > 0) {
+            modifiedLine = " ".repeat(position.startColumn) + modifiedLine;
+        }
+        return modifiedLine;
+    });
+
+    splitContent.splice(position.startLine, noOfLines, ...replacements);
+
+    return splitContent.join('\n');
 }

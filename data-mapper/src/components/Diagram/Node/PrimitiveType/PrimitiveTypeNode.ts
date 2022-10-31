@@ -11,11 +11,9 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    ExpressionFunctionBody,
     IdentifierToken,
-    MappingConstructor,
     SelectClause,
     STKindChecker,
     STNode,
@@ -28,9 +26,9 @@ import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
-    getBalRecFieldName,
+    getDefaultValue,
     getEnrichedRecordType,
     getInputNodeExpr,
     getInputPortsForExpr,
@@ -42,78 +40,58 @@ import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-st
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
-export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
+export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
 
-export class MappingConstructorNode extends DataMapperNodeModel {
+export class PrimitiveTypeNode extends DataMapperNodeModel {
 
     public typeDef: Type;
     public recordField: EditableRecordField;
     public typeName: string;
-    public rootName: string;
     public x: number;
     public y: number;
 
     constructor(
         public context: IDataMapperContext,
-        public value: ExpressionFunctionBody | SelectClause,
+        public value: SelectClause,
         public typeIdentifier: TypeDescriptor | IdentifierToken) {
         super(
             context,
-            MAPPING_CONSTRUCTOR_NODE_TYPE
+            PRIMITIVE_TYPE_NODE_TYPE
         );
     }
 
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-        const typeIdentifierPosition = STKindChecker.isQualifiedNameReference(this.typeIdentifier)
-            ? this.typeIdentifier.identifier.position
-            : this.typeIdentifier.position;
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: typeIdentifierPosition.startLine,
-            startColumn: typeIdentifierPosition.startColumn,
-            endLine: typeIdentifierPosition.startLine,
-            endColumn: typeIdentifierPosition.startColumn
+            startLine: this.typeIdentifier.position.startLine,
+            startColumn: this.typeIdentifier.position.startColumn,
+            endLine: this.typeIdentifier.position.startLine,
+            endColumn: this.typeIdentifier.position.startColumn
         });
 
         if (this.typeDef) {
-            this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
-            if (STKindChecker.isSelectClause(this.value)){
-                this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
-            }
-            const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
-                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
+            const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
+                PRIMITIVE_TYPE_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
 
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
+            this.recordField = valueEnrichedType;
             this.typeName = getTypeName(valueEnrichedType.type);
-            if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
-                this.recordField = valueEnrichedType;
-                if (!!this.recordField.childrenTypes.length) {
-                    this.recordField.childrenTypes.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
-                            MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
-                            this.context.collapsedFields, parentPort.collapsed);
-                    });
-                }
-            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
+            if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
                 && STKindChecker.isSelectClause(this.value)
             ) {
-                // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
-                this.recordField = valueEnrichedType.elements[0].member;
-                if (!!this.recordField.childrenTypes.length) {
-                    this.recordField.childrenTypes.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
-                            MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
+                if (this.recordField?.elements) {
+                    this.recordField.elements.forEach((field, index) => {
+                        this.addPortsForOutputRecordField(field.member, "IN", '', index,
+                            PRIMITIVE_TYPE_TARGET_PORT_PREFIX, parentPort,
                             this.context.collapsedFields, parentPort.collapsed, true);
                     });
                 }
-            } else {
-                // TODO: Add support for other return type descriptors
             }
         }
     }
 
     async initLinks() {
-        const mappings = this.genMappings(this.value.expression as MappingConstructor);
+        const mappings = this.genMappings(this.value.expression);
         this.createLinks(mappings);
     }
 
@@ -165,23 +143,32 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async deleteField(field: STNode) {
-        if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
-            // if Within query expression expanded view
-            await this.context.applyModifications([{
-                type: "DELETE",
-                ...field.valueExpr?.position
-            }]);
+        let modifications: STModification[];
+        if (this.typeDef?.typeName === PrimitiveBalType.Array && this.typeDef.memberType
+            && this.typeDef.memberType.typeName !== PrimitiveBalType.Array
+            && this.typeDef.memberType.typeName !== PrimitiveBalType.Record)
+        {
+            // Fallback to the default value if the target is a primitive type element
+            modifications = [{
+                type: "INSERT",
+                config: {
+                    "STATEMENT": getDefaultValue(this.typeDef.memberType)
+                },
+                ...field.position
+            }];
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
             traversNode(this.value.expression, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
-
-            await this.context.applyModifications([{
+            modifications = [{
                 type: "DELETE",
                 ...nodePositionsToDelete
-            }]);
+            }]
         }
+
+        await this.context.applyModifications(modifications);
     }
+
 
     public updatePosition() {
         this.setPosition(this.position.x, this.position.y);

@@ -79,7 +79,7 @@ describe('Test helper pane functionality', () => {
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
             .clickLsTypeSuggestion('var2')
-            .clickLsTypeSuggestion('max(int... ns)', 1000);
+            .clickLsTypeSuggestion('max(int... ns)');
 
         ParameterTab
             .shouldHaveParameters(1);
