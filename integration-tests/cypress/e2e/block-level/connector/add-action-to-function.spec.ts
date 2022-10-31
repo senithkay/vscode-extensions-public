@@ -13,15 +13,27 @@ describe('Add action to function via Low Code', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         // Pulling existing connectors.
+        let startDate = new Date();
+        cy.task('log', `ballerinax/googleapis.sheets package pulling started at ${startDate}`);
         cy.exec('bal pull ballerinax/googleapis.sheets', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+        let endDate = new Date();
+        cy.task('log', `ballerinax/googleapis.sheets package pulling completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
+        startDate = new Date();
+        cy.task('log', `ballerinax/mysql package pulling started at ${startDate}`);
         cy.exec('bal pull ballerinax/mysql', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+        endDate = new Date();
+        cy.task('log', `ballerinax/mysql package pulling completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
+        startDate = new Date();
+        cy.task('log', `ballerinax/mysql.driver package pulling started at ${startDate}`);
         cy.exec('bal pull ballerinax/mysql.driver', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+        endDate = new Date();
+        cy.task('log', `ballerinax/mysql.driver package pulling completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
     });
 
     // INFO: Added multiple test scenarios in single test case to avoid multiple module pulling.

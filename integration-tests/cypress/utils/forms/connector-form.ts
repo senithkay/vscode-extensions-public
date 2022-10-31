@@ -30,10 +30,14 @@ export class ConnectorMarketplace {
         return this;
     }
 
-    static waitForConnectorsLoading() {
+    static waitForConnectorsLoading(name?: string) {
+        const startDate = new Date();
+        cy.task('log', `Connector/Action ${name} loading started at ${startDate}`);
         this.getConnectorMarketplace().get('[data-testid="marketplace-search-loader"]').should('be.visible');
         this.getConnectorMarketplace().get('[data-testid="marketplace-search-loader"]',
-            { timeout: 100000 }).should('not.exist');
+            { timeout: 200000 }).should('not.exist');
+        const endDate = new Date();
+        cy.task('log', `Connector/Action ${name} loading completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 

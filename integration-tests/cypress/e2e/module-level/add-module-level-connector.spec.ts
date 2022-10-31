@@ -26,9 +26,9 @@ describe('Add connectors to module level via Low Code', () => {
 
         ConnectorMarketplace
             .shouldBeVisible()
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("http")
             .searchConnector("http")
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("http / client")
             .selectConnector("http / client");
 
         StatementEditor
@@ -61,9 +61,9 @@ describe('Add connectors to module level via Low Code', () => {
 
         ConnectorMarketplace
             .shouldBeVisible()
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("mysql")
             .searchConnector("mysql")
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("mysql / client")
             .selectConnector("mysql / client");
 
         StatementEditor

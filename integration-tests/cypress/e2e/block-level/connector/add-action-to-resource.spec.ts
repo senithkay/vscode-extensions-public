@@ -16,12 +16,20 @@ describe('Add action to resource via Low Code', () => {
 
     it('Add multiple actions to resource', () => {
         // Pulling existing connectors.
+        let startDate = new Date();
+        cy.task('log', `ballerinax/mysql package pulling started at ${startDate}`);
         cy.exec('bal pull ballerinax/mysql', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+        let endDate = new Date();
+        cy.task('log', `ballerinax/mysql package pulling completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
+        startDate = new Date();
+        cy.task('log', `ballerinax/mysql.driver package pulling started at ${startDate}`);
         cy.exec('bal pull ballerinax/mysql.driver', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+        endDate = new Date();
+        cy.task('log', `ballerinax/mysql.driver package pulling completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
 
         // Test action creation with module level endpoint.
         Canvas.getService("/hello")
