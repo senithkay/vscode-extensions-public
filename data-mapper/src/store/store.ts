@@ -3,6 +3,8 @@ import { FunctionDefinition } from '@wso2-enterprise/syntax-tree';
 import create from 'zustand'
 
 export interface DataMapperState {
+  imports: string[];
+  setImports: (imports: string[]) => void;
   functionST: FunctionDefinition;
   setFunctionST: (st: FunctionDefinition) => void;
   filePath: string;
@@ -12,10 +14,12 @@ export interface DataMapperState {
 }
 
 export const useDMStore = create<DataMapperState>((set) => ({
+    imports: [],
     functionST: undefined,
     filePath: undefined,
     langClientPromise: undefined,
     setFunctionST: (functionST: FunctionDefinition) => set({ functionST}),
+    setImports: (imports) => set({ imports }),
     setFilePath: (filePath: string) => set({ filePath }),
     setLangClientPromise: (langClientPromise: Promise<BalleriaLanguageClient>) => set({ langClientPromise })
 }));

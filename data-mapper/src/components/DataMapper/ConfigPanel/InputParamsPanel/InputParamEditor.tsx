@@ -17,6 +17,8 @@ import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/
 import { DataMapperInputParam } from "./types";
 import styled from "@emotion/styled";
 import { TypeBrowser } from "../TypeBrowser";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import camelCase from 'lodash.camelcase';
 
 interface InputParamEditorProps {
     index?: number;
@@ -25,22 +27,19 @@ interface InputParamEditorProps {
     onUpdate?: (index: number, param: DataMapperInputParam) => void;
     onCancel?: () => void;
     validateParamName?: (paramName: string) => { isValid: boolean, message: string };
+    imports: string[];
+    fnSTPosition: NodePosition;
+    currentFileContent: string;
 }
 
 export function InputParamEditor(props: InputParamEditorProps) {
 
-    const { param, onSave, onUpdate, index, onCancel, validateParamName } = props;
+    const { param, onSave, onUpdate, index, onCancel, validateParamName, currentFileContent, fnSTPosition, imports } = props;
 
     const initValue: DataMapperInputParam = param ? { ...param } : {
         name: "",
         type: "",
     };
-
-    useEffect(() => {
-        if (param.type) {
-            handleParamTypeChange(param.type)
-        }
-    }, [param]);
 
     const [paramType, setParamType] = useState<string>(param?.type || "");
     const [paramName, setParamName] = useState<string>(param?.name || "");
@@ -78,7 +77,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
     const handleParamTypeChange = (type: string) => {
         setParamType(type);
         if (type && type.length > 1) {
-            setParamName(type.charAt(0).toLowerCase() + type.slice(1))
+            setParamName(camelCase(type.split(':').pop()))
         }
     }
 
@@ -86,25 +85,30 @@ export function InputParamEditor(props: InputParamEditorProps) {
         <ParamEditorContainer>
             <div>
                 <Grid container={true} spacing={1}>
-                    <Grid item={true} xs={5}>
+                    <Grid item={true} xs={8}>
                         <IputLabel>
                             Type
                         </IputLabel>
                     </Grid>
-                    <Grid item={true} xs={7}>
+                    <Grid item={true} xs={4}>
                         <IputLabel>
                             Name
                         </IputLabel>
                     </Grid>
                 </Grid>
                 <Grid container={true} item={true} spacing={2}>
-                    <Grid item={true} xs={5}>
-                        <TypeBrowser type={paramType} onChange={handleParamTypeChange} />
+                    <Grid item={true} xs={8}>
+                        <TypeBrowser
+                            type={paramType}
+                            onChange={handleParamTypeChange}
+                            fnSTPosition={fnSTPosition}
+                            imports={imports}
+                            currentFileContent={currentFileContent} />
                     </Grid>
-                    <Grid item={true} xs={7}>
+                    <Grid item={true} xs={4}>
                         <FormTextInput
                             defaultValue={paramName}
-                            customProps={{validate: validateNameValue}}
+                            customProps={{ validate: validateNameValue }}
                             onChange={setParamName}
                             errorMessage={pramError}
                         />
