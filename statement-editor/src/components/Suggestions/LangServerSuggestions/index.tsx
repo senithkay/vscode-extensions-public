@@ -21,9 +21,11 @@ import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
     ACTION,
     FUNCTION_COMPLETION_KIND,
+    FUNCTION_TYPE_DESCRIPTER,
     MAPPING_TYPE_DESCRIPTER,
     METHOD_COMPLETION_KIND,
-    PROPERTY_COMPLETION_KIND, SUGGESTION_COLUMN_SIZE, TABLE_TYPE_DESCRIPTER
+    OBJECT_TYPE_DESCRIPTER,
+    PROPERTY_COMPLETION_KIND, SERVICE_TYPE_DESCRIPTER, SUGGESTION_COLUMN_SIZE, TABLE_TYPE_DESCRIPTER
 } from "../../../constants";
 import { Suggestion, SuggestionItem } from "../../../models/definitions";
 import { InputEditorContext } from "../../../store/input-editor-context";
@@ -161,10 +163,27 @@ export function LSSuggestions() {
             value = prefix + value;
         }
 
-        if (value === "map") {
-            value = MAPPING_TYPE_DESCRIPTER;
-        } else if (value === "table") {
-            value = TABLE_TYPE_DESCRIPTER;
+        switch (value) {
+            case "map": {
+                value = MAPPING_TYPE_DESCRIPTER;
+                break;
+            }
+            case "table": {
+                value = TABLE_TYPE_DESCRIPTER;
+                break;
+            }
+            case "object": {
+                value = OBJECT_TYPE_DESCRIPTER;
+                break;
+            }
+            case "service": {
+                value = SERVICE_TYPE_DESCRIPTER;
+                break;
+            }
+            case "function": {
+                value = FUNCTION_TYPE_DESCRIPTER;
+                break;
+            }
         }
 
         const nodePosition: NodePosition = currentModel

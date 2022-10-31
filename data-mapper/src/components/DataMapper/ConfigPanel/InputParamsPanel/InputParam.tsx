@@ -45,7 +45,7 @@ export function InputParamItem(props: InputParamItemProps) {
             <ClickToEditContainer onClick={handleEdit}>
                 {label}
             </ClickToEditContainer>
-            <Box component={"span"}>
+            <Box component="span" display="flex">
                 <EditButton
                     onClick={handleEdit}
                     icon={<EditIcon fontSize="small" />}

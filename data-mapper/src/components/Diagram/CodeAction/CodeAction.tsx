@@ -11,26 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect } from "react";
+import React from "react";
 
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import {
-    CodeAction,
-    TextDocumentEdit,
-    TextEdit,
-} from "vscode-languageserver-protocol";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
+import { CodeAction } from "vscode-languageserver-protocol";
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
+import { CodeActionTooltip } from "./CodeActionTooltip/CodeActionTooltip";
 import { LightBulbSVG } from "./LightBulb";
 import { useStyles } from "./style";
-import IconButton from "@material-ui/core/IconButton";
-import { makeStyles, Theme, createStyles } from "@material-ui/core";
 
 export interface CodeActionWidgetProps {
     codeActions: CodeAction[];
     context: IDataMapperContext;
-    labelWidgetVisible?: boolean;
     additionalActions?: {
         title: string;
         onClick: () => void;
@@ -38,80 +29,22 @@ export interface CodeActionWidgetProps {
 }
 
 export function CodeActionWidget(props: CodeActionWidgetProps) {
-    const { codeActions, context, labelWidgetVisible, additionalActions } =
+    const { codeActions, context, additionalActions } =
         props;
     const classes = useStyles();
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
-    const open = Boolean(anchorEl);
-    const menuItems: React.ReactNode[] = [];
 
-    if (additionalActions && additionalActions.length > 0) {
-        additionalActions.forEach((item, index) => {
-            menuItems.push(
-                <MenuItem key={`${item.title}-${index}`} onClick={item.onClick}>
-                    {item.title}
-                </MenuItem>
-            );
-        });
-    }
 
-    useEffect(() => {
-        if (!labelWidgetVisible) {
-            setAnchorEl(null);
-        }
-    }, [labelWidgetVisible]);
 
-    const onCodeActionSelect = (action: CodeAction) => {
-        const modifications: STModification[] = [];
-        (action.edit?.documentChanges[0] as TextDocumentEdit).edits.forEach(
-            (change: TextEdit) => {
-                modifications.push({
-                    type: "INSERT",
-                    config: {
-                        STATEMENT: change.newText,
-                    },
-                    endColumn: change.range.end.character,
-                    endLine: change.range.end.line,
-                    startColumn: change.range.start.character,
-                    startLine: change.range.start.line,
-                });
-            }
-        );
-        context.applyModifications(modifications);
-    };
 
-    if (codeActions) {
-        codeActions.forEach((action, index) => {
-            menuItems.push(
-                <MenuItem
-                    key={index}
-                    onClick={() => onCodeActionSelect(action)}
-                >
-                    {action.title}
-                </MenuItem>
-            );
-        });
-    }
 
-    const onClickCodeAction = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
 
     return (
-        <div className={classes.element} >
-            <span  className={classes.lightBulbWrapper} onClick={onClickCodeAction}>
-                <LightBulbSVG />
-            </span>
-            <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={() => setAnchorEl(null)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                className={classes.menu}
-            >
-                {menuItems}
-            </Menu>
-        </div>
+        <CodeActionTooltip codeActions={codeActions} context={context} additionalActions={additionalActions}>
+            <div className={classes.element} >
+                <span  className={classes.lightBulbWrapper}>
+                    <LightBulbSVG />
+                </span>
+            </div>
+        </CodeActionTooltip>
     );
 }

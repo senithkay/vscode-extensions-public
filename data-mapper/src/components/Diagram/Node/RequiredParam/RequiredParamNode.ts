@@ -1,6 +1,6 @@
 import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { RequiredParam } from "@wso2-enterprise/syntax-tree";
+import { RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -26,15 +26,18 @@ export class RequiredParamNode extends DataMapperNodeModel {
 
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+        const paramPosition = STKindChecker.isQualifiedNameReference(this.value.typeName)
+            ? this.value.typeName.identifier.position
+            : this.value.typeName.position;
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: this.value.typeName.position.startLine,
-            startColumn: this.value.typeName.position.startColumn,
-            endLine: this.value.typeName.position.startLine,
-            endColumn: this.value.typeName.position.startColumn
+            startLine: paramPosition.startLine,
+            startColumn: paramPosition.startColumn,
+            endLine: paramPosition.startLine,
+            endColumn: paramPosition.startColumn
         });
 
         if (this.typeDef) {
-            const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", this.context.collapsedFields);
+            const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", undefined, this.context.collapsedFields);
 
             if (this.typeDef.typeName === PrimitiveBalType.Record) {
                 const fields = this.typeDef.fields;

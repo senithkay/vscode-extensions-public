@@ -210,25 +210,23 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
         ),
     ];
 
+    const onClickConvertToQuery = () => {
+        const link = props.model.link;
+        const targetPort = link.getTargetPort();
+
+        if (targetPort instanceof RecordFieldPortModel) {
+            const field = targetPort.field;
+            if (field.typeName === PrimitiveBalType.Array) {
+                applyQueryExpression(link, field.memberType);
+            }
+        }
+    };
+
     const additionalActions = [];
     if (canUseQueryExpr) {
         additionalActions.push({
             title: "Convert to Query",
-            onClick: () => {
-                const link = props.model.link;
-                const targetPort = link.getTargetPort();
-
-                if (targetPort instanceof RecordFieldPortModel) {
-                    const field = targetPort.field;
-                    if (
-                        field.typeName === PrimitiveBalType.Array &&
-                        field.memberType.typeName ===
-                        PrimitiveBalType.Record
-                    ) {
-                        applyQueryExpression(link, field.memberType);
-                    }
-                }
-            },
+            onClick: onClickConvertToQuery
         });
     }
 
@@ -238,7 +236,6 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
             <CodeActionWidget
                 codeActions={codeActions}
                 context={props.model.context}
-                labelWidgetVisible={linkStatus === LinkState.LinkSelected}
                 additionalActions={additionalActions}
             />
         );
