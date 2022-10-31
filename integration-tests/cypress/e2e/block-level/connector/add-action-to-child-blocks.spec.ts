@@ -14,8 +14,7 @@ describe('Add action to child blocks via Low Code', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     });
 
-    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping
-    it.skip('Add action to if block', () => {
+    it('Add action to if block', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
@@ -44,8 +43,7 @@ describe('Add action to child blocks via Low Code', () => {
             getCurrentSpecFolder() + "add-action-to-if-block.expected.bal");
     });
 
-    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
-    it.skip('Add action to foreach block', () => {
+    it('Add action to foreach block', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
@@ -74,8 +72,7 @@ describe('Add action to child blocks via Low Code', () => {
             getCurrentSpecFolder() + "add-action-to-foreach-block.expected.bal");
     });
 
-    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
-    it.skip('Add action to while block', () => {
+    it('Add action to while block', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()

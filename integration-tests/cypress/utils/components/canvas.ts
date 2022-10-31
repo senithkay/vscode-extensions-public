@@ -49,7 +49,7 @@ export class Canvas {
 
 
     private static waitForDiagramUpdate() {
-        cy.get(`[id="canvas-overlay"]`, { timeout: 50000 })
+        cy.get(`[id="canvas-overlay"]`)
             .children().should("have.length", 0)
         cy.get(`[data-testid="diagram-loader"]`)
             .should("not.exist")

@@ -15,8 +15,7 @@ describe('Add connectors to module level via Low Code', () => {
         cy.visit(getIntegrationTestPageURL(EMPTY_BAL_FILE_PATH));
     });
 
-    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping
-    it.skip('Add add multiple connectors to module level', () => {
+    it('Add add multiple connectors to module level', () => {
         // Add http connector (standard library)
         Canvas
             .welcomeMessageShouldBeVisible()
