@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -19,7 +19,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getFieldLabel } from "../../../utils/dm-utils";
+import { getDefaultValue, getFieldLabel } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
@@ -32,10 +32,11 @@ export interface PrimitiveTypedEditableArrayElementWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     deleteField?: (node: STNode) => Promise<void>;
+    isParentSelectClause?: boolean;
 }
 
 export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEditableArrayElementWidgetProps) {
-    const { parentId, field, getPort, engine, context, fieldIndex, deleteField } = props;
+    const { parentId, field, getPort, engine, context, fieldIndex, deleteField, isParentSelectClause } = props;
     const classes = useStyles();
 
     const value = field?.value && field.value.source.trim();
@@ -73,6 +74,27 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
         deleteField(field.value);
     };
 
+    const valueConfigMenuItems = useMemo(() => {
+        const items =  [
+            {
+                title: ValueConfigOption.EditValue,
+                onClick: handleEditable
+            }
+        ];
+        if (!isParentSelectClause) {
+            items.push({
+                title: ValueConfigOption.DeleteElement,
+                onClick: handleDelete
+            });
+        } else if (isParentSelectClause && value !== getDefaultValue(field.type)) {
+            items.push({
+                title: ValueConfigOption.DeleteValue,
+                onClick: handleDelete
+            });
+        }
+        return items;
+    }, [value]);
+
     return (
         <>
             {value && (
@@ -84,16 +106,7 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                     </span>
                     <span>{label}</span>
                     <ValueConfigMenu
-                        menuItems={[
-                            {
-                                title: ValueConfigOption.EditValue,
-                                onClick: handleEditable
-                            },
-                            {
-                                title: ValueConfigOption.DeleteElement,
-                                onClick: handleDelete
-                            }
-                        ]}
+                        menuItems={valueConfigMenuItems}
                     />
                 </div>
             )}

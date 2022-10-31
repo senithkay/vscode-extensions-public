@@ -33,12 +33,16 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
+import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
 
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "./constants";
+import {
+	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+	PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+} from "./constants";
 import { getModification } from "./modifications";
-import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: string[] = [];
@@ -449,12 +453,14 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 	return null;
 }
 
-export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode)
+export function getOutputPortForField(fields: STNode[], node: MappingConstructorNode | PrimitiveTypeNode)
 	: [RecordFieldPortModel, RecordFieldPortModel] {
 	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
 	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
 	let recField: EditableRecordField;
-	let portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`;
+	let portIdBuffer = node instanceof MappingConstructorNode
+		? `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
+		: PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
 	for (let i = 0; i < fields.length; i++) {
 		const field = fields[i];
 		if (STKindChecker.isSpecificField(field)) {
@@ -627,6 +633,8 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 				}
 			} else if (STKindChecker.isListConstructor(nextNode)) {
 				editableRecordField.elements = getEnrichedArrayType(type.memberType, nextNode, editableRecordField);
+			} else {
+				editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, nextNode, editableRecordField);
 			}
 		} else {
 			if (type.memberType.typeName === PrimitiveBalType.Record) {
@@ -642,6 +650,21 @@ export function getEnrichedRecordType(type: Type, node?: STNode, parentType?: Ed
 	}
 
 	return editableRecordField;
+}
+
+export function getEnrichedPrimitiveType(field: Type, node?: STNode, parentType?: EditableRecordField, childrenTypes?: EditableRecordField[]) {
+	const members: ArrayElement[] = [];
+
+	const childType = getEnrichedRecordType(field, node, parentType, childrenTypes);
+
+	if (childType) {
+		members.push({
+			member: childType,
+			elementNode: node
+		});
+	}
+
+	return members;
 }
 
 export function getEnrichedArrayType(field: Type, node?: ListConstructor, parentType?: EditableRecordField,

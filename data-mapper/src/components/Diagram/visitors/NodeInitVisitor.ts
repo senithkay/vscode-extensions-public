@@ -6,11 +6,11 @@ import {
     LetVarDecl,
     ListConstructor,
     QueryExpression,
+    SelectClause,
     SimpleNameReference,
     SpecificField,
     STKindChecker,
     STNode,
-    traversNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -26,6 +26,7 @@ import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
+import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { getFieldAccessNodes } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
@@ -85,11 +86,19 @@ export class NodeInitVisitor implements Visitor {
                 const addInitialClauseHeight = 65;
                 const yPosition = 50 + (intermediateClausesHeight || addInitialClauseHeight);
                 // create output node
-                this.outputNode = new MappingConstructorNode(
-                    this.context,
-                    node.selectClause,
-                    parent.fieldName
-                );
+                if (STKindChecker.isMappingConstructor(node.selectClause.expression)) {
+                    this.outputNode = new MappingConstructorNode(
+                        this.context,
+                        node.selectClause,
+                        parent.fieldName
+                    );
+                } else {
+                    this.outputNode = new PrimitiveTypeNode(
+                        this.context,
+                        node.selectClause,
+                        parent.fieldName
+                    );
+                }
 
                 this.outputNode.setPosition(1000, yPosition + 100);
 
@@ -180,6 +189,27 @@ export class NodeInitVisitor implements Visitor {
             })
         }
 
+    }
+
+    beginVisitSelectClause(node: SelectClause, parent?: STNode): void {
+        if (this.isWithinQuery === 0
+            && !STKindChecker.isMappingConstructor(node.expression)
+            && !STKindChecker.isListConstructor(node.expression))
+        {
+            const fieldAccessNodes = getFieldAccessNodes(node.expression);
+            if (fieldAccessNodes.length > 1) {
+                const linkConnectorNode = new LinkConnectorNode(
+                    this.context,
+                    node.expression,
+                    "",
+                    parent,
+                    fieldAccessNodes,
+                    [...this.specificFields, node.expression]
+                );
+                linkConnectorNode.setPosition(440, 1200);
+                this.intermediateNodes.push(linkConnectorNode);
+            }
+        }
     }
 
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {

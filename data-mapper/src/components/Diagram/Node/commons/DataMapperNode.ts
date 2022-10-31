@@ -119,9 +119,9 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 										                              isWithinSelectClause?: boolean
 																	 ) {
 		const fieldName = getFieldName(field);
-		parentId = parentId && elementIndex !== undefined
-			? `${parentId}.${elementIndex}`
-			: parentId;
+		if (elementIndex !== undefined) {
+			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
+		}
 		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
