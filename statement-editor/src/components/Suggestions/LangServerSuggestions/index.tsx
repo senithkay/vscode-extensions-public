@@ -163,16 +163,27 @@ export function LSSuggestions() {
             value = prefix + value;
         }
 
-        if (value === "map") {
-            value = MAPPING_TYPE_DESCRIPTER;
-        } else if (value === "table") {
-            value = TABLE_TYPE_DESCRIPTER;
-        } else if (value === "object") {
-            value = OBJECT_TYPE_DESCRIPTER;
-        } else if (value === "service") {
-            value = SERVICE_TYPE_DESCRIPTER;
-        } else if (value === "function") {
-            value = FUNCTION_TYPE_DESCRIPTER;
+        switch (value) {
+            case "map": {
+                value = MAPPING_TYPE_DESCRIPTER;
+                break;
+            }
+            case "table": {
+                value = TABLE_TYPE_DESCRIPTER;
+                break;
+            }
+            case "object": {
+                value = OBJECT_TYPE_DESCRIPTER;
+                break;
+            }
+            case "service": {
+                value = SERVICE_TYPE_DESCRIPTER;
+                break;
+            }
+            case "function": {
+                value = FUNCTION_TYPE_DESCRIPTER;
+                break;
+            }
         }
 
         const nodePosition: NodePosition = currentModel
