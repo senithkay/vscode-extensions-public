@@ -70,8 +70,8 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         });
 
         if (this.typeDef) {
-            const parentPort = this.addPortsForHeaderField(this.typeDef, PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
-                "IN", this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
+            const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
+                PRIMITIVE_TYPE_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
 
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
             this.recordField = valueEnrichedType;
