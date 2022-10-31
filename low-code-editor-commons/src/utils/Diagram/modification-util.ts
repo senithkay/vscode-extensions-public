@@ -79,7 +79,8 @@ export async function InsertorDelete(modifications: STModification[]): Promise<S
 }
 
 export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
-                                        targetPosition: NodePosition, isLastMember?: boolean, isExpressionBodied?: boolean): STModification {
+                                        targetPosition: NodePosition, isLastMember?: boolean,
+                                        isExpressionBodied?: boolean, expressionBody?: string): STModification {
     const functionStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: isLastMember ? targetPosition.endColumn : 0,
@@ -91,7 +92,8 @@ export function createFunctionSignature(accessModifier: string, name: string, pa
             "NAME": name,
             "PARAMETERS": parameters,
             "RETURN_TYPE": returnTypes,
-            "IS_EXPRESSION_BODIED": isExpressionBodied
+            "IS_EXPRESSION_BODIED": isExpressionBodied,
+            "EXPRESSION_BODY": expressionBody
         }
     };
 
