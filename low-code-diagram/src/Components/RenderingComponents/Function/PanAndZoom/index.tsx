@@ -11,16 +11,17 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { Context } from "../../../../Context/diagram";
 import { ViewMode } from "../../../../Context/types";
-import FitToScreenSVG from "../../../../PanAndZoom/images/fit-to-screen";
-import InteractionMode from "../../../../PanAndZoom/images/interaction-mode";
-import StatementMode from "../../../../PanAndZoom/images/statement-mode";
-import ZoomInSVG from "../../../../PanAndZoom/images/zoom-in";
-import ZoomOutSVG from "../../../../PanAndZoom/images/zoom-out";
+
+import FitToScreenSVG from "./images/fit-to-screen";
+import InteractionMode from "./images/interaction-mode";
+import StatementMode from "./images/statement-mode";
+import ZoomInSVG from "./images/zoom-in";
+import ZoomOutSVG from "./images/zoom-out";
 
 
 interface PanAndZoomProps {
@@ -28,10 +29,26 @@ interface PanAndZoomProps {
     toggleViewMode: () => void;
 }
 
+const defaultZoomStatus = {
+    scale: 1,
+    panX: 34,
+    panY: 23,
+};
+
+interface PanningEvent {
+    positionX: number,
+    positionY: number,
+}
+
+const MAX_ZOOM: number = 2;
+const MIN_ZOOM: number = 0.6
+const ZOOM_STEP: number = 0.1;
+
 export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProps>) {
     const { viewMode, toggleViewMode } = props;
     const diagramContext = useContext(Context);
     const { onDiagramDoubleClick } = diagramContext.props;
+    const [zoomStatus, setZoomStatus] = useState(defaultZoomStatus);
 
     function handleDoubleClick() {
         if (onDiagramDoubleClick) {
@@ -39,39 +56,73 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
         }
     }
 
+    const zoomIn = () => {
+        setZoomStatus({
+            ...zoomStatus,
+            scale: zoomStatus.scale + ZOOM_STEP >= MAX_ZOOM ? MAX_ZOOM : zoomStatus.scale + ZOOM_STEP
+        });
+    }
+
+    const zoomOut = () => {
+        setZoomStatus({
+            ...zoomStatus,
+            scale: zoomStatus.scale - ZOOM_STEP <= MIN_ZOOM ? MIN_ZOOM : zoomStatus.scale - ZOOM_STEP
+        });
+    }
+
+    const resetZoomStatus = () => {
+        setZoomStatus(defaultZoomStatus)
+    }
+
+    function onPanningStart() {
+        document.body.style.cursor = 'grabbing';
+    }
+
+    function onPanningStop(e: PanningEvent) {
+        document.body.style.cursor = 'default';
+        const { positionX, positionY } = e;
+        if ((zoomStatus.panX !== positionX) || (zoomStatus.panY !== positionY)) {
+            setZoomStatus({
+                ...zoomStatus,
+                panX: positionX,
+                panY: positionY
+            });
+        }
+
+    }
+
     return (
         <TransformWrapper
             wheel={{ disabled: true }}
             doubleClick={{ disabled: true }}
-            scale={1}
-            positionX={34}
-            options={{ limitToBounds: false, maxScale: 2, minScale: 0.6, centerContent: false }}
+            scale={zoomStatus.scale}
+            positionX={zoomStatus.panX}
+            positionY={zoomStatus.panY}
+            options={{ limitToBounds: false, centerContent: false }}
+            onPanningStart={onPanningStart}
+            onPanningStop={onPanningStop}
         >
-            {({ zoomIn, zoomOut, resetTransform }: any) => (
-                <React.Fragment>
-                    <div className={'design-container-outer'}>
-                        <TransformComponent>
-                            <div className={'design-container'} onDoubleClick={handleDoubleClick}>
-                                {props.children}
-                            </div>
-                        </TransformComponent>
-                        <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
-                            <div className={'zoom-control-wrapper'} onClick={toggleViewMode}>
-                                {viewMode === ViewMode.STATEMENT ? <InteractionMode /> : <StatementMode />}
-                            </div>
-                            <div className={'zoom-control-wrapper'} onClick={zoomIn}>
-                                <ZoomInSVG />
-                            </div>
-                            <div className={'zoom-control-wrapper'} onClick={zoomOut}>
-                                <ZoomOutSVG />
-                            </div>
-                            <div className={'zoom-control-wrapper'} onClick={resetTransform}>
-                                <FitToScreenSVG />
-                            </div>
-                        </div>
+            <div className={'design-container-outer'}>
+                <TransformComponent>
+                    <div className={'design-container'} onDoubleClick={handleDoubleClick}>
+                        {props.children}
                     </div>
-                </React.Fragment>
-            )}
+                </TransformComponent>
+                <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
+                    <div className={'zoom-control-wrapper'} onClick={toggleViewMode}>
+                        {viewMode === ViewMode.STATEMENT ? <InteractionMode /> : <StatementMode />}
+                    </div>
+                    <div className={'zoom-control-wrapper'} onClick={zoomIn}>
+                        <ZoomInSVG />
+                    </div>
+                    <div className={'zoom-control-wrapper'} onClick={zoomOut}>
+                        <ZoomOutSVG />
+                    </div>
+                    <div className={'zoom-control-wrapper'} onClick={resetZoomStatus}>
+                        <FitToScreenSVG />
+                    </div>
+                </div>
+            </div>
         </TransformWrapper>
     )
 

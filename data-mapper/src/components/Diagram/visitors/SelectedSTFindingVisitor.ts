@@ -33,7 +33,7 @@ export class SelectedSTFindingVisitor implements Visitor {
         private prevST: DMNode[],
     ) {
         this.updatedPrevST = [];
-        this.pathSegmentIndex = 0;
+        this.pathSegmentIndex = 1; // Field path always starts with the record root name
     }
 
     beginVisitSTNode(node: FunctionDefinition | SpecificField, parent?: STNode) {
@@ -66,7 +66,7 @@ export class SelectedSTFindingVisitor implements Visitor {
                 node.fieldName.value === item.stNode.fieldName?.value
             ) {
                 this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }]
-                this.pathSegmentIndex = 0;
+                this.pathSegmentIndex = 1;
             } else if (
                 STKindChecker.isFunctionDefinition(node) &&
                 STKindChecker.isFunctionDefinition(item.stNode) &&

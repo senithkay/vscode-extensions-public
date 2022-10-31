@@ -359,9 +359,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
 				return bindingPattern?.variableName?.value === expr.source;
-			}
-			if (node instanceof RequiredParamNode) {
-				return expr.name.value === node.value.paramName.value
+			} else if (node instanceof RequiredParamNode) {
+				return expr.name.value === node.value.paramName.value;
+			} else if (node instanceof FromClauseNode) {
+				const bindingPattern = node.value.typedBindingPattern.bindingPattern;
+				if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+					return expr.name.value === bindingPattern.variableName.value;
+				}
 			}
 		}) as LetClauseNode | RequiredParamNode)?.value;
 		if (paramNode) {
@@ -449,7 +453,7 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
 	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
 	let recField: EditableRecordField;
-	let portIdBuffer = MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+	let portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`;
 	for (let i = 0; i < fields.length; i++) {
 		const field = fields[i];
 		if (STKindChecker.isSpecificField(field)) {

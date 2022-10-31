@@ -30,6 +30,7 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
+    getBalRecFieldName,
     getEnrichedRecordType,
     getInputNodeExpr,
     getInputPortsForExpr,
@@ -48,6 +49,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     public typeDef: Type;
     public recordField: EditableRecordField;
     public typeName: string;
+    public rootName: string;
     public x: number;
     public y: number;
 
@@ -74,8 +76,12 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
 
         if (this.typeDef) {
-            const parentPort = this.addPortsForHeaderField(this.typeDef, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-                "IN", this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
+            this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
+            if (STKindChecker.isSelectClause(this.value)){
+                this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
+            }
+            const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
+                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
 
             const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
             this.typeName = getTypeName(valueEnrichedType.type);
@@ -83,7 +89,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 this.recordField = valueEnrichedType;
                 if (!!this.recordField.childrenTypes.length) {
                     this.recordField.childrenTypes.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", '', undefined,
+                        this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
                             MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
                             this.context.collapsedFields, parentPort.collapsed);
                     });
@@ -95,7 +101,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 this.recordField = valueEnrichedType.elements[0].member;
                 if (!!this.recordField.childrenTypes.length) {
                     this.recordField.childrenTypes.forEach((field) => {
-                        this.addPortsForOutputRecordField(field, "IN", '', undefined,
+                        this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
                             MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
                             this.context.collapsedFields, parentPort.collapsed, true);
                     });
