@@ -37,7 +37,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
         });
 
         if (this.typeDef) {
-            const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", this.context.collapsedFields);
+            const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", undefined, this.context.collapsedFields);
 
             if (this.typeDef.typeName === PrimitiveBalType.Record) {
                 const fields = this.typeDef.fields;

@@ -149,14 +149,15 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected addPortsForHeaderField(field: Type, fieldValue: string,
-									                         type: "IN" | "OUT",
+	protected addPortsForHeaderField(field: Type, name: string, type: "IN" | "OUT",
+									                         portPrefix?: string,
 									                         collapsedFields?: string[],
 									                         isWithinSelectClause?: boolean) : RecordFieldPortModel {
-		const fieldName = getBalRecFieldName(fieldValue);
-		const isCollapsed = collapsedFields && collapsedFields.includes(fieldName);
+		const fieldName = getBalRecFieldName(name);
+		const portName = portPrefix ? `${portPrefix}.${fieldName}` : fieldName;
+		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
-			field, fieldName, type, undefined, undefined, undefined, fieldName, undefined,
+			field, portName, type, undefined, undefined, undefined, fieldName, undefined,
 			isCollapsed, false, isWithinSelectClause);
 		this.addPort(fieldPort)
 
