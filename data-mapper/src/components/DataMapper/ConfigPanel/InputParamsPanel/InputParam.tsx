@@ -41,15 +41,15 @@ export function InputParamItem(props: InputParamItemProps) {
         onEditClick(index, inputParam);
     };
     return (
-        <InputParamContainer>
-            <ClickToEditContainer onClick={handleEdit}>
+        <InputParamContainer isInvalid={inputParam.inInvalid}>
+            <ClickToEditContainer isInvalid={inputParam.inInvalid} onClick={!inputParam.inInvalid && handleEdit}>
                 {label}
             </ClickToEditContainer>
             <Box component="span" display="flex">
-                <EditButton
+                {!inputParam.inInvalid && <EditButton
                     onClick={handleEdit}
                     icon={<EditIcon fontSize="small" />}
-                />
+                />}
                 <DeleteButton
                     onClick={handleDelete}
                     icon={<DeleteOutLineIcon fontSize="small" />}
@@ -59,10 +59,10 @@ export function InputParamItem(props: InputParamItemProps) {
     );
 }
 
-const ClickToEditContainer = styled.div`
-    cursor: pointer,
-    width: 100%
-`;
+const ClickToEditContainer = styled.div(({ isInvalid }: { isInvalid?: boolean }) => ({
+    cursor: isInvalid ? 'auto' : 'pointer',
+    width: '100%'
+}));
 
 const DeleteButton = styled(ButtonWithIcon)`
     padding: 0;
@@ -75,11 +75,12 @@ const EditButton = styled(ButtonWithIcon)`
     color: #36B475;
 `;
 
-const InputParamContainer = styled.div((props) => ({
+const InputParamContainer = styled.div(({ isInvalid }: { isInvalid?: boolean }) => ({
     background: 'white',
     padding: 10,
     borderRadius: 5,
     border: '1px solid #dee0e7',
+    color: `${isInvalid ? '#fe523c' : 'inherit'}`,
     margin: '1rem 0 0.25rem',
     justifyContent: 'space-between',
     display: 'flex',

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { CurrentFileContext } from "../../Context/current-file-context";
 import { Title } from "../DataMapperConfigPanel";
 import { RecordButtonGroup } from "../RecordButtonGroup";
@@ -17,6 +17,7 @@ export interface InputConfigWidgetProps {
     imports: string[];
     fnSTPosition: NodePosition;
     currentFileContent: string;
+    banner: ReactNode;
 }
 
 export function InputParamsPanel(props: InputConfigWidgetProps) {
@@ -29,6 +30,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
         currentFileContent,
         fnSTPosition,
         imports,
+        banner
     } = props;
 
     const [editingIndex, setEditingIndex] = useState(-1);
@@ -74,6 +76,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
     return (
         <InputParamsContainer>
             <Title>Inputs</Title>
+            {banner}
             {inputParams.map((param, index) =>
                 editingIndex === index ? (
                     <InputParamEditor

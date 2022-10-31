@@ -15,6 +15,7 @@ import {
     FormHeaderSection,
     Panel,
     useStyles as useFormStyles,
+    WarningBanner,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -27,6 +28,7 @@ import { DataMapperInputParam } from "./InputParamsPanel/types";
 import { RecordButtonGroup } from "./RecordButtonGroup";
 import { TypeBrowser } from "./TypeBrowser";
 import {
+    isValidOutput,
     getDefaultFnName,
     getDiagnosticsForFnName,
     getFnNameFromST,
@@ -58,7 +60,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [fnNameFromST, setFnNameFromST] = useState(getFnNameFromST(fnST));
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
     const [fnName, setFnName] = useState(fnNameFromST === undefined ? DM_DEFAULT_FUNCTION_NAME : fnNameFromST);
-    const [outputType, setOutputType] = useState("");
+    const [outputType, setOutputType] = useState({ type: '', isInvalid: false });
     const [isNewRecord, setIsNewRecord] = useState(false);
     const [isAddExistType, setAddExistType] = useState(false);
     const [dmFuncDiagnostic, setDmFuncDiagnostic] = useState("");
@@ -69,11 +71,12 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [newRecords, setNewRecords] = useState<string[]>([]);
     const [initiated, setInitiated] = useState(false);
 
-    const isValidConfig = fnName && inputParams.length > 0 && outputType !== "" && dmFuncDiagnostic === "";
+    const hasInvalidInputs = inputParams.some(input=>input.inInvalid);
+    const isValidConfig = fnName && inputParams.length > 0 && !hasInvalidInputs && outputType.type !== "" && !outputType.isInvalid && dmFuncDiagnostic === "";
 
     useEffect(() => {
         (async () => {
-            const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType,
+            const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType.type,
                 fnST, targetPosition, currentFile.content, filePath, langClientPromise);
             if (diagnostics.length > 0) {
                 const redeclaredSymbol = diagnostics.some((diagnostic) => {
@@ -95,7 +98,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             .map((item) => `${item.type} ${item.name}`)
             .join(",");
 
-        const returnTypeStr = `returns ${outputType}`;
+        const returnTypeStr = `returns ${outputType.type}`;
 
         const modifications: STModification[] = [];
         if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
@@ -144,14 +147,19 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 setInputParams(getInputsFromST(fnST));
             }
             const output = getOutputTypeFromST(fnST);
-            if (output && output.length > 0) {
-                setOutputType(getOutputTypeFromST(fnST));
+            if (output) {
+                setOutputType({
+                    type: getOutputTypeFromST(fnST),
+                    isInvalid: !isValidOutput(fnST)
+                });
+            } else {
+                setOutputType({ type: '', isInvalid: true });
             }
         }
     }, [fnST, initiated]);
 
     useEffect(() => {
-        if (outputType) {
+        if (outputType.type) {
             setShowOutputType(true);
         }
     }, [outputType]);
@@ -171,14 +179,14 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         if (createdNewRecord) {
             const newRecordType = createdNewRecord.split(" ")[1];
             if (newRecordBy === "input") {
-
                 setInputParams([...inputParams, {
                     name: newRecordType,
-                    type: newRecordType
+                    type: newRecordType,
+                    inInvalid: false,
                 }])
             }
             if (newRecordBy === "output") {
-                setOutputType(newRecordType);
+                setOutputType({ type: newRecordType, isInvalid: false });
             }
             setNewRecords([...newRecords, newRecordType]);
         }
@@ -197,9 +205,13 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     };
 
     const handleOutputDeleteClick = () => {
-        setOutputType("");
+        setOutputType({ type: '', isInvalid: true});
         setShowOutputType(false);
     };
+
+    const handleOutputTypeChange = (type: string) => {
+        setOutputType({ type, isInvalid: false })
+    }
 
     const breadCrumb = (
         <FormHeaderSection
@@ -216,7 +228,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         if (name === "") {
             setDmFuncDiagnostic("missing function name");
         } else {
-            const diagnostics = await getDiagnosticsForFnName(event.target.value, inputParams, outputType, fnST,
+            const diagnostics = await getDiagnosticsForFnName(event.target.value, inputParams, outputType.type, fnST,
                 targetPosition, currentFile.content, filePath, langClientPromise);
             if (diagnostics.length > 0) {
                 setDmFuncDiagnostic(diagnostics[0]?.message);
@@ -263,16 +275,17 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 currentFileContent={currentFile?.content}
                                 fnSTPosition={fnST?.position || targetPosition}
                                 imports={importStatements}
+                                banner={fnST && hasInvalidInputs && <Warning message='Only records are supported as data mapper inputs' />}
                             />
                             <FormDivider />
                             <OutputTypeConfigPanel>
                                 <Title>Output Type</Title>
-                                {!outputType ? (
+                                {!outputType.type ? (
                                     <>
                                         {showOutputType && (
                                             <TypeBrowser
-                                                type={outputType}
-                                                onChange={setOutputType}
+                                                type={outputType.type}
+                                                onChange={handleOutputTypeChange}
                                                 fnSTPosition={fnST?.position || targetPosition}
                                                 currentFileContent={currentFile?.content}
                                                 imports={importStatements}
@@ -281,10 +294,13 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                         <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
                                     </>
                                 ) : (
-                                    <OutputTypeContainer>
-                                        <TypeName>{outputType}</TypeName>
-                                        <DeleteButton onClick={handleOutputDeleteClick} icon={<DeleteOutLineIcon fontSize="small" />} />
-                                    </OutputTypeContainer>
+                                    <>
+                                        {outputType.type && outputType.isInvalid && <Warning message='Only record type is supported as data mapper output' />}
+                                        <OutputTypeContainer isInvalid={outputType.isInvalid}>
+                                            <TypeName>{outputType.type}</TypeName>
+                                            <DeleteButton onClick={handleOutputDeleteClick} icon={<DeleteOutLineIcon fontSize="small" />} />
+                                        </OutputTypeContainer>
+                                    </>
                                 )}
                             </OutputTypeConfigPanel>
                         </FormBody>
@@ -330,11 +346,12 @@ export const Title = styled.div(() => ({
     fontWeight: 500,
 }));
 
-const OutputTypeContainer = styled.div((props) => ({
+const OutputTypeContainer = styled.div(({isInvalid}:{isInvalid?: boolean}) => ({
     background: "white",
     padding: 10,
     borderRadius: 5,
     border: "1px solid #dee0e7",
+    color: `${isInvalid ? '#fe523c' : 'inherit'}`,
     margin: "1rem 0 0.25rem",
     justifyContent: "space-between",
     display: "flex",
@@ -350,3 +367,9 @@ const DeleteButton = styled(ButtonWithIcon)`
 const TypeName = styled.span`
     font-weight: 500;
 `;
+
+const Warning = styled(WarningBanner)`
+    border-width: 1px !important;
+    width: unset;
+    margin: 5px 0;
+`
