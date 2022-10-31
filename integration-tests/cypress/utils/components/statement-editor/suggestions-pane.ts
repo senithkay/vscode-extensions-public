@@ -13,6 +13,7 @@
 export class SuggestionsPane {
 
     static clickSuggestionsTab(selectedTab: string) {
+        cy.wait(1000);
         cy.get(`[data-testid="tab-panel-wrapper"]`).within(() => {
             cy.contains(selectedTab).focus()
                 .wait(500)
@@ -22,11 +23,13 @@ export class SuggestionsPane {
     }
 
     static waitForLoading() {
+        cy.wait(1000);
         cy.get('.MuiCircularProgress-svg', { timeout: 100000 }).should('not.exist')
         return this;
     }
 
     static tabShouldFocused(selectedTab: string) {
+        cy.wait(1000);
         cy.get(`[data-testid="tab-panel-wrapper"]`).within(() => {
             cy.contains(selectedTab).should('have.attr', 'aria-selected').and('eq', 'true')
         });
@@ -34,7 +37,7 @@ export class SuggestionsPane {
     }
 
     static clickLsSuggestion(selectedSuggestion: string) {
-        cy.wait(500)
+        cy.wait(1000);
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
             cy.contains(`[data-testid="suggestion-value"]`, selectedSuggestion)
                 .click({ force: true })
@@ -42,8 +45,8 @@ export class SuggestionsPane {
         return this;
     }
 
-    static clickLsTypeSuggestion(selectedSuggestion: string, wait = 500) {
-        cy.wait(wait)
+    static clickLsTypeSuggestion(selectedSuggestion: string) {
+        cy.wait(1000);
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
             cy.contains(`[data-testid="suggestion-value"]`, selectedSuggestion).should((elem) => {
                 expect(elem.text()).to.equal(selectedSuggestion);
@@ -54,6 +57,7 @@ export class SuggestionsPane {
     }
 
     static clickExpressionSuggestion(selectedExpression: string) {
+        cy.wait(1000);
         cy.get(`[data-testid="expression-list"]`).within(() => {
             cy.contains(selectedExpression)
                 .click({ force: true })
@@ -62,6 +66,7 @@ export class SuggestionsPane {
     }
 
     static clickLibrarySuggestion(selectedLib: string) {
+        cy.wait(1000);
         cy.get(`[data-testid="library-list-block"]`).within(() => {
             cy.contains(selectedLib)
                 .click({ force: true })
@@ -70,6 +75,7 @@ export class SuggestionsPane {
     }
 
     static clickSearchedLibSuggestion(searchedLib: string) {
+        cy.wait(1000);
         cy.get(`[data-testid="library-element-block-content"]`).within(() => {
             cy.contains(searchedLib)
                 .click({ force: true })
@@ -78,6 +84,7 @@ export class SuggestionsPane {
     }
 
     static clickOnLibraryDropdown(mode: string) {
+        cy.wait(1000);
         cy.get(`[data-testid="library-type-selector"]`).within(() => {
             cy.get(`.MuiSelect-select[role="button"]`)
                 .click();
@@ -89,12 +96,14 @@ export class SuggestionsPane {
     }
 
     static validateFilteredLib(clearedLib: string) {
+        cy.wait(1000);
         cy.get(`[data-testid="library-list-block"]`)
             .children().should('not.contain', clearedLib)
         return this;
     }
 
     static typeExpressionInSearchBar(suggestion:string){
+        cy.wait(1000);
         cy.get(`[data-testid="expr-suggestions-searchbar"]`)
             .children('input')
             .clear()
@@ -102,7 +111,8 @@ export class SuggestionsPane {
         return this;
     }
 
-    static validateUnrelatedSuggestions(suggestion:string){
+    static validateUnrelatedSuggestions(suggestion:string) {
+        cy.wait(1000);
         cy.get(`[data-testid="expression-list"]`)
             .children().should('not.contain',suggestion)
         return this;

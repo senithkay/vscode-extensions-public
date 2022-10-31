@@ -236,8 +236,7 @@ describe('Test helper pane functionality', () => {
 
     });
 
-    // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping
-    it.skip('Test Library-suggestions and filtering of libraries with dropdown', () => {
+    it('Test Library-suggestions and filtering of libraries with dropdown', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -286,7 +285,7 @@ describe('Test helper pane functionality', () => {
 
     });
 
-    it.skip('Test a suggestion for partially typed value', () => {
+    it('Test a suggestion for partially typed value', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -356,7 +355,7 @@ describe('Test helper pane functionality', () => {
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
             .clickLsTypeSuggestion('var2')
-            .clickLsTypeSuggestion('toString()', 1000);
+            .clickLsTypeSuggestion('toString()');
 
         EditorPane
             .validateEmptyDiagnostics();
