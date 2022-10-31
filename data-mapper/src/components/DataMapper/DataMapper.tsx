@@ -48,6 +48,7 @@ import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { isDMSupported } from "./utils";
+import { useDMStore } from "../../store/store";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -196,6 +197,7 @@ function DataMapperC(props: DataMapperProps) {
         state: DMState.NOT_INITIALIZED
     });
     const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
+	const {setFunctionST, setImports} = useDMStore();
 
     const classes = useStyles();
 
@@ -270,6 +272,8 @@ function DataMapperC(props: DataMapperProps) {
         } else {
             dispatchSelection({ type: ViewOption.RESET });
         }
+        setFunctionST(fnST);
+        setImports(importStatements);
     }, [fnST]);
 
     useEffect(() => {

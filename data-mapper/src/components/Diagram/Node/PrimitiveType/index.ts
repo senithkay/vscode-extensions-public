@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,15 +10,5 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
-.control-flow-line {
-    .arrow-head {
-        fill: #04af04 !important;
-    }
-
-    .line-dashed {
-        stroke: #04af04 !important;
-        stroke-width: 1;
-        stroke-dasharray: 5;
-    }
-}
+export * from "./PrimitiveTypeNodeFactory";
+export * from "./PrimitiveTypeNode";

@@ -14,43 +14,45 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { MappingConstructor, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
-import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
+import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import {
-	MappingConstructorNode,
-	MAPPING_CONSTRUCTOR_NODE_TYPE
-} from './MappingConstructorNode';
-import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
+	PrimitiveTypeNode,
+	PRIMITIVE_TYPE_NODE_TYPE
+} from './PrimitiveTypeNode';
 
 @injectable()
 @singleton()
-export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingConstructorNode, DiagramEngine> implements IDataMapperNodeFactory {
+export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveTypeNode, DiagramEngine> implements IDataMapperNodeFactory {
 	constructor() {
-		super(MAPPING_CONSTRUCTOR_NODE_TYPE);
+		super(PRIMITIVE_TYPE_NODE_TYPE);
 	}
 
-	generateReactWidget(event: { model: MappingConstructorNode; }): JSX.Element {
+	generateReactWidget(event: { model: PrimitiveTypeNode; }): JSX.Element {
 		let valueLabel;
+		let isParentSelectClause;
 		if (STKindChecker.isSelectClause(event.model.value)){
 			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
+			isParentSelectClause = true;
 		}
 		return (
-			<EditableMappingConstructorWidget
+			<PrimitiveTypeOutputWidget
+				id={PRIMITIVE_TYPE_TARGET_PORT_PREFIX}
 				engine={this.engine}
-				id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-				editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
-				typeName={event.model.typeName}
-				value={event.model.value.expression as MappingConstructor}
+				field={event.model.recordField}
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 				context={event.model.context}
+				typeName={event.model.typeName}
 				valueLabel={valueLabel}
 				deleteField={(node: STNode) => event.model.deleteField(node)}
+				isParentSelectClause={isParentSelectClause}
 			/>
 		);
 	}
@@ -59,4 +61,4 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 		return undefined;
 	}
 }
-container.register("NodeFactory", { useClass: ExpressionFunctionBodyFactory });
+container.register("NodeFactory", { useClass: PrimitiveTypeNodeFactory });
