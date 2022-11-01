@@ -313,9 +313,18 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 						if (sourcePort.getParent() instanceof LinkConnectorNode) {
 							targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position
 						}
-					}
-					else {
+					} else if (link.getLabels().length > 0) {
 						targetPos = (link.getLabels()[0] as ExpressionLabelModel).valueNode.position;
+					} else if (targetNode instanceof MappingConstructorNode) {
+						const LinkConnector = targetNode
+							.getModel()
+							.getNodes()
+							.find(
+								(node) =>
+									node instanceof LinkConnectorNode &&
+									node.targetPort.portName === (link.getTargetPort() as RecordFieldPortModel).portName
+							);
+						targetPos = (LinkConnector as LinkConnectorNode).valueNode.position;
 					}
 
 				}
