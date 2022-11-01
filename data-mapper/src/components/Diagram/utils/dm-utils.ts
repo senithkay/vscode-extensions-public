@@ -303,40 +303,19 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 		if (targetNode instanceof LinkConnectorNode) {
 			targetNode.value = targetNode.value + " + " + rhs;
 			targetNode.updateSource();
-		}
-		else {
-			let targetPos: NodePosition;
-			Object.keys(targetPort.getLinks()).forEach((linkId) => {
-				if (linkId !== link.getID()) {
-					const link = targetPort.getLinks()[linkId]
-					if (sourcePort instanceof IntermediatePortModel) {
-						if (sourcePort.getParent() instanceof LinkConnectorNode) {
-							targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position
-						}
-					}
-					else {
-						targetPos = (link.getLabels()[0] as ExpressionLabelModel).valueNode.position;
-					}
-
-				}
-			})
-			if (targetPos) {
-				modifications.push({
-					type: "INSERT",
-					config: {
-						"STATEMENT": " + " + rhs,
-					},
-					endColumn: targetPos.endColumn,
-					endLine: targetPos.endLine,
-					startColumn: targetPos.endColumn,
-					startLine: targetPos.endLine
-				});
-
-				(targetNode as DataMapperNodeModel).context.applyModifications(modifications)
-			}
+		} else if (targetNode instanceof MappingConstructorNode) {
+			const currentSourcePosition = (targetNode.value.expression as MappingConstructor).fields[0]?.position;
+			modifications.push({
+				type: "INSERT",
+				config: { "STATEMENT": " + " + rhs },
+				endColumn: currentSourcePosition?.endColumn,
+				endLine: currentSourcePosition?.endLine,
+				startColumn: currentSourcePosition?.endColumn,
+				startLine: currentSourcePosition?.endLine
+			});
+			targetNode.context.applyModifications(modifications);
 		}
 	}
-
 }
 
 export function findNodeByValueNode(value: RequiredParam | FromClause | LetClause, dmNode: DataMapperNodeModel)
