@@ -497,7 +497,7 @@ export class PositioningVisitor implements Visitor {
                     workerBodyViewState.controlFlow.lineStates.push(workerLine);
                 }
                 const lastStatement = workerDeclarator.workerBody.statements[workerDeclarator.workerBody.statements.length - 1];
-                if (STKindChecker.isReturnStatement(lastStatement) && lastStatement.controlFlow?.isReached) {
+                if (lastStatement && STKindChecker.isReturnStatement(lastStatement) && lastStatement.controlFlow?.isReached) {
                     const lastStatementBBox = lastStatement.viewState.bBox;
                     const bottomLine: ControlFlowLineState = {
                         x: lastStatementBBox.cx,

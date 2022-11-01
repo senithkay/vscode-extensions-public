@@ -61,7 +61,7 @@ export function WorkerBody(props: DiagramProps) {
     children = children.concat(getSTComponents(model.statements, viewState, model, expandReadonly))
 
     for (const controlFlowLine of viewState.controlFlow.lineStates) {
-        const line = (controlFlowLine.isArrowed != null && controlFlowLine.isArrowed) ?
+        const line = controlFlowLine.isArrowed ?
             <ControlFlowArrow isDotted={false} x={controlFlowLine.x} y={controlFlowLine.y} w={controlFlowLine.w} isLeft={true} /> :
             <ControlFlowLine controlFlowViewState={controlFlowLine} />;
         controlFlowLines.push(line);
