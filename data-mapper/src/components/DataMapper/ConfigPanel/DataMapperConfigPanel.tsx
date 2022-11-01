@@ -24,7 +24,7 @@ import { DataMapperProps } from "../DataMapper";
 
 import { FunctionNameEditor } from "./FunctionNameEditor";
 import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
-import { DataMapperInputParam } from "./InputParamsPanel/types";
+import { DataMapperInputParam, DataMapperOutputParam } from "./InputParamsPanel/types";
 import { RecordButtonGroup } from "./RecordButtonGroup";
 import { TypeBrowser } from "./TypeBrowser";
 import {
@@ -60,7 +60,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [fnNameFromST, setFnNameFromST] = useState(getFnNameFromST(fnST));
     const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
     const [fnName, setFnName] = useState(fnNameFromST === undefined ? DM_DEFAULT_FUNCTION_NAME : fnNameFromST);
-    const [outputType, setOutputType] = useState({ type: '', isInvalid: false });
+    const [outputType, setOutputType] = useState<DataMapperOutputParam>({ type: '', inInvalid: false });
     const [isNewRecord, setIsNewRecord] = useState(false);
     const [isAddExistType, setAddExistType] = useState(false);
     const [dmFuncDiagnostic, setDmFuncDiagnostic] = useState("");
@@ -71,8 +71,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [newRecords, setNewRecords] = useState<string[]>([]);
     const [initiated, setInitiated] = useState(false);
 
-    const hasInvalidInputs = inputParams.some(input=>input.inInvalid);
-    const isValidConfig = fnName && inputParams.length > 0 && !hasInvalidInputs && outputType.type !== "" && !outputType.isInvalid && dmFuncDiagnostic === "";
+    const hasInvalidInputs = inputParams.some(input => input.inInvalid);
+    const isValidConfig = fnName && inputParams.length > 0 && !hasInvalidInputs && outputType.type !== "" && !outputType.inInvalid && dmFuncDiagnostic === "";
 
     useEffect(() => {
         (async () => {
@@ -150,10 +150,10 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             if (output) {
                 setOutputType({
                     type: getOutputTypeFromST(fnST),
-                    isInvalid: !isValidOutput(fnST)
+                    inInvalid: !isValidOutput(fnST)
                 });
             } else {
-                setOutputType({ type: '', isInvalid: true });
+                setOutputType({ type: '', inInvalid: true });
             }
         }
     }, [fnST, initiated]);
@@ -186,7 +186,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 }])
             }
             if (newRecordBy === "output") {
-                setOutputType({ type: newRecordType, isInvalid: false });
+                setOutputType({ type: newRecordType, inInvalid: false });
             }
             setNewRecords([...newRecords, newRecordType]);
         }
@@ -205,12 +205,12 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     };
 
     const handleOutputDeleteClick = () => {
-        setOutputType({ type: '', isInvalid: true});
+        setOutputType({ type: '', inInvalid: true });
         setShowOutputType(false);
     };
 
     const handleOutputTypeChange = (type: string) => {
-        setOutputType({ type, isInvalid: false })
+        setOutputType({ type, inInvalid: false })
     }
 
     const breadCrumb = (
@@ -275,7 +275,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 currentFileContent={currentFile?.content}
                                 fnSTPosition={fnST?.position || targetPosition}
                                 imports={importStatements}
-                                banner={fnST && hasInvalidInputs && <Warning message='Only records are supported as data mapper inputs' />}
+                                banner={fnST && hasInvalidInputs && <Warning message='Only records are currently supported as data mapper inputs' />}
                             />
                             <FormDivider />
                             <OutputTypeConfigPanel>
@@ -295,8 +295,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                     </>
                                 ) : (
                                     <>
-                                        {outputType.type && outputType.isInvalid && <Warning message='Only record type is supported as data mapper output' />}
-                                        <OutputTypeContainer isInvalid={outputType.isInvalid}>
+                                        {outputType.type && outputType.inInvalid && <Warning message='Only record type is currently supported as data mapper output' />}
+                                        <OutputTypeContainer isInvalid={outputType.inInvalid}>
                                             <TypeName>{outputType.type}</TypeName>
                                             <DeleteButton onClick={handleOutputDeleteClick} icon={<DeleteOutLineIcon fontSize="small" />} />
                                         </OutputTypeContainer>
@@ -346,7 +346,7 @@ export const Title = styled.div(() => ({
     fontWeight: 500,
 }));
 
-const OutputTypeContainer = styled.div(({isInvalid}:{isInvalid?: boolean}) => ({
+const OutputTypeContainer = styled.div(({ isInvalid }: { isInvalid?: boolean }) => ({
     background: "white",
     padding: 10,
     borderRadius: 5,

@@ -3,3 +3,8 @@ export interface DataMapperInputParam {
     type: string;
     inInvalid?: boolean;
 }
+
+export interface DataMapperOutputParam {
+    type: string;
+    inInvalid?: boolean;
+}
