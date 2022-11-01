@@ -55,7 +55,6 @@ describe('Test function call and method call parameters', () => {
 
         ParameterTab
             .shouldBeFocused()
-            .shouldHaveParameters(2)
             .shouldHaveRequiredArg("n")
             .shouldHaveOptionalArg("ns")
             .shouldHavecheckboxDisabled("n");
@@ -107,30 +106,23 @@ describe('Test function call and method call parameters', () => {
             .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput('"Text"');
+            .typeInput('"Some"');
 
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('indexOf(string substr, int startIndex)');
+            .clickLsTypeSuggestion("'join(string... strs)");
 
         ParameterTab
             .shouldBeFocused()
-            .shouldHaveParameters(2)
-            .shouldHaveOptionalArg("startIndex")
+            .shouldHaveParameterList()
+            .shouldHaveOptionalArg("strs");
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-substr>`);
+            .doubleClickExpressionContent(`<add-strs>`);
 
         InputEditor
-            .typeInput('"xt"');
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-startIndex>`);
-
-        InputEditor
-            .typeInput('2');
+            .typeInput('"Text"');
 
         EditorPane
             .validateEmptyDiagnostics();

@@ -34,13 +34,6 @@ export class ParameterTab {
         return this;
     }
 
-    static shouldHaveParameters(count: number){
-        cy.get(`[data-testid="parameter-list"]`)
-            .should('be.visible')
-            .should('have.length', count);
-        return this;
-    }
-
     static validateNoParameters(){
         cy.get(`[data-testid="parameter-list"]`)
             .should('not.exist');

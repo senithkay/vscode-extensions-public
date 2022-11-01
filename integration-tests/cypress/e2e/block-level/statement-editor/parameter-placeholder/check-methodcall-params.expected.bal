@@ -1,5 +1,5 @@
 function testStatementEditorComponents() returns error? {
-    var variable = "Text".indexOf("xt", 2);
+    var variable = "Some".'join("Text");
     int var1 = 1;
     int var2 = 2;
 }

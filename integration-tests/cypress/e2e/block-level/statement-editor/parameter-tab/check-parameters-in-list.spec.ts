@@ -82,7 +82,7 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('max(int... ns)');
 
         ParameterTab
-            .shouldHaveParameters(1);
+            .shouldHaveOptionalArg('ns');
 
     });
 })
