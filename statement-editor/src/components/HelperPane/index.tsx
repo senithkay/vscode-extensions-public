@@ -99,6 +99,8 @@ export function HelperPane(props: HelperPaneProps) {
         } else if (currentModel.model && (currentModel.model?.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE ||
             isRecordFieldName(currentModel.model))) {
             setSelectedTab(TabElements.expressions);
+        } else if (isConfigurableEditor(editors, activeEditorId)) {
+            setSelectedTab(TabElements.suggestions);
         }
     }, [docExpandClicked, currentModel.model]);
 
