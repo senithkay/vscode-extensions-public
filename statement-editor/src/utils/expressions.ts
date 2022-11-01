@@ -199,7 +199,7 @@ const operators: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} + ${EXPR_PLACEHOLDER}`,
             example: "Es + Ex"
         }, {
-            name: "Substract",
+            name: "Subtract",
             template: ` ${SELECTED_EXPRESSION} - ${EXPR_PLACEHOLDER}`,
             example: "Es - Ex"
         }, {
@@ -209,7 +209,7 @@ const operators: ExpressionGroup = {
         }, {
             name: "Divide",
             template: ` ${SELECTED_EXPRESSION} / ${EXPR_PLACEHOLDER}`,
-            example: "Es / En"
+            example: "Es / Ex"
         }, {
             name: "Modules",
             template: ` ${SELECTED_EXPRESSION} % ${EXPR_PLACEHOLDER}`,
@@ -227,11 +227,11 @@ const shift: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} << ${EXPR_PLACEHOLDER}`,
             example: "Es << Ex"
         }, {
-            name: "Signed Right Shipt",
+            name: "Signed Right Shift",
             template: ` ${SELECTED_EXPRESSION} >> ${EXPR_PLACEHOLDER}`,
             example: "Es >> Ex"
         }, {
-            name: "Right Shipt",
+            name: "Right Shift",
             template: ` ${SELECTED_EXPRESSION} >>> ${EXPR_PLACEHOLDER}`,
             example: "Es >>> Ex"
         }
@@ -285,7 +285,7 @@ const relational: ExpressionGroup = {
         }, {
             name: "Greater Than or Equal",
             template: ` ${SELECTED_EXPRESSION} >= ${EXPR_PLACEHOLDER}`,
-            example: "Es >= En"
+            example: "Es >= Ex"
         }
     ],
     relatedModelType: ModelType.EXPRESSION
@@ -299,7 +299,7 @@ const typeTest: ExpressionGroup = {
             template: ` ${SELECTED_EXPRESSION} is ${TYPE_DESC_PLACEHOLDER}`,
             example: "Es is Ex"
         }, {
-            name: "Type Test Nigation",
+            name: "Type Test Negation",
             template: ` ${SELECTED_EXPRESSION} !is ${TYPE_DESC_PLACEHOLDER}`,
             example: "Es !is Ex"
         }
