@@ -24,7 +24,7 @@ export function ControlFLowArrowSVG(props: { x1: number, y: number, x2: number, 
 
     const pointsR = `${pointX - ARROW_HEIGHT},${y - ARROW_WIDTH} ${pointX - ARROW_HEIGHT},${y + ARROW_WIDTH} ${pointX},${y}  `;
     const pointsL = `${pointX + ARROW_HEIGHT},${y - ARROW_WIDTH} ${pointX + ARROW_HEIGHT},${y + ARROW_WIDTH} ${pointX},${y}  `;
-    const points = isLeft? pointsL :(isDotted ? pointsL : pointsR);
+    const points = isLeft ? pointsL : (isDotted ? pointsL : pointsR);
     return (
         <svg>
             <defs>
