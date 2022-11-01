@@ -2,14 +2,14 @@ import styled from "@emotion/styled";
 import { LinearProgress, TextField } from "@material-ui/core";
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { CompletionResponse } from "@wso2-enterprise/ballerina-languageclient";
-import { CompletionParams } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { addToTargetPosition, CompletionParams } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "monaco-editor";
 import React, { useContext, useEffect, useState } from "react";
 import { CompletionItemKind } from "vscode-languageserver-protocol";
-import { addToTargetPosition } from "../../Diagram/utils/dm-utils";
 import { CurrentFileContext } from "../Context/current-file-context";
 import { LSClientContext } from "../Context/ls-client-context";
+import { FILE_SCHEME, EXPR_SCHEME } from "./utils";
 
 export interface TypeBrowserProps {
     type?: string;
@@ -53,8 +53,7 @@ export function TypeBrowser(props: TypeBrowserProps) {
             const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
             recCompletions.forEach((item) => completionMap.set(item.insertText, item));
 
-            // TODO: use constants defined in madusha's PR
-            const exprFileUrl = Uri.file(path).toString().replace("file", "expr");
+            const exprFileUrl = Uri.file(path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
             langClient.didOpen({
                 textDocument: {
                     languageId: "ballerina",

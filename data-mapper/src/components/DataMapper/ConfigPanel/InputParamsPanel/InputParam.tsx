@@ -30,7 +30,7 @@ export function InputParamItem(props: InputParamItemProps) {
     const { index, inputParam, onDelete, onEditClick } = props;
 
     const label = <>
-        <TypeName>{inputParam.type}</TypeName>
+        <TypeName isInvalid={inputParam.inInvalid}>{inputParam.type}</TypeName>
         <span>{" " + inputParam.name}</span>
     </>;
 
@@ -41,15 +41,15 @@ export function InputParamItem(props: InputParamItemProps) {
         onEditClick(index, inputParam);
     };
     return (
-        <InputParamContainer>
-            <ClickToEditContainer onClick={handleEdit}>
+        <InputParamContainer >
+            <ClickToEditContainer isInvalid={inputParam.inInvalid} onClick={!inputParam.inInvalid && handleEdit}>
                 {label}
             </ClickToEditContainer>
             <Box component="span" display="flex">
-                <EditButton
+                {!inputParam.inInvalid && <EditButton
                     onClick={handleEdit}
                     icon={<EditIcon fontSize="small" />}
-                />
+                />}
                 <DeleteButton
                     onClick={handleDelete}
                     icon={<DeleteOutLineIcon fontSize="small" />}
@@ -59,10 +59,10 @@ export function InputParamItem(props: InputParamItemProps) {
     );
 }
 
-const ClickToEditContainer = styled.div`
-    cursor: pointer,
-    width: 100%
-`;
+const ClickToEditContainer = styled.div(({ isInvalid }: { isInvalid?: boolean }) => ({
+    cursor: isInvalid ? 'auto' : 'pointer',
+    width: '100%'
+}));
 
 const DeleteButton = styled(ButtonWithIcon)`
     padding: 0;
@@ -87,6 +87,7 @@ const InputParamContainer = styled.div((props) => ({
     alignItems: 'center'
 }));
 
-const TypeName = styled.span`
-    font-weight: 500;
-`;
+const TypeName = styled.span(({ isInvalid }: { isInvalid?: boolean }) => ({
+    fontWeight: 500,
+    color: `${isInvalid ? '#fe523c' : 'inherit'}`,
+}));
