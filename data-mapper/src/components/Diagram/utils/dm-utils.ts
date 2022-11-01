@@ -316,7 +316,7 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 					} else if (link.getLabels().length > 0) {
 						targetPos = (link.getLabels()[0] as ExpressionLabelModel).valueNode.position;
 					} else if (targetNode instanceof MappingConstructorNode) {
-						const LinkConnector = targetNode
+						const linkConnector = targetNode
 							.getModel()
 							.getNodes()
 							.find(
@@ -324,7 +324,7 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 									node instanceof LinkConnectorNode &&
 									node.targetPort.portName === (link.getTargetPort() as RecordFieldPortModel).portName
 							);
-						targetPos = (LinkConnector as LinkConnectorNode).valueNode.position;
+						targetPos = (linkConnector as LinkConnectorNode).valueNode.position;
 					}
 
 				}
