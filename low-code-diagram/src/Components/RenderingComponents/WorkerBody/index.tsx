@@ -17,10 +17,11 @@ import { BlockStatement, FunctionBodyBlock, STKindChecker } from "@wso2-enterpri
 import { Context } from "../../../Context/diagram";
 import { useFunctionContext } from "../../../Context/Function";
 import { ViewMode } from "../../../Context/types";
-import { collapseExpandedRange, expandCollapsedRange, getDraftComponent, getSTComponents, recalculateSizingAndPositioning, sizingAndPositioning } from "../../../Utils";
+import { collapseExpandedRange, expandCollapsedRange, getDraftComponent, getSTComponents, recalculateSizingAndPositioning } from "../../../Utils";
 import { BlockViewState } from "../../../ViewState";
 import { PlusButton } from "../../PlusButtons/Plus";
 import CollapseComponent from "../Collapse";
+import ControlFlowArrow from "../ControlFlowArrow";
 import ControlFlowExecutionTime from "../ControlFlowExecutionTime";
 import { ControlFlowLine } from "../ControlFlowLine";
 
@@ -60,7 +61,10 @@ export function WorkerBody(props: DiagramProps) {
     children = children.concat(getSTComponents(model.statements, viewState, model, expandReadonly))
 
     for (const controlFlowLine of viewState.controlFlow.lineStates) {
-        controlFlowLines.push(<ControlFlowLine controlFlowViewState={controlFlowLine} />);
+        const line = controlFlowLine.isArrowed ?
+            <ControlFlowArrow isDotted={false} x={controlFlowLine.x} y={controlFlowLine.y} w={controlFlowLine.w} isLeft={true} /> :
+            <ControlFlowLine controlFlowViewState={controlFlowLine} />;
+        controlFlowLines.push(line);
     }
 
     for (const plusView of viewState.plusButtons) {

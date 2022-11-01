@@ -502,8 +502,8 @@ export class PositioningVisitor implements Visitor {
                     const bottomLine: ControlFlowLineState = {
                         x: lastStatementBBox.cx,
                         y: lastStatementBBox.cy + PROCESS_SVG_HEIGHT / 2,
-                        w: bodyViewState.workerIndicatorLine.x - workerBodyViewState.bBox.cx + 39,
-                        isDotted: false
+                        w: bodyViewState.workerIndicatorLine.x - workerBodyViewState.bBox.cx + 35,
+                        isArrowed: true
                     };
                     workerBodyViewState.controlFlow.lineStates.push(bottomLine);
                 }

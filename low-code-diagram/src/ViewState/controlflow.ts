@@ -11,6 +11,7 @@ export interface ControlFlowLineState {
     h?: number;
     w?: number;
     isDotted?: boolean;
+    isArrowed?: boolean;
 }
 
 export class ControlFlowState {
