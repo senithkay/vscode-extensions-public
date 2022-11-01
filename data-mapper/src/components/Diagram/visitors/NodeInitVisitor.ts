@@ -27,7 +27,7 @@ import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
-import { getFieldAccessNodes } from "../utils/dm-utils";
+import { getFieldAccessNodes, getSimpleNameRefNodes } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -152,13 +152,15 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isListConstructor(node.valueExpr)
         ) {
             const fieldAccessNodes = getFieldAccessNodes(node.valueExpr);
-            if (fieldAccessNodes.length > 1) {
+            const simpleNameRefNodes = getSimpleNameRefNodes(selectedSTNode, node.valueExpr);
+            const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+            if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
                     node.fieldName.value,
                     parent,
-                    fieldAccessNodes,
+                    inputNodes,
                     this.specificFields.slice(0)
                 );
                 linkConnectorNode.setPosition(440, 1200);
@@ -172,13 +174,15 @@ export class NodeInitVisitor implements Visitor {
             node.expressions.forEach((expr) => {
                 if (!STKindChecker.isMappingConstructor(expr)) {
                     const fieldAccessNodes = getFieldAccessNodes(expr);
-                    if (fieldAccessNodes.length > 1) {
+                    const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, expr);
+                    const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+                    if (inputNodes.length > 1) {
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
                             expr,
                             "",
                             parent,
-                            fieldAccessNodes,
+                            inputNodes,
                             [...this.specificFields, expr],
                             true
                         );
@@ -197,13 +201,15 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isListConstructor(node.expression))
         {
             const fieldAccessNodes = getFieldAccessNodes(node.expression);
-            if (fieldAccessNodes.length > 1) {
+            const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, node.expression);
+            const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+            if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node.expression,
                     "",
                     parent,
-                    fieldAccessNodes,
+                    inputNodes,
                     [...this.specificFields, node.expression]
                 );
                 linkConnectorNode.setPosition(440, 1200);

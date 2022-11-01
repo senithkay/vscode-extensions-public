@@ -1,5 +1,12 @@
 import { PrimitiveBalType, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FieldAccess, OptionalFieldAccess, SpecificField, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import {
+    FieldAccess,
+    OptionalFieldAccess,
+    SimpleNameReference,
+    STKindChecker,
+    STNode,
+    traversNode
+} from "@wso2-enterprise/syntax-tree";
 import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -38,7 +45,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public valueNode: STNode,
         public editorLabel: string,
         public parentNode: STNode,
-        public fieldAccessNodes: (FieldAccess | OptionalFieldAccess)[],
+        public fieldAccessNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[],
         public fields: STNode[],
         public isPrimitiveTypeArrayElement?: boolean) {
         super(
@@ -141,13 +148,13 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             if (this.targetMappedPort) {
                 this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
                     const inPort = this.targetMappedPort;
-    
+
                     const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
                     lm.setTargetPort(this.targetMappedPort);
                     lm.setSourcePort(sourcePort);
-    
+
                     const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
-    
+
                     lm.registerListener({
                         selectionChanged(event) {
                             if (event.isSelected) {

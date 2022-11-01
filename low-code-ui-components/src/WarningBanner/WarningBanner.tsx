@@ -15,20 +15,22 @@ import React, { ReactNode } from 'react';
 
 import Typography from '@material-ui/core/Typography';
 import { Warning } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import clsx from 'clsx';
 
 import { useStyles } from './style';
 
 export interface WarningBannerProps {
     message: ReactNode | string;
     testId?: string;
+    className?: string;
 }
 
 export const WarningBanner = (props: WarningBannerProps) => {
     const classes = useStyles();
-    const { message, testId } = props;
+    const { message, testId, className } = props;
 
     return (
-        <div className={classes.warningContainer} data-testid="warning-banner">
+        <div className={clsx([classes.warningContainer, className])} data-testid="warning-banner">
             <div className={classes.warningIcon}>
                 <Warning/>
             </div>

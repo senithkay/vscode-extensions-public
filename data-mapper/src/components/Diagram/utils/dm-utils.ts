@@ -22,8 +22,8 @@ import {
 	STNode,
 	traversNode
 } from "@wso2-enterprise/syntax-tree";
-import { useDMStore } from "../../../store/store";
 
+import { useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
@@ -36,6 +36,7 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
+import { SimpleNameReferencesFindingVisitor } from "../visitors/SimpleNameReferencesFindingVisitor";
 
 import {
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
@@ -789,6 +790,28 @@ export function getFieldAccessNodes(node: STNode) {
 	return fieldAccessFindingVisitor.getFieldAccessNodes();
 }
 
+export function getSimpleNameRefNodes(selectedST: STNode, node: STNode) {
+	const possibleReferences: string[] = [];
+	if (STKindChecker.isFunctionDefinition(selectedST)) {
+		const params = selectedST.functionSignature.parameters;
+		params.forEach((param) => {
+			if (STKindChecker.isRequiredParam(param) && param?.paramName) {
+				possibleReferences.push(param.paramName.value);
+			}
+		});
+	} else if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
+		const bindingPattern = selectedST.valueExpr.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
+		if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+			possibleReferences.push(bindingPattern.variableName.value);
+		}
+	}
+
+	const simpleNameRefsFindingVisitor: SimpleNameReferencesFindingVisitor =
+		new SimpleNameReferencesFindingVisitor(possibleReferences);
+	traversNode(node, simpleNameRefsFindingVisitor);
+	return simpleNameRefsFindingVisitor.getSimpleNameReferenceNodes();
+}
+
 export function getFieldName(field: EditableRecordField) {
 	if (!field.type?.name
 		|| (field?.parentType
@@ -864,31 +887,3 @@ function isEmptyValue(position: NodePosition): boolean {
 	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
 }
 
-// TODO: remove following function and use addToTargetPosition from madusha's PR
-export const addToTargetPosition = (currentContent: string, position: NodePosition, codeSnippet: string): string => {
-
-    const splitContent: string[] = currentContent.split(/\n/g) || [];
-    const splitCodeSnippet: string[] = codeSnippet.trimEnd().split(/\n/g) || [];
-    const noOfLines: number = position.endLine - position.startLine + 1;
-    const startLine = splitContent[position.startLine].slice(0, position.startColumn);
-    const endLine = isFinite(position?.endLine) ?
-        splitContent[position.endLine].slice(position.endColumn || position.startColumn) : '';
-
-    const replacements = splitCodeSnippet.map((line, index) => {
-        let modifiedLine = line;
-        if (index === 0) {
-            modifiedLine = startLine + modifiedLine;
-        }
-        if (index === splitCodeSnippet.length - 1) {
-            modifiedLine = modifiedLine + endLine;
-        }
-        if (index > 0) {
-            modifiedLine = " ".repeat(position.startColumn) + modifiedLine;
-        }
-        return modifiedLine;
-    });
-
-    splitContent.splice(position.startLine, noOfLines, ...replacements);
-
-    return splitContent.join('\n');
-}

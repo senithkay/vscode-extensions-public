@@ -24,6 +24,14 @@ export function getFnNameFromST(fnST: FunctionDefinition) {
     return fnST && fnST.functionName.value;
 }
 
+export const isValidInput = (param: RequiredParam): boolean => {
+    return param?.typeName && STKindChecker.isSimpleNameReference(param?.typeName);
+};
+
+export const isValidOutput = (fnST: FunctionDefinition): boolean => {
+    return fnST?.functionSignature?.returnTypeDesc?.type && STKindChecker.isSimpleNameReference(fnST?.functionSignature?.returnTypeDesc?.type)
+};
+
 export function getInputsFromST(fnST: FunctionDefinition): DataMapperInputParam[] {
     let params: DataMapperInputParam[] = [];
     if (fnST) {
@@ -31,7 +39,8 @@ export function getInputsFromST(fnST: FunctionDefinition): DataMapperInputParam[
         const reqParams = fnST.functionSignature.parameters.filter((val) => STKindChecker.isRequiredParam(val)) as RequiredParam[];
         params = reqParams.map((param) => ({
             name: param.paramName.value,
-            type: getTypeFromTypeDesc(param.typeName)
+            type: getTypeFromTypeDesc(param.typeName),
+            inInvalid: !isValidInput(param)
         }));
     }
     return params;
@@ -47,7 +56,7 @@ export function getTypeFromTypeDesc(typeDesc: TypeDescriptor) {
     } else if (typeDesc && STKindChecker.isQualifiedNameReference(typeDesc)) {
         return typeDesc.source?.trim();
     }
-    return "";
+    return typeDesc?.source?.trim() || "";
 }
 
 export function getModifiedTargetPosition(currentRecords: string[], currentTargetPosition: NodePosition, syntaxTree: STNode) {
