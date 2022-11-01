@@ -33,7 +33,7 @@ export class StatementEditor {
         this.getStatementEditor()
             .get('button')
             .contains("Save")
-            .should('not.be.disabled', {timeout:20000})
+            .should('not.be.disabled')
             .wait(1000)
             .click();
         return this;
@@ -43,7 +43,7 @@ export class StatementEditor {
         this.getStatementEditor()
             .get('button')
             .contains("Add")
-            .should('not.be.disabled', {timeout:20000})
+            .should('not.be.disabled')
             .click({ force: true })
         return this;
 

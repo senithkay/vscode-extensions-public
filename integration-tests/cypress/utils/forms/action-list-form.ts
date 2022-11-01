@@ -14,11 +14,15 @@ export class ActionListForm {
     private static actionListForm = '[data-testid="action-list-form"]';
 
     static selectAction(action: string) {
+        const startDate = new Date();
+        cy.task('log', `Action selection with name ${action} started at ${startDate}`);
         this.getActionListForm()
-            .get(`[data-testid="action-list"]`)
+            .get(`[data-testid="action-list"]`, { timeout: 200000 })
             .get(`[data-testid="${action.toLowerCase()}"]`)
             .should("be.visible")
             .click();
+        const endDate = new Date();
+        cy.task('log', `Action selection with name ${action} completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
@@ -36,7 +40,7 @@ export class ActionListForm {
 
     private static getActionListForm() {
         return cy
-            .get(this.actionListForm, { timeout: 50000 });
+            .get(this.actionListForm, { timeout: 200000 });
     }
 
 }

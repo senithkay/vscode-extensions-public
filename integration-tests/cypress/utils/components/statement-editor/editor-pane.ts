@@ -16,7 +16,7 @@ export class EditorPane {
     private static parentSelector;
 
     static getStatementRenderer(){
-        cy.wait(1000);
+        cy.wait(2000);
         cy.get(`[data-testid="statement-renderer"]`);
         return this;
     }
@@ -29,7 +29,7 @@ export class EditorPane {
     }
 
     static clickExpressionContent(text:string){
-        cy.wait(1000);
+        cy.wait(1500);
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
                 .should('be.visible')
@@ -40,7 +40,7 @@ export class EditorPane {
     }
 
     static clickStatementContent(text:string){
-        cy.wait(1000);
+        cy.wait(1500);
         cy.contains(`[data-testid="input-editor-span"]`,text)
             .should('be.visible')
             .click();
@@ -48,7 +48,7 @@ export class EditorPane {
     }
 
     static doubleClickExpressionContent(text:string){
-        cy.wait(1000);
+        cy.wait(1500);
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
                 .should('be.visible')
@@ -58,7 +58,7 @@ export class EditorPane {
     }
 
     static doubleClickStatementContent(text:string){
-        cy.wait(1000);
+        cy.wait(1500);
         cy.contains(`[data-testid="input-editor-span"]`,text)
             .should('be.visible')
             .dblclick();
@@ -66,14 +66,14 @@ export class EditorPane {
     }
 
     static clickTokenContent(token:string){
-        cy.wait(1000);
+        cy.wait(1500);
         cy.contains(`[class*="expressionBlock"]`,token)
             .click();
         return this;
     }
 
     static clickSpecificExpression(modelType:string, position?:number, text?:string){
-        cy.wait(1000);
+        cy.wait(1500);
         cy.get(`${this.parentSelector}`).within(() =>{
             cy.get(`[data-testid="${modelType}"]`).eq(position)
                 .contains(text)

@@ -16,15 +16,27 @@ describe('Add demo connectors to function via Low Code', () => {
     });
 
     it('Test all possible code generation scenarios using demo connectors', () => {
+        let startDate = new Date();
+        cy.task('log', `lowcodedemo/democonnector.one package pulling started at ${startDate}`);
         cy.exec('bal pull lowcodedemo/democonnector.one', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+        let endDate = new Date();
+        cy.task('log', `lowcodedemo/democonnector.one package pulling completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
+        startDate = new Date();
+        cy.task('log', `lowcodedemo/democonnector.two package pulling started at ${startDate}`);
         cy.exec('bal pull lowcodedemo/democonnector.two', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+        endDate = new Date();
+        cy.task('log', `lowcodedemo/democonnector.two package pulling completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
+        startDate = new Date();
+        cy.task('log', `lowcodedemo/democonnector.three package pulling started at ${startDate}`);
         cy.exec('bal pull lowcodedemo/democonnector.three', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+        endDate = new Date();
+        cy.task('log', `lowcodedemo/democonnector.three package pulling completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
 
         let statementIndex = 0;
 
@@ -66,9 +78,9 @@ function addEndpoint(plusIndex: number, searchQuery: string, connector: string) 
 
     ConnectorMarketplace
         .shouldBeVisible()
-        .waitForConnectorsLoading()
+        .waitForConnectorsLoading(searchQuery)
         .searchConnector(searchQuery)
-        .waitForConnectorsLoading()
+        .waitForConnectorsLoading(connector)
         .selectConnector(connector);
 
     StatementEditor

@@ -25,9 +25,9 @@ describe('Add connector to resource via Low Code', () => {
 
         ConnectorMarketplace
             .shouldBeVisible()
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("http")
             .searchConnector("http")
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("http / client")
             .selectConnector("http / client");
 
         StatementEditor
@@ -40,9 +40,13 @@ describe('Add connector to resource via Low Code', () => {
 
     it('Add google sheet connector to resource', () => {
 
+        const startDate = new Date();
+        cy.task('log', `ballerinax/googleapis.sheets package pulling started at ${startDate}`);
         cy.exec('bal pull ballerinax/googleapis.sheets', { failOnNonZeroExit: false }).then((result) => {
             cy.log('Package pull results: ' + JSON.stringify(result));
         });
+        const endDate = new Date();
+        cy.task('log', `ballerinax/googleapis.sheets package pulling completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
 
         Canvas.getService("/hello")
             .getResourceFunction("GET", "/")
@@ -55,9 +59,9 @@ describe('Add connector to resource via Low Code', () => {
 
         ConnectorMarketplace
             .shouldBeVisible()
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("sheet")
             .searchConnector("sheet")
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("google sheets")
             .selectConnector("google sheets");
 
         StatementEditor

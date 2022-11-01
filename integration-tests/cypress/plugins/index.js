@@ -14,6 +14,8 @@
 
 const webpackPreprocessor = require('@cypress/webpack-batteries-included-preprocessor', 'cypress-terminal-report/src/installLogsPrinter')
 
+const _ = require('lodash');
+const del = require('del');
 /**
  * @type {Cypress.PluginConfig}
  * 
@@ -25,6 +27,7 @@ module.exports = (on, config) => {
 
   require('@cypress/code-coverage/task')(on, config)
 
+  // To log browser console logs
   const logOptions = {
     outputRoot: config.projectRoot + '/logs/',
     printLogsToConsole: 'never',
@@ -34,6 +37,28 @@ module.exports = (on, config) => {
     }
   };
   require('cypress-terminal-report/src/installLogsPrinter')(on, logOptions);
+
+  // To log console output
+  on('task', {
+    log(message) {
+      console.log(message);
+      return null
+    },
+  })
+
+  // To capture only the failing test videos
+  on('after:spec', (spec, results) => {
+    if (results && results.video) {
+      // Do we have failures for any retry attempts?
+      const failures = _.some(results.tests, (test) => {
+        return _.some(test.attempts, { state: 'failed' })
+      })
+      if (!failures) {
+        // delete the video if the spec passed and no tests retried
+        return del(results.video)
+      }
+    }
+  })
 
   return config
 }

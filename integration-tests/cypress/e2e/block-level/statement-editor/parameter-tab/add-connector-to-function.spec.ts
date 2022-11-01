@@ -28,9 +28,9 @@ describe('Add connector with custom configurations via Low Code', () => {
 
         ConnectorMarketplace
             .shouldBeVisible()
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("http")
             .searchConnector("http")
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("http / client")
             .selectConnector("http / client");
 
         StatementEditor

@@ -14,10 +14,14 @@ export class EndpointListForm {
     private static endpointListForm = '[data-testid="endpoint-list-form"]';
 
     static selectEndpoint(endpoint: string) {
+        const startDate = new Date();
+        cy.task('log', `Endpoint selection with name ${endpoint} started at ${startDate}`);
         this.getEndpointListForm()
-            .get(`[data-testid="${endpoint.toLowerCase()}"]`, { timeout: 50000 })
+            .get(`[data-testid="${endpoint.toLowerCase()}"]`, { timeout: 200000 })
             .should("be.visible")
             .click();
+        const endDate = new Date();
+        cy.task('log', `Endpoint selection with name ${endpoint} completed at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 

@@ -1,7 +1,7 @@
 export class SourceCode {
     
     static shouldBe(expectedContent: string) {
-        return cy.get('#file-content-holder', { timeout: 50000 })
+        return cy.get('#file-content-holder')
             .should('have.text', expectedContent)
     }
 
@@ -12,8 +12,8 @@ export class SourceCode {
     }
 
     static waitForDiagramLoader() {
-        cy.get('.loader-text', { timeout: 50000 });
-        return cy.get('.loader-text', { timeout: 50000 }).should('not.exist')
+        cy.get('.loader-text');
+        return cy.get('.loader-text').should('not.exist')
     }
 
 }

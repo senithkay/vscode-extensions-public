@@ -27,9 +27,9 @@ describe('Worker Scenario with Conflicts', () => {
 
         ConnectorMarketplace
             .shouldBeVisible()
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("http")
             .searchConnector("http")
-            .waitForConnectorsLoading()
+            .waitForConnectorsLoading("http / client")
             .selectConnector("http / client");
 
         StatementEditor
