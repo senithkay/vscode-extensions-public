@@ -91,7 +91,8 @@ export const parameterHeader = {
         letterSpacing: '0',
         lineHeight: '14px',
         paddingLeft: '0px',
-        marginBottom: '7px'
+        marginBottom: '7px',
+        position: 'relative' as 'relative'
     }
 }
 

@@ -146,7 +146,7 @@ export function ParameterSuggestions() {
                                         {paramDoc?.parameters?.length > 0 && (
                                             <hr className={stmtEditorHelperClasses.returnSeparator}/>
                                         )}
-                                        <ParamListSubheader style={{position: 'relative'}}>
+                                        <ParamListSubheader>
                                             Description
                                         </ParamListSubheader>
                                         <ListItem className={stmtEditorHelperClasses.docDescription}>
@@ -157,7 +157,7 @@ export function ParameterSuggestions() {
                                 {documentation.documentation.returnValueDescription && (
                                     <>
                                         <hr className={stmtEditorHelperClasses.returnSeparator}/>
-                                        <ParamListSubheader style={{position: 'relative'}}>
+                                        <ParamListSubheader>
                                             Return
                                         </ParamListSubheader>
                                         <ListItem className={stmtEditorHelperClasses.returnDescription}>
@@ -181,7 +181,7 @@ export function ParameterSuggestions() {
                     )}
                     {(connectorInfo?.documentation || activeMethod.documentation) && (
                         <>
-                            <ParamListSubheader style={{position: 'relative'}}>
+                            <ParamListSubheader>
                                 Description
                             </ParamListSubheader>
                             <ListItem className={stmtEditorHelperClasses.docDescription}>
@@ -192,7 +192,7 @@ export function ParameterSuggestions() {
                     {activeMethod.returnType?.documentation && (
                         <>
                             <hr className={stmtEditorHelperClasses.returnSeparator} />
-                            <ParamListSubheader style={{position: 'relative'}}>Return</ParamListSubheader>
+                            <ParamListSubheader>Return</ParamListSubheader>
                             <ListItem className={stmtEditorHelperClasses.returnDescription}>
                                 <ListItemText primary={activeMethod.returnType?.documentation} />
                             </ListItem>

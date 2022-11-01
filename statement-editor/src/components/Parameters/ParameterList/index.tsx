@@ -123,7 +123,7 @@ export function ParameterList(props: ParameterListProps) {
         <>
             {!!paramDocumentation.parameters?.length && (
                 <div data-testid="parameter-list">
-                    <ParamListSubheader style={{position: 'relative'}}>
+                    <ParamListSubheader>
                         Configure Parameters
                         <ListItemText
                             secondary={"Select parameters from the list given below"}

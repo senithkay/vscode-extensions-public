@@ -84,7 +84,7 @@ export function ParameterTree(props: ParameterTreeProps) {
         <div data-testid="parameter-tree">
             {parameters?.length > 0 && (
                 <>
-                    <ParamListSubheader style={{position: 'relative'}}>
+                    <ParamListSubheader>
                         Configure Parameters
                         <ListItemText secondary={"Select parameters from the list given below"} />
                     </ParamListSubheader>
