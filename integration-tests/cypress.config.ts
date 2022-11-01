@@ -9,7 +9,7 @@ export default defineConfig({
   chromeWebSecurity: false,
   video: true,
   videosFolder: './cypress/videos',
-  videoCompression: 10,
+  videoCompression: false,
   e2e: {
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
