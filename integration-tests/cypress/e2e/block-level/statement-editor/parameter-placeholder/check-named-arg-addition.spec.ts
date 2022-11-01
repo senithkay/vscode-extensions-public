@@ -55,7 +55,7 @@ describe('Test named arg addition through parameter tab', () => {
 
         ParameterTab
             .shouldBeFocused()
-            .shouldHaveParameterList()
+            .shouldHaveParameters(3)
             .shouldHaveRequiredArg("msg")
             .shouldHaveOptionalArg("error")
             .shouldHaveOptionalArg("stackTrace")

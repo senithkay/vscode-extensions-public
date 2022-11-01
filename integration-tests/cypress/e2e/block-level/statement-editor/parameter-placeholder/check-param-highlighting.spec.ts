@@ -55,7 +55,7 @@ describe('Test parameter highlighting in function call', () => {
 
         ParameterTab
             .shouldBeFocused()
-            .shouldHaveParameterList()
+            .shouldHaveParameters(3)
             .shouldHaveRequiredArg("str")
             .shouldHaveRequiredArg("substr")
             .shouldHaveOptionalArg("startIndex")

@@ -55,7 +55,7 @@ describe('Test function call and method call parameters', () => {
 
         ParameterTab
             .shouldBeFocused()
-            .shouldHaveParameterList()
+            .shouldHaveParameters(2)
             .shouldHaveRequiredArg("n")
             .shouldHaveOptionalArg("ns")
             .shouldHavecheckboxDisabled("n");
