@@ -22,8 +22,8 @@ import {
 	STNode,
 	traversNode
 } from "@wso2-enterprise/syntax-tree";
-import { useDMStore } from "../../../store/store";
 
+import { useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
@@ -36,6 +36,7 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
+import { SimpleNameReferencesFindingVisitor } from "../visitors/SimpleNameReferencesFindingVisitor";
 
 import {
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
@@ -787,6 +788,28 @@ export function getFieldAccessNodes(node: STNode) {
 	const fieldAccessFindingVisitor: FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
 	traversNode(node, fieldAccessFindingVisitor);
 	return fieldAccessFindingVisitor.getFieldAccessNodes();
+}
+
+export function getSimpleNameRefNodes(selectedST: STNode, node: STNode) {
+	const possibleReferences: string[] = [];
+	if (STKindChecker.isFunctionDefinition(selectedST)) {
+		const params = selectedST.functionSignature.parameters;
+		params.forEach((param) => {
+			if (STKindChecker.isRequiredParam(param) && param?.paramName) {
+				possibleReferences.push(param.paramName.value);
+			}
+		});
+	} else if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
+		const bindingPattern = selectedST.valueExpr.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
+		if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+			possibleReferences.push(bindingPattern.variableName.value);
+		}
+	}
+
+	const simpleNameRefsFindingVisitor: SimpleNameReferencesFindingVisitor =
+		new SimpleNameReferencesFindingVisitor(possibleReferences);
+	traversNode(node, simpleNameRefsFindingVisitor);
+	return simpleNameRefsFindingVisitor.getSimpleNameReferenceNodes();
 }
 
 export function getFieldName(field: EditableRecordField) {
