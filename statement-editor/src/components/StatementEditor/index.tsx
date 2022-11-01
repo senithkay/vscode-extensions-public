@@ -257,7 +257,8 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (editorModel) {
-                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList);
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content,
+                    targetPosition, moduleList, isExpressionMode);
                 sendDidChange(fileURI, updatedContent, getLangClient).then();
                 const diagnostics = await handleDiagnostics(source);
                 setStmtModel(editorModel, diagnostics);
