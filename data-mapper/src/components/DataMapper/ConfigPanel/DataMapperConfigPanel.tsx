@@ -165,7 +165,16 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     }, [outputType]);
 
     useEffect(() => {
-        setFnName(fnNameFromST);
+        (async () => {
+            if (fnNameFromST) {
+                const diagnostics = await getDiagnosticsForFnName(fnNameFromST, inputParams, outputType.type, fnST,
+                    targetPosition, currentFile.content, filePath, langClientPromise);
+                if (diagnostics.length > 0) {
+                    setDmFuncDiagnostic(diagnostics[0]?.message);
+                }
+                setFnName(fnNameFromST);
+            }
+        })();
     }, [fnNameFromST]);
 
     // For Input Value
