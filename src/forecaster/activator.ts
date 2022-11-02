@@ -306,6 +306,8 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
         delete data.resourcePos;
         delete data.name;
         data = JSON.stringify(data)
+        console.log(data);
+        
 
         if (cachedResponses.has(data)) {
             return resolve(cachedResponses.get(data));
