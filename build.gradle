@@ -37,15 +37,17 @@ task installDeps() {
 }
 
 task copyDeps(type: Copy) {
+    dependsOn ':ballerina-low-code-editor:buildLowCodeEditor'
     dependsOn installDeps
-    from "$rootDir/node_modules/@wso2-enterprise/ballerina-low-code-editor-distribution/build/"
+    from "$rootDir/ballerina-low-code-editor/distribution/build"
     into "$rootDir/resources/jslibs"
     include "BLCEditor.js"
 }
 
 task copyConfigEditorDeps(type: Copy) {
+    dependsOn ':ballerina-low-code-editor:buildLowCodeEditor'
     dependsOn installDeps
-    from "$rootDir/node_modules/@wso2-enterprise/ballerina-configurable-editor/build/umd"
+    from "$rootDir/ballerina-low-code-editor/configurable-editor/build/umd"
     into "$rootDir/resources/jslibs"
     include "ConfigEditor.js"
 }
@@ -54,10 +56,8 @@ npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
     dependsOn ':swagger-viewer:buildSwaggerViewer'
-    dependsOn ':graphql-viewer:buildGraphqlViewer'
     dependsOn ':notebook-renderer:buildRenderer'
     dependsOn ':variable-view:buildVariableView'
-    dependsOn ':design-diagram-viewer:buildProjectDesignDiagramViewer'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
     PatternSet patternSet = new PatternSet();
@@ -122,3 +122,5 @@ check {
     dependsOn test
     dependsOn uiTest
 }
+
+npmBuild.dependsOn ':ballerina-low-code-editor:buildLowCodeEditor'
