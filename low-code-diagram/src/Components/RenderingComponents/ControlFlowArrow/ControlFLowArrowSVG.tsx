@@ -18,13 +18,13 @@ import { ARROW_HEIGHT, ARROW_WIDTH } from "../ArrowHead";
 
 import './style.scss';
 
-export function ControlFLowArrowSVG(props: { x1: number, y: number, x2: number, isDotted: boolean }) {
-    const { isDotted, x1, x2, y } = props;
+export function ControlFLowArrowSVG(props: { x1: number, y: number, x2: number, isDotted: boolean, isLeft?: boolean }) {
+    const { isDotted, x1, x2, y, isLeft } = props;
     const pointX = isDotted ? x2 : x1;
 
     const pointsR = `${pointX - ARROW_HEIGHT},${y - ARROW_WIDTH} ${pointX - ARROW_HEIGHT},${y + ARROW_WIDTH} ${pointX},${y}  `;
     const pointsL = `${pointX + ARROW_HEIGHT},${y - ARROW_WIDTH} ${pointX + ARROW_HEIGHT},${y + ARROW_WIDTH} ${pointX},${y}  `;
-    const points = isDotted ? pointsL : pointsR;
+    const points = isLeft ? pointsL : (isDotted ? pointsL : pointsR);
     return (
         <svg>
             <defs>

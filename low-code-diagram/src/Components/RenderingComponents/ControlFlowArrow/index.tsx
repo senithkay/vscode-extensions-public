@@ -8,10 +8,11 @@ export interface ControlFlowArrowProps {
     y: number;
     w: number;
     isDotted: boolean;
+    isLeft?: boolean;
 }
 
 export default function ControlFlowArrow(props: ControlFlowArrowProps) {
-    const { isDotted, x, w, y } = props;
+    const { isDotted, x, w, y, isLeft } = props;
     return (
         <g className="control-flow-line">
             <ControlFLowArrowSVG
@@ -19,6 +20,7 @@ export default function ControlFlowArrow(props: ControlFlowArrowProps) {
                 x2={x}
                 y={y}
                 isDotted={isDotted}
+                isLeft={isLeft}
             />
         </g>
     );

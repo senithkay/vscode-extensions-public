@@ -485,16 +485,27 @@ export class PositioningVisitor implements Visitor {
             bodyViewState.workerIndicatorLine.w = workerDeclVS.trigger.cx - bodyViewState.workerIndicatorLine.x;
 
             (node as FunctionBodyBlock).namedWorkerDeclarator.namedWorkerDeclarations.forEach(workerDeclarator => {
+                const workerBodyViewState = workerDeclarator.workerBody.viewState as BlockViewState;
 
                 if (workerDeclarator.workerBody.controlFlow?.isReached) {
-                    const workerBodyViewState = workerDeclarator.workerBody.viewState as BlockViewState;
                     const workerLine: ControlFlowLineState = {
                         x: bodyViewState.workerIndicatorLine.x,
                         y: bodyViewState.workerIndicatorLine.y,
-                        w: bodyViewState.workerIndicatorLine.w - (START_SVG_WIDTH / 2),
+                        w: workerBodyViewState.bBox.cx - bodyViewState.workerIndicatorLine.x - (START_SVG_WIDTH / 2),
                         isDotted: true
                     };
                     workerBodyViewState.controlFlow.lineStates.push(workerLine);
+                }
+                const lastStatement = workerDeclarator.workerBody.statements[workerDeclarator.workerBody.statements.length - 1];
+                if (lastStatement && STKindChecker.isReturnStatement(lastStatement) && lastStatement.controlFlow?.isReached) {
+                    const lastStatementBBox = lastStatement.viewState.bBox;
+                    const bottomLine: ControlFlowLineState = {
+                        x: lastStatementBBox.cx,
+                        y: lastStatementBBox.cy + PROCESS_SVG_HEIGHT / 2,
+                        w: bodyViewState.workerIndicatorLine.x - workerBodyViewState.bBox.cx + 35,
+                        isArrowed: true
+                    };
+                    workerBodyViewState.controlFlow.lineStates.push(bottomLine);
                 }
             });
         }
@@ -584,6 +595,7 @@ export class PositioningVisitor implements Visitor {
 
     private calculateStatementPosition(statements: STNode[], blockViewState: BlockViewState, height: number, index: number, epGap: number) {
         let collapsedViewStates: CollapseViewState[] = [...blockViewState.collapsedViewStates];
+        let controlFlowIndex: number = 0;
 
         statements.forEach((statement) => {
             const statementViewState: StatementViewState = statement.viewState;
@@ -743,14 +755,14 @@ export class PositioningVisitor implements Visitor {
                     y: 0,
                     h: 0
                 };
-                if (index === 0) {
+                if (controlFlowIndex === 0) {
                     controlFlowLineState.x = blockViewState.bBox.cx;
                     controlFlowLineState.y = blockViewState.bBox.cy - blockViewState.bBox.offsetFromBottom;
                     controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y;
-                } else if (index <= statements.length) {
-                    const previousStatementViewState: StatementViewState = statements[index - 1].viewState;
+                } else if (controlFlowIndex <= statements.length) {
+                    const previousStatementViewState: StatementViewState = statements[controlFlowIndex - 1].viewState;
                     controlFlowLineState.x = statementViewState.bBox.cx;
-                    if (STKindChecker.isIfElseStatement(statements[index - 1])) {
+                    if (STKindChecker.isIfElseStatement(statements[controlFlowIndex - 1])) {
                         controlFlowLineState.y = previousStatementViewState.bBox.cy + previousStatementViewState.bBox.h - previousStatementViewState.bBox.offsetFromBottom - statementViewState.bBox.offsetFromTop;
                         controlFlowLineState.h = statementViewState.bBox.cy - controlFlowLineState.y + previousStatementViewState.bBox.offsetFromBottom + statementViewState.bBox.offsetFromTop;
                     } else {
@@ -892,6 +904,7 @@ export class PositioningVisitor implements Visitor {
                 }
             }
             ++index;
+            ++controlFlowIndex;
         });
         return { height, index };
     }
