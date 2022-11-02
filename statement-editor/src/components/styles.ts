@@ -91,7 +91,8 @@ export const parameterHeader = {
         letterSpacing: '0',
         lineHeight: '14px',
         paddingLeft: '0px',
-        marginBottom: '7px'
+        marginBottom: '7px',
+        position: 'relative' as 'relative'
     }
 }
 
@@ -625,6 +626,7 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         docParamSuggestions: {
             height: '100%',
+            overflowY: 'scroll',
             ...stmtEditorPadding
         },
         returnSeparator : {
