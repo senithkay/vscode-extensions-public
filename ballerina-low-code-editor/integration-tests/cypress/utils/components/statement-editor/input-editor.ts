@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+export class InputEditor {
+    static getInputEditor() {
+        return cy.get(`[data-testid="input-editor"]`);
+    }
+
+    static typeInput(text: string, parseSpecialCharSequences: boolean = true) {
+        cy.wait(1000);
+        this.getInputEditor()
+            .focus()
+            .clear()
+            .wait(1000)
+            .type(text, { parseSpecialCharSequences: parseSpecialCharSequences });
+
+        cy.wait(1000);
+
+        this.getInputEditor()
+            .type('{enter}');
+        cy.wait(1000);
+        
+        return this;
+    }
+
+    static checkEditingState() {
+        cy.get(`[data-testid="input-editor"]`)
+            .should('be.visible', { timeout: 50000 })
+        return this;
+    }
+
+    static checkUneditableState() {
+        cy.get(`[data-testid="input-editor"]`)
+            .should("not.exist", { timeout: 50000 });
+        return this;
+    }
+}

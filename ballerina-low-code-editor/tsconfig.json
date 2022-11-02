@@ -1,0 +1,23 @@
+{
+    "files": [],
+    "references": [
+      {
+        "path": "./statement-editor/tsconfig.ref.json"
+      },
+      {
+        "path": "./configurable-editor/tsconfig.ref.json"
+      },
+      {
+        "path": "./lang-service/tsconfig.ref.json"
+      },
+      {
+        "path": "./low-code-editor/tsconfig.ref.json"
+      },
+      {
+        "path": "./syntax-tree/tsconfig.ref.json"
+      },
+      {
+        "path": "./expression-editor/tsconfig.ref.json"
+      }
+    ],
+  }
