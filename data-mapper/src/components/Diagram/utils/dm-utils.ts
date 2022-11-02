@@ -175,18 +175,26 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			if (specificField && !specificField.valueExpr.source) {
 				return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position, applyModifications);
 			}
-			source = `${getLinebreak()}${lhs}: ${rhs}`;
+			source = `${lhs}: ${rhs}`;
 		}
 	} else {
 		const specificField = getSpecificField(targetMappingConstruct, lhs);
 		if (specificField && !specificField.valueExpr.source) {
 			return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position, applyModifications);
 		}
-		source = `${getLinebreak()}${lhs}: ${rhs}`;
+		source = `${lhs}: ${rhs}`;
 	}
 
-	const targetPosition = targetMappingConstruct.openBrace.position;
-	source = !!targetMappingConstruct.fields.length ? source + "," : source;
+	const fieldsAvailable = !!targetMappingConstruct.fields.length;
+	let targetPosition: NodePosition;
+
+	if (fieldsAvailable) {
+		targetPosition = mappingConstruct.fields[mappingConstruct.fields.length - 1].position;
+		source = `,${getLinebreak()}${source}`;
+	} else {
+		targetPosition = mappingConstruct.openBrace.position;
+		source = `${getLinebreak()}${source}`
+	}
 
 	modifications.push(getModification(source, {
 		...targetPosition,
@@ -274,12 +282,21 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 		}
 		source = createSpecificField(parentFields.reverse());
 	}
-	source = !!targetMappingConstructor.fields.length ? source + "," : source;
+
+	const fieldsAvailable = !!targetMappingConstructor.fields.length;
+	let targetPosition: NodePosition;
+
+	if (fieldsAvailable) {
+		targetPosition = targetMappingConstructor.fields[targetMappingConstructor.fields.length - 1].position;
+		source = `,${source}`;
+	} else {
+		targetPosition = targetMappingConstructor.openBrace.position;
+	}
 
 	modifications.push(getModification(source, {
-		...targetMappingConstructor.openBrace.position,
-		startLine: targetMappingConstructor.openBrace.position.endLine,
-		startColumn: targetMappingConstructor.openBrace.position.endColumn
+		...targetPosition,
+		startLine: targetPosition.endLine,
+		startColumn: targetPosition.endColumn
 	}));
 	await applyModifications(modifications);
 
