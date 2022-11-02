@@ -121,7 +121,7 @@
                 },
                 "ballerina.enableConfigurableEditor": {
                     "type": "boolean",
-                    "default": false,
+                    "default": true,
                     "description": "Enable the configurable editor in code view."
                 },
                 "ballerina.experimental": {
