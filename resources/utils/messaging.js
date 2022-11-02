@@ -280,6 +280,16 @@ function getLangClient() {
                 });
             })
         },
+        getSTForFunction: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getSTForFunction', [params], (resp) => {
+                    consoleLog(start, 'getSTForFunction');
+                    const unzippedResp = pako.inflate(resp.data, { to: 'string' });
+                    resolve(JSON.parse(unzippedResp));
+                });
+            })
+        },
         triggerModify: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
