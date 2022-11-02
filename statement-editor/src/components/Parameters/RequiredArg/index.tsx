@@ -52,6 +52,7 @@ export function RequiredArg(props : RequiredArgProps){
                 checked={param.modelPosition !== undefined}
                 disabled={!!param.modelPosition}
                 onClick={handleCheckboxClick(param)}
+                data-testid="arg-check"
             />
             <ListItemText
                 className={statementEditorHelperClasses.docListItemText}

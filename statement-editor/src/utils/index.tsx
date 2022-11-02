@@ -64,6 +64,7 @@ import {
     IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
+    PARAM_CONSTRUCTOR,
     PLACEHOLDER_DIAGNOSTICS,
     RECORD_EDITOR,
     StatementNodes,
@@ -92,7 +93,7 @@ import { visitor as ParentModelFindingVisitor } from "../visitors/parent-model-f
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
-import { Expression, ExpressionGroup, PARAMETER_PLACEHOLDER } from "./expressions";
+import { Expression, ExpressionGroup } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
@@ -781,9 +782,9 @@ export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterI
                 `'${param.name} = ${EXPR_CONSTRUCTOR}` :
                 `${param.name} = ${EXPR_CONSTRUCTOR}`))
         ) :
-            modelParams.push(`${EXPR_CONSTRUCTOR}`);
+            modelParams.push(`${PARAM_CONSTRUCTOR}${param.name}`);
     } else if (param.kind === SymbolParameterType.REST) {
-        modelParams.push(EXPR_CONSTRUCTOR);
+        modelParams.push(`${PARAM_CONSTRUCTOR}${param.name}`);
     } else {
         modelParams.push(param.name);
     }
@@ -855,12 +856,18 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
         let paramList = params[1].split(',');
         paramList = paramList.map((param: string) => {
             if (param) {
-                return PARAMETER_PLACEHOLDER;
+                const paramName = param.trim().split(' ').pop();
+                return `${PARAM_CONSTRUCTOR}${paramName}`;
             }
         });
         exprWithArgs = suggestionValue.replace(params[1], paramList.toString());
     }
     return prefix ? prefix + exprWithArgs : exprWithArgs;
+}
+
+export function getFunctionParamPlaceholders(paramExpr: string) {
+    const param = paramExpr.split('_' , 2).pop();
+    return `<add-${param}>`;
 }
 
 export function getFilteredExpressions(expression: ExpressionGroup[], currentModel: STNode): ExpressionGroup[] {

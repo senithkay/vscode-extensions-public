@@ -21,17 +21,17 @@ import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-p
 import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
 import { ParameterTab } from "../../../../utils/components/statement-editor/parameter-tab";
 
-const BAL_FILE_PATH = "block-level/statement-editor/add-function-call-to-function.bal";
+const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
-describe('Test helper plane parameter tab functionality', () => {
+describe('Test parameter highlighting in function call', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     });
 
-    it('Call functions form a function', () => {
-        // Add function call with zero arguments
-        Canvas.getFunction("main")
-            .nameShouldBe("main")
+    it('Check parameter highlighting via selection', () => {
+        // Check parameter highlighting via selection
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
@@ -44,66 +44,58 @@ describe('Test helper plane parameter tab functionality', () => {
             .getEditorPane();
 
         EditorPane
+            .validateNewExpression("SimpleNameReference", `<add-expression>`)
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`);
+            .clickExpressionContent(`<add-expression>`);
 
         SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('emptyFun()');
-
-        ParameterTab.shouldBeFocused();
-
-        StatementEditor
-            .save();
-
-        // Add function call with required and defaultable argument with record inclusion
-        Canvas.getFunction("main")
-            .nameShouldBe("main")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(1);
-
-        BlockLevelPlusWidget.clickOption("Variable");
-
-        StatementEditor
-            .shouldBeVisible()
-            .getEditorPane();
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`);
-
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('fooFun(string str, int n, Student student)');
+            .clickSuggestionsTab("Libraries")
+            .clickLibrarySuggestion('lang.string')
+            .clickSearchedLibSuggestion('lang.string:indexOf');
 
         ParameterTab
             .shouldBeFocused()
             .shouldHaveRequiredArg("str")
-            .shouldHaveOptionalArg("n")
-            .shouldHaveOptionalArg("student")
-            .toggleOptionalArg("student");
+            .shouldHaveRequiredArg("substr")
+            .shouldHaveOptionalArg("startIndex")
+            .shouldHavecheckboxDisabled("str");
+
+        EditorPane
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent(`<add-str>`);
+
+        ParameterTab
+            .shouldHaveParameterSelected("str");
 
         EditorPane
             .getExpression("SimpleNameReference")
             .doubleClickExpressionContent(`<add-str>`);
 
         InputEditor
-            .typeInput('"str"');
+            .typeInput('"Message"');
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-n>`);
+            .doubleClickExpressionContent(`<add-substr>`);
 
         InputEditor
-            .typeInput("0");       
+            .typeInput('"age"');
+
+        EditorPane
+            .getExpression("SimpleNameReference")
+            .clickExpressionContent(`<add-startIndex>`);
+
+        ParameterTab
+            .shouldHaveParameterSelected("startIndex")
+            .toggleOptionalArg("startIndex");
+
+        EditorPane
+            .validateEmptyDiagnostics();
 
         StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-function-call-to-function.expected.bal");
-
+            getCurrentSpecFolder() + "check-param-highlighting.expected.bal");
     });
 });

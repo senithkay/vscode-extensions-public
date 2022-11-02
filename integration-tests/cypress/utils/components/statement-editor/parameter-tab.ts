@@ -34,13 +34,6 @@ export class ParameterTab {
         return this;
     }
 
-    static shouldHaveParameters(count: number){
-        cy.get(`[data-testid="parameter-list"]`)
-            .should('be.visible')
-            .should('have.length', count);
-        return this;
-    }
-
     static validateNoParameters(){
         cy.get(`[data-testid="parameter-list"]`)
             .should('not.exist');
@@ -228,6 +221,48 @@ export class ParameterTab {
             .siblings(`[data-testid="arg-check"]`)
             .click({ force: true })
             .wait(500);
+        return this;
+    }
+
+    static shouldHaveInclusiveRecordArg(name: string) {
+        cy.get(`[data-testid="included-record-arg"]`, { timeout: 2000 })
+            .should('be.visible')
+            .within(() => {
+                cy.contains(name)
+                    .should('be.visible');
+            });
+        return this;
+    }
+
+    static shouldHavecheckboxDisabled(name: string) {
+        cy.get(`[data-testid="required-arg"]`)
+            .should('be.visible')
+            .children()
+            .contains(name)
+            .should('be.visible')
+            .parent().parent()
+            .within(() => {
+                cy.get(`[data-testid="arg-check"]`)
+                    .should('have.class', 'Mui-disabled')
+            });
+        return this;
+    }
+
+    static addNamedArg(name: string) {
+        cy.get(`[data-testid="named-arg-button"]`)
+            .click({ force: true })
+        cy.get(`[data-testid="named-arg-input"]`, { timeout: 5000 })
+            .type(name + "{enter}", { delay: 100 });
+        return this;
+    }
+
+    static shouldHaveParameterSelected(name: string) {
+        cy.get(`[style="background-color: rgba(204, 209, 242, 0.61);"]`)
+            .should('be.visible')
+            .within(() => {
+                cy.contains(name)
+                    .should('be.visible');
+            });
         return this;
     }
 }

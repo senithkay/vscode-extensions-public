@@ -39,7 +39,6 @@ describe('Test helper plane parameter tab functionality', () => {
 
         ParameterTab
             .shouldBeFocused()
-            .shouldHaveParameterList()
             .shouldHaveRequiredArg("str")
             .shouldHaveOptionalArg("n")
             .shouldHaveOptionalArg("student")

@@ -10,31 +10,32 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ParameterTab } from "../../../../utils/components/statement-editor/parameter-tab";
-import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
 import { Canvas } from "../../../../utils/components/canvas";
+import { getIntegrationTestPageURL } from "../../../../utils/story-url-utils";
 import { StatementEditor } from "../../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../../utils/components/statement-editor/editor-pane";
-import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
+import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
 import { SourceCode } from "../../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../../utils/file-utils";
-import { InputEditor } from "../../../../utils/components/statement-editor/input-editor";
 import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-plus-widget";
+import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
+import { ParameterTab } from "../../../../utils/components/statement-editor/parameter-tab";
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
-describe('Test helper pane functionality', () => {
+describe('Test named arg addition through parameter tab', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-    })
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+    });
 
-    it('Test parameter count of method with no params', () => {
+    it('Add named arg through parameter tab', () => {
+        // Add named arg through parameter tab
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2);
+            .clickDefaultWorkerPlusBtn(0);
 
         BlockLevelPlusWidget.clickOption("Variable");
 
@@ -43,46 +44,47 @@ describe('Test helper pane functionality', () => {
             .getEditorPane();
 
         EditorPane
-            .getStatementRenderer()
+            .validateNewExpression("SimpleNameReference", `<add-expression>`)
             .getExpression("SimpleNameReference")
             .clickExpressionContent(`<add-expression>`);
 
         SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('var2')
-            .clickLsTypeSuggestion('toString()');
+            .clickSuggestionsTab("Libraries")
+            .clickLibrarySuggestion('log')
+            .clickSearchedLibSuggestion('log:printInfo');
 
         ParameterTab
-            .validateNoParameters();
-
-    });
-
-    it('Test parameter count of method with multiple params', () => {
-        Canvas.getFunction("testStatementEditorComponents")
-            .nameShouldBe("testStatementEditorComponents")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(2);
-
-        BlockLevelPlusWidget.clickOption("Variable");
-
-        StatementEditor
-            .shouldBeVisible()
-            .getEditorPane();
+            .shouldBeFocused()
+            .shouldHaveRequiredArg("msg")
+            .shouldHaveOptionalArg("error")
+            .shouldHaveOptionalArg("stackTrace")
+            .shouldHavecheckboxDisabled("msg");
 
         EditorPane
-            .getStatementRenderer()
             .getExpression("SimpleNameReference")
-            .clickExpressionContent(`<add-expression>`);
+            .doubleClickExpressionContent(`<add-msg>`);
 
-        SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('var2')
-            .clickLsTypeSuggestion('max(int... ns)');
+        InputEditor
+            .typeInput('"Message"');
 
         ParameterTab
-            .shouldHaveOptionalArg('ns');
+            .addNamedArg("newArg")
+            .shouldHaveInclusiveRecordArg("newArg");
 
+        EditorPane
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
+
+        InputEditor
+            .typeInput('"newArgText"');
+
+        EditorPane
+            .validateEmptyDiagnostics();
+
+        StatementEditor
+            .save();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "check-named-arg-addition.expected.bal");
     });
-})
+});

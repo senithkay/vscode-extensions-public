@@ -21,17 +21,17 @@ import { BlockLevelPlusWidget } from "../../../../utils/components/block-level-p
 import { SuggestionsPane } from "../../../../utils/components/statement-editor/suggestions-pane";
 import { ParameterTab } from "../../../../utils/components/statement-editor/parameter-tab";
 
-const BAL_FILE_PATH = "block-level/statement-editor/add-function-call-to-function.bal";
+const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
-describe('Test helper plane parameter tab functionality', () => {
+describe('Test function call and method call parameters', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     });
 
-    it('Call functions form a function', () => {
-        // Add function call with zero arguments
-        Canvas.getFunction("main")
-            .nameShouldBe("main")
+    it('Add function call via libraries', () => {
+        // Add function call with arguments
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
@@ -44,25 +44,55 @@ describe('Test helper plane parameter tab functionality', () => {
             .getEditorPane();
 
         EditorPane
+            .validateNewExpression("SimpleNameReference", `<add-expression>`)
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`);
+            .clickExpressionContent(`<add-expression>`);
 
         SuggestionsPane
-            .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('emptyFun()');
+            .clickSuggestionsTab("Libraries")
+            .clickLibrarySuggestion('lang.int')
+            .clickSearchedLibSuggestion('lang.int:min')
 
-        ParameterTab.shouldBeFocused();
+        ParameterTab
+            .shouldBeFocused()
+            .shouldHaveRequiredArg("n")
+            .shouldHaveOptionalArg("ns")
+            .shouldHavecheckboxDisabled("n");
+
+        EditorPane
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-n>`);
+
+        InputEditor
+            .typeInput('1');
+
+        EditorPane
+            .validateNewExpression("SimpleNameReference", `<add-ns>`)
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-ns>`);
+
+        InputEditor
+            .typeInput('2');
+
+        EditorPane
+            .validateEmptyDiagnostics();
 
         StatementEditor
             .save();
 
-        // Add function call with required and defaultable argument with record inclusion
-        Canvas.getFunction("main")
-            .nameShouldBe("main")
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "check-function-params.expected.bal");
+
+    });
+
+    it('Add method call via libraries', () => {
+        // Add method call with arguments
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
             .getDiagram()
             .shouldBeRenderedProperly()
-            .clickDefaultWorkerPlusBtn(1);
+            .clickDefaultWorkerPlusBtn(0);
 
         BlockLevelPlusWidget.clickOption("Variable");
 
@@ -71,39 +101,37 @@ describe('Test helper plane parameter tab functionality', () => {
             .getEditorPane();
 
         EditorPane
+            .validateNewExpression("SimpleNameReference", `<add-expression>`)
             .getExpression("SimpleNameReference")
             .doubleClickExpressionContent(`<add-expression>`);
 
+        InputEditor
+            .typeInput('"Some"');
+
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
-            .clickLsTypeSuggestion('fooFun(string str, int n, Student student)');
+            .clickLsTypeSuggestion("'join(string... strs)");
 
         ParameterTab
             .shouldBeFocused()
-            .shouldHaveRequiredArg("str")
-            .shouldHaveOptionalArg("n")
-            .shouldHaveOptionalArg("student")
-            .toggleOptionalArg("student");
+            .shouldHaveParameterList()
+            .shouldHaveOptionalArg("strs");
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-str>`);
+            .doubleClickExpressionContent(`<add-strs>`);
 
         InputEditor
-            .typeInput('"str"');
+            .typeInput('"Text"');
 
         EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-n>`);
-
-        InputEditor
-            .typeInput("0");       
+            .validateEmptyDiagnostics();
 
         StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-function-call-to-function.expected.bal");
+            getCurrentSpecFolder() + "check-methodcall-params.expected.bal");
 
     });
 });
