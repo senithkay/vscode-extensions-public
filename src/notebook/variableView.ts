@@ -17,7 +17,7 @@
  *
  */
 
-import { WebviewViewProvider, WebviewView, WebviewViewResolveContext, CancellationToken, ExtensionContext } from "vscode";
+import { WebviewViewProvider, WebviewView, WebviewViewResolveContext, CancellationToken, ExtensionContext, Webview } from "vscode";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { CMP_NOTEBOOK, sendTelemetryEvent, TM_EVENT_UPDATE_VARIABLE_VIEW } from "../telemetry";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions, WebViewRPCHandler } from "../utils";
@@ -40,11 +40,11 @@ export class VariableViewProvider implements WebviewViewProvider {
 			enableScripts: true,
 		};
 		webviewRPCHandler = WebViewRPCHandler.create(webviewView, langClient, []);
-		const html = this.getHtmlForWebview(context, langClient);
+		const html = this.getHtmlForWebview(context, langClient, webviewView.webview);
 		webviewView.webview.html = html;
 	}
 
-	private getHtmlForWebview(_context: ExtensionContext, _langClient: ExtendedLangClient) {
+	private getHtmlForWebview(_context: ExtensionContext, _langClient: ExtendedLangClient, webView: Webview) {
 		const body = `<div id="variables" class="variables-container" />`;
 		const bodyCss = "variables";
 		const styles = `
@@ -68,11 +68,11 @@ export class VariableViewProvider implements WebviewViewProvider {
 			`;
 
 		const webViewOptions: WebViewOptions = {
-			...getComposerWebViewOptions("VariableView"),
+			...getComposerWebViewOptions("VariableView", webView),
 			body, scripts, styles, bodyCss
 		};
 
-		return getLibraryWebViewContent(webViewOptions);
+		return getLibraryWebViewContent(webViewOptions, webView);
 	}
 
 	public updateVariables() {

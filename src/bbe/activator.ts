@@ -92,9 +92,11 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
         }
     ];
     WebViewRPCHandler.create(examplesPanel, langClient, remoteMethods);
-    const html = render(context, langClient);
-    if (examplesPanel && html) {
-        examplesPanel.webview.html = html;
+    if (examplesPanel) {
+        const html = render(context, langClient, examplesPanel.webview);
+        if (html) {
+            examplesPanel.webview.html = html;
+        }
     }
     examplesPanel.onDidDispose(() => {
         examplesPanel = undefined;
