@@ -18,7 +18,7 @@
  */
 
 import { BallerinaProject } from "../../core/extended-language-client";
-import { Terminal, window } from "vscode";
+import { Terminal, window, workspace } from "vscode";
 import { isWindows } from "../../utils";
 
 export enum PALETTE_COMMANDS {
@@ -105,12 +105,44 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
         commandText = `${executor} ${argsList}`;
         terminal = window.createTerminal({ name: TERMINAL_NAME });
     } else {
-        commandText = `${executor} ${cmd} ${argsList}`;
-        let configEnv = {};
-        if (confPath !== '') {
-            configEnv = { BAL_CONFIG_FILES: confPath };
+        let env = {};
+
+        // Get launch.json configs
+        const workspaceFolders = workspace.workspaceFolders;
+        if (workspaceFolders && workspaceFolders.length > 0) {
+            const config = workspace.getConfiguration(
+                'launch',
+                workspaceFolders![0].uri
+            );
+            const values: any = config.get('configurations');
+
+            if (values.length > 0) {
+                const configurations = values[0];
+                // envs
+                if (configurations['env']) {
+                    env = configurations['env'];
+                }
+
+                // program args
+                if (configurations['programArgs'] && configurations['programArgs'].length > 0) {
+                    configurations['programArgs'].forEach((arg) => {
+                        try {
+                            arg = arg.trim();
+                            arg = /\s/g.test(arg) ? `"${arg}"` : arg;
+                            argsList += arg.concat(' ');
+                        } catch (e) {
+                            // error
+                        }
+                    });
+                }
+            }
         }
-        terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath, env: configEnv });
+
+        commandText = `${executor} ${cmd} ${argsList}`;
+        if (confPath !== '') {
+            Object.assign(env, { BAL_CONFIG_FILES: confPath });
+        }
+        terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath, env });
     }
     terminal.sendText(isWindows() ? 'cls' : 'clear', true);
     terminal.show(true);
