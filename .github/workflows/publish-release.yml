@@ -27,9 +27,19 @@ jobs:
           java-version: '11'
 
       - name: Setup Ballerina
+        id: set-version
         run: |
-          wget https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.1.2/ballerina-2201.1.2-swan-lake-linux-x64.deb
-          sudo dpkg -i ballerina-2201.1.2-swan-lake-linux-x64.deb
+          mkdir extractedDistribution
+          wget https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.1.2/ballerina-2201.1.2-swan-lake.zip
+          unzip -qq ./ballerina-2201.1.2-swan-lake.zip -d ./extractedDistribution
+          rm ballerina-2201.1.2-swan-lake.zip
+          balVersion=$(ls ./extractedDistribution)
+          balHome=$(./extractedDistribution/$balVersion
+
+          echo "::set-output name=balVersion::$balVersion"
+          echo "::set-output name=balHome::$balHome"
+          echo BAL_HOME=$balHome >> $GITHUB_ENV
+
       - name: Pre release depenency version update
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
@@ -40,7 +50,7 @@ jobs:
           git checkout -b release-${{ github.event.inputs.version }}
       - name: Build plugin repository
         run: |
-          sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build -x test
+          sudo apt-get install xvfb && xvfb-run --auto-servernum ./gradlew clean build
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
           IS_RELEASE: ${{ true }}
@@ -55,6 +65,14 @@ jobs:
       - name: Rename vsix
         run: |
           find . -type f -name '*.vsix' -exec sh -c 'x="{}"; mv "$x" ballerina.vsix' \;
+
+      - name: Run UI tests
+        run: |
+          npx extest get-vscode -c 1.68.0 && npx extest get-chromedriver -c 1.68.0 && npx extest install-vsix -f $(ls *.vsix)
+          export DISPLAY=:98.0
+          Xvfb -ac :98 -screen 0 1920x1080x16 &
+          npm run ui-test
+
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
