@@ -30,12 +30,15 @@ export class StatementEditor {
     }
 
     static save() {
+        cy.wait(1000);
+        cy.task('log', `Started saving the statement`);
         this.getStatementEditor()
             .get('button')
             .contains("Save")
             .should('not.be.disabled')
             .wait(1000)
             .click();
+        cy.task('log', `Completed saving the statement`);
         return this;
     }
 

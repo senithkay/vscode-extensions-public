@@ -134,6 +134,9 @@ export class ParameterTab {
     }
 
     static toggleInclusionArg(name: string) {
+        const startDate = new Date();
+        cy.wait(1000);
+        cy.task('log', `Toggling inclusion arg-${name} at ${startDate}`);
         cy.get(`[data-testid="inclusion-arg"]`)
             .children()
             .children(`[data-testid="arg-name"]`)
@@ -142,7 +145,9 @@ export class ParameterTab {
             .scrollIntoView()
             .siblings(`[data-testid="arg-check"]`)
             .click({ force: true })
-            .wait(1000);
+            .wait(3000);
+        const endDate = new Date();
+        cy.task('log', `Completed toggling inclusion arg-${name} at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
