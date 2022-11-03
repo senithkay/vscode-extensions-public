@@ -562,7 +562,7 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram);
+					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram, this.webviewPanel.webview);
 			} else {
 				callUpdateDiagramMethod();
 			}
