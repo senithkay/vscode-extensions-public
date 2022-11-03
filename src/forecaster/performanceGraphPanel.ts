@@ -111,7 +111,7 @@ export class DefaultWebviewPanel {
         if (DefaultWebviewPanel.currentPanel) {
             this.updateTitle(title);
         }
-        this.webviewPanel.webview.html = render(type, { name: request.name, data: request.data });
+        this.webviewPanel.webview.html = render(type, { name: request.name, data: request.data }, this.webviewPanel.webview);
         DefaultWebviewPanel.clearCodeLenses = true;
     }
 

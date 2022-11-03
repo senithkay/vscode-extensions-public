@@ -17,9 +17,10 @@
  *
  */
 
+import { Webview } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../../utils';
 
-export function render(data: any)
+export function render(data: any, webView: Webview)
     : string {
 
     const body = `<div id="swagger-view" class="swagger-container"><div class="loader" /></div>`;
@@ -47,9 +48,9 @@ export function render(data: any)
          `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("SwaggerView"),
+        ...getComposerWebViewOptions("SwaggerView", webView),
         body, scripts, styles, bodyCss
     };
 
-    return getLibraryWebViewContent(webViewOptions);
+    return getLibraryWebViewContent(webViewOptions, webView);
 }
