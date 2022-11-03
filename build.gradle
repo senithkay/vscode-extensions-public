@@ -56,8 +56,10 @@ npmBuild() {
     dependsOn ':bbe-viewer:buildBBEViewer'
     dependsOn ':perf-viewer:buildPerfViewer'
     dependsOn ':swagger-viewer:buildSwaggerViewer'
+    dependsOn ':graphql-viewer:buildGraphqlViewer'
     dependsOn ':notebook-renderer:buildRenderer'
     dependsOn ':variable-view:buildVariableView'
+    dependsOn ':design-diagram-viewer:buildProjectDesignDiagramViewer'
     dependsOn copyDeps
     dependsOn copyConfigEditorDeps
     PatternSet patternSet = new PatternSet();
