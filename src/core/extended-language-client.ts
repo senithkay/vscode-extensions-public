@@ -581,17 +581,10 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
 
-    async getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
-        if (this.ballerinaExtInstance) {
-            showChoreoPushMessage(this.ballerinaExtInstance);
-            if (!this.ballerinaExtInstance.getChoreoSession().loginStatus) {
-                showChoreoSigninMessage(this.ballerinaExtInstance);
-            }
-        }
-        if (!this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_FUNCTION)) {
+    async getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_FUNCTION)
+        return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION, params) :
             Promise.resolve(NOT_SUPPORTED);
-        }
-        return this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION, params);
     }
 
     async triggerModify(params: TriggerModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
