@@ -140,7 +140,8 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
 
         commandText = `${executor} ${cmd} ${argsList}`;
         if (confPath !== '') {
-            Object.assign(env, { BAL_CONFIG_FILES: confPath });
+            const configs = env['BAL_CONFIG_FILES'] ? `${env['BAL_CONFIG_FILES']}:${confPath}` : confPath;
+            Object.assign(env, { BAL_CONFIG_FILES: configs });
         }
         terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath, env });
     }
