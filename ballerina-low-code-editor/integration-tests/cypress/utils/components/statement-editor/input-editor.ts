@@ -16,6 +16,8 @@ export class InputEditor {
     }
 
     static typeInput(text: string, parseSpecialCharSequences: boolean = true) {
+        const startDate = new Date();
+        cy.task('log', `Started to wait to type input-${text} at ${startDate}`);
         cy.wait(1000);
         this.getInputEditor()
             .focus()
@@ -24,11 +26,13 @@ export class InputEditor {
             .type(text, { parseSpecialCharSequences: parseSpecialCharSequences });
 
         cy.wait(1000);
+        cy.task('log', `Completed typing the input-${text}`);
 
         this.getInputEditor()
             .type('{enter}');
-        cy.wait(1000);
-        
+        cy.wait(2500);
+        const endDate = new Date();
+        cy.task('log', `Input typing confirmed for the input-${text} at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 

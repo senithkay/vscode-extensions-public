@@ -16,19 +16,29 @@ export class EditorPane {
     private static parentSelector;
 
     static getStatementRenderer(){
+        const startDate = new Date();
+        cy.task('log', `Started to wait for statement render at ${startDate}`);
         cy.wait(2000);
         cy.get(`[data-testid="statement-renderer"]`);
+        const endDate = new Date();
+        cy.task('log', `Found statement render at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
     static getExpression(modelType?: modelTypes){
-        cy.wait(1000);
-        cy.get(`[data-testid="${modelType}"]`)
+        const startDate = new Date();
+        cy.task('log', `Started to wait for expression-${modelType} at ${startDate}`);
+        cy.wait(1500);
+        cy.get(`[data-testid="${modelType}"]`);
+        const endDate = new Date();
+        cy.task('log', `Found expression-${modelType} at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         this.parentSelector = `[data-testid="${modelType}"]`;
         return this;
     }
 
     static clickExpressionContent(text:string){
+        const startDate = new Date();
+        cy.task('log', `Started to wait for expression content-${text} at ${startDate}`);
         cy.wait(1500);
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
@@ -36,6 +46,8 @@ export class EditorPane {
                 .click()
                 // .parent('[class*="expressionElementSelected"]',{timeout:20000})
         });
+        const endDate = new Date();
+        cy.task('log', `Found expression-${text} content at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
@@ -48,20 +60,28 @@ export class EditorPane {
     }
 
     static doubleClickExpressionContent(text:string){
+        const startDate = new Date();
+        cy.task('log', `Started to wait for double click expression-${text} at ${startDate}`);
         cy.wait(1500);
         cy.get(`${this.parentSelector}`).within(() => {
             cy.contains(`[data-testid="input-editor-span"]`,text)
                 .should('be.visible')
                 .dblclick()
-        })
+        });
+        const endDate = new Date();
+        cy.task('log', `Found double clicked expression-${text} content at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
     static doubleClickStatementContent(text:string){
+        const startDate = new Date();
+        cy.task('log', `Started to wait for double click statement content-${text} at ${startDate}`);
         cy.wait(1500);
         cy.contains(`[data-testid="input-editor-span"]`,text)
             .should('be.visible')
             .dblclick();
+        const endDate = new Date();
+        cy.task('log', `Found double clicked statement-${text} content at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 

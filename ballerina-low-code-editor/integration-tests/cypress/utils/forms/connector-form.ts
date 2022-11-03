@@ -14,10 +14,14 @@ export class ConnectorMarketplace {
     private static marketplaceSelector = '[data-testid="log-form"]';
 
     static selectConnector(type: string) {
+        const startDate = new Date();
+        cy.task('log', `Started to select the type-${type} at ${startDate}`);
         this.getConnectorMarketplace()
             .get(`[data-testid="${type.toLowerCase()}"]`)
             .should("be.visible")
             .click();
+        const endDate = new Date();
+        cy.task('log', `Completed selecting the type-${type} at ${endDate}`);
         return this;
     }
 
