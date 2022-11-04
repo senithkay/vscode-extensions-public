@@ -296,6 +296,11 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 		} else {
 			targetPosition = targetMappingConstructor.openBrace.position;
 		}
+		targetPosition = {
+			...targetPosition,
+			startLine: targetPosition.endLine,
+			startColumn: targetPosition.endColumn
+		}
 	} else {
 		targetPosition = targetMappingConstructor.position;
 		source = `{${getLinebreak()}${source}}`;
