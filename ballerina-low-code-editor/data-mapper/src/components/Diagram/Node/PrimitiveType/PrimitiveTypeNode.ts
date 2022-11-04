@@ -73,7 +73,8 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
                 PRIMITIVE_TYPE_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
 
-            const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
+            const valueEnrichedType = getEnrichedRecordType(this.typeDef,
+                this.value.expression, this.context.selection.selectedST.stNode);
             this.recordField = valueEnrichedType;
             this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
