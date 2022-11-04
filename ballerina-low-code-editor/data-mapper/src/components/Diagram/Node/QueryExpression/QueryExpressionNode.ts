@@ -13,7 +13,7 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, OFFSETS } from "../../utils/constants";
 import { getFieldNames } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
@@ -195,7 +195,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public updatePosition() {
         if (this.targetPort){
             const position = this.targetPort.getPosition()
-            this.setPosition(800, position.y - 2)
+            this.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, position.y - 2)
         }
     }
 
