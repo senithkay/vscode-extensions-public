@@ -83,7 +83,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
 
-            const valueEnrichedType = getEnrichedRecordType(this.typeDef, this.value.expression);
+            const valueEnrichedType = getEnrichedRecordType(this.typeDef,
+                this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordField = valueEnrichedType;
