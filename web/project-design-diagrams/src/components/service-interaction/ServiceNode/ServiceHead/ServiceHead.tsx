@@ -17,11 +17,12 @@
  *
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
+import { Go2SourceWidget } from '../../../common';
 import { GraphQLIcon, GrpcIcon, HttpServiceIcon, ServiceTypes } from '../../../../resources';
 import { ServiceHead, ServiceName } from '../styles';
 
@@ -34,6 +35,7 @@ interface ServiceHeadProps {
 export function ServiceHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
     const headPorts = useRef<PortModel[]>([]);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const displayName: string = node.serviceObject.annotation.label ? node.serviceObject.annotation.label : node.serviceObject.path ?
         node.serviceObject.path : node.serviceObject.serviceId;
@@ -44,6 +46,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     }, [node])
 
     const handleOnHover = (task: string) => {
+        setIsHovered(task === 'SELECT' ? true : false);
         node.handleHover(headPorts.current, task);
     }
 
@@ -67,6 +70,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 engine={engine}
             />
                 <ServiceName>{displayName}</ServiceName>
+                {isHovered && <Go2SourceWidget lineRange={node.serviceObject.lineRange} />}
             <ServicePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

@@ -38,6 +38,7 @@ export interface Service {
     resources: ResourceFunction[];
     remoteFunctions: RemoteFunction[];
     serviceType: string;
+    lineRange: LineRange;
 }
 
 interface ServiceAnnotation {
@@ -81,6 +82,7 @@ export interface ResourceId {
 export interface Entity {
     attributes: Attribute[];
     inclusions: string[];
+    lineRange: LineRange;
 }
 
 export interface Attribute {
@@ -112,6 +114,17 @@ export interface ConnectorProps {
 export interface ServiceModels {
     levelOne: DiagramModel;
     levelTwo: DiagramModel;
+}
+
+export interface LineRange {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+interface LinePosition {
+    line: number;
+    offset: number;
 }
 
 export enum Views {

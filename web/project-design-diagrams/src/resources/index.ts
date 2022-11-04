@@ -26,6 +26,7 @@ export type {
     ConnectorProps,
     Entity,
     Interaction,
+    LineRange,
     RemoteFunction,
     ResourceFunction,
     ResourceId,

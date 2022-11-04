@@ -15,11 +15,24 @@ export interface Service {
     resources: any[];
     remoteFunctions: any[];
     serviceType: string;
+    lineRange: LineRange;
 }
 
 export interface Entity {
     attributes: any[];
     inclusions: string[];
+    lineRange: LineRange;
+}
+
+export interface LineRange {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+interface LinePosition {
+    line: number;
+    offset: number;
 }
 
 export const ERROR_MESSAGE = "Project Design Diagrams: Failed to generate view.";

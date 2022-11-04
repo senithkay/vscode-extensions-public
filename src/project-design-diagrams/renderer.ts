@@ -54,8 +54,15 @@ export function render() {
                 })
             }
 
+            function go2source(lineRange) {
+                vscode.postMessage({
+                    command: 'go2source',
+                    lineRange: lineRange
+                })
+            }
+
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(fetchProjectResources, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(fetchProjectResources, go2source, document.getElementById("diagram-container"));
             }
             renderDiagrams();
         }

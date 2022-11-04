@@ -20,3 +20,5 @@ export { DiagramContainer } from './DiagramContainer/DiagramContainer';
 export { DiagramHeader } from './Header/HeaderWidget';
 
 export { DesignDiagramContext, DiagramContext } from './DiagramContext/DiagramContext';
+
+export { Go2SourceWidget } from './Go2SourceButton/Go2SourceButton';

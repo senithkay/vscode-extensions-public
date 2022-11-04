@@ -18,16 +18,18 @@
  */
 
 import React, { createContext, ReactNode } from 'react';
-import { Views } from '../../../resources';
+import { LineRange, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
     getTypeComposition: (entityID: string) => void;
+    go2source: (lineRange: LineRange) => void;
     currentView: Views;
 }
 
 interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
+    go2source: (lineRange: LineRange) => void;
     currentView: Views;
 }
 
@@ -35,10 +37,10 @@ const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
-    const { getTypeComposition, currentView, children } = props;
+    const { getTypeComposition, currentView, go2source, children } = props;
 
     return (
-        <DiagramContext.Provider value={{ getTypeComposition, currentView }}>
+        <DiagramContext.Provider value={{ getTypeComposition, go2source, currentView }}>
             {children}
         </DiagramContext.Provider>
     );
