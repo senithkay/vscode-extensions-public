@@ -140,6 +140,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         });
     }
 
+    // This fix is added due to incorrect record name generation from ballerina side.
+    // This can be removed once that issue is fixed
     const fixNewRecordResponse = (response: JsonToRecordResponse) => {
         const expected = `type ${formState.recordName}`;
         const notExpected = "type NewRecord";
