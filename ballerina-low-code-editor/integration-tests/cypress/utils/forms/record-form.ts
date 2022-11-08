@@ -39,6 +39,7 @@ export class RecordForm {
     }
 
     static typeRecordName(name: string) {
+        cy.wait(1000);
         cy.get('[data-testid="import-record-name"]')
             .type(name, { delay: 100 }).wait(2000);
         return this;
@@ -111,6 +112,7 @@ export class RecordForm {
     }
 
     static seperateRecordsVisible() {
+        cy.wait(1000);
         this.getForm().get('[data-testid="Address-item"]').should("be.visible");
         this.getForm().get('[data-testid="Person-item"]').should("be.visible");
         return this;
@@ -184,16 +186,19 @@ export class RecordForm {
     }
 
     static shouldBeVisible() {
+        cy.wait(1000);
         this.getForm().should("be.visible");
         return this;
     }
 
     private static getForm() {
+        cy.wait(1000);
         return cy
             .get(this.selector);
     }
 
     static save() {
+        cy.wait(1000);
         this.getForm()
             .get('button')
             .contains("Save")
