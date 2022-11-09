@@ -27,7 +27,7 @@ export interface PFSession {
 
 export interface EditorAPI {
     getFileContent: (url: string) => Promise<string>;
-    updateFileContent: (filePath: string, content: string) => Promise<boolean>;
+    updateFileContent: (filePath: string, content: string, skipForceSave?: boolean) => Promise<boolean>;
     gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
     getPFSession: () => Promise<PFSession>;
     showPerformanceGraph: () => Promise<boolean>;

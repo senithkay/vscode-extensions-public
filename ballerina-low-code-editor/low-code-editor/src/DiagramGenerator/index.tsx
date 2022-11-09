@@ -416,6 +416,9 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         setMutationInProgress(false);
                                         return res;
                                     },
+                                    updateFileContent: (content: string, skipForceSave?: boolean) => {
+                                        return props.updateFileContent(filePath, content, skipForceSave);
+                                    },
                                     isMutationInProgress,
                                     isModulePullInProgress,
                                     loaderText

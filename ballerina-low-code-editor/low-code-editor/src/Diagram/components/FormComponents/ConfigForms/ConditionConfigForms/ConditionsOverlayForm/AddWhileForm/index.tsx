@@ -52,7 +52,8 @@ export function AddWhileForm(props: WhileProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             library,
             openExternalUrl
@@ -168,6 +169,7 @@ export function AddWhileForm(props: WhileProps) {
                         currentFile,
                         getLangClient: getExpressionEditorLangClient,
                         applyModifications: modifyDiagram,
+                        updateFileContent,
                         library,
                         syntaxTree,
                         stSymbolInfo,

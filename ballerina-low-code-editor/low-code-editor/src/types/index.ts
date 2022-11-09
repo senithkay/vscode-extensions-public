@@ -79,6 +79,7 @@ export interface LowCodeEditorAPI {
         setCodeLocationToHighlight: (position: NodePosition) => void;
         gotoSource: (position: { startLine: number, startColumn: number }) => void;
         getFunctionDef: (lineRange: Range, defFilePath: string) => Promise<FunctionDef>;
+        updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
         isMutationInProgress: boolean;
         isModulePullInProgress: boolean;
         loaderText: string;

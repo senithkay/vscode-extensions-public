@@ -52,7 +52,10 @@ export function ActionForm(props: FormGeneratorProps) {
         props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled, ballerinaVersion },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram,
+                updateFileContent
+            },
             library,
         },
     } = useContext(Context);
@@ -122,6 +125,7 @@ export function ActionForm(props: FormGeneratorProps) {
                     currentFile,
                     getLangClient: getExpressionEditorLangClient,
                     applyModifications: modifyDiagram,
+                    updateFileContent,
                     library,
                     syntaxTree,
                     stSymbolInfo,

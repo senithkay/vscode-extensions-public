@@ -68,7 +68,8 @@ export function AddForeachForm(props: ForeachProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             library,
             openExternalUrl
@@ -276,6 +277,7 @@ export function AddForeachForm(props: ForeachProps) {
                         currentFile,
                         getLangClient: getExpressionEditorLangClient,
                         applyModifications: modifyDiagram,
+                        updateFileContent,
                         library,
                         syntaxTree,
                         stSymbolInfo,
