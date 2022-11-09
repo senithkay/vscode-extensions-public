@@ -17,15 +17,15 @@
  *
  */
 
-import { Uri } from 'vscode';
+import { Uri, Webview } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition): string {
-    return renderDiagram(filePath, startLine, startColumn, experimental, openInDiagram);
+export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, webView: Webview): string {
+    return renderDiagram(filePath, startLine, startColumn, experimental, openInDiagram, webView);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, webView: Webview): string {
 
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
@@ -404,11 +404,11 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
     `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("BLCEditor"),
+        ...getComposerWebViewOptions("BLCEditor", webView),
         body, scripts, styles, bodyCss
     };
 
-    return getLibraryWebViewContent(webViewOptions);
+    return getLibraryWebViewContent(webViewOptions, webView);
 }
 
 export function renderError() {

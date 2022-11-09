@@ -17,9 +17,10 @@
  *
  */
 
+import { Webview } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(data: any, existingData: any, primaryButton: string): string {
+export function render(data: any, existingData: any, primaryButton: string, webView: Webview): string {
 
     const body = `<div id="configEditor" class="config-editor-container"><div class="loader" /></div>`;
     const bodyCss = 'configEditor';
@@ -62,9 +63,9 @@ export function render(data: any, existingData: any, primaryButton: string): str
         `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("ConfigEditor", { disableComDebug: false, devHost: "http://localhost:8080" }),
+        ...getComposerWebViewOptions("ConfigEditor", webView, { disableComDebug: false, devHost: "http://localhost:8080" }),
         body, scripts, styles, bodyCss
     };
 
-    return getLibraryWebViewContent(webViewOptions);
+    return getLibraryWebViewContent(webViewOptions, webView);
 }
