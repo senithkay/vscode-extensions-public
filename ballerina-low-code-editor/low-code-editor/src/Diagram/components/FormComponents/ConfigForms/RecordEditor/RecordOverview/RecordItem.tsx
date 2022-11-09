@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { DeleteButton, ParamEditButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ParamEditButton } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { CheckBoxGroup } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { recordStyles } from "../style";
