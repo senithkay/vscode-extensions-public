@@ -42,13 +42,6 @@ describe('Add const to module level via Low Code', () => {
         EditorPane
             .getStatementRenderer()
             .getExpression("IdentifierToken")
-            .doubleClickExpressionContent('CONST_NAME');
-
-        InputEditor
-            .typeInput('ONE');
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("IdentifierToken")
             .doubleClickExpressionContent('<add-expression>');
 
         InputEditor
@@ -56,6 +49,14 @@ describe('Add const to module level via Low Code', () => {
 
         EditorPane
             .validateNewExpression("StringLiteral", '"1"');
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("IdentifierToken")
+            .doubleClickExpressionContent('CONST_NAME');
+
+        InputEditor
+            .typeInput('ONE');
 
         StatementEditor
             .save();
@@ -82,21 +83,21 @@ describe('Add const to module level via Low Code', () => {
         EditorPane
             .getStatementRenderer()
             .getExpression("IdentifierToken")
-            .doubleClickExpressionContent('CONST_NAME');
-
-        InputEditor
-            .typeInput('TWO');
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("IdentifierToken")
             .doubleClickExpressionContent('<add-expression>');
 
         InputEditor
             .typeInput('2');
 
         EditorPane
-            .validateNewExpression("NumericLiteral", '2');
+            .getStatementRenderer()
+            .getExpression("IdentifierToken")
+            .doubleClickExpressionContent('CONST_NAME');
+
+        InputEditor
+            .typeInput('TWO');
+
+        EditorPane
+            .validateNewExpression("NumericLiteral", 'TWO');
 
         StatementEditor
             .save();

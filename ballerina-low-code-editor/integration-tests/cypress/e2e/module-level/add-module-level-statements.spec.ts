@@ -60,15 +60,6 @@ describe("Add module-level statements via Low Code", () => {
             .getEditorPane();
 
         EditorPane
-            .getStatementRenderer()
-            .getExpression("CaptureBindingPattern")
-            .doubleClickExpressionContent('conf');
-
-        InputEditor
-            .typeInput("foo");
-
-        EditorPane
-            .validateNewExpression("CaptureBindingPattern", "foo")
             .getExpression("RequiredExpression")
             .doubleClickExpressionContent('?');
 
@@ -86,6 +77,17 @@ describe("Add module-level statements via Low Code", () => {
         EditorPane
             .validateNewExpression("StringTypeDesc", "string");
 
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("CaptureBindingPattern")
+            .doubleClickExpressionContent('conf');
+
+        InputEditor
+            .typeInput("foo");
+
+        EditorPane
+            .validateNewExpression("CaptureBindingPattern", "foo")
+
         StatementEditor
             .save();
     });
@@ -100,14 +102,6 @@ describe("Add module-level statements via Low Code", () => {
 
         EditorPane
             .getStatementRenderer()
-            .getExpression("IdentifierToken")
-            .doubleClickExpressionContent('CONST_NAME');
-
-        InputEditor
-            .typeInput("FOO");
-
-        EditorPane
-            .validateNewExpression("IdentifierToken", "FOO")
             .getExpression("SimpleNameReference")
             .doubleClickExpressionContent(`<add-expression>`);
 
@@ -116,6 +110,16 @@ describe("Add module-level statements via Low Code", () => {
 
         EditorPane
             .validateNewExpression("StringLiteral", "Hello World");
+            
+        EditorPane
+            .getExpression("IdentifierToken")
+            .doubleClickExpressionContent('CONST_NAME');
+
+        InputEditor
+            .typeInput("FOO");
+
+        EditorPane
+            .validateNewExpression("IdentifierToken", "FOO");
 
         StatementEditor
             .save();
