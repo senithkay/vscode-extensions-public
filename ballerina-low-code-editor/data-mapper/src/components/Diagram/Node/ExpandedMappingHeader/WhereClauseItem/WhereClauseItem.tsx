@@ -53,33 +53,23 @@ export function WhereClauseItem(props: {
         onEditClick();
     }
 
-    return (
-        <>
-            <div className={clsx(classes.element, classes.clauseWrap)}>
-                <div className={classes.clause}>
-                    <span className={classes.clauseBold}>{`${intermediateNode.whereKeyword.value} `}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={onEdit}
-                    >
-                        {intermediateNode.expression.source}
-                    </span>
+    return <>
+        <div className={classes.clauseItem}>
+
+            <div className={classes.clauseKeyWrap}>
+                <div className={classes.clauseKeyWrapText}>
+                    {intermediateNode.whereKeyword.value}
                 </div>
-                {isLoading || context.fieldToBeEdited === `${itemIndex}` ? (
-                    <CircularProgress size={18} />
-                ) : (
-                    <DeleteOutline
-                        className={clsx(classes.deleteIcon)}
-                        onClick={onDelete}
-                    />
-                )}
             </div>
-            <ClauseAddButton
-                context={context}
-                queryExprNode={queryExprNode}
-                addIndex={itemIndex}
-                visibleOnlyOnHover
-            />
-        </>
-    );
+
+            <div className={classes.clauseWrap}>
+                <span
+                    className={classes.clauseExpression}
+                    onClick={onEdit}
+                >
+                    {intermediateNode.expression.source}
+                </span>
+            </div>
+        </div>
+    </>
 }

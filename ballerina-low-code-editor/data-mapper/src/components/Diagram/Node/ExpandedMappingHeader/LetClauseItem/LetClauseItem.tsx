@@ -100,67 +100,57 @@ export function LetClauseItem(props: {
         }
     };
 
+    return <>
+        <div className={classes.clauseItem}>
 
-    return (
-        <>
-            <div className={clsx(classes.element, classes.clauseWrap)}>
-                <div className={classes.clause}>
-                    <span className={classes.clauseBold}>{intermediateNode.letKeyword.value}</span>
-                    <span className={classes.clauseItem}>{` ${letVarDeclaration.typedBindingPattern.typeDescriptor.source}`}</span>
-                    <span className={classes.clauseExpression}>
-                        {nameEditable ? (
-                            <input
-                                spellCheck={false}
-                                className={classes.input}
-                                autoFocus={true}
-                                value={updatedName}
-                                onChange={(event) =>
-                                    setUpdatedName(event.target.value)
-                                }
-                                onKeyUp={(event) =>
-                                    onKeyUp(
-                                        event.key,
-                                        (
-                                            letVarDeclaration
-                                                .typedBindingPattern
-                                                .bindingPattern as CaptureBindingPattern
-                                        )?.variableName
-                                    )
-                                }
-                                onBlur={() => {
-                                    setNameEditable(false);
-                                    setUpdatedName(variableName);
-                                }}
-                            />
-                        ) : (
-                            <span onClick={() => setNameEditable(true)}>
-                                {updatedName}
-                            </span>
-                        )}
-                    </span>
-                    <span className={classes.clauseItem}>{` ${letVarDeclaration.equalsToken.value} `}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={onEdit}
-                    >
-                        {letVarDeclaration.expression.source}
-                    </span>
+            <div className={classes.clauseKeyWrap}>
+                <div className={classes.clauseKeyWrapText}>
+                    {intermediateNode.letKeyword.value}
                 </div>
-                {isLoading || context.fieldToBeEdited === `${itemIndex}` ? (
-                    <CircularProgress size={18} />
-                ) : (
-                    <DeleteOutline
-                        className={clsx(classes.deleteIcon)}
-                        onClick={onDelete}
-                    />
-                )}
             </div>
-            <ClauseAddButton
-                context={context}
-                queryExprNode={queryExprNode}
-                addIndex={itemIndex}
-                visibleOnlyOnHover
-            />
-        </>
-    );
+
+            <div className={classes.clauseWrap}>
+                <span className={classes.clauseExpression}>
+                    {nameEditable ? (
+                        <input
+                            spellCheck={false}
+                            className={classes.input}
+                            autoFocus={true}
+                            value={updatedName}
+                            onChange={(event) =>
+                                setUpdatedName(event.target.value)
+                            }
+                            onKeyUp={(event) =>
+                                onKeyUp(
+                                    event.key,
+                                    (
+                                        letVarDeclaration
+                                            .typedBindingPattern
+                                            .bindingPattern as CaptureBindingPattern
+                                    )?.variableName
+                                )
+                            }
+                            onBlur={() => {
+                                setNameEditable(false);
+                                setUpdatedName(variableName);
+                            }}
+                        />
+                    ) : (
+                        <span onClick={() => setNameEditable(true)}>
+                            {updatedName}
+                        </span>
+                    )}
+                </span>
+                <span className={classes.equalsExpression}>{letVarDeclaration.equalsToken.value}</span>
+                <span
+                    className={classes.clauseExpression}
+                    onClick={onEdit}
+                >
+                    {letVarDeclaration.expression.source}
+                </span>
+            </div>
+        </div>
+    </>
+
+
 }

@@ -73,27 +73,30 @@ export function ExpandedMappingHeaderWidget(
         props.node.queryExpr.queryPipeline.intermediateClauses;
 
     return (
-        <div className={classes.root}>
-            <div className={classes.element}>
-                <div className={classes.clause}>
-                    <span className={classes.clauseBold}>{fromClause.fromKeyword.value}</span>
-                    <span className={classes.clauseItem}>{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={() => onClickEdit(fromClause)}
-                    >
-                        {fromClause.expression.source}
-                    </span>
+        <div>
+            <div className={classes.clauseItem}>
+
+                <div className={classes.clauseKeyWrap}>
+                    <div className={classes.clauseKeyWrapText}>
+                        {fromClause.fromKeyword.value}
+                    </div>
+                </div>
+
+                <div className={classes.clauseWrap}>
+                    <span className={classes.clauseItemKey}>{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
+                    <span className={classes.clauseExpression} onClick={() => onClickEdit(fromClause)}>{fromClause.expression.source}</span>
                 </div>
             </div>
-            {intermediateClauses.length > 0 && (
+
+
+            {/* {intermediateClauses.length > 0 && (
                 <ClauseAddButton
                     context={node.context}
                     queryExprNode={node.queryExpr}
                     addIndex={-1}
                     visibleOnlyOnHover
                 />
-            )}
+            )} */}
             {intermediateClauses.length > 0 ? (
                 intermediateClauses?.map((clauseItem, index) => {
                     const itemProps = {
@@ -130,6 +133,20 @@ export function ExpandedMappingHeaderWidget(
                     />
                 </div>
             )}
+
+
+
+            {intermediateClauses.length === 0 && (
+                <div className={clsx(classes.clauseWrap, classes.addNewClauseWrap)}>
+                    <div className={classes.title}>Add Clause</div>
+                    <ClauseAddButton
+                        context={node.context}
+                        queryExprNode={node.queryExpr}
+                        addIndex={-1}
+                    />
+                </div>
+            )}
         </div>
+
     );
 }

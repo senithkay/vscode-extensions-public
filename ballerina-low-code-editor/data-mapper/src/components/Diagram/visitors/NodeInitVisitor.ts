@@ -101,14 +101,14 @@ export class NodeInitVisitor implements Visitor {
                     );
                 }
 
-                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, yPosition + OFFSETS.TARGET_NODE.Y);
+                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + 100, yPosition + OFFSETS.TARGET_NODE.Y);
 
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(
                     this.context,
                     node.queryPipeline.fromClause
                 );
-                fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, yPosition);
+                fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + 100, yPosition);
                 this.inputNodes.push(fromClauseNode);
                 fromClauseNode.initialYPosition = yPosition;
 
@@ -124,7 +124,7 @@ export class NodeInitVisitor implements Visitor {
 
                 for (let [index, item] of letClauses.entries()) {
                     const paramNode = new LetClauseNode(this.context, item as LetClause);
-                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 100, 0);
                     this.inputNodes.push(paramNode);
                 }
 

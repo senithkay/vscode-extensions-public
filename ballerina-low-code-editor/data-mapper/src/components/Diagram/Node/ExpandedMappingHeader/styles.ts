@@ -2,10 +2,46 @@ import { makeStyles, Theme, createStyles } from "@material-ui/core";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
+        clauseItem: {
             width: '100%',
             minWidth: 200,
+            display: 'flex',
+            marginBottom: 20
         },
+        
+        clauseKeyWrap: {
+            border: '1px solid #E0E2E9',
+            borderRadius: '8px',  
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '26px',
+            background: '#F7F8FB',
+            width: 100,
+            textAlign: 'center'
+        },
+        clauseKeyWrapText:{
+            width:'100%',
+            textAlign: 'center',
+            fontWeight: 'bold',
+        },
+        clauseWrap: {
+            background: 'white',
+            borderRadius: '8px',  
+            height: 40,
+            marginLeft: 40,
+
+            display: 'flex',
+            alignItems: 'center',
+            padding: '26px 10px',
+            boxShadow: '0px 5px 50px rgba(203, 206, 219, 0.5)',
+        },
+        addNewClauseWrap:{
+            marginLeft: 140,
+        },
+
+
+
         header: {
             display: "flex",
             flexDirection: "row",
@@ -16,7 +52,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         title: {
             padding: "5px",
-            fontFamily: "monospace",
             flex: 1,
         },
         buttonWrapper: {
@@ -38,7 +73,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             flex: 1,
         },
         clause: {
-            fontFamily: "monospace",
             flex: 1,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
@@ -46,8 +80,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             alignItems: 'center',
         },
-        clauseItem: {
-            marginRight: 5,
+        // clauseItem: {
+        //     marginRight: 5,
+        // },
+        clauseItemKey: {
+            marginRight: 10
         },
         clauseExpression: {
             background: theme.palette.grey[100],
@@ -60,6 +97,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             '&:hover': {
                 border: `1px solid ${theme.palette.grey[300]}`
             }
+        },
+        equalsExpression: {
+            marginRight: 5,
         },
         iconsButton: {
             padding: '8px',
@@ -74,18 +114,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: '-7px',
             marginLeft: '-7px'
         },
-        clauseWrap: {
-            display: 'flex',
-            alignItems: 'center',
-            position: 'relative',
-            color: theme.palette.grey[800],
-            '&:hover': {
-                color: theme.palette.common.black,
-                "& $deleteIcon": {
-                    opacity: 1,
-                }
-            }
-        },
+        // clauseWrap: {
+        //     display: 'flex',
+        //     alignItems: 'center',
+        //     position: 'relative',
+        //     color: theme.palette.grey[800],
+        //     '&:hover': {
+        //         color: theme.palette.common.black,
+        //         "& $deleteIcon": {
+        //             opacity: 1,
+        //         }
+        //     }
+        // },
         addIcon: {
             cursor: 'pointer',
             fontSize: '18px',
@@ -132,7 +172,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         input:{
             maxWidth: '120px',
             padding: "5px",
-            fontFamily: "monospace",
             border: 0,
             '&:hover': { outline: 0 },
             '&:focus': { outline: 0 },
