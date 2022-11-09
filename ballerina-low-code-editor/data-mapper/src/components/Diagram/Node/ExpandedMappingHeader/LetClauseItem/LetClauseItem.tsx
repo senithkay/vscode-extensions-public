@@ -64,11 +64,6 @@ export function LetClauseItem(props: {
         }
     }
 
-    const onEdit = async () => {
-        context.handleFieldToBeEdited(`${itemIndex}`);
-        onEditClick();
-    }
-
     const onKeyUp = async (key: string, node?: STNode) => {
         if (key === "Escape") {
             setNameEditable(false);
@@ -104,9 +99,7 @@ export function LetClauseItem(props: {
         <div className={classes.clauseItem}>
 
             <div className={classes.clauseKeyWrap}>
-                <div className={classes.clauseKeyWrapText}>
-                    {intermediateNode.letKeyword.value}
-                </div>
+                {intermediateNode.letKeyword.value}
             </div>
 
             <div className={classes.clauseWrap}>
@@ -144,12 +137,27 @@ export function LetClauseItem(props: {
                 <span className={classes.equalsExpression}>{letVarDeclaration.equalsToken.value}</span>
                 <span
                     className={classes.clauseExpression}
-                    onClick={onEdit}
+                    onClick={onEditClick}
                 >
                     {letVarDeclaration.expression.source}
                 </span>
             </div>
+
+            {isLoading ? (
+                <CircularProgress size={18} />
+            ) : (
+                <DeleteOutline
+                    className={classes.deleteIcon}
+                    onClick={onDelete}
+                />
+            )}
         </div>
+
+        <ClauseAddButton
+            context={context}
+            queryExprNode={queryExprNode}
+            addIndex={itemIndex}
+        />
     </>
 
 

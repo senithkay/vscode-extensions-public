@@ -17,7 +17,6 @@ import { QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { useStyles } from "../styles";
 import { ClauseAddButton } from "../ClauseAddButton";
-import clsx from "clsx";
 import { CircularProgress } from "@material-ui/core";
 
 export function WhereClauseItem(props: {
@@ -48,28 +47,37 @@ export function WhereClauseItem(props: {
         }
     }
 
-    const onEdit = async () => {
-        context.handleFieldToBeEdited(`${itemIndex}`);
-        onEditClick();
-    }
-
     return <>
         <div className={classes.clauseItem}>
 
             <div className={classes.clauseKeyWrap}>
-                <div className={classes.clauseKeyWrapText}>
-                    {intermediateNode.whereKeyword.value}
-                </div>
+                {intermediateNode.whereKeyword.value}
             </div>
 
             <div className={classes.clauseWrap}>
                 <span
                     className={classes.clauseExpression}
-                    onClick={onEdit}
+                    onClick={onEditClick}
                 >
                     {intermediateNode.expression.source}
                 </span>
             </div>
+
+            {isLoading ? (
+                <CircularProgress size={18} />
+            ) : (
+                <DeleteOutline
+                    className={classes.deleteIcon}
+                    onClick={onDelete}
+                />
+            )}
         </div>
+
+
+        <ClauseAddButton
+            context={context}
+            queryExprNode={queryExprNode}
+            addIndex={itemIndex}
+        />
     </>
 }

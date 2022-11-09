@@ -18,19 +18,17 @@ import { NodePosition, QueryExpression, STNode } from '@wso2-enterprise/syntax-t
 import { IDataMapperContext } from '../../../../../utils/DataMapperContext/DataMapperContext';
 import { genLetClauseVariableName } from '../../../../../utils/st-utils';
 import { useStyles } from '../styles';
-import clsx from 'clsx';
-import AddIcon from '@material-ui/icons/Add';
+import AddCircleOutline from '@material-ui/icons/AddCircleOutline';
 import { CircularProgress } from '@material-ui/core';
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
     context: IDataMapperContext;
     addIndex: number;
-    visibleOnlyOnHover?: boolean;
 }
 
 export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
-    const { context, queryExprNode, addIndex, visibleOnlyOnHover } = props;
+    const { context, queryExprNode, addIndex } = props;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | SVGSVGElement>(null);
@@ -96,24 +94,26 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
 
     return (
         <>
-            {isLoading ? (
-                <div className={classes.addLoaderWrap}><CircularProgress size={14} /></div>
-            ) : (
-                <div
-                    className={clsx(visibleOnlyOnHover && classes.addIconWrap)}
-                >
-                    <AddIcon
-                        className={classes.addIcon}
-                        onClick={handleClick}
-                    />
-                </div>
-            )}
+            <div className={classes.lineWrap}>
+                <div className={classes.line} />
+                {isLoading ? (
+                    <span className={classes.addLoaderWrap}><CircularProgress size={13} className={classes.loader} /></span>
+                ) : (
+                    <div className={classes.addLoaderWrap} >
+                        <AddCircleOutline
+                            className={classes.addIcon}
+                            onClick={handleClick}
+                        />
+                    </div>
+                )}
+            </div>
             <Menu
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                className={classes.addMenu}
             >
                 <MenuItem onClick={onClickAddWhereClause}>Add Where Clause</MenuItem>
                 <MenuItem onClick={onClickAddLetClause}>Add Let Clause</MenuItem>

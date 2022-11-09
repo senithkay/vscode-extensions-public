@@ -6,37 +6,57 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             minWidth: 200,
             display: 'flex',
-            marginBottom: 20
+            // marginBottom: 20,
+            alignItems: 'center',
+            '&:hover': {
+                color: theme.palette.common.black,
+                "& $deleteIcon": {
+                    opacity: 1,
+                }
+            },
         },
-        
+
+        lineWrap:{
+            width: 80,
+            height: 25,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative'
+        },
+        line:{
+            height: '100%',
+            width: 2,
+            background:  '#CBCEDB'
+        },
+
+
         clauseKeyWrap: {
-            border: '1px solid #E0E2E9',
-            borderRadius: '8px',  
+            border: '1px solid #CBCEDB',
+            borderRadius: '8px',
             height: 40,
             display: 'flex',
             alignItems: 'center',
-            padding: '26px',
+            justifyContent: 'center',
+            padding: '26px 0',
             background: '#F7F8FB',
-            width: 100,
-            textAlign: 'center'
-        },
-        clauseKeyWrapText:{
-            width:'100%',
+            width: 80,
             textAlign: 'center',
-            fontWeight: 'bold',
+            fontWeight: 'bold'
         },
         clauseWrap: {
             background: 'white',
-            borderRadius: '8px',  
+            borderRadius: '8px',
             height: 40,
             marginLeft: 40,
+            marginRight: 10,
 
             display: 'flex',
             alignItems: 'center',
             padding: '26px 10px',
             boxShadow: '0px 5px 50px rgba(203, 206, 219, 0.5)',
         },
-        addNewClauseWrap:{
+        addNewClauseWrap: {
             marginLeft: 140,
         },
 
@@ -84,13 +104,14 @@ export const useStyles = makeStyles((theme: Theme) =>
         //     marginRight: 5,
         // },
         clauseItemKey: {
-            marginRight: 10
+            marginLeft: 5
         },
         clauseExpression: {
             background: theme.palette.grey[100],
             borderRadius: 5,
             cursor: 'pointer',
             padding: 5,
+            marginLeft: 5,
             marginRight: 5,
             transition: 'border 0.2s',
             border: `1px solid transparent`,
@@ -99,7 +120,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         equalsExpression: {
-            marginRight: 5,
+            // marginRight: 5,
         },
         iconsButton: {
             padding: '8px',
@@ -129,29 +150,29 @@ export const useStyles = makeStyles((theme: Theme) =>
         addIcon: {
             cursor: 'pointer',
             fontSize: '18px',
-            color: theme.palette.primary.main,
+            color: '#5567D5',
             transitionDuration: '0.2s',
+            backgroundColor: '#F7F8FB',
             '&:hover': {
-                backgroundColor: '#F0F1FB',
+                color: '#384491',
             }
         },
         deleteIcon: {
             cursor: 'pointer',
             color: theme.palette.error.main,
-            fontSize: '18px',
+            fontSize: '20px',
+            transition: 'all 0.2s ease-in-out',
             opacity: 0,
-            transitionDuration: '0.2s',
-            marginRight: 2,
-            marginLeft: 5,
+            // marginLeft: 10,
             '&:hover': {
-                backgroundColor: '#F0F1FB',
+                color: theme.palette.error.dark,
             }
         },
-        deleteIconHovered: {
-            opacity: 1,
-        },
+        // deleteIconHovered: {
+        //     opacity: 1,
+        // },
         addIconWrap: {
-            height: '20px',
+            height: '100%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -169,7 +190,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             boxShadow: '0px 5px 50px rgba(203, 206, 219, 0.5)',
             borderRadius: '12px',
         },
-        input:{
+        input: {
             maxWidth: '120px',
             padding: "5px",
             border: 0,
@@ -177,11 +198,28 @@ export const useStyles = makeStyles((theme: Theme) =>
             '&:focus': { outline: 0 },
             background: 'transparent'
         },
-        addLoaderWrap :{
-            height: '20px',
+        addLoaderWrap: {
+            height: '100%',
+            position: 'absolute',
+            bottom: 0,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+        },
+        loader:{
+            backgroundColor: '#F7F8FB'
+        },
+        queryInputInputPortWrap: {
+            width: 80,
+            display: 'flex',
+            justifyContent: 'center'
+        },
+
+        addMenu: {
+            '& .MuiMenuItem-root': {
+                fontSize: '11px',
+                paddingBottom: "1px",
+                paddingTop: "1px"
+            }
         }
     })
 );

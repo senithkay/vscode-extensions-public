@@ -18,23 +18,27 @@ import {
     STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
-import clsx from "clsx";
 
 import { ClauseAddButton } from "./ClauseAddButton";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
 import { LetClauseItem } from "./LetClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
+import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;
     title: string;
+
+    engine: DiagramEngine;
+    port: PortModel<PortModelGenerics>
 }
 
 export function ExpandedMappingHeaderWidget(
     props: ExpandedMappingHeaderWidgetProps
 ) {
-    const { node } = props;
+    const { node, engine, port } = props;
     const classes = useStyles();
 
     const onClickEdit = (editNode: STNode) => {
@@ -73,80 +77,62 @@ export function ExpandedMappingHeaderWidget(
         props.node.queryExpr.queryPipeline.intermediateClauses;
 
     return (
-        <div>
-            <div className={classes.clauseItem}>
+        <>
+            <div>
 
-                <div className={classes.clauseKeyWrap}>
-                    <div className={classes.clauseKeyWrapText}>
+                <div className={classes.clauseItem}>
+
+                    <div className={classes.clauseKeyWrap}>
                         {fromClause.fromKeyword.value}
+                    </div>
+
+                    <div className={classes.clauseWrap}>
+                        <span className={classes.clauseItemKey}>{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
+                        <span className={classes.clauseExpression} onClick={() => onClickEdit(fromClause)}>{fromClause.expression.source}</span>
                     </div>
                 </div>
 
-                <div className={classes.clauseWrap}>
-                    <span className={classes.clauseItemKey}>{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
-                    <span className={classes.clauseExpression} onClick={() => onClickEdit(fromClause)}>{fromClause.expression.source}</span>
+                <ClauseAddButton
+                context={node.context}
+                queryExprNode={node.queryExpr}
+                addIndex={-1}
+            />
+
+                {intermediateClauses.length > 0 && (
+                    intermediateClauses?.map((clauseItem, index) => {
+                        const itemProps = {
+                            key: index,
+                            onEditClick: () => onClickEdit(clauseItem),
+                            onDeleteClick: () => deleteWhereClause(clauseItem),
+                            context: node.context,
+                            queryExprNode: node.queryExpr,
+                            itemIndex: index,
+                        };
+                        if (STKindChecker.isWhereClause(clauseItem)) {
+                            return (
+                                <WhereClauseItem
+                                    {...itemProps}
+                                    intermediateNode={clauseItem}
+                                />
+                            );
+                        } else if (STKindChecker.isLetClause(clauseItem)) {
+                            return (
+                                <LetClauseItem
+                                    {...itemProps}
+                                    intermediateNode={clauseItem}
+                                />
+                            );
+                        }
+                    })
+                )}
+
+                <div className={classes.queryInputInputPortWrap}>
+                    <PortWidget
+                        port={port}
+                        engine={engine}
+                    />
                 </div>
             </div>
-
-
-            {/* {intermediateClauses.length > 0 && (
-                <ClauseAddButton
-                    context={node.context}
-                    queryExprNode={node.queryExpr}
-                    addIndex={-1}
-                    visibleOnlyOnHover
-                />
-            )} */}
-            {intermediateClauses.length > 0 ? (
-                intermediateClauses?.map((clauseItem, index) => {
-                    const itemProps = {
-                        key: index,
-                        onEditClick: () => onClickEdit(clauseItem),
-                        onDeleteClick: () => deleteWhereClause(clauseItem),
-                        context: node.context,
-                        queryExprNode: node.queryExpr,
-                        itemIndex: index,
-                    };
-                    if (STKindChecker.isWhereClause(clauseItem)) {
-                        return (
-                            <WhereClauseItem
-                                {...itemProps}
-                                intermediateNode={clauseItem}
-                            />
-                        );
-                    } else if (STKindChecker.isLetClause(clauseItem)) {
-                        return (
-                            <LetClauseItem
-                                {...itemProps}
-                                intermediateNode={clauseItem}
-                            />
-                        );
-                    }
-                })
-            ) : (
-                <div className={clsx(classes.element, classes.empty)}>
-                    <div className={classes.title}>Add Clause</div>
-                    <ClauseAddButton
-                        context={node.context}
-                        queryExprNode={node.queryExpr}
-                        addIndex={-1}
-                    />
-                </div>
-            )}
-
-
-
-            {intermediateClauses.length === 0 && (
-                <div className={clsx(classes.clauseWrap, classes.addNewClauseWrap)}>
-                    <div className={classes.title}>Add Clause</div>
-                    <ClauseAddButton
-                        context={node.context}
-                        queryExprNode={node.queryExpr}
-                        addIndex={-1}
-                    />
-                </div>
-            )}
-        </div>
-
+        </>
     );
 }

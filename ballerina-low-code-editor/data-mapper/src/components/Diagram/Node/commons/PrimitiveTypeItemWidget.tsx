@@ -14,13 +14,14 @@
 import * as React from 'react';
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";
 
 import { TreeContainer, TreeHeader, TreeBody } from './Tree/Tree';
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -53,6 +54,14 @@ const useStyles = makeStyles((theme: Theme) =>
             "&:hover": {
                 overflow: "visible"
             }
+        },
+        queryPortWrap: {
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center'
         }
     }),
 );
@@ -94,9 +103,17 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
         </span>
     );
 
+    const expandedPort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
     return (
         <TreeContainer>
+            <div className={classes.queryPortWrap}>
+                {expandedPort && <PortWidget
+                    port={expandedPort}
+                    engine={engine}
+                />}
+            </div>
+
             <TreeHeader>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&

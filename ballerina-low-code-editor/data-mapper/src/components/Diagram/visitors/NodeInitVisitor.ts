@@ -1,5 +1,7 @@
+import { DefaultPortModel } from "@projectstorm/react-diagrams";
 import {
     BinaryExpression,
+    CaptureBindingPattern,
     ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
@@ -27,7 +29,8 @@ import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
-import { OFFSETS } from "../utils/constants";
+import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX, OFFSETS } from "../utils/constants";
 import { getFieldAccessNodes, getSimpleNameRefNodes } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
@@ -83,9 +86,8 @@ export class NodeInitVisitor implements Visitor {
             && node.position.startLine === selectedSTNode.valueExpr.position.startLine
             && node.position.startColumn === selectedSTNode.valueExpr.position.startColumn) {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
-                const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 65;
-                const addInitialClauseHeight = 65;
-                const yPosition = 50 + (intermediateClausesHeight || addInitialClauseHeight);
+                const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 80;
+                const yPosition = 50 + intermediateClausesHeight;
                 // create output node
                 if (STKindChecker.isMappingConstructor(node.selectClause.expression)) {
                     this.outputNode = new MappingConstructorNode(
@@ -101,16 +103,23 @@ export class NodeInitVisitor implements Visitor {
                     );
                 }
 
-                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + 100, yPosition + OFFSETS.TARGET_NODE.Y);
+                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + 80, yPosition + OFFSETS.TARGET_NODE.Y);
+
+                const expandedHeaderOutputPorts: RightAnglePortModel[] = []
 
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(
                     this.context,
                     node.queryPipeline.fromClause
                 );
-                fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + 100, yPosition);
+                fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, yPosition);
                 this.inputNodes.push(fromClauseNode);
                 fromClauseNode.initialYPosition = yPosition;
+
+                const fromClauseNodeValueLabel = (node.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value
+                const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`)
+                expandedHeaderOutputPorts.push(fromClausePort)
+                fromClauseNode.addPort(fromClausePort)
 
                 const letClauses =
                     node.queryPipeline.intermediateClauses?.filter(
@@ -124,14 +133,20 @@ export class NodeInitVisitor implements Visitor {
 
                 for (let [index, item] of letClauses.entries()) {
                     const paramNode = new LetClauseNode(this.context, item as LetClause);
-                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 100, 0);
+                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
                     this.inputNodes.push(paramNode);
+
+                    const letClauseValueLabel = (((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
+                    const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`)
+                    expandedHeaderOutputPorts.push(letClausePort)
+                    paramNode.addPort(letClausePort)
                 }
 
                 const queryNode = new ExpandedMappingHeaderNode(this.context, node);
                 queryNode.setLocked(true)
                 queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
                 this.intermediateNodes.push(queryNode);
+                queryNode.targetPorts = expandedHeaderOutputPorts
             }
         } else {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
