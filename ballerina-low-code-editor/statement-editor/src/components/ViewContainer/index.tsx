@@ -36,6 +36,7 @@ export interface ViewContainerProps {
     isStatementValid: boolean;
     isConfigurableStmt: boolean;
     isPullingModule: boolean;
+    isDisableEditor: boolean;
     isHeaderHidden?: boolean;
 }
 
@@ -44,6 +45,7 @@ export function ViewContainer(props: ViewContainerProps) {
         isStatementValid,
         isConfigurableStmt,
         isPullingModule,
+        isDisableEditor,
         isHeaderHidden
     } = props;
     const intl = useIntl();
@@ -161,12 +163,17 @@ export function ViewContainer(props: ViewContainerProps) {
                     </div>
                 )
                 }
-                {isPullingModule && (
-                    <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
+                {isDisableEditor && (
+                    <div className={overlayClasses.mainStatementWrapper} data-testid="disable-overlay">
+                        <div className={overlayClasses.loadingWrapper}>Source code has been changed. Please retry editing a statement.</div>
+                    </div>
+                )}
+                {isPullingModule && !isDisableEditor && (
+                    <div className={overlayClasses.mainStatementWrapper} data-testid="package-pulling-loader">
                         <div className={overlayClasses.loadingWrapper}>Pulling package...</div>
                     </div>
                 )}
-                {!isPullingModule && (
+                {!isPullingModule && !isDisableEditor && (
                     <>
                         <div
                             className={`${overlayClasses.statementExpressionWrapper} ${activeEditorId !== editors.length - 1 && "overlay"
