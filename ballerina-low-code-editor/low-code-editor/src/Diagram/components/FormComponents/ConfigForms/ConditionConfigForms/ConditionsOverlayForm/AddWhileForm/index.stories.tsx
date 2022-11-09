@@ -13,11 +13,11 @@
 import React from 'react';
 
 // tslint:disable-next-line: no-submodule-imports
-import {Story} from '@storybook/react/types-6-0';
+import { Story } from '@storybook/react/types-6-0';
 
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
 
-import {AddWhileForm, WhileProps } from "./index";
+import { AddWhileForm, WhileProps } from "./index";
 
 
 export default {
@@ -26,17 +26,19 @@ export default {
 };
 
 // tslint:disable-next-line:no-empty
-const dummyFunction = async (arg: any) => {} ;
+const dummyFunction = async (arg: any) => { };
 const dummyFunctionReturn = (arg: any): any => { return; };
 // tslint:disable-next-line:no-empty
-const dummyFunctionWithoutArgs =  () => {};
+const dummyFunctionWithoutArgs = () => { };
+// tslint:disable-next-line:no-empty
+const asyncDummyFunctionWithoutArgs = async () => { };
 
 const api = {
     tour: { goToNextTourStep: dummyFunction },
-    helpPanel: {openConnectorHelp: dummyFunction},
+    helpPanel: { openConnectorHelp: dummyFunction },
     notifications: {},
     ls: {},
-    insights: { trackTriggerSelection: dummyFunction},
+    insights: { trackTriggerSelection: dummyFunction },
     code: {
         modifyDiagram: dummyFunction,
         onMutate: dummyFunction,
@@ -46,7 +48,8 @@ const api = {
         isMutationInProgress: false,
         isModulePullInProgress: false,
         loaderText: '',
-        getFunctionDef: dummyFunctionReturn
+        getFunctionDef: dummyFunctionReturn,
+        undo: asyncDummyFunctionWithoutArgs
     },
     splitPanel: {
         maximize: dummyFunction,
@@ -109,9 +112,9 @@ export const mockedEditorProps = {
 }
 
 const Template: Story<WhileProps> = (args: WhileProps) => {
-    return(
+    return (
         <LowCodeEditorProvider {...mockedEditorProps} >
-            <AddWhileForm {...args}/>
+            <AddWhileForm {...args} />
         </LowCodeEditorProvider>
     );
 }
