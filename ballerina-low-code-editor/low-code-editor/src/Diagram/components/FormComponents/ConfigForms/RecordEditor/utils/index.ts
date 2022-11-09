@@ -12,7 +12,7 @@
  */
 import {
     DIAGNOSTIC_SEVERITY, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, JsonToRecordResponse,
-    PartialSTRequest, STSymbolInfo
+    PartialSTRequest, STModification, STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ModulePart,
@@ -24,12 +24,16 @@ import {
     STNode, TypeDefinition
 } from "@wso2-enterprise/syntax-tree";
 
-import { isLiteral } from "../../../../../utils";
-import { Field, RecordModel, SimpleField } from "../types";
+import { isLiteral, removeStatement } from "../../../../../utils";
+import { Field, RecordItemModel, RecordModel, SimpleField } from "../types";
 
-export async function convertToRecord(json: string, name: string, isClosed: boolean,
-                                      lsUrl: string, isSeparateDefinitions: boolean,
-                                      ls?: any): Promise<JsonToRecordResponse> {
+export async function convertToRecord(
+    json: string,
+    name: string,
+    isClosed: boolean,
+    lsUrl: string,
+    isSeparateDefinitions: boolean,
+    ls?: any): Promise<JsonToRecordResponse> {
     const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient();
     const resp: JsonToRecordResponse = await langClient.convert(
         {
@@ -44,29 +48,30 @@ export async function convertToRecord(json: string, name: string, isClosed: bool
             JSON.parse(json);
             resp.diagnostics = [];
         } catch (e) {
-            resp.diagnostics = [{message : "Please enter a valid JSON", severity : DIAGNOSTIC_SEVERITY.ERROR}];
+            resp.diagnostics = [{ message: "Please enter a valid JSON", severity: DIAGNOSTIC_SEVERITY.ERROR }];
         }
     }
     return resp;
 }
 
-export async function getRecordST(partialSTRequest: PartialSTRequest,
-                                  lsUrl: string,
-                                  ls?: any): Promise<STNode> {
+export async function getRecordST(
+    partialSTRequest: PartialSTRequest,
+    lsUrl: string,
+    ls?: any): Promise<STNode> {
     const langClient: ExpressionEditorLangClientInterface = await ls.getExpressionEditorLangClient(lsUrl);
 
     const resp = await langClient.getSTForModuleMembers(partialSTRequest);
     return resp.syntaxTree;
 }
 
-export function extractImportedRecordNames(definitions: ModulePart | TypeDefinition): string[] {
-    const recordName: string[] = [];
+export function extractImportedRecordNames(definitions: ModulePart | TypeDefinition): { name: string, checked: boolean }[] {
+    const recordName: { name: string, checked: boolean }[] = [];
     if (STKindChecker.isModulePart(definitions)) {
         const typeDefs: TypeDefinition[] = definitions.members
             .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
-        typeDefs.forEach(typeDef => recordName.push(typeDef?.typeName?.value));
+        typeDefs.forEach(typeDef => recordName.push({ name: typeDef?.typeName?.value, checked: false }));
     } else if (STKindChecker.isTypeDefinition(definitions)) {
-        recordName.push(definitions.typeName.value);
+        recordName.push({ name: definitions.typeName.value, checked: false });
     }
     return recordName;
 }
@@ -81,47 +86,34 @@ export function getActualRecordST(syntaxTree: STNode, recordName: string): TypeD
     return typeDef;
 }
 
-export function getCreatedRecordRange(recordNames: string[], syntaxTree: STNode): NodePosition {
-    let recordRange: NodePosition;
+export function getRemoveCreatedRecordRange(recordNames: string[], syntaxTree: STNode): STModification[] {
+    const modifications: STModification[] = [];
     if (STKindChecker.isModulePart(syntaxTree)) {
         const typeDefs: TypeDefinition[] = syntaxTree.members
             .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
         const createdRecords = typeDefs.filter(record => recordNames.includes(record.typeName.value));
         if (createdRecords.length > 0) {
-            createdRecords.forEach((record, index) => {
-                if (index === 0) {
-                    recordRange = record.position;
-                } else {
-                    if (recordRange.startLine >= record.position.startLine) {
-                        recordRange = {
-                            ...recordRange,
-                            startLine: record.position.startLine,
-                            startColumn: record.position.startColumn
-                        }
-                    } else if (recordRange.startLine === record.position.startLine &&
-                        (recordRange.startColumn >= record.position.startLine)) {
-                        recordRange = {
-                            ...recordRange,
-                            startColumn: record.position.startColumn
-                        }
-                    } else if (recordRange.endLine <= record.position.endLine) {
-                        recordRange = {
-                            ...recordRange,
-                            endLine: record.position.endLine,
-                            endColumn: record.position.endColumn
-                        }
-                    } else if (recordRange.startLine === record.position.startLine &&
-                        (recordRange.endLine <= record.position.endColumn)) {
-                        recordRange = {
-                            ...recordRange,
-                            endColumn: record.position.endColumn
-                        }
-                    }
-                }
+            createdRecords.forEach((record) => {
+                modifications.push(removeStatement(record.position));
             })
         }
     }
-    return recordRange;
+    return modifications;
+}
+
+export function getAvailableCreatedRecords(recordNames: RecordItemModel[], syntaxTree: STNode): RecordItemModel[] {
+    const records: RecordItemModel[] = [];
+    if (STKindChecker.isModulePart(syntaxTree)) {
+        const typeDefs: TypeDefinition[] = syntaxTree.members
+            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+        const avaibaleRecords = typeDefs.filter(record => recordNames.some(res => res.name === record.typeName.value));
+        if (avaibaleRecords.length > 0) {
+            avaibaleRecords.forEach((record) => {
+                records.push({ name: record.typeName.value, checked: false });
+            })
+        }
+    }
+    return records;
 }
 
 export function getRootRecord(modulePartSt: ModulePart, name: string): TypeDefinition {
@@ -147,8 +139,12 @@ export function getRecordPrefix(symbolInfo: STSymbolInfo): string {
     return null;
 }
 
-export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline: boolean, type?: string,
-                               isOptional?: boolean): RecordModel {
+export function getRecordModel(
+    typeDesc: RecordTypeDesc,
+    name: string,
+    isInline: boolean,
+    type?: string,
+    isOptional?: boolean): RecordModel {
     const recordModel: RecordModel = {
         name, fields: [], isInline, type,
         isClosed: STKindChecker.isOpenBracePipeToken(typeDesc.bodyStartDelimiter),
@@ -224,7 +220,7 @@ export function getRecordModel(typeDesc: RecordTypeDesc, name: string, isInline:
     return recordModel;
 }
 
-export function getArrayField(field: RecordField | RecordFieldWithDefaultValue) : SimpleField | RecordModel {
+export function getArrayField(field: RecordField | RecordFieldWithDefaultValue): SimpleField | RecordModel {
     let recField: SimpleField | RecordModel;
     if ((STKindChecker.isOptionalTypeDesc(field.typeName)) &&
         STKindChecker.isArrayTypeDesc(field.typeName.typeDescriptor)) {
