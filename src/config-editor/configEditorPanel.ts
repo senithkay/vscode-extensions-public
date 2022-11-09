@@ -138,10 +138,12 @@ async function showConfigEditor(ballerinaExtInstance: BallerinaExtension, config
 
     const tomlContent: string = readFileSync(currentFileUri.fsPath, 'utf8');
     const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), projectOrg, packageName);
-    const html = render(configSchema, existingConfigs, isDebug ? Commands.DEBUG : Commands.RUN);
 
-    if (configEditorPanel && html) {
-        configEditorPanel.webview.html = html;
+    if (configEditorPanel) {
+        const html = render(configSchema, existingConfigs, isDebug ? Commands.DEBUG : Commands.RUN, configEditorPanel.webview);
+        if (html) {
+            configEditorPanel.webview.html = html;
+        }
     }
 
     configEditorPanel.onDidDispose(() => {
