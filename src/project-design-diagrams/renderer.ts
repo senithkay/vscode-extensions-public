@@ -17,9 +17,10 @@
  *
  */
 
+import { Webview } from "vscode";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } from "../utils/webview-utils";
 
-export function render() {
+export function render(webView: Webview) {
     const body = `
         <div class = "container" id = "diagram-container" />
     `;
@@ -69,9 +70,9 @@ export function render() {
     `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("DesignDiagram"),
+        ...getComposerWebViewOptions("DesignDiagram", webView),
         body, scripts, styles, bodyCss
     };
 
-    return getLibraryWebViewContent(webViewOptions);
+    return getLibraryWebViewContent(webViewOptions, webView);
 }

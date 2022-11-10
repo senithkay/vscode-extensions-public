@@ -17,7 +17,7 @@
  *
  */
 
-import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions } from "vscode";
+import { Uri, ExtensionContext, WebviewOptions, WebviewPanelOptions, Webview } from "vscode";
 import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
 
@@ -45,8 +45,8 @@ export function getCommonWebViewOptions(): Partial<WebviewOptions & WebviewPanel
     };
 }
 
-function getVSCodeResourceURI(filePath: string): string {
-    return `vscode-resource:${filePath}`;
+function getVSCodeResourceURI(filePath: string, webView: Webview): string {
+    return webView.asWebviewUri(Uri.file(filePath)).toString();
 }
 
 export interface WebViewOptions {
@@ -58,7 +58,7 @@ export interface WebViewOptions {
     bodyCss?: string;
 }
 
-export function getLibraryWebViewContent(options: WebViewOptions) {
+export function getLibraryWebViewContent(options: WebViewOptions, webView: Webview) {
     const {
         jsFiles,
         cssFiles,
@@ -75,13 +75,13 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         ? cssFiles.map(cssFile =>
             '<link rel="stylesheet" type="text/css" href="' + cssFile + '" />').join('\n')
         : '';
-    const fontDir = join(getComposerURI(), 'font');
+    const fontDir = join(getComposerURI(webView), 'font');
 
     // in windows fontdir path contains \ as separator. css does not like this.
     const fontDirWithSeparatorReplaced = fontDir.split(sep).join("/");
 
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
-    const resourceRoot = isCodeServer ? RESOURCES_CDN : getVSCodeResourceURI(getWebViewResourceRoot());
+    const resourceRoot = isCodeServer ? RESOURCES_CDN : getVSCodeResourceURI(getWebViewResourceRoot(), webView);
 
     return `
             <!DOCTYPE html>
@@ -139,35 +139,35 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         `;
 }
 
-function getComposerURI(): string {
+function getComposerURI(webView: Webview): string {
     return getVSCodeResourceURI(join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources',
-        'jslibs'));
+        'jslibs'), webView);
 }
 
-export function getComposerPath(disableComDebug: boolean, devHost: string): string {
+export function getComposerPath(disableComDebug: boolean, devHost: string, webView: Webview): string {
     return (process.env.COMPOSER_DEBUG === "true" && !disableComDebug)
         ? devHost
-        : getComposerURI();
+        : getComposerURI(webView);
 }
 
-function getComposerCSSFiles(disableComDebug: boolean, devHost: string): string[] {
+function getComposerCSSFiles(disableComDebug: boolean, devHost: string, webView: Webview): string[] {
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
-        isCodeServer ? (`${RESOURCES_CDN}/jslibs/themes/ballerina-default.min.css`) : join(getComposerPath(disableComDebug, devHost), 'themes', 'ballerina-default.min.css')
+        isCodeServer ? (`${RESOURCES_CDN}/jslibs/themes/ballerina-default.min.css`) : join(getComposerPath(disableComDebug, devHost, webView), 'themes', 'ballerina-default.min.css')
     ];
 }
 
-function getComposerJSFiles(componentName: string, disableComDebug: boolean, devHost: string): string[] {
+function getComposerJSFiles(componentName: string, disableComDebug: boolean, devHost: string, webView: Webview): string[] {
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
-        isCodeServer ? (`${RESOURCES_CDN}/jslibs/${componentName}.js`) : join(getComposerPath(disableComDebug, devHost), componentName + '.js'),
+        isCodeServer ? (`${RESOURCES_CDN}/jslibs/${componentName}.js`) : join(getComposerPath(disableComDebug, devHost, webView), componentName + '.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
 
-export function getComposerWebViewOptions(componentName: string, { disableComDebug = false, devHost = process.env.COMPOSER_DEV_HOST as string } = {}): Partial<WebViewOptions> {
+export function getComposerWebViewOptions(componentName: string, webView: Webview, { disableComDebug = false, devHost = process.env.COMPOSER_DEV_HOST as string } = {}): Partial<WebViewOptions> {
     return {
-        cssFiles: getComposerCSSFiles(disableComDebug, devHost),
-        jsFiles: getComposerJSFiles(componentName, disableComDebug, devHost)
+        cssFiles: getComposerCSSFiles(disableComDebug, devHost, webView),
+        jsFiles: getComposerJSFiles(componentName, disableComDebug, devHost, webView)
     };
 }
