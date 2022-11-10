@@ -152,7 +152,7 @@ export class ParameterTab {
 
     static toggleInclusionArg(name: string) {
         const startDate = new Date();
-        cy.wait(1000);
+        cy.wait(1500);
         cy.task('log', `Toggling inclusion arg-${name} at ${startDate}`);
         cy.get(`[data-testid="inclusion-arg"]`)
             .children()
@@ -170,7 +170,7 @@ export class ParameterTab {
 
     static toggleInclusionOptionalArgs(name: string) {
         const startDate = new Date();
-        cy.wait(1000);
+        cy.wait(1500);
         cy.task('log', `Selecting inclusion arg-${name} at ${startDate}`);
         cy.get(`[data-testid="inclusion-arg"]`)
             .children()
@@ -186,7 +186,7 @@ export class ParameterTab {
             .children(`[data-testid="optional-toggle-button"]`)
             .click({ force: true })
             .should('have.text', 'Hide', { timeout: 5000 });
-        cy.wait(1000);
+        cy.wait(2500);
         const endDate = new Date();
         cy.task('log', `Completed union arg-${name} selection at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
@@ -197,14 +197,17 @@ export class ParameterTab {
         cy.wait(1000);
         cy.task('log', `Selecting union arg-${name} at ${startDate}`);
         cy.get(`[data-testid="union-arg"]`)
+            .wait(1000)
             .children()
             .children(`[data-testid="arg-name"]`)
+            .wait(1000)
             .contains(name)
             .scrollIntoView();
         return this;
     }
 
     static selectUnionArg(name: string, selector: string) {
+        const startDate = new Date();
         cy.get(`[data-testid="union-arg"]`)
             .children()
             .children(`[data-testid="arg-name"]`)
@@ -218,7 +221,7 @@ export class ParameterTab {
         cy.wait(1000);
         cy.get(`ul > li[data-value="${selector}"]`)
             .click({ force: true });
-        cy.wait(1000);
+        cy.wait(1500);
         const endDate = new Date();
         cy.task('log', `Completed union arg-${name} selection at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
