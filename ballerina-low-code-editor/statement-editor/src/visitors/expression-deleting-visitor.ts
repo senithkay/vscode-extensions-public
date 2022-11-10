@@ -48,6 +48,7 @@ import {
     TypedBindingPattern,
     TypeParameter,
     TypeTestExpression,
+    UnaryExpression,
     UnionTypeDesc,
     Visitor,
     WhereClause
@@ -583,6 +584,12 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitConstDeclaration(node: ConstDeclaration) {
         if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node?.typeDescriptor?.position)){
             this.setProperties('', node?.typeDescriptor?.position);
+        }
+    }
+
+    public beginVisitUnaryExpression(node: UnaryExpression) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.unaryOperator.position)){
+            this.setProperties('', node.unaryOperator.position);
         }
     }
 

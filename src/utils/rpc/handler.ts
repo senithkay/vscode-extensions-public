@@ -179,6 +179,16 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             });
         }
     }, {
+        methodName: 'getSTForFunction',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.getSTForFunction(args[0]).then(result => {
+                consoleLog(start, 'getSTForFunction');
+                const zippedResult = deflateSync(Buffer.from(JSON.stringify(result)));
+                return Promise.resolve(zippedResult);
+            });
+        }
+    }, {
         methodName: 'triggerModify',
         handler: (args: any[]) => {
             const start = new Date().getTime();

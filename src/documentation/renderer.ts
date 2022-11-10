@@ -18,10 +18,11 @@
  */
 
 
+import { Webview } from 'vscode';
 import {getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions} from '../utils';
 
 
-export function render(url: string): string {
+export function render(url: string, webView: Webview): string {
 
     const body = `
         <div id="doc-panel" style="overflow: hidden; height:100%; width: 100%">
@@ -92,9 +93,9 @@ export function render(url: string): string {
      `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("DocPanel"),
+        ...getComposerWebViewOptions("DocPanel", webView),
         body, scripts, styles
     };
 
-    return getLibraryWebViewContent(webViewOptions);
+    return getLibraryWebViewContent(webViewOptions, webView);
 }

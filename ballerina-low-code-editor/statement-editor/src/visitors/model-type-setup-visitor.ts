@@ -25,6 +25,7 @@ import {
     QueryPipeline,
     RecordField,
     RecordFieldWithDefaultValue,
+    SpecificField,
     STNode,
     TableTypeDesc,
     TupleTypeDesc,
@@ -49,6 +50,8 @@ class ModelTypeSetupVisitor implements Visitor {
             (node.viewState as StatementEditorViewState).modelType = ModelType.METHOD_CALL;
         } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.FIELD_ACCESS) {
             (node.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
+        }  else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.SPECIFIC_FIELD_NAME) {
+            (node.viewState as StatementEditorViewState).modelType = ModelType.SPECIFIC_FIELD_NAME;
         }
     }
 
@@ -145,6 +148,10 @@ class ModelTypeSetupVisitor implements Visitor {
 
     public beginVisitImplicitAnonymousFunctionExpression(node: ImplicitAnonymousFunctionExpression) {
         (node.viewState as StatementEditorViewState).modelType = ModelType.FUNCTION;
+    }
+
+    public beginVisitSpecificField(node: SpecificField) {
+        (node.fieldName.viewState as StatementEditorViewState).modelType = ModelType.SPECIFIC_FIELD_NAME;
     }
 
     public beginVisitOrderKey(node: OrderKey) {

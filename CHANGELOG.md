@@ -1,6 +1,10 @@
 # Change Log
 ##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
 
+## **3.3.3**
+### Fixed
+- Diagrams not loading with VSCode v1.73 issue.
+
 ## **3.3.2**
 ### Improved
 - The low-code diagram editor

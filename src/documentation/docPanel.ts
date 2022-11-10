@@ -36,10 +36,12 @@ export async function showDocumentationView(url: string): Promise<void> {
         getCommonWebViewOptions()
     );
 
-    const html = render(url);
 
-    if (docPanel && html) {
-        docPanel.webview.html = html;
+    if (docPanel) {
+        const html = render(url, docPanel.webview);
+        if (html) {
+            docPanel.webview.html = html;
+        }
     }
 
     docPanel.onDidDispose(() => {

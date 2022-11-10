@@ -23,6 +23,9 @@ export function isDMSupported(version: string): boolean {
     } else  if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) === 2)) {
         // 2201.2.x
         return (parseInt(splittedVersions[2], 10) >= 1);
+    } else  if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) > 2)) {
+        // > 2201.2
+        return true;
     } else  if (parseInt(splittedVersions[0], 10) > 2201) {
         // > 2201 (eg: 2301, 2202)
         return true;

@@ -129,7 +129,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
             width: '100%',
         },
         expStatementWrapper: {
-           marginBottom: theme.spacing(2.5),
+            marginBottom: theme.spacing(2.5),
         },
         imageRight: {
             float: "right",
@@ -522,7 +522,7 @@ export const wizardStyles = makeStyles((theme: Theme) =>
         },
         recordFormWrapper: {
             width: '100%',
-            maxHeight: 720,
+            maxHeight: 540,
             overflowY: 'scroll',
             flexDirection: "row",
         },

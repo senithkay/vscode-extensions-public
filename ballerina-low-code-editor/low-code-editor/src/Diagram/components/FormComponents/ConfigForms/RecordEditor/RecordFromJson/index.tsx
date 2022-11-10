@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 
 import { FormControl, FormHelperText } from "@material-ui/core";
+import { JsonToRecordResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
     FormHeaderSection,
@@ -139,11 +140,23 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         });
     }
 
+    // This fix is added due to incorrect record name generation from ballerina side.
+    // This can be removed once that issue is fixed
+    const fixNewRecordResponse = (response: JsonToRecordResponse) => {
+        const expected = `type ${formState.recordName}`;
+        const notExpected = "type NewRecord";
+        if (response.codeBlock && !response.codeBlock.includes(expected) && response.codeBlock.includes(notExpected)) {
+            response.codeBlock = response.codeBlock.replace(notExpected, expected);
+        }
+        return response;
+    }
+
     useEffect(() => {
         if (formState.isLoading) {
             (async () => {
-                const recordResponse = await convertToRecord(formState.jsonValue, formState.recordName,
+                const recordResponseLS = await convertToRecord(formState.jsonValue, formState.recordName,
                     false, langServerURL, formState.isSeparateDef, ls);
+                const recordResponse = fixNewRecordResponse(recordResponseLS);
                 let recordST: STNode;
                 let modulePart: STNode;
                 let newPosition: NodePosition;
@@ -228,7 +241,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             </div>
                         </div>
                         <FormTextArea
-                            rowsMax={6.3}
+                            rowsMax={5.1}
                             dataTestId="json-input"
                             placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
                             onChange={onJsonChange}

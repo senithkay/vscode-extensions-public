@@ -18,10 +18,10 @@
  */
 
 import { ExtendedLangClient } from '../core/extended-language-client';
-import { ExtensionContext } from 'vscode';
+import { ExtensionContext, Webview } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(_context: ExtensionContext, _langClient: ExtendedLangClient)
+export function render(_context: ExtensionContext, _langClient: ExtendedLangClient, webView: Webview)
     : string {
 
     const body = `<div id="examples" class="examples-container" />`;
@@ -42,10 +42,10 @@ export function render(_context: ExtensionContext, _langClient: ExtendedLangClie
         `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("BBEViewer"),
+        ...getComposerWebViewOptions("BBEViewer", webView),
         body, scripts, styles, bodyCss
     };
 
-    return getLibraryWebViewContent(webViewOptions);
+    return getLibraryWebViewContent(webViewOptions, webView);
 }
 
