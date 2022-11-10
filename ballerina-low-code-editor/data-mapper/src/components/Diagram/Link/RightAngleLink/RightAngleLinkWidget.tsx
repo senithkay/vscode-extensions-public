@@ -13,7 +13,7 @@ export interface RightAngleLinkProps {
 	factory: RightAngleLinkFactory;
 }
 
-export interface RightAngleLinkState {}
+export interface RightAngleLinkState { }
 
 export class RightAngleLinkWidget extends React.Component<RightAngleLinkProps, RightAngleLinkState> {
 	public static defaultProps: RightAngleLinkProps = {
@@ -60,18 +60,18 @@ export class RightAngleLinkWidget extends React.Component<RightAngleLinkProps, R
 		this.refPaths.push(ref);
 
 		const Link = React.cloneElement(
-            this.props.factory.generateLinkSegment(this.props.link, false, path),
-            {
-				key:`right-angle-link-${id}`,
-                ref,
-                stroke: RightAngleLinkWidget.defaultProps.color,
-                strokeWidth: RightAngleLinkWidget.defaultProps.width,
-                cursor: "inherit",
+			this.props.factory.generateLinkSegment(this.props.link, false, path),
+			{
+				key: `right-angle-link-${id}`,
+				ref,
+				stroke: RightAngleLinkWidget.defaultProps.color,
+				strokeWidth: RightAngleLinkWidget.defaultProps.width,
+				cursor: "inherit",
 				...extraProps
-            }
-        );
+			}
+		);
 
-        return Link;
+		return Link;
 	}
 
 	render() {

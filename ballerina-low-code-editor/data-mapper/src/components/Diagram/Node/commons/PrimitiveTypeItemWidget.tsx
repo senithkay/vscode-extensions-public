@@ -108,10 +108,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
     return (
         <TreeContainer>
             <div className={classes.queryPortWrap}>
-                {expandedPort && <PortWidget
-                    port={expandedPort}
-                    engine={engine}
-                />}
+                {expandedPort && <PortWidget port={expandedPort} engine={engine} />}
             </div>
 
             <TreeHeader>

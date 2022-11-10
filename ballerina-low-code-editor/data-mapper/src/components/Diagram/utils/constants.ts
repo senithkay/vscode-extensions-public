@@ -3,7 +3,6 @@ export const PRIMITIVE_TYPE_TARGET_PORT_PREFIX = "primitiveType";
 export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
 export const EXPANDED_QUERY_INPUT_NODE_PREFIX = "expandedQueryExpr.input";
 
-
 export const OFFSETS = {
     SOURCE_NODE: {
         X: 50,

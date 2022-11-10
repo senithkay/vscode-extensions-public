@@ -6,7 +6,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             minWidth: 200,
             display: 'flex',
-            // marginBottom: 20,
             alignItems: 'center',
             '&:hover': {
                 color: theme.palette.common.black,
@@ -15,7 +14,6 @@ export const useStyles = makeStyles((theme: Theme) =>
                 }
             },
         },
-
         lineWrap:{
             width: 80,
             height: 25,
@@ -29,8 +27,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: 2,
             background:  '#CBCEDB'
         },
-
-
         clauseKeyWrap: {
             border: '1px solid #CBCEDB',
             borderRadius: '8px',
@@ -50,59 +46,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: 40,
             marginLeft: 40,
             marginRight: 10,
-
             display: 'flex',
             alignItems: 'center',
             padding: '26px 10px',
             boxShadow: '0px 5px 50px rgba(203, 206, 219, 0.5)',
-        },
-        addNewClauseWrap: {
-            marginLeft: 140,
-        },
-
-
-
-        header: {
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: 'center',
-            height: 40,
-            marginBottom: 10
-        },
-        title: {
-            padding: "5px",
-            flex: 1,
         },
         buttonWrapper: {
             border: '1px solid #e6e7ec',
             borderRadius: '8px',
             right: "35px"
         },
-        empty: {
-            marginTop: '20px',
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: 'center',
-            color: theme.palette.primary.main
-        },
-        clauseBold: {
-            fontWeight: 'bold',
-            marginRight: 10,
-            flex: 1,
-        },
-        clause: {
-            flex: 1,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: 'flex',
-            alignItems: 'center',
-        },
-        // clauseItem: {
-        //     marginRight: 5,
-        // },
         clauseItemKey: {
             marginLeft: 5
         },
@@ -119,34 +72,6 @@ export const useStyles = makeStyles((theme: Theme) =>
                 border: `1px solid ${theme.palette.grey[300]}`
             }
         },
-        equalsExpression: {
-            // marginRight: 5,
-        },
-        iconsButton: {
-            padding: '8px',
-            marginLeft: '5px',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
-        },
-        icon: {
-            height: '15px',
-            width: '15px',
-            marginTop: '-7px',
-            marginLeft: '-7px'
-        },
-        // clauseWrap: {
-        //     display: 'flex',
-        //     alignItems: 'center',
-        //     position: 'relative',
-        //     color: theme.palette.grey[800],
-        //     '&:hover': {
-        //         color: theme.palette.common.black,
-        //         "& $deleteIcon": {
-        //             opacity: 1,
-        //         }
-        //     }
-        // },
         addIcon: {
             cursor: 'pointer',
             fontSize: '18px',
@@ -163,32 +88,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: '20px',
             transition: 'all 0.2s ease-in-out',
             opacity: 0,
-            // marginLeft: 10,
             '&:hover': {
                 color: theme.palette.error.dark,
             }
-        },
-        // deleteIconHovered: {
-        //     opacity: 1,
-        // },
-        addIconWrap: {
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0,
-            transitionDuration: '0.2s',
-            '&:hover': {
-                opacity: 1,
-            }
-        },
-        element: {
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: theme.palette.common.white,
-            padding: "8px 16px",
-            boxShadow: '0px 5px 50px rgba(203, 206, 219, 0.5)',
-            borderRadius: '12px',
         },
         input: {
             maxWidth: '120px',
@@ -198,7 +100,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             '&:focus': { outline: 0 },
             background: 'transparent'
         },
-        addLoaderWrap: {
+        addButtonWrap: {
             height: '100%',
             position: 'absolute',
             bottom: 0,
@@ -213,8 +115,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             justifyContent: 'center'
         },
-
         addMenu: {
+            marginLeft: 5,
+            marginTop: 10,
             '& .MuiMenuItem-root': {
                 fontSize: '11px',
                 paddingBottom: "1px",

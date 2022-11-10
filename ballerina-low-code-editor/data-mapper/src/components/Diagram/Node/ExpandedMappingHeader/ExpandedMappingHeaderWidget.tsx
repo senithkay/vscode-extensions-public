@@ -13,12 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import {
-    LetVarDecl,
-    STKindChecker,
-    STNode,
-} from "@wso2-enterprise/syntax-tree";
-
+import { LetVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { ClauseAddButton } from "./ClauseAddButton";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
 import { LetClauseItem } from "./LetClauseItem";
@@ -32,12 +27,10 @@ export interface ExpandedMappingHeaderWidgetProps {
     title: string;
 
     engine: DiagramEngine;
-    port: PortModel<PortModelGenerics>
+    port: PortModel<PortModelGenerics>;
 }
 
-export function ExpandedMappingHeaderWidget(
-    props: ExpandedMappingHeaderWidgetProps
-) {
+export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetProps) {
     const { node, engine, port } = props;
     const classes = useStyles();
 
@@ -48,15 +41,10 @@ export function ExpandedMappingHeaderWidget(
                 valuePosition: editNode.expression?.position,
                 label: "Where clause",
             });
-        } else if (
-            STKindChecker.isLetClause(editNode) &&
-            editNode.letVarDeclarations[0]
-        ) {
+        } else if (STKindChecker.isLetClause(editNode) && editNode.letVarDeclarations[0]) {
             node.context.enableStatementEditor({
-                value: (editNode.letVarDeclarations[0] as LetVarDecl)
-                    ?.expression?.source,
-                valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)
-                    ?.expression?.position,
+                value: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.source,
+                valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.position,
                 label: "Let clause",
             });
         } else if (STKindChecker.isFromClause(editNode)) {
@@ -73,32 +61,33 @@ export function ExpandedMappingHeaderWidget(
     };
 
     const fromClause = props.node.queryExpr.queryPipeline.fromClause;
-    const intermediateClauses =
-        props.node.queryExpr.queryPipeline.intermediateClauses;
+    const intermediateClauses = props.node.queryExpr.queryPipeline.intermediateClauses;
 
     return (
         <>
             <div>
-
                 <div className={classes.clauseItem}>
-
-                    <div className={classes.clauseKeyWrap}>
-                        {fromClause.fromKeyword.value}
-                    </div>
-
+                    <div className={classes.clauseKeyWrap}>{fromClause.fromKeyword.value}</div>
                     <div className={classes.clauseWrap}>
-                        <span className={classes.clauseItemKey}>{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
-                        <span className={classes.clauseExpression} onClick={() => onClickEdit(fromClause)}>{fromClause.expression.source}</span>
+                        <span
+                            className={classes.clauseItemKey}
+                        >{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
+                        <span
+                            className={classes.clauseExpression}
+                            onClick={() => onClickEdit(fromClause)}
+                        >
+                            {fromClause.expression.source}
+                        </span>
                     </div>
                 </div>
 
                 <ClauseAddButton
-                context={node.context}
-                queryExprNode={node.queryExpr}
-                addIndex={-1}
-            />
+                    context={node.context}
+                    queryExprNode={node.queryExpr}
+                    addIndex={-1}
+                />
 
-                {intermediateClauses.length > 0 && (
+                {intermediateClauses.length > 0 &&
                     intermediateClauses?.map((clauseItem, index) => {
                         const itemProps = {
                             key: index,
@@ -109,28 +98,14 @@ export function ExpandedMappingHeaderWidget(
                             itemIndex: index,
                         };
                         if (STKindChecker.isWhereClause(clauseItem)) {
-                            return (
-                                <WhereClauseItem
-                                    {...itemProps}
-                                    intermediateNode={clauseItem}
-                                />
-                            );
+                            return <WhereClauseItem {...itemProps} intermediateNode={clauseItem} />;
                         } else if (STKindChecker.isLetClause(clauseItem)) {
-                            return (
-                                <LetClauseItem
-                                    {...itemProps}
-                                    intermediateNode={clauseItem}
-                                />
-                            );
+                            return <LetClauseItem {...itemProps} intermediateNode={clauseItem} />;
                         }
-                    })
-                )}
+                    })}
 
                 <div className={classes.queryInputInputPortWrap}>
-                    <PortWidget
-                        port={port}
-                        engine={engine}
-                    />
+                    <PortWidget port={port} engine={engine} />
                 </div>
             </div>
         </>

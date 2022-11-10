@@ -23,8 +23,8 @@ export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
 
     public x: number;
     public y: number;
-    public sourcePort:  RightAnglePortModel;
-    public targetPorts:  PortModel<PortModelGenerics>[];
+    public sourcePort: RightAnglePortModel;
+    public targetPorts: PortModel<PortModelGenerics>[];
 
     constructor(
         public context: IDataMapperContext,
@@ -38,11 +38,11 @@ export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
 
     async initPorts() {
         this.sourcePort = new RightAnglePortModel(false, EXPANDED_MAPPING_HEADER_NODE_TYPE)
-		this.addPort(this.sourcePort);
+        this.addPort(this.sourcePort);
     }
 
     async initLinks() {
-        for(const targetPort of this.targetPorts){
+        for (const targetPort of this.targetPorts) {
             const link = this.sourcePort.link(targetPort)
             this.getModel().addAll(link);
         }
@@ -51,11 +51,11 @@ export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
-        if ( typeof x === 'number' && typeof y === 'number'){
-            if (!this.x || !this.y){
+        if (typeof x === 'number' && typeof y === 'number') {
+            if (!this.x || !this.y) {
                 this.x = x;
                 this.y = y;
-                super.setPosition(x,y);
+                super.setPosition(x, y);
             }
         }
     }

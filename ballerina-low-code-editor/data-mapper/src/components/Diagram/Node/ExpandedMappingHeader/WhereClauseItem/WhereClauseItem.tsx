@@ -27,14 +27,8 @@ export function WhereClauseItem(props: {
     queryExprNode: QueryExpression;
     itemIndex: number;
 }) {
-    const {
-        onEditClick,
-        onDeleteClick,
-        intermediateNode,
-        context,
-        queryExprNode,
-        itemIndex,
-    } = props;
+    const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } =
+        props;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
 
@@ -45,39 +39,27 @@ export function WhereClauseItem(props: {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
-    return <>
-        <div className={classes.clauseItem}>
+    return (
+        <>
+            <div className={classes.clauseItem}>
+                <div className={classes.clauseKeyWrap}>{intermediateNode.whereKeyword.value}</div>
 
-            <div className={classes.clauseKeyWrap}>
-                {intermediateNode.whereKeyword.value}
+                <div className={classes.clauseWrap}>
+                    <span className={classes.clauseExpression} onClick={onEditClick}>
+                        {intermediateNode.expression.source}
+                    </span>
+                </div>
+
+                {isLoading ? (
+                    <CircularProgress size={18} />
+                ) : (
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} />
+                )}
             </div>
 
-            <div className={classes.clauseWrap}>
-                <span
-                    className={classes.clauseExpression}
-                    onClick={onEditClick}
-                >
-                    {intermediateNode.expression.source}
-                </span>
-            </div>
-
-            {isLoading ? (
-                <CircularProgress size={18} />
-            ) : (
-                <DeleteOutline
-                    className={classes.deleteIcon}
-                    onClick={onDelete}
-                />
-            )}
-        </div>
-
-
-        <ClauseAddButton
-            context={context}
-            queryExprNode={queryExprNode}
-            addIndex={itemIndex}
-        />
-    </>
+            <ClauseAddButton context={context} queryExprNode={queryExprNode} addIndex={itemIndex} />
+        </>
+    );
 }

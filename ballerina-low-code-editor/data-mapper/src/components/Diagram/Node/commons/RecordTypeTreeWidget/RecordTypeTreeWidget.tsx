@@ -120,17 +120,13 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
         handleCollapse(id, !expanded);
     }
 
-    const expandedPort = getPort( `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
+    const expandedPort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
     return (
         <TreeContainer>
             <div className={classes.queryPortWrap}>
-                {expandedPort && <PortWidget
-                    port={expandedPort}
-                    engine={engine}
-                />}
+                {expandedPort && <PortWidget port={expandedPort} engine={engine} />}
             </div>
-
 
             <TreeHeader>
                 <span className={classes.treeLabelInPort}>
