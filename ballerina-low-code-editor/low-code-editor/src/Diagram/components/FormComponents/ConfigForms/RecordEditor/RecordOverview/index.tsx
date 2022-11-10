@@ -11,20 +11,22 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { ReactNode, useContext, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
+import { IconButton, Link } from "@material-ui/core";
+import { DeleteButton, UndoIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ModulePart, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import classNames from 'classnames';
 
 import { PrimaryButtonSquare } from "../../../../../../components/Buttons/PrimaryButtonSquare";
 import { Context } from "../../../../../../Contexts/Diagram";
-import { removeStatement } from "../../../../../utils";
-import { useStyles } from "../../../DynamicConnectorForm/style";
 import { wizardStyles } from "../../style";
 import { RecordEditor } from "../index";
 import { recordStyles } from "../style";
-import { extractImportedRecordNames, getActualRecordST, getCreatedRecordRange } from "../utils";
+import { RecordItemModel } from "../types";
+import { extractImportedRecordNames, getActualRecordST, getAvailableCreatedRecords, getRemoveCreatedRecordRange } from "../utils";
 
 import { RecordItem } from "./RecordItem";
 
@@ -40,7 +42,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
 
-    const { props: { syntaxTree }, api: { code: { modifyDiagram } } } = useContext(Context);
+    const { props: { syntaxTree }, api: { code: { modifyDiagram, undo } } } = useContext(Context);
 
     const intl = useIntl();
     const doneButtonText = intl.formatMessage({
@@ -53,48 +55,89 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
         defaultMessage: "Succcesfully imported the JSON Please use following section to further edit"
     });
 
+    const overviewSelectAll = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.overview.overviewSelectAll",
+        defaultMessage: "Select All"
+    });
+
+    const deleteSelected = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.overview.deleteSelected",
+        defaultMessage: "Delete Selected"
+    });
+
     const [selectedRecord, setSelectedRecord] = useState<string>();
+    const createdDefinitions = extractImportedRecordNames(definitions);
+    const [recordNames, setRecordNames] = useState<RecordItemModel[]>(createdDefinitions);
 
     const onEditClick = (record: string) => {
         setSelectedRecord(record);
     }
 
-    const onDeleteClick = (record: string) => {
-        const recordNameClone = [...recordNames];
-        const index = recordNameClone.indexOf(record);
-        if (index !== -1) {
-            recordNameClone.splice(index, 1);
+    const handleOnCheck = () => {
+        setRecordNames(recordNames);
+    }
+
+    const renderRecords = () => {
+        const records: ReactNode[] = [];
+        if (STKindChecker.isModulePart(definitions)) {
+            recordNames.forEach(typeDef => {
+                records.push(<RecordItem record={typeDef} onEditClick={onEditClick} handleOnCheck={handleOnCheck} />)
+            });
+        } else if (STKindChecker.isTypeDefinition(definitions) && recordNames.length > 0) {
+            records.push(<RecordItem record={recordNames[0]} onEditClick={onEditClick} handleOnCheck={handleOnCheck} />);
         }
-        setRecordNames(recordNameClone);
-        if (recordNames.length === 1) {
-            modifyDiagram([removeStatement(getActualRecordST(syntaxTree, record).position)]);
-            onCancel();
-        } else {
-            modifyDiagram([removeStatement(getActualRecordST(syntaxTree, record).position)]);
-        }
+        setListRecords(records);
     }
 
-    const onDeleteAllClick = () => {
-        modifyDiagram([removeStatement(getCreatedRecordRange(recordNames, syntaxTree))]);
-        onCancel();
-    }
 
-    const [recordNames, setRecordNames] = useState<string[]>(extractImportedRecordNames(definitions));
-    const records: ReactNode[] = [];
-    if (STKindChecker.isModulePart(definitions)) {
-        recordNames.forEach(typeDef => records.push(
-            <RecordItem record={typeDef} onEditClick={onEditClick} onDelete={onDeleteClick} />
-        ))
-    } else if (STKindChecker.isTypeDefinition(definitions)) {
-        records.push(
-            <RecordItem record={definitions.typeName.value} onEditClick={onEditClick} onDelete={onDeleteClick} />
-        );
-    }
+    useEffect(() => {
+        renderRecords();
+    }, [recordNames]);
 
+    useEffect(() => {
+        setRecordNames(getAvailableCreatedRecords(createdDefinitions, syntaxTree));
+    }, [syntaxTree]);
+
+    const [listRecords, setListRecords] = useState<ReactNode[]>([]);
     const actualSelectedRecordSt = selectedRecord ? getActualRecordST(syntaxTree, selectedRecord) : undefined;
 
     const onCancelEdit = () => {
         setSelectedRecord("");
+    }
+
+    const onDeleteSelected = () => {
+        const selectedRecords: string[] = [];
+        const recordNameClone = [...recordNames];
+        recordNames.forEach(record => {
+            if (record.checked) {
+                selectedRecords.push(record.name);
+                const index = recordNameClone.findIndex(item => item.name === record.name);
+                if (index !== -1) {
+                    recordNameClone.splice(index, 1);
+                }
+            }
+        })
+        setRecordNames(recordNameClone);
+        modifyDiagram(getRemoveCreatedRecordRange(selectedRecords, syntaxTree));
+        if (recordNameClone.length === 0) {
+            onCancel();
+        }
+    }
+
+    const onSelectAll = () => {
+        let checkAll = true;
+        if (recordNames.every(value => value.checked)) {
+            checkAll = false;
+        }
+        recordNames.forEach(record => {
+            record.checked = checkAll;
+        })
+        setRecordNames(recordNames);
+        renderRecords();
+    }
+
+    const handleUndo = () => {
+        undo();
     }
 
     return (
@@ -106,13 +149,35 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                         defaultMessage={"Record"}
                         onCancel={onCancel}
                     />
-                    {records?.length > 0 && (
+                    {listRecords?.length > 0 && (
                         <div className={recordClasses.inputLabelWrapper}>
                             <p className={recordClasses.inputLabel}>{successMsgText}</p>
                         </div>
                     )}
                     <div className={overlayClasses.recordFormWrapper}>
-                        {records}
+                        {listRecords}
+                    </div>
+                    <div className={recordClasses.recordOptions}>
+                        <Link
+                            key={'select-all'}
+                            onClick={onSelectAll}
+                            className={recordClasses.marginSpace}
+                        >
+                            {overviewSelectAll}
+                        </Link>
+
+                        <div className={classNames(recordClasses.deleteRecord, recordClasses.marginSpace)} onClick={onDeleteSelected} >
+                            <DeleteButton /> {deleteSelected}
+                        </div>
+
+                        <IconButton
+                            onClick={handleUndo}
+                            className={classNames(recordClasses.undoButton, recordClasses.marginSpace)}
+                            data-testid="overview-undo"
+                        >
+                            <UndoIcon />
+                        </IconButton>
+
                     </div>
                     <div className={recordClasses.doneButtonWrapper}>
                         <PrimaryButtonSquare

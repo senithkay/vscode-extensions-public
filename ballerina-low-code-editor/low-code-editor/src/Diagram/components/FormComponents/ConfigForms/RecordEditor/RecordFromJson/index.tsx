@@ -241,7 +241,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             </div>
                         </div>
                         <FormTextArea
-                            rowsMax={6.3}
+                            rowsMax={5.1}
                             dataTestId="json-input"
                             placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
                             onChange={onJsonChange}
