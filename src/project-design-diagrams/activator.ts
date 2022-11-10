@@ -57,9 +57,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 function viewProjectDesignDiagrams() {
     setupWebviewPanel();
 
-    const html = render();
-    if (designDiagramWebview && html) {
-        designDiagramWebview.webview.html = html;
+    if (designDiagramWebview) {
+        const html = render(designDiagramWebview.webview);
+        if (html) {
+            designDiagramWebview.webview.html = html;
+        }
         if (workspace.workspaceFolders && workspace.workspaceFolders.length === 1) {
             window.showInformationMessage(USER_TIP);
         }
