@@ -16,7 +16,8 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { CommandResponse, ConditionConfig,
+import {
+    CommandResponse, ConditionConfig,
     Connector,
     DiagramDiagnostic,
     DIAGRAM_MODIFIED,
@@ -153,7 +154,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         (async () => {
             const version: string = await getBalVersion();
             setBalVersion(version);
-            const isCodeServerInstance : string = await getEnv("CODE_SERVER_ENV");
+            const isCodeServerInstance: string = await getEnv("CODE_SERVER_ENV");
             setCodeServer(isCodeServerInstance === "true");
             const sentryConfig: SentryConfig = await getSentryConfig();
             if (sentryConfig) {
@@ -419,6 +420,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                     updateFileContent: (content: string, skipForceSave?: boolean) => {
                                         return props.updateFileContent(filePath, content, skipForceSave);
                                     },
+                                    undo,
                                     isMutationInProgress,
                                     isModulePullInProgress,
                                     loaderText

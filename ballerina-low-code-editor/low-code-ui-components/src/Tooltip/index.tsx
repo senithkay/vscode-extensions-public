@@ -260,7 +260,7 @@ export function DiagramTooltipCodeSnippet(props: Partial<TooltipPropsExtended>) 
 }
 
 export function StatementEditorHint(props: Partial<TooltipPropsExtended>) {
-    const { onClick, children, componentModel, content, contentType, ...restProps } = props;
+    const { onClick, children, componentModel, content, contentType, disabled, ...restProps } = props;
 
     return (
         <Tooltip
@@ -272,6 +272,7 @@ export function StatementEditorHint(props: Partial<TooltipPropsExtended>) {
             toolTipContent={content}
             stmtEditorHint={true}
             contentType={contentType}
+            disabled={disabled}
         >
             {children}
         </Tooltip>

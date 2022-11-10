@@ -308,7 +308,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             width: 10,
             color: "#000"
         },
-        singleTokenWrapperWithMargin : {
+        singleTokenWrapperWithMargin: {
             width: 10,
             color: "#000",
             marginTop: "3px !important",
@@ -401,7 +401,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             display: "flex",
             margin: 16,
             flexDirection: "column",
-            "& button" : {
+            "& button": {
                 marginBottom: 16
             }
         },
@@ -413,6 +413,7 @@ export const recordStyles = makeStyles((theme: Theme) =>
             border: "1px solid #dee0e7",
             marginTop: 15,
             marginLeft: 20,
+            marginRight: 10,
             justifyContent: "space-between",
             display: "flex",
             flexDirection: 'row',
@@ -475,5 +476,33 @@ export const recordStyles = makeStyles((theme: Theme) =>
                 textDecoration: 'underline'
             }
         },
+        recordOptions: {
+            padding: 10,
+            display: "inline-flex",
+            alignItems: "center",
+            "& a": {
+                cursor: "pointer",
+                color: "#5567D5"
+            },
+            "& a:hover": {
+                textDecoration: "none",
+            }
+        },
+        deleteRecord: {
+            display: "flex",
+            alignItems: "center",
+            color: "#FE523C",
+            cursor: "pointer",
+            "& svg": {
+                marginRight: 8
+            }
+        },
+        undoButton: {
+            padding: 2
+        },
+        marginSpace: {
+            marginLeft: 15,
+            marginRight: 15
+        }
     }),
 );

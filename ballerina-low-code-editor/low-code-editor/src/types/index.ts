@@ -83,6 +83,7 @@ export interface LowCodeEditorAPI {
         isMutationInProgress: boolean;
         isModulePullInProgress: boolean;
         loaderText: string;
+        undo: () => Promise<void>;
     }
     // FIXME Doesn't make sense to take these methods below from outside
     // Move these inside and get an external API for pref persistance
@@ -94,9 +95,10 @@ export interface LowCodeEditorAPI {
         zoomOut: () => void;
     };
     configPanel: {
-        dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition,
-                                     wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
-                                     symbolInfo?: STSymbolInfo, model?: STNode) => void;
+        dispactchConfigOverlayForm: (
+            type: string, targetPosition: NodePosition,
+            wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
+            symbolInfo?: STSymbolInfo, model?: STNode) => void;
         closeConfigOverlayForm: () => void;
         configOverlayFormPrepareStart: () => void;
         closeConfigPanel: () => void;
