@@ -4,8 +4,6 @@ import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
 import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
-import { SuggestionsPane } from "../../../utils/components/statement-editor/suggestions-pane";
-import { RecordForm } from "../../../utils/forms/record-form";
 import { ListenerForm } from "../../../utils/forms/listener-form";
 import { EnumerationForm } from "../../../utils/forms/enumeration-form";
 import { SourceCode } from "../../../utils/components/code-view";
@@ -45,7 +43,8 @@ describe("Add module-level statements via Low Code", () => {
             .typeInput("foo");
 
         EditorPane
-            .validateNewExpression("CaptureBindingPattern", "foo");
+            .validateNewExpression("CaptureBindingPattern", "foo")
+            .reTriggerDiagnostics("CaptureBindingPattern", "foo");
 
         StatementEditor
             .save();
@@ -60,6 +59,15 @@ describe("Add module-level statements via Low Code", () => {
             .getEditorPane();
 
         EditorPane
+            .getStatementRenderer()
+            .getExpression("CaptureBindingPattern")
+            .doubleClickExpressionContent('conf');
+
+        InputEditor
+            .typeInput("foo");
+
+        EditorPane
+            .validateNewExpression("CaptureBindingPattern", "foo")
             .getExpression("RequiredExpression")
             .doubleClickExpressionContent('?');
 
@@ -75,18 +83,8 @@ describe("Add module-level statements via Low Code", () => {
             .typeInput('string');
 
         EditorPane
-            .validateNewExpression("StringTypeDesc", "string");
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("CaptureBindingPattern")
-            .doubleClickExpressionContent('conf');
-
-        InputEditor
-            .typeInput("foo");
-
-        EditorPane
-            .validateNewExpression("CaptureBindingPattern", "foo")
+            .validateNewExpression("StringTypeDesc", "string")
+            .reTriggerDiagnostics("StringTypeDesc", "string");
 
         StatementEditor
             .save();
@@ -102,16 +100,6 @@ describe("Add module-level statements via Low Code", () => {
 
         EditorPane
             .getStatementRenderer()
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-expression>`);
-
-        InputEditor
-            .typeInput('"Hello World"');
-
-        EditorPane
-            .validateNewExpression("StringLiteral", "Hello World");
-            
-        EditorPane
             .getExpression("IdentifierToken")
             .doubleClickExpressionContent('CONST_NAME');
 
@@ -119,7 +107,16 @@ describe("Add module-level statements via Low Code", () => {
             .typeInput("FOO");
 
         EditorPane
-            .validateNewExpression("IdentifierToken", "FOO");
+            .validateNewExpression("IdentifierToken", "FOO")
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
+
+        InputEditor
+            .typeInput('"Hello World"');
+
+        EditorPane
+            .validateNewExpression("StringLiteral", "Hello World")
+            .reTriggerDiagnostics("StringLiteral", "Hello World");
 
         StatementEditor
             .save();

@@ -42,21 +42,22 @@ describe('Add const to module level via Low Code', () => {
         EditorPane
             .getStatementRenderer()
             .getExpression("IdentifierToken")
+            .doubleClickExpressionContent('CONST_NAME');
+
+        InputEditor
+            .typeInput('ONE');
+
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("IdentifierToken")
             .doubleClickExpressionContent('<add-expression>');
 
         InputEditor
             .typeInput('"1"');
 
         EditorPane
-            .validateNewExpression("StringLiteral", '"1"');
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("IdentifierToken")
-            .doubleClickExpressionContent('CONST_NAME');
-
-        InputEditor
-            .typeInput('ONE');
+            .validateNewExpression("StringLiteral", '"1"')
+            .reTriggerDiagnostics("StringLiteral", '"1"');
 
         StatementEditor
             .save();
@@ -83,21 +84,22 @@ describe('Add const to module level via Low Code', () => {
         EditorPane
             .getStatementRenderer()
             .getExpression("IdentifierToken")
-            .doubleClickExpressionContent('<add-expression>');
-
-        InputEditor
-            .typeInput('2');
-
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("IdentifierToken")
             .doubleClickExpressionContent('CONST_NAME');
 
         InputEditor
             .typeInput('TWO');
 
         EditorPane
-            .validateNewExpression("NumericLiteral", 'TWO');
+            .getStatementRenderer()
+            .getExpression("IdentifierToken")
+            .doubleClickExpressionContent('<add-expression>');
+
+        InputEditor
+            .typeInput('2');
+
+        EditorPane
+            .validateNewExpression("NumericLiteral", '2')
+            .reTriggerDiagnostics("NumericLiteral", '2');
 
         StatementEditor
             .save();
@@ -116,6 +118,10 @@ describe('Add const to module level via Low Code', () => {
 
         InputEditor
             .typeInput('TWO_INT');
+        
+        EditorPane
+            .validateNewExpression("IdentifierToken", 'TWO_INT')
+            .reTriggerDiagnostics("IdentifierToken", 'TWO_INT');
 
         StatementEditor
             .save();

@@ -50,6 +50,10 @@ describe('Test helper plane parameter tab functionality', () => {
 
         InputEditor
             .typeInput('{}');
+        
+        EditorPane
+            .validateNewExpression("NumericLiteral", "0")
+            .reTriggerDiagnostics("NumericLiteral", "0");
 
         StatementEditor
             .save();

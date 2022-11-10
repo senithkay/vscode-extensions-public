@@ -64,6 +64,7 @@ describe('Test helper pane functionality', () => {
 
         EditorPane
             .validateNewExpression("TypedBindingPattern", "int")
+            .reTriggerDiagnostics("TypedBindingPattern", "int")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -124,6 +125,7 @@ describe('Test helper pane functionality', () => {
 
         EditorPane
             .validateNewExpression("NumericLiteral", "1")
+            .reTriggerDiagnostics("NumericLiteral", "1")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -321,7 +323,8 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('int');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int");
+            .validateNewExpression("TypedBindingPattern", "int")
+            .reTriggerDiagnostics("TypedBindingPattern", "int");
 
         EditorPane
             .validateEmptyDiagnostics();
