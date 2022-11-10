@@ -18,9 +18,10 @@
  */
 
 import { WEBVIEW_TYPE } from 'src/core';
+import { Webview } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 
-export function render(type: WEBVIEW_TYPE, data: any)
+export function render(type: WEBVIEW_TYPE, data: any, webView: Webview)
     : string {
 
     const body = `<div id="webview-container"><div class="loader" /></div>`;
@@ -51,9 +52,9 @@ export function render(type: WEBVIEW_TYPE, data: any)
          `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("WebViews", { disableComDebug: true }),
+        ...getComposerWebViewOptions("WebViews", webView, { disableComDebug: true }),
         body, scripts, styles, bodyCss
     };
 
-    return getLibraryWebViewContent(webViewOptions);
+    return getLibraryWebViewContent(webViewOptions, webView);
 }
