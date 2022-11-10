@@ -23,7 +23,8 @@ export enum ModelType {
     QUERY_EXPRESSION,
     FUNCTION,
     ORDER_KEY,
-    ORDER_DIRECTION_KEYWORDS
+    ORDER_DIRECTION_KEYWORDS,
+    SPECIFIC_FIELD_NAME
 }
 
 export class StatementEditorViewState {
