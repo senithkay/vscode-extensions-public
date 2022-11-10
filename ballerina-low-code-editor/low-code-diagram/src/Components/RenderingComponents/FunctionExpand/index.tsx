@@ -113,7 +113,7 @@ export function FunctionExpand(props: FunctionProps) {
 
     const arrowClasses = cn("action-invocation");
     const blockHeight = model.viewState.bBox.h;
-    const blockWidth = model.viewState.bBox.w + model.functionBody.viewState.bBox.rw + 25;
+    const blockWidth = model.viewState.bBox.w - 25;
 
     const expandViewX = 150;
     const arrowSpaceX = 70;
