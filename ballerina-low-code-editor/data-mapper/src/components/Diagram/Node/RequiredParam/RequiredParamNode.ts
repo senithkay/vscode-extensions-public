@@ -3,6 +3,7 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 import { RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { isArraysSupported } from "../../../DataMapper/utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -26,9 +27,11 @@ export class RequiredParamNode extends DataMapperNodeModel {
 
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-        const paramPosition = STKindChecker.isQualifiedNameReference(this.value.typeName)
-            ? this.value.typeName.identifier.position
-            : this.value.typeName.position;
+        const paramPosition = isArraysSupported(this.context.ballerinaVersion) && this.value?.paramName
+            ? this.value.paramName.position
+            : STKindChecker.isQualifiedNameReference(this.value.typeName)
+                ? this.value.typeName.identifier.position
+                : this.value.typeName.position;
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
             startLine: paramPosition.startLine,
             startColumn: paramPosition.startColumn,

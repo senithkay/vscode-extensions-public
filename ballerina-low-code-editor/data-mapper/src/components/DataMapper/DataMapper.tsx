@@ -31,6 +31,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
+import { useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -47,8 +48,7 @@ import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
-import { isDMSupported } from "./utils";
-import { useDMStore } from "../../store/store";
+import { isArraysSupported, isDMSupported } from "./utils";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -297,12 +297,13 @@ function DataMapperC(props: DataMapperProps) {
                     isStmtEditorCanceled,
                     fieldTobeEdited,
                     handleFieldToBeEdited,
-                    handleOverlay
+                    handleOverlay,
+                    ballerinaVersion
                 );
 
                 const selectedST = selection.selectedST.stNode;
                 const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                await recordTypeDescriptors.storeTypeDescriptors(selectedST, context);
+                await recordTypeDescriptors.storeTypeDescriptors(selectedST, context, isArraysSupported(ballerinaVersion));
 
                 const nodeInitVisitor = new NodeInitVisitor(context, selection);
                 traversNode(selectedST, nodeInitVisitor);

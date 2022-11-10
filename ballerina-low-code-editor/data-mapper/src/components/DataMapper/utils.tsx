@@ -10,12 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
+
 export function isDMSupported(version: string): boolean {
     if (!version) {
         return false;
     }
-    const versionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
-    const versionStr = version.match(versionRegex);
+    const versionStr = version.match(balVersionRegex);
     const splittedVersions = versionStr[0]?.split(".");
     if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) === 1)) {
         // 2201.1.x
@@ -25,6 +26,32 @@ export function isDMSupported(version: string): boolean {
         return (parseInt(splittedVersions[2], 10) >= 1);
     } else  if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) > 2)) {
         // > 2201.2
+        return true;
+    } else  if (parseInt(splittedVersions[0], 10) > 2201) {
+        // > 2201 (eg: 2301, 2202)
+        return true;
+    } else {
+        return false;
+    }
+}
+
+export function isArraysSupported(version: string): boolean {
+    if (!version) {
+        return false;
+    }
+    const versionStr = version.match(balVersionRegex);
+    const splittedVersions = versionStr[0]?.split(".");
+    if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) === 1)) {
+        // >= 2201.1.3
+        return (parseInt(splittedVersions[2], 10) >= 3);
+    } else  if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) === 2)) {
+        // >= 2201.2.4
+        return (parseInt(splittedVersions[2], 10) >= 4);
+    } else  if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) === 3)) {
+        // >= 2201.3.1
+        return (parseInt(splittedVersions[2], 10) >= 1);
+    } else  if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) > 3)) {
+        // > 2201.3
         return true;
     } else  if (parseInt(splittedVersions[0], 10) > 2201) {
         // > 2201 (eg: 2301, 2202)

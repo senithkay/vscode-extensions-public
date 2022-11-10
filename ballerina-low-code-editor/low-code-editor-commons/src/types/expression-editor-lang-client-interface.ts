@@ -155,6 +155,14 @@ export interface TypeFromSymbolRequest {
     positions: LinePosition[];
 }
 
+export interface TypesFromFnDefinitionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    fnPosition: LinePosition;
+    returnTypeDescPosition: LinePosition;
+}
+
 export interface ResolvedTypeForSymbol {
     type: Type;
     requestedPosition: LinePosition;
@@ -200,5 +208,8 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     ) => Thenable<TypesFromExpressionResponse>;
     getTypeFromSymbol: (
         params: TypeFromSymbolRequest
+    ) => Thenable<TypesFromSymbolResponse>;
+    getTypesFromFnDefinition: (
+        params: TypesFromFnDefinitionRequest
     ) => Thenable<TypesFromSymbolResponse>;
 }
