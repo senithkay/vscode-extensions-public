@@ -17,9 +17,7 @@
  *
  */
 
-import {
-    commands, ExtensionContext, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace
-} from "vscode";
+import { commands, ExtensionContext, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { join } from "path";
@@ -120,13 +118,13 @@ function setupWebviewPanel() {
             switch (message.command) {
                 case "go2source": {
                     const lineRange: LineRange = message.lineRange;
-                    if (existsSync(lineRange.filePath)) {
+                    if (lineRange && existsSync(lineRange.filePath)) {
                         workspace.openTextDocument(lineRange.filePath).then((sourceFile) => {
                             window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
                                 const startPosition: Position = new Position(lineRange.startLine.line, lineRange.startLine.offset);
                                 const endPosition: Position = new Position(lineRange.endLine.line, lineRange.endLine.offset);
                                 const range: Range = new Range(startPosition, endPosition);
-                                textEditor.revealRange(range, TextEditorRevealType.InCenterIfOutsideViewport);
+                                textEditor.revealRange(range, TextEditorRevealType.InCenter);
                                 textEditor.selection = new Selection(range.start, range.start);
                             })
                         })

@@ -24,6 +24,7 @@ import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
 import { ResourceFunction, RemoteFunction } from '../../../../resources';
 import { FunctionContainer } from '../styles';
+import { Go2SourceWidget } from '../../../common';
 
 interface FunctionCardProps {
     engine: DiagramEngine;
@@ -70,6 +71,7 @@ export function FunctionCard(props: FunctionCardProps) {
                     remoteFunc={functionElement}
                 />
             }
+            {isHovered && <Go2SourceWidget lineRange={functionElement.lineRange} />}
         </FunctionContainer>
     )
 }

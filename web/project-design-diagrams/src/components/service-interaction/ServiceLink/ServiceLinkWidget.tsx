@@ -120,6 +120,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 					<DataTypesPopup
 						inputParams={callingFunction.parameters}
 						returnType={callingFunction.returns}
+						lineRange={link.lineRange}
 					/>
 				</Popover>
 			}

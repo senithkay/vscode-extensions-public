@@ -52,6 +52,7 @@ export interface ResourceFunction {
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
+    lineRange: LineRange;
 }
 
 export interface RemoteFunction {
@@ -59,11 +60,13 @@ export interface RemoteFunction {
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
+    lineRange: LineRange;
 }
 
 export interface Interaction {
     resourceId: ResourceId;
     connectorType: string;
+    lineRange: LineRange;
 }
 
 export interface Parameter {
@@ -92,6 +95,7 @@ export interface Attribute {
     required: boolean;
     nillable: boolean;
     associations: Association[];
+    lineRange: LineRange;
 }
 
 interface Association {
@@ -150,6 +154,6 @@ export enum Colors {
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
-    SECONDARY_SELECTED = '#f7f1e9',
-    SHADED_SELECTED = '#f7e4cb'
+    SECONDARY_SELECTED = '#fffaf2',
+    SHADED_SELECTED = '#faead2'
 }

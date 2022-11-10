@@ -30,7 +30,7 @@ export function Go2SourceWidget(props: { lineRange: LineRange }) {
 
     return (
         <DriveFileRenameOutlineRoundedIcon
-            onClick={() => go2source(lineRange)}
+            onClick={lineRange ? () => go2source(lineRange) : () => {}}
             onMouseOver={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{
@@ -38,8 +38,8 @@ export function Go2SourceWidget(props: { lineRange: LineRange }) {
                 borderRadius: '50%',
                 color: isHovered ? 'white' : '#49ad63',
                 fontSize: '18px',
-                marginLeft: '7px',
-                padding: '2px'
+                marginLeft: isHovered ? '7px' : '4px',
+                padding: isHovered ? '3px' : '2px'
             }}
         />
     );

@@ -18,74 +18,80 @@
  */
 
 import React, { useContext } from 'react';
-import { DiagramContext } from '../../../common';
-import { Parameter } from '../../../../resources';
+import { DiagramContext, Go2SourceWidget } from '../../../common';
+import { LineRange, Parameter } from '../../../../resources';
 import { mapUnionTypes } from '../link-utils';
-import { Container, clickableType, defaultType } from './styles';
+import { Container, clickableType, defaultType, Go2SourceButton } from './styles';
 
 interface DataTypeProps {
     inputParams: Parameter[];
     returnType: string[];
+    lineRange: LineRange;
 }
 
 export function DataTypesPopup(props: DataTypeProps) {
-    const { inputParams, returnType } = props;
+    const { inputParams, lineRange, returnType } = props;
     const { getTypeComposition } = useContext(DiagramContext);
 
     return (
         <Container>
-            <b>Input Types:</b>
-            <ul>
-                {inputParams.length === 0 ? <li>None</li> :
-                    inputParams.map((param, index) => {
-                        let displayParam: Map<string[], boolean> = mapUnionTypes(param);
-
-                        return (
-                            <li key={index}>
-                                {Array.from(displayParam.entries()).map(([values, isClickable], key) => {
-                                    return (
-                                        <>
-                                            {key != 0 && <> | </>}
-                                            <p
-                                                style={isClickable ? clickableType : defaultType}
-                                                onClick={isClickable ? () => { getTypeComposition(values[1]) } : () => { }}
-                                            >
-                                                {values[0].slice(values[0].lastIndexOf(':') + 1)}
-                                            </p>
-                                        </>
-                                    )
-                                })}
-                            </li>
-                        )
-                    })
-                }
-            </ul>
-
-            <b>Return Types:</b>
-            <ul>
-                {returnType.length === 0 ? <li>None</li> :
-                    returnType.map((returnType, index) => {
-                        if (returnType) {
-                            let paramName: string = returnType.slice(returnType.lastIndexOf(':') + 1);
-                            let isClickable: boolean = returnType.includes(':');
-                            if (paramName.endsWith('[]')) {
-                                returnType = returnType.slice(0, -2);
-                            }
+            <div>
+                <b>Input Types:</b>
+                <ul>
+                    {inputParams.length === 0 ? <li>None</li> :
+                        inputParams.map((param, index) => {
+                            let displayParam: Map<string[], boolean> = mapUnionTypes(param);
 
                             return (
                                 <li key={index}>
-                                    <p
-                                        style={isClickable ? clickableType : defaultType}
-                                        onClick={isClickable ? () => { getTypeComposition(returnType) } : () => { }}
-                                    >
-                                        {paramName}
-                                    </p>
+                                    {Array.from(displayParam.entries()).map(([values, isClickable], key) => {
+                                        return (
+                                            <>
+                                                {key != 0 && <> | </>}
+                                                <p
+                                                    style={isClickable ? clickableType : defaultType}
+                                                    onClick={isClickable ? () => { getTypeComposition(values[1]) } : () => { }}
+                                                >
+                                                    {values[0].slice(values[0].lastIndexOf(':') + 1)}
+                                                </p>
+                                            </>
+                                        )
+                                    })}
                                 </li>
                             )
-                        }
-                    })
-                }
-            </ul>
+                        })
+                    }
+                </ul>
+
+                <b>Return Types:</b>
+                <ul>
+                    {returnType.length === 0 ? <li>None</li> :
+                        returnType.map((returnType, index) => {
+                            if (returnType) {
+                                let paramName: string = returnType.slice(returnType.lastIndexOf(':') + 1);
+                                let isClickable: boolean = returnType.includes(':');
+                                if (paramName.endsWith('[]')) {
+                                    returnType = returnType.slice(0, -2);
+                                }
+
+                                return (
+                                    <li key={index}>
+                                        <p
+                                            style={isClickable ? clickableType : defaultType}
+                                            onClick={isClickable ? () => { getTypeComposition(returnType) } : () => { }}
+                                        >
+                                            {paramName}
+                                        </p>
+                                    </li>
+                                )
+                            }
+                        })
+                    }
+                </ul>
+            </div>
+            <Go2SourceButton>
+                <Go2SourceWidget lineRange={lineRange} />
+            </Go2SourceButton>
         </Container>
     );
 }
