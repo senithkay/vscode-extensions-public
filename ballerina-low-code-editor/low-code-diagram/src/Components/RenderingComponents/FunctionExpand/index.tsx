@@ -35,6 +35,7 @@ import "./style.scss";
 export const FUNCTION_PLUS_MARGIN_TOP = 7.5;
 export const FUNCTION_PLUS_MARGIN_BOTTOM = 7.5;
 export const FUNCTION_PLUS_MARGIN_LEFT = 10;
+export const FUNCTION_DOTTED_MARGIN = 25;
 
 export interface FunctionProps {
     model: FunctionDefinition;
@@ -113,7 +114,7 @@ export function FunctionExpand(props: FunctionProps) {
 
     const arrowClasses = cn("action-invocation");
     const blockHeight = model.viewState.bBox.h;
-    const blockWidth = model.viewState.bBox.w - 25;
+    const blockWidth = model.viewState.bBox.w - FUNCTION_DOTTED_MARGIN;
 
     const expandViewX = 150;
     const arrowSpaceX = 70;
