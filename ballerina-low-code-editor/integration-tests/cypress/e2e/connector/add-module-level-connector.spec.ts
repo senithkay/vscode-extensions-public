@@ -15,7 +15,7 @@ describe('Add connectors to module level via Low Code', () => {
         cy.visit(getIntegrationTestPageURL(EMPTY_BAL_FILE_PATH));
     });
 
-    it('Add add multiple connectors to module level', () => {
+    it.skip('Add add multiple connectors to module level', () => {
         // Add http connector (standard library)
         Canvas
             .welcomeMessageShouldBeVisible()
