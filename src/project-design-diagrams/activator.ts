@@ -40,7 +40,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const designDiagramRenderer = commands.registerCommand("ballerina.view.ProjectDesigns", () => {
         ballerinaExtInstance.onReady()
             .then(() => {
-                if (checkCompatibility(2201.2, 2)) {
+                if (isCompatible(2201.2, 2)) {
                     viewProjectDesignDiagrams();
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
@@ -92,7 +92,7 @@ async function getProjectResources(): Promise<Map<string, ComponentModel>> {
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
         }).then((response) => {
-            if (checkCompatibility(2201.3, 1)) {
+            if (isCompatible(2201.3, 1)) {
                 const packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
                 for (let [_key, packageModel] of packageModels) {
                     if (packageModel.hasDiagnosticErrors) {
@@ -144,7 +144,7 @@ function terminateActivation(message: string) {
     }
 }
 
-function checkCompatibility(majorVersion: decimal, patchVersion: number): boolean {
+function isCompatible(majorVersion: decimal, patchVersion: number): boolean {
     if (!balVersion) {
         getVersion();
     }
