@@ -12,7 +12,7 @@ describe('Edit connector with custom configurations via Low Code', () => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     });
 
-    it('Edit http endpoint with custom configurations', () => {
+    it.skip('Edit http endpoint with custom configurations', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
@@ -41,7 +41,7 @@ describe('Edit connector with custom configurations via Low Code', () => {
             getCurrentSpecFolder() + "edit-connector-in-function.expected.bal");
     });
 
-    it('Edit http endpoint and cancel', () => {
+    it.skip('Edit http endpoint and cancel', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
