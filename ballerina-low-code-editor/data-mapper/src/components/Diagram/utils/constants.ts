@@ -16,8 +16,8 @@ export const OFFSETS = {
         X: 650,
     },
     QUERY_MAPPING_HEADER_NODE:{
-        X: 10,
-        Y: 20,
+        X: 25,
+        Y: 25,
     },
     LINK_CONNECTOR_NODE:{
         X:750

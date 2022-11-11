@@ -19,13 +19,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: 25,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative'
+            justifyContent: 'space-between',
+            position: 'relative',
+            flexDirection: 'column'
         },
         line:{
-            height: '100%',
+            height: 6,
             width: 2,
-            background:  '#CBCEDB'
+            background: '#CBCEDB'
         },
         clauseKeyWrap: {
             border: '1px solid #CBCEDB',
@@ -44,7 +45,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             background: 'white',
             borderRadius: '8px',
             height: 40,
-            marginLeft: 40,
+            marginLeft: 25,
             marginRight: 10,
             display: 'flex',
             alignItems: 'center',
@@ -76,8 +77,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             cursor: 'pointer',
             fontSize: '18px',
             color: '#5567D5',
-            transitionDuration: '0.2s',
-            backgroundColor: '#F7F8FB',
+            transition: 'all 0.2s',
             '&:hover': {
                 color: '#384491',
             }
@@ -101,14 +101,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             background: 'transparent'
         },
         addButtonWrap: {
-            height: '100%',
             position: 'absolute',
             bottom: 0,
             display: 'flex',
             alignItems: 'center',
-        },
-        loader:{
-            backgroundColor: '#F7F8FB'
+            top: 0,
         },
         queryInputInputPortWrap: {
             width: 80,

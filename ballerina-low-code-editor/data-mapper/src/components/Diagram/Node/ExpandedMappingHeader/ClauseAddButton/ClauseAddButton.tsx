@@ -100,13 +100,14 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         <>
             <div className={classes.lineWrap}>
                 <div className={classes.line} />
-                <span className={classes.addButtonWrap}>
+                <div className={classes.addButtonWrap}>
                     {isLoading ? (
-                        <CircularProgress size={13} className={classes.loader} />
+                        <CircularProgress size={13} />
                     ) : (
-                        <AddCircleOutline className={classes.addIcon} onClick={handleClick} />
+                        <AddCircleOutline onClick={handleClick} className={classes.addIcon}/>
                     )}
-                </span>
+                </div>
+                <div className={classes.line} />
             </div>
             <Menu
                 anchorEl={anchorEl}
