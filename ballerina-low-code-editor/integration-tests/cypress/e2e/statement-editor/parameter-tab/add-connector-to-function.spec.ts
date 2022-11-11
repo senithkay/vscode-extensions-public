@@ -16,7 +16,7 @@ describe('Add connector with custom configurations via Low Code', () => {
     });
 
     // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping
-    it.skip('Add http endpoint with custom configurations', () => {
+    it('Add http endpoint with custom configurations', () => {
         Canvas.getFunction("myfunction")
             .nameShouldBe("myfunction")
             .shouldBeExpanded()
