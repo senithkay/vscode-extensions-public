@@ -67,7 +67,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 >
                     {displayName}
                 </EntityName>
-                {isHovered && <Go2SourceWidget lineRange={node.entityObject.lineRange} />}
+                {isHovered && node.entityObject.lineRange && <Go2SourceWidget lineRange={node.entityObject.lineRange} />}
             <EntityPortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

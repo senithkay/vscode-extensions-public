@@ -26,7 +26,7 @@ import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { ComponentModel, LineRange, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
+import { ComponentModel, LineRange, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, UPDATE_BALLERINA } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
 
 let context: ExtensionContext;
@@ -130,6 +130,8 @@ function setupWebviewPanel() {
                                 textEditor.selection = new Selection(range.start, range.start);
                             })
                         })
+                    } else {
+                        window.showWarningMessage(UPDATE_BALLERINA);
                     }
                     return;
                 }

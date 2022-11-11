@@ -71,7 +71,7 @@ export function FunctionCard(props: FunctionCardProps) {
                     remoteFunc={functionElement}
                 />
             }
-            {isHovered && <Go2SourceWidget lineRange={functionElement.lineRange} />}
+            {isHovered && functionElement.lineRange && <Go2SourceWidget lineRange={functionElement.lineRange} />}
         </FunctionContainer>
     )
 }

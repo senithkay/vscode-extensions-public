@@ -70,7 +70,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 engine={engine}
             />
                 <ServiceName>{displayName}</ServiceName>
-                {isHovered && <Go2SourceWidget lineRange={node.serviceObject.lineRange} />}
+                {isHovered && node.serviceObject.lineRange && <Go2SourceWidget lineRange={node.serviceObject.lineRange} />}
             <ServicePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

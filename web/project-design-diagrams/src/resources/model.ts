@@ -38,7 +38,7 @@ export interface Service {
     resources: ResourceFunction[];
     remoteFunctions: RemoteFunction[];
     serviceType: string;
-    lineRange: LineRange;
+    lineRange?: LineRange;
 }
 
 interface ServiceAnnotation {
@@ -52,7 +52,7 @@ export interface ResourceFunction {
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
-    lineRange: LineRange;
+    lineRange?: LineRange;
 }
 
 export interface RemoteFunction {
@@ -60,13 +60,13 @@ export interface RemoteFunction {
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
-    lineRange: LineRange;
+    lineRange?: LineRange;
 }
 
 export interface Interaction {
     resourceId: ResourceId;
     connectorType: string;
-    lineRange: LineRange;
+    lineRange?: LineRange;
 }
 
 export interface Parameter {
@@ -85,7 +85,7 @@ export interface ResourceId {
 export interface Entity {
     attributes: Attribute[];
     inclusions: string[];
-    lineRange: LineRange;
+    lineRange?: LineRange;
 }
 
 export interface Attribute {
@@ -95,7 +95,7 @@ export interface Attribute {
     required: boolean;
     nillable: boolean;
     associations: Association[];
-    lineRange: LineRange;
+    lineRange?: LineRange;
 }
 
 interface Association {

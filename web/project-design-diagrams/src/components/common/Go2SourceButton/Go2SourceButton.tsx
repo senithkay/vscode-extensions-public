@@ -30,7 +30,7 @@ export function Go2SourceWidget(props: { lineRange: LineRange }) {
 
     return (
         <DriveFileRenameOutlineRoundedIcon
-            onClick={lineRange ? () => go2source(lineRange) : () => {}}
+            onClick={() => go2source(lineRange)}
             onMouseOver={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{

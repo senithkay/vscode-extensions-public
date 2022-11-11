@@ -89,9 +89,12 @@ export function DataTypesPopup(props: DataTypeProps) {
                     }
                 </ul>
             </div>
-            <Go2SourceButton>
-                <Go2SourceWidget lineRange={lineRange} />
-            </Go2SourceButton>
+
+            {lineRange &&
+                <Go2SourceButton>
+                    <Go2SourceWidget lineRange={lineRange} />
+                </Go2SourceButton>
+            }
         </Container>
     );
 }

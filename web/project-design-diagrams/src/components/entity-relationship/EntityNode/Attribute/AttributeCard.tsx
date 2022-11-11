@@ -63,7 +63,7 @@ export function AttributeWidget(props: AttributeProps) {
             />
                 <AttributeName>{attribute.name}</AttributeName>
                 <AttributeType isSelected={isSelected || isHovered}>{attributeType}</AttributeType>
-                {isHovered && <Go2SourceWidget lineRange={attribute.lineRange} />}
+                {isHovered && attribute.lineRange && <Go2SourceWidget lineRange={attribute.lineRange} />}
             <EntityPortWidget
                 port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
                 engine={engine}
