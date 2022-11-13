@@ -56,8 +56,6 @@ describe('Test mapping constructor functionality', () => {
             .typeInput("{}");
 
         EditorPane
-            .validateNewExpression("MappingConstructor", "+")
-            .reTriggerDiagnostics("MappingConstructor", "+")
             .validateEmptyDiagnostics();
 
         EditorPane
