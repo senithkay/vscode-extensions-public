@@ -44,6 +44,9 @@ describe('Test statement editor query expression deletion functionality', () => 
         Toolbar
             .clickDeleteButton()
 
+        EditorPane
+            .reTriggerDiagnostics("NumericLiteral", "0");
+
         StatementEditor
             .save();
 
