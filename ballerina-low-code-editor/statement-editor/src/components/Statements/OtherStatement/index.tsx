@@ -46,7 +46,6 @@ export function OtherStatementTypes(props: OtherStatementProps) {
     const leadingMinutiaeJSX = getJSXForMinutiae(model?.leadingMinutiae, isFieldWithNewLine);
     const trailingMinutiaeJSX = getJSXForMinutiae(model?.trailingMinutiae, isFieldWithNewLine);
 
-
     const styleClassNames = cn(statementRendererClasses.expressionElement,
         !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,
         hasSyntaxDiagnostics && statementRendererClasses.syntaxErrorElementSelected
