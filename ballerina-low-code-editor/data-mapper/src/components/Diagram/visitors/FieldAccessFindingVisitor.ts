@@ -14,13 +14,14 @@ import {
     FieldAccess,
     OptionalFieldAccess,
     QueryExpression,
+    SimpleNameReference,
     STKindChecker,
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
 export class FieldAccessFindingVisitor implements Visitor {
-    private fieldAccesseNodes: (FieldAccess | OptionalFieldAccess)[];
+    private fieldAccesseNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[];
     private queryExpressionDepth: number;
     
     constructor() {
@@ -39,6 +40,18 @@ export class FieldAccessFindingVisitor implements Visitor {
         if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
             && this.queryExpressionDepth == 0){
             this.fieldAccesseNodes.push(node)
+        }
+    }
+
+    public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
+        if (
+            STKindChecker.isIdentifierToken(node.name) &&
+            parent &&
+            !STKindChecker.isFieldAccess(parent) &&
+            !STKindChecker.isOptionalFieldAccess(parent) &&
+            this.queryExpressionDepth == 0
+        ) {
+            this.fieldAccesseNodes.push(node);
         }
     }
 
