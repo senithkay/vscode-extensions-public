@@ -54,10 +54,21 @@ export interface ArrayTypedEditableRecordFieldWidgetProps {
     fieldIndex?: number;
     treeDepth?: number;
     deleteField?: (node: STNode) => Promise<void>;
+    isReturnTypeDesc?: boolean;
 }
 
 export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
+    const {
+        parentId,
+        field,
+        getPort,
+        engine,
+        mappingConstruct,
+        context, fieldIndex,
+        treeDepth = 0,
+        deleteField,
+        isReturnTypeDesc
+    } = props;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
@@ -248,13 +259,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     return (
         <div className={classnames(classes.treeLabel, classes.treeLabelArray,
             (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
-            <div className={classes.ArrayFieldRow}>
+            {!isReturnTypeDesc && (
+                <div className={classes.ArrayFieldRow}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
                         <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
                     }
                 </span>
-                <span className={classes.label}>
+                    <span className={classes.label}>
                     {(hasValue && !connectedViaLink) && (
                         <IconButton
                             className={classes.expandIcon}
@@ -264,26 +276,27 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                         </IconButton>
                     )}
-                    {label}
+                        {label}
                 </span>
-                {isLoading ? (
-                    <CircularProgress size={18} className={classes.loader} />
-                ) : (
-                    <>
-                        {((hasValue && !connectedViaLink) || !isDisabled) && (
-                            <ValueConfigMenu
-                                menuItems={[
-                                    {
-                                        title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
-                                        onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion,
-                                    },
-                                ]}
-                                isDisabled={!typeName || typeName === "[]"}
-                            />
-                        )}
-                    </>
-                )}
-            </div>
+                    {isLoading ? (
+                        <CircularProgress size={18} className={classes.loader} />
+                    ) : (
+                        <>
+                            {((hasValue && !connectedViaLink) || !isDisabled) && (
+                                <ValueConfigMenu
+                                    menuItems={[
+                                        {
+                                            title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
+                                            onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion,
+                                        },
+                                    ]}
+                                    isDisabled={!typeName || typeName === "[]"}
+                                />
+                            )}
+                        </>
+                    )}
+                </div>
+            )}
             {expanded && hasValue && listConstructor && (
                 <div>
                     <div className={classes.innerTreeLabel}>

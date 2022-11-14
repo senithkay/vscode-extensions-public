@@ -18,6 +18,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -25,6 +26,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
+import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -108,6 +110,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	const classes = useStyles();
 
 	const hasValue = field && field?.elements && field.elements.length > 0;
+	const isArray = field.type.typeName === PrimitiveBalType.Array;
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -160,35 +163,30 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 			</TreeHeader>
 			<TreeBody>
 				{expanded && field && (
-						field?.elements ? (
-							field.elements.map((item, index) => {
-								return (
-									<PrimitiveTypedEditableArrayElementWidget
-										key={id}
-										parentId={id}
-										engine={engine}
-										field={item.member}
-										getPort={getPort}
-										context={context}
-										fieldIndex={index}
-										deleteField={deleteField}
-										isParentSelectClause={isParentSelectClause}
-									/>
-								);
-							})
-						) : (
-							<PrimitiveTypedEditableArrayElementWidget
-								key={id}
-								parentId={id}
-								engine={engine}
-								field={field}
-								getPort={getPort}
-								context={context}
-								deleteField={deleteField}
-							/>
-						)
+					isArray ? (
+						<ArrayTypedEditableRecordFieldWidget
+							key={id}
+							engine={engine}
+							field={field}
+							getPort={getPort}
+							parentId={id}
+							mappingConstruct={undefined}
+							context={context}
+							isReturnTypeDesc={true}
+						/>
+					) : (
+						<PrimitiveTypedEditableArrayElementWidget
+							key={id}
+							parentId={id}
+							engine={engine}
+							field={field}
+							getPort={getPort}
+							context={context}
+							deleteField={deleteField}
+							isParentSelectClause={isParentSelectClause}
+						/>
 					)
-				}
+				)}
 			</TreeBody>
 		</TreeContainer>
 	);
