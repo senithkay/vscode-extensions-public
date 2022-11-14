@@ -165,7 +165,7 @@ export function ViewContainer(props: ViewContainerProps) {
                 }
                 {isDisableEditor && (
                     <div className={overlayClasses.mainStatementWrapper} data-testid="disable-overlay">
-                        <div className={overlayClasses.loadingWrapper}>Source code has been changed. Please retry editing a statement.</div>
+                        <div className={overlayClasses.loadingWrapper}>The source code has changed. Please retry editing the statement.</div>
                     </div>
                 )}
                 {isPullingModule && !isDisableEditor && (
