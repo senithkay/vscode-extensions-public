@@ -4,8 +4,6 @@ import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
 import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
-import { SuggestionsPane } from "../../../utils/components/statement-editor/suggestions-pane";
-import { RecordForm } from "../../../utils/forms/record-form";
 import { ListenerForm } from "../../../utils/forms/listener-form";
 import { EnumerationForm } from "../../../utils/forms/enumeration-form";
 import { SourceCode } from "../../../utils/components/code-view";
@@ -45,7 +43,8 @@ describe("Add module-level statements via Low Code", () => {
             .typeInput("foo");
 
         EditorPane
-            .validateNewExpression("CaptureBindingPattern", "foo");
+            .validateNewExpression("CaptureBindingPattern", "foo")
+            .reTriggerDiagnostics("CaptureBindingPattern", "foo");
 
         StatementEditor
             .save();
@@ -84,7 +83,8 @@ describe("Add module-level statements via Low Code", () => {
             .typeInput('string');
 
         EditorPane
-            .validateNewExpression("StringTypeDesc", "string");
+            .validateNewExpression("StringTypeDesc", "string")
+            .reTriggerDiagnostics("StringTypeDesc", "string");
 
         StatementEditor
             .save();
@@ -115,7 +115,8 @@ describe("Add module-level statements via Low Code", () => {
             .typeInput('"Hello World"');
 
         EditorPane
-            .validateNewExpression("StringLiteral", "Hello World");
+            .validateNewExpression("StringLiteral", "Hello World")
+            .reTriggerDiagnostics("StringLiteral", "Hello World");
 
         StatementEditor
             .save();

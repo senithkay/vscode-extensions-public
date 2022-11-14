@@ -50,7 +50,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
   const {
     props: { currentFile, stSymbolInfo, importStatements, syntaxTree: lowcodeST },
     api: {
-      code: { modifyDiagram },
+      code: { modifyDiagram, updateFileContent },
       ls: { getDiagramEditorLangClient },
       library,
     },
@@ -140,6 +140,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
             stSymbolInfo={stSymbolInfo}
             ballerinaVersion={ballerinaVersion}
             applyModifications={modifyDiagram}
+            updateFileContent={updateFileContent}
             onClose={onClose}
             onSave={onSave}
             importStatements={importStatements}

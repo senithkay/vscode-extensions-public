@@ -56,7 +56,6 @@ describe('Test mapping constructor functionality', () => {
             .typeInput("{}");
 
         EditorPane
-            .validateNewExpression("MappingConstructor", "+")
             .validateEmptyDiagnostics();
 
         EditorPane
@@ -75,6 +74,10 @@ describe('Test mapping constructor functionality', () => {
 
         InputEditor
             .typeInput("1");
+
+        EditorPane
+            .validateNewExpression("NumericLiteral", "1")
+            .reTriggerDiagnostics("NumericLiteral", "1")
 
         StatementEditor
             .save();
