@@ -108,7 +108,8 @@ export function StatementEditor(props: StatementEditorProps) {
         isConfigurableStmt,
         isModuleVar,
         selectedNodePosition,
-        newConfigurableName
+        newConfigurableName,
+        hasIncorrectSyntax
     } = editor;
     const {
         editors,
@@ -124,7 +125,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
-    const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
+    const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(hasIncorrectSyntax);
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StatementSyntaxDiagnostics[]>([]);
     const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
@@ -316,7 +317,7 @@ export function StatementEditor(props: StatementEditorProps) {
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
             const oldModel: StackElement = {
                 model: existingModel,
-                selectedPosition: currentModel.model.position
+                selectedPosition: currentModel.model ? currentModel.model.position : position
             }
             const newModel: StackElement = {
                 model: partialST,

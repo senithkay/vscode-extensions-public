@@ -124,7 +124,7 @@ export function InputEditor(props: InputEditorProps) {
             setIsEditing(false);
             if (currentModel.model === model && suggestion) {
                 setUserInput(suggestion);
-            } else if (STKindChecker.isFunctionCall(currentModel.model)
+            } else if (currentModel.model && STKindChecker.isFunctionCall(currentModel.model)
                         && currentModel.model.functionName === model && suggestion) {
                 setUserInput(suggestion);
             }
@@ -198,18 +198,23 @@ export function InputEditor(props: InputEditorProps) {
             // Check syntax diagnostics
             let isIncorrectSyntax = false;
             const semicolonRegex = new RegExp('(;)(?=(?:[^"]|"[^"]*")*$)');
-            if (userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
-                isIncorrectSyntax = semicolonRegex.test(userInput);
-            }
-            if (isIncorrectSyntax) {
-                updateSyntaxDiagnostics(true);
+            if (model) {
+                if (userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
+                    isIncorrectSyntax = semicolonRegex.test(userInput);
+                }
+                if (isIncorrectSyntax) {
+                    updateSyntaxDiagnostics(true);
+                } else {
+                    setUserInput(userInput) ;
+                    const input = (userInput === FUNCTION_CALL_PLACEHOLDER && config.type === CALL_CONFIG_TYPE) ?
+                        FUNCTION_CALL : userInput;
+                    // Replace empty interpolation with placeholder value
+                    const codeSnippet = input.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
+                    originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
+                    updateModel(codeSnippet, model ? model.position : targetPosition);
+                }
             } else {
-                setUserInput(userInput) ;
-                const input = (userInput === FUNCTION_CALL_PLACEHOLDER && config.type === CALL_CONFIG_TYPE) ?
-                    FUNCTION_CALL : userInput;
-                // Replace empty interpolation with placeholder value
-                const codeSnippet = input.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
-                originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
+                const codeSnippet = userInput.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
                 updateModel(codeSnippet, model ? model.position : targetPosition);
             }
         }
