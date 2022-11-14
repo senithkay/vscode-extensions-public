@@ -15,7 +15,6 @@ import React, { useContext } from "react";
 
 import cn from "classnames";
 
-
 import SyntaxErrorWarning from "../../../assets/icons/SyntaxErrorWarning";
 import { OtherStatementNodeTypes } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -42,7 +41,6 @@ export function OtherStatementTypes(props: OtherStatementProps) {
         hasSyntaxDiagnostics
     } = modelCtx;
 
-
     const isFieldWithNewLine = (model?.viewState as StatementEditorViewState)?.multilineConstructConfig?.isFieldWithNewLine;
 
     const leadingMinutiaeJSX = getJSXForMinutiae(model?.leadingMinutiae, isFieldWithNewLine);
@@ -53,7 +51,6 @@ export function OtherStatementTypes(props: OtherStatementProps) {
         !hasSyntaxDiagnostics && statementRendererClasses.expressionElementSelected,
         hasSyntaxDiagnostics && statementRendererClasses.syntaxErrorElementSelected
     )
-
 
     return (
         <span className={styleClassNames}>
