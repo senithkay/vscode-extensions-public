@@ -27,6 +27,7 @@ import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
+import { OFFSETS } from "../utils/constants";
 import { getFieldAccessNodes, getSimpleNameRefNodes } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
@@ -50,7 +51,7 @@ export class NodeInitVisitor implements Visitor {
                 node.functionBody as ExpressionFunctionBody,
                 typeDesc
             );
-            this.outputNode.setPosition(1000, 100);
+            this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
         }
         // create input nodes
         const params = node.functionSignature.parameters;
@@ -63,7 +64,7 @@ export class NodeInitVisitor implements Visitor {
                         param,
                         param.typeName
                     );
-                    paramNode.setPosition(100, 100 + i * 400); // 400 is an arbitary value, need to calculate exact heigt;
+                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0); 
                     this.inputNodes.push(paramNode);
                 } else {
                     // TODO for other param types
@@ -100,14 +101,14 @@ export class NodeInitVisitor implements Visitor {
                     );
                 }
 
-                this.outputNode.setPosition(1000, yPosition + 100);
+                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, yPosition + OFFSETS.TARGET_NODE.Y);
 
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(
                     this.context,
                     node.queryPipeline.fromClause
                 );
-                fromClauseNode.setPosition(100, yPosition);
+                fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, yPosition);
                 this.inputNodes.push(fromClauseNode);
                 fromClauseNode.initialYPosition = yPosition;
 
@@ -123,18 +124,17 @@ export class NodeInitVisitor implements Visitor {
 
                 for (let [index, item] of letClauses.entries()) {
                     const paramNode = new LetClauseNode(this.context, item as LetClause);
-                    paramNode.setPosition(100, 100 + (index + 1) * 400);
+                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
                     this.inputNodes.push(paramNode);
                 }
 
                 const queryNode = new ExpandedMappingHeaderNode(this.context, node);
                 queryNode.setLocked(true)
-                queryNode.setPosition(100, 10);
+                queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
                 this.intermediateNodes.push(queryNode);
             }
         } else {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
-            queryNode.setPosition(440, 1200);
             this.intermediateNodes.push(queryNode);
             this.isWithinQuery += 1;
         }
@@ -163,7 +163,6 @@ export class NodeInitVisitor implements Visitor {
                     inputNodes,
                     this.specificFields.slice(0)
                 );
-                linkConnectorNode.setPosition(440, 1200);
                 this.intermediateNodes.push(linkConnectorNode);
             }
         }
@@ -186,7 +185,6 @@ export class NodeInitVisitor implements Visitor {
                             [...this.specificFields, expr],
                             true
                         );
-                        linkConnectorNode.setPosition(440, 1200);
                         this.intermediateNodes.push(linkConnectorNode);
                     }
                 }
@@ -212,7 +210,6 @@ export class NodeInitVisitor implements Visitor {
                     inputNodes,
                     [...this.specificFields, node.expression]
                 );
-                linkConnectorNode.setPosition(440, 1200);
                 this.intermediateNodes.push(linkConnectorNode);
             }
         }

@@ -150,7 +150,7 @@ class SymbolFindingVisitor implements Visitor {
     public beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         const typeData = node.typeData;
         const typeSymbol = typeData.typeSymbol;
-        if (typeSymbol.moduleID) {
+        if (typeSymbol?.moduleID) {
             const recordMapKey = `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:${typeSymbol.name}`
             recordTypeDescriptions.set(recordMapKey, node);
         }

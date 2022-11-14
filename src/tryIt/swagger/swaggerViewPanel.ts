@@ -70,9 +70,11 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
 
     const proxy = codeServerContext.codeServerEnv ? codeServerContext.manageChoreoRedirectUri : `http://localhost:${port}/`;
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
-    const html = render({ specs, file, serviceName, proxy });
-    if (swaggerViewPanel && html) {
-        swaggerViewPanel.webview.html = html;
+    if (swaggerViewPanel) {
+        const html = render({ specs, file, serviceName, proxy }, swaggerViewPanel.webview);
+        if (html) {
+            swaggerViewPanel.webview.html = html;
+        }
     }
     //editor-lowcode-code-tryit
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_SWAGGER_RUN, CMP_TRYIT_VIEW);

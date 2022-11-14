@@ -42,7 +42,7 @@ import { ViewStateSetupVisitor } from "../Diagram/visitors/ViewStateSetupVisitor
 import { StatementEditorComponent } from "../StatementEditorComponent/StatementEditorComponent"
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
-import { getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
+import { getInputsFromST, isValidOutput } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
@@ -103,6 +103,7 @@ export interface DataMapperProps {
     ballerinaVersion?: string;
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => Promise<void>;
+    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
     onSave: (fnName: string) => void;
     onClose: () => void;
     library: {
@@ -177,6 +178,7 @@ function DataMapperC(props: DataMapperProps) {
         currentFile,
         stSymbolInfo,
         applyModifications,
+        updateFileContent,
         library,
         onClose,
         onSave,
@@ -335,8 +337,10 @@ function DataMapperC(props: DataMapperProps) {
             return true
         }
         const inputParams = getInputsFromST(fnST);
-        const outputType = getOutputTypeFromST(fnST);
-        if (inputParams.length === 0 || !outputType) {
+        const hasInvalidInputs = inputParams.some(input => input.inInvalid);
+        const validOutput = isValidOutput(fnST)
+
+        if (hasInvalidInputs || !validOutput) {
             return true
         }
     }, [fnST])
@@ -379,6 +383,7 @@ function DataMapperC(props: DataMapperProps) {
                                 expressionInfo={currentEditableField}
                                 langClientPromise={langClientPromise}
                                 applyModifications={applyModifications}
+                                updateFileContent={updateFileContent}
                                 currentFile={currentFile}
                                 library={library}
                                 onCancel={cancelStatementEditor}

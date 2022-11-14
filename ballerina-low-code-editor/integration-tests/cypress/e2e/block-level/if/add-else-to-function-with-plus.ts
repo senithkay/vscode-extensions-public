@@ -38,6 +38,7 @@ describe('Add else to function via plus button', () => {
 
         EditorPane
             .validateNewExpression("BooleanLiteral", "true")
+            .reTriggerDiagnostics("BooleanLiteral", "true")
             .validateEmptyDiagnostics();
 
         EditorPane

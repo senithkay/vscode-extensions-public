@@ -56,9 +56,11 @@ export async function showGraphqlView(langClient: ExtendedLangClient, serviceAPI
     );
 
     WebViewRPCHandler.create(graphqlViewPanel, langClient);
-    const html = render({ serviceAPI });
-    if (graphqlViewPanel && html) {
-        graphqlViewPanel.webview.html = html;
+    if (graphqlViewPanel) {
+        const html = render({ serviceAPI }, graphqlViewPanel.webview);
+        if (html) {
+            graphqlViewPanel.webview.html = html;
+        }
     }
     //editor-lowcode-code-tryit
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_GRAPHQL_RUN, CMP_TRYIT_GRAPHQL_VIEW);

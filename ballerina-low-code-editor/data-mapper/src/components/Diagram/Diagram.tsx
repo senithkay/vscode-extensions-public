@@ -42,6 +42,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
 import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
 import FitToScreenIcon from "../../assets/icons/fitToScreen";
+import { OFFSETS } from './utils/constants';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -74,6 +75,8 @@ interface DataMapperDiagramProps {
 	links?: DataMapperLinkModel[];
 	hideCanvas?: boolean;
 }
+
+const defaultModelOptions = { zoom: 90 }
 
 function initDiagramEngine() {
 	// START TODO: clear this up
@@ -130,7 +133,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const { nodes, hideCanvas } = props;
 
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
-	const [model, setModel] = React.useState(new DiagramModel());
+	const [model, setModel] = React.useState(new DiagramModel(defaultModelOptions));
 
 	const dagreEngine = new DagreEngine({
 		graph: {
@@ -176,17 +179,24 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			let numberOfRequiredParamNodes = 0;
 			let additionalSpace = 0;
 			nodes.forEach((node) => {
-				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode
-					|| node instanceof MappingConstructorNode) {
+				if (node instanceof MappingConstructorNode){
+					if (Object.values(node.getPorts()).some(port=>Object.keys(port.links).length)){
+						node.setPosition(OFFSETS.TARGET_NODE.X, 0);
+					} else {
+						// Bring mapping constructor node close to input node, if it doesn't have any links
+						node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
+					}
+				}
+				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
 					node.updatePosition();
 				}
 				if (node instanceof RequiredParamNode || node instanceof LetClauseNode) {
-					node.setPosition(100, additionalSpace + (requiredParamFields * 40) + 100 * (numberOfRequiredParamNodes + 1));
+					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
 					requiredParamFields = requiredParamFields + node.numberOfFields;
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
 				}
 				if (node instanceof FromClauseNode) {
-					node.setPosition(100, additionalSpace + (requiredParamFields * 40) + 100 * (numberOfRequiredParamNodes + 1) + node.initialYPosition);
+					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1) + node.initialYPosition);
 					requiredParamFields = requiredParamFields + node.numberOfFields;
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
 					additionalSpace += node.initialYPosition
@@ -200,7 +210,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const resetZoomAndOffset = () => {
 		const model = engine.getModel();
-		model.setZoomLevel(100);
+		model.setZoomLevel(defaultModelOptions.zoom);
 		model.setOffset(0, 0);
 		engine.setModel(model);
 	}

@@ -36,4 +36,7 @@ project(':variable-view').projectDir = file('web/variable-view')
 include(':design-diagram-viewer')
 
 project(':design-diagram-viewer').projectDir = file('web/project-design-diagrams')
-rootProject.name = 'ballerina-plugin-vscode'
+
+include(':ballerina-low-code-editor')
+
+project(':ballerina-low-code-editor').projectDir = file('ballerina-low-code-editor')

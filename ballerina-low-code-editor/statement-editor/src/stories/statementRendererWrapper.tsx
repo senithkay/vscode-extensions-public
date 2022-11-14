@@ -83,6 +83,7 @@ function getStatementEditorContextProps(statement: any): CtxProviderProps {
             return ls
         },
         applyModifications: (arg: any) => null,
+        updateFileContent: (arg: any) => null,
         currentFile: {
             content: "",
             path: "",

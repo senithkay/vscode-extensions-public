@@ -36,5 +36,9 @@ export interface RecordModel {
     isTypeDefinition?: boolean;
     isPublic?: boolean;
 }
+export interface RecordItemModel {
+    name: string;
+    checked: boolean;
+}
 
 export declare type Field = SimpleField | RecordModel;

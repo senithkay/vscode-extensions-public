@@ -44,7 +44,8 @@ export function AddSendStatement(props: AddSendStatementProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             insights: { onEvent },
             library,
@@ -83,6 +84,7 @@ export function AddSendStatement(props: AddSendStatementProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            updateFileContent,
             library,
             syntaxTree,
             stSymbolInfo,

@@ -86,7 +86,8 @@ enum EXTENDED_APIS {
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
     SYMBOL_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
     SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
-    COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels'
+    COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
+    DOCUMENT_ST_FUNCTION = 'ballerinaDocument/syntaxTreeByName'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -500,7 +501,7 @@ export class ExtendedLangClient extends LanguageClient {
         return isSupported ? this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
-    async getPackageComponentModels(params: GetPackageComponentModelsRequest): Promise<GetPackageComponentModelsResponse>{
+    async getPackageComponentModels(params: GetPackageComponentModelsRequest): Promise<GetPackageComponentModelsResponse> {
         return this.sendRequest(EXTENDED_APIS.COMPONENT_MODEL_ENDPOINT, params);
     }
     async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE> {
@@ -579,6 +580,13 @@ export class ExtendedLangClient extends LanguageClient {
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
+
+    async getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_FUNCTION)
+        return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION, params) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
     async triggerModify(params: TriggerModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY, params) :
@@ -796,7 +804,8 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true },
                 {
                     name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true,
-                    getTypeFromExpression: true, getTypeFromSymbol: true },
+                    getTypeFromExpression: true, getTypeFromSymbol: true
+                },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true
                 },

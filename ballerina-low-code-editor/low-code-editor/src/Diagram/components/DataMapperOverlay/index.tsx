@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 
 import { DataMapper } from "@wso2-enterprise/ballerina-data-mapper";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
@@ -50,7 +50,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
   const {
     props: { currentFile, stSymbolInfo, importStatements, syntaxTree: lowcodeST },
     api: {
-      code: { modifyDiagram },
+      code: { modifyDiagram, updateFileContent },
       ls: { getDiagramEditorLangClient },
       library,
     },
@@ -59,18 +59,29 @@ export function DataMapperOverlay(props: DataMapperProps) {
   const [functionST, setFunctionST] =
     React.useState<FunctionDefinition>(undefined);
   const [newFnName, setNewFnName] = React.useState("");
+  const isMounted = useRef(false);
 
   useEffect(() => {
     (async () => {
-      if (newFnName !== "") {
-        handleFunctionST(newFnName).then();
-      } else if (model && STKindChecker.isFunctionDefinition(model)) {
-        handleFunctionST(model.functionName.value).then();
-      } else if (!!functionST) {
-        handleFunctionST(functionST.functionName.value).then();
+      if (isMounted.current) {
+        if (newFnName !== "") {
+          handleFunctionST(newFnName).then();
+        } else if (model && STKindChecker.isFunctionDefinition(model)) {
+          handleFunctionST(model.functionName.value).then();
+        } else if (!!functionST) {
+          handleFunctionST(functionST.functionName.value).then();
+        }
+      } else {
+        isMounted.current = true;
       }
     })();
   }, [currentFile.content]);
+
+  useEffect(() => {
+    if (model && STKindChecker.isFunctionDefinition(model)) {
+      setFunctionST(model);
+    }
+  }, [model]);
 
   const handleFunctionST = async (funcName: string) => {
     const langClient: DiagramEditorLangClientInterface =
@@ -129,6 +140,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
             stSymbolInfo={stSymbolInfo}
             ballerinaVersion={ballerinaVersion}
             applyModifications={modifyDiagram}
+            updateFileContent={updateFileContent}
             onClose={onClose}
             onSave={onSave}
             importStatements={importStatements}

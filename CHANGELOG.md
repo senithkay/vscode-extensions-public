@@ -1,6 +1,26 @@
 # Change Log
 ##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
 
+## **3.3.4**
+### Improved
+- Data Mapper - Display banner if DM function contains unsupported input/output types [217] (https://github.com/wso2/ballerina-plugin-vscode/issues/217)
+- Data Mapper - Improve the transformer name suggestion by providing an non-existing name  [218] (https://github.com/wso2/ballerina-plugin-vscode/issues/218)
+- Data Mapper - Add support to have types from imported packages as inputs and output [219] (https://github.com/wso2/ballerina-plugin-vscode/issues/219)
+- Data Mapper - Add support for mapping with query expressions for primitive type arrays [232] (https://github.com/wso2/ballerina-plugin-vscode/issues/232)
+- Data Mapper - Automatically show the data mapper config panel if the input or output types are not supported [244] (https://github.com/wso2/ballerina-plugin-vscode/issues/244)
+
+### Fixed
+- Data Mapper - Failed to create mapping for a port that is already mapped with multiple ports [230] (https://github.com/wso2/ballerina-plugin-vscode/issues/230)
+- Data Mapper - output type name is misaligned when the output node is collapsed [235] (https://github.com/wso2/ballerina-plugin-vscode/issues/235)
+- Data Mapper - incorrect source is generated when map root of the input record within query expression [237] (https://github.com/wso2/ballerina-plugin-vscode/issues/237)
+- Data Mapper - UI shows a valid transform function as invalid [239] (https://github.com/wso2/ballerina-plugin-vscode/issues/239)
+- Data Mapper - Links are not getting rendered for multi input mappings contains root level references [240] (https://github.com/wso2/ballerina-plugin-vscode/issues/240)
+- Data Mapper - Generates invalid source when there is an invalid expression body [242] (https://github.com/wso2/ballerina-plugin-vscode/issues/242)
+
+## **3.3.3**
+### Fixed
+- Diagrams not loading with VSCode v1.73 issue.
+
 ## **3.3.2**
 ### Improved
 - The low-code diagram editor
