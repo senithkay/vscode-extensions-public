@@ -18,6 +18,7 @@ import { List, ListItemText, Typography } from "@material-ui/core";
 import DiagnosticsErrorIcon from "../../assets/icons/DiagnosticsErrorIcon";
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { CodeActionButton } from "../CodeActionButton";
 import { useStatementEditorDiagnosticStyles } from "../styles";
 
 export function Diagnostics() {
@@ -40,6 +41,7 @@ export function Diagnostics() {
                                 key={index}
                                 primary={(
                                     <Typography style={{ display: 'flex', flexDirection: 'row' }}>
+                                        {diag.codeActions.length > 0 && <CodeActionButton syntaxDiagnostic={diag}/>}
                                         <div className={statementEditorDiagnosticClasses.diagnosticsErrorIcon}>
                                             <DiagnosticsErrorIcon />
                                         </div>

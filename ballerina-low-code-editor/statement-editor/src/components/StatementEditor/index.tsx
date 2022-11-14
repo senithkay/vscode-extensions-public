@@ -43,6 +43,7 @@ import {
     isOperator,
 } from "../../utils";
 import {
+    getCodeAction,
     getCompletions,
     getDiagnostics,
     getPartialSTForExpression,
@@ -337,6 +338,34 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     }
 
+    const updateStatementModel = async (updatedStatement: string, updatedSource: string, position: NodePosition) => {
+        await sendDidChange(fileURI, updatedSource, getLangClient);
+        const partialST = await getPartialSTForStatement({ codeSnippet: updatedStatement }, getLangClient);
+
+        if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
+            const diagnostics = await handleDiagnostics(partialST.source);
+            setStmtModel(partialST, diagnostics);
+            const selectedPosition = getSelectedModelPosition(updatedStatement, position);
+            const oldModel: StackElement = {
+                model,
+                selectedPosition: currentModel.model.position
+            }
+            const newModel: StackElement = {
+                model: partialST,
+                selectedPosition
+            }
+            undoRedoManager.add(oldModel, newModel);
+
+            const newCurrentModel = getCurrentModel(selectedPosition, enrichModel(partialST, targetPosition));
+            setCurrentModel({ model: newCurrentModel });
+            setHasSyntaxDiagnostics(false);
+
+        } else if (partialST.syntaxDiagnostics.length){
+            handleDiagnostics(updatedStatement).then();
+            setHasSyntaxDiagnostics(true);
+        }
+    }
+
     const handleModules = (module: string) => {
         let moduleIncluded: boolean;
         importStatements.forEach(importedModule => {
@@ -369,10 +398,25 @@ export function StatementEditor(props: StatementEditorProps) {
         if (config.type !== CONNECTOR && config.type !== ACTION){
             removeUnusedModules(diag);
         }
-        const messages = getFilteredDiagnosticMessages(statement, targetPosition, diag);
-        setStmtDiagnostics(messages);
+        const filteredDiagnostics = getFilteredDiagnosticMessages(statement, targetPosition, diag);
+        const messagesWithCodeActions = await handleCodeAction(filteredDiagnostics);
+        setStmtDiagnostics(messagesWithCodeActions);
         return diag;
     }
+
+    const handleCodeAction = async (
+        filteredDiagnostics: StatementSyntaxDiagnostics[]
+    ): Promise<StatementSyntaxDiagnostics[]> => {
+        for (const diagnostic of filteredDiagnostics) {
+            if (diagnostic.diagnostic) {
+                const codeActionResp = await getCodeAction(fileURI, diagnostic.diagnostic, getLangClient);
+                if (codeActionResp) {
+                    diagnostic.codeActions = codeActionResp;
+                }
+            }
+        }
+        return filteredDiagnostics;
+    };
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
         if (config.type === CONNECTOR || config.type === ACTION){
@@ -532,6 +576,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     changeCurrentModel={currentModelHandler}
                     handleChange={handleChange}
                     updateModel={updateModel}
+                    updateStatementModel={updateStatementModel}
                     handleModules={handleModules}
                     modulesToBeImported={moduleList}
                     initialSource={source}

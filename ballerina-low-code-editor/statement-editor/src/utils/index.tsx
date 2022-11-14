@@ -30,6 +30,7 @@ import {
     CompletionResponse,
     getDiagnosticMessage,
     getFilteredDiagnostics,
+    getSelectedDiagnostics,
     LinePosition,
     ParameterInfo,
     STModification,
@@ -301,14 +302,16 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
                 && diagTargetPosition.startColumn <= diagnosticStartCol));
     })
 
-    getDiagnosticMessage(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
+    // getDiagnosticMessage(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
+    getSelectedDiagnostics(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).map(diagnostic => {
+        const message = diagnostic.message;
         let isPlaceHolderDiag = false;
         if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
             || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
             isPlaceHolderDiag = true;
         }
         if (!!message) {
-            stmtDiagnostics.push({ message, isPlaceHolderDiag });
+            stmtDiagnostics.push({ message, isPlaceHolderDiag, diagnostic });
         }
     });
 
@@ -319,11 +322,18 @@ export function isPlaceHolderExists(statement: string): boolean {
     return PLACEHOLDER_DIAGNOSTICS.some(placeHolder => (statement ? statement : "").includes(placeHolder))
 }
 
-export function getUpdatedSource(statement: string, currentFileContent: string,
-                                 targetPosition: NodePosition, moduleList?: Set<string>,
-                                 skipSemiColon?: boolean): string {
-
-    const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
+export function getUpdatedSource(
+    statement: string,
+    currentFileContent: string,
+    targetPosition: NodePosition,
+    moduleList?: Set<string>,
+    skipSemiColon?: boolean,
+    trimStatement = true
+): string {
+    if (trimStatement) {
+        statement.trim();
+    }
+    const updatedStatement = skipSemiColon ? statement : (statement.endsWith(';') ? statement : statement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
     if (moduleList?.size > 0) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
@@ -363,6 +373,27 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
     splitContent.splice(position.startLine, noOfLines, ...replacements);
 
     return splitContent.join('\n');
+}
+
+export function getContentFromSource(source: string,  position: NodePosition){
+    const splitSource: string[] = source.split(/\n/g) || [];
+    let sliceContent = "";
+    for (let line = position.startLine; line <= position.endLine; line++) {
+        sliceContent += splitSource[line];
+    }
+    return sliceContent;
+}
+
+export function getPositionFromSource(source: string): NodePosition {
+    const splitSource: string[] = source.trim().split(/\n/g) || [];
+    const lines = splitSource.length;
+    const position: NodePosition = {
+        endColumn: lines > 0 ? splitSource[lines - 1].length - 1 : 0,
+        endLine: lines > 0 ? lines - 1 : 0,
+        startColumn: 0,
+        startLine: 0,
+    };
+    return position;
 }
 
 export function addImportStatements(
