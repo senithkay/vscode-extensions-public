@@ -75,8 +75,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
-        : `${parentId}.${fieldName}`;
+        ? `${parentId}.${fieldIndex}${fieldName ? `.${fieldName}` : ''}`
+        : `${parentId}${fieldName ? `.${fieldName}` : ''}`;
     const portIn = getPort(`${fieldId}.IN`);
     const valExpr = field.hasValue()
         && (STKindChecker.isSpecificField(field.value) ? field.value.valueExpr : field.value);

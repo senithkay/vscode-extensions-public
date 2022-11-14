@@ -26,6 +26,7 @@ import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
+import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { OFFSETS } from "../utils/constants";
 import { getFieldAccessNodes, getSimpleNameRefNodes } from "../utils/dm-utils";
@@ -49,6 +50,12 @@ export class NodeInitVisitor implements Visitor {
             if (STKindChecker.isExpressionFunctionBody(node.functionBody)) {
                 if (STKindChecker.isMappingConstructor(node.functionBody.expression)) {
                     this.outputNode = new MappingConstructorNode(
+                        this.context,
+                        node.functionBody,
+                        typeDesc
+                    );
+                } else if (STKindChecker.isListConstructor(node.functionBody.expression)) {
+                    this.outputNode = new ListConstructorNode(
                         this.context,
                         node.functionBody,
                         typeDesc
