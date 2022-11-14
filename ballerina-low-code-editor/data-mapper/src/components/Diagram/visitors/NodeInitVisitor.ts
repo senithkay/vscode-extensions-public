@@ -46,11 +46,21 @@ export class NodeInitVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
         if (typeDesc) {
-            this.outputNode = new MappingConstructorNode(
-                this.context,
-                node.functionBody as ExpressionFunctionBody,
-                typeDesc
-            );
+            if (STKindChecker.isExpressionFunctionBody(node.functionBody)) {
+                if (STKindChecker.isMappingConstructor(node.functionBody.expression)) {
+                    this.outputNode = new MappingConstructorNode(
+                        this.context,
+                        node.functionBody,
+                        typeDesc
+                    );
+                } else {
+                    this.outputNode = new PrimitiveTypeNode(
+                        this.context,
+                        node.functionBody,
+                        typeDesc
+                    );
+                }
+            }
             this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
         }
         // create input nodes

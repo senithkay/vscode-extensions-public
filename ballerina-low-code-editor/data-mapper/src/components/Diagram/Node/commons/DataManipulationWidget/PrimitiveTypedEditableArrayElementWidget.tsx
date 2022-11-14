@@ -39,11 +39,11 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
     const { parentId, field, getPort, engine, context, fieldIndex, deleteField, isParentSelectClause } = props;
     const classes = useStyles();
 
-    const value = field?.value && field.value.source.trim();
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}`
-        : `${parentId}.${value}`;
+        : `${parentId}.${field.type.typeName}`;
     const portIn = getPort(`${fieldId}.IN`);
+    const value = field?.value && field.value.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);
 

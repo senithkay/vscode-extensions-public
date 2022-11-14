@@ -647,6 +647,7 @@ export function getEnrichedRecordType(type: Type,
 			valueNode = node;
 		}
 	} else {
+		valueNode = node;
 		nextNode = node;
 	}
 

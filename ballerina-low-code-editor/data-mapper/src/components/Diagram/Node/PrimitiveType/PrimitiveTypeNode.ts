@@ -13,6 +13,7 @@
 import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    ExpressionFunctionBody,
     IdentifierToken,
     SelectClause,
     STKindChecker,
@@ -33,7 +34,8 @@ import {
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
-    getTypeName
+    getTypeName,
+    isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -52,7 +54,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: SelectClause,
+        public value: SelectClause | ExpressionFunctionBody,
         public typeIdentifier: TypeDescriptor | IdentifierToken) {
         super(
             context,
@@ -77,7 +79,11 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 this.value.expression, this.context.selection.selectedST.stNode);
             this.recordField = valueEnrichedType;
             this.typeName = getTypeName(valueEnrichedType.type);
-            if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
+            if (!isArrayOrRecord(valueEnrichedType.type)) {
+                this.addPortsForOutputRecordField(valueEnrichedType, "IN", valueEnrichedType.type.typeName,
+                    undefined, PRIMITIVE_TYPE_TARGET_PORT_PREFIX, parentPort,
+                    this.context.collapsedFields, parentPort.collapsed);
+            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
                 && STKindChecker.isSelectClause(this.value)
             ) {
                 if (this.recordField?.elements) {
@@ -109,7 +115,12 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+            let [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+            if (STKindChecker.isExpressionFunctionBody(this.value)) {
+                outPort = this.getPort(
+                    `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${this.recordField.type.typeName}.IN`) as RecordFieldPortModel;
+                mappedOutPort = outPort;
+            }
             const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({

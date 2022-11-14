@@ -159,22 +159,35 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 				</span>
 			</TreeHeader>
 			<TreeBody>
-				{expanded && field &&
-					field.elements.map((item, index) => {
-						return (
+				{expanded && field && (
+						field?.elements ? (
+							field.elements.map((item, index) => {
+								return (
+									<PrimitiveTypedEditableArrayElementWidget
+										key={id}
+										parentId={id}
+										engine={engine}
+										field={item.member}
+										getPort={getPort}
+										context={context}
+										fieldIndex={index}
+										deleteField={deleteField}
+										isParentSelectClause={isParentSelectClause}
+									/>
+								);
+							})
+						) : (
 							<PrimitiveTypedEditableArrayElementWidget
 								key={id}
 								parentId={id}
 								engine={engine}
-								field={item.member}
+								field={field}
 								getPort={getPort}
 								context={context}
-								fieldIndex={index}
 								deleteField={deleteField}
-								isParentSelectClause={isParentSelectClause}
 							/>
-						);
-					})
+						)
+					)
 				}
 			</TreeBody>
 		</TreeContainer>
