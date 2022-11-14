@@ -11,72 +11,72 @@ const BAL_FILE_PATH = "block-level/return/add-return-statement-to-function.bal";
 
 describe('Add return statement', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-    })
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+    });
 
-    // it('Add return statement of type string', () => {
-    //     Canvas.getFunction("getGreetings")
-    //         .shouldBeExpanded()
-    //         .getDiagram()
-    //         .shouldBeRenderedProperly()
-    //         .clickDefaultWorkerPlusBtn(0);
+    it('Add return statement of type string', () => {
+        Canvas.getFunction("getGreetings")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    //     BlockLevelPlusWidget.clickOption("Return");
+        BlockLevelPlusWidget.clickOption("Return");
 
-    //     StatementEditor
-    //         .shouldBeVisible()
-    //         .getEditorPane();
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
 
-    //     EditorPane
-    //         .getStatementRenderer()
-    //         .getExpression("SimpleNameReference")
-    //         .doubleClickExpressionContent(`<add-expression>`);
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
 
-    //     InputEditor
-    //         .typeInput('"Hello World!!!"');
+        InputEditor
+            .typeInput('"Hello World!!!"');
 
-    //     EditorPane
-    //         .validateNewExpression("StringLiteral", "Hello World!!!")
-    //         .reTriggerDiagnostics("StringLiteral", "Hello World!!!");
+        EditorPane
+            .validateNewExpression("StringLiteral", "Hello World!!!")
+            .reTriggerDiagnostics("StringLiteral", "Hello World!!!");
 
-    //     StatementEditor
-    //         .save();
+        StatementEditor
+            .save();
 
-    //     SourceCode.shouldBeEqualTo(
-    //         getCurrentSpecFolder() + "add-return-statement.expected.bal");
-    // })
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "add-return-statement.expected.bal");
+    });
 
-    // it('Type a return statement and Cancel', () => {
-    //     Canvas.getFunction("getGreetings")
-    //         .shouldBeExpanded()
-    //         .getDiagram()
-    //         .shouldBeRenderedProperly()
-    //         .clickDefaultWorkerPlusBtn(0);
+    it('Type a return statement and Cancel', () => {
+        Canvas.getFunction("getGreetings")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickDefaultWorkerPlusBtn(0);
 
-    //     BlockLevelPlusWidget.clickOption("Return");
+        BlockLevelPlusWidget.clickOption("Return");
 
-    //     StatementEditor
-    //         .shouldBeVisible()
-    //         .getEditorPane();
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
 
-    //     EditorPane
-    //         .getStatementRenderer()
-    //         .getExpression("SimpleNameReference")
-    //         .doubleClickExpressionContent(`<add-expression>`);
+        EditorPane
+            .getStatementRenderer()
+            .getExpression("SimpleNameReference")
+            .doubleClickExpressionContent(`<add-expression>`);
 
-    //     InputEditor
-    //         .typeInput('"Hello World!!!"');
-        
-    //     EditorPane
-    //         .validateNewExpression("StringLiteral", "Hello World!!!")
-    //         .reTriggerDiagnostics("StringLiteral", "Hello World!!!");
+        InputEditor
+            .typeInput('"Hello World!!!"');
 
-    //     StatementEditor
-    //         .cancel();
+        EditorPane
+            .validateNewExpression("StringLiteral", "Hello World!!!")
+            .reTriggerDiagnostics("StringLiteral", "Hello World!!!");
 
-    //     SourceCode.shouldBeEqualTo(
-    //         getCurrentSpecFolder() + "delete-return-statement.expected.bal");
-    // })
+        StatementEditor
+            .cancel();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "delete-return-statement.expected.bal");
+    });
 
     it('Type invalid return statement and check for diagnostics', () => {
         Canvas.getFunction("getGreetings")
@@ -107,7 +107,7 @@ describe('Add return statement', () => {
 
         InputEditor
             .typeInput('"Hello World!!!"');
-        
+
         EditorPane
             .validateNewExpression("StringLiteral", "Hello World!!!")
             .reTriggerDiagnostics("StringLiteral", "Hello World!!!");
@@ -117,5 +117,5 @@ describe('Add return statement', () => {
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-return-statement.expected.bal");
-    })
-})
+    });
+});
