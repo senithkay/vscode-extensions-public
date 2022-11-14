@@ -56,6 +56,7 @@ describe('edit a http service', () => {
 
     EditorPane
         .validateNewExpression("CaptureBindingPattern", "foo")
+        .reTriggerDiagnostics("CaptureBindingPattern", "foo")
 
     StatementEditor
         .save();
@@ -82,12 +83,14 @@ describe('edit a http service', () => {
     InputEditor
         .typeInput("456");
 
+    EditorPane
+        .validateNewExpression("NumericLiteral", "456")
+        .reTriggerDiagnostics("NumericLiteral", "456");
+
     StatementEditor
         .save();
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "edit-service-http.expected.bal");
-
   })
-
 })
