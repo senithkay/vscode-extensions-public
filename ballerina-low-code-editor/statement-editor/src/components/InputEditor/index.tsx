@@ -210,7 +210,7 @@ export function InputEditor(props: InputEditorProps) {
                 // Replace empty interpolation with placeholder value
                 const codeSnippet = input.replaceAll('${}', "${" + EXPR_PLACEHOLDER + "}");
                 originalValue === DEFAULT_INTERMEDIATE_CLAUSE ? updateModel(codeSnippet, model ? model.parent.parent.position : targetPosition) :
-                    updateModel(codeSnippet, model ? model.position : targetPosition);
+                updateModel(codeSnippet, model ? model.position : targetPosition);
             }
         }
         setIsEditing(false);
