@@ -17,6 +17,6 @@ function fooFun(string str, int n = 0, Student student = {}) returns string {
 
 public function main() returns error? {
 
-    var fun = emptyFun();
-    var variable = fooFun("str", 0);
+    var variable = emptyFun();
+    var variable1 = fooFun("str", 0);
 }

@@ -50,7 +50,8 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             insights: { onEvent },
             library,
@@ -80,6 +81,7 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            updateFileContent,
             library,
             syntaxTree,
             stSymbolInfo,

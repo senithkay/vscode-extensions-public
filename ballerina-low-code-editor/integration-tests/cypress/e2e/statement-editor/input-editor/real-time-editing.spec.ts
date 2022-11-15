@@ -10,12 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { Canvas } from "../../../utils/components/canvas";
+import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
 import { StatementEditor } from "../../../utils/components/statement-editor/statement-editor";
 import { EditorPane } from "../../../utils/components/statement-editor/editor-pane";
-import { SuggestionsPane } from "../../../utils/components/statement-editor/suggestions-pane";
-import { Toolbar } from "../../../utils/components/statement-editor/toolbar";
 import { InputEditor } from "../../../utils/components/statement-editor/input-editor";
 import { SourceCode } from "../../../utils/components/code-view";
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
@@ -23,12 +21,12 @@ import { BlockLevelPlusWidget } from "../../../utils/components/block-level-plus
 
 const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
-describe('Test statement editor toolbar functionality', () => {
+describe('Test statement editor real-time code changes', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-    })
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+    });
 
-    it('Test Undo, Redo options', () => {
+    it('Add variable declaration and save', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -39,111 +37,32 @@ describe('Test statement editor toolbar functionality', () => {
         BlockLevelPlusWidget.clickOption("Variable");
 
         StatementEditor
-            .shouldBeVisible();
+            .shouldBeVisible()
+            .getEditorPane();
 
-        EditorPane
-            .getStatementRenderer()
-            .getExpression("TypedBindingPattern")
-            .doubleClickExpressionContent('var');
-
-        InputEditor
-            .typeInput("int");
-
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "int");
-
-        Toolbar
-            .clickUndoButton();
-
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "var");
+        SourceCode.shouldHave("var variable = EXPRESSION;");
 
         EditorPane
             .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent('<add-expression>');
-
-        InputEditor
-            .typeInput("456");
-
-        EditorPane
-            .validateNewExpression("NumericLiteral", "456")
-            .validateEmptyDiagnostics();
-
-        StatementEditor
-            .save();
-
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "toolbar-functionality.expected.bal");
-
-    });
-
-    it('Delete expression type', () => {
-        Canvas.getFunction("testStatementEditorComponents")
-            .nameShouldBe("testStatementEditorComponents")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickEditExistingBlockStatement(2);
-
-        StatementEditor
-            .shouldBeVisible();
-
-        EditorPane
-            .getExpression("IntTypeDesc")
-            .clickExpressionContent('int');
-
-        Toolbar
-            .clickDeleteButton();
-
-        EditorPane
-            .getExpression("SimpleNameReference")
-            .doubleClickExpressionContent(`<add-type>`);
-
-        InputEditor
-            .typeInput("float");
-
-        StatementEditor
-            .save();
-
-        SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "toolbar-type-delete.expected.bal");
-
-    });
-
-    it('Delete expression value', () => {
-        Canvas.getFunction("testStatementEditorComponents")
-            .nameShouldBe("testStatementEditorComponents")
-            .shouldBeExpanded()
-            .getDiagram()
-            .shouldBeRenderedProperly()
-            .clickEditExistingBlockStatement(2);
-
-        StatementEditor
-            .shouldBeVisible();
-
-        EditorPane
-            .getExpression("NumericLiteral")
-            .clickExpressionContent('2');
-
-        Toolbar
-            .clickDeleteButton();
-
-        EditorPane
-            .getExpression("IdentifierToken")
             .doubleClickExpressionContent(`<add-expression>`);
 
         InputEditor
-            .typeInput("3");
+            .typeInput("10");
+
+        SourceCode.shouldHave("var variable = 10;");
+
+        EditorPane
+            .reTriggerDiagnostics("NumericLiteral", "10");
 
         StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "toolbar-variable-value-delete.expected.bal");
+            getCurrentSpecFolder() + "real-time-editing.expected.bal");
 
     });
 
-    it('Add Configurable', () => {
+    it('Add variable declaration and cancel', () => {
         Canvas.getFunction("testStatementEditorComponents")
             .nameShouldBe("testStatementEditorComponents")
             .shouldBeExpanded()
@@ -155,25 +74,67 @@ describe('Test statement editor toolbar functionality', () => {
 
         StatementEditor
             .shouldBeVisible();
-    
-        Toolbar
-            .clickConfigurableButton();
 
-        EditorPane
-            .validateNewExpression("TypedBindingPattern", "conf");
+        SourceCode.shouldHave("var variable = EXPRESSION;");
 
         StatementEditor
-            .add();
-        
+            .cancel();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "real-time-editing-no-change.expected.bal");
+
+    });
+
+    it('Edit variable declaration statement and save', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickEditExistingBlockStatement(2);
+
+        StatementEditor
+            .shouldBeVisible()
+            .getEditorPane();
+
+        SourceCode.shouldHave("int var2 = 2;");
+
         EditorPane
-            .validateNewExpression("SimpleNameReference", "conf");
+            .getExpression("DecimalIntegerLiteralToken")
+            .doubleClickExpressionContent("2");
+
+        InputEditor
+            .typeInput("10");
+
+        SourceCode.shouldHave("int var2 = 10;");
+
+        EditorPane
+            .reTriggerDiagnostics("NumericLiteral", "10");
 
         StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "toolbar-add-config.expected.bal");
-
+            getCurrentSpecFolder() + "real-time-editing-updated.expected.bal");
     });
 
-})
+    it('Edit variable declaration statement and cancel', () => {
+        Canvas.getFunction("testStatementEditorComponents")
+            .nameShouldBe("testStatementEditorComponents")
+            .shouldBeExpanded()
+            .getDiagram()
+            .shouldBeRenderedProperly()
+            .clickEditExistingBlockStatement(2);
+
+        StatementEditor
+            .shouldBeVisible();
+
+        SourceCode.shouldHave("int var2 = 2;");
+
+        StatementEditor
+            .cancel();
+
+        SourceCode.shouldBeEqualTo(
+            getCurrentSpecFolder() + "real-time-editing-no-change.expected.bal");
+    });
+});

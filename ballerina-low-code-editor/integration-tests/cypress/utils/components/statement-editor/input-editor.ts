@@ -36,6 +36,20 @@ export class InputEditor {
         return this;
     }
 
+    static escapeInput() {
+        const startDate = new Date();
+        cy.task('log', `Started to wait to escape input at ${startDate}`);
+        cy.wait(1000);
+
+        this.getInputEditor()
+            .type('{esc}');
+        cy.wait(2500);
+        
+        const endDate = new Date();
+        cy.task('log', `Input escape confirmed for the input at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
+        return this;
+    }
+
     static checkEditingState() {
         cy.get(`[data-testid="input-editor"]`)
             .should('be.visible', { timeout: 50000 })

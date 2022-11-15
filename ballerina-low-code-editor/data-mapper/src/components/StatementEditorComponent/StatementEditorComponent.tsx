@@ -18,6 +18,7 @@ export interface StatementEditorComponentProps {
         size: number
     };
     applyModifications: (modifications: STModification[]) => void;
+    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
     library: {
         getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
@@ -33,6 +34,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
         langClientPromise,
         currentFile,
         applyModifications,
+        updateFileContent,
         library,
         onCancel,
         onClose,
@@ -56,6 +58,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             label: expressionInfo.label,
             initialSource:  expressionInfo.value,
             applyModifications,
+            updateFileContent,
             currentFile: {
                 ...currentFile,
                 content: currentFile.content,

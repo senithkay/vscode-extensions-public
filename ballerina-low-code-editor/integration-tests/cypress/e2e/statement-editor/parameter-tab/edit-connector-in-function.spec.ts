@@ -27,7 +27,7 @@ describe('Edit connector with custom configurations via Low Code', () => {
             .shouldBeFocused()
             .shouldHaveParameterTree()
             .shouldHaveInclusionArg("config")
-            .shouldHaveCustomArg("httpVersion")
+            .shouldHaveUnionArg("httpVersion")
             .shouldHaveCustomArg("timeout")
             .shouldHaveRecordArg("cache")
             .shouldHaveCustomArg("enabled")

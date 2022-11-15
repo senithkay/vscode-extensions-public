@@ -72,7 +72,8 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             library,
             openExternalUrl
@@ -310,6 +311,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         currentFile,
                         getLangClient: getExpressionEditorLangClient,
                         applyModifications: modifyDiagram,
+                        updateFileContent,
                         library,
                         syntaxTree,
                         stSymbolInfo,

@@ -51,7 +51,8 @@ export function RecordEditor(props: RecordEditorProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             library
         }
@@ -72,6 +73,7 @@ export function RecordEditor(props: RecordEditorProps) {
                 currentFile,
                 getLangClient: getExpressionEditorLangClient,
                 applyModifications: modifyDiagram,
+                updateFileContent,
                 library,
                 syntaxTree,
                 stSymbolInfo,

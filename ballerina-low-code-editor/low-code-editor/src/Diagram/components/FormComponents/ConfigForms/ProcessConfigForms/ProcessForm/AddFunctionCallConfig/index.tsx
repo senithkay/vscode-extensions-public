@@ -54,7 +54,8 @@ export function AddFunctionCallConfig(props: AddFunctionCallConfigProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             library,
             openExternalUrl
@@ -135,6 +136,7 @@ export function AddFunctionCallConfig(props: AddFunctionCallConfigProps) {
                         currentFile,
                         getLangClient: getExpressionEditorLangClient,
                         applyModifications: modifyDiagram,
+                        updateFileContent,
                         library,
                         syntaxTree,
                         stSymbolInfo,

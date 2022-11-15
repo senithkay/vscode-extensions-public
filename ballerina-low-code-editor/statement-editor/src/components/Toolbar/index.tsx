@@ -151,7 +151,7 @@ export default function Toolbar(props: ToolbarProps) {
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
             <div className={statementEditorClasses.toolbarSet}>
-                <StatementEditorHint content={"Undo"} >
+                <StatementEditorHint content={"Undo"} disabled={!hasUndo} >
                     <IconButton
                         onClick={undo}
                         disabled={!hasUndo}
@@ -162,7 +162,7 @@ export default function Toolbar(props: ToolbarProps) {
                     </IconButton>
                 </StatementEditorHint>
                 <div className={statementEditorClasses.undoRedoSeparator} />
-                <StatementEditorHint content={"Redo"} >
+                <StatementEditorHint content={"Redo"} disabled={!hasRedo} >
                     <IconButton
                         onClick={redo}
                         disabled={!hasRedo}
@@ -174,7 +174,7 @@ export default function Toolbar(props: ToolbarProps) {
                 </StatementEditorHint>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <StatementEditorHint content={"Delete"} >
+                <StatementEditorHint content={"Delete"} disabled={!deletable} >
                     <IconButton
                         onClick={onClickOnDelete}
                         disabled={!deletable}
@@ -187,7 +187,7 @@ export default function Toolbar(props: ToolbarProps) {
                 </StatementEditorHint>
             </div>
             <div className={statementEditorClasses.toolbarSet}>
-                <StatementEditorHint content={"Add configurable"} >
+                <StatementEditorHint content={"Add configurable"} disabled={!configurable || hasSyntaxDiagnostics} >
                     <IconButton
                         onClick={onClickOnConfigurable}
                         disabled={!configurable || hasSyntaxDiagnostics}

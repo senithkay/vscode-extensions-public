@@ -62,6 +62,9 @@ export class ParameterTab {
     }
 
     static toggleOptionalArg(name: string) {
+        const startDate = new Date();
+        cy.wait(1000);
+        cy.task('log', `Toggling optional arg-${name} at ${startDate}`);
         cy.get(`[data-testid="optional-arg"]`)
             .should('be.visible')
             .children()
@@ -72,6 +75,9 @@ export class ParameterTab {
                 cy.get(`[data-testid="arg-check"]`)
                     .click();
             });
+        cy.wait(2000);
+        const endDate = new Date();
+        cy.task('log', `Completed toggling optional arg-${name} content at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
@@ -92,6 +98,9 @@ export class ParameterTab {
     }
 
     static toggleRecordArgs(name: string) {
+        const startDate = new Date();
+        cy.wait(1000);
+        cy.task('log', `Toggling record arg-${name} at ${startDate}`);
         cy.get(`[data-testid="record-arg"]`)
             .children()
             .children(`[data-testid="arg-name"]`)
@@ -100,11 +109,16 @@ export class ParameterTab {
             .scrollIntoView()
             .siblings(`[data-testid="arg-check"]`)
             .click({ force: true })
-            .wait(500);
+        cy.wait(2000);
+        const endDate = new Date();
+        cy.task('log', `Completed toggling record arg-${name} content at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
     static toggleRecordOptionalArgs(name: string) {
+        const startDate = new Date();
+        cy.wait(1000);
+        cy.task('log', `Toggling record option arg-${name} at ${startDate}`);
         cy.get(`[data-testid="record-arg"]`)
             .children()
             .children(`[data-testid="arg-name"]`)
@@ -120,7 +134,10 @@ export class ParameterTab {
             .children(`[data-testid="optional-toggle-button"]`)
             .scrollIntoView()
             .click({ force: true })
-            .should('have.text', 'Hide', { timeout: 5000 })
+            .should('have.text', 'Hide', { timeout: 5000 });
+        cy.wait(1000);
+        const endDate = new Date();
+        cy.task('log', `Completed toggling inclusion arg-${name} content at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
@@ -135,7 +152,7 @@ export class ParameterTab {
 
     static toggleInclusionArg(name: string) {
         const startDate = new Date();
-        cy.wait(1000);
+        cy.wait(1500);
         cy.task('log', `Toggling inclusion arg-${name} at ${startDate}`);
         cy.get(`[data-testid="inclusion-arg"]`)
             .children()
@@ -152,6 +169,9 @@ export class ParameterTab {
     }
 
     static toggleInclusionOptionalArgs(name: string) {
+        const startDate = new Date();
+        cy.wait(1500);
+        cy.task('log', `Selecting inclusion arg-${name} at ${startDate}`);
         cy.get(`[data-testid="inclusion-arg"]`)
             .children()
             .children(`[data-testid="arg-name"]`)
@@ -165,20 +185,29 @@ export class ParameterTab {
             .children()
             .children(`[data-testid="optional-toggle-button"]`)
             .click({ force: true })
-            .should('have.text', 'Hide', { timeout: 5000 })
+            .should('have.text', 'Hide', { timeout: 5000 });
+        cy.wait(2500);
+        const endDate = new Date();
+        cy.task('log', `Completed union arg-${name} selection at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
     static shouldHaveUnionArg(name: string) {
+        const startDate = new Date();
+        cy.wait(1000);
+        cy.task('log', `Selecting union arg-${name} at ${startDate}`);
         cy.get(`[data-testid="union-arg"]`)
+            .wait(1000)
             .children()
             .children(`[data-testid="arg-name"]`)
+            .wait(1000)
             .contains(name)
             .scrollIntoView();
         return this;
     }
 
     static selectUnionArg(name: string, selector: string) {
+        const startDate = new Date();
         cy.get(`[data-testid="union-arg"]`)
             .children()
             .children(`[data-testid="arg-name"]`)
@@ -189,12 +218,19 @@ export class ParameterTab {
             .children(`[data-testid="select-dropdown"]`)
             .children(`[data-testid="select-dropdown-data"]`)
             .click({ force: true }); // FIXME: Fix mui select menu item selection
+        cy.wait(1000);
         cy.get(`ul > li[data-value="${selector}"]`)
             .click({ force: true });
+        cy.wait(1500);
+        const endDate = new Date();
+        cy.task('log', `Completed union arg-${name} selection at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
     static toggleUnionArg(name: string) {
+        const startDate = new Date();
+        cy.wait(1000);
+        cy.task('log', `Toggling union arg-${name} at ${startDate}`);
         cy.get(`[data-testid="union-arg"]`)
             .children()
             .children(`[data-testid="arg-name"]`)
@@ -203,7 +239,9 @@ export class ParameterTab {
             .scrollIntoView()
             .siblings(`[data-testid="arg-check"]`)
             .click({ force: true })
-            .wait(500);
+            .wait(2000);
+        const endDate = new Date();
+        cy.task('log', `Completed union arg-${name} toggling at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
@@ -217,6 +255,9 @@ export class ParameterTab {
     }
 
     static toggleCustomArg(name: string) {
+        const startDate = new Date();
+        cy.wait(1000);
+        cy.task('log', `Toggling custom arg-${name} at ${startDate}`);
         cy.get(`[data-testid="custom-arg"]`)
             .children()
             .children(`[data-testid="arg-name"]`)
@@ -225,7 +266,9 @@ export class ParameterTab {
             .scrollIntoView()
             .siblings(`[data-testid="arg-check"]`)
             .click({ force: true })
-            .wait(500);
+            .wait(2000);
+        const endDate = new Date();
+        cy.task('log', `Completed toggling custom arg-${name} toggling at ${endDate} and took ${endDate.getTime() - startDate.getTime()}ms`);
         return this;
     }
 
