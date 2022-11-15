@@ -47,7 +47,10 @@ export function EndpointForm(props: FormGeneratorProps) {
         props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled, ballerinaVersion },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram,
+                updateFileContent
+            },
             library,
             runBackgroundTerminalCommand,
         },
@@ -123,6 +126,7 @@ export function EndpointForm(props: FormGeneratorProps) {
                     currentFile,
                     getLangClient: getExpressionEditorLangClient,
                     applyModifications: modifyDiagram,
+                    updateFileContent,
                     library,
                     syntaxTree,
                     stSymbolInfo,

@@ -49,7 +49,8 @@ export function AddReturnForm(props: ReturnFormProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             library,
             openExternalUrl
@@ -142,6 +143,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                         currentFile,
                         getLangClient: getExpressionEditorLangClient,
                         applyModifications: modifyDiagram,
+                        updateFileContent,
                         library,
                         syntaxTree,
                         stSymbolInfo,

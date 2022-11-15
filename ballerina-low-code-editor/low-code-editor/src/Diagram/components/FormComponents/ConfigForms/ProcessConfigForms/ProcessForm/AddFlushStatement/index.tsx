@@ -50,7 +50,8 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             insights: { onEvent },
             library,
@@ -81,6 +82,7 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            updateFileContent,
             library,
             syntaxTree,
             stSymbolInfo,

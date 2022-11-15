@@ -29,6 +29,7 @@ export class ResourceForm {
         SelectDropDown
             .getForField("api-method", this.selector)
             .select(type);
+        cy.wait(2000);
         return this;
     }
 

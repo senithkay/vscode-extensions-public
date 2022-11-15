@@ -11,8 +11,8 @@ const BAL_FILE_PATH = "block-level/return/add-return-statement-to-function.bal";
 
 describe('Add return statement', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-    })
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+    });
 
     it('Add return statement of type string', () => {
         Canvas.getFunction("getGreetings")
@@ -37,13 +37,14 @@ describe('Add return statement', () => {
 
         EditorPane
             .validateNewExpression("StringLiteral", "Hello World!!!")
+            .reTriggerDiagnostics("StringLiteral", "Hello World!!!");
 
         StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-return-statement.expected.bal");
-    })
+    });
 
     it('Type a return statement and Cancel', () => {
         Canvas.getFunction("getGreetings")
@@ -66,12 +67,16 @@ describe('Add return statement', () => {
         InputEditor
             .typeInput('"Hello World!!!"');
 
+        EditorPane
+            .validateNewExpression("StringLiteral", "Hello World!!!")
+            .reTriggerDiagnostics("StringLiteral", "Hello World!!!");
+
         StatementEditor
             .cancel();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "delete-return-statement.expected.bal");
-    })
+    });
 
     it('Type invalid return statement and check for diagnostics', () => {
         Canvas.getFunction("getGreetings")
@@ -95,6 +100,7 @@ describe('Add return statement', () => {
             .typeInput('true');
 
         EditorPane
+            .reTriggerDiagnostics("BooleanLiteral", "true")
             .checkForDiagnostics()
             .getExpression("BooleanLiteral")
             .doubleClickExpressionContent('true');
@@ -102,10 +108,14 @@ describe('Add return statement', () => {
         InputEditor
             .typeInput('"Hello World!!!"');
 
+        EditorPane
+            .validateNewExpression("StringLiteral", "Hello World!!!")
+            .reTriggerDiagnostics("StringLiteral", "Hello World!!!");
+
         StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-return-statement.expected.bal");
-    })
-})
+    });
+});

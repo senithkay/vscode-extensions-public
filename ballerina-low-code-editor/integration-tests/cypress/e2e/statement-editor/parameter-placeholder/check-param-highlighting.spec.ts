@@ -90,6 +90,8 @@ describe('Test parameter highlighting in function call', () => {
             .toggleOptionalArg("startIndex");
 
         EditorPane
+            .validateNewExpression("StringLiteral", '"age"')
+            .reTriggerDiagnostics("StringLiteral", '"age"')
             .validateEmptyDiagnostics();
 
         StatementEditor
