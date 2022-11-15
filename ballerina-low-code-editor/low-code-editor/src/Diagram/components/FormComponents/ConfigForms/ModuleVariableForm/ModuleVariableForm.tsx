@@ -62,7 +62,10 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
             isCodeServerInstance
         },
         api: {
-            code: { modifyDiagram },
+            code: {
+                modifyDiagram,
+                updateFileContent
+            },
             ls: { getExpressionEditorLangClient },
             library,
             openExternalUrl
@@ -197,6 +200,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                         currentFile,
                         getLangClient: getExpressionEditorLangClient,
                         applyModifications: modifyDiagram,
+                        updateFileContent,
                         library,
                         syntaxTree,
                         stSymbolInfo,

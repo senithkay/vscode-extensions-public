@@ -53,6 +53,13 @@ describe('Test helper plane parameter tab functionality', () => {
 
         ParameterTab.shouldBeFocused();
 
+        EditorPane
+            .getExpression("CaptureBindingPattern")
+            .doubleClickExpressionContent(`variable`);
+
+        InputEditor
+            .typeInput("fun");
+
         StatementEditor
             .save();
 
@@ -97,7 +104,11 @@ describe('Test helper plane parameter tab functionality', () => {
             .doubleClickExpressionContent(`<add-n>`);
 
         InputEditor
-            .typeInput("0");       
+            .typeInput("0");
+
+        EditorPane
+            .validateNewExpression("NumericLiteral", "0")
+            .reTriggerDiagnostics("NumericLiteral", "0");
 
         StatementEditor
             .save();

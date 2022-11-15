@@ -36,6 +36,10 @@ describe('Add if to function via Low Code', () => {
         InputEditor
             .typeInput("true");
 
+        EditorPane
+            .validateNewExpression("BooleanLiteral", "true")
+            .reTriggerDiagnostics("BooleanLiteral", "true");
+
         StatementEditor
             .save();
 

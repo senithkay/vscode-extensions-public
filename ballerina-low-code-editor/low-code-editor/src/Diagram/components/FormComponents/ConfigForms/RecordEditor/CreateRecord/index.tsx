@@ -53,7 +53,8 @@ export function CreateRecord(props: CreateRecordProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
             library
         }
@@ -98,6 +99,7 @@ export function CreateRecord(props: CreateRecordProps) {
                 currentFile,
                 getLangClient: getExpressionEditorLangClient,
                 applyModifications: handleModifyDiagram,
+                updateFileContent,
                 library,
                 syntaxTree,
                 stSymbolInfo,

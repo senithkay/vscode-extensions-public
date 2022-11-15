@@ -12,8 +12,8 @@ const BAL_FILE_PATH = "block-level/assignment/add-assignment-to-function.bal";
 
 describe('Add assignment to function via Low Code', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-    })
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+    });
 
     it('Add an assignment to function', () => {
         Canvas.getFunction("myFunction")
@@ -46,12 +46,16 @@ describe('Add assignment to function via Low Code', () => {
         InputEditor
             .typeInput("200");
 
+        EditorPane
+            .validateNewExpression("NumericLiteral", "200")
+            .reTriggerDiagnostics("NumericLiteral", "200");
+
         StatementEditor
             .save();
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "add-assignment-to-function.expected.bal");
-    })
+    });
 
     it('Delete an assignment in function', () => {
         Canvas.getFunction("myFunction")
@@ -83,6 +87,10 @@ describe('Add assignment to function via Low Code', () => {
 
         InputEditor
             .typeInput("200");
+        
+        EditorPane
+            .validateNewExpression("NumericLiteral", "200")
+            .reTriggerDiagnostics("NumericLiteral", "200");
 
         StatementEditor
             .save();
@@ -95,7 +103,7 @@ describe('Add assignment to function via Low Code', () => {
 
         SourceCode.shouldBeEqualTo(
             getCurrentSpecFolder() + "delete-assignment-to-function.expected.bal");
-    })
+    });
 
     it('Open and Cancel Assignment Form', () => {
         Canvas.getFunction("myFunction")
@@ -129,4 +137,4 @@ describe('Add assignment to function via Low Code', () => {
 
     });
 
-})
+});

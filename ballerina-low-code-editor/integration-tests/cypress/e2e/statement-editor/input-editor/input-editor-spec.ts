@@ -57,6 +57,7 @@ describe('Test input editor functionality', () => {
 
         EditorPane
             .validateNewExpression("NumericLiteral", "3.14")
+            .reTriggerDiagnostics("NumericLiteral", "3.14")
             .validateEmptyDiagnostics();
 
         StatementEditor

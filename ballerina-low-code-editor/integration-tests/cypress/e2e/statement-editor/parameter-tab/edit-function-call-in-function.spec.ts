@@ -50,6 +50,10 @@ describe('Test helper plane parameter tab functionality', () => {
 
         InputEditor
             .typeInput('{}');
+        
+        EditorPane
+            .validateNewExpression("NumericLiteral", "0")
+            .reTriggerDiagnostics("NumericLiteral", "0");
 
         StatementEditor
             .save();
@@ -71,6 +75,6 @@ describe('Test helper plane parameter tab functionality', () => {
             .cancel();
 
         SourceCode.shouldBeEqualTo(
-            getCurrentSpecFolder() + "add-function-call-to-function.expected.bal");
+            getCurrentSpecFolder() + "edit-function-call-in-function-no-change.expected.bal");
     });
 });

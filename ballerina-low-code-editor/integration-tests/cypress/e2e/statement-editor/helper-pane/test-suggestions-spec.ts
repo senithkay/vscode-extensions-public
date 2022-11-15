@@ -24,8 +24,8 @@ const BAL_FILE_PATH = "block-level/statement-editor/statement-editor-init.bal";
 
 describe('Test helper pane functionality', () => {
     beforeEach(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
-    })
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
+    });
 
     it('Add Variable Declaration Statement with Ls-Suggestions', () => {
         Canvas.getFunction("testStatementEditorComponents")
@@ -64,6 +64,7 @@ describe('Test helper pane functionality', () => {
 
         EditorPane
             .validateNewExpression("TypedBindingPattern", "int")
+            .reTriggerDiagnostics("TypedBindingPattern", "int")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -124,6 +125,7 @@ describe('Test helper pane functionality', () => {
 
         EditorPane
             .validateNewExpression("NumericLiteral", "1")
+            .reTriggerDiagnostics("NumericLiteral", "1")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -190,6 +192,7 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('float');
 
         EditorPane
+            .reTriggerDiagnostics("SimpleNameReference", "var1")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -228,12 +231,16 @@ describe('Test helper pane functionality', () => {
             .clickExpressionContent("var");
 
         SuggestionsPane
+            .clickSuggestionsTab("Expressions")
             .typeExpressionInSearchBar("record")
             .clickExpressionSuggestion("record{Es Ex;}");
 
-        EditorPane
-            .checkForDiagnostics();
+        // TODO: Find way to show and capture diagnostic message
+        // EditorPane
+        //     .checkForDiagnostics();
 
+        EditorPane
+            .checkForSyntaxDiagnosticsHighlighting();
     });
 
     it('Test Library-suggestions and filtering of libraries with dropdown', () => {
@@ -258,7 +265,7 @@ describe('Test helper pane functionality', () => {
         SuggestionsPane
             .clickSuggestionsTab("Libraries")
             .clickLibrarySuggestion('lang.int')
-            .clickSearchedLibSuggestion('lang.int:abs')
+            .clickSearchedLibSuggestion('lang.int:abs');
 
         EditorPane
             .validateNewExpression("FunctionCall", "int0:abs(<add-n>)")
@@ -276,6 +283,9 @@ describe('Test helper pane functionality', () => {
             .clickSuggestionsTab("Libraries")
             .clickOnLibraryDropdown("Language")
             .validateFilteredLib("auth");
+
+        EditorPane
+            .reTriggerDiagnostics("NumericLiteral", "285");
 
         StatementEditor
             .save();
@@ -321,9 +331,8 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('int');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int");
-
-        EditorPane
+            .validateNewExpression("TypedBindingPattern", "int")
+            .reTriggerDiagnostics("TypedBindingPattern", "int")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -413,4 +422,4 @@ describe('Test helper pane functionality', () => {
             .validateUnrelatedSuggestions("limit Ex")
             .clickExpressionSuggestion("descending");
     });
-})
+});

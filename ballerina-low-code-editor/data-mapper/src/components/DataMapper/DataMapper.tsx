@@ -103,6 +103,7 @@ export interface DataMapperProps {
     ballerinaVersion?: string;
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => Promise<void>;
+    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
     onSave: (fnName: string) => void;
     onClose: () => void;
     library: {
@@ -177,6 +178,7 @@ function DataMapperC(props: DataMapperProps) {
         currentFile,
         stSymbolInfo,
         applyModifications,
+        updateFileContent,
         library,
         onClose,
         onSave,
@@ -380,6 +382,7 @@ function DataMapperC(props: DataMapperProps) {
                                 expressionInfo={currentEditableField}
                                 langClientPromise={langClientPromise}
                                 applyModifications={applyModifications}
+                                updateFileContent={updateFileContent}
                                 currentFile={currentFile}
                                 library={library}
                                 onCancel={cancelStatementEditor}

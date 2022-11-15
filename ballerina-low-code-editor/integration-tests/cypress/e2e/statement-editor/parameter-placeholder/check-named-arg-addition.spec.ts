@@ -79,6 +79,8 @@ describe('Test named arg addition through parameter tab', () => {
             .typeInput('"newArgText"');
 
         EditorPane
+            .validateNewExpression("StringLiteral", '"newArgText"')
+            .reTriggerDiagnostics("StringLiteral", '"newArgText"')
             .validateEmptyDiagnostics();
 
         StatementEditor

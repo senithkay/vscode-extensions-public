@@ -5,6 +5,11 @@ export class SourceCode {
             .should('have.text', expectedContent)
     }
 
+    static shouldHave(content: string) {
+        return cy.get('#file-content-holder')
+            .should('contain', content);
+    }
+
     static shouldBeEqualTo(expectedFile: string) {
         return cy.readFile(expectedFile).then((content) => {
             return SourceCode.shouldBe(content);

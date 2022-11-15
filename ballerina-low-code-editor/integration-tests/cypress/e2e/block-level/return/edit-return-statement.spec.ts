@@ -31,6 +31,10 @@ describe('Edit return statement', () => {
 
         InputEditor
             .typeInput('"Updated Hello World!!!"');
+        
+        EditorPane
+            .validateNewExpression("StringLiteral", "Updated Hello World!!!")
+            .reTriggerDiagnostics("StringLiteral", "Updated Hello World!!!");
 
         StatementEditor
             .save();

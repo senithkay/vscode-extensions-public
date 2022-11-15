@@ -79,39 +79,23 @@ export function EntityLinkWidget(props: WidgetProps) {
 					<text {...getCardinalityProps(link.getTargetPort())}>
 						{transformCardinality(link.cardinality.associate)}
 					</text>
-
-					<path
-						id={link.getID()}
-						d={link.getCurvePath()}
-						cursor={'pointer'}
-						fill={'none'}
-						onMouseLeave={unselectPath}
-						onMouseOver={selectPath}
-						pointerEvents='all'
-						stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
-						strokeWidth={0.75}
-					/>
 				</> :
-				<>
-					<polygon
-						points={link.getArrowHeadPoints()}
-						fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
-					/>
-					<line
-						id={link.getID()}
-						x1={link.getSourcePort().getX()}
-						y1={link.getSourcePort().getY()}
-						x2={link.getTargetPort().getX()}
-						y2={link.getTargetPort().getY() + 14}
-						cursor={'pointer'}
-						onMouseLeave={unselectPath}
-						onMouseOver={selectPath}
-						pointerEvents='all'
-						stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
-						strokeWidth={0.75}
-					/>
-				</>
+				<polygon
+					points={link.getArrowHeadPoints()}
+					fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+				/>
 			}
+			<path
+				id={link.getID()}
+				d={link.getCurvePath()}
+				cursor={'pointer'}
+				fill={'none'}
+				onMouseLeave={unselectPath}
+				onMouseOver={selectPath}
+				pointerEvents={'all'}
+				stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+				strokeWidth={0.75}
+			/>
 		</g>
 	)
 }
