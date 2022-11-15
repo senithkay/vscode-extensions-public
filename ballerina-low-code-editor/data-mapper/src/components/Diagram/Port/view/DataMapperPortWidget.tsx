@@ -25,11 +25,7 @@ enum PortState {
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {
 	const { engine, port, disable } = props;
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
-	// const [ disableNewLinking, setDisableNewLinking] = useState<boolean>(false);
-
-	// useEffect(() => {
-	// 	setDisableNewLinking(port.disableNewLinking);
-	// }, [port.disableNewLinking]);
+	const [ disableNewLinking, setDisableNewLinking] = useState<boolean>(false);
 
 	const hasLinks = Object.entries(port.links).length > 0;
 
@@ -46,23 +42,26 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 				eventDidFire(event) {
 					if (event.function === "mappingStartedFrom" || event.function === "mappingFinishedTo") {
 						setPortState(PortState.PortSelected);
-						if (port instanceof RecordFieldPortModel) {
-							port.setSelection(true);
-							engine.getModel().serialize();
-							engine.repaintCanvas();
-						}
 					} else if (event.function === "link-selected") {
 						setPortState(PortState.LinkSelected);
 					} else if (event.function === "link-unselected"
 						|| event.function === "mappingStartedFromSelectedAgain") {
 						setPortState(PortState.Unselected);
-						if (port instanceof RecordFieldPortModel) {
-							port.setSelection(false);
-							engine.repaintCanvas();
-						}
 					}
 				},
 			})
+	}, []);
+
+	useEffect(() => {
+		port.registerListener({
+			eventDidFire(event) {
+				if (event.function === "disableNewLinking") {
+					setDisableNewLinking(true);
+				} else if (event.function === "enableNewLinking") {
+					setDisableNewLinking(false);
+				}
+			},
+		})
 	}, []);
 
 	const containerProps = {
@@ -73,7 +72,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 	};
 
 	return !disable ? (
-		!port.disableNewLinking ? (
+		!disableNewLinking ? (
 			<PortWidget
 				port={port}
 				engine={engine}

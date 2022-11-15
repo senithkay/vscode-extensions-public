@@ -16,10 +16,6 @@ export const IntermediatePortWidget: React.FC<IntermediatePortWidgetProps> = (pr
 	const [ active, setActive ] = useState(false);
 	const [ disableNewLinking, setDisableNewLinking] = useState<boolean>(false);
 
-	useEffect(() => {
-		setDisableNewLinking(port.disableNewLinking);
-	}, [port.disableNewLinking]);
-
 	const hasLinks = Object.entries(port.links).length > 0;
 	useEffect(() => {
 		port.registerListener({
@@ -35,6 +31,17 @@ export const IntermediatePortWidget: React.FC<IntermediatePortWidgetProps> = (pr
 		})
 	}, []);
 
+	useEffect(() => {
+		port.registerListener({
+			eventDidFire(event) {
+				if (event.function === "disableNewLinking") {
+					setDisableNewLinking(true);
+				} else if (event.function === "enableNewLinking") {
+					setDisableNewLinking(false);
+				}
+			},
+		})
+	}, []);
 
 	return <PortWidget
 		port={port}

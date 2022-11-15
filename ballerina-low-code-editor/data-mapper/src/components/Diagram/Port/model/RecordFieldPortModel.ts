@@ -27,8 +27,6 @@ export const FORM_FIELD_PORT = "form-field-port";
 export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFieldNodeModelGenerics> {
 
 	public linkedPorts: PortModel[];
-	public disableNewLinking: boolean;
-	public selected: boolean;
 
 	constructor(
 		public field: Type,
@@ -84,17 +82,6 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		if (this.parentModel){
 			this.parentModel.setDescendantHasValue();
 		}
-	}
-
-	setDisableNewLinking(isDisabled: boolean): void {
-		this.disableNewLinking = isDisabled;
-	}
-
-	setSelection(selection: boolean) {
-		this.selected = selection;
-		this.linkedPorts.forEach((port: RecordFieldPortModel | IntermediatePortModel) => {
-			port.setDisableNewLinking(selection)
-		})
 	}
 
 	isDisabled(): boolean {
