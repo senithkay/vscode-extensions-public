@@ -14,8 +14,7 @@ describe('edit a http service', () => {
     cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH))
   })
 
-  // TODO: Please fix https://github.com/wso2-enterprise/choreo/issues/16029 and remove skipping.
-  it.skip('Edit service and add statements', () => {
+  it('Edit service and add statements', () => {
     Canvas.getService("/hello")
       .getResourceFunction("POST", "/")
       .expand()
@@ -57,6 +56,7 @@ describe('edit a http service', () => {
 
     EditorPane
         .validateNewExpression("CaptureBindingPattern", "foo")
+        .reTriggerDiagnostics("CaptureBindingPattern", "foo")
 
     StatementEditor
         .save();
@@ -83,12 +83,14 @@ describe('edit a http service', () => {
     InputEditor
         .typeInput("456");
 
+    EditorPane
+        .validateNewExpression("NumericLiteral", "456")
+        .reTriggerDiagnostics("NumericLiteral", "456");
+
     StatementEditor
         .save();
 
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "edit-service-http.expected.bal");
-
   })
-
 })

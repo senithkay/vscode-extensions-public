@@ -17,7 +17,6 @@ import { TopLevelPlusWidget } from "../../../utils/components/top-level-plus-wid
 import { getCurrentSpecFolder } from "../../../utils/file-utils";
 import { ListenerForm } from "../../../utils/forms/listener-form";
 import { getIntegrationTestPageURL } from "../../../utils/story-url-utils";
-import {FunctionForm} from "../../../utils/forms/function-form";
 
 const BAL_FILE_PATH = "default/empty-file.bal";
 

@@ -46,6 +46,7 @@ describe('Add const to module level via Low Code', () => {
 
         InputEditor
             .typeInput('ONE');
+
         EditorPane
             .getStatementRenderer()
             .getExpression("IdentifierToken")
@@ -55,7 +56,8 @@ describe('Add const to module level via Low Code', () => {
             .typeInput('"1"');
 
         EditorPane
-            .validateNewExpression("StringLiteral", '"1"');
+            .validateNewExpression("StringLiteral", '"1"')
+            .reTriggerDiagnostics("StringLiteral", '"1"');
 
         StatementEditor
             .save();
@@ -96,7 +98,8 @@ describe('Add const to module level via Low Code', () => {
             .typeInput('2');
 
         EditorPane
-            .validateNewExpression("NumericLiteral", '2');
+            .validateNewExpression("NumericLiteral", '2')
+            .reTriggerDiagnostics("NumericLiteral", '2');
 
         StatementEditor
             .save();
@@ -115,6 +118,10 @@ describe('Add const to module level via Low Code', () => {
 
         InputEditor
             .typeInput('TWO_INT');
+        
+        EditorPane
+            .validateNewExpression("IdentifierToken", 'TWO_INT')
+            .reTriggerDiagnostics("IdentifierToken", 'TWO_INT');
 
         StatementEditor
             .save();

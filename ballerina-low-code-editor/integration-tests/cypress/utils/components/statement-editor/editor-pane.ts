@@ -1,4 +1,5 @@
 import { modelTypes } from "../../type-utils";
+import { InputEditor } from "./input-editor";
 
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
@@ -142,6 +143,16 @@ export class EditorPane {
     static validateNewExpression(modelType:string, text:string){
         cy.wait(1000);
         cy.contains(`[data-testid="${modelType}"]`,text).should('exist');
+        return this;
+    }
+
+    /**
+     * Re triggering diagnostic call to activate save button in the st-editor
+     */
+    static reTriggerDiagnostics(modelType: string, text: string) {
+        this.getExpression(modelType);
+        this.doubleClickExpressionContent(text);
+        InputEditor.escapeInput();
         return this;
     }
 

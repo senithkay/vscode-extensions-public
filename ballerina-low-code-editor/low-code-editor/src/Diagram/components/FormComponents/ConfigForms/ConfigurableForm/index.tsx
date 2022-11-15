@@ -52,7 +52,8 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const {
         api: {
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             }
         },
         props: {
@@ -234,6 +235,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         currentFile,
                         getLangClient: getExpressionEditorLangClient,
                         applyModifications: modifyDiagram,
+                        updateFileContent,
                         library,
                         syntaxTree,
                         stSymbolInfo,

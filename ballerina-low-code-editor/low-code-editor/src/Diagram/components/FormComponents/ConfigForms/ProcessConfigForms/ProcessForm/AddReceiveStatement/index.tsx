@@ -51,9 +51,9 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
         api: {
             ls: { getExpressionEditorLangClient },
             code: {
-                modifyDiagram
+                modifyDiagram,
+                updateFileContent
             },
-            insights: { onEvent },
             library,
             openExternalUrl
         }
@@ -93,6 +93,7 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             currentFile,
             getLangClient: getExpressionEditorLangClient,
             applyModifications: modifyDiagram,
+            updateFileContent,
             library,
             syntaxTree,
             stSymbolInfo,

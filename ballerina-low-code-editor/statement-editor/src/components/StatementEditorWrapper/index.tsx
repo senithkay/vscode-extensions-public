@@ -30,13 +30,13 @@ import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
 import { getPartialSTForExpression, getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
-import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { StatementEditor } from "../StatementEditor";
 import { useStatementEditorStyles } from '../styles';
 
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     applyModifications: (modifications: STModification[]) => void;
+    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
     currentFile: {
         content: string,
         path: string,
@@ -88,6 +88,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         onWizardClose,
         getLangClient,
         applyModifications,
+        updateFileContent,
         library,
         currentFile,
         syntaxTree,
@@ -111,7 +112,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         }
     } = formArgs;
 
-    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+    const fileURI = monaco.Uri.file(currentFile.path).toString();
 
     const [editors, setEditors] = useState<EditorModel[]>([]);
     const [editor, setEditor] = useState<EditorModel>();
@@ -152,7 +153,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 return [...prevEditors, newEditor];
             });
         })();
-    }, [initialSource]);
+    }, [targetPosition.startLine]);
 
     useEffect(() => {
         if (!!editors.length) {
@@ -241,6 +242,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             formArgs={formArgs}
                             getLangClient={getLangClient}
                             applyModifications={applyModifications}
+                            updateFileContent={updateFileContent}
                             currentFile={currentFile}
                             library={library}
                             importStatements={importStatements}

@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from 'react';
 
-import { KeyboardNavigationManager, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -54,9 +54,7 @@ import {
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StackElement } from "../../utils/undo-redo";
 import { visitor as CommonParentFindingVisitor } from "../../visitors/common-parent-finding-visitor";
-import { EXPR_SCHEME, FILE_SCHEME } from "../InputEditor/constants";
 import { LowCodeEditorProps } from "../StatementEditorWrapper";
-import { ReturnStatementC } from '../Statements/ReturnStatement';
 import { ViewContainer } from "../ViewContainer";
 
 export interface StatementEditorProps extends LowCodeEditorProps {
@@ -85,6 +83,7 @@ export function StatementEditor(props: StatementEditorProps) {
         config,
         getLangClient,
         applyModifications,
+        updateFileContent,
         library,
         currentFile,
         syntaxTree,
@@ -117,7 +116,7 @@ export function StatementEditor(props: StatementEditorProps) {
         updateEditor
     } = editorManager;
 
-    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+    const fileURI = monaco.Uri.file(currentFile.path).toString();
     const initSymbolInfo : DocumentationInfo = {
         modelPosition: null,
         documentation: {}
@@ -133,6 +132,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [isRestArg, setRestArg] = useState(false);
     const [isPullingModule, setIsPullingModule] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [isDisableEditor, setIsDisableEditor] = useState(false);
     const pulledModules = useRef<string[]>([]);
 
     const undo = async () => {
@@ -143,7 +143,7 @@ export function StatementEditor(props: StatementEditorProps) {
         } else if (undoItem) {
             const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
                 targetPosition, moduleList, isExpressionMode);
-            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            await updateFileContent(updatedContent, true);
             const diagnostics = await handleDiagnostics(undoItem.oldModel.model.source);
             setStmtModel(undoItem.oldModel.model, diagnostics);
 
@@ -159,7 +159,7 @@ export function StatementEditor(props: StatementEditorProps) {
         if (redoItem) {
             const updatedContent = getUpdatedSource(redoItem.newModel.model.source, currentFile.content,
                 targetPosition, moduleList, isExpressionMode);
-            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            await updateFileContent(updatedContent, true);
             const diagnostics = await handleDiagnostics(redoItem.newModel.model.source);
             setStmtModel(redoItem.newModel.model, diagnostics);
 
@@ -174,8 +174,7 @@ export function StatementEditor(props: StatementEditorProps) {
         (async () => {
             if (!newConfigurableName || isPullingModule) {
                 const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList, isExpressionMode);
-
-                sendDidChange(fileURI, updatedContent, getLangClient).then();
+                await updateFileContent(updatedContent, true);
                 const diagnostics = await handleDiagnostics(source);
 
                 const newCurrentModel: STNode = selectedNodePosition
@@ -246,11 +245,11 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (config?.type !== CUSTOM_CONFIG_TYPE) {
-                if (editorModel && newConfigurableName) {
-                    await updateModel(newConfigurableName, selectedNodePosition, editorModel);
-                    updateEditor(activeEditorId, { ...editors[activeEditorId], newConfigurableName: undefined });
-                }
+            if (config?.type !== CUSTOM_CONFIG_TYPE && editorModel && newConfigurableName) {
+                await updateModel(newConfigurableName, selectedNodePosition, editorModel);
+                updateEditor(activeEditorId, { ...editors[activeEditorId], newConfigurableName: undefined });
+            } else if (currentModel.model !== null && !newConfigurableName) {
+                setIsDisableEditor(true);
             }
         })();
     }, [currentFile.content]);
@@ -260,12 +259,12 @@ export function StatementEditor(props: StatementEditorProps) {
             if (editorModel) {
                 const updatedContent = getUpdatedSource(source.trim(), currentFile.content,
                     targetPosition, moduleList, isExpressionMode);
-                sendDidChange(fileURI, updatedContent, getLangClient).then();
+                await updateFileContent(updatedContent, true);
                 const diagnostics = await handleDiagnostics(source);
                 setStmtModel(editorModel, diagnostics);
             }
         })();
-    }, [editorModel, currentFile.content]);
+    }, [editorModel]);
 
     const restArg = (restCheckClicked: boolean) => {
         setRestArg(restCheckClicked);
@@ -274,8 +273,8 @@ export function StatementEditor(props: StatementEditorProps) {
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
         const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, isExpressionMode);
+        await updateFileContent(updatedContent, true);
 
-        sendDidChange(fileURI, updatedContent, getLangClient).then();
         handleDiagnostics(updatedStatement).then();
         handleCompletions(newValue).then();
     }
@@ -311,7 +310,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
         if (!partialST.syntaxDiagnostics.length || (!isExpressionMode && config.type === CUSTOM_CONFIG_TYPE)) {
             const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList, isExpressionMode);
-            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            await updateFileContent(updatedContent, true);
             const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
@@ -333,7 +332,7 @@ export function StatementEditor(props: StatementEditorProps) {
             const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
             const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, isExpressionMode);
 
-            sendDidChange(fileURI, updatedContent, getLangClient).then();
+            await updateFileContent(updatedContent, true);
             handleDiagnostics(updatedStatement).then();
             setHasSyntaxDiagnostics(true);
         }
@@ -508,6 +507,11 @@ export function StatementEditor(props: StatementEditorProps) {
         setModel({ ...enrichModel(editedModel, targetPosition, diagnostics) });
     }
 
+    async function handleOnCancel(){
+        await updateFileContent(currentFile.content);
+        onCancel();
+    }
+
     React.useEffect(() => {
 
         const client = KeyboardNavigationManager.getClient();
@@ -544,6 +548,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     formArgs={formArgs}
                     getLangClient={getLangClient}
                     applyModifications={applyModifications}
+                    updateFileContent={updateFileContent}
                     currentFile={currentFile}
                     library={library}
                     importStatements={importStatements}
@@ -551,7 +556,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     stSymbolInfo={stSymbolInfo}
                     experimentalEnabled={experimentalEnabled}
                     onWizardClose={onWizardClose}
-                    onCancel={onCancel}
+                    onCancel={handleOnCancel}
                     documentation={documentation}
                     restArg={restArg}
                     hasRestArg={isRestArg}
@@ -568,6 +573,7 @@ export function StatementEditor(props: StatementEditorProps) {
                         isStatementValid={!stmtDiagnostics.length}
                         isConfigurableStmt={isConfigurableStmt}
                         isPullingModule={isPullingModule}
+                        isDisableEditor={isDisableEditor}
                         isHeaderHidden={isHeaderHidden}
                     />
                 </StatementEditorContextProvider>

@@ -36,6 +36,9 @@ describe('Add while to function via Low Code', () => {
         InputEditor
             .typeInput("1<5");
 
+        EditorPane
+            .reTriggerDiagnostics("NumericLiteral", "5");
+
         StatementEditor
             .save();
 

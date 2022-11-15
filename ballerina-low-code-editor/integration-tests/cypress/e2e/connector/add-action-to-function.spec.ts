@@ -9,7 +9,7 @@ import { ActionListForm } from "../../utils/forms/action-list-form";
 
 const BAL_FILE_PATH = "block-level/connector/add-action-to-function.bal";
 
-describe('Add action to function via Low Code', () => {
+describe('Add different actions to a function via Low Code', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
         // Pulling existing connectors.

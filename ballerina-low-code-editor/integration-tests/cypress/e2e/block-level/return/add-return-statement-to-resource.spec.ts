@@ -35,6 +35,10 @@ describe('Add return statement to resource function', () => {
         // TODO: Just save the return statement instead of providing the below when the statement editor cater it.
         InputEditor
             .typeInput("null");
+        
+        EditorPane
+            .validateNewExpression("NullLiteral", "null")
+            .reTriggerDiagnostics("NullLiteral", "null");
 
         StatementEditor
             .save();
