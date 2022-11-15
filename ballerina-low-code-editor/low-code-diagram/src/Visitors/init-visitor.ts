@@ -160,6 +160,8 @@ export class InitVisitor implements Visitor {
         const stmtViewState = node.viewState as StatementViewState;
 
         if (node.expression && actionNode) { // todo : need to find the right method from STTypeChecker
+            // tslint:disable: prefer-conditional-expression
+            // Adding conditional expression will reduce the readability
             let simpleName: string;
             let actionName;
             if (STKindChecker.isRemoteMethodCallAction(actionNode)) {
