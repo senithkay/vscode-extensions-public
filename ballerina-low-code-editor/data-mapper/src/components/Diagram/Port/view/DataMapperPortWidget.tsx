@@ -25,6 +25,11 @@ enum PortState {
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {
 	const { engine, port, disable } = props;
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+	// const [ disableNewLinking, setDisableNewLinking] = useState<boolean>(false);
+
+	// useEffect(() => {
+	// 	setDisableNewLinking(port.disableNewLinking);
+	// }, [port.disableNewLinking]);
 
 	const hasLinks = Object.entries(port.links).length > 0;
 
@@ -41,11 +46,20 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 				eventDidFire(event) {
 					if (event.function === "mappingStartedFrom" || event.function === "mappingFinishedTo") {
 						setPortState(PortState.PortSelected);
+						if (port instanceof RecordFieldPortModel) {
+							port.setSelection(true);
+							engine.getModel().serialize();
+							engine.repaintCanvas();
+						}
 					} else if (event.function === "link-selected") {
 						setPortState(PortState.LinkSelected);
 					} else if (event.function === "link-unselected"
 						|| event.function === "mappingStartedFromSelectedAgain") {
 						setPortState(PortState.Unselected);
+						if (port instanceof RecordFieldPortModel) {
+							port.setSelection(false);
+							engine.repaintCanvas();
+						}
 					}
 				},
 			})
@@ -59,14 +73,26 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 	};
 
 	return !disable ? (
-		<PortWidget
-			port={port}
-			engine={engine}
-		>
-			<ActivePortContainer {...containerProps}>
-				{hasLinks || portState === PortState.PortSelected ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>}
-			</ActivePortContainer>
-		</PortWidget>
+		!port.disableNewLinking ? (
+			<PortWidget
+				port={port}
+				engine={engine}
+			>
+				<ActivePortContainer {...containerProps}>
+					{hasLinks || portState === PortState.PortSelected ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>}
+				</ActivePortContainer>
+			</PortWidget>
+		) : (
+			<PortWidget
+				port={port}
+				engine={engine}
+			>
+				<DisabledNewLinkingPortContainer {...containerProps}>
+					{hasLinks ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>}
+				</DisabledNewLinkingPortContainer>
+			</PortWidget>
+		)
+	
 	) : (
 		<DisabledPortContainer>
 			<RadioButtonUncheckedIcon/>
@@ -94,3 +120,7 @@ const DisabledPortContainer = styled.div`
 	color: #b7bcd3
 `;
 
+const DisabledNewLinkingPortContainer = styled.div((props: PortsContainerProps) => ({
+	cursor: "not-allowed",
+	color: props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : "#8D91A3",
+}));

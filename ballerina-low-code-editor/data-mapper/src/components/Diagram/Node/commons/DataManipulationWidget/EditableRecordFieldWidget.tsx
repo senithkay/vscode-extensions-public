@@ -70,6 +70,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     let indentation = treeDepth * 16;
 
     useEffect(() => {
+		console.log(portIn.disableNewLinking);
+	}, [portIn.disableNewLinking]);
+
+    useEffect(() => {
         if (context.fieldToBeEdited === fieldId) {
             if (!context.isStmtEditorCanceled) {
                 handleEditValue();
