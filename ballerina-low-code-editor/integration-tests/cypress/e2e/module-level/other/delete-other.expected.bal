@@ -1,0 +1,4 @@
+type AnnotationData record {|
+
+|};
+
