@@ -20,13 +20,17 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import ToolbarDropdownArrow from "../../../assets/icons/ToolbarDropdownArrow";
 import ToolbarQualifierIcon from "../../../assets/icons/ToolbarQualifierIcon";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getQualifierPosition, getQualifierUpdateModelPosition, getSupportedQualifiers } from "../../../utils";
-import { useStatementEditorToolbarStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+import {
+    getFilteredQualifiers,
+    getQualifierPosition,
+    getQualifierUpdateModelPosition,
+    getSupportedQualifiers
+} from "../../../utils";
+import { useStatementEditorToolbarStyles } from "../../styles";
 
 export default function StatementQualifiers() {
     const {
         modelCtx: {
-            currentModel,
             statementModel,
             updateModel,
         }
@@ -42,16 +46,7 @@ export default function StatementQualifiers() {
     const open = Boolean(anchorEl);
 
     useEffect(() => {
-        const newChecked = [];
-        let qualifierList = getSupportedQualifiers(statementModel);
-        // context based qualifier filtering for configurable
-        if (STKindChecker.isModuleVarDecl(statementModel)) {
-            statementModel.qualifiers.map((node: STNode) => {
-                if (node.value === "configurable") {
-                    qualifierList = ["public"]
-                }
-            });
-        }
+        const newChecked: string[] = [];
         // check if the qualifiers are checked
         if (statementModel?.visibilityQualifier) {
             newChecked.push(statementModel.visibilityQualifier.value)
@@ -63,17 +58,9 @@ export default function StatementQualifiers() {
                 newChecked.push(qualifier.value)
             });
         }
+        let qualifierList = getSupportedQualifiers(statementModel);
         if (STKindChecker.isModuleVarDecl(statementModel)) {
-            if (newChecked.includes("public")) {
-                qualifierList = qualifierList.filter((element) => {
-                    return element !== 'isolated';
-                });
-            }
-            if (newChecked.includes("isolated")) {
-                qualifierList = qualifierList.filter((element) => {
-                    return element !== 'public';
-                });
-            }
+            qualifierList = getFilteredQualifiers(statementModel, qualifierList, newChecked);
         }
         setSupportedQualifiers(qualifierList);
         setChecked(newChecked);
@@ -133,7 +120,8 @@ export default function StatementQualifiers() {
                         />
                         <Checkbox
                             classes={{
-                                root: statementEditorClasses.QualifierCheckbox
+                                root: statementEditorClasses.QualifierCheckbox,
+                                checked: statementEditorClasses.checked
                             }}
                             edge={"end"}
                             data-testid="qualifier-check"

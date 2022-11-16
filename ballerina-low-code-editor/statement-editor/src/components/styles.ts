@@ -159,8 +159,9 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
                     zIndex: -1,
                     borderRadius: 3,
                 }
-            }
+            },
         },
+        checked: {},
         QualifierDropdownBase: {
             '& .MuiMenu-list': {
                 width: "110px"

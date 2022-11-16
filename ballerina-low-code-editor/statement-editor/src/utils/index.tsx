@@ -37,7 +37,7 @@ import {
     SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    Minutiae,
+    Minutiae, ModuleVarDecl,
     NodePosition,
     RecordField,
     RecordFieldWithDefaultValue,
@@ -963,10 +963,6 @@ export function getSupportedQualifiers(statementModel: STNode): string[] {
         case "TypeDefinition":
             qualifierList = ["public"];
             break;
-        // ModuleVarDecl without init
-        default:
-            qualifierList = ["public", "final"];
-            break;
     }
     return qualifierList;
 }
@@ -1023,6 +1019,27 @@ export function getQualifierPosition(statement: any, qualifier: string) {
         position = { ...statement.finalKeyword.position }
     }
     return position;
+}
+
+export function getFilteredQualifiers(statement: ModuleVarDecl, qualifierList: string[], checkedList: string[]) {
+    // context based qualifier filtering for configurable
+    statement?.qualifiers.map((node: STNode) => {
+        if (node.value === "configurable") {
+            qualifierList = ["public"]
+        }
+    });
+    // filtering of isolated and public based on the checked keyword and ModuleVarDecl without initialization
+    if (checkedList.includes("public") || !statement?.initializer) {
+        qualifierList = qualifierList.filter((element) => {
+            return element !== 'isolated';
+        });
+    }
+    if (checkedList.includes("isolated")) {
+        qualifierList = qualifierList.filter((element) => {
+            return element !== 'public';
+        });
+    }
+    return qualifierList;
 }
 
 export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
