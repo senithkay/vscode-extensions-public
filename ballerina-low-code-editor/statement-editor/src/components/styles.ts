@@ -119,7 +119,53 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
             width: '1px',
             borderRadius: '5px',
             boxShadow: 'inset 0 0 0 1px #E6E7EC'
-          }
+        },
+        qualifierListItem: {
+            "& .MuiListItem-root": {
+                padding: '0px',
+                display: "inline-block"
+            },
+            "& .MuiListItemText-root": {
+                minWidth: 'auto',
+                margin: '0 0 0 12px'
+            },
+            ...removePadding
+        },
+        QualifierCheckbox: {
+            float: 'right',
+            marginRight: 0,
+            color: '#40404B',
+            padding: '3px 9px 0 0',
+            "& .MuiCheckbox-colorSecondary.Mui-checked": {
+                color: "#2FA86C"
+            },
+            "&$checked": {
+                color: "#2FA86C",
+                paddingLeft: '0px',
+                "&:hover": {
+                    background: "transparent",
+                },
+                "& .MuiIconButton-label": {
+                    position: "relative"
+                },
+                "& .MuiIconButton-label::after": {
+                    content: '""',
+                    left: 1,
+                    top: 1,
+                    width: 19,
+                    height: 19,
+                    position: "absolute",
+                    backgroundColor: "#fff",
+                    zIndex: -1,
+                    borderRadius: 3,
+                }
+            }
+        },
+        QualifierDropdownBase: {
+            '& .MuiMenu-list': {
+                width: "110px"
+            },
+        }
     }),
 );
 

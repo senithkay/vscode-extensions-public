@@ -950,6 +950,81 @@ export function isEndsWithoutSemicolon(completeModel: STNode): boolean {
         || STKindChecker.isBlockStatement(completeModel)
 }
 
+export function getSupportedQualifiers(statementModel: STNode): string[] {
+    let qualifierList: string[];
+    switch (statementModel.kind.toString()) {
+        case "LocalVarDecl":
+            qualifierList = ["final"];
+            break;
+        case "ModuleVarDecl":
+            qualifierList = ["public", "final", "isolated"];
+            break;
+        case "ConstDeclaration":
+        case "TypeDefinition":
+            qualifierList = ["public"];
+            break;
+        // ModuleVarDecl without init
+        default:
+            qualifierList = ["public", "final"];
+            break;
+    }
+    return qualifierList;
+}
+
+export function isQualifierSupportedStatements(statementMode: STNode): boolean {
+    return STKindChecker.isLocalVarDecl(statementMode)
+        || STKindChecker.isConstDeclaration(statementMode)
+        || STKindChecker.isModuleVarDecl(statementMode)
+        || STKindChecker.isTypeDefinition(statementMode);
+}
+
+export function getQualifierUpdateModelPosition(statement: any, qualifier: string) {
+    let position: NodePosition;
+    if (qualifier === "public" || qualifier === "private") {
+        position = {
+            startLine: statement.position.startLine,
+            startColumn: statement.position.startColumn,
+            endLine: statement.position.startLine,
+            endColumn: statement.position.startColumn,
+        }
+    } else if (qualifier === "final" || qualifier === "isolated") {
+        if (STKindChecker.isModuleVarDecl(statement) && statement?.visibilityQualifier) {
+            position = {
+                startLine: statement.visibilityQualifier.position.endLine,
+                startColumn: statement.visibilityQualifier.position.endColumn,
+                endLine: statement.visibilityQualifier.position.endLine,
+                endColumn: statement.visibilityQualifier.position.endColumn,
+            }
+        } else {
+            position = {
+                startLine: statement.position.startLine,
+                startColumn: statement.position.startColumn,
+                endLine: statement.position.startLine,
+                endColumn: statement.position.startColumn,
+            }
+        }
+    }
+    return position;
+}
+
+export function getQualifierPosition(statement: any, qualifier: string) {
+    let position: NodePosition;
+    if (qualifier === "public" || qualifier === "private") {
+        position = {
+            ...statement?.visibilityQualifier?.position
+        }
+    } else if (STKindChecker.isModuleVarDecl(statement)) {
+        statement.qualifiers.map((keyword: STNode) => {
+            if (keyword.value === qualifier) {
+                position = { ...keyword.position }
+            }
+        });
+    } else if (qualifier === "final" && STKindChecker.isLocalVarDecl(statement)) {
+        position = { ...statement.finalKeyword.position }
+    }
+    return position;
+}
+
 export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
     return (
         currentModel && param ?
