@@ -34,11 +34,13 @@ import {
     getExistingConfigurable,
     getModuleElementDeclPosition,
     getRemainingContent,
-    isConfigAllowedTypeDesc,
-    isNodeDeletable
+    isNodeDeletable,
+    isQualifierSupportedStatements
 } from "../../utils";
 import { ModelType, StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementEditorToolbarStyles } from "../styles";
+
+import StatementQualifiers from "./StatementQualifiers";
 
 interface ToolbarProps {
     inlineDocumentHandler: (docBtnEnabled: boolean) => void
@@ -151,6 +153,7 @@ export default function Toolbar(props: ToolbarProps) {
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
             <div className={statementEditorClasses.toolbarSet}>
+                {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && <StatementQualifiers/>}
                 <StatementEditorHint content={"Undo"} disabled={!hasUndo} >
                     <IconButton
                         onClick={undo}
