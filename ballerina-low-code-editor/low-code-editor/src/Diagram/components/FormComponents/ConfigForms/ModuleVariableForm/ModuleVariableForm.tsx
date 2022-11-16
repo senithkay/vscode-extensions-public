@@ -143,8 +143,13 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
     const varType = formConfig.varType ? formConfig.varType : 'var';
     const varName = formConfig.varName ? formConfig.varName : genVariableName("variable",
         getAllVariables(stSymbolInfo));
-    const varValue = formConfig.varValue ? formConfig.varValue : 'EXPRESSION';
-    const initialSource = `${visibilityQualifier} ${finalKeyword} ${varType} ${varName} = ${varValue};`
+    const varValue = formConfig.varValue;
+    let initialSource;
+    if (varValue) {
+        initialSource = `${visibilityQualifier} ${finalKeyword} ${varType} ${varName} = ${varValue};`
+    } else {
+        initialSource = `${visibilityQualifier} ${finalKeyword} ${varType} ${varName};`
+    }
 
     let namePosition: NodePosition = { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 }
 
