@@ -38,7 +38,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormStateWithV
     const defaultFormState: ModuleVariableFormStateWithValidity = {
         varType: 'int',
         varName: '',
-        varValue: '',
+        varValue: 'EXPRESSION',
         varOptions: [],
         isExpressionValid: true,
     }
