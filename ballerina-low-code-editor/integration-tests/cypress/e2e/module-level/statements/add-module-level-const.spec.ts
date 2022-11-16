@@ -64,7 +64,7 @@ describe('Add const to module level via Low Code', () => {
     });
 
     it('Add constant to module level with type', () => {
-        Canvas.clickTopLevelPlusButton(1);
+        Canvas.clickTopLevelPlusButton(0);
 
         TopLevelPlusWidget
             .clickOption("Constant");
@@ -75,19 +75,14 @@ describe('Add const to module level via Low Code', () => {
 
         EditorPane
             .getStatementRenderer()
-            .getExpression("StringTypeDesc")
-            .doubleClickExpressionContent('string');
-
-        InputEditor
-            .typeInput('int');
-
-        EditorPane
-            .getStatementRenderer()
             .getExpression("IdentifierToken")
             .doubleClickExpressionContent('CONST_NAME');
 
         InputEditor
-            .typeInput('TWO');
+            .typeInput('int TWO');
+
+        EditorPane
+            .validateNewExpression("IntTypeDesc", 'int')
 
         EditorPane
             .getStatementRenderer()
