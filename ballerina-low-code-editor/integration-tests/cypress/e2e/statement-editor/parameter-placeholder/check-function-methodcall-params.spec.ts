@@ -73,8 +73,10 @@ describe('Test function call and method call parameters', () => {
 
         InputEditor
             .typeInput('2');
-
+  
         EditorPane
+            .validateNewExpression("NumericLiteral", "2")
+            .reTriggerDiagnostics("NumericLiteral", "2")
             .validateEmptyDiagnostics();
 
         StatementEditor
@@ -125,6 +127,8 @@ describe('Test function call and method call parameters', () => {
             .typeInput('"Text"');
 
         EditorPane
+            .validateNewExpression("StringLiteral", '"Text"')
+            .reTriggerDiagnostics("StringLiteral", '"Text"')
             .validateEmptyDiagnostics();
 
         StatementEditor

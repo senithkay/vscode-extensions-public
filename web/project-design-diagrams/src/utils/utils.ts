@@ -33,7 +33,8 @@ export function createRenderPackageObject(projectPackages: IterableIterator<stri
 }
 
 export function createServicesEngine(): DiagramEngine {
-    const diagramEngine: DiagramEngine = createEngine();
+    const diagramEngine: DiagramEngine = createEngine({registerDefaultPanAndZoomCanvasAction: true,
+        registerDefaultZoomCanvasAction: false});
     diagramEngine.getLinkFactories().registerFactory(new ServiceLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new ServicePortFactory());
     diagramEngine.getNodeFactories().registerFactory(new ServiceNodeFactory());
@@ -42,7 +43,8 @@ export function createServicesEngine(): DiagramEngine {
 }
 
 export function createEntitiesEngine(): DiagramEngine {
-    const diagramEngine: DiagramEngine = createEngine();
+    const diagramEngine: DiagramEngine = createEngine({registerDefaultPanAndZoomCanvasAction: true,
+        registerDefaultZoomCanvasAction: false});
     diagramEngine.getLinkFactories().registerFactory(new EntityLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntityFactory());

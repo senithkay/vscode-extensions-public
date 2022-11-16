@@ -16,13 +16,13 @@ export class Constant {
     }
 
     public clickEdit() {
-        this.container.realHover().within(() => {
+        this.container.trigger('mouseover').realHover().within(() => {
             cy.get('.amendment-options .edit-btn-wrapper #edit-button').click();
         });
     }
 
     public clickDelete() {
-        this.container.realHover().within(() => {
+        this.container.trigger('mouseover').realHover().within(() => {
             cy.get('.amendment-options .delete-btn-wrapper #delete-button').click();
         });
     }

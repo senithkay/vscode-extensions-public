@@ -8,7 +8,7 @@ import { ConnectorMarketplace } from "../../utils/forms/connector-form";
 
 const BAL_FILE_PATH = "block-level/connector/add-connector-to-function.bal";
 
-describe('Add connector to function via Low Code', () => {
+describe('Add different connectors to a function via Low Code', () => {
     beforeEach(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_PATH));
     });

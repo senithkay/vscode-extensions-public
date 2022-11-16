@@ -28,6 +28,9 @@ export default {
 // tslint:disable-next-line:no-empty
 const dummyFunction = async (arg: any) => { };
 const dummyFunctionReturn = (arg: any): any => { return; };
+const dummyWithBooleanReturn = async (arg: any) => {
+    return true;
+};
 // tslint:disable-next-line:no-empty
 const dummyFunctionWithoutArgs = () => { };
 // tslint:disable-next-line:no-empty
@@ -45,6 +48,7 @@ const api = {
         modifyTrigger: dummyFunction,
         setCodeLocationToHighlight: dummyFunction,
         gotoSource: dummyFunction,
+        updateFileContent: dummyWithBooleanReturn,
         isMutationInProgress: false,
         isModulePullInProgress: false,
         loaderText: '',

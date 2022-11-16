@@ -48,9 +48,7 @@ export class SuggestionsPane {
     static clickLsTypeSuggestion(selectedSuggestion: string) {
         cy.wait(1000);
         cy.get(`[data-testid="suggestion-list"]`).within(() => {
-            cy.contains(`[data-testid="suggestion-value"]`, selectedSuggestion).should((elem) => {
-                expect(elem.text()).to.equal(selectedSuggestion);
-            })
+            cy.contains(`[data-testid="suggestion-value"]`, selectedSuggestion)
                 .click({ force: true })
         });
         return this;

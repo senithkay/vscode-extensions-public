@@ -54,7 +54,8 @@ describe('Add variable to function via Low Code', () => {
             .typeInput("varName");
 
         EditorPane
-            .validateNewExpression("CaptureBindingPattern", "varName");
+            .validateNewExpression("CaptureBindingPattern", "varName")
+            .reTriggerDiagnostics("CaptureBindingPattern", "varName");
 
         StatementEditor
             .save();
@@ -94,7 +95,8 @@ describe('Add variable to function via Low Code', () => {
             .typeInput("`CREATE DATABASE CUSTOMER`");
 
         EditorPane
-            .validateNewExpression("RawTemplateExpression", "`CREATE DATABASE CUSTOMER`");
+            .validateNewExpression("RawTemplateExpression", "`CREATE DATABASE CUSTOMER`")
+            .reTriggerDiagnostics("RawTemplateExpression", "`CREATE DATABASE CUSTOMER`");
 
         EditorPane
             .validateEmptyDiagnostics();

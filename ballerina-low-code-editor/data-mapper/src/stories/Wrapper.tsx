@@ -38,7 +38,7 @@ export interface DataMapperWrapperProps {
 }
 
 export function DataMapperWrapper(props: DataMapperWrapperProps) {
-    const { langClientPromise, getFileContent, filePath, lastUpdatedAt } = props;
+    const { langClientPromise, getFileContent, updateFileContent, filePath, lastUpdatedAt } = props;
     const [didOpen, setDidOpen] = React.useState(false);
     const [fileContent, setFileContent] = React.useState("");
     const [lastUpdated, setLastUpdated] = React.useState(lastUpdatedAt);
@@ -50,6 +50,10 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         setFileContent(newContent);
         return Promise.resolve(true);
         // return updateFileContent(fPath, newContent);
+    }
+
+    const updateActiveFileContent = (content: string, skipForceSave?: boolean) => {
+        return updateFileContent(filePath, content);
     }
 
     const applyModifications = async (modifications: STModification[]) => {
@@ -132,6 +136,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                         langClientPromise={langClientPromise}
                         filePath={filePath}
                         applyModifications={applyModifications}
+                        updateFileContent={updateActiveFileContent}
                         onClose={() => { }}
                         onSave={() => { }}
                         library={{
