@@ -62,6 +62,7 @@ export function ModuleVarDeclC(props: ModuleVarDeclProps) {
     return (
         <>
             {model?.metadata && <TokenComponent model={model.metadata} className={"keyword"} />}
+            {model.visibilityQualifier && <KeywordComponent model={model.visibilityQualifier}/>}
             {qualifiers}
             <ExpressionComponent model={model.typedBindingPattern} />
             <TokenComponent model={model.equalsToken} className={"operator"} />
