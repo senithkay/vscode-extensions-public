@@ -16,6 +16,7 @@ import {
     ModulePart,
     ModuleVarDecl,
     NamedWorkerDeclaration,
+    ObjectField,
     ObjectMethodDefinition,
     RemoteMethodCallAction,
     RequiredParam,
@@ -96,6 +97,19 @@ export class InitVisitor implements Visitor {
             const bindingPattern = node.typedBindingPattern.bindingPattern as CaptureBindingPattern;
             if (this.allEndpoints.get(bindingPattern.variableName.value)) {
                 node.viewState.endpoint.epName = bindingPattern.variableName.value;
+                node.viewState.isEndpoint = true;
+            }
+        }
+    }
+
+    public beginVisitObjectField(node: ObjectField) {
+        const viewState = new ModuleMemberViewState();
+        node.viewState = viewState;
+
+        if (node.typeData && node.typeData.isEndpoint) {
+            const fieldName = node.fieldName.value;
+            if (this.allEndpoints.get(fieldName)) {
+                node.viewState.endpoint.epName = fieldName;
                 node.viewState.isEndpoint = true;
             }
         }
