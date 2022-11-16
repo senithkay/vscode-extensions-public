@@ -18,7 +18,7 @@
  */
 
 import { ballerinaExtInstance, LANGUAGE } from "../../core";
-import { commands, window } from "vscode";
+import { commands, Uri, window } from "vscode";
 import {
     TM_EVENT_PROJECT_RUN, CMP_PROJECT_RUN, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
@@ -28,13 +28,13 @@ import { openConfigEditor } from "../../config-editor/configEditorPanel";
 
 function activateRunCommand() {
     // register the run command execution flow
-    commands.registerCommand(PALETTE_COMMANDS.RUN, async (filePath: string) => {
+    commands.registerCommand(PALETTE_COMMANDS.RUN, async (filePath: Uri) => {
         if (!ballerinaExtInstance.isConfigurableEditorEnabled() &&
             !ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
             commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
             return;
         }
-        openConfigEditor(ballerinaExtInstance, filePath, false);
+        openConfigEditor(ballerinaExtInstance, filePath ? filePath.toString() : "", false);
     });
 
     // register ballerina run handler
@@ -60,7 +60,19 @@ function activateRunCommand() {
                 const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
                 if (document) {
                     currentProject = await getCurrentBallerinaProject(document.toString());
+                } else {
+                    for (let editor of window.visibleTextEditors) {
+                        if (editor.document.languageId === LANGUAGE.BALLERINA) {
+                            currentProject = await getCurrentBallerinaProject(editor.document.uri.toString());
+                            break;
+                        }
+                    }
                 }
+            }
+
+            if (!currentProject) {
+                window.showErrorMessage(MESSAGES.NOT_IN_PROJECT);
+                return;
             }
 
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
