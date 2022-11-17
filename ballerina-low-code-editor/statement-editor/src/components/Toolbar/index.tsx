@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo } from "react";
 
+import { Divider } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -152,66 +153,59 @@ export default function Toolbar(props: ToolbarProps) {
 
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
-            <div className={statementEditorClasses.toolbarSet}>
-                {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && <StatementQualifiers/>}
-                <StatementEditorHint content={"Undo"} disabled={!hasUndo} >
-                    <IconButton
-                        onClick={undo}
-                        disabled={!hasUndo}
-                        className={statementEditorClasses.toolbarIcons}
-                        data-testid="toolbar-undo"
-                    >
-                        <ToolbarUndoIcon />
-                    </IconButton>
-                </StatementEditorHint>
-                <div className={statementEditorClasses.undoRedoSeparator} />
-                <StatementEditorHint content={"Redo"} disabled={!hasRedo} >
-                    <IconButton
-                        onClick={redo}
-                        disabled={!hasRedo}
-                        className={statementEditorClasses.toolbarIcons}
-                        data-testid="toolbar-redo"
-                    >
-                        <ToolbarRedoIcon />
-                    </IconButton>
-                </StatementEditorHint>
-            </div>
-            <div className={statementEditorClasses.toolbarSet}>
-                <StatementEditorHint content={"Delete"} disabled={!deletable} >
-                    <IconButton
-                        onClick={onClickOnDelete}
-                        disabled={!deletable}
-                        style={{color: deletable ? '#FE523C' : '#8D91A3', padding: deletable && '10px'}}
-                        className={statementEditorClasses.toolbarIcons}
-                        data-testid="toolbar-delete"
-                    >
-                        <ToolbarDeleteIcon/>
-                    </IconButton>
-                </StatementEditorHint>
-            </div>
-            <div className={statementEditorClasses.toolbarSet}>
-                <StatementEditorHint content={"Add configurable"} disabled={!configurable || hasSyntaxDiagnostics} >
-                    <IconButton
-                        onClick={onClickOnConfigurable}
-                        disabled={!configurable || hasSyntaxDiagnostics}
-                        className={statementEditorClasses.toolbarIcons}
-                        data-testid="toolbar-configurable"
-                    >
-                        <ToolbarConfigurableIcon/>
-                    </IconButton>
-                </StatementEditorHint>
-            </div>
-            <div className={statementEditorClasses.toolbarSet}>
-                <StatementEditorHint content={"Documentation"} >
-                    <IconButton
-                        onClick={onClickOnDocumentation}
-                        style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
-                        className={statementEditorClasses.toolbarIcons}
-                    >
-                        <ToolbarDocumentationIcon />
-                    </IconButton>
-                </StatementEditorHint>
-            </div>
+            <StatementEditorHint content={"Undo"} disabled={!hasUndo} >
+                <IconButton
+                    onClick={undo}
+                    disabled={!hasUndo}
+                    className={statementEditorClasses.toolbarIcons}
+                    data-testid="toolbar-undo"
+                >
+                    <ToolbarUndoIcon />
+                </IconButton>
+            </StatementEditorHint>
+            <StatementEditorHint content={"Redo"} disabled={!hasRedo} >
+                <IconButton
+                    onClick={redo}
+                    disabled={!hasRedo}
+                    className={statementEditorClasses.toolbarIcons}
+                    data-testid="toolbar-redo"
+                >
+                    <ToolbarRedoIcon />
+                </IconButton>
+            </StatementEditorHint>
+            <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
+            <StatementEditorHint content={"Delete"} disabled={!deletable} >
+                <IconButton
+                    onClick={onClickOnDelete}
+                    disabled={!deletable}
+                    style={{color: deletable ? '#FE523C' : '#8D91A3'}}
+                    className={statementEditorClasses.toolbarIcons}
+                    data-testid="toolbar-delete"
+                >
+                    <ToolbarDeleteIcon/>
+                </IconButton>
+            </StatementEditorHint>
+            <StatementEditorHint content={"Add configurable"} disabled={!configurable || hasSyntaxDiagnostics} >
+                <IconButton
+                    onClick={onClickOnConfigurable}
+                    disabled={!configurable || hasSyntaxDiagnostics}
+                    className={statementEditorClasses.toolbarIcons}
+                    data-testid="toolbar-configurable"
+                >
+                    <ToolbarConfigurableIcon/>
+                </IconButton>
+            </StatementEditorHint>
+            <StatementEditorHint content={"Documentation"} >
+                <IconButton
+                    onClick={onClickOnDocumentation}
+                    style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
+                    className={statementEditorClasses.toolbarIcons}
+                >
+                    <ToolbarDocumentationIcon />
+                </IconButton>
+            </StatementEditorHint>
+            <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
+            {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && <StatementQualifiers/>}
         </div>
     );
 }

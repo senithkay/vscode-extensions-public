@@ -103,7 +103,9 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
         toolbar: {
             display: 'flex',
             width: '100%',
-            justifyContent: 'flex-end'
+            justifyContent: 'flex-start',
+            borderBottom: '1px solid #e6e7ec',
+            padding: '4px 0px 4px 17px'
         },
         toolbarSet: {
             border: '1px solid #e6e7ec',
@@ -113,6 +115,7 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
         },
         toolbarIcons: {
             padding: '8px',
+            borderRadius: '5px',
             ...hoverColor1
         },
         undoRedoSeparator: {
@@ -166,6 +169,13 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
             '& .MuiMenu-list': {
                 width: "110px"
             },
+            border: '1px solid #e6e7ec',
+        },
+        toolbarDivider: {
+            height: "70%",
+            alignSelf: "center",
+            marginRight: '7px',
+            marginLeft: '7px'
         }
     }),
 );
@@ -943,7 +953,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#f9fafc',
             display: 'flex',
             flexDirection: 'column',
-            padding: "11px 0px 8px 0px",
+            padding: "0px 0px 8px 0px",
             borderBottom: '1px solid #e6e7ec'
         },
         statementExpressionTitle: {

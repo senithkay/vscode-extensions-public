@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect } from "react";
 
-import { Button, Checkbox, ListItem, ListItemText, Menu } from "@material-ui/core";
+import { Checkbox, IconButton, ListItem, ListItemText, Menu } from "@material-ui/core";
 import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -86,16 +86,17 @@ export default function StatementQualifiers() {
     return (
         <>
             <StatementEditorHint content={"Statement-qualifiers"}>
-                <Button
+                <IconButton
                     onClick={handleClick}
                     data-testid="toolbar-qualifier-options"
                     aria-controls={open ? 'qualifier-menu' : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? 'true' : undefined}
-                    endIcon={<ToolbarDropdownArrow/>}
+                    className={statementEditorClasses.toolbarIcons}
                 >
                     <ToolbarQualifierIcon/>
-                </Button>
+                    <ToolbarDropdownArrow/>
+                </IconButton>
             </StatementEditorHint>
             <Menu
                 elevation={0}
