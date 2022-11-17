@@ -1,0 +1,15 @@
+{
+    "user": {
+        "test": {
+            "code1": 85,
+            "code2": {
+                "name": "Kylie",
+                "age": 12
+            },
+            "code3": {
+                "name": "Nathan",
+                "id": 3451
+            }
+        }
+    }
+}
