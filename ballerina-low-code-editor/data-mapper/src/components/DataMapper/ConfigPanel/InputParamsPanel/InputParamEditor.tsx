@@ -10,15 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Grid } from "@material-ui/core";
 import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { DataMapperInputParam } from "./types";
 import styled from "@emotion/styled";
-import { TypeBrowser } from "../TypeBrowser";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import camelCase from 'lodash.camelcase';
+import { CompletionItemKind } from "vscode-languageserver-protocol";
+import { Uri } from "monaco-editor";
+import { addToTargetPosition, CompletionParams } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { CurrentFileContext } from "../../Context/current-file-context";
+import { LSClientContext } from "../../Context/ls-client-context";
+import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
+import { EXPR_SCHEME, FILE_SCHEME } from "../utils";
+import { DataMapperInputParam } from "./types";
 
 interface InputParamEditorProps {
     index?: number;
@@ -57,6 +64,85 @@ export function InputParamEditor(props: InputParamEditorProps) {
         setParamError("");
         return true;
     };
+    const [isLoading, setLoading] = useState(false);
+    const langClientPromise = useContext(LSClientContext);
+
+
+    const { path, content } = useContext(CurrentFileContext);
+
+    const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
+
+    useEffect(() => {
+        (async () => {
+            const typeLabelsToIgnore = ["StrandData"];
+            setLoading(true);
+            const completionMap = new Map<string, CompletionResponseWithModule>();
+            const langClient = await langClientPromise;
+            const completionParams: CompletionParams = {
+                textDocument: { uri: Uri.file(path).toString() },
+                position: { character: 0, line: 0 },
+                context: { triggerKind: 22 },
+            };
+            const completions = await langClient.getCompletion(completionParams);
+            const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
+            recCompletions.forEach((item) => completionMap.set(item.insertText, item));
+
+            const exprFileUrl = Uri.file(path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+            langClient.didOpen({
+                textDocument: {
+                    languageId: "ballerina",
+                    text: currentFileContent,
+                    uri: exprFileUrl,
+                    version: 1,
+                },
+            });
+
+            for (const importStr of imports) {
+                const moduleName = importStr.split("/").pop().replace(";", "");
+                const updatedContent = addToTargetPosition(
+                    currentFileContent,
+                    {
+                        startLine: fnSTPosition.endLine,
+                        startColumn: fnSTPosition.endColumn,
+                        endLine: fnSTPosition.endLine,
+                        endColumn: fnSTPosition.endColumn,
+                    },
+                    `${moduleName}:`
+                );
+
+                langClient.didChange({
+                    textDocument: { uri: exprFileUrl, version: 1 },
+                    contentChanges: [{ text: updatedContent }],
+                });
+
+                const completions = await langClient.getCompletion({
+                    textDocument: { uri: exprFileUrl },
+                    position: { character: fnSTPosition.endColumn + moduleName.length + 1, line: fnSTPosition.endLine },
+                    context: { triggerKind: 22 },
+                });
+
+                const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
+
+                recCompletions.forEach((item) => {
+                    if (!completionMap.has(item.insertText)) {
+                        completionMap.set(item.insertText, { ...item, module: moduleName });
+                    }
+                });
+            }
+            langClient.didChange({
+                textDocument: { uri: exprFileUrl, version: 1 },
+                contentChanges: [{ text: currentFileContent }],
+            });
+
+            langClient.didClose({ textDocument: { uri: exprFileUrl } });
+
+            const allCompletions = Array.from(completionMap.values()).filter(
+                (item) => !(typeLabelsToIgnore.includes(item.label) || item.label.startsWith("("))
+            );
+            setRecordCompletions(allCompletions);
+            setLoading(false);
+        })();
+    }, [content]);
 
     const handleOnSave = () => {
         onSave({
@@ -101,9 +187,8 @@ export function InputParamEditor(props: InputParamEditorProps) {
                         <TypeBrowser
                             type={paramType}
                             onChange={handleParamTypeChange}
-                            fnSTPosition={fnSTPosition}
-                            imports={imports}
-                            currentFileContent={currentFileContent} />
+                            isLoading={isLoading}
+                            recordCompletions={recordCompletions} />
                     </Grid>
                     <Grid item={true} xs={4}>
                         <FormTextInput
