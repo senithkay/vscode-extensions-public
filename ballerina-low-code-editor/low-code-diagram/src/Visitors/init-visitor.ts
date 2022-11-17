@@ -6,6 +6,7 @@ import {
     CaptureBindingPattern,
     CheckAction,
     ExpressionFunctionBody,
+    FieldAccess,
     ForeachStatement,
     FunctionBodyBlock,
     FunctionDefinition,
@@ -15,6 +16,7 @@ import {
     ModulePart,
     ModuleVarDecl,
     NamedWorkerDeclaration,
+    ObjectField,
     ObjectMethodDefinition,
     RemoteMethodCallAction,
     RequiredParam,
@@ -100,6 +102,19 @@ export class InitVisitor implements Visitor {
         }
     }
 
+    public beginVisitObjectField(node: ObjectField) {
+        const viewState = new ModuleMemberViewState();
+        node.viewState = viewState;
+
+        if (node.typeData && node.typeData.isEndpoint) {
+            const fieldName = node.fieldName.value;
+            if (this.allEndpoints.get(fieldName)) {
+                node.viewState.endpoint.epName = fieldName;
+                node.viewState.isEndpoint = true;
+            }
+        }
+    }
+
     public beginVisitRequiredParam(node: RequiredParam, parent?: STNode): void {
         const viewState = new ModuleMemberViewState();
         node.viewState = viewState;
@@ -157,45 +172,44 @@ export class InitVisitor implements Visitor {
     public beginVisitCheckAction(node: CheckAction, parent?: STNode) { // todo: Check panic is also replaced by this method
         node.viewState = new StatementViewState();
         const actionNode: STNode = isSTActionInvocation(node);
-
-        let stmtViewState = node.viewState as StatementViewState;
-        let remoteActionCall = node.expression as RemoteMethodCallAction;
-        let simpleName = remoteActionCall.expression as SimpleNameReference;
-        let actionName = remoteActionCall.methodName as SimpleNameReference;
+        const stmtViewState = node.viewState as StatementViewState;
 
         if (node.expression && actionNode) { // todo : need to find the right method from STTypeChecker
+            // tslint:disable: prefer-conditional-expression
+            // Adding conditional expression will reduce the readability
+            let simpleName: string;
+            let actionName;
             if (STKindChecker.isRemoteMethodCallAction(actionNode)) {
-                stmtViewState = node.viewState as StatementViewState;
-                remoteActionCall = node.expression as RemoteMethodCallAction;
-                simpleName = remoteActionCall.expression as SimpleNameReference;
-                stmtViewState.action.endpointName = simpleName.name.value;
-                actionName = remoteActionCall.methodName as SimpleNameReference;
-                stmtViewState.action.actionName = actionName.name.value;
+                if (STKindChecker.isFieldAccess(actionNode.expression)) {
+                    simpleName = (actionNode.expression.fieldName as SimpleNameReference).name.value;
+                } else {
+                    simpleName = (actionNode.expression as SimpleNameReference).name.value;
+                }
             } else if (actionNode.kind === 'ClientResourceAccessAction') {
-                stmtViewState = node.viewState as StatementViewState;
-                remoteActionCall = node.expression as RemoteMethodCallAction;
-                simpleName = remoteActionCall.expression as SimpleNameReference;
-                stmtViewState.action.endpointName = simpleName.name.value;
-                actionName = remoteActionCall.methodName as SimpleNameReference;
-                if (actionName) {
-                    stmtViewState.action.actionName = actionName.name.value;
-                } else if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
-                    && currentFnBody.VisibleEndpoints) {
-
-                    const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
-                    switch (vp?.moduleName) {
-                        case 'http':
-                            stmtViewState.action.actionName = 'get';
-                            break;
-                    }
-
+                // TODO: fix syntax-tree lib and update any types
+                if (STKindChecker.isFieldAccess((actionNode as any).expression)) {
+                    simpleName = ((actionNode as any).expression.fieldName as SimpleNameReference).name.value;
+                } else {
+                    simpleName = ((actionNode as any).expression as SimpleNameReference).name.value;
                 }
             }
+            stmtViewState.action.endpointName = simpleName;
+            actionName = (actionNode as any).methodName;
+            if (actionName) {
+                stmtViewState.action.actionName = actionName.name.value;
+            } else if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                && currentFnBody.VisibleEndpoints) {
 
-
+                const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName);
+                switch (vp?.moduleName) {
+                    case 'http':
+                        stmtViewState.action.actionName = 'get';
+                        break;
+                }
+            }
             if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
                 const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
-                stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
+                stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName;
             }
         }
     }
@@ -396,7 +410,15 @@ export class InitVisitor implements Visitor {
                         stmtViewState.hidden = true;
                     }
 
-                    const simpleName: SimpleNameReference = remoteActionCall.expression as SimpleNameReference;
+                    let simpleName: SimpleNameReference;
+
+                    if (STKindChecker.isSimpleNameReference(remoteActionCall.expression)) {
+                        simpleName = remoteActionCall.expression as SimpleNameReference;
+                    } else if (STKindChecker.isFieldAccess(remoteActionCall.expression)) {
+                        const fieldAccessNode: FieldAccess = remoteActionCall.expression as FieldAccess;
+                        simpleName = fieldAccessNode.fieldName as SimpleNameReference;
+                    }
+
                     stmtViewState.action.endpointName = simpleName.name.value;
                     const actionName: SimpleNameReference = remoteActionCall.methodName as SimpleNameReference;
                     if (actionName) {
@@ -413,7 +435,9 @@ export class InitVisitor implements Visitor {
                         }
                     }
                     stmtViewState.isAction = true;
-                    if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
+                    if (currentFnBody
+                        && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                        && currentFnBody.VisibleEndpoints) {
                         const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                         stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
                     }
