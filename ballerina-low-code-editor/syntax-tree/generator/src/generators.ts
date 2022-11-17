@@ -22,6 +22,8 @@ export function genInterfacesFileCode(modelInfo: any) {
             typeName: string;
             position: NodePosition;
             viewState?: any;
+            isParameter?: boolean;
+            isClassField?: boolean;
         }
 
         export interface NodePosition {
