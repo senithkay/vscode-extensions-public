@@ -817,7 +817,7 @@ export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterI
     } else if (param.kind === SymbolParameterType.REST) {
         modelParams.push(`${PARAM_CONSTRUCTOR}${param.name}`);
     } else {
-        modelParams.push(param.name);
+        modelParams.push(`${PARAM_CONSTRUCTOR}${param.name}`);
     }
 
     const content: string = "(" + modelParams.join(",") + ")";
