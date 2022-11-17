@@ -1,0 +1,54 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+import {
+    ExplicitNewExpression,
+    FunctionCall,
+    ImplicitNewExpression,
+    MethodCall,
+    RemoteMethodCallAction,
+    STNode,
+    Visitor
+} from "@wso2-enterprise/syntax-tree";
+
+import { StatementEditorViewState } from "../utils/statement-editor-viewstate";
+
+
+class ParentFunctionSetupVisitor implements Visitor {
+    public beginVisitSTNode(node: STNode, parent?: STNode) {
+        if (parent && (parent.viewState as StatementEditorViewState).parentFunctionPos) {
+            (node.viewState as StatementEditorViewState).parentFunctionPos = parent.viewState.parentFunctionPos;
+        }
+    }
+
+    public beginVisitFunctionCall(node: FunctionCall) {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+
+    public beginVisitMethodCall(node: MethodCall) {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+
+    public beginVisitExplicitNewExpression(node: ExplicitNewExpression) {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+
+    public beginVisitImplicitNewExpression(node: ImplicitNewExpression) {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+
+    public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction): void {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+}
+
+export const parentFunctionSetupVisitor = new ParentFunctionSetupVisitor();

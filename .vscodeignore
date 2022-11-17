@@ -64,3 +64,5 @@ cypress.json
 **/tsconfig.json
 **/*.zip
 .trivyignore
+ballerina-low-code-editor/
+**/*.deb
