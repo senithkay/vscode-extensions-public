@@ -1,0 +1,104 @@
+{
+    "id": "1",
+    "isRequired": true,
+    "name": "root",
+    "properties": [
+        {
+            "description": "",
+            "id": "1-1",
+            "isRequired": true,
+            "name": "age1",
+            "type": "float",
+            "value": "22.9"
+        },
+        {
+            "description": "",
+            "id": "1-2",
+            "isRequired": true,
+            "name": "port1",
+            "type": "integer",
+            "value": 9091
+        },
+        {
+            "description": "",
+            "id": "1-3",
+            "isRequired": true,
+            "name": "name1",
+            "type": "string",
+            "value": "Jack"
+        },
+        {
+            "description": "",
+            "id": "1-4",
+            "isRequired": true,
+            "name": "height1",
+            "type": "float",
+            "value": "23.2"
+        },
+        {
+            "description": "",
+            "id": "1-5",
+            "isRequired": true,
+            "name": "salary1",
+            "type": "float",
+            "value": "1000.7"
+        },
+        {
+            "description": "",
+            "id": "1-6",
+            "isRequired": true,
+            "name": "isAdmin1",
+            "type": "boolean",
+            "value": false
+        },
+        {
+            "description": "",
+            "id": "1-7",
+            "isRequired": false,
+            "name": "age2",
+            "type": "float",
+            "value": "45"
+        },
+        {
+            "description": "",
+            "id": "1-8",
+            "isRequired": false,
+            "name": "port2",
+            "type": "integer",
+            "value": null
+        },
+        {
+            "description": "",
+            "id": "1-9",
+            "isRequired": false,
+            "name": "name2",
+            "type": "string",
+            "value": "Kevin"
+        },
+        {
+            "description": "",
+            "id": "1-10",
+            "isRequired": false,
+            "name": "height2",
+            "type": "float",
+            "value": "34.2"
+        },
+        {
+            "description": "",
+            "id": "1-11",
+            "isRequired": false,
+            "name": "salary2",
+            "type": "float",
+            "value": "14234.6"
+        },
+        {
+            "description": "",
+            "id": "1-12",
+            "isRequired": false,
+            "name": "isAdmin2",
+            "type": "boolean",
+            "value": true
+        }
+    ],
+    "type": "object"
+}
