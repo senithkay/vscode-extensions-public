@@ -21,4 +21,5 @@ export { DiagramHeader } from './Header/HeaderWidget';
 
 export { DesignDiagramContext, DiagramContext } from './DiagramContext/DiagramContext';
 
-export { Go2SourceWidget } from './Go2SourceButton/Go2SourceButton';
+export { Go2SourceWidget } from './Go2Source/Go2SourceButton';
+export { NodeMenuWidget } from './NodeMenu/NodeMenuWidget';

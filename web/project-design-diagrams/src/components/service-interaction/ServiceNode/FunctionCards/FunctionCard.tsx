@@ -22,9 +22,9 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
-import { ResourceFunction, RemoteFunction } from '../../../../resources';
+import { ResourceFunction, RemoteFunction, Colors } from '../../../../resources';
 import { FunctionContainer } from '../styles';
-import { Go2SourceWidget } from '../../../common';
+import { NodeMenuWidget } from '../../../common';
 
 interface FunctionCardProps {
     engine: DiagramEngine;
@@ -71,7 +71,12 @@ export function FunctionCard(props: FunctionCardProps) {
                     remoteFunc={functionElement}
                 />
             }
-            {isHovered && functionElement.lineRange && <Go2SourceWidget lineRange={functionElement.lineRange} />}
+            {isHovered && functionElement.lineRange &&
+                <NodeMenuWidget
+                    background={Colors.SECONDARY}
+                    lineRange={functionElement.lineRange}
+                />
+            }
         </FunctionContainer>
     )
 }

@@ -41,7 +41,8 @@ const dagreEngine = new DagreEngine({
         edgesep: 20,
         nodesep: 60,
         ranker: 'longest-path',
-        marginX: 15
+        marginx: 40,
+        marginy: 40
     }
 });
 

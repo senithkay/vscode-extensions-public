@@ -21,8 +21,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
-import { Go2SourceWidget } from '../../../common';
-import { Attribute } from '../../../../resources';
+import { NodeMenuWidget } from '../../../common';
+import { Attribute, Colors } from '../../../../resources';
 import { extractAttributeType } from '../entity-util';
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
 
@@ -63,7 +63,12 @@ export function AttributeWidget(props: AttributeProps) {
             />
                 <AttributeName>{attribute.name}</AttributeName>
                 <AttributeType isSelected={isSelected || isHovered}>{attributeType}</AttributeType>
-                {isHovered && attribute.lineRange && <Go2SourceWidget lineRange={attribute.lineRange} />}
+                {isHovered && attribute.lineRange &&
+                    <NodeMenuWidget
+                        background={Colors.SECONDARY}
+                        lineRange={attribute.lineRange}
+                    />
+                }
             <EntityPortWidget
                 port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
                 engine={engine}

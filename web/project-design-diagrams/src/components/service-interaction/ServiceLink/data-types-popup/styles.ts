@@ -26,13 +26,13 @@ export const Container = styled.div`
     font-family: GilmerRegular;
     font-size: 13px;
     letter-spacing: 0.8px;
-    margin: 15px;
+    padding: 15px;
 `;
 
-export const Go2SourceButton = styled.div`
-    position: relative;
-    right: 0px;
-    top: 0px;
+export const MenuButton = styled.div`
+    position: absolute;
+    right: 8px;
+    top: 15px;
 `;
 
 export const clickableType: CSSProperties = {

@@ -22,8 +22,8 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
-import { Go2SourceWidget } from '../../../common';
-import { GraphQLIcon, GrpcIcon, HttpServiceIcon, ServiceTypes } from '../../../../resources';
+import { NodeMenuWidget } from '../../../common';
+import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes } from '../../../../resources';
 import { ServiceHead, ServiceName } from '../styles';
 
 interface ServiceHeadProps {
@@ -61,16 +61,21 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 <GrpcIcon /> :
                 node.serviceType === ServiceTypes.GRAPHQL ?
                     <GraphQLIcon /> :
-                node.serviceType === ServiceTypes.HTTP ?
-                    <HttpServiceIcon /> :
-                    <MiscellaneousServicesIcon fontSize='medium' />
+                    node.serviceType === ServiceTypes.HTTP ?
+                        <HttpServiceIcon /> :
+                        <MiscellaneousServicesIcon fontSize='medium' />
             }
             <ServicePortWidget
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
                 <ServiceName>{displayName}</ServiceName>
-                {isHovered && node.serviceObject.lineRange && <Go2SourceWidget lineRange={node.serviceObject.lineRange} />}
+                {isHovered && node.serviceObject.lineRange &&
+                    <NodeMenuWidget
+                        background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
+                        lineRange={node.serviceObject.lineRange}
+                    />
+                }
             <ServicePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

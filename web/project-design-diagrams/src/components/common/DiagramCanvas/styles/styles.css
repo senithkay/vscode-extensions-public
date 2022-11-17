@@ -18,8 +18,9 @@
  */
 
 .diagram-container {
-    min-height: calc(100vh - 55px);
-    min-width: calc(100vw - 15px);
+    min-height: calc(100vh - 40px);
+    min-width: 100vw;
+    padding: 15px;
 }
 
 svg:not(:root) {

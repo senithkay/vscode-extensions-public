@@ -19,7 +19,7 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { DiagramContext, Go2SourceWidget } from '../../../common';
+import { DiagramContext, NodeMenuWidget } from '../../../common';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { EntityModel } from '../EntityModel';
 import { EntityHead, EntityName } from '../styles';
@@ -67,7 +67,12 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 >
                     {displayName}
                 </EntityName>
-                {isHovered && node.entityObject.lineRange && <Go2SourceWidget lineRange={node.entityObject.lineRange} />}
+                {isHovered && node.entityObject.lineRange &&
+                    <NodeMenuWidget
+                        background={'white'}
+                        lineRange={node.entityObject.lineRange}
+                    />
+                }
             <EntityPortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

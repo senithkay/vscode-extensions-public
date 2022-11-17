@@ -18,7 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
-import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded';
+import CodeIcon from '@mui/icons-material/Code';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { LineRange } from '../../../resources';
 
@@ -29,17 +29,16 @@ export function Go2SourceWidget(props: { lineRange: LineRange }) {
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     return (
-        <DriveFileRenameOutlineRoundedIcon
+        <CodeIcon
             onClick={() => go2source(lineRange)}
             onMouseOver={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{
                 backgroundColor: isHovered ? '#49ad63' : '',
                 borderRadius: '50%',
-                color: isHovered ? 'white' : '#49ad63',
-                fontSize: '18px',
-                marginLeft: isHovered ? '7px' : '4px',
-                padding: isHovered ? '3px' : '2px'
+                color: isHovered ? 'whitesmoke' : '#49ad63',
+                cursor: 'pointer',
+                fontSize: '18px'
             }}
         />
     );

@@ -18,10 +18,10 @@
  */
 
 import React, { useContext } from 'react';
-import { DiagramContext, Go2SourceWidget } from '../../../common';
-import { LineRange, Parameter } from '../../../../resources';
+import { DiagramContext, NodeMenuWidget } from '../../../common';
+import { Colors, LineRange, Parameter } from '../../../../resources';
 import { mapUnionTypes } from '../link-utils';
-import { Container, clickableType, defaultType, Go2SourceButton } from './styles';
+import { Container, clickableType, defaultType, MenuButton } from './styles';
 
 interface DataTypeProps {
     inputParams: Parameter[];
@@ -91,9 +91,12 @@ export function DataTypesPopup(props: DataTypeProps) {
             </div>
 
             {lineRange &&
-                <Go2SourceButton>
-                    <Go2SourceWidget lineRange={lineRange} />
-                </Go2SourceButton>
+                <MenuButton>
+                    <NodeMenuWidget
+                        background={Colors.SECONDARY}
+                        lineRange={lineRange}
+                    />
+                </MenuButton>
             }
         </Container>
     );
