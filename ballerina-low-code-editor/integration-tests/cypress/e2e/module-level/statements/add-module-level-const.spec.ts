@@ -64,7 +64,7 @@ describe('Add const to module level via Low Code', () => {
     });
 
     it('Add constant to module level with type', () => {
-        Canvas.clickTopLevelPlusButton(0);
+        Canvas.clickTopLevelPlusButton(1);
 
         TopLevelPlusWidget
             .clickOption("Constant");
