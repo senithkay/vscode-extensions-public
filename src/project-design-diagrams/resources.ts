@@ -20,6 +20,7 @@ export interface Service {
 export interface Entity {
     attributes: any[];
     inclusions: string[];
+    isAnonymous: boolean;
 }
 
 export const ERROR_MESSAGE = "Project Design Diagrams: Failed to generate view.";

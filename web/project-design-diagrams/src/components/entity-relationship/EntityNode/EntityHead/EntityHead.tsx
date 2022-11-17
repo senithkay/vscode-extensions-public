@@ -31,6 +31,8 @@ interface ServiceHeadProps {
     isSelected: boolean;
 }
 
+const ANON_RECORD_DISPLAY: string = 'record';
+
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
 
@@ -50,6 +52,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
 
     return (
         <EntityHead
+            isAnonymous={node.entityObject.isAnonymous}
             isClickable={currentView !== Views.TYPE_COMPOSITION}
             isSelected={isSelected}
             onClick={() => { getTypeComposition(node.getID()) }}
@@ -60,7 +63,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
-                {displayName}
+                {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
             <EntityPortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
