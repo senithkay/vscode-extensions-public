@@ -410,51 +410,36 @@ export class InitVisitor implements Visitor {
                         stmtViewState.hidden = true;
                     }
 
-                    if (STKindChecker.isSimpleNameReference(remoteActionCall.expression)) {
-                        const simpleName: SimpleNameReference = remoteActionCall.expression as SimpleNameReference;
-                        stmtViewState.action.endpointName = simpleName.name.value;
-                        const actionName: SimpleNameReference = remoteActionCall.methodName as SimpleNameReference;
-                        if (actionName) {
-                            stmtViewState.action.actionName = actionName.name.value;
-                        } else if (node.initializer.kind === 'ClientResourceAccessAction'
-                            && currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
-                            && currentFnBody.VisibleEndpoints) {
+                    let simpleName: SimpleNameReference;
 
-                            const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
-                            switch (vp?.moduleName) {
-                                case 'http':
-                                    stmtViewState.action.actionName = 'get';
-                                    break;
-                            }
-                        }
-                        stmtViewState.isAction = true;
-                        if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
-                            const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
-                            stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
-                        }
+                    if (STKindChecker.isSimpleNameReference(remoteActionCall.expression)) {
+                        simpleName = remoteActionCall.expression as SimpleNameReference;
                     } else if (STKindChecker.isFieldAccess(remoteActionCall.expression)) {
                         const fieldAccessNode: FieldAccess = remoteActionCall.expression as FieldAccess;
-                        const simpleName: SimpleNameReference = fieldAccessNode.fieldName as SimpleNameReference;
-                        stmtViewState.action.endpointName = simpleName.name.value;
-                        const actionName: SimpleNameReference = remoteActionCall.methodName as SimpleNameReference;
-                        if (actionName) {
-                            stmtViewState.action.actionName = actionName.name.value;
-                        } else if (node.initializer.kind === 'ClientResourceAccessAction'
-                            && currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
-                            && currentFnBody.VisibleEndpoints) {
+                        simpleName = fieldAccessNode.fieldName as SimpleNameReference;
+                    }
 
-                            const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
-                            switch (vp?.moduleName) {
-                                case 'http':
-                                    stmtViewState.action.actionName = 'get';
-                                    break;
-                            }
+                    stmtViewState.action.endpointName = simpleName.name.value;
+                    const actionName: SimpleNameReference = remoteActionCall.methodName as SimpleNameReference;
+                    if (actionName) {
+                        stmtViewState.action.actionName = actionName.name.value;
+                    } else if (node.initializer.kind === 'ClientResourceAccessAction'
+                        && currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                        && currentFnBody.VisibleEndpoints) {
+
+                        const vp = currentFnBody.VisibleEndpoints?.find(ep => ep.name === simpleName.name.value);
+                        switch (vp?.moduleName) {
+                            case 'http':
+                                stmtViewState.action.actionName = 'get';
+                                break;
                         }
-                        stmtViewState.isAction = true;
-                        if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
-                            const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
-                            stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
-                        }
+                    }
+                    stmtViewState.isAction = true;
+                    if (currentFnBody
+                        && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                        && currentFnBody.VisibleEndpoints) {
+                        const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
+                        stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
                     }
                 } else if (node.initializer.kind === "CheckAction") {
                     const checkExpr: CheckAction = node.initializer as CheckAction;
