@@ -62,6 +62,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>(connectorInfo);
     const [selectedEndpoint, setSelectedEndpoint] = useState<string>();
     const [selectedAction, setSelectedAction] = useState<FunctionDefinitionInfo>();
+    const [isClassField, setIsClassField] = useState(false);
     const [wizardStep, setWizardStep] = useState<string>(getInitialWizardStep());
 
     const showNewForms = isStatementEditorSupported(ballerinaVersion);
@@ -194,11 +195,12 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         setFetchingMetadata(false);
     }
 
-    async function handleSelectEndpoint(connector: BallerinaConnectorInfo, endpointName: string) {
+    async function handleSelectEndpoint(connector: BallerinaConnectorInfo, endpointName: string, classField?: boolean) {
         setSelectedEndpoint(endpointName);
         setWizardStep(WizardStep.ACTION_LIST);
         if (!hasFunctions(connectorInfo)) {
             setFetchingMetadata(true);
+            setIsClassField(classField ?? false);
             await fetchMetadata(connector);
         }
         setFetchingMetadata(false);
@@ -341,6 +343,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                             action: selectedAction,
                             connector: selectedConnector,
                             endpointName: selectedEndpoint,
+                            isClassField,
                         },
                         isLoading,
                     }}
