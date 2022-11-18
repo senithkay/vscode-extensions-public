@@ -18,18 +18,18 @@
  */
 
 import React, { createContext, ReactNode } from 'react';
-import { LineRange, Views } from '../../../resources';
+import { Location, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
     getTypeComposition: (entityID: string) => void;
-    go2source: (lineRange: LineRange) => void;
+    go2source: (location: Location) => void;
     currentView: Views;
 }
 
 interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
-    go2source: (lineRange: LineRange) => void;
+    go2source: (location: Location) => void;
     currentView: Views;
 }
 

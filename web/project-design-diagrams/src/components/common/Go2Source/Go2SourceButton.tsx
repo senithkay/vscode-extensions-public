@@ -20,17 +20,17 @@
 import React, { useContext, useState } from 'react';
 import CodeIcon from '@mui/icons-material/Code';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { LineRange } from '../../../resources';
+import { Location } from '../../../resources';
 
-export function Go2SourceWidget(props: { lineRange: LineRange }) {
-    const { lineRange } = props;
+export function Go2SourceWidget(props: { location: Location }) {
+    const { location } = props;
     const { go2source } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     return (
         <CodeIcon
-            onClick={() => go2source(lineRange)}
+            onClick={() => go2source(location)}
             onMouseOver={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{

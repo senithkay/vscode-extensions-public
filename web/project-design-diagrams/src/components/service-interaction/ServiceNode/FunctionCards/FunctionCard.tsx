@@ -71,10 +71,10 @@ export function FunctionCard(props: FunctionCardProps) {
                     remoteFunc={functionElement}
                 />
             }
-            {isHovered && functionElement.lineRange &&
+            {isHovered && functionElement.elementLocation &&
                 <NodeMenuWidget
                     background={Colors.SECONDARY}
-                    lineRange={functionElement.lineRange}
+                    location={functionElement.elementLocation}
                 />
             }
         </FunctionContainer>

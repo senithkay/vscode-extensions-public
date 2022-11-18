@@ -67,10 +67,10 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 >
                     {displayName}
                 </EntityName>
-                {isHovered && node.entityObject.lineRange &&
+                {isHovered && node.entityObject.elementLocation &&
                     <NodeMenuWidget
                         background={'white'}
-                        lineRange={node.entityObject.lineRange}
+                        location={node.entityObject.elementLocation}
                     />
                 }
             <EntityPortWidget

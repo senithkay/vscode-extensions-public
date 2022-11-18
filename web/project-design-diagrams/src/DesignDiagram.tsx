@@ -22,7 +22,7 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { ComponentModel, LineRange, Views } from './resources';
+import { ComponentModel, Location, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import './resources/assets/font/fonts.css';
 
@@ -42,7 +42,7 @@ const Container = styled.div`
 
 interface DiagramProps {
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
-    go2source: (lineRange: LineRange) => void;
+    go2source: (location: Location) => void;
 }
 
 export function DesignDiagram(props: DiagramProps) {

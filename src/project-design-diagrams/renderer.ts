@@ -55,10 +55,10 @@ export function render(webView: Webview) {
                 })
             }
 
-            function go2source(lineRange) {
+            function go2source(location) {
                 vscode.postMessage({
                     command: 'go2source',
-                    lineRange: lineRange
+                    location: location
                 })
             }
 

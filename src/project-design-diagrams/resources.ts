@@ -15,19 +15,19 @@ export interface Service {
     resources: any[];
     remoteFunctions: any[];
     serviceType: string;
-    lineRange: LineRange;
+    elementLocation: Location;
 }
 
 export interface Entity {
     attributes: any[];
     inclusions: string[];
-    lineRange: LineRange;
+    elementLocation: Location;
 }
 
-export interface LineRange {
+export interface Location {
     filePath: string;
-    startLine: LinePosition;
-    endLine: LinePosition;
+    startPosition: LinePosition;
+    endPosition: LinePosition;
 }
 
 interface LinePosition {
@@ -37,5 +37,4 @@ interface LinePosition {
 
 export const ERROR_MESSAGE = "Project Design Diagrams: Failed to generate view.";
 export const USER_TIP = "Project Design Diagrams: If you want to generate the diagrams for multiple packages, add them to your workspace.";
-export const UPDATE_BALLERINA = "Project Design Diagrams: Update to the latest Ballerina version to experience the full-spectrum of features."
 export const INCOMPATIBLE_VERSIONS_MESSAGE = "Project Design Diagrams: Incompatible Ballerina version. Update to Ballerina version 2201.2.2 or above to activate the feature.";

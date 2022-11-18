@@ -14,7 +14,7 @@ let components = {
                     "id": "checkout",
                     "label": ""
                 },
-                "lineRange": {},
+                "elementLocation": {},
                 "path": "CheckoutService",
                 "serviceId": "checkout",
                 "serviceType": "ballerina/grpc:1.4.0",
@@ -22,7 +22,7 @@ let components = {
                 "remoteFunctions": [
                     {
                         "name": "PlaceOrder",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "parameters": [
                             {
                             "type": ["aneesha/checkout:0.1.0:PlaceOrderRequest"],
@@ -38,7 +38,7 @@ let components = {
                                     "path": "fare/[string]/[string]",
                                     "action": "get"
                                 },
-                                "lineRange": {},
+                                "elementLocation": {},
                                 "connectorType": "ballerina/http:2.4.0"
                             }
                         ]
@@ -60,7 +60,7 @@ let components = {
                     "id": "0002",
                     "label": "farest"
                 },
-                "lineRange": {},
+                "elementLocation": {},
                 "path": "/",
                 "serviceId": "0002",
                 "serviceType": "ballerina/http:2.4.0",
@@ -68,7 +68,7 @@ let components = {
                 "resources": [
                     {
                         "identifier": "fare/[string]/[string]",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "resourceId": {
                             "serviceId": "0002",
                             "path": "fare/[string flightNumber]/[string flightDate]",
@@ -97,7 +97,7 @@ let components = {
         },
         "entities": {
             "aneesha/fares_api:fares_api:0.1.0:Fare": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "flightNo",
@@ -105,7 +105,7 @@ let components = {
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "associations": [
 
                         ]
@@ -116,7 +116,7 @@ let components = {
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "associations": [
 
                         ]
@@ -127,7 +127,7 @@ let components = {
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "associations": [
 
                         ]
@@ -151,7 +151,7 @@ let components = {
                     "id": "0001",
                     "label": ""
                 },
-                "lineRange": {},
+                "elementLocation": {},
                 "path": "inventory",
                 "serviceId": "0001",
                 "serviceType": "ballerina/http:2.4.0",
@@ -164,7 +164,7 @@ let components = {
                             "path": "flights/[string flightNumber]",
                             "action": "get"
                         },
-                        "lineRange": {},
+                        "elementLocation": {},
                         "parameters": [
                             {
                                 "type": [
@@ -190,7 +190,7 @@ let components = {
                             "path": "flights",
                             "action": "post"
                         },
-                        "lineRange": {},
+                        "elementLocation": {},
                         "parameters": [
                             {
                                 "type": [
@@ -214,14 +214,14 @@ let components = {
         },
         "entities": {
             "aneesha/inventory_api:0.1.0:SeatAllocation": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "flightNumber",
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -232,7 +232,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -243,7 +243,7 @@ let components = {
                         "type": "int",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -254,7 +254,7 @@ let components = {
                         "type": "aneesha/inventory_api:0.1.0:Personnel",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
                             {
@@ -272,14 +272,14 @@ let components = {
                 ]
             },
             "aneesha/inventory_api:0.1.0:Flight": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "flightNumber",
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -290,7 +290,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -300,7 +300,7 @@ let components = {
                         "name": "available",
                         "type": "int",
                         "optional": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "nillable": false,
                         "defaultValue": "",
                         "associations": [
@@ -310,7 +310,7 @@ let components = {
                     {
                         "name": "totalCapacity",
                         "type": "int",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
@@ -324,7 +324,7 @@ let components = {
                 ]
             },
             "aneesha/inventory_api:0.1.0:FareFlight": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "fare",
@@ -332,7 +332,7 @@ let components = {
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "associations": [
                             {
                                 "associate": "aneesha/fares_api:fares_api:0.1.0:Fare",
@@ -348,7 +348,7 @@ let components = {
                         "type": "aneesha/inventory_api:0.1.0:Flight",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
                             {
@@ -366,12 +366,12 @@ let components = {
                 ]
             },
             "aneesha/inventory_api:0.1.0:Personnel": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "name",
                         "type": "string",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
@@ -382,7 +382,7 @@ let components = {
                     {
                         "name": "id",
                         "type": "int",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
@@ -394,7 +394,7 @@ let components = {
                         "name": "contact",
                         "type": "int",
                         "optional": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "nillable": false,
                         "defaultValue": "",
                         "associations": [
@@ -420,7 +420,7 @@ let components = {
                     "id": "0003",
                     "label": ""
                 },
-                "lineRange": {},
+                "elementLocation": {},
                 "path": "bookings",
                 "serviceId": "0003",
                 "serviceType": "ballerina/http:2.4.0",
@@ -433,7 +433,7 @@ let components = {
                             "path": "booking",
                             "action": "post"
                         },
-                        "lineRange": {},
+                        "elementLocation": {},
                         "parameters": [
                             {
                                 "type": [
@@ -456,7 +456,7 @@ let components = {
                                     "path": "flights/sds",
                                     "action": "post"
                                 },
-                                "lineRange": {},
+                                "elementLocation": {},
                                 "connectorType": "ballerina/http:2.4.0"
                             },
                             {
@@ -465,7 +465,7 @@ let components = {
                                     "path": "fare/[string]/[string]",
                                     "action": "get"
                                 },
-                                "lineRange": {},
+                                "elementLocation": {},
                                 "connectorType": "ballerina/http:2.4.0"
                             }
                         ]
@@ -477,7 +477,7 @@ let components = {
                             "path": "booking/[int id]",
                             "action": "get"
                         },
-                        "lineRange": {},
+                        "elementLocation": {},
                         "parameters": [
 
                         ],
@@ -497,7 +497,7 @@ let components = {
                             "path": "booking/[int id]",
                             "action": "delete"
                         },
-                        "lineRange": {},
+                        "elementLocation": {},
                         "parameters": [
 
                         ],
@@ -517,7 +517,7 @@ let components = {
                             "path": "booking/[int id]",
                             "action": "put"
                         },
-                        "lineRange": {},
+                        "elementLocation": {},
                         "parameters": [
                             {
                                 "type": [
@@ -537,7 +537,7 @@ let components = {
                                     "serviceId": "checkout",
                                     "action": "PlaceOrder"
                                 },
-                                "lineRange": {},
+                                "elementLocation": {},
                                 "connectorType": "ballerina/grpc:1.4.0"
                             }
                         ]
@@ -549,7 +549,7 @@ let components = {
                             "path": "changestatus/[int id]/status/[string bookingStatus]",
                             "action": "post"
                         },
-                        "lineRange": {},
+                        "elementLocation": {},
                         "parameters": [
 
                         ],
@@ -566,14 +566,14 @@ let components = {
         },
         "entities": {
             "aneesha/booking_api:0.1.0:Customer": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "name",
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -584,7 +584,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -596,12 +596,13 @@ let components = {
                 ]
             },
             "aneesha/booking_api:0.1.0:Passenger": {
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "firstName",
                         "type": "string",
                         "optional": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "nillable": false,
                         "defaultValue": "",
                         "associations": [
@@ -613,7 +614,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -624,7 +625,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -636,14 +637,14 @@ let components = {
                 ]
             },
             "aneesha/booking_api:0.1.0:BookingRecord": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "origin",
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -653,7 +654,7 @@ let components = {
                         "name": "destination",
                         "type": "string",
                         "optional": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "nillable": false,
                         "defaultValue": "",
                         "associations": [
@@ -665,7 +666,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -676,7 +677,7 @@ let components = {
                         "type": "int",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -688,7 +689,7 @@ let components = {
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "associations": [
 
                         ]
@@ -698,7 +699,7 @@ let components = {
                         "type": "aneesha/booking_api:0.1.0:BookingStatus",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
                             {
@@ -716,14 +717,14 @@ let components = {
                 ]
             },
             "aneesha/booking_api:0.1.0:Order": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "date",
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -735,7 +736,7 @@ let components = {
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "associations": [
 
                         ]
@@ -745,7 +746,7 @@ let components = {
                         "type": "aneesha/booking_api:0.1.0:Customer",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
                             {
@@ -763,7 +764,7 @@ let components = {
                         "optional": false,
                         "nillable": false,
                         "defaultValue": "",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "associations": [
                             {
                                 "associate": "aneesha/booking_api:0.1.0:LineItemOrder",
@@ -780,13 +781,13 @@ let components = {
                 ]
             },
             "aneesha/booking_api:0.1.0:ApiCredentials": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "clientId",
                         "type": "string",
                         "optional": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "nillable": false,
                         "defaultValue": "",
                         "associations": [
@@ -798,7 +799,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -810,14 +811,14 @@ let components = {
                 ]
             },
             "aneesha/booking_api:0.1.0:Booking": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "flightNumber",
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -828,7 +829,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -839,7 +840,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -850,7 +851,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -861,7 +862,7 @@ let components = {
                         "type": "int",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -873,7 +874,7 @@ let components = {
                 ]
             },
             "aneesha/booking_api:0.1.0:PassengerFare": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "passenger",
@@ -881,7 +882,7 @@ let components = {
                         "optional": true,
                         "nillable": false,
                         "defaultValue": "",
-                        "lineRange": {},
+                        "elementLocation": {},
                         "associations": [
                             {
                                 "associate": "aneesha/booking_api:0.1.0:Passenger",
@@ -897,7 +898,7 @@ let components = {
                         "type": "aneesha/fares_api:fares_api:0.1.0:Fare[]",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
                             {
@@ -914,7 +915,7 @@ let components = {
                         "type": "aneesha/booking_api:0.1.0:BookingRecord?",
                         "optional": false,
                         "nillable": true,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
                             {
@@ -953,7 +954,7 @@ let components = {
                     "id": "0004",
                     "label": ""
                 },
-                "lineRange": {},
+                "elementLocation": {},
                 "path": "flights",
                 "serviceId": "0004",
                 "serviceType": "ballerina/http:2.4.0",
@@ -966,7 +967,7 @@ let components = {
                             "path": "reservation",
                             "action": "post"
                         },
-                        "lineRange": {},
+                        "elementLocation": {},
                         "parameters": [
                             {
                                 "type": [
@@ -989,7 +990,7 @@ let components = {
                                     "path": "booking",
                                     "action": "post"
                                 },
-                                "lineRange": {},
+                                "elementLocation": {},
                                 "connectorType": "ballerina/http:2.4.0"
                             },
                             {
@@ -998,7 +999,7 @@ let components = {
                                     "path": "booking/[int]",
                                     "action": "get"
                                 },
-                                "lineRange": {},
+                                "elementLocation": {},
                                 "connectorType": "ballerina/http:2.4.0"
                             },
                             {
@@ -1006,7 +1007,7 @@ let components = {
                                     "serviceId": "",
                                     "action": "sendSms"
                                 },
-                                "lineRange": {},
+                                "elementLocation": {},
                                 "connectorType": "ballerinax/twilio:3.0.0"
                             }
                         ]
@@ -1016,14 +1017,14 @@ let components = {
         },
         "entities": {
             "aneesha/reservation_api:0.1.0:Reservation": {
-                "lineRange": {},
+                "elementLocation": {},
                 "attributes": [
                     {
                         "name": "origin",
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -1034,7 +1035,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 
@@ -1045,7 +1046,7 @@ let components = {
                         "type": "string",
                         "optional": false,
                         "nillable": false,
-                        "lineRange": {},
+                        "elementLocation": {},
                         "defaultValue": "",
                         "associations": [
 

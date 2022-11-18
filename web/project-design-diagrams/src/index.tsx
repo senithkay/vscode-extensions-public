@@ -20,11 +20,11 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { DesignDiagram } from './DesignDiagram';
-import { ComponentModel, LineRange } from './resources';
+import { ComponentModel, Location } from './resources';
 
 export function renderDesignDiagrams(
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
-    go2source: (lineRange: LineRange) => void,
+    go2source: (location: Location) => void,
     target: HTMLElement) {
 
     render(

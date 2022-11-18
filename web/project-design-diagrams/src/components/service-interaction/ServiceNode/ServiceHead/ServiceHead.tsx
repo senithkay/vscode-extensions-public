@@ -70,10 +70,10 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 engine={engine}
             />
                 <ServiceName>{displayName}</ServiceName>
-                {isHovered && node.serviceObject.lineRange &&
+                {isHovered && node.serviceObject.elementLocation &&
                     <NodeMenuWidget
                         background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
-                        lineRange={node.serviceObject.lineRange}
+                        location={node.serviceObject.elementLocation}
                     />
                 }
             <ServicePortWidget

@@ -63,10 +63,10 @@ export function AttributeWidget(props: AttributeProps) {
             />
                 <AttributeName>{attribute.name}</AttributeName>
                 <AttributeType isSelected={isSelected || isHovered}>{attributeType}</AttributeType>
-                {isHovered && attribute.lineRange &&
+                {isHovered && attribute.elementLocation &&
                     <NodeMenuWidget
                         background={Colors.SECONDARY}
-                        lineRange={attribute.lineRange}
+                        location={attribute.elementLocation}
                     />
                 }
             <EntityPortWidget

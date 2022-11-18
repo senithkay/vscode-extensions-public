@@ -26,7 +26,7 @@ import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { ComponentModel, LineRange, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, UPDATE_BALLERINA } from "./resources";
+import { ComponentModel, Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
 
 let context: ExtensionContext;
@@ -119,19 +119,17 @@ function setupWebviewPanel() {
         designDiagramWebview.webview.onDidReceiveMessage((message) => {
             switch (message.command) {
                 case "go2source": {
-                    const lineRange: LineRange = message.lineRange;
-                    if (lineRange && existsSync(lineRange.filePath)) {
-                        workspace.openTextDocument(lineRange.filePath).then((sourceFile) => {
+                    const location: Location = message.location;
+                    if (location && existsSync(location.filePath)) {
+                        workspace.openTextDocument(location.filePath).then((sourceFile) => {
                             window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
-                                const startPosition: Position = new Position(lineRange.startLine.line, lineRange.startLine.offset);
-                                const endPosition: Position = new Position(lineRange.endLine.line, lineRange.endLine.offset);
+                                const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
+                                const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
                                 const range: Range = new Range(startPosition, endPosition);
                                 textEditor.revealRange(range, TextEditorRevealType.InCenter);
                                 textEditor.selection = new Selection(range.start, range.start);
                             })
                         })
-                    } else {
-                        window.showWarningMessage(UPDATE_BALLERINA);
                     }
                     return;
                 }

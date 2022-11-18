@@ -20,16 +20,16 @@
 import React, { useState } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
-import { Colors, LineRange } from '../../../resources';
+import { Location } from '../../../resources';
 import { Go2SourceWidget } from '../Go2Source/Go2SourceButton';
 
 interface NodeMenuProps {
-    lineRange: LineRange;
+    location: Location;
     background: string;
 }
 
 export function NodeMenuWidget(props: NodeMenuProps) {
-    const { lineRange, background } = props;
+    const { location, background } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
@@ -37,7 +37,7 @@ export function NodeMenuWidget(props: NodeMenuProps) {
         <Tooltip
             open={showTooltip}
             onClose={() => setTooltipStatus(false)}
-            title={<Go2SourceWidget lineRange={lineRange} />}
+            title={<Go2SourceWidget location={location} />}
             PopperProps={{
                 modifiers: [
                     {

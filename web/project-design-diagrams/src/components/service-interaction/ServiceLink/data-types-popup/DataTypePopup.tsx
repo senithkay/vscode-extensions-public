@@ -19,18 +19,18 @@
 
 import React, { useContext } from 'react';
 import { DiagramContext, NodeMenuWidget } from '../../../common';
-import { Colors, LineRange, Parameter } from '../../../../resources';
+import { Colors, Location, Parameter } from '../../../../resources';
 import { mapUnionTypes } from '../link-utils';
 import { Container, clickableType, defaultType, MenuButton } from './styles';
 
 interface DataTypeProps {
     inputParams: Parameter[];
     returnType: string[];
-    lineRange: LineRange;
+    location: Location;
 }
 
 export function DataTypesPopup(props: DataTypeProps) {
-    const { inputParams, lineRange, returnType } = props;
+    const { inputParams, location, returnType } = props;
     const { getTypeComposition } = useContext(DiagramContext);
 
     return (
@@ -90,11 +90,11 @@ export function DataTypesPopup(props: DataTypeProps) {
                 </ul>
             </div>
 
-            {lineRange &&
+            {location &&
                 <MenuButton>
                     <NodeMenuWidget
                         background={Colors.SECONDARY}
-                        lineRange={lineRange}
+                        location={location}
                     />
                 </MenuButton>
             }
