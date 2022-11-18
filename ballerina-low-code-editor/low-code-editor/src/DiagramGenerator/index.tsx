@@ -47,6 +47,7 @@ import { MESSAGE_TYPE, SelectedPosition } from "../types";
 import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
+import ErrorScreen from './ErrorBoundrary/Error';
 import {
     getDefaultSelectedPosition, getFunctionSyntaxTree, getLowcodeST, getSelectedPosition, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
@@ -118,10 +119,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         : { startLine, startColumn }
 
     const [selectedPosition, setSelectedPosition] = React.useState(initSelectedPosition);
+    const [isDiagramError, setIsDiagramError] = React.useState(false);
 
 
     React.useEffect(() => {
         (async () => {
+            let showDiagramError = false;
             try {
                 const langClient = await langClientPromise;
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
@@ -145,8 +148,11 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
                     : { startLine, startColumn });
             } catch (err) {
-                throw err;
+                console.error(err)
+                showDiagramError = true;
             }
+
+            setIsDiagramError(showDiagramError);
         })();
     }, [lastUpdatedAt]);
 
@@ -287,6 +293,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
                 <IntlProvider locale='en' defaultLocale='en' messages={messages}>
+                    {isDiagramError && <ErrorScreen />}
                     <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt} >
                         <LowCodeEditor
                             {...missingProps}
