@@ -36,10 +36,7 @@ export function OtherStatementTypes(props: OtherStatementProps) {
         model
     };
 
-    const { modelCtx } = useContext(StatementEditorContext);
-    const {
-        hasSyntaxDiagnostics
-    } = modelCtx;
+    const { modelCtx: {hasSyntaxDiagnostics} } = useContext(StatementEditorContext);
 
     const isFieldWithNewLine = (model?.viewState as StatementEditorViewState)?.multilineConstructConfig?.isFieldWithNewLine;
 
