@@ -71,9 +71,9 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                 onClick={() => setTooltipStatus(true)}
                 sx = {{
                     backgroundColor: background,
-                    borderRadius: '50%',
+                    borderRadius: '30%',
                     fontSize: '18px',
-                    padding: '2px 0px 2px 0px',
+                    margin: '0px',
                     position: 'absolute',
                     right: 2.5
                 }}
