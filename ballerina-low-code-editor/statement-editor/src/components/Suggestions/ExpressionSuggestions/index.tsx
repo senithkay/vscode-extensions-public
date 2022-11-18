@@ -31,6 +31,7 @@ import {
     CALL_CONFIG_TYPE,
     CONFIGURABLE_VALUE_REQUIRED_TOKEN,
     DEFAULT_WHERE_INTERMEDIATE_CLAUSE,
+    LOG_CONFIG_TYPE,
     QUERY_INTERMEDIATE_CLAUSES
 } from "../../../constants";
 import { Suggestion } from "../../../models/definitions";
@@ -109,7 +110,7 @@ export function ExpressionSuggestions() {
             if (currentModel.model.source?.trim() === DEFAULT_WHERE_INTERMEDIATE_CLAUSE) {
                 filteredGroups = expressions.filter(
                     (exprGroup) => exprGroup.name === QUERY_INTERMEDIATE_CLAUSES);
-            } else if ((config.type === CALL_CONFIG_TYPE) && STKindChecker.isFunctionCall(currentModel.model)) {
+            } else if ((config.type === CALL_CONFIG_TYPE || LOG_CONFIG_TYPE) && STKindChecker.isFunctionCall(currentModel.model)) {
                 filteredGroups = []
             } else if (isRecordFieldName(currentModel.model)) {
                 filteredGroups = [optionalRecordField]

@@ -25,6 +25,7 @@ import { Uri } from 'monaco-editor';
 import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { getModifications } from "../../utils";
+import { CONF_NAME_PLACEHOLDER } from '../../utils/expressions';
 import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
 import Breadcrumb from "../Breadcrumb";
 import { CloseButton } from "../Button/CloseButton";
@@ -79,6 +80,8 @@ export function ViewContainer(props: ViewContainerProps) {
     } = useContext(StatementEditorContext);
     const exprSchemeURI = Uri.file(currentFile.path).toString().replace("file", "expr");
     const fileSchemeURI = Uri.file(currentFile.path).toString();
+    const hasConfPlaceholder = isConfigurableStmt &&
+                               statementModel?.typedBindingPattern?.bindingPattern?.variableName?.value === CONF_NAME_PLACEHOLDER;
 
     const saveButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.statementEditor.saveButton.text",
@@ -197,7 +200,7 @@ export function ViewContainer(props: ViewContainerProps) {
                                             ? addConfigurableButtonText
                                             : saveButtonText
                                     }
-                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1 || editing}
+                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1 || hasConfPlaceholder || editing}
                                     fullWidth={false}
                                     onClick={
                                         activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick
