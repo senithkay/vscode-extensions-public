@@ -38,7 +38,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormStateWithV
     const defaultFormState: ModuleVariableFormStateWithValidity = {
         varType: 'int',
         varName: '',
-        varValue: '',
+        varValue: 'EXPRESSION',
         varOptions: [],
         isExpressionValid: true,
     }
@@ -64,7 +64,7 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormStateWithV
             defaultFormState.varOptions.push(VariableOptions.PUBLIC);
         }
 
-        defaultFormState.varValue = model.initializer.source;
+        defaultFormState.varValue = model.initializer ? model.initializer.source : "";
         defaultFormState.varName = getVariableNameFromST(model);
 
         return defaultFormState;
@@ -76,5 +76,5 @@ export function getFormConfigFromModel(model: any): ModuleVariableFormStateWithV
 export function isFormConfigValid(config: ModuleVariableFormStateWithValidity): boolean {
     const { varName, varValue, isExpressionValid } = config;
 
-    return varName.length > 0 && ModuleVarNameRegex.test(varName) && varValue.length > 0 && isExpressionValid;
+    return varName.length > 0 && ModuleVarNameRegex.test(varName) && isExpressionValid;
 }
