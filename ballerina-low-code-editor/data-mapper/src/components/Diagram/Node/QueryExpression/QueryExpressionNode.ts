@@ -13,13 +13,14 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, OFFSETS } from "../../utils/constants";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { getFieldNames } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
 import { MappingConstructorNode } from "../MappingConstructor";
+import { PrimitiveTypeNode } from "../PrimitiveType";
 import { RequiredParamNode } from "../RequiredParam";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
@@ -103,30 +104,49 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     private async getTargetType() {
         const fieldNamePosition = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.position;
-        if (!fieldNamePosition) {
-            return;
+        if (fieldNamePosition) {
+            this.getModel().getNodes().map((node) => {
+                if (node instanceof MappingConstructorNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof RecordFieldPortModel
+                            && port?.editableRecordField && port.editableRecordField?.value
+                            && STKindChecker.isSpecificField(port.editableRecordField.value)
+                            && isPositionsEquals(port.editableRecordField.value.fieldName.position, fieldNamePosition)
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                }
+            });
+        } else if (STKindChecker.isExpressionFunctionBody(this.parentNode)) {
+            const exprPosition = this.parentNode.expression.position;
+            this.getModel().getNodes().forEach((node) => {
+                if (node instanceof PrimitiveTypeNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof RecordFieldPortModel
+                            && port?.editableRecordField && port.editableRecordField?.value
+                            && STKindChecker.isQueryExpression(port.editableRecordField.value)
+                            && isPositionsEquals(port.editableRecordField.value.position, exprPosition)
+                            && port.portName === PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                }
+            });
         }
-        this.getModel().getNodes().map((node) => {
-            if (node instanceof MappingConstructorNode) {
-                const ports = Object.entries(node.getPorts());
-                ports.map((entry) => {
-                    const port = entry[1];
-                    if (port instanceof RecordFieldPortModel
-                        && port?.editableRecordField && port.editableRecordField?.value
-                        && STKindChecker.isSpecificField(port.editableRecordField.value)
-                        && isPositionsEquals(port.editableRecordField.value.fieldName.position, fieldNamePosition)
-                    ) {
-                        this.targetPort = port;
-                    }
-                });
-                if (this.targetPort?.hidden){
-                    this.hidden = true;
-                }
-                while (this.targetPort && this.targetPort.hidden){
-                    this.targetPort = this.targetPort.parentModel;
-                }
-            }
-        });
+
+        if (this.targetPort?.hidden){
+            this.hidden = true;
+        }
+        while (this.targetPort && this.targetPort.hidden){
+            this.targetPort = this.targetPort.parentModel;
+        }
     }
 
     initLinks(): void {

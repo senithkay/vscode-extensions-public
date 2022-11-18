@@ -19,7 +19,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -110,7 +110,11 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	const classes = useStyles();
 
 	const hasValue = field && field?.elements && field.elements.length > 0;
-	const isArray = field.type.typeName === PrimitiveBalType.Array;
+	const isBodyListConstructor = field?.value && STKindChecker.isListConstructor(field.value);
+	const isBodySimpleNameRef = field?.value && STKindChecker.isSimpleNameReference(field.value);
+	const isBodyFieldAccess = field?.value && STKindChecker.isFieldAccess(field.value);
+	const isBodyQueryExpr = field?.value && STKindChecker.isQueryExpression(field.value);
+	const isArray = field.type.typeName === PrimitiveBalType.Array && (isBodyListConstructor || isBodySimpleNameRef || isBodyFieldAccess || isBodyQueryExpr);
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -146,7 +150,11 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 		<TreeContainer>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
-					{portIn && (!hasValue || !expanded) &&
+					{portIn && (!hasValue
+							|| !expanded
+							|| (isArray && !isBodyListConstructor)
+							|| (isArray && STKindChecker.isListConstructor(field.value) && field.value.expressions.length === 0)
+						) &&
 						<DataMapperPortWidget engine={engine} port={portIn} />
 					}
 				</span>
@@ -164,16 +172,18 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 			<TreeBody>
 				{expanded && field && (
 					isArray ? (
-						<ArrayTypedEditableRecordFieldWidget
-							key={id}
-							engine={engine}
-							field={field}
-							getPort={getPort}
-							parentId={id}
-							mappingConstruct={undefined}
-							context={context}
-							isReturnTypeDesc={true}
-						/>
+						isBodyListConstructor && (
+							<ArrayTypedEditableRecordFieldWidget
+								key={id}
+								engine={engine}
+								field={field}
+								getPort={getPort}
+								parentId={id}
+								mappingConstruct={undefined}
+								context={context}
+								isReturnTypeDesc={true}
+							/>
+						)
 					) : (
 						<PrimitiveTypedEditableArrayElementWidget
 							key={id}

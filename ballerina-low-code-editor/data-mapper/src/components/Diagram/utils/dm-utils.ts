@@ -41,6 +41,7 @@ import { SimpleNameReferencesFindingVisitor } from "../visitors/SimpleNameRefere
 
 import {
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	PRIMITIVE_TYPE_TARGET_PORT_PREFIX
 } from "./constants";
@@ -95,16 +96,10 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	rhs = sourcePort.fieldFQN;
 
-	if (!isArrayOrRecord(targetPort.field)
-		&& targetPort.editableRecordField?.value
-		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value)
-		&& !isEmptyValue(targetPort.editableRecordField.value.position)) {
-		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
-	}
-
-	if (targetPort.field?.typeName === PrimitiveBalType.Record
-		&& targetPort.editableRecordField?.value
-		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value)) {
+	if (isMappedToPrimitiveTypePort(targetPort)
+		|| isMappedToRootListConstructor(targetPort)
+		|| isMappedToMappingConstructorWithinArray(targetPort))
+	{
 		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
 	}
 
@@ -496,9 +491,14 @@ export function getOutputPortForField(fields: STNode[],
 	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
 	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
 	let recField: EditableRecordField;
-	let portIdBuffer = node instanceof MappingConstructorNode
-		? `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
-		: PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+	let portIdBuffer;
+	if (node instanceof MappingConstructorNode) {
+		portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`;
+	} else if (node instanceof ListConstructorNode) {
+		portIdBuffer = LIST_CONSTRUCTOR_TARGET_PORT_PREFIX;
+	} else {
+		portIdBuffer = PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+	}
 	for (let i = 0; i < fields.length; i++) {
 		const field = fields[i];
 		if (STKindChecker.isSpecificField(field)) {
@@ -944,3 +944,23 @@ function isEmptyValue(position: NodePosition): boolean {
 	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
 }
 
+function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
+	return !isArrayOrRecord(targetPort.field)
+		&& targetPort?.editableRecordField?.value
+		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value)
+		&& !isEmptyValue(targetPort.editableRecordField.value.position);
+}
+
+function isMappedToRootListConstructor(targetPort: RecordFieldPortModel): boolean {
+	return !targetPort.parentModel
+		&& targetPort.field.typeName === PrimitiveBalType.Array
+		&& targetPort?.editableRecordField?.value
+		&& STKindChecker.isListConstructor(targetPort.editableRecordField.value);
+}
+
+function isMappedToMappingConstructorWithinArray(targetPort: RecordFieldPortModel): boolean {
+	return targetPort.index !== undefined
+		&& targetPort.field.typeName === PrimitiveBalType.Record
+		&& targetPort.editableRecordField?.value
+		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value);
+}

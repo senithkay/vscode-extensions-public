@@ -75,19 +75,18 @@ export class ListConstructorNode extends DataMapperNodeModel {
         });
 
         if (this.typeDef) {
+            const isSelectClause = STKindChecker.isSelectClause(this.value);
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
-            if (STKindChecker.isSelectClause(this.value)){
+            if (isSelectClause){
                 this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
             }
-            const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
-                LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
-
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = getTypeName(valueEnrichedType.type);
             this.recordField = valueEnrichedType;
+            const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
+                LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, isSelectClause, this.recordField);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array) {
-                const isSelectClause = STKindChecker.isSelectClause(this.value);
                 if (isSelectClause) {
                     this.recordField = valueEnrichedType.elements[0].member;
                 }

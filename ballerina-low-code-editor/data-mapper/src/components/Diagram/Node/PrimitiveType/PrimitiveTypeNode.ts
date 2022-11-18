@@ -72,9 +72,6 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         });
 
         if (this.typeDef) {
-            const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
-                PRIMITIVE_TYPE_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
-
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = getTypeName(valueEnrichedType.type);
@@ -84,6 +81,9 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             ) {
                 this.recordField = valueEnrichedType.elements[0].member;
             }
+            const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
+                PRIMITIVE_TYPE_TARGET_PORT_PREFIX, this.context.collapsedFields,
+                STKindChecker.isSelectClause(this.value), this.recordField);
             this.addPortsForOutputRecordField(this.recordField, "IN", this.recordField.type.typeName,
                 undefined, PRIMITIVE_TYPE_TARGET_PORT_PREFIX, parentPort,
                 this.context.collapsedFields, parentPort.collapsed, STKindChecker.isSelectClause(this.value));
@@ -108,11 +108,20 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            let [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+            let outPort: RecordFieldPortModel;
+            let mappedOutPort: RecordFieldPortModel;
             if (!isArrayOrRecord(this.recordField.type)) {
-                outPort = this.getPort(
-                    `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${this.recordField.type.typeName}.IN`) as RecordFieldPortModel;
+                outPort = this.getPort(`${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${
+                    this.recordField.type.typeName}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
+            } else if (this.recordField.type.typeName === PrimitiveBalType.Array
+                && this.recordField?.value
+                && !STKindChecker.isListConstructor(this.recordField.value)
+            ) {
+                outPort = this.getPort(`${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.IN`) as RecordFieldPortModel;
+                mappedOutPort = outPort;
+            } else {
+                [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             }
             const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
             if (inPort && mappedOutPort) {
