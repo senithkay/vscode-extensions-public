@@ -136,6 +136,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 const link = new DataMapperLinkModel(undefined, undefined, true);
                 link.setSourcePort(this.sourcePort);
                 link.setTargetPort(this.inPort);
+                this.sourcePort.addLinkedPort(this.inPort);
+                this.sourcePort.addLinkedPort(this.targetPort);
                 link.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {
@@ -175,6 +177,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 const link = new DataMapperLinkModel(undefined, undefined, true);
                 link.setSourcePort(this.sourcePort);
                 link.setTargetPort(this.targetPort);
+                this.sourcePort.addLinkedPort(this.targetPort);
                 link.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {
