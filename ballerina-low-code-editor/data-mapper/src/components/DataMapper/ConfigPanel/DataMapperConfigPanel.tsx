@@ -287,7 +287,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 banner={fnST && hasInvalidInputs && <Warning message='Only records are currently supported as data mapper inputs' />}
                             />
                             <FormDivider />
-                            <OutputTypeConfigPanel>
+                            <OutputTypeConfigPanel data-testid='dm-output'>
                                 <Title>Output Type</Title>
                                 {!outputType.type ? (
                                     <>
