@@ -21,7 +21,7 @@ import { commands, ExtensionContext, ViewColumn, WebviewPanel, window, workspace
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { join } from "path";
-import { debounce } from 'lodash';
+import { debounce } from "lodash";
 import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
