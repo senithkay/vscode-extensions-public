@@ -365,12 +365,17 @@ class DiagramPanel {
 					// Get the active text editor
 					const filePath = args[0];
 					const fileContent = args[1];
+					const skipForceSave = args.length > 2 ? args[2] : false;
 					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
 					if (doc) {
 						const edit = new WorkspaceEdit();
 						edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
 						await workspace.applyEdit(edit);
 						langClient.updateStatusBar();
+						if (skipForceSave) {
+							// Skip saving document and keep in dirty mode
+							return true;
+						}
 						return doc.save();
 					} else {
 						langClient.didChange({

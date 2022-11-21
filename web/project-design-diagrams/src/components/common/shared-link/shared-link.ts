@@ -67,15 +67,20 @@ export class SharedLinkModel extends DefaultLinkModel {
 
 			if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
 				targetPoint.x = targetPoint.x - markerSpace;
-			} else {
+			} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
 				targetPoint.x = targetPoint.x + markerSpace;
+			} else {
+				targetPoint.y = targetPoint.y + 150;
 			}
 
 			if (this.getSourcePort().getOptions().alignment === PortModelAlignment.LEFT) {
 				sourcePoint.x = sourcePoint.x - markerSpace;
-			} else {
+			} else if (this.getSourcePort().getOptions().alignment === PortModelAlignment.RIGHT) {
 				sourcePoint.x = sourcePoint.x + markerSpace;
+			} else {
+				sourcePoint.y = sourcePoint.y - 90;
 			}
+
 			lineCurve.setSourceControl(sourcePoint);
 			lineCurve.setTargetControl(targetPoint);
 			lineCurve.getSourceControl().translate(...this.calculateControlOffset(this.getSourcePort()));

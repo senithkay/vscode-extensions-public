@@ -106,6 +106,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 const lm = new DataMapperLinkModel(undefined, undefined, true);
                 lm.setTargetPort(this.inPort);
                 lm.setSourcePort(sourcePort);
+                sourcePort.addLinkedPort(this.inPort);
+                sourcePort.addLinkedPort(this.targetMappedPort)
 
                 const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
 
@@ -153,6 +155,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
                     lm.setTargetPort(this.targetMappedPort);
                     lm.setSourcePort(sourcePort);
+                    sourcePort.addLinkedPort(this.targetMappedPort);
 
                     const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
 
