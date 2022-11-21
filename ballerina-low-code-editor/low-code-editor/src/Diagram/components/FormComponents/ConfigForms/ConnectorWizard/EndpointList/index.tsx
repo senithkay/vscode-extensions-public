@@ -36,7 +36,7 @@ import { getConnectorFromVisibleEp, getMatchingConnector, getTargetBlock } from 
 
 export interface EndpointListProps {
     functionNode: STNode;
-    onSelect: (connector: BallerinaConnectorInfo, endpointName: string) => void;
+    onSelect: (connector: BallerinaConnectorInfo, endpointName: string, classField?: boolean) => void;
     addNewEndpoint: () => void;
 }
 
@@ -60,9 +60,9 @@ export function EndpointList(props: FormGeneratorProps) {
     let isEndpointExists = false;
     let executePhaseOne = false;
 
-    const getListComponent = (connector: BallerinaConnectorInfo, name: string) => {
+    const getListComponent = (connector: BallerinaConnectorInfo, name: string, isClassField?: boolean) => {
         const handleOnSelect = () => {
-            onSelect(connector, name);
+            onSelect(connector, name, (isClassField ?? false));
         };
         return (
             <ListItem
@@ -99,7 +99,7 @@ export function EndpointList(props: FormGeneratorProps) {
             blockVisibleEndpoints?.forEach((endpoint) => {
                 if (endpoint.position && endpoint.position.endLine < targetPosition.startLine) {
                     const connector = getConnectorFromVisibleEp(endpoint);
-                    endpointElementList.push(getListComponent(connector, endpoint.name));
+                    endpointElementList.push(getListComponent(connector, endpoint.name, endpoint.isClassField));
                     isEndpointExists = true;
                 }
             });
@@ -120,7 +120,7 @@ export function EndpointList(props: FormGeneratorProps) {
             }
             if (visitedEndpoints.indexOf(endpoint.name) < 0) {
                 const connector = getConnectorFromVisibleEp(endpoint);
-                endpointElementList.push(getListComponent(connector, endpoint.name));
+                endpointElementList.push(getListComponent(connector, endpoint.name, endpoint.isClassField));
             }
             visitedEndpoints.push(endpoint.name);
             isEndpointExists = true;

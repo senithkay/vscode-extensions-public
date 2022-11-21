@@ -153,6 +153,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 }));
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
+                inPort.addLinkedPort(mappedOutPort);
                 lm.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {

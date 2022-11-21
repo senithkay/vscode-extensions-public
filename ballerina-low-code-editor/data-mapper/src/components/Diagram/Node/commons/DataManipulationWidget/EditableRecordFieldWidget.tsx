@@ -87,6 +87,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
+    const value: string = !isArray && !isRecord && hasValue && specificField.valueExpr.source;
+    let expanded = true;
+
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
@@ -121,7 +124,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         context.handleCollapse(fieldId, !expanded);
     };
 
-    let isDisabled = portIn.descendantHasValue;
+    let isDisabled = portIn.descendantHasValue || (value && !connectedViaLink);
     if (!isDisabled) {
         if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)) {
             portIn.ancestorHasValue = true;
@@ -135,8 +138,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
     }
 
-    const value: string = !isArray && !isRecord && hasValue && specificField.valueExpr.source;
-    let expanded = true;
+    
     if (portIn && portIn.collapsed) {
         expanded = false;
     }

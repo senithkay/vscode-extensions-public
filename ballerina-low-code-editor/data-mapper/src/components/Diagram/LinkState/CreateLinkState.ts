@@ -29,6 +29,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 							if (element.portType === "OUT") {
 								this.sourcePort = element;
 								element.fireEvent({}, "mappingStartedFrom");
+								element.linkedPorts.forEach((linkedPort) => {
+									linkedPort.fireEvent({}, "disableNewLinking")
+								})
 								const link = this.sourcePort.createLinkModel();
 								link.setSourcePort(this.sourcePort);
 								link.addLabel(new ExpressionLabelModel({
@@ -53,22 +56,42 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 									this.link.setTargetPort(element);
 									this.engine.getModel().addAll(this.link)
+									if (this.sourcePort instanceof RecordFieldPortModel) {
+										this.sourcePort.linkedPorts.forEach((linkedPort) => {
+											linkedPort.fireEvent({}, "enableNewLinking")
+										})
+									}
 									this.clearState();
 									this.eject();
 								}
 							} else {
 								// Selected another input port, change selected port
 								this.sourcePort.fireEvent({}, "link-unselected");
+								if (this.sourcePort instanceof RecordFieldPortModel) {
+									this.sourcePort.linkedPorts.forEach((linkedPort) => {
+										linkedPort.fireEvent({}, "enableNewLinking")
+									})
+								}
 								this.sourcePort.removeLink(this.link);
 								this.sourcePort = element;
 								this.link.setSourcePort(element);
 								element.fireEvent({}, "mappingStartedFrom");
+								if (element instanceof RecordFieldPortModel) {
+									element.linkedPorts.forEach((linkedPort) => {
+										linkedPort.fireEvent({}, "disableNewLinking")
+									})
+								}
 							}
 						}
 					} else if (element === this.link.getLastPoint()) {
 						this.link.point(0, 0, -1);
 					} else if (element === this.sourcePort) {
 						element.fireEvent({}, "mappingStartedFromSelectedAgain");
+						if (element instanceof RecordFieldPortModel) {
+							element.linkedPorts.forEach((linkedPort) => {
+								linkedPort.fireEvent({}, "enableNewLinking")
+							})
+						}
 						this.link.remove();
 						this.clearState();
 						this.eject();

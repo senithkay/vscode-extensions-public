@@ -183,6 +183,8 @@ export interface VisibleEndpoint {
     typeName: string;
     position: NodePosition;
     viewState?: any;
+    isParameter?: boolean;
+    isClassField?: boolean;
 }
 export interface NodePosition {
     startLine?: number;

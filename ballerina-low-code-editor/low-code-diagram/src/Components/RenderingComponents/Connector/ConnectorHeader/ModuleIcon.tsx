@@ -57,6 +57,11 @@ export function ModuleIcon(props: ModuleIconProps) {
         if (moduleInfo){
             iconUrl = getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version);
         }
+    } else if (node && STKindChecker.isObjectField(node) && node.typeData?.typeSymbol?.moduleID) {
+        const moduleInfo = node.typeData.typeSymbol.moduleID;
+        if (moduleInfo){
+            iconUrl = getIconUrl(balCentralCdn, moduleInfo.orgName, moduleInfo.moduleName, moduleInfo.version);
+        }
     } else if (module && module.icon === "" && !showDefaultIcon) {
         setShowDefaultIcon(true);
     } else if (module) {
