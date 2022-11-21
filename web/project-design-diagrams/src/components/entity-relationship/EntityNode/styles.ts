@@ -28,7 +28,7 @@ interface StyleProps {
 
 export const EntityNode = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
-    border: ${(props: StyleProps) => props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` : `1px solid ${Colors.PRIMARY}`};
+    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
     border-radius: 2px !important;
     color: ${Colors.PRIMARY};
     cursor: pointer;
