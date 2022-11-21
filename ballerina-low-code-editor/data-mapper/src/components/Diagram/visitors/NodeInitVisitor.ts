@@ -1,6 +1,7 @@
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BinaryExpression,
+    ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
     LetVarDecl,
@@ -260,6 +261,27 @@ export class NodeInitVisitor implements Visitor {
                     parent,
                     inputNodes,
                     [...this.specificFields, node.expression]
+                );
+                this.intermediateNodes.push(linkConnectorNode);
+            }
+        }
+    }
+
+    beginVisitExpressionFunctionBody(node: ExpressionFunctionBody, parent?: STNode): void {
+        if (!STKindChecker.isMappingConstructor(node.expression)
+            && !STKindChecker.isListConstructor(node.expression))
+        {
+            const fieldAccessNodes = getFieldAccessNodes(node.expression);
+            const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, node.expression);
+            const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+            if (inputNodes.length > 1) {
+                const linkConnectorNode = new LinkConnectorNode(
+                    this.context,
+                    node.expression,
+                    "",
+                    parent,
+                    inputNodes,
+                    [node.expression]
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }

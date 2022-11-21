@@ -13,7 +13,7 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
-import { OFFSETS } from "../../utils/constants";
+import { OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getDefaultValue,
     getInputNodeExpr,
@@ -21,6 +21,7 @@ import {
     getOutputPortForField
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { MappingConstructorNode } from "../MappingConstructor";
@@ -65,7 +66,6 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
-
         this.inPort = new IntermediatePortModel(
             md5(JSON.stringify(this.valueNode.position) + "IN")
             , "IN"
@@ -87,7 +87,20 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode || node instanceof PrimitiveTypeNode) {
-                    [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
+                    if (STKindChecker.isFunctionDefinition(this.parentNode)) {
+                        const typeDescPosition = this.parentNode.functionSignature?.returnTypeDesc.type.position;
+                        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                        const returnType = recordTypeDescriptors.getTypeDescriptor({
+                            startLine: typeDescPosition.startLine,
+                            startColumn: typeDescPosition.startColumn,
+                            endLine: typeDescPosition.startLine,
+                            endColumn: typeDescPosition.startColumn
+                        });
+                        this.targetPort = node.getPort(`${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${returnType.typeName}.IN`) as RecordFieldPortModel;
+                        this.targetMappedPort = this.targetPort;
+                    } else {
+                        [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
+                    }
                     if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
                         this.hidden = true;
                     }
@@ -97,9 +110,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
-
         if (!this.hidden) {
-
             this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
                 const inPort = this.inPort;
 
