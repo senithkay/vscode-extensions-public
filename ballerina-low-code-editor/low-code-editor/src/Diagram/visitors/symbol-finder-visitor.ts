@@ -180,8 +180,8 @@ class SymbolFindingVisitor implements Visitor {
 
     public beginVisitEnumDeclaration(node: EnumDeclaration) {
         const typeData = node.typeData;
-        const typeSymbol = typeData.typeSymbol;
-        if (typeSymbol.moduleID) {
+        const typeSymbol = typeData?.typeSymbol;
+        if (typeSymbol?.moduleID) {
             const enumMapKey = `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:${typeSymbol.name}`
             enums.set(enumMapKey, node);
         }
