@@ -22,7 +22,7 @@ import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-di
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
-import { Views } from '../../../resources';
+import { DagreLayout, Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine } from '../../../utils';
 import { Container, Canvas } from './styles/styles';
 import './styles/styles.css';
@@ -31,10 +31,11 @@ interface DiagramCanvasProps {
     model: DiagramModel;
     currentView: Views;
     type: Views;
+    layout: DagreLayout;
 }
 
 // Note: Dagre distribution spaces correctly only if the particular diagram screen is visible
-const dagreEngine = new DagreEngine({
+let dagreEngine = new DagreEngine({
     graph: {
         rankdir: 'LR',
         ranksep: 175,
@@ -47,14 +48,14 @@ const dagreEngine = new DagreEngine({
 });
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
-    const { model, currentView, type } = props;
+    const { model, currentView, layout, type } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE ||
         type === Views.TYPE_COMPOSITION ? createEntitiesEngine : createServicesEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const diagramRef = useRef<HTMLDivElement>(null);
 
-    // Reset the model and redistribute if the model changes
+    // Reset the model and redistribute if the model/layout changes
     useEffect(() => {
         if (diagramEngine.getModel()) {
             if (currentView === type) {
@@ -64,7 +65,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 setDiagramModel(undefined);
             }
         }
-    }, [model])
+    }, [model, layout])
 
     // Initial distribution of the nodes when the screen is on display (refer note above)
     useEffect(() => {
@@ -77,6 +78,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const autoDistribute = () => {
         setTimeout(() => {
+            if (dagreEngine.options.graph.ranker !== layout) {
+                dagreEngine.options.graph.ranker = layout;
+            }
             dagreEngine.redistribute(diagramEngine.getModel());
             diagramEngine.repaintCanvas();
         }, 30);

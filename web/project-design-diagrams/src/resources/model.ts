@@ -126,6 +126,11 @@ export enum Level {
     TWO = 2
 }
 
+export enum DagreLayout {
+    TREE = 'tight-tree',
+    GRAPH = 'longest-path'
+}
+
 export enum ServiceTypes {
     HTTP = "HTTP",
     GRPC = "GRPC",

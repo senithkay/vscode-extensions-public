@@ -17,7 +17,7 @@
  *
  */
 
-export { Colors, Level, ServiceTypes, Views } from './model';
+export { Colors, DagreLayout, Level, ServiceTypes, Views } from './model';
 
 export type {
     Attribute,

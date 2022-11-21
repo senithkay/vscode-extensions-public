@@ -22,7 +22,7 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { ComponentModel, Views } from './resources';
+import { ComponentModel, DagreLayout, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import './resources/assets/font/fonts.css';
 
@@ -49,6 +49,7 @@ export function DesignDiagram(props: DiagramProps) {
     const { fetchProjectResources } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
+    const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.GRAPH);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const previousScreen = useRef<Views>(undefined);
@@ -57,6 +58,10 @@ export function DesignDiagram(props: DiagramProps) {
     useEffect(() => {
         refreshDiagramResources();
     }, [])
+
+    const changeDiagramLayout = () => {
+        switchLayout(layout === DagreLayout.GRAPH ? DagreLayout.TREE : DagreLayout.GRAPH);
+    }
 
     const getTypeComposition = (typeID: string) => {
         previousScreen.current = currentView;
@@ -73,14 +78,16 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     return (
-        <DesignDiagramContext getTypeComposition={getTypeComposition} currentView={currentView}>
+        <DesignDiagramContext {...{getTypeComposition, currentView}}>
             <Container>
                 {currentView && projectPkgs ?
                     <>
                         <DiagramHeader
                             currentView={currentView}
+                            layout={layout}
                             prevView={previousScreen.current}
                             projectPackages={projectPkgs}
+                            changeLayout={changeDiagramLayout}
                             switchView={setCurrentView}
                             updateProjectPkgs={setProjectPkgs}
                             onRefresh={refreshDiagramResources}
@@ -91,6 +98,7 @@ export function DesignDiagram(props: DiagramProps) {
                                 workspacePackages={projectPkgs}
                                 workspaceComponents={projectComponents}
                                 typeCompositionModel={typeCompositionModel.current}
+                                layout={layout}
                             />
                         }
                     </> :
