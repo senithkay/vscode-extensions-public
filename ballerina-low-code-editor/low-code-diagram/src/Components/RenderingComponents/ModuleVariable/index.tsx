@@ -51,6 +51,7 @@ export function ModuleVariable(props: ModuleVariableProps) {
     let varValue = '';
     let isConfigurable = false;
     let isModuleConnector = false;
+    let isDisabledEdit = false;
 
     if (model && STKindChecker.isModuleVarDecl(model) && model.typeData.isEndpoint) {
         isModuleConnector = true;
@@ -68,6 +69,11 @@ export function ModuleVariable(props: ModuleVariableProps) {
         varValue = model.source.trim();
         isConfigurable = model && model.qualifiers.length > 0
             && model.qualifiers.filter(qualifier => STKindChecker.isConfigurableKeyword(qualifier)).length > 0;
+    } else if (STKindChecker.isObjectField(model) && model.typeData.isEndpoint) {
+        isModuleConnector = true;
+        varType = model.typeName.source.trim();
+        varName = model.fieldName.value;
+        isDisabledEdit = true; // TODO: need to fix service level statement adding feature
     } else if (STKindChecker.isObjectField(model)) {
         varType = model.typeData?.typeSymbol?.typeKind;
         varName = model.fieldName.value;
@@ -107,11 +113,8 @@ export function ModuleVariable(props: ModuleVariableProps) {
 
     return (
         <div>
-            <div
-                className={"module-variable-container"}
-                data-test-id="module-var"
-            >
-                <div className="module-variable-header" >
+            <div className={"module-variable-container"} data-test-id="module-var">
+                <div className="module-variable-header">
                     <div className={"module-variable-wrapper"}>
                         <div className={"module-variable-icon"}>
                             {isModuleConnector && <ModuleIcon node={model} width={16} scale={0.35} />}
@@ -121,23 +124,26 @@ export function ModuleVariable(props: ModuleVariableProps) {
                         <div className={"module-variable-type-text"}>
                             {tooltip ? tooltip : moduleVariableTypeElement}
                         </div>
-                        <div className={'module-variable-name-text'}>
-                            <tspan x="0" y="0">{nameMaxWidth ? varName.slice(0, 20) + "..." : varName}</tspan>
+                        <div className={"module-variable-name-text"}>
+                            <tspan x="0" y="0">
+                                {nameMaxWidth ? varName.slice(0, 20) + "..." : varName}
+                            </tspan>
                         </div>
                     </div>
                     {!isReadOnly && (
-                        <div className={'module-variable-actions'}>
-                            <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
-                                <EditButton onClick={handleEditBtnClick} />
-                            </div>
+                        <div className={"module-variable-actions"}>
+                            {!isDisabledEdit && (
+                                <div className={classNames("edit-btn-wrapper", "show-on-hover")}>
+                                    <EditButton onClick={handleEditBtnClick} />
+                                </div>
+                            )}
                             <div className={classNames("delete-btn-wrapper", "show-on-hover")}>
                                 <div ref={deleteBtnRef}>
                                     <DeleteButton onClick={handleOnDeleteClick} />
                                 </div>
                             </div>
                         </div>
-                    )
-                    }
+                    )}
                 </div>
             </div>
             {/* {
