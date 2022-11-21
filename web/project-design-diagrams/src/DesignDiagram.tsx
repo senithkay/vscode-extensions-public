@@ -57,7 +57,7 @@ export function DesignDiagram(props: DiagramProps) {
 
     useEffect(() => {
         refreshDiagramResources();
-    }, [])
+    }, [props])
 
     const changeDiagramLayout = () => {
         switchLayout(layout === DagreLayout.GRAPH ? DagreLayout.TREE : DagreLayout.GRAPH);
