@@ -38,8 +38,7 @@ export const Container = styled.div`
 export const IconContainer = styled.div`
 	align-items: center;
 	background-color: #FFFFFF;
-	border: ${(props: { isSelected: boolean }) => props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` :
-		`1px solid ${Colors.PRIMARY}`};
+	border: ${(props: { isSelected: boolean }) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
 	border-radius: 50%;
 	display: flex;
 	height: 50px;
