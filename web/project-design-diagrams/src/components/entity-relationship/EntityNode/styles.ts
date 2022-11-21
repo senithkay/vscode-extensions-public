@@ -35,8 +35,8 @@ interface StyleProps {
 export const EntityNode = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
-    border: ${(props: StyleProps) => props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` :
-        `1px solid ${props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY}`};
+    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
+        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY}`};
     border-radius: 2px !important;
     color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY};
     cursor: pointer;
