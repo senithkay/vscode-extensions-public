@@ -20,10 +20,12 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExitToApp from "@material-ui/icons/ExitToApp";
 import QueryIcon from '@material-ui/icons/StorageOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
+import { FUNCTION_BODY_QUERY } from "../../utils/constants";
 
 import {
     QueryExpressionNode,
@@ -130,12 +132,13 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickOnExpand = () => {
+        const isExprBodyQuery = STKindChecker.isExpressionFunctionBody(node.parentNode);
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,
                 selectedST: {
-                    stNode: node.parentNode,
-                    fieldPath: node.targetFieldFQN
+                    stNode: isExprBodyQuery ? node.context.selection.selectedST.stNode : node.parentNode,
+                    fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : node.targetFieldFQN
                 }
             })
     }

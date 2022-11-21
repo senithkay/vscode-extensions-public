@@ -2,6 +2,7 @@ export const MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX = "mappingConstructor";
 export const LIST_CONSTRUCTOR_TARGET_PORT_PREFIX = "listConstructor";
 export const PRIMITIVE_TYPE_TARGET_PORT_PREFIX = "primitiveType";
 export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
+export const FUNCTION_BODY_QUERY = "FunctionBody.query";
 
 export const OFFSETS = {
     SOURCE_NODE: {

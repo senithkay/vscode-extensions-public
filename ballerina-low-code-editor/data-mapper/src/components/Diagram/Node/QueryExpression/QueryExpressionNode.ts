@@ -13,14 +13,18 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX, OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
+import {
+    EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+    LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
+    OFFSETS
+} from "../../utils/constants";
 import { getFieldNames } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
+import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
-import { PrimitiveTypeNode } from "../PrimitiveType";
 import { RequiredParamNode } from "../RequiredParam";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
@@ -123,7 +127,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         } else if (STKindChecker.isExpressionFunctionBody(this.parentNode)) {
             const exprPosition = this.parentNode.expression.position;
             this.getModel().getNodes().forEach((node) => {
-                if (node instanceof PrimitiveTypeNode) {
+                if (node instanceof ListConstructorNode) {
                     const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];
@@ -131,7 +135,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             && port?.editableRecordField && port.editableRecordField?.value
                             && STKindChecker.isQueryExpression(port.editableRecordField.value)
                             && isPositionsEquals(port.editableRecordField.value.position, exprPosition)
-                            && port.portName === PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+                            && port.portName === LIST_CONSTRUCTOR_TARGET_PORT_PREFIX
                             && port.portType === 'IN'
                         ) {
                             this.targetPort = port;

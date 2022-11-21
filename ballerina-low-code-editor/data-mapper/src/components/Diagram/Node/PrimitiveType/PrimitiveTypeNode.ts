@@ -114,12 +114,6 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 outPort = this.getPort(`${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${
                     this.recordField.type.typeName}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
-            } else if (this.recordField.type.typeName === PrimitiveBalType.Array
-                && this.recordField?.value
-                && !STKindChecker.isListConstructor(this.recordField.value)
-            ) {
-                outPort = this.getPort(`${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.IN`) as RecordFieldPortModel;
-                mappedOutPort = outPort;
             } else {
                 [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             }

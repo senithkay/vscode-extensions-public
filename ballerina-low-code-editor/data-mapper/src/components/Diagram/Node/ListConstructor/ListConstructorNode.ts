@@ -26,9 +26,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import {
-    LIST_CONSTRUCTOR_TARGET_PORT_PREFIX
-} from "../../utils/constants";
+import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getBalRecFieldName,
     getEnrichedRecordType,
@@ -90,7 +88,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
                 if (isSelectClause) {
                     this.recordField = valueEnrichedType.elements[0].member;
                 }
-                if (!!this.recordField.elements.length) {
+                if (this.recordField?.elements && this.recordField.elements.length > 0) {
                     this.recordField.elements.forEach((field, index) => {
                         this.addPortsForOutputRecordField(field.member, "IN", this.rootName, index,
                             LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
@@ -119,7 +117,17 @@ export class ListConstructorNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+            let outPort: RecordFieldPortModel;
+            let mappedOutPort: RecordFieldPortModel;
+            if (this.recordField.type.typeName === PrimitiveBalType.Array
+                && this.recordField?.value
+                && !STKindChecker.isListConstructor(this.recordField.value)
+            ) {
+                outPort = this.getPort(`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.IN`) as RecordFieldPortModel;
+                mappedOutPort = outPort;
+            } else {
+                [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+            }
             const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({

@@ -1,6 +1,6 @@
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     BinaryExpression,
-    ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
     LetVarDecl,
@@ -28,8 +28,9 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
-import { OFFSETS } from "../utils/constants";
+import { FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import { getFieldAccessNodes, getSimpleNameRefNodes } from "../utils/dm-utils";
+import { RecordTypeDescriptorStore } from "../utils/record-type-descriptor-store";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -45,21 +46,47 @@ export class NodeInitVisitor implements Visitor {
     ) { }
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
-        const typeDesc = node.functionSignature.returnTypeDesc?.type;
+        const typeDesc = node.functionSignature?.returnTypeDesc.type;
         if (typeDesc) {
             if (STKindChecker.isExpressionFunctionBody(node.functionBody)) {
-                if (STKindChecker.isMappingConstructor(node.functionBody.expression)) {
+                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                const returnType = recordTypeDescriptors.getTypeDescriptor({
+                    startLine: typeDesc.position.startLine,
+                    startColumn: typeDesc.position.startColumn,
+                    endLine: typeDesc.position.startLine,
+                    endColumn: typeDesc.position.startColumn
+                });
+                if (returnType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         node.functionBody,
                         typeDesc
                     );
-                } else if (STKindChecker.isListConstructor(node.functionBody.expression)) {
-                    this.outputNode = new ListConstructorNode(
-                        this.context,
-                        node.functionBody,
-                        typeDesc
-                    );
+                } else if (returnType.typeName === PrimitiveBalType.Array) {
+                    if (STKindChecker.isQueryExpression(node.functionBody.expression)
+                        && this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY)
+                    {
+                        const selectClause = node.functionBody.expression.selectClause;
+                        if (STKindChecker.isMappingConstructor(selectClause.expression)) {
+                            this.outputNode = new MappingConstructorNode(
+                                this.context,
+                                selectClause,
+                                typeDesc
+                            );
+                        } else {
+                            this.outputNode = new PrimitiveTypeNode(
+                                this.context,
+                                selectClause,
+                                typeDesc
+                            );
+                        }
+                    } else {
+                        this.outputNode = new ListConstructorNode(
+                            this.context,
+                            node.functionBody,
+                            typeDesc
+                        );
+                    }
                 } else {
                     this.outputNode = new PrimitiveTypeNode(
                         this.context,
@@ -81,7 +108,7 @@ export class NodeInitVisitor implements Visitor {
                         param,
                         param.typeName
                     );
-                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0); 
+                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
                     this.inputNodes.push(paramNode);
                 } else {
                     // TODO for other param types
@@ -150,7 +177,7 @@ export class NodeInitVisitor implements Visitor {
                 queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
                 this.intermediateNodes.push(queryNode);
             }
-        } else {
+        } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY) {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
             this.intermediateNodes.push(queryNode);
             this.isWithinQuery += 1;
