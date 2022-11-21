@@ -16,6 +16,7 @@ import {
 
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { SelectionState } from "../../DataMapper/DataMapper";
+import { isArraysSupported } from "../../DataMapper/utils";
 import {
     MappingConstructorNode,
     QueryExpressionNode,
@@ -47,14 +48,20 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const typeDesc = node.functionSignature?.returnTypeDesc.type;
+        let typeDescPosition = typeDesc.position;
+        if (!isArraysSupported(this.context.ballerinaVersion)
+            && STKindChecker.isQualifiedNameReference(typeDesc))
+        {
+            typeDescPosition = typeDesc.identifier.position;
+        }
         if (typeDesc) {
             if (STKindChecker.isExpressionFunctionBody(node.functionBody)) {
                 const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
                 const returnType = recordTypeDescriptors.getTypeDescriptor({
-                    startLine: typeDesc.position.startLine,
-                    startColumn: typeDesc.position.startColumn,
-                    endLine: typeDesc.position.startLine,
-                    endColumn: typeDesc.position.startColumn
+                    startLine: typeDescPosition.startLine,
+                    startColumn: typeDescPosition.startColumn,
+                    endLine: typeDescPosition.startLine,
+                    endColumn: typeDescPosition.startColumn
                 });
                 if (returnType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(

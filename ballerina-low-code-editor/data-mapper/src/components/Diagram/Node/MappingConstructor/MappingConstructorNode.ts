@@ -23,6 +23,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { isArraysSupported } from "../../../DataMapper/utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
@@ -65,9 +66,12 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
     async initPorts() {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-        const typeIdentifierPosition = STKindChecker.isQualifiedNameReference(this.typeIdentifier)
-            ? this.typeIdentifier.identifier.position
-            : this.typeIdentifier.position;
+        let typeIdentifierPosition = this.typeIdentifier.position;
+        if (!isArraysSupported(this.context.ballerinaVersion)
+            && STKindChecker.isQualifiedNameReference(this.typeIdentifier))
+        {
+            typeIdentifierPosition = this.typeIdentifier.identifier.position;
+        }
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
             startLine: typeIdentifierPosition.startLine,
             startColumn: typeIdentifierPosition.startColumn,
