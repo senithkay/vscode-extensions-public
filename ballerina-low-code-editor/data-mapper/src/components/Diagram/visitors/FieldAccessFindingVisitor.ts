@@ -20,25 +20,25 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 export class FieldAccessFindingVisitor implements Visitor {
-    private fieldAccesseNodes: (FieldAccess | OptionalFieldAccess)[];
+    private readonly fieldAccessNodes: (FieldAccess | OptionalFieldAccess)[];
     private queryExpressionDepth: number;
-    
+
     constructor() {
-        this.fieldAccesseNodes = []
+        this.fieldAccessNodes = []
         this.queryExpressionDepth = 0
     }
 
     public beginVisitFieldAccess(node: FieldAccess, parent?: STNode) {
         if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth == 0){
-            this.fieldAccesseNodes.push(node)
+            && this.queryExpressionDepth === 0){
+            this.fieldAccessNodes.push(node)
         }
     }
 
     public beginVisitOptionalFieldAccess(node: OptionalFieldAccess, parent?: STNode) {
         if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth == 0){
-            this.fieldAccesseNodes.push(node)
+            && this.queryExpressionDepth === 0){
+            this.fieldAccessNodes.push(node)
         }
     }
 
@@ -51,7 +51,7 @@ export class FieldAccessFindingVisitor implements Visitor {
     }
 
     public getFieldAccessNodes(){
-        return this.fieldAccesseNodes
+        return this.fieldAccessNodes
     }
 
 }
