@@ -33,8 +33,6 @@ import { DataMapperInputParam, DataMapperOutputParam } from "./InputParamsPanel/
 import { RecordButtonGroup } from "./RecordButtonGroup";
 import { CompletionResponseWithModule, TypeBrowser } from "./TypeBrowser";
 import {
-    EXPR_SCHEME,
-    FILE_SCHEME,
     isValidOutput,
     getDefaultFnName,
     getDiagnosticsForFnName,
@@ -44,6 +42,7 @@ import {
     getOutputTypeFromST
 } from "./utils";
 import { CurrentFileContext } from "../Context/current-file-context";
+import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
 export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
@@ -100,7 +99,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             setInitiated(true);
         })();
     }, []);
-    const [isLoading, setLoading] = useState(false);
+    const [fetchingCompletions, setFetchingCompletions] = useState(false);
 
     const { path, content } = useContext(CurrentFileContext);
 
@@ -108,75 +107,11 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
-            const currentFileContent =currentFile.content
-            const typeLabelsToIgnore = ["StrandData"];
-            const fnSTPosition = fnST?.position || targetPosition;
-            setLoading(true);
-            const completionMap = new Map<string, CompletionResponseWithModule>();
-            const langClient = await langClientPromise;
-            const completionParams: CompletionParams = {
-                textDocument: { uri: Uri.file(path).toString() },
-                position: { character: 0, line: 0 },
-                context: { triggerKind: 22 },
-            };
-            const completions = await langClient.getCompletion(completionParams);
-            const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
-            recCompletions.forEach((item) => completionMap.set(item.insertText, item));
-
-            const exprFileUrl = Uri.file(path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-            langClient.didOpen({
-                textDocument: {
-                    languageId: "ballerina",
-                    text: currentFileContent,
-                    uri: exprFileUrl,
-                    version: 1,
-                },
-            });
-
-            for (const importStr of importStatements) {
-                const moduleName = importStr.split("/").pop().replace(";", "");
-                const updatedContent = addToTargetPosition(
-                    currentFileContent,
-                    {
-                        startLine: fnSTPosition.endLine,
-                        startColumn: fnSTPosition.endColumn,
-                        endLine: fnSTPosition.endLine,
-                        endColumn: fnSTPosition.endColumn,
-                    },
-                    `${moduleName}:`
-                );
-
-                langClient.didChange({
-                    textDocument: { uri: exprFileUrl, version: 1 },
-                    contentChanges: [{ text: updatedContent }],
-                });
-
-                const completions = await langClient.getCompletion({
-                    textDocument: { uri: exprFileUrl },
-                    position: { character: fnSTPosition.endColumn + moduleName.length + 1, line: fnSTPosition.endLine },
-                    context: { triggerKind: 22 },
-                });
-
-                const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
-
-                recCompletions.forEach((item) => {
-                    if (!completionMap.has(item.insertText)) {
-                        completionMap.set(item.insertText, { ...item, module: moduleName });
-                    }
-                });
-            }
-            langClient.didChange({
-                textDocument: { uri: exprFileUrl, version: 1 },
-                contentChanges: [{ text: currentFileContent }],
-            });
-
-            langClient.didClose({ textDocument: { uri: exprFileUrl } });
-
-            const allCompletions = Array.from(completionMap.values()).filter(
-                (item) => !(typeLabelsToIgnore.includes(item.label) || item.label.startsWith("("))
-            );
+            setFetchingCompletions(true);
+            const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
+                                        importStatements,fnST?.position || targetPosition , path);
             setRecordCompletions(allCompletions);
-            setLoading(false);
+            setFetchingCompletions(false);
         })();
     }, [content]);
 
@@ -382,7 +317,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                             <TypeBrowser
                                                 type={outputType.type}
                                                 onChange={handleOutputTypeChange}
-                                                isLoading={isLoading}
+                                                isLoading={fetchingCompletions}
                                                 recordCompletions={recordCompletions}
                                             />
                                         )}
