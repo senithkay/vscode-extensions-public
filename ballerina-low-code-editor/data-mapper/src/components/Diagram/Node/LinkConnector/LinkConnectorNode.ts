@@ -24,6 +24,7 @@ import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { PrimitiveTypeNode } from "../PrimitiveType";
 
@@ -86,7 +87,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
-                if (node instanceof MappingConstructorNode || node instanceof PrimitiveTypeNode) {
+                if (node instanceof MappingConstructorNode
+                    || node instanceof PrimitiveTypeNode
+                    || node instanceof ListConstructorNode)
+                {
                     if (STKindChecker.isFunctionDefinition(this.parentNode)) {
                         const typeDescPosition = this.parentNode.functionSignature?.returnTypeDesc.type.position;
                         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
