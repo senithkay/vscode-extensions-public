@@ -122,10 +122,15 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		parent = parent.parentModel;
 	}
 
-	if ((targetNode instanceof MappingConstructorNode)
-		&& STKindChecker.isMappingConstructor(targetNode.value.expression)
-	) {
+	if (targetNode instanceof MappingConstructorNode
+		&& STKindChecker.isMappingConstructor(targetNode.value.expression))
+	{
 		mappingConstruct = targetNode.value.expression;
+	} else if (targetNode instanceof ListConstructorNode
+		&& STKindChecker.isListConstructor(targetNode.value.expression)
+		&& fieldIndexes !== undefined && !!fieldIndexes.length)
+	{
+		mappingConstruct = getNextMappingConstructor(targetNode.value.expression);
 	}
 
 	let targetMappingConstruct = mappingConstruct;
