@@ -18,6 +18,7 @@ export interface Expression {
     template: string;
     example: string;
     values?: string;
+    symbol?: string;
 }
 
 
@@ -191,29 +192,34 @@ const unary: ExpressionGroup = {
 }
 //     6.24 Additive expression
 //     6.23 Multiplicative expression
-const operators: ExpressionGroup = {
+export const operators: ExpressionGroup = {
     name: "Arithmetic",
     expressions: [
         {
             name: "Add",
             template: ` ${SELECTED_EXPRESSION} + ${EXPR_PLACEHOLDER}`,
-            example: "Es + Ex"
+            example: "Es + Ex",
+            symbol: "+"
         }, {
             name: "Subtract",
             template: ` ${SELECTED_EXPRESSION} - ${EXPR_PLACEHOLDER}`,
-            example: "Es - Ex"
+            example: "Es - Ex",
+            symbol: "-"
         }, {
             name: "Multiply",
             template: ` ${SELECTED_EXPRESSION} * ${EXPR_PLACEHOLDER}`,
-            example: "Es * Ex"
+            example: "Es * Ex",
+            symbol: "*"
         }, {
             name: "Divide",
             template: ` ${SELECTED_EXPRESSION} / ${EXPR_PLACEHOLDER}`,
-            example: "Es / Ex"
+            example: "Es / Ex",
+            symbol: "/"
         }, {
             name: "Modules",
             template: ` ${SELECTED_EXPRESSION} % ${EXPR_PLACEHOLDER}`,
-            example: "Es % Ex"
+            example: "Es % Ex",
+            symbol: "%"
         },
     ],
     relatedModelType: ModelType.EXPRESSION

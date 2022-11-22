@@ -105,7 +105,7 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
             width: '100%',
             justifyContent: 'flex-start',
             borderBottom: '1px solid #e6e7ec',
-            padding: '4px 0px 4px 17px'
+            paddingLeft: '17px'
         },
         toolbarSet: {
             border: '1px solid #e6e7ec',

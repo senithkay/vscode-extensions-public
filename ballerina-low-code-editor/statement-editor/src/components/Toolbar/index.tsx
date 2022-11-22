@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo } from "react";
 
-import { Divider } from "@material-ui/core";
+import { Divider, Typography } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -42,6 +42,7 @@ import { ModelType, StatementEditorViewState } from "../../utils/statement-edito
 import { useStatementEditorToolbarStyles } from "../styles";
 
 import StatementQualifiers from "./StatementQualifiers";
+import { ToolbarOperators } from "./ToolbarOperators";
 
 interface ToolbarProps {
     inlineDocumentHandler: (docBtnEnabled: boolean) => void
@@ -147,6 +148,9 @@ export default function Toolbar(props: ToolbarProps) {
         docEnabled ? setDocEnabled(false) : setDocEnabled(true);
     }
 
+    const onClickExpressions = () => {
+    }
+
     useEffect(() => {
         inlineDocumentHandler(docEnabled);
     }, [docEnabled])
@@ -205,7 +209,25 @@ export default function Toolbar(props: ToolbarProps) {
                 </IconButton>
             </StatementEditorHint>
             <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
-            {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && <StatementQualifiers/>}
+            {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && (
+                <>
+                    <StatementQualifiers />
+                    <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
+                </>
+            )}
+            <ToolbarOperators></ToolbarOperators>
+            <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
+            <StatementEditorHint content={"More expressions"} >
+                <IconButton
+                    onClick={onClickExpressions}
+                    className={statementEditorClasses.toolbarIcons}
+                    data-testid="toolbar-expressions"
+                >
+                    <Typography style={{ fontFamily: 'monospace' }}>
+                        ...
+                    </Typography>
+                </IconButton>
+            </StatementEditorHint>
         </div>
     );
 }
