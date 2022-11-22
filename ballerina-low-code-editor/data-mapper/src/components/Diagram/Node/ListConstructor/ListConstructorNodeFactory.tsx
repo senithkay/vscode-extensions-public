@@ -51,6 +51,7 @@ export class ListConstructorNodeFactory extends AbstractReactFactory<ListConstru
 				context={event.model.context}
 				typeName={event.model.typeName}
 				valueLabel={valueLabel}
+				deleteField={(node: STNode) => event.model.deleteField(node)}
 				isParentSelectClause={isParentSelectClause}
 			/>
 		);

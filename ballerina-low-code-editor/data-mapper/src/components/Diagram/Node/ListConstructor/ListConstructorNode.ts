@@ -11,13 +11,16 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ExpressionFunctionBody,
     IdentifierToken,
     MappingConstructor,
     SelectClause,
-    STKindChecker
+    STKindChecker,
+    STNode,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -29,14 +32,17 @@ import { RecordFieldPortModel } from "../../Port";
 import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getBalRecFieldName,
+    getDefaultValue,
     getEnrichedRecordType,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
-    getTypeName
+    getTypeName,
+    getTypeOfValue
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const LIST_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-list-constructor";
@@ -140,7 +146,8 @@ export class ListConstructorNode extends DataMapperNodeModel {
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value
-                        : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`
+                        : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
+                    deleteLink: () => this.deleteField(field, true)
                 }));
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
@@ -159,6 +166,31 @@ export class ListConstructorNode extends DataMapperNodeModel {
             }
         });
     }
+
+    async deleteField(field: STNode, keepDefaultVal?: boolean) {
+        let modifications: STModification[];
+        const typeOfValue = getTypeOfValue(this.recordField, field.position);
+        if (keepDefaultVal && !STKindChecker.isSpecificField(field)) {
+            modifications = [{
+                type: "INSERT",
+                config: {
+                    "STATEMENT": getDefaultValue(typeOfValue)
+                },
+                ...field.position
+            }];
+        } else {
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
+            traversNode(this.value.expression, linkDeleteVisitor);
+            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+            modifications = [{
+                type: "DELETE",
+                ...nodePositionsToDelete
+            }]
+        }
+
+        await this.context.applyModifications(modifications);
+    }
+
 
     public updatePosition() {
         this.setPosition(this.position.x, this.position.y);

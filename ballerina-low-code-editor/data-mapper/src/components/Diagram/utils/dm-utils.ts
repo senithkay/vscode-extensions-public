@@ -898,6 +898,29 @@ export function getFieldLabel(fieldId: string) {
 	return fieldLabel;
 }
 
+export function getTypeOfValue(editableRecField: EditableRecordField, targetPosition: NodePosition): Type {
+	if (editableRecField.hasValue()) {
+		if (isPositionsEquals(editableRecField.value.position, targetPosition)) {
+			return editableRecField.type;
+		} else if (editableRecField.elements) {
+			for (const element of editableRecField.elements) {
+				const type = getTypeOfValue(element.member, targetPosition);
+				if (type) {
+					return type;
+				}
+			}
+		} else if (editableRecField.childrenTypes) {
+			for (const child of editableRecField.childrenTypes) {
+				const type = getTypeOfValue(child, targetPosition);
+				if (type) {
+					return type;
+				}
+			}
+		}
+	}
+	return undefined;
+}
+
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 	                                    fieldIndex: number,
 	                                    targetPosition: NodePosition,

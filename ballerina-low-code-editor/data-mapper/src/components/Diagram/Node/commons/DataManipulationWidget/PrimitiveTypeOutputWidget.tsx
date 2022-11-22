@@ -181,6 +181,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 								parentId={id}
 								mappingConstruct={undefined}
 								context={context}
+								deleteField={deleteField}
 								isReturnTypeDesc={true}
 							/>
 						)
