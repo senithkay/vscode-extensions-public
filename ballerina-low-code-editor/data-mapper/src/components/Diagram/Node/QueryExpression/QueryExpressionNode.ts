@@ -1,7 +1,7 @@
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
-    MappingConstructor,
     QueryExpression,
     STKindChecker,
     STNode,
@@ -226,19 +226,34 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         }
     }
 
-    public deleteLink() {
-        const mappingNode = (this.getModel().getNodes().find((node) => node instanceof MappingConstructorNode) as MappingConstructorNode)
-        const mappingConstructor = mappingNode?.value?.expression as MappingConstructor;
-
-        if(mappingConstructor){
-            const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode.position, mappingConstructor);
-            traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
-            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
-    
-            this.context.applyModifications([{
-                type: "DELETE",
-                ...nodePositionsToDelete
-            }]);
+    public async deleteLink() {
+        let modifications: STModification[];
+        const dmNode = this.getModel().getNodes().find(node =>
+            node instanceof MappingConstructorNode || node instanceof ListConstructorNode
+        ) as MappingConstructorNode | ListConstructorNode;
+        if (dmNode) {
+            if (STKindChecker.isSpecificField(this.parentNode)) {
+                const rootConstruct = dmNode.value.expression;
+                const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode.position, rootConstruct);
+                traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
+                const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+                modifications = [{
+                    type: "DELETE",
+                    ...nodePositionsToDelete
+                }];
+            } else {
+                if (dmNode instanceof ListConstructorNode) {
+                    modifications = [{
+                        type: "INSERT",
+                        config: {
+                            "STATEMENT": '[]'
+                        },
+                        ...this.value.position
+                    }];
+                }
+            }
         }
+
+        await this.context.applyModifications(modifications);
     }
 }

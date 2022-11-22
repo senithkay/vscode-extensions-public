@@ -143,9 +143,9 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
             })
     }
 
-    const deleteQueryLink = () => {
+    const deleteQueryLink = async () => {
         setDeleteInProgress(true);
-        node.deleteLink();
+        await node.deleteLink();
     }
 
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
