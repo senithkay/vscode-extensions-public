@@ -409,7 +409,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 					return expr.name.value === bindingPattern.variableName.value;
 				}
 			}
-		}) as LetClauseNode | RequiredParamNode)?.value;
+		}) as LetClauseNode | RequiredParamNode | FromClauseNode)?.value;
 		if (paramNode) {
 			return findNodeByValueNode(paramNode, dmNode);
 		}
@@ -439,9 +439,15 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			}
 
 			const selectedST = dmNode.context.selection.selectedST.stNode;
-			if (!paramNode && STKindChecker.isSpecificField(selectedST)
-				&& STKindChecker.isQueryExpression(selectedST.valueExpr)) {
-				paramNode = selectedST.valueExpr.queryPipeline.fromClause
+			if (!paramNode) {
+				if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
+					paramNode = selectedST.valueExpr.queryPipeline.fromClause
+				} else if (STKindChecker.isFunctionDefinition(selectedST)
+					&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
+					&& STKindChecker.isQueryExpression(selectedST.functionBody.expression))
+				{
+					paramNode = selectedST.functionBody.expression.queryPipeline.fromClause;
+				}
 			}
 			return findNodeByValueNode(paramNode, dmNode);
 		}
@@ -855,12 +861,22 @@ export function getFieldAccessNodes(node: STNode) {
 export function getSimpleNameRefNodes(selectedST: STNode, node: STNode) {
 	const possibleReferences: string[] = [];
 	if (STKindChecker.isFunctionDefinition(selectedST)) {
-		const params = selectedST.functionSignature.parameters;
-		params.forEach((param) => {
-			if (STKindChecker.isRequiredParam(param) && param?.paramName) {
-				possibleReferences.push(param.paramName.value);
+		if (STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
+			&& STKindChecker.isQueryExpression(selectedST.functionBody.expression))
+		{
+			const bindingPattern = selectedST.functionBody.expression.queryPipeline.fromClause
+				.typedBindingPattern.bindingPattern;
+			if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+				possibleReferences.push(bindingPattern.variableName.value);
 			}
-		});
+		} else {
+			const params = selectedST.functionSignature.parameters;
+			params.forEach((param) => {
+				if (STKindChecker.isRequiredParam(param) && param?.paramName) {
+					possibleReferences.push(param.paramName.value);
+				}
+			});
+		}
 	} else if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
 		const bindingPattern = selectedST.valueExpr.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
 		if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
