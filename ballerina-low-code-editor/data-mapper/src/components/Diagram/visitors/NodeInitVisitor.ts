@@ -50,6 +50,7 @@ export class NodeInitVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const typeDesc = node.functionSignature?.returnTypeDesc.type;
         let typeDescPosition = typeDesc.position;
+        let isFnBodyQueryExpr = false;
         if (!isArraysSupported(this.context.ballerinaVersion)
             && STKindChecker.isQualifiedNameReference(typeDesc))
         {
@@ -74,6 +75,7 @@ export class NodeInitVisitor implements Visitor {
                     if (STKindChecker.isQueryExpression(node.functionBody.expression)
                         && this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY)
                     {
+                        isFnBodyQueryExpr = true;
                         const selectClause = node.functionBody.expression.selectClause;
                         if (STKindChecker.isMappingConstructor(selectClause.expression)) {
                             this.outputNode = new MappingConstructorNode(
@@ -88,6 +90,13 @@ export class NodeInitVisitor implements Visitor {
                                 typeDesc
                             );
                         }
+
+                        const fromClauseNode = new FromClauseNode(
+                            this.context,
+                            node.functionBody.expression.queryPipeline.fromClause
+                        );
+                        fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                        this.inputNodes.push(fromClauseNode);
                     } else {
                         this.outputNode = new ListConstructorNode(
                             this.context,
@@ -106,20 +115,22 @@ export class NodeInitVisitor implements Visitor {
             this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
         }
         // create input nodes
-        const params = node.functionSignature.parameters;
-        if (!!params.length) {
-            for (let i = 0; i < params.length; i++) {
-                const param = params[i];
-                if (STKindChecker.isRequiredParam(param)) {
-                    const paramNode = new RequiredParamNode(
-                        this.context,
-                        param,
-                        param.typeName
-                    );
-                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-                    this.inputNodes.push(paramNode);
-                } else {
-                    // TODO for other param types
+        if (!isFnBodyQueryExpr) {
+            const params = node.functionSignature.parameters;
+            if (!!params.length) {
+                for (let i = 0; i < params.length; i++) {
+                    const param = params[i];
+                    if (STKindChecker.isRequiredParam(param)) {
+                        const paramNode = new RequiredParamNode(
+                            this.context,
+                            param,
+                            param.typeName
+                        );
+                        paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                        this.inputNodes.push(paramNode);
+                    } else {
+                        // TODO for other param types
+                    }
                 }
             }
         }
@@ -139,8 +150,23 @@ export class NodeInitVisitor implements Visitor {
                 const addInitialClauseHeight = 65;
                 const yPosition = 50 + (intermediateClausesHeight || addInitialClauseHeight);
                 // create output node
-                if (STKindChecker.isMappingConstructor(node.selectClause.expression)) {
+                const fieldNamePosition = parent.fieldName.position;
+                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                const exprType = recordTypeDescriptors.getTypeDescriptor({
+                    startLine: fieldNamePosition.startLine,
+                    startColumn: fieldNamePosition.startColumn,
+                    endLine: fieldNamePosition.startLine,
+                    endColumn: fieldNamePosition.startColumn
+                });
+
+                if (exprType.memberType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
+                        this.context,
+                        node.selectClause,
+                        parent.fieldName
+                    );
+                } else if (exprType.memberType.typeName === PrimitiveBalType.Array) {
+                    this.outputNode = new ListConstructorNode(
                         this.context,
                         node.selectClause,
                         parent.fieldName
