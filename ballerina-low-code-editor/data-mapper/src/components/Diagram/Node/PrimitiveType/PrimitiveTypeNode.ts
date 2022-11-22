@@ -17,8 +17,7 @@ import {
     IdentifierToken,
     SelectClause,
     STKindChecker,
-    STNode,
-    traversNode
+    STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -39,7 +38,6 @@ import {
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
-import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
@@ -152,32 +150,17 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     async deleteField(field: STNode) {
-        let modifications: STModification[];
-        if (this.typeDef?.typeName === PrimitiveBalType.Array && this.typeDef.memberType
-            && this.typeDef.memberType.typeName !== PrimitiveBalType.Array
-            && this.typeDef.memberType.typeName !== PrimitiveBalType.Record)
-        {
-            // Fallback to the default value if the target is a primitive type element
-            modifications = [{
+        const typeOfValue = STKindChecker.isSelectClause(this.value) ? this.typeDef.memberType : this.typeDef;
+        const modifications: STModification[] = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(this.typeDef.memberType)
+                    "STATEMENT": getDefaultValue(typeOfValue)
                 },
                 ...field.position
             }];
-        } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
-            traversNode(this.value.expression, linkDeleteVisitor);
-            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
-            modifications = [{
-                type: "DELETE",
-                ...nodePositionsToDelete
-            }]
-        }
 
         await this.context.applyModifications(modifications);
     }
-
 
     public updatePosition() {
         this.setPosition(this.position.x, this.position.y);
