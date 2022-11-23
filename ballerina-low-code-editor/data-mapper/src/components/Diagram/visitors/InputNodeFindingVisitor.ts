@@ -20,7 +20,7 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-export class FieldAccessFindingVisitor implements Visitor {
+export class InputNodeFindingVisitor implements Visitor {
     private fieldAccesseNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[];
     private queryExpressionDepth: number;
     

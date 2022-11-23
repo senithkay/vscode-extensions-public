@@ -35,7 +35,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
-import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
+import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 
 import {
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
@@ -763,14 +763,14 @@ export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 }
 
 export function isConnectedViaLink(field: STNode) {
-	const fieldAccessNodes = getInputNodes(field);
+	const inputNodes = getInputNodes(field);
 
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field);
 	const isListConstruct = STKindChecker.isListConstructor(field);
 	const isQueryExpression = STKindChecker.isQueryExpression(field)
 	const isSimpleNameRef = STKindChecker.isSimpleNameReference(field)
 
-	return (!!fieldAccessNodes.length || isQueryExpression || isSimpleNameRef)
+	return (!!inputNodes.length || isQueryExpression || isSimpleNameRef)
 		&& !isMappingConstruct && !isListConstruct;
 }
 
@@ -838,9 +838,9 @@ export function isArrayOrRecord(field: Type) {
 }
 
 export function getInputNodes(node: STNode) {
-	const fieldAccessFindingVisitor: FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
-	traversNode(node, fieldAccessFindingVisitor);
-	return fieldAccessFindingVisitor.getFieldAccessNodes();
+	const inputNodeFindingVisitor: InputNodeFindingVisitor = new InputNodeFindingVisitor();
+	traversNode(node, inputNodeFindingVisitor);
+	return inputNodeFindingVisitor.getFieldAccessNodes();
 }
 
 
