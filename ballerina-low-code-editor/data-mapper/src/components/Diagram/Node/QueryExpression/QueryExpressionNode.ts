@@ -110,7 +110,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         const fieldNamePosition = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.position;
         if (fieldNamePosition) {
             this.getModel().getNodes().map((node) => {
-                if (node instanceof MappingConstructorNode) {
+                if (node instanceof MappingConstructorNode || node instanceof ListConstructorNode) {
                     const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];
