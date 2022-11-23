@@ -107,13 +107,15 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
-            setFetchingCompletions(true);
-            const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
-                                        importStatements,fnST?.position || targetPosition , path);
-            setRecordCompletions(allCompletions);
-            setFetchingCompletions(false);
+            if(initiated){
+                setFetchingCompletions(true);
+                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
+                                            importStatements,fnST?.position || targetPosition , path);
+                setRecordCompletions(allCompletions);
+                setFetchingCompletions(false);
+            }
         })();
-    }, [content]);
+    }, [content, initiated]);
 
     const onSaveForm = () => {
         const parametersStr = inputParams
