@@ -19,6 +19,7 @@ import { NodePosition, RecordTypeDesc, TypeDefinition } from "@wso2-enterprise/s
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { createPropertyStatement } from "../../../../utils";
+import { UndoRedoManager } from "../../UndoRedoManager";
 import { wizardStyles } from "../style";
 
 import { CreateRecord } from "./CreateRecord";
@@ -35,8 +36,10 @@ export interface RecordEditorProps {
     onSave: (typeDesc: string, recModel: RecordModel) => void;
 }
 
+const undoRedoManager = new UndoRedoManager();
+
 export function RecordEditor(props: RecordEditorProps) {
-    const { name, onCancel, onSave, model, targetPosition, formType, isTypeDefinition = true, isDataMapper } = props;
+    const { onCancel, model, targetPosition, formType, isDataMapper } = props;
 
     const overlayClasses = wizardStyles();
 
@@ -85,6 +88,8 @@ export function RecordEditor(props: RecordEditorProps) {
     }
 
     const createModelSave = (recordString: string, pos: NodePosition) => {
+        undoRedoManager.updateContent(currentFile.path, currentFile.content);
+        undoRedoManager.addModification(currentFile.content);
         modifyDiagram([
             createPropertyStatement(recordString, targetPosition, false)
         ]);
@@ -107,6 +112,7 @@ export function RecordEditor(props: RecordEditorProps) {
                     onSave={createModelSave}
                     targetPosition={targetPosition}
                     isDataMapper={isDataMapper}
+                    undoRedoManager={undoRedoManager}
                 />
             )}
         </>

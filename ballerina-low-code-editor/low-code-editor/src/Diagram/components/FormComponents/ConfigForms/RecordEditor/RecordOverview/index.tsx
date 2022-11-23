@@ -17,11 +17,14 @@ import { useIntl } from "react-intl";
 import { IconButton, Link } from "@material-ui/core";
 import { DeleteButton, UndoIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { ModulePart, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker, STNode, TypeDefinition  } from "@wso2-enterprise/syntax-tree";
 import classNames from 'classnames';
 
 import { PrimaryButtonSquare } from "../../../../../../components/Buttons/PrimaryButtonSquare";
+import Tooltip from "../../../../../../components/TooltipV2";
 import { Context } from "../../../../../../Contexts/Diagram";
+import { updatePropertyStatement } from "../../../../../utils";
+import { UndoRedoManager } from "../../../UndoRedoManager";
 import { wizardStyles } from "../../style";
 import { RecordEditor } from "../index";
 import { recordStyles } from "../style";
@@ -32,17 +35,19 @@ import { RecordItem } from "./RecordItem";
 
 export interface RecordOverviewProps {
     definitions: TypeDefinition | ModulePart;
+    prevST?: STNode;
+    undoRedoManager?: UndoRedoManager;
     onComplete: () => void;
     onCancel: () => void;
 }
 
 export function RecordOverview(overviewProps: RecordOverviewProps) {
-    const { definitions, onComplete, onCancel } = overviewProps;
+    const { definitions, prevST, undoRedoManager, onComplete, onCancel } = overviewProps;
 
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
 
-    const { props: { syntaxTree }, api: { code: { modifyDiagram, undo } } } = useContext(Context);
+    const { props: { syntaxTree, currentFile }, api: { code: { modifyDiagram } } } = useContext(Context);
 
     const intl = useIntl();
     const doneButtonText = intl.formatMessage({
@@ -68,6 +73,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     const [selectedRecord, setSelectedRecord] = useState<string>();
     const createdDefinitions = extractImportedRecordNames(definitions);
     const [recordNames, setRecordNames] = useState<RecordItemModel[]>(createdDefinitions);
+    const [originalSource] = useState<STNode>(prevST);
 
     const onEditClick = (record: string) => {
         setSelectedRecord(record);
@@ -95,7 +101,13 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     }, [recordNames]);
 
     useEffect(() => {
-        setRecordNames(getAvailableCreatedRecords(createdDefinitions, syntaxTree));
+        if (syntaxTree.source !== originalSource.source) {
+            const createdRecords = getAvailableCreatedRecords(createdDefinitions, syntaxTree);
+            setRecordNames(getAvailableCreatedRecords(createdDefinitions, syntaxTree));
+            if (createdRecords.length === 0) {
+                onCancel();
+            }
+        }
     }, [syntaxTree]);
 
     const [listRecords, setListRecords] = useState<ReactNode[]>([]);
@@ -118,6 +130,8 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
             }
         })
         setRecordNames(recordNameClone);
+        undoRedoManager.updateContent(currentFile.path, currentFile.content);
+        undoRedoManager.addModification(currentFile.content);
         modifyDiagram(getRemoveCreatedRecordRange(selectedRecords, syntaxTree));
         if (recordNameClone.length === 0) {
             onCancel();
@@ -137,7 +151,13 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     }
 
     const handleUndo = () => {
-        undo();
+        const lastUpdateSource = undoRedoManager.undo();
+        modifyDiagram([updatePropertyStatement(lastUpdateSource, syntaxTree.position)]);
+        if (lastUpdateSource === originalSource.source) {
+            // If original source matches to last updated source we assume there are no newly created record.
+            // Hence, we are closing the form.
+            onCancel();
+        }
     }
 
     return (
@@ -170,13 +190,15 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                             <DeleteButton /> {deleteSelected}
                         </div>
 
-                        <IconButton
-                            onClick={handleUndo}
-                            className={classNames(recordClasses.undoButton, recordClasses.marginSpace)}
-                            data-testid="overview-undo"
-                        >
-                            <UndoIcon />
-                        </IconButton>
+                        <Tooltip type="info" text={{content: "Undo"}} placement="bottom-end">
+                            <IconButton
+                                onClick={handleUndo}
+                                className={classNames(recordClasses.undoButton, recordClasses.marginSpace)}
+                                data-testid="overview-undo"
+                            >
+                                <UndoIcon />
+                            </IconButton>
+                        </Tooltip>
 
                     </div>
                     <div className={recordClasses.doneButtonWrapper}>
