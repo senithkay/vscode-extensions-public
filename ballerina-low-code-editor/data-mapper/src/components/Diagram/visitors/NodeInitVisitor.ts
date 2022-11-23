@@ -106,6 +106,27 @@ export class NodeInitVisitor implements Visitor {
                         );
                         fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
                         this.inputNodes.push(fromClauseNode);
+                        //
+                        // const letClauses =
+                        //     node.functionBody.expression.queryPipeline.intermediateClauses?.filter(
+                        //         (item) =>
+                        //             STKindChecker.isLetClause(item) &&
+                        //             (
+                        //                 (item.letVarDeclarations[0] as LetVarDecl)
+                        //                     ?.expression as SimpleNameReference
+                        //             )?.name?.value !== "EXPRESSION"
+                        //     );
+                        //
+                        // for (const [index, item] of letClauses.entries()) {
+                        //     const paramNode = new LetClauseNode(this.context, item as LetClause);
+                        //     paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                        //     this.inputNodes.push(paramNode);
+                        // }
+                        //
+                        // const queryNode = new ExpandedMappingHeaderNode(this.context, node.functionBody.expression);
+                        // queryNode.setLocked(true)
+                        // queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
+                        // this.intermediateNodes.push(queryNode);
                     } else {
                         this.outputNode = new ListConstructorNode(
                             this.context,
