@@ -17,6 +17,7 @@ import {
     ExpressionFunctionBody,
     IdentifierToken,
     MappingConstructor,
+    QueryExpression,
     SelectClause,
     STKindChecker,
     STNode,
@@ -59,7 +60,8 @@ export class ListConstructorNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
         public value: ExpressionFunctionBody | SelectClause,
-        public typeIdentifier: TypeDescriptor | IdentifierToken) {
+        public typeIdentifier: TypeDescriptor | IdentifierToken,
+        public queryExpr?: QueryExpression) {
         super(
             context,
             LIST_CONSTRUCTOR_NODE_TYPE
@@ -85,10 +87,10 @@ export class ListConstructorNode extends DataMapperNodeModel {
                 this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
             }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                this.value.expression, this.context.selection.selectedST.stNode);
+                this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = getTypeName(valueEnrichedType.type);
             this.recordField = valueEnrichedType;
-            const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
+            const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, isSelectClause, this.recordField);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array) {
                 if (isSelectClause) {

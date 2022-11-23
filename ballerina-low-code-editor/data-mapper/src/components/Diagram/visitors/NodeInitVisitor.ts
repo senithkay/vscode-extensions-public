@@ -81,13 +81,22 @@ export class NodeInitVisitor implements Visitor {
                             this.outputNode = new MappingConstructorNode(
                                 this.context,
                                 selectClause,
-                                typeDesc
+                                typeDesc,
+                                node.functionBody.expression
+                            );
+                        } else if (STKindChecker.isListConstructor(selectClause.expression)) {
+                            this.outputNode = new ListConstructorNode(
+                                this.context,
+                                selectClause,
+                                typeDesc,
+                                node.functionBody.expression
                             );
                         } else {
                             this.outputNode = new PrimitiveTypeNode(
                                 this.context,
                                 selectClause,
-                                typeDesc
+                                typeDesc,
+                                node.functionBody.expression
                             );
                         }
 
@@ -163,19 +172,22 @@ export class NodeInitVisitor implements Visitor {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         node.selectClause,
-                        parent.fieldName
+                        parent.fieldName,
+                        node
                     );
                 } else if (exprType.memberType.typeName === PrimitiveBalType.Array) {
                     this.outputNode = new ListConstructorNode(
                         this.context,
                         node.selectClause,
-                        parent.fieldName
+                        parent.fieldName,
+                        node
                     );
                 } else {
                     this.outputNode = new PrimitiveTypeNode(
                         this.context,
                         node.selectClause,
-                        parent.fieldName
+                        parent.fieldName,
+                        node
                     );
                 }
 

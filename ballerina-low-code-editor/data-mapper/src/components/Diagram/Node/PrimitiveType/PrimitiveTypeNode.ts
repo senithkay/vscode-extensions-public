@@ -15,6 +15,7 @@ import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/balleri
 import {
     ExpressionFunctionBody,
     IdentifierToken,
+    QueryExpression,
     SelectClause,
     STKindChecker,
     STNode
@@ -53,7 +54,8 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
         public value: SelectClause | ExpressionFunctionBody,
-        public typeIdentifier: TypeDescriptor | IdentifierToken) {
+        public typeIdentifier: TypeDescriptor | IdentifierToken,
+        public queryExpr?: QueryExpression) {
         super(
             context,
             PRIMITIVE_TYPE_NODE_TYPE
@@ -71,7 +73,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                this.value.expression, this.context.selection.selectedST.stNode);
+                this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = getTypeName(valueEnrichedType.type);
             this.recordField = valueEnrichedType;
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
