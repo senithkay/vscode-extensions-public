@@ -18,9 +18,9 @@ import { Box, List, ListItemText, Typography } from "@material-ui/core";
 import DiagnosticsErrorIcon from "../../assets/icons/DiagnosticsErrorIcon";
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { filterCodeActions } from "../../utils";
 import { CodeActionButton } from "../CodeActionButton";
 import { useStatementEditorDiagnosticStyles } from "../styles";
-import { filterCodeActions } from "../../utils";
 
 export function Diagnostics() {
     const statementEditorDiagnosticClasses = useStatementEditorDiagnosticStyles();
@@ -49,7 +49,7 @@ export function Diagnostics() {
                                 <ListItemText
                                     data-testid="diagnostic-message"
                                     key={index}
-                                    primary={
+                                    primary={(
                                         <Typography style={{ display: "flex", flexDirection: "row" }}>
                                             {actionButton(diag)}
                                             <div className={statementEditorDiagnosticClasses.diagnosticsErrorIcon}>
@@ -57,7 +57,7 @@ export function Diagnostics() {
                                             </div>
                                             {diag.message}
                                         </Typography>
-                                    }
+                                    )}
                                 />
                             )
                     )}

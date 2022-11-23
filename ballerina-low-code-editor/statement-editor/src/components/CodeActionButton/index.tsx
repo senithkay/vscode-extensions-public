@@ -70,8 +70,8 @@ export function CodeActionButton(props: CodeActionButtonProps) {
     };
 
     const applyCodeAction = async (action: CodeAction) => {
-        let editorActiveStatement = getContentFromSource(updatedSource, currentFile.draftPosition);
-        let editorActivePosition = { ...currentFile.draftPosition };
+        const editorActiveStatement = getContentFromSource(updatedSource, currentFile.draftPosition);
+        const editorActivePosition = { ...currentFile.draftPosition };
         let currentSource = updatedSource;
 
         if (!(editorActivePosition.endLine || editorActivePosition.endLine === 0)) {
@@ -104,7 +104,7 @@ export function CodeActionButton(props: CodeActionButtonProps) {
             }
         });
 
-        let changedActiveContent = getContentFromSource(currentSource, editorActivePosition);
+        const changedActiveContent = getContentFromSource(currentSource, editorActivePosition);
         editorActivePosition.endColumn = currentFile.draftPosition.startColumn + changedActiveContent.length;
 
         // TODO: add loader while changing source
