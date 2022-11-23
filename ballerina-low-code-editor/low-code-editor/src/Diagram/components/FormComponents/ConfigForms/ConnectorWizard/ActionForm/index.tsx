@@ -79,8 +79,8 @@ export function ActionForm(props: FormGeneratorProps) {
         imports = getReturnTypeImports(returnType);
 
         initialSource = getInitialSource(
-            returnType.hasReturn && parentWithError // INFO: New code actions will update parent function and `check` keyword
-                ? returnType.hasError
+            returnType.hasReturn
+                ? (returnType.hasError && parentWithError) // INFO: New code actions will update parent function and `check` keyword
                     ? createCheckedRemoteServiceCall(
                           returnType.returnType,
                           genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
@@ -99,7 +99,7 @@ export function ActionForm(props: FormGeneratorProps) {
                           targetPosition,
                           isClassField
                       )
-                : returnType.hasReturn && parentWithError
+                : (returnType.hasError && parentWithError)
                 ? createCheckActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
                 : createActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
         );

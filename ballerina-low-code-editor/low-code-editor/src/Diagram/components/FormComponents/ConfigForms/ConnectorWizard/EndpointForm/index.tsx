@@ -76,7 +76,7 @@ export function EndpointForm(props: FormGeneratorProps) {
             const returnType = getFormFieldReturnType(initFunction.returnType);
 
             initialSource = getInitialSource(
-                returnType?.hasError && parentWithError // INFO: New code actions will update parent function and `check` keyword
+                (returnType?.hasError && parentWithError) // INFO: New code actions will update parent function and `check` keyword
                     ? createCheckObjectDeclaration(
                           `${moduleName}:${connector.name}`,
                           genVariableName(`${moduleName}Ep`, getAllVariables(stSymbolInfo)),
