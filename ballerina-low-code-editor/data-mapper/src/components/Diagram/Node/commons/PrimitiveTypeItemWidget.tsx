@@ -103,12 +103,13 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
         </span>
     );
 
-    const expandedPort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
+    /** Invisible port to which the right angle link from the query header/clauses are connected to */
+    const invisiblePort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
     return (
         <TreeContainer>
             <div className={classes.queryPortWrap}>
-                {expandedPort && <PortWidget port={expandedPort} engine={engine} />}
+                {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>
 
             <TreeHeader>
