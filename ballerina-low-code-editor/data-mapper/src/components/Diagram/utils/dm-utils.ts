@@ -506,7 +506,7 @@ export function getOutputPortForField(fields: STNode[],
 	if (node instanceof MappingConstructorNode) {
 		portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`;
 	} else if (node instanceof ListConstructorNode) {
-		portIdBuffer = LIST_CONSTRUCTOR_TARGET_PORT_PREFIX;
+		portIdBuffer = `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`;
 	} else {
 		portIdBuffer = PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
 	}

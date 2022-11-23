@@ -25,11 +25,19 @@ export function getFnNameFromST(fnST: FunctionDefinition) {
 }
 
 export const isValidInput = (param: RequiredParam): boolean => {
-    return param?.typeName && STKindChecker.isSimpleNameReference(param?.typeName);
+    return (
+        param?.typeName &&
+        (STKindChecker.isSimpleNameReference(param?.typeName) ||
+            STKindChecker.isQualifiedNameReference(param?.typeName))
+    );
 };
 
 export const isValidOutput = (fnST: FunctionDefinition): boolean => {
-    return fnST?.functionSignature?.returnTypeDesc?.type && STKindChecker.isSimpleNameReference(fnST?.functionSignature?.returnTypeDesc?.type)
+    return (
+        fnST?.functionSignature?.returnTypeDesc?.type &&
+        (STKindChecker.isSimpleNameReference(fnST?.functionSignature?.returnTypeDesc?.type) ||
+            STKindChecker.isQualifiedNameReference(fnST?.functionSignature?.returnTypeDesc?.type))
+    );
 };
 
 export function getInputsFromST(fnST: FunctionDefinition): DataMapperInputParam[] {

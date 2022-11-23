@@ -64,7 +64,7 @@ export async function getRecordST(
     return resp.syntaxTree;
 }
 
-export function extractImportedRecordNames(definitions: ModulePart | TypeDefinition): { name: string, checked: boolean }[] {
+export function extractImportedRecordNames(definitions: ModulePart | TypeDefinition): RecordItemModel[] {
     const recordName: { name: string, checked: boolean }[] = [];
     if (STKindChecker.isModulePart(definitions)) {
         const typeDefs: TypeDefinition[] = definitions.members

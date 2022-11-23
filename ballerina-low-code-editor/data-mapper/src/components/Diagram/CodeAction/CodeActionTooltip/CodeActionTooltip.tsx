@@ -24,7 +24,7 @@ import { tooltipBaseStyles, useStyles } from "../style";
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 
-interface Props extends TooltipProps{
+interface Props extends TooltipProps {
     codeActions: CodeAction[];
     context: IDataMapperContext;
     additionalActions?: {
@@ -64,6 +64,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
                 });
             }
         );
+        modifications.sort((a, b) => a.startLine - b.startLine)
         context.applyModifications(modifications);
     };
 
@@ -88,7 +89,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
             );
         });
     }
-    
+
 
     const tooltipTitleComponent = (
         <pre className={classes.pre}>

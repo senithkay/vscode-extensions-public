@@ -74,7 +74,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
     };
 
     return (
-        <InputParamsContainer>
+        <InputParamsContainer data-testid='dm-inputs'>
             <Title>Inputs</Title>
             {banner}
             {inputParams.map((param, index) =>
