@@ -1,4 +1,3 @@
-import { DefaultPortModel } from "@projectstorm/react-diagrams";
 import {
     BinaryExpression,
     CaptureBindingPattern,
@@ -30,8 +29,8 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
-import { EXPANDED_QUERY_INPUT_NODE_PREFIX, OFFSETS } from "../utils/constants";
-import { getFieldAccessNodes, getSimpleNameRefNodes } from "../utils/dm-utils";
+import { OFFSETS, EXPANDED_QUERY_INPUT_NODE_PREFIX } from "../utils/constants";
+import { getFieldAccessNodes, getSimpleNameRefNodes, isComplexExpression } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -160,7 +159,8 @@ export class NodeInitVisitor implements Visitor {
             const fieldAccessNodes = getFieldAccessNodes(node.valueExpr);
             const simpleNameRefNodes = getSimpleNameRefNodes(selectedSTNode, node.valueExpr);
             const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
-            if (inputNodes.length > 1) {
+            if (inputNodes.length > 1
+                || (inputNodes.length === 1 && isComplexExpression(node.valueExpr))) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
@@ -181,7 +181,8 @@ export class NodeInitVisitor implements Visitor {
                     const fieldAccessNodes = getFieldAccessNodes(expr);
                     const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, expr);
                     const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
-                    if (inputNodes.length > 1) {
+                    if (inputNodes.length > 1
+                        || (inputNodes.length === 1 && isComplexExpression(expr))) {
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
                             expr,

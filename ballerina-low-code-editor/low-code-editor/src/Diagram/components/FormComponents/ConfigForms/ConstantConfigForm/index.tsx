@@ -161,7 +161,7 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
     }
     const constantConfig = generateConfigFromModel(model);
     const visibilityQualifier = constantConfig.isPublic ? 'public' : '';
-    const varType = constantConfig.constantType ? constantConfig.constantType : 'string';
+    const varType = constantConfig.constantType;
     const varName = constantConfig.constantName ? constantConfig.constantName : 'CONST_NAME';
     const varValue = constantConfig.constantValue ? constantConfig.constantValue : 'EXPRESSION';
     const enableSaveBtn: boolean = isFormConfigValid(config);

@@ -355,7 +355,7 @@ export function createWorker(name: string, returnType: string, targetPosition: N
             "NAME": name,
             "RETURN_TYPE": returnType
         }
-    }
+    };
 }
 
 export function createReturnStatement(returnExpr: string, targetPosition?: NodePosition): STModification {
@@ -398,11 +398,11 @@ export function createImportStatement(org: string, module: string, targetPositio
 
     const subModuleName = moduleName.split('.').pop();
     if (moduleName.includes('.') && subModuleName !== formattedName) {
-        if (keywords.includes(subModuleName)){
+        if (keywords.includes(subModuleName)) {
             module = module.replace(subModuleName, "'" + subModuleName);
         }
         // add alias if module name is different with formatted name
-        moduleNameStr = org + "/" + module + " as " + formattedName
+        moduleNameStr = org + "/" + module + " as " + formattedName;
     }
 
     const importStatement: STModification = {
@@ -468,7 +468,15 @@ export function createCheckObjectDeclaration(type: string, variableName: string,
     return objectDeclaration;
 }
 
-export function createRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
+export function createRemoteServiceCall(
+    type: string,
+    variable: string,
+    callerName: string,
+    functionName: string,
+    params: string[],
+    targetPosition: NodePosition,
+    withSelf?: boolean
+): STModification {
     const remoteServiceCall: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -476,12 +484,13 @@ export function createRemoteServiceCall(type: string, variable: string, callerNa
         endColumn: 0,
         type: "REMOTE_SERVICE_CALL",
         config: {
-            "TYPE": type,
-            "VARIABLE": variable,
-            "CALLER": callerName,
-            "FUNCTION": functionName,
-            "PARAMS": params
-        }
+            TYPE: type,
+            VARIABLE: variable,
+            CALLER: callerName,
+            FUNCTION: functionName,
+            PARAMS: params,
+            WITH_SELF: withSelf
+        },
     };
 
     return remoteServiceCall;
@@ -506,7 +515,15 @@ export function updateRemoteServiceCall(type: string, variable: string, callerNa
     return remoteServiceCall;
 }
 
-export function createCheckedRemoteServiceCall(type: string, variable: string, callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
+export function createCheckedRemoteServiceCall(
+    type: string,
+    variable: string,
+    callerName: string,
+    functionName: string,
+    params: string[],
+    targetPosition: NodePosition,
+    withSelf?: boolean
+): STModification {
     const checkedRemoteServiceCall: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -514,18 +531,25 @@ export function createCheckedRemoteServiceCall(type: string, variable: string, c
         endColumn: 0,
         type: "REMOTE_SERVICE_CALL_CHECK",
         config: {
-            "TYPE": type,
-            "VARIABLE": variable,
-            "CALLER": callerName,
-            "FUNCTION": functionName,
-            "PARAMS": params.join()
-        }
+            TYPE: type,
+            VARIABLE: variable,
+            CALLER: callerName,
+            FUNCTION: functionName,
+            PARAMS: params.join(),
+            WITH_SELF: withSelf
+        },
     };
 
     return checkedRemoteServiceCall;
 }
 
-export function createActionStatement(callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
+export function createActionStatement(
+    callerName: string,
+    functionName: string,
+    params: string[],
+    targetPosition: NodePosition,
+    withSelf?: boolean
+): STModification {
     const actionStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -533,16 +557,23 @@ export function createActionStatement(callerName: string, functionName: string, 
         endColumn: 0,
         type: "ACTION_STATEMENT",
         config: {
-            "CALLER": callerName,
-            "FUNCTION": functionName,
-            "PARAMS": params.join()
-        }
+            CALLER: callerName,
+            FUNCTION: functionName,
+            PARAMS: params.join(),
+            WITH_SELF: withSelf,
+        },
     };
 
     return actionStatement;
 }
 
-export function createCheckActionStatement(callerName: string, functionName: string, params: string[], targetPosition: NodePosition): STModification {
+export function createCheckActionStatement(
+    callerName: string,
+    functionName: string,
+    params: string[],
+    targetPosition: NodePosition,
+    withSelf?: boolean
+): STModification {
     const checkActionStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: 0,
@@ -550,10 +581,11 @@ export function createCheckActionStatement(callerName: string, functionName: str
         endColumn: 0,
         type: "ACTION_STATEMENT_CHECK",
         config: {
-            "CALLER": callerName,
-            "FUNCTION": functionName,
-            "PARAMS": params.join()
-        }
+            CALLER: callerName,
+            FUNCTION: functionName,
+            PARAMS: params.join(),
+            WITH_SELF: withSelf,
+        },
     };
 
     return checkActionStatement;
@@ -594,7 +626,7 @@ export function createServiceCallForPayload(type: string, variable: string, call
         config: {
             "PROPERTY": statement,
         }
-    }
+    };
     return modification;
 }
 
@@ -614,7 +646,7 @@ export function updateServiceCallForPayload(type: string, variable: string, call
         config: {
             "PROPERTY": statement,
         }
-    }
+    };
     return modification;
 }
 
@@ -720,7 +752,7 @@ export function createModuleVarDecl(config: ModuleVariableFormState, targetPosit
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
         }
-    }
+    };
 }
 
 export function createSendStatement(config: SendStatementConfig, targetPosition?: NodePosition): STModification {
@@ -734,7 +766,7 @@ export function createSendStatement(config: SendStatementConfig, targetPosition?
             'EXPRESSION': config.expression,
             'TARGET_WORKER': config.targetWorker
         }
-    }
+    };
 }
 
 export function createReceiveStatement(config: ReceivestatementConfig, targetPosition?: NodePosition): STModification {
@@ -749,7 +781,7 @@ export function createReceiveStatement(config: ReceivestatementConfig, targetPos
             'VAR_NAME': config.varName,
             'SENDER_WORKER': config.senderWorker
         }
-    }
+    };
 }
 
 export function createWaitStatement(config: WaitStatementConfig, targetPosition?: NodePosition): STModification {
@@ -764,7 +796,7 @@ export function createWaitStatement(config: WaitStatementConfig, targetPosition?
             'VAR_NAME': config.varName,
             'WORKER_NAME': config.expression
         }
-    }
+    };
 }
 
 export function createFlushStatement(config: FlushStatementConfig, targetPosition?: NodePosition): STModification {
@@ -778,7 +810,7 @@ export function createFlushStatement(config: FlushStatementConfig, targetPositio
             'VAR_NAME': config.varName,
             'WORKER_NAME': config.expression
         }
-    }
+    };
 }
 
 export function createModuleVarDeclWithoutInitialization(config: ModuleVariableFormState, targetPosition?: NodePosition,
@@ -797,7 +829,7 @@ export function createModuleVarDeclWithoutInitialization(config: ModuleVariableF
             'VAR_TYPE': varType,
             'VAR_NAME': varName
         }
-    }
+    };
 }
 
 export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosition: NodePosition): STModification {
@@ -816,7 +848,7 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
         }
-    }
+    };
 }
 
 export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition,
@@ -836,14 +868,14 @@ export function createConfigurableDecl(config: ConfigurableFormState, targetPosi
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
         }
-    }
+    };
 
     if (skipNewLine) {
         modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITHOUT_NEWLINE';
     }
 
     if (label.length > 0) {
-        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY';
         modification.config.DISPLAY_LABEL = label;
     }
 
@@ -866,10 +898,10 @@ export function updateConfigurableVarDecl(config: ConfigurableFormState, targetP
             'VAR_NAME': varName,
             'VAR_VALUE': varValue
         }
-    }
+    };
 
     if (label.length > 0) {
-        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY'
+        modification.type = 'MODULE_VAR_DECL_WITH_INIT_WITH_DISPLAY';
         modification.config.DISPLAY_LABEL = label;
     }
 
@@ -892,7 +924,7 @@ export function createConstDeclaration(config: ConstantConfigFormState, targetPo
             'CONST_NAME': constantName,
             'CONST_VALUE': constantValue
         }
-    }
+    };
 }
 
 export function updateConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition): STModification {
@@ -910,7 +942,7 @@ export function updateConstDeclaration(config: ConstantConfigFormState, targetPo
             'CONST_NAME': constantName,
             'CONST_VALUE': constantValue
         }
-    }
+    };
 }
 
 export function createServiceDeclartion(
@@ -934,7 +966,7 @@ export function createServiceDeclartion(
                 'PORT': listenerPort,
                 'BASE_PATH': serviceBasePath,
             }
-        }
+        };
     } else if (!fromVar) {
         return {
             ...modification,
@@ -943,7 +975,7 @@ export function createServiceDeclartion(
                 'PORT': listenerPort,
                 'BASE_PATH': serviceBasePath,
             }
-        }
+        };
 
     } else {
         return {
@@ -953,7 +985,7 @@ export function createServiceDeclartion(
                 'LISTENER_NAME': listenerName,
                 'BASE_PATH': serviceBasePath,
             }
-        }
+        };
     }
 }
 
@@ -983,7 +1015,7 @@ export function createListenerDeclartion(config: ListenerConfig, targetPosition:
             'LISTENER_NAME': listenerName,
             'PORT': listenerPort
         }
-    }
+    };
 }
 
 export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
@@ -1003,7 +1035,7 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'PORT': listenerPort,
                 'BASE_PATH': serviceBasePath,
             }
-        }
+        };
     } else if (!fromVar) {
         return {
             ...modification,
@@ -1012,7 +1044,7 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'PORT': listenerPort,
                 'BASE_PATH': serviceBasePath,
             }
-        }
+        };
 
     } else {
         return {
@@ -1022,7 +1054,7 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'LISTENER_NAME': listenerName,
                 'BASE_PATH': serviceBasePath,
             }
-        }
+        };
     }
 }
 
@@ -1040,7 +1072,7 @@ export function updateTriggerServiceDeclartion(listenerName: string, triggerChan
             'LISTENER_NAME': listenerName,
             'TRIGGER_CHANNEL': triggerChannel
         }
-    }
+    };
 }
 
 export function updateCheckedPayloadFunctionInvocation(variable: string, type: string, response: string, payload: string, targetPosition: NodePosition): STModification {
@@ -1068,7 +1100,7 @@ export function removeStatement(targetPosition: NodePosition): STModification {
         endLine: targetPosition.endLine,
         endColumn: targetPosition.endColumn,
         type: 'DELETE'
-    }
+    };
 
     return removeLine;
 }
@@ -1079,7 +1111,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
         httpRequest += requestName;
         httpRequest += " = new;";
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
-            const payload: string = "\n" + requestName + ".setPayload(" + getParams([message]).toString() + ");";
+            const payload: string = "\n" + requestName + ".setPayload(" + getParams([ message ]).toString() + ");";
             httpRequest += payload;
         }
         const requestGeneration: STModification = {
@@ -1117,7 +1149,7 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
-            const payload: string = requestName + ".setPayload(" + getParams([message]).toString() + ");";
+            const payload: string = requestName + ".setPayload(" + getParams([ message ]).toString() + ");";
             headerDecl += payload;
         }
 
@@ -1125,7 +1157,7 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 
     headerObject.forEach((header) => {
         let headerStmt: string = ("$requestName.setHeader($key, $value);\n").replace("$requestName", requestName);
-        const regexExp = /"(.*?)"/g
+        const regexExp = /"(.*?)"/g;
         headerStmt = headerStmt.replace("$key", header.objectKey.match(regexExp) ? header.objectKey : `"${header.objectKey}"`);
         headerStmt = headerStmt.replace("$value", header.objectValue.match(regexExp) ? header.objectValue : `"${header.objectValue}"`);
         headerDecl += headerStmt;
@@ -1208,7 +1240,7 @@ export function mutateTypeDefinition(typeName: string, typeDesc: string, targetP
             'TYPE_NAME': typeName,
             'TYPE_DESCRIPTOR': typeDesc
         }
-    }
+    };
 }
 
 export function getInitialSource(modification: STModification): string {
@@ -1255,5 +1287,5 @@ export function mutateEnumDefinition(name: string, members: string[], targetPosi
             'NAME': name,
             'MEMBERS': members
         }
-    }
+    };
 }

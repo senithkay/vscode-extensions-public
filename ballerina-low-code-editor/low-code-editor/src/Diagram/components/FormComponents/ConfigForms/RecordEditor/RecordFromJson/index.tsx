@@ -22,7 +22,6 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
-import debounce from "lodash.debounce";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
@@ -31,6 +30,7 @@ import { FileSelector } from '../../../../FileSelector';
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormActionButtons } from "../../../FormFieldComponents/FormActionButtons";
 import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextArea";
+import { UndoRedoManager } from "../../../UndoRedoManager";
 import { checkDiagnostics, getUpdatedSource } from "../../../Utils";
 import { RecordOverview } from "../RecordOverview";
 import { convertToRecord, getModulePartST, getRecordST, getRootRecord } from "../utils";
@@ -48,6 +48,7 @@ interface RecordState {
 
 interface RecordFromJsonProps {
     targetPosition?: NodePosition;
+    undoRedoManager?: UndoRedoManager;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
     onCancel: () => void;
     isHeaderHidden?: boolean;
@@ -77,11 +78,11 @@ const reducer = (state: RecordState, action: { type: string, payload: any }) => 
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     const classes = useStyles();
 
-    const { targetPosition, isHeaderHidden, onSave, onCancel } = recordFromJsonProps;
+    const { targetPosition, isHeaderHidden, undoRedoManager, onSave, onCancel } = recordFromJsonProps;
 
     const { props, api } = useContext(Context);
 
-    const { isMutationProgress, langServerURL, currentFile } = props;
+    const { isMutationProgress, langServerURL, currentFile, syntaxTree } = props;
     const { ls } = api;
 
     const [formState, dispatchFromState] = useReducer(reducer, {
@@ -210,7 +211,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     return (
         <>
             {formState.importedRecord ? (
-                <RecordOverview definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
+                <RecordOverview undoRedoManager={undoRedoManager} prevST={syntaxTree} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
             ) : (
                 <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
                     {!isHeaderHidden && (
