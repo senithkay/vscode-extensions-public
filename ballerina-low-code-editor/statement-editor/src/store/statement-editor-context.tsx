@@ -30,7 +30,7 @@ import { InputEditorContextProvider } from "./input-editor-context";
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
-        initialSource: '',
+        initialSource: "",
         statementModel: null,
         currentModel: null,
         changeCurrentModel: (model: STNode, stmtPosition?: NodePosition, isShift?: boolean) => {},
@@ -54,7 +54,7 @@ export const StatementEditorContext = React.createContext({
     suggestionsCtx: {
         lsSuggestions: [],
         lsSecondLevelSuggestions: {
-            selection: '',
+            selection: "",
             secondLevelSuggestions: []
         }
     },
@@ -75,6 +75,7 @@ export const StatementEditorContext = React.createContext({
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => undefined,
+    updateFileContent: (content: string, skipForceSave?: boolean) => (Promise.resolve({} as any)),
     library: {
         getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
         getLibrariesData: () => (Promise.resolve({} as any)),
@@ -84,7 +85,9 @@ export const StatementEditorContext = React.createContext({
         content: "",
         path: "",
         size: 0,
-        originalContent: null
+        originalContent: null,
+        draftSource: "",
+        draftPosition: null,
     },
     documentation: null,
     syntaxTree: null,
@@ -110,6 +113,8 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     handleModules?: (module: string) => void,
     modulesToBeImported?: Set<string>,
     initialSource: string,
+    draftSource?: string,
+    draftPosition?: NodePosition,
     undo?: () => void,
     redo?: () => void,
     hasUndo?: boolean,
@@ -131,7 +136,8 @@ export interface CtxProviderProps extends LowCodeEditorProps {
         activeEditorId?: number,
         editors?: EditorModel[]
     },
-    targetPosition: NodePosition
+    targetPosition: NodePosition,
+    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -150,6 +156,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         hasRedo,
         hasUndo,
         initialSource,
+        draftSource,
+        draftPosition,
         diagnostics,
         lsSuggestions,
         documentation,
@@ -170,6 +178,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         ballerinaVersion,
         isCodeServerInstance,
         openExternalUrl,
+        updateFileContent,
         ...restProps
     } = props;
 
@@ -223,11 +232,14 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 isExpressionMode,
                 currentFile: {
                     ...currentFile,
-                    originalContent: currentFile.originalContent
+                    originalContent: currentFile.originalContent,
+                    draftSource,
+                    draftPosition
                 },
                 ballerinaVersion,
                 isCodeServerInstance,
                 openExternalUrl,
+                updateFileContent,
                 ...restProps
             }}
         >

@@ -30,9 +30,9 @@ import {
     acceptedCompletionKindForTypes,
     PROPERTY_COMPLETION_KIND
 } from "../constants";
-import { CurrentModel, StatementSyntaxDiagnostics, SuggestionItem } from '../models/definitions';
+import { CurrentModel, SuggestionItem } from '../models/definitions';
 
-import { getFilteredDiagnosticMessages, getSymbolPosition, sortSuggestions } from "./index";
+import { getSymbolPosition, sortSuggestions } from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(

@@ -21,6 +21,7 @@ import {
     getAllVariables,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
@@ -28,10 +29,11 @@ import { createCheckObjectDeclaration, createObjectDeclaration, getInitialSource
 import { getFormattedModuleName } from "../../../../Portals/utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../../style";
-import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "../util";
+import { getConnectorImports, getDefaultParams, getFormFieldReturnType, isParentNodeWithErrorReturn } from "../util";
 
 interface EndpointFormProps {
     connector: BallerinaConnectorInfo;
+    functionNode: STNode;
     isModuleType?: boolean;
 }
 
@@ -41,16 +43,13 @@ export function EndpointForm(props: FormGeneratorProps) {
     const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
-    const { connector, isModuleType } = formArgs as EndpointFormProps;
+    const { connector, functionNode, isModuleType } = formArgs as EndpointFormProps;
 
     const {
         props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled, ballerinaVersion },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: {
-                modifyDiagram,
-                updateFileContent
-            },
+            code: { modifyDiagram, updateFileContent },
             library,
             runBackgroundTerminalCommand,
         },
@@ -63,6 +62,7 @@ export function EndpointForm(props: FormGeneratorProps) {
 
     const imports = getConnectorImports(syntaxTree, connector.package.organization, connector.moduleName);
     const moduleName = getFormattedModuleName(connector.moduleName);
+    const parentWithError = isParentNodeWithErrorReturn(functionNode);
     let initialSource = "EXPRESSION";
 
     if (model && model.source) {
@@ -76,7 +76,7 @@ export function EndpointForm(props: FormGeneratorProps) {
             const returnType = getFormFieldReturnType(initFunction.returnType);
 
             initialSource = getInitialSource(
-                returnType?.hasError
+                returnType?.hasError && parentWithError // INFO: New code actions will update parent function and `check` keyword
                     ? createCheckObjectDeclaration(
                           `${moduleName}:${connector.name}`,
                           genVariableName(`${moduleName}Ep`, getAllVariables(stSymbolInfo)),
@@ -117,7 +117,7 @@ export function EndpointForm(props: FormGeneratorProps) {
             {!isLoading &&
                 connector?.functions?.length > 0 &&
                 StatementEditorWrapper({
-                    label:  formTitle,
+                    label: formTitle,
                     initialSource,
                     formArgs: { formArgs },
                     config: { type: "Connector" },
@@ -134,7 +134,7 @@ export function EndpointForm(props: FormGeneratorProps) {
                     experimentalEnabled,
                     runBackgroundTerminalCommand,
                     isModuleVar: isModuleType ?? false,
-                    ballerinaVersion
+                    ballerinaVersion,
                 })}
         </>
     );

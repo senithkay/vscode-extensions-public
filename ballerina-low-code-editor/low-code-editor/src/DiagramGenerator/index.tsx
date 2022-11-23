@@ -15,6 +15,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
+import { FastRewindOutlined } from "@material-ui/icons";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     CommandResponse, ConditionConfig,
@@ -417,7 +418,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                                         setMutationInProgress(false);
                                         return res;
                                     },
-                                    updateFileContent: (content: string, skipForceSave?: boolean) => {
+                                    updateFileContent: async (content: string, skipForceSave?: boolean) => {
                                         return props.updateFileContent(filePath, content, skipForceSave);
                                     },
                                     undo,

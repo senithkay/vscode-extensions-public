@@ -260,6 +260,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                             formType: "EndpointForm",
                             formArgs: {
                                 connector: selectedConnector?.package ? selectedConnector : connectorInfo,
+                                functionNode
                             },
                             isLoading,
                         }}
@@ -344,6 +345,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                             connector: selectedConnector,
                             endpointName: selectedEndpoint,
                             isClassField,
+                            functionNode
                         },
                         isLoading,
                     }}

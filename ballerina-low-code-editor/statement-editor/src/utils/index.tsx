@@ -48,7 +48,7 @@ import {
     traversNode,
     TypeReference
 } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
+import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as formComponents from '../components/Forms/Form';
@@ -334,7 +334,7 @@ export function getUpdatedSource(
         statement.trim();
     }
     const updatedStatement = skipSemiColon ? statement : (statement.endsWith(';') ? statement : statement + ';');
-    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
+    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement, trimStatement);
     if (moduleList?.size > 0) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
@@ -347,14 +347,22 @@ export function isModuleMember(model: STNode): boolean {
         STKindChecker.isTypeDefinition(model));
 }
 
-export function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {
-
+export function addToTargetPosition(
+    currentContent: string,
+    position: NodePosition,
+    codeSnippet: string,
+    trimSnippet = true
+): string {
+    if (trimSnippet) {
+        codeSnippet.trimEnd();
+    }
     const splitContent: string[] = currentContent.split(/\n/g) || [];
-    const splitCodeSnippet: string[] = codeSnippet.trimEnd().split(/\n/g) || [];
+    const splitCodeSnippet: string[] = codeSnippet.split(/\n/g) || [];
     const noOfLines: number = position.endLine - position.startLine + 1;
     const startLine = splitContent[position.startLine].slice(0, position.startColumn);
-    const endLine = isFinite(position?.endLine) ?
-        splitContent[position.endLine].slice(position.endColumn || position.startColumn) : '';
+    const endLine = isFinite(position?.endLine)
+        ? splitContent[position.endLine].slice(position.endColumn || position.startColumn)
+        : "";
 
     const replacements = splitCodeSnippet.map((line, index) => {
         let modifiedLine = line;
@@ -372,16 +380,7 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
 
     splitContent.splice(position.startLine, noOfLines, ...replacements);
 
-    return splitContent.join('\n');
-}
-
-export function getContentFromSource(source: string,  position: NodePosition){
-    const splitSource: string[] = source.split(/\n/g) || [];
-    let sliceContent = "";
-    for (let line = position.startLine; line <= position.endLine; line++) {
-        sliceContent += splitSource[line];
-    }
-    return sliceContent;
+    return splitContent.join("\n");
 }
 
 export function getPositionFromSource(source: string): NodePosition {
@@ -401,7 +400,9 @@ export function addImportStatements(
     modulesToBeImported: string[]): string {
     let moduleList: string = "";
     modulesToBeImported.forEach(module => {
-        moduleList += "import " + module + "; ";
+        if (!currentFileContent.includes(module)){
+            moduleList += "import " + module + ";\n";
+        }
     });
     return moduleList + currentFileContent;
 }
@@ -1049,4 +1050,48 @@ export function isBalVersionUpdateOne(version: string): boolean{
     const splittedVersions = versionStr[0]?.split(".");
     return parseInt(splittedVersions[0], 10) === 2201 && parseInt(splittedVersions[1], 10) === 1
         && parseInt(splittedVersions[2], 10) === 1 ;
+}
+
+export function getContentFromSource(source: string, position: NodePosition) {
+    const splitSource: string[] = source.split("\n");
+    // const splitSource: string[] = source.split(/\n/g) || [];
+    let sliceContent = "";
+    if (splitSource?.length) {
+        for (let line = position.startLine; line <= (position.endLine || position.startLine); line++) {
+            sliceContent += splitSource[line];
+        }
+    }
+    return sliceContent;
+}
+
+export function updateStatementPosition(source: string, statement: string, targetPosition: NodePosition): NodePosition {
+    const newStartLine = getStatementLine(source, statement);
+    if (newStartLine !== targetPosition.startLine) {
+        const position = { ...targetPosition };
+        position.startLine = newStartLine;
+        if (targetPosition.endLine) {
+            position.endLine =
+                targetPosition.endLine === targetPosition.startLine
+                    ? newStartLine
+                    : targetPosition.endLine + (newStartLine - targetPosition.startLine);
+        }
+        return position;
+    }
+    return targetPosition;
+}
+
+export function getStatementLine(source: string, statement: string): number {
+    if (source.includes(statement)) {
+        const splitSource = source.split(statement);
+        if (splitSource.length > 1) {
+            const newLine = splitSource[0].split("\n").length;
+            return newLine > 0 ? newLine - 1 : 0;
+        }
+    }
+    return 0;
+}
+
+export function filterCodeActions(codeActions: CodeAction[]): CodeAction[] {
+    const filteredCodeActions = codeActions?.filter((action) => action.kind === "quickfix");
+    return filteredCodeActions || codeActions;
 }

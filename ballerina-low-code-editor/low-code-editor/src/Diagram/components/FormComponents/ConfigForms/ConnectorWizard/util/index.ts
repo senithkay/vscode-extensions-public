@@ -29,11 +29,13 @@ import {
     QualifiedNameReference,
     STKindChecker,
     STNode,
+    traversNode,
     VisibleEndpoint,
     WhileStatement,
 } from "@wso2-enterprise/syntax-tree";
 
 import { isEndpointNode } from "../../../../../utils";
+import { visitor as ErrorFindingVisitor } from "../../../../../visitors/error-finding-visitor";
 import { getFieldName, getFormattedModuleName } from "../../../../Portals/utils";
 import { isAllDefaultableFields, isAnyFieldSelected, isDependOnDriver } from "../../../Utils";
 
@@ -556,4 +558,12 @@ export function getReturnTypeImports(returnType: FormFieldReturnType) {
         });
     }
     return imports;
+}
+
+export function isParentNodeWithErrorReturn(blockNode: STNode) {
+    if (blockNode) {
+        traversNode(blockNode, ErrorFindingVisitor);
+        return ErrorFindingVisitor.hasError();
+    }
+    return false;
 }

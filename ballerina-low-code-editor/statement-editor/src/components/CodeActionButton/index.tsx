@@ -13,16 +13,16 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
 
-import { IconButton, Menu, MenuItem } from "@material-ui/core";
+import { Divider, IconButton, Menu, MenuItem } from "@material-ui/core";
 import { NodePosition } from "@wso2-enterprise/ballerina-languageclient";
 import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-protocol";
 
 import CodeActionIcon from "../../assets/icons/CodeActionIcon";
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getContentFromSource, getUpdatedSource } from "../../utils";
+import { filterCodeActions, getContentFromSource, getStatementLine, getUpdatedSource } from "../../utils";
 
-import {useStyles} from './style';
+import { useStyles } from "./style";
 
 export interface CodeActionButtonProps {
     syntaxDiagnostic: StatementSyntaxDiagnostics;
@@ -36,23 +36,24 @@ export function CodeActionButton(props: CodeActionButtonProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const {
         currentFile,
-        targetPosition,
-        modelCtx: { statementModel, updateStatementModel },
+        modelCtx: { currentModel, statementModel, updateStatementModel },
+        getLangClient,
     } = stmtCtx;
 
-    const [updatedSource, setUpdatedSource] = useState(currentFile.content);
+    const [updatedSource, setUpdatedSource] = useState(currentFile.draftSource);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
 
-    const codeActions = syntaxDiagnostic.codeActions;
+    const codeActions = filterCodeActions(syntaxDiagnostic.codeActions);
     const open = Boolean(anchorEl);
-    const menuItems: React.ReactNode[] = [];
+    const actionMenuItems: React.ReactNode[] = [];
 
     if (codeActions) {
+        codeActions.reverse();
         codeActions.forEach((action, index) => {
             const onSelectCodeAction = () => {
                 applyCodeAction(action);
             };
-            menuItems.push(
+            actionMenuItems.push(
                 <MenuItem key={index} onClick={onSelectCodeAction}>
                     {action.title}
                 </MenuItem>
@@ -65,29 +66,29 @@ export function CodeActionButton(props: CodeActionButtonProps) {
     };
 
     const onCloseCodeActionMenu = () => {
-        setAnchorEl(null)
+        setAnchorEl(null);
     };
 
     const applyCodeAction = async (action: CodeAction) => {
-        let changingPosition: NodePosition;
-        let currentSource = getUpdatedSource(
-            statementModel.source,
-            updatedSource,
-            targetPosition,
-            undefined,
-            true,
-            false
-        );
+        let editorActiveStatement = getContentFromSource(updatedSource, currentFile.draftPosition);
+        let editorActivePosition = { ...currentFile.draftPosition };
+        let currentSource = updatedSource;
+
+        if (!(editorActivePosition.endLine || editorActivePosition.endLine === 0)) {
+            editorActivePosition.endLine =
+                statementModel.position.endLine - statementModel.position.startLine + editorActivePosition.startLine;
+        }
 
         (action.edit?.documentChanges[0] as TextDocumentEdit).edits.reverse().forEach(async (change: TextEdit) => {
-            if (change.newText.indexOf('\n') !== 0){
+            let changingPosition: NodePosition;
+            if (change.newText.indexOf("\n") !== 0) {
                 changingPosition = {
                     endColumn: change.range.end.character,
                     endLine: change.range.end.line,
                     startColumn: change.range.start.character,
                     startLine: change.range.start.line,
                 };
-            }else{
+            } else {
                 // statement with a new line
                 changingPosition = {
                     startColumn: 0,
@@ -95,22 +96,20 @@ export function CodeActionButton(props: CodeActionButtonProps) {
                 };
             }
 
-            currentSource = getUpdatedSource(
-                change.newText,
-                currentSource,
-                changingPosition,
-                undefined,
-                true,
-                false
-            );
+            currentSource = getUpdatedSource(change.newText, currentSource, changingPosition, undefined, true, false);
+            if (changingPosition.startLine < editorActivePosition.startLine) {
+                const newLine = getStatementLine(currentSource, editorActiveStatement);
+                editorActivePosition.startLine = newLine;
+                editorActivePosition.endLine += (newLine - editorActivePosition.startLine);
+            }
         });
 
-        const changedActiveContent = getContentFromSource(currentSource, changingPosition);
+        let changedActiveContent = getContentFromSource(currentSource, editorActivePosition);
+        editorActivePosition.endColumn = currentFile.draftPosition.startColumn + changedActiveContent.length;
+
         // TODO: add loader while changing source
-        await updateStatementModel(changedActiveContent, currentSource, statementModel.position);
-        setUpdatedSource(currentSource)
-        // tslint:disable: no-console
-        console.log('updated source:\n', currentSource);
+        await updateStatementModel(changedActiveContent, currentSource, editorActivePosition);
+        setUpdatedSource(currentSource);
         setAnchorEl(null);
     };
 
@@ -127,7 +126,7 @@ export function CodeActionButton(props: CodeActionButtonProps) {
                 transformOrigin={{ vertical: "top", horizontal: "left" }}
                 className={classes.menu}
             >
-                {menuItems}
+                {actionMenuItems}
             </Menu>
         </div>
     );
