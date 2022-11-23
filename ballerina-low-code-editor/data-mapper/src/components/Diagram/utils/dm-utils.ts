@@ -919,3 +919,7 @@ function isEmptyValue(position: NodePosition): boolean {
 	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
 }
 
+export function isComplexExpression (node: STNode): boolean {
+	return (STKindChecker.isConditionalExpression(node)
+			|| (STKindChecker.isBinaryExpression(node) && STKindChecker.isElvisToken(node.operator)))
+}

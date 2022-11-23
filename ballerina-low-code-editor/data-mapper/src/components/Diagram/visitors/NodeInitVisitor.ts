@@ -28,7 +28,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { OFFSETS } from "../utils/constants";
-import { getInputNodes } from "../utils/dm-utils";
+import { getInputNodes, isComplexExpression } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -152,7 +152,8 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isListConstructor(node.valueExpr)
         ) {
             const inputNodes = getInputNodes(node.valueExpr);
-            if (inputNodes.length > 1) {
+            if (inputNodes.length > 1
+                || (inputNodes.length === 1 && isComplexExpression(node.valueExpr))) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
@@ -171,7 +172,9 @@ export class NodeInitVisitor implements Visitor {
             node.expressions.forEach((expr) => {
                 if (!STKindChecker.isMappingConstructor(expr)) {
                     const inputNodes = getInputNodes(expr);
-                    if (inputNodes.length > 1) {
+
+                    if (inputNodes.length > 1
+                        || (inputNodes.length === 1 && isComplexExpression(expr))) {
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
                             expr,

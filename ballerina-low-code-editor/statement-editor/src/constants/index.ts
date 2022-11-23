@@ -59,6 +59,7 @@ export const BOOLEAN_TYPE_DESC = "BooleanTypeDesc";
 export const OTHER_EXPRESSION = "OtherExpression";
 export const CUSTOM_CONFIG_TYPE = "Custom";
 export const CALL_CONFIG_TYPE = "Call";
+export const LOG_CONFIG_TYPE = "Log";
 export const ALL_LIBS_IDENTIFIER = "All";
 export const LANG_LIBS_IDENTIFIER = "Language";
 export const STD_LIBS_IDENTIFIER = "Standard";

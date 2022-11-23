@@ -26,6 +26,8 @@ export const FORM_FIELD_PORT = "form-field-port";
 
 export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFieldNodeModelGenerics> {
 
+	public linkedPorts: PortModel[];
+
 	constructor(
 		public field: Type,
 		public portName: string,
@@ -44,6 +46,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 			type: FORM_FIELD_PORT,
 			name: `${portName}.${portType}`
 		});
+		this.linkedPorts = [];
 	}
 
 	createLinkModel(): LinkModel {
@@ -70,6 +73,10 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		super.addLink(link);
 	}
 
+	addLinkedPort(port: PortModel): void{
+		this.linkedPorts.push(port);
+	}
+
 	setDescendantHasValue(): void {
 		this.descendantHasValue = true;
 		if (this.parentModel){
@@ -82,6 +89,13 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	}
 
 	canLinkToPort(port: RecordFieldPortModel): boolean {
-		return this.portType !== port.portType && ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
+		let isLinkExists = false;
+		if (port.portType == "IN") {
+			isLinkExists = this.linkedPorts.some((linkedPort) => {
+				return port.getID() === linkedPort.getID()
+			})
+		}
+		return this.portType !== port.portType && !isLinkExists
+				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
 	}
 }

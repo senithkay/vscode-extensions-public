@@ -10,10 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext } from "react";
 
+import cn from "classnames";
+
+import SyntaxErrorWarning from "../../../assets/icons/SyntaxErrorWarning";
 import { OtherStatementNodeTypes } from "../../../constants";
-import { getJSXForMinutiae, getMinutiaeJSX } from "../../../utils";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { getJSXForMinutiae } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { InputEditor } from "../../InputEditor";
 import { useStatementRendererStyles } from "../../styles";
@@ -31,13 +36,25 @@ export function OtherStatementTypes(props: OtherStatementProps) {
         model
     };
 
+    const { modelCtx: {hasSyntaxDiagnostics} } = useContext(StatementEditorContext);
+
     const isFieldWithNewLine = (model?.viewState as StatementEditorViewState)?.multilineConstructConfig?.isFieldWithNewLine;
 
     const leadingMinutiaeJSX = getJSXForMinutiae(model?.leadingMinutiae, isFieldWithNewLine);
     const trailingMinutiaeJSX = getJSXForMinutiae(model?.trailingMinutiae, isFieldWithNewLine);
 
+    const styleClassNames = cn(statementRendererClasses.expressionElement,
+        hasSyntaxDiagnostics ? statementRendererClasses.syntaxErrorElementSelected :
+                               statementRendererClasses.expressionElementSelected
+    )
+
     return (
-        <span className={statementRendererClasses.expressionElement}>
+        <span className={styleClassNames}>
+            {hasSyntaxDiagnostics  && (
+                <span className={statementRendererClasses.syntaxErrorTooltip} data-testid="syntax-error-highlighting">
+                    <SyntaxErrorWarning />
+                </span>
+            )}
             {leadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
             {trailingMinutiaeJSX}

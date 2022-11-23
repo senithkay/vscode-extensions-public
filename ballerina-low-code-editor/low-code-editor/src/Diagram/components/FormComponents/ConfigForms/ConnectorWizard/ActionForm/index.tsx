@@ -38,6 +38,7 @@ import { getDefaultParams, getFormFieldReturnType, getReturnTypeImports } from "
 interface ActionFormProps {
     action: FunctionDefinitionInfo;
     endpointName: string;
+    isClassField: boolean;
 }
 
 export function ActionForm(props: FormGeneratorProps) {
@@ -46,7 +47,7 @@ export function ActionForm(props: FormGeneratorProps) {
     const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
-    const { action, endpointName } = formArgs as ActionFormProps;
+    const { action, endpointName, isClassField } = formArgs as ActionFormProps;
 
     const {
         props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled, ballerinaVersion },
@@ -86,7 +87,8 @@ export function ActionForm(props: FormGeneratorProps) {
                           endpointName,
                           action.name,
                           defaultParameters,
-                          targetPosition
+                          targetPosition,
+                          isClassField
                       )
                     : createRemoteServiceCall(
                           returnType.returnType,
@@ -94,11 +96,12 @@ export function ActionForm(props: FormGeneratorProps) {
                           endpointName,
                           action.name,
                           defaultParameters,
-                          targetPosition
+                          targetPosition,
+                          isClassField
                       )
                 : returnType.hasError
-                ? createCheckActionStatement(endpointName, action.name, defaultParameters, targetPosition)
-                : createActionStatement(endpointName, action.name, defaultParameters, targetPosition)
+                ? createCheckActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
+                : createActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
         );
     }
 
