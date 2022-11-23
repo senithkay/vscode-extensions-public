@@ -21,25 +21,25 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 export class InputNodeFindingVisitor implements Visitor {
-    private fieldAccesseNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[];
+    private inputNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[];
     private queryExpressionDepth: number;
-    
+
     constructor() {
-        this.fieldAccesseNodes = []
+        this.inputNodes = []
         this.queryExpressionDepth = 0
     }
 
     public beginVisitFieldAccess(node: FieldAccess, parent?: STNode) {
         if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth == 0){
-            this.fieldAccesseNodes.push(node)
+            && this.queryExpressionDepth == 0) {
+            this.inputNodes.push(node)
         }
     }
 
     public beginVisitOptionalFieldAccess(node: OptionalFieldAccess, parent?: STNode) {
         if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth == 0){
-            this.fieldAccesseNodes.push(node)
+            && this.queryExpressionDepth == 0) {
+            this.inputNodes.push(node)
         }
     }
 
@@ -51,20 +51,20 @@ export class InputNodeFindingVisitor implements Visitor {
             !STKindChecker.isOptionalFieldAccess(parent) &&
             this.queryExpressionDepth == 0
         ) {
-            this.fieldAccesseNodes.push(node);
+            this.inputNodes.push(node);
         }
     }
 
-    public beginVisitQueryExpression(node: QueryExpression, parent?: STNode){
+    public beginVisitQueryExpression(node: QueryExpression, parent?: STNode) {
         this.queryExpressionDepth += 1;
     }
 
-    public endVisitQueryExpression(node: QueryExpression, parent?: STNode){
+    public endVisitQueryExpression(node: QueryExpression, parent?: STNode) {
         this.queryExpressionDepth -= 1;
     }
 
-    public getFieldAccessNodes(){
-        return this.fieldAccesseNodes
+    public getFieldAccessNodes() {
+        return this.inputNodes
     }
 
 }
