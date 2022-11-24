@@ -678,19 +678,7 @@ export function getEnrichedRecordType(type: Type,
 		editableRecordField.childrenTypes = children;
 	} else if (type.typeName === PrimitiveBalType.Array && type?.memberType) {
 		if (nextNode) {
-			if (type.memberType.typeName === PrimitiveBalType.Record) {
-				if (STKindChecker.isListConstructor(nextNode)) {
-					editableRecordField.elements = getEnrichedArrayType(type.memberType, nextNode,
-						selectedST, editableRecordField);
-				} else if (STKindChecker.isMappingConstructor(nextNode)) {
-					const childType = getEnrichedRecordType(type.memberType, nextNode,
-						selectedST, editableRecordField, childrenTypes);
-					editableRecordField.elements = [{
-						member: childType,
-						elementNode: nextNode
-					}];
-				}
-			} else if (STKindChecker.isQueryExpression(nextNode)) {
+			if (STKindChecker.isQueryExpression(nextNode)) {
 				const selectClauseExpr = nextNode.selectClause.expression;
 				if (STKindChecker.isMappingConstructor(selectClauseExpr)) {
 					const childType = getEnrichedRecordType(type.memberType, selectClauseExpr,
@@ -705,6 +693,15 @@ export function getEnrichedRecordType(type: Type,
 				} else {
 					editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, selectClauseExpr,
 						selectedST, editableRecordField);
+				}
+			} else if (STKindChecker.isMappingConstructor(nextNode)) {
+				if (type.memberType.typeName === PrimitiveBalType.Record) {
+					const childType = getEnrichedRecordType(type.memberType, nextNode,
+						selectedST, editableRecordField, childrenTypes);
+					editableRecordField.elements = [{
+						member: childType,
+						elementNode: nextNode
+					}];
 				}
 			} else if (STKindChecker.isListConstructor(nextNode)) {
 				editableRecordField.elements = getEnrichedArrayType(type.memberType, nextNode,
