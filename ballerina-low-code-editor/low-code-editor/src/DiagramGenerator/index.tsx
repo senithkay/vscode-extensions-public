@@ -36,7 +36,6 @@ import {
     WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { debounce } from "lodash";
 import cloneDeep from "lodash.clonedeep";
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
@@ -66,6 +65,8 @@ const ZOOM_STEP = 0.1;
 const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
 const undoRedo = new UndoRedoManager();
+const debounceTime: number = 5000;
+let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const {
@@ -267,13 +268,6 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         }
     }
 
-    const addPerfData = React.useRef(
-        debounce(async (vistedSyntaxTree: STNode) => {
-            const langClient = await langClientPromise;
-            await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setSyntaxTree);
-        }, 1500)
-    ).current;
-
     if (!syntaxTree) {
         return (<div className={classes.loaderContainer}><CirclePreloader position="relative" /></div>);
     }
@@ -467,4 +461,13 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             </div>
         </MuiThemeProvider>
     );
+
+    async function addPerfData(vistedSyntaxTree: STNode) {
+        const currentTime: number = Date.now();
+        const langClient = await langClientPromise;
+        if (currentTime - lastPerfUpdate > debounceTime) {
+            await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setSyntaxTree);
+            lastPerfUpdate = currentTime;
+        }
+    }
 }
