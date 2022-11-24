@@ -67,30 +67,34 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [isNewRecord, setIsNewRecord] = useState(false);
     const [isAddExistType, setAddExistType] = useState(false);
     const [dmFuncDiagnostic, setDmFuncDiagnostic] = useState("");
-
     const [showOutputType, setShowOutputType] = useState(false);
     const [newRecordBy, setNewRecordBy] = useState<"input" | "output">(undefined);
-
     const [newRecords, setNewRecords] = useState<string[]>([]);
     const [initiated, setInitiated] = useState(false);
+    const [isValidationInProgress, setValidationInProgress] = useState(false);
 
     const hasInvalidInputs = inputParams.some(input => input.inInvalid);
     const isValidConfig = fnName && inputParams.length > 0 && !hasInvalidInputs && outputType.type !== "" && !outputType.inInvalid && dmFuncDiagnostic === "";
 
     useEffect(() => {
         (async () => {
-            const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType.type,
-                fnST, targetPosition, currentFile.content, filePath, langClientPromise);
-            if (diagnostics.length > 0) {
-                const redeclaredSymbol = diagnostics.some((diagnostic) => {
-                    return diagnostic.code === REDECLARED_SYMBOL_ERROR_CODE
-                });
-                if (fnNameFromST === undefined && redeclaredSymbol) {
-                    const defaultFnName = await getDefaultFnName(filePath, targetPosition, langClientPromise);
-                    setFnName(defaultFnName);
-                } else {
-                    setDmFuncDiagnostic(diagnostics[0]?.message);
+            setValidationInProgress(true);
+            try {
+                const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType.type,
+                    fnST, targetPosition, currentFile.content, filePath, langClientPromise);
+                if (diagnostics.length > 0) {
+                    const redeclaredSymbol = diagnostics.some((diagnostic) => {
+                        return diagnostic.code === REDECLARED_SYMBOL_ERROR_CODE
+                    });
+                    if (fnNameFromST === undefined && redeclaredSymbol) {
+                        const defaultFnName = await getDefaultFnName(filePath, targetPosition, langClientPromise);
+                        setFnName(defaultFnName);
+                    } else {
+                        setDmFuncDiagnostic(diagnostics[0]?.message);
+                    }
                 }
+            } finally {
+                setValidationInProgress(false);
             }
             setInitiated(true);
         })();
@@ -186,13 +190,18 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
-            if (fnNameFromST) {
-                const diagnostics = await getDiagnosticsForFnName(fnNameFromST, inputParams, outputType.type, fnST,
-                    targetPosition, currentFile.content, filePath, langClientPromise);
-                if (diagnostics.length > 0) {
-                    setDmFuncDiagnostic(diagnostics[0]?.message);
+            setValidationInProgress(true);
+            try {
+                if (fnNameFromST) {
+                    const diagnostics = await getDiagnosticsForFnName(fnNameFromST, inputParams, outputType.type, fnST,
+                        targetPosition, currentFile.content, filePath, langClientPromise);
+                    if (diagnostics.length > 0) {
+                        setDmFuncDiagnostic(diagnostics[0]?.message);
+                    }
+                    setFnName(fnNameFromST);
                 }
-                setFnName(fnNameFromST);
+            } finally {
+                setValidationInProgress(false);
             }
         })();
     }, [fnNameFromST]);
@@ -256,11 +265,16 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         const name = event.target.value;
         if (name === "") {
             setDmFuncDiagnostic("missing function name");
-        } else {
-            const diagnostics = await getDiagnosticsForFnName(event.target.value, inputParams, outputType.type, fnST,
-                targetPosition, currentFile.content, filePath, langClientPromise);
-            if (diagnostics.length > 0) {
-                setDmFuncDiagnostic(diagnostics[0]?.message);
+        } else if (name !== fnNameFromST) {
+            setValidationInProgress(true);
+            try {
+                const diagnostics = await getDiagnosticsForFnName(event.target.value, inputParams, outputType.type, fnST,
+                    targetPosition, currentFile.content, filePath, langClientPromise);
+                if (diagnostics.length > 0) {
+                    setDmFuncDiagnostic(diagnostics[0]?.message);
+                }
+            } finally {
+                setValidationInProgress(false);
             }
         }
     };
@@ -292,6 +306,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 value={fnName}
                                 onBlur={onNameOutFocus}
                                 onChange={onNameChange}
+                                isValidating={!initiated || isValidationInProgress}
                                 errorMessage={dmFuncDiagnostic}
                             />
                             <FormDivider />
