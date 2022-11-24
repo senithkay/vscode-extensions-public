@@ -153,8 +153,23 @@ export function runCommandWithConf(file: BallerinaProject | string, executor: st
     terminal.sendText(commandText, true);
 }
 
+export function runTerminalCommand(executor: string, file?: BallerinaProject | string, env? : { [key: string]:string }) {
+    let filePath = '';
+    typeof file === 'string' ? filePath = file : filePath = file?.path!;
+    if (!terminal) {
+        terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: filePath, env: env });
+    }
+    terminal.sendText(executor);
+}
+
 export function clearTerminal(): void {
     if (terminal) {
         terminal.dispose();
+    }
+}
+
+export function createTerminal(path: string, env? : { [key: string]:string }): void {
+    if (terminal) {
+        terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: path, env: env });
     }
 }

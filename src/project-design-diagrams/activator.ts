@@ -28,6 +28,9 @@ import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
 import { ComponentModel, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
+import { createTerminal, runTerminalCommand } from "../project";
+import { getCurrenDirectoryPath } from "../utils/project-utils";
+import { randomUUID } from "crypto";
 
 let context: ExtensionContext;
 let langClient: ExtendedLangClient;
@@ -40,6 +43,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         ballerinaExtInstance.onReady()
             .then(() => {
                 if (isCompatible(ballerinaExtInstance)) {
+                    createTerminal(getCurrenDirectoryPath())
                     viewProjectDesignDiagrams();
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
@@ -126,6 +130,16 @@ function setupWebviewPanel() {
                 handler: (): Promise<Map<string, ComponentModel>> => {
                     return getProjectResources();
                 }
+            },
+            {
+                methodName: "createService",
+                handler: async (args: any[]): Promise<boolean | undefined> => {
+                    const packageName: string = args[0];
+                    const org: string = args[1];
+                    const version: string = args[2];
+                    createService (packageName, org, version);
+                    return Promise.resolve(true);
+                }
             }
         ];
 
@@ -150,4 +164,17 @@ function isCompatible(ballerinaExtInstance: BallerinaExtension): boolean {
     } else {
         return false;
     }
+}
+
+function createService(packageName: string, orgName?: string, version?: string) {
+    runTerminalCommand(`bal new ${packageName} -t service`);
+    runTerminalCommand(`echo created bal module in \"$PWD\"`);
+    // Navigate to new package root
+    runTerminalCommand(`cd ${packageName}`);
+    // Change toml conf
+    runTerminalCommand(`sed -i '' -e 's/org = \"[a-z,A-Z,0-9,_]\\{1,\\}\"/org = "${orgName}"/g' Ballerina.toml`);
+    runTerminalCommand(`sed -i '' -e 's/version = \"[0-9].[0-9].[0-9]\"/org = "${version}"/g' Ballerina.toml`);
+    // Add Display annotation
+    runTerminalCommand(`sed -i '' -e 's/service \\/ on new http:Listener(9090) {/@display {\\n\\tlabel: \"GreetingService\",\\n\\tid: \"GreetingService-${randomUUID()}\"\\n}\\nservice \\/ on new http:Listener(9090) {/g' service.bal`);
+    runTerminalCommand(`cd ../`);
 }

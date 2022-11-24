@@ -54,9 +54,21 @@ export function render(webView: Webview) {
                     );
                 })
             }
+            
+            function createService(packageName, org, version) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'createService',
+                        [packageName, org, version],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(fetchProjectResources, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(fetchProjectResources, createService, document.getElementById("diagram-container"));
             }
             renderDiagrams();
         }
