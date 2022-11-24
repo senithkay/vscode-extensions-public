@@ -82,7 +82,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
 
         if (this.typeDef) {
             const isSelectClause = STKindChecker.isSelectClause(this.value);
-            this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
+            this.rootName = this.typeDef?.name ? getBalRecFieldName(this.typeDef.name) : this.typeDef.typeName;
             if (isSelectClause){
                 this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
             }
@@ -131,7 +131,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
                 && this.recordField?.value
                 && !STKindChecker.isListConstructor(this.recordField.value)
             ) {
-                outPort = this.getPort(`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.IN`) as RecordFieldPortModel;
+                outPort = this.getPort(`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${this.rootName}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
             } else {
                 [outPort, mappedOutPort] = getOutputPortForField(fields, this);

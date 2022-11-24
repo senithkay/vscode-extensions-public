@@ -135,7 +135,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             && port?.editableRecordField && port.editableRecordField?.value
                             && STKindChecker.isQueryExpression(port.editableRecordField.value)
                             && isPositionsEquals(port.editableRecordField.value.position, exprPosition)
-                            && port.portName === LIST_CONSTRUCTOR_TARGET_PORT_PREFIX
+                            && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
                             && port.portType === 'IN'
                         ) {
                             this.targetPort = port;
