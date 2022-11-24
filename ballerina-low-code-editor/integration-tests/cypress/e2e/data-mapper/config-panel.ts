@@ -12,7 +12,9 @@
  */
 
 import { Canvas } from "../../utils/components/canvas";
+import { SourceCode } from "../../utils/components/code-view";
 import { TopLevelPlusWidget } from "../../utils/components/top-level-plus-widget";
+import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { DataMapper } from "../../utils/forms/data-mapper";
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
 
@@ -43,6 +45,11 @@ describe("Create new data mapper with new record from json imports", () => {
     it("Canvas contains source and target nodes", () => {
         DataMapper.getSourceNode("input");
         DataMapper.getTargetNode("Output");
+        console.log('getCurrentSpecFolder() + "transform-from-json-imports.bal"', getCurrentSpecFolder() + "transform-from-json-imports.bal")
+    });
+
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-from-json-imports.bal");
     });
 });
 
@@ -68,6 +75,10 @@ describe("Create new data mapper with existing record types", () => {
         DataMapper.getSourceNode("input");
         DataMapper.getSourceNode("credentialsConfig");
         DataMapper.getTargetNode("Output");
+    });
+
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-from-existing-records.bal");
     });
 });
 
@@ -105,6 +116,10 @@ describe("Edit existing data mapper record types", () => {
     it("Canvas contains the updated source and target nodes", () => {
         DataMapper.getSourceNode("updatedInput");
         DataMapper.getTargetNode("UpdatedOutput");
+    });
+
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-from-updated-config.bal");
     });
 });
 
