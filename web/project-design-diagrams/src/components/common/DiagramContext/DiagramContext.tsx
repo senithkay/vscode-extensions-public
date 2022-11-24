@@ -24,21 +24,23 @@ interface DiagramContextProps {
     children?: ReactNode;
     getTypeComposition: (entityID: string) => void;
     currentView: Views;
+    createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
 }
 
 interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
     currentView: Views;
+    createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
 }
 
 const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
-    const { getTypeComposition, currentView, children } = props;
+    const { getTypeComposition, createService, currentView, children } = props;
 
     return (
-        <DiagramContext.Provider value={{ getTypeComposition, currentView }}>
+        <DiagramContext.Provider value={{ getTypeComposition, createService, currentView }}>
             {children}
         </DiagramContext.Provider>
     );

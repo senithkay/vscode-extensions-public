@@ -42,11 +42,12 @@ const Container = styled.div`
 `;
 
 interface DiagramProps {
-    fetchProjectResources: () => Promise<Map<string, ComponentModel>>
+    fetchProjectResources: () => Promise<Map<string, ComponentModel>>;
+    createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { fetchProjectResources } = props;
+    const { fetchProjectResources, createService } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
@@ -73,7 +74,7 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     return (
-        <DesignDiagramContext getTypeComposition={getTypeComposition} currentView={currentView}>
+        <DesignDiagramContext getTypeComposition={getTypeComposition} currentView={currentView} createService={createService}>
             <Container>
                 {currentView && projectPkgs ?
                     <>
