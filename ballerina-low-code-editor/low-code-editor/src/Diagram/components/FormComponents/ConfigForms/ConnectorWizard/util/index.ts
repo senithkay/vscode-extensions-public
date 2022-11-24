@@ -226,7 +226,7 @@ export function getSelectedUnionMember(unionFields: FormField): FormField {
             (member) => member.typeName === unionFields.value?.replace(/['"]+/g, "")
         );
     }
-    if (!selectedMember) {
+    if (!selectedMember && unionFields.members && unionFields.members.length > 0) {
         selectedMember = unionFields.members[ 0 ];
     }
     return selectedMember;
