@@ -31,6 +31,7 @@ import {
     RECORD_EDITOR
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { ToolbarContext } from "../../store/toolbar-context";
 import {
     getExistingConfigurable,
     getModuleElementDeclPosition,
@@ -67,6 +68,7 @@ export default function Toolbar(props: ToolbarProps) {
         addConfigurable,
         activeEditorId
     } = editorCtx;
+    const toolbarCtx = useContext(ToolbarContext);
     const { inlineDocumentHandler } = props;
     const [docEnabled, setDocEnabled] = React.useState(false);
 
@@ -149,6 +151,7 @@ export default function Toolbar(props: ToolbarProps) {
     }
 
     const onClickExpressions = () => {
+        toolbarCtx.onClickMoreExp("changeToExpressionTab");
     }
 
     useEffect(() => {
@@ -215,15 +218,14 @@ export default function Toolbar(props: ToolbarProps) {
                     <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
                 </>
             )}
-            <ToolbarOperators></ToolbarOperators>
-            <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
+            <ToolbarOperators />
             <StatementEditorHint content={"More expressions"} >
                 <IconButton
                     onClick={onClickExpressions}
                     className={statementEditorClasses.toolbarIcons}
                     data-testid="toolbar-expressions"
                 >
-                    <Typography style={{ fontFamily: 'monospace' }}>
+                    <Typography className={statementEditorClasses.toolbarMoreExpIcon}>
                         ...
                     </Typography>
                 </IconButton>

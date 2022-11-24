@@ -113,10 +113,30 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
             display: 'flex',
             marginLeft: '16px'
         },
+        toolbarOperators: {
+            display: 'flex',
+            flexDirection: 'row',
+            padding: 0,
+            color: '#40404B'
+        },
         toolbarIcons: {
             padding: '8px',
             borderRadius: '5px',
+            margin: '5px 0',
             ...hoverColor1
+        },
+        toolbarOperatorsIcons: {
+            color: '#40404B',
+            padding: '0px 8px',
+            borderRadius: '5px',
+            margin: '5px 0px',
+            ...hoverColor1
+        },
+        toolbarMoreExpIcon: {
+            color: '#5567D5',
+            fontWeight: 1000,
+            fontFamily: 'monospace',
+            fontSize: '9px',
         },
         undoRedoSeparator: {
             width: '1px',
