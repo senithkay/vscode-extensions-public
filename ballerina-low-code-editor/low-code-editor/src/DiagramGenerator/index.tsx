@@ -275,7 +275,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         }
     }
 
-    if (!syntaxTree) {
+    if (!syntaxTree && !isDiagramError) {
         return (<div className={classes.loaderContainer}><CirclePreloader position="relative" /></div>);
     }
 

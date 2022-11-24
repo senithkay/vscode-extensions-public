@@ -23,13 +23,13 @@ export default function Default() {
                     <ErrorGenSvg />
                 </Grid>
                 <Grid item={true}>
-                    <Typography variant="h3" className={classes.errorTitle} component="div">
-                        There was an issue in generating the diagram
+                    <Typography variant="h4" className={classes.errorTitle} component="div">
+                        A problem occurred while generating the diagram.
                     </Typography>
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="subtitle2" component="div" className={classes.errorMsg}>
-                        Please raise an issue with the sample code <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">here</a>
+                        Please raise an issue with the sample code in our <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">issue tracker</a>
                     </Typography>
                 </Grid>
             </Grid>
