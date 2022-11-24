@@ -167,6 +167,8 @@ function isCompatible(ballerinaExtInstance: BallerinaExtension): boolean {
 }
 
 function createService(packageName: string, orgName?: string, version?: string) {
+    // Navigate to parent dir
+    runTerminalCommand(`cd ../`);
     runTerminalCommand(`bal new ${packageName} -t service`);
     runTerminalCommand(`echo created bal module in \"$PWD\"`);
     // Navigate to new package root
@@ -176,5 +178,4 @@ function createService(packageName: string, orgName?: string, version?: string) 
     runTerminalCommand(`sed -i '' -e 's/version = \"[0-9].[0-9].[0-9]\"/org = "${version}"/g' Ballerina.toml`);
     // Add Display annotation
     runTerminalCommand(`sed -i '' -e 's/service \\/ on new http:Listener(9090) {/@display {\\n\\tlabel: \"GreetingService\",\\n\\tid: \"GreetingService-${randomUUID()}\"\\n}\\nservice \\/ on new http:Listener(9090) {/g' service.bal`);
-    runTerminalCommand(`cd ../`);
 }
