@@ -66,8 +66,12 @@ export function ModuleVarDeclC(props: ModuleVarDeclProps) {
             {model.visibilityQualifier && <KeywordComponent model={model.visibilityQualifier}/>}
             {qualifiers}
             <ExpressionComponent model={model.typedBindingPattern} />
-            <TokenComponent model={model.equalsToken} className={"operator"} />
-            <ExpressionComponent model={model.initializer}/>
+            {model?.initializer && (
+                <>
+                    <TokenComponent model={model.equalsToken} className={"operator"} />
+                    <ExpressionComponent model={model.initializer}/>
+                </>
+            )}
             {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
             {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
                 <TokenComponent model={model.semicolonToken} />}

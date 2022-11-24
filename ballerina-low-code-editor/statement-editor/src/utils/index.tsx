@@ -786,7 +786,7 @@ export function getUpdatedContentOnCheck(currentModel: STNode, param: ParameterI
     } else if (param.kind === SymbolParameterType.REST) {
         modelParams.push(`${PARAM_CONSTRUCTOR}${param.name}`);
     } else {
-        modelParams.push(param.name);
+        modelParams.push(`${PARAM_CONSTRUCTOR}${param.name}`);
     }
 
     const content: string = "(" + modelParams.join(",") + ")";
@@ -856,7 +856,10 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
         let paramList = params[1].split(',');
         paramList = paramList.map((param: string) => {
             if (param) {
-                const paramName = param.trim().split(' ').pop();
+                let paramName = param.trim().split(' ').pop();
+                if (paramName[0] === "'" && keywords.includes(paramName.slice(1))){
+                    paramName = paramName.slice(1);
+                }
                 return `${PARAM_CONSTRUCTOR}${paramName}`;
             }
         });
