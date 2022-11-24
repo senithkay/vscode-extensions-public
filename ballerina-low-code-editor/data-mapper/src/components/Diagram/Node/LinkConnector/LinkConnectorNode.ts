@@ -91,16 +91,14 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     || node instanceof PrimitiveTypeNode
                     || node instanceof ListConstructorNode)
                 {
-                    if (STKindChecker.isFunctionDefinition(this.parentNode)) {
-                        const typeDescPosition = this.parentNode.functionSignature?.returnTypeDesc.type.position;
-                        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                        const returnType = recordTypeDescriptors.getTypeDescriptor({
-                            startLine: typeDescPosition.startLine,
-                            startColumn: typeDescPosition.startColumn,
-                            endLine: typeDescPosition.startLine,
-                            endColumn: typeDescPosition.startColumn
-                        });
-                        this.targetPort = node.getPort(`${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${returnType.typeName}.IN`) as RecordFieldPortModel;
+                    if (STKindChecker.isFunctionDefinition(this.parentNode)
+                        || STKindChecker.isQueryExpression(this.parentNode))
+                    {
+                        if (node instanceof PrimitiveTypeNode) {
+                            this.targetPort = node.getPort(
+                                `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.recordField.type.typeName}.IN`
+                            ) as RecordFieldPortModel;
+                        }
                         this.targetMappedPort = this.targetPort;
                     } else {
                         [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
