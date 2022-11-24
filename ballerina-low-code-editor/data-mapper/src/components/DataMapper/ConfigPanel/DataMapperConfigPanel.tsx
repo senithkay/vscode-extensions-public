@@ -5,6 +5,8 @@ import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
 import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import {
+    addToTargetPosition,
+    CompletionParams,
     createFunctionSignature,
     STModification,
     updateFunctionSignature,
@@ -18,6 +20,9 @@ import {
     WarningBanner,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Uri } from "monaco-editor";
+import { CompletionItemKind } from "vscode-languageserver-protocol";
+
 
 import { LSClientContext } from "../Context/ls-client-context";
 import { DataMapperProps } from "../DataMapper";
@@ -26,7 +31,7 @@ import { FunctionNameEditor } from "./FunctionNameEditor";
 import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 import { DataMapperInputParam, DataMapperOutputParam } from "./InputParamsPanel/types";
 import { RecordButtonGroup } from "./RecordButtonGroup";
-import { TypeBrowser } from "./TypeBrowser";
+import { CompletionResponseWithModule, TypeBrowser } from "./TypeBrowser";
 import {
     isValidOutput,
     getDefaultFnName,
@@ -36,6 +41,8 @@ import {
     getModifiedTargetPosition,
     getOutputTypeFromST
 } from "./utils";
+import { CurrentFileContext } from "../Context/current-file-context";
+import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
 export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
@@ -92,6 +99,23 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             setInitiated(true);
         })();
     }, []);
+    const [fetchingCompletions, setFetchingCompletions] = useState(false);
+
+    const { path, content } = useContext(CurrentFileContext);
+
+    const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
+
+    useEffect(() => {
+        (async () => {
+            if(initiated){
+                setFetchingCompletions(true);
+                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
+                                            importStatements,fnST?.position || targetPosition , path);
+                setRecordCompletions(allCompletions);
+                setFetchingCompletions(false);
+            }
+        })();
+    }, [content, initiated]);
 
     const onSaveForm = () => {
         const parametersStr = inputParams
@@ -287,7 +311,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 banner={fnST && hasInvalidInputs && <Warning message='Only records are currently supported as data mapper inputs' />}
                             />
                             <FormDivider />
-                            <OutputTypeConfigPanel>
+                            <OutputTypeConfigPanel data-testid='dm-output'>
                                 <Title>Output Type</Title>
                                 {!outputType.type ? (
                                     <>
@@ -295,9 +319,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                             <TypeBrowser
                                                 type={outputType.type}
                                                 onChange={handleOutputTypeChange}
-                                                fnSTPosition={fnST?.position || targetPosition}
-                                                currentFileContent={currentFile?.content}
-                                                imports={importStatements}
+                                                isLoading={fetchingCompletions}
+                                                recordCompletions={recordCompletions}
                                             />
                                         )}
                                         <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />

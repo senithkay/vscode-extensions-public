@@ -10,15 +10,22 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Grid } from "@material-ui/core";
 import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { DataMapperInputParam } from "./types";
 import styled from "@emotion/styled";
-import { TypeBrowser } from "../TypeBrowser";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import camelCase from 'lodash.camelcase';
+import { CompletionItemKind } from "vscode-languageserver-protocol";
+import { Uri } from "monaco-editor";
+import { addToTargetPosition, CompletionParams } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { CurrentFileContext } from "../../Context/current-file-context";
+import { LSClientContext } from "../../Context/ls-client-context";
+import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
+import { DataMapperInputParam } from "./types";
+import { getRecordCompletions } from "../../../Diagram/utils/ls-utils";
 
 interface InputParamEditorProps {
     index?: number;
@@ -57,6 +64,23 @@ export function InputParamEditor(props: InputParamEditorProps) {
         setParamError("");
         return true;
     };
+    const [fetchingCompletions, setFetchingCompletions] = useState(false);
+    const langClientPromise = useContext(LSClientContext);
+
+
+    const { path, content } = useContext(CurrentFileContext);
+
+    const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
+
+    useEffect(() => {
+        (async () => {
+            setFetchingCompletions(true);
+            const allCompletions = await getRecordCompletions(currentFileContent, langClientPromise, imports,
+                                            fnSTPosition , path)
+            setRecordCompletions(allCompletions);
+            setFetchingCompletions(false);
+        })();
+    }, [content]);
 
     const handleOnSave = () => {
         onSave({
@@ -101,9 +125,8 @@ export function InputParamEditor(props: InputParamEditorProps) {
                         <TypeBrowser
                             type={paramType}
                             onChange={handleParamTypeChange}
-                            fnSTPosition={fnSTPosition}
-                            imports={imports}
-                            currentFileContent={currentFileContent} />
+                            isLoading={fetchingCompletions}
+                            recordCompletions={recordCompletions} />
                     </Grid>
                     <Grid item={true} xs={4}>
                         <FormTextInput
