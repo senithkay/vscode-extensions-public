@@ -24,12 +24,12 @@ export default function Default() {
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="h3" className={classes.errorTitle} component="div">
-                        Oops! This is embarrassing.
+                        There was an issue in generating the diagram
                     </Typography>
                 </Grid>
                 <Grid item={true}>
                     <Typography variant="subtitle2" component="div" className={classes.errorMsg}>
-                        Something went terribly wrong. Please check the ballerina source.
+                        Please raise an issue with the sample code <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">here</a>
                     </Typography>
                 </Grid>
             </Grid>
