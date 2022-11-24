@@ -122,11 +122,11 @@ export function ToolbarOperators() {
             }
 
             // filter context based toolbar operators on expression
-            if (STKindChecker.isWhereClause(currentModel.model) ||
-               (STKindChecker.isIdentifierToken(currentModel.model) && STKindChecker.isWhereClause(currentModel.model?.parent?.parent))) {
-                filteredGroups = [operators, equality];
-            } else if (STKindChecker.isSelectClause(currentModel.model) || STKindChecker.isLetClause(currentModel.model)) {
+            if (STKindChecker.isSelectClause(currentModel.model) || STKindChecker.isLetClause(currentModel.model)) {
                 filteredGroups = [operators, parenthesis];
+            } else if (STKindChecker.isWhereClause(currentModel.model) || (STKindChecker.isIdentifierToken(currentModel.model) &&
+                currentModel.model?.parent?.parent && STKindChecker.isWhereClause(currentModel.model.parent.parent))) {
+                filteredGroups = [operators, equality];
             } else if (isRecordFieldName(currentModel.model)) {
                 filteredGroups = [optionalRecordField]
             } else if (currentModel?.model?.parent?.parent && STKindChecker.isTypedBindingPattern(currentModel.model.parent.parent)) {
