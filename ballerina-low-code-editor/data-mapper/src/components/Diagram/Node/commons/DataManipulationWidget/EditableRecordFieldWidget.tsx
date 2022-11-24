@@ -179,7 +179,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             value={value}
                             onClick={handleEditValue}
                         >
-                            <span className={classes.valueWithError}>
+                            <span className={classes.valueWithError} data-testid={`record-widget-field-${portIn?.getName()}`}>
                                 {value}
                                 <span className={classes.errorIconWrapper}>
                                     <ErrorIcon />
@@ -187,7 +187,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             </span>
                         </DiagnosticTooltip>
                     ) : (
-                        <span className={classes.value} onClick={handleEditValue}>{value}</span>
+                        <span 
+                            className={classes.value} 
+                            onClick={handleEditValue} 
+                            data-testid={`record-widget-field-${portIn?.getName()}`}
+                        >
+                            {value}
+                        </span>
                     )}
                 </>
             )}
@@ -234,7 +240,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             {(isLoading || fieldId === props.context.fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />
                             ) : (
-                                <ValueConfigMenu menuItems={valConfigMenuItems} />
+                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()}/>
                             )}
                         </>
                     )}

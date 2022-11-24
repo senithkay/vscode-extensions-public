@@ -53,10 +53,11 @@ export enum ValueConfigOption {
 export interface ValueConfigMenuProps {
     menuItems: ValueConfigMenuItem[]
     isDisabled?: boolean;
+    portName?: string
 }
 
 export function ValueConfigMenu(props: ValueConfigMenuProps) {
-    const { menuItems, isDisabled } = props;
+    const { menuItems, isDisabled, portName } = props;
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
     const open = Boolean(anchorEl);
@@ -76,6 +77,7 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                 className={classes.tripleDotsIcon}
                 onClick={(e) => handleClick(e)}
                 disabled={isDisabled}
+                data-testid={`value-config-${portName}`}
             >
                 <TripleDotsIcon />
             </IconButton>
@@ -95,6 +97,7 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                                 title={menuItem.title}
                                 onClick={menuItem.onClick}
                                 onClose={handleClose}
+                                data-testid={`value-config-${portName}-item-${menuItem.title}`}
                             />
                         )
                     })

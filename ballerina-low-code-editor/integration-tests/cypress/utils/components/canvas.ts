@@ -5,6 +5,7 @@ import { Class } from "./class";
 import { Other } from "./other";
 import { Service } from "./service";
 import { Constant } from "./constant";
+import { DataMapper } from "./DataMapper";
 
 export class Canvas {
 
@@ -45,6 +46,10 @@ export class Canvas {
 
     private static getConstantElement(constantName: string) {
         return cy.get(`#canvas .member-container .const-container[data-const-name="${constantName}"]`)
+    }
+
+    private static getTransformComponentElement(recordName: string) {
+        return cy.get(`#canvas .member-container .expr-bodied-func-comp[data-record-name="${recordName}"]`)
     }
 
 
@@ -125,5 +130,10 @@ export class Canvas {
         this.waitForDiagramUpdate();
         const element = this.getConstantElement(constantName);
         return new Constant(element);
+    }
+
+    static getDataMapper(functionName: string) {
+        const element = this.getTransformComponentElement(functionName);
+        return new DataMapper(element);
     }
 }

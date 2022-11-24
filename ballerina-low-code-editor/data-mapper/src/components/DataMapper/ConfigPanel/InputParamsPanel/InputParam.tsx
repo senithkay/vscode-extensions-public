@@ -48,10 +48,12 @@ export function InputParamItem(props: InputParamItemProps) {
             <Box component="span" display="flex">
                 {!inputParam.inInvalid && <EditButton
                     onClick={handleEdit}
+                    dataTestId={`data-mapper-config-edit-input-${index}`}
                     icon={<EditIcon fontSize="small" />}
                 />}
                 <DeleteButton
                     onClick={handleDelete}
+                    dataTestId={`data-mapper-config-delete-input-${index}`}
                     icon={<DeleteOutLineIcon fontSize="small" />}
                 />
             </Box>

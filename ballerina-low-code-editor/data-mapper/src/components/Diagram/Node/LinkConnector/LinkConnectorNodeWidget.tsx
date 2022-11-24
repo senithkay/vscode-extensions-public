@@ -180,7 +180,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     );
 
     return (!node.hidden && (
-        <div className={classes.root}>
+        <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} />
                 <TooltipComponent interactive={false} arrow={true} title={"Multi-Input Expression"}>
@@ -188,7 +188,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         <ExpressionIcon  />
                     </span>
                 </TooltipComponent>
-                <div className={classes.element} onClick={onClickEdit}>
+                <div className={classes.element} onClick={onClickEdit} data-testid={`link-connector-edit-${node?.value}`}>
                     <div className={classes.iconWrapper}>
                         <CodeOutlinedIcon className={clsx(classes.icons, classes.editIcon)}/>
                     </div>
@@ -198,7 +198,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         {loadingScreen}
                     </div>
                 ) : (
-                    <div className={classes.element} onClick={onClickDelete}>
+                    <div className={classes.element} onClick={onClickDelete} data-testid={`link-connector-delete-${node?.value}`}>
                         <div className={classes.iconWrapper}>
                             <DeleteIcon className={clsx(classes.deleteIcon)}/>
                         </div>

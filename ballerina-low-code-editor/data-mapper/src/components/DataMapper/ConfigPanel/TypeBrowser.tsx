@@ -36,6 +36,7 @@ export function TypeBrowser(props: TypeBrowserProps) {
         <>
             <Autocomplete
                 key={`type-select-${isLoading}`}
+                data-testid='type-select-dropdown'
                 getOptionLabel={(option) => option?.insertText}
                 options={recordCompletions}
                 disabled={isLoading}

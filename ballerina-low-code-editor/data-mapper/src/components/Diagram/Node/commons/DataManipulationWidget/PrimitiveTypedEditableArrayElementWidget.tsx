@@ -107,6 +107,7 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                     <span>{label}</span>
                     <ValueConfigMenu
                         menuItems={valueConfigMenuItems}
+                        portName={portIn?.getName()}
                     />
                 </div>
             )}

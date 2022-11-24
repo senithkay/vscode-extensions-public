@@ -113,7 +113,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
 
 
     return (
-        <TreeContainer>
+        <TreeContainer data-testid={`${id}-node`}>
             <TreeHeader>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&

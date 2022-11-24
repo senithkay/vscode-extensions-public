@@ -33,14 +33,9 @@ export function CodeActionWidget(props: CodeActionWidgetProps) {
         props;
     const classes = useStyles();
 
-
-
-
-
-
     return (
         <CodeActionTooltip codeActions={codeActions} context={context} additionalActions={additionalActions}>
-            <div className={classes.element} >
+            <div className={classes.element}  data-testid={`expression-label-code-action-`}>
                 <span  className={classes.lightBulbWrapper}>
                     <LightBulbSVG />
                 </span>

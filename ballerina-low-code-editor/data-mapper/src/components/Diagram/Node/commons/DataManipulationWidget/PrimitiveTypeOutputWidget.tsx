@@ -140,7 +140,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	}
 
 	return (
-		<TreeContainer>
+		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
 					{portIn && (!hasValue || !expanded) &&

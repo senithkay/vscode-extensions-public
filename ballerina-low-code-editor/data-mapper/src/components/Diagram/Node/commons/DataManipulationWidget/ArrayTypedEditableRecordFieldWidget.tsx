@@ -279,6 +279,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                     },
                                 ]}
                                 isDisabled={!typeName || typeName === "[]"}
+                                portName={portIn?.getName()}
                             />
                         )}
                     </>
@@ -295,6 +296,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             onClick={handleAddArrayElement}
                             startIcon={isAddingElement ? <CircularProgress size={16} /> : <AddIcon />}
                             disabled={isAddingElement}
+                            data-testid={`array-widget-${portIn?.getName()}-add-element`}
                         >
                             Add Element
                         </Button>
