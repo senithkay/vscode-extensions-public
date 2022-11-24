@@ -75,6 +75,7 @@ export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     initialSource: string;
     extraModules?: Set<string>;
     isHeaderHidden?: boolean;
+    skipSemicolon?: boolean;
 }
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
@@ -100,6 +101,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         extraModules,
         runBackgroundTerminalCommand,
         isExpressionMode,
+        skipSemicolon,
         ballerinaVersion,
         isCodeServerInstance,
         openExternalUrl,
@@ -252,6 +254,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             experimentalEnabled={experimentalEnabled}
                             runBackgroundTerminalCommand={runBackgroundTerminalCommand}
                             isExpressionMode={isExpressionMode}
+                            skipSemicolon={skipSemicolon}
                             ballerinaVersion={ballerinaVersion}
                             isCodeServerInstance={isCodeServerInstance}
                             openExternalUrl={openExternalUrl}
