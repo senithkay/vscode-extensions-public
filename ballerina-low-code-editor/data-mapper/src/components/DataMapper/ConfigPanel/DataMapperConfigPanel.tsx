@@ -107,13 +107,15 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
-            setFetchingCompletions(true);
-            const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
-                                        importStatements,fnST?.position || targetPosition , path);
-            setRecordCompletions(allCompletions);
-            setFetchingCompletions(false);
+            if(initiated){
+                setFetchingCompletions(true);
+                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
+                                            importStatements,fnST?.position || targetPosition , path);
+                setRecordCompletions(allCompletions);
+                setFetchingCompletions(false);
+            }
         })();
-    }, [content]);
+    }, [content, initiated]);
 
     const onSaveForm = () => {
         const parametersStr = inputParams
@@ -309,7 +311,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 banner={fnST && hasInvalidInputs && <Warning message='Only records are currently supported as data mapper inputs' />}
                             />
                             <FormDivider />
-                            <OutputTypeConfigPanel>
+                            <OutputTypeConfigPanel data-testid='dm-output'>
                                 <Title>Output Type</Title>
                                 {!outputType.type ? (
                                     <>
