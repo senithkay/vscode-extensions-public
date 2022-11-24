@@ -5,8 +5,6 @@ import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
 import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import {
-    addToTargetPosition,
-    CompletionParams,
     createFunctionSignature,
     STModification,
     updateFunctionSignature,
@@ -20,10 +18,10 @@ import {
     WarningBanner,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "monaco-editor";
-import { CompletionItemKind } from "vscode-languageserver-protocol";
+import camelCase from "lodash.camelcase";
 
-
+import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
+import { CurrentFileContext } from "../Context/current-file-context";
 import { LSClientContext } from "../Context/ls-client-context";
 import { DataMapperProps } from "../DataMapper";
 
@@ -33,16 +31,14 @@ import { DataMapperInputParam, DataMapperOutputParam } from "./InputParamsPanel/
 import { RecordButtonGroup } from "./RecordButtonGroup";
 import { CompletionResponseWithModule, TypeBrowser } from "./TypeBrowser";
 import {
-    isValidOutput,
     getDefaultFnName,
     getDiagnosticsForFnName,
     getFnNameFromST,
     getInputsFromST,
     getModifiedTargetPosition,
-    getOutputTypeFromST
+    getOutputTypeFromST,
+    isValidOutput
 } from "./utils";
-import { CurrentFileContext } from "../Context/current-file-context";
-import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
 export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
@@ -213,7 +209,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             const newRecordType = createdNewRecord.split(" ")[1];
             if (newRecordBy === "input") {
                 setInputParams([...inputParams, {
-                    name: newRecordType,
+                    name: camelCase(newRecordType),
                     type: newRecordType,
                     inInvalid: false,
                 }])

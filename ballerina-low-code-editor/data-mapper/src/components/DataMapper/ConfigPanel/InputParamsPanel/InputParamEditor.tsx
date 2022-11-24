@@ -101,7 +101,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
     const handleParamTypeChange = (type: string) => {
         setParamType(type);
         if (type && type.length > 1) {
-            setParamName(camelCase(type.split(':').pop()))
+            setParamName(camelCase(type.split(':').pop()));
         }
     }
 
