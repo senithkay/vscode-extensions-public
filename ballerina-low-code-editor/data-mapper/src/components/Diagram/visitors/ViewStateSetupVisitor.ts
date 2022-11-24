@@ -17,12 +17,10 @@ import { DataMapperViewState } from "../../../utils/data-mapper-view-state";
 export class ViewStateSetupVisitor implements Visitor {
 
     public beginVisitListConstructor(node: ListConstructor, parent?: STNode) {
-        if (!node.dataMapperViewState) {
-            node.expressions.forEach((expr) => {
-                if (!STKindChecker.isCommaToken(expr)) {
-                    expr.dataMapperViewState = new DataMapperViewState();
-                }
-            });
-        }
+        node.expressions.forEach((expr) => {
+            if (!STKindChecker.isCommaToken(expr) && !expr.dataMapperViewState) {
+                expr.dataMapperViewState = new DataMapperViewState();
+            }
+        });
     }
 }
