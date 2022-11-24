@@ -16,6 +16,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
+import { isPositionsEquals } from "../../../utils/st-utils";
 import { SelectionState } from "../../DataMapper/DataMapper";
 import { isArraysSupported } from "../../DataMapper/utils";
 import {
@@ -246,8 +247,22 @@ export class NodeInitVisitor implements Visitor {
             }
         } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY) {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
-            this.intermediateNodes.push(queryNode);
+            if (!this.intermediateNodes.some(intNode => intNode instanceof QueryExpressionNode)) {
+                this.intermediateNodes.push(queryNode);
+            }
             this.isWithinQuery += 1;
+        } else {
+            if (STKindChecker.isFunctionDefinition(selectedSTNode)
+                && STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody))
+            {
+                const queryExpr = selectedSTNode.functionBody.expression;
+                if (!isPositionsEquals(queryExpr.position, node.position)) {
+                    const queryNode = new QueryExpressionNode(this.context, node, parent);
+                    this.intermediateNodes.push(queryNode);
+                    this.isWithinQuery += 1;
+                }
+            }
+
         }
     };
 

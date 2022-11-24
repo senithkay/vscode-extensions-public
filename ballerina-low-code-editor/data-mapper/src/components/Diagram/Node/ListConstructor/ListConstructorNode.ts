@@ -16,7 +16,7 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 import {
     ExpressionFunctionBody,
     IdentifierToken,
-    MappingConstructor,
+    ListConstructor,
     QueryExpression,
     SelectClause,
     STKindChecker,
@@ -108,7 +108,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     async initLinks() {
-        const mappings = this.genMappings(this.value.expression as MappingConstructor);
+        const mappings = this.genMappings(this.value.expression as ListConstructor);
         this.createLinks(mappings);
     }
 

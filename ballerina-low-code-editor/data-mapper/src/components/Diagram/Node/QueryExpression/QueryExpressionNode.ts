@@ -72,37 +72,43 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
-            if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
-                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                const type = recordTypeDescriptors.getTypeDescriptor({
-                    startLine: sourceFieldAccess.position.startLine,
-                    startColumn: sourceFieldAccess.position.startColumn,
-                    endLine: sourceFieldAccess.position.endLine,
-                    endColumn: sourceFieldAccess.position.endColumn
-                });
+            const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+            const type = recordTypeDescriptors.getTypeDescriptor({
+                startLine: sourceFieldAccess.position.startLine,
+                startColumn: sourceFieldAccess.position.startColumn,
+                endLine: sourceFieldAccess.position.endLine,
+                endColumn: sourceFieldAccess.position.endColumn
+            });
 
-                if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
-                    this.sourceTypeDesc = type.memberType;
-                }
-
-                const fieldNames = getFieldNames(sourceFieldAccess);
-                const fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
-
-                this.getModel().getNodes().map((node) => {
-                    if (node instanceof RequiredParamNode && node.value.paramName.value === fieldNames[0]) {
-                        this.sourcePort = node.getPort(fieldId + ".OUT") as RecordFieldPortModel;
-                    } else if (node instanceof FromClauseNode
-                        && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)
-                        && node.value.typedBindingPattern.bindingPattern.source.trim() === fieldNames[0].trim())
-                    {
-                        this.sourcePort = node.getPort(
-                            `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
-                    }
-                    while (this.sourcePort && this.sourcePort.hidden){
-                        this.sourcePort = this.sourcePort.parentModel;
-                    }
-                });
+            if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
+                this.sourceTypeDesc = type.memberType;
             }
+
+            let fieldId: string;
+            let paramName: string;
+            if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
+                const fieldNames = getFieldNames(sourceFieldAccess);
+                fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
+                paramName = fieldNames[0];
+            } else if (STKindChecker.isSimpleNameReference(sourceFieldAccess)) {
+                fieldId = sourceFieldAccess.name.value;
+                paramName = fieldId;
+            }
+
+            this.getModel().getNodes().map((node) => {
+                if (node instanceof RequiredParamNode && node.value.paramName.value === paramName) {
+                    this.sourcePort = node.getPort(fieldId + ".OUT") as RecordFieldPortModel;
+                } else if (node instanceof FromClauseNode
+                    && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)
+                    && node.value.typedBindingPattern.bindingPattern.source.trim() === paramName.trim())
+                {
+                    this.sourcePort = node.getPort(
+                        `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
+                }
+                while (this.sourcePort && this.sourcePort.hidden){
+                    this.sourcePort = this.sourcePort.parentModel;
+                }
+            });
         }
     }
 
