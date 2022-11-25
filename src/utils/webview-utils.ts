@@ -145,7 +145,7 @@ function getComposerURI(webView: Webview): string {
 }
 
 export function getComposerPath(disableComDebug: boolean, devHost: string, webView: Webview): string {
-    return (process.env.COMPOSER_DEBUG === "true" && !disableComDebug)
+    return (process.env.WEB_VIEW_WATCH_MODE === "true" && !disableComDebug)
         ? devHost
         : getComposerURI(webView);
 }
@@ -161,11 +161,11 @@ function getComposerJSFiles(componentName: string, disableComDebug: boolean, dev
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     return [
         isCodeServer ? (`${RESOURCES_CDN}/jslibs/${componentName}.js`) : join(getComposerPath(disableComDebug, devHost, webView), componentName + '.js'),
-        process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
+        process.env.WEB_VIEW_WATCH_MODE === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
 
-export function getComposerWebViewOptions(componentName: string, webView: Webview, { disableComDebug = false, devHost = process.env.COMPOSER_DEV_HOST as string } = {}): Partial<WebViewOptions> {
+export function getComposerWebViewOptions(componentName: string, webView: Webview, { disableComDebug = false, devHost = process.env.WEB_VIEW_DEV_HOST as string } = {}): Partial<WebViewOptions> {
     return {
         cssFiles: getComposerCSSFiles(disableComDebug, devHost, webView),
         jsFiles: getComposerJSFiles(componentName, disableComDebug, devHost, webView)
