@@ -34,7 +34,7 @@ interface TextFieldProps {
 
 export function TextInputWidget(props: TextFieldProps) {
     const { label, value, required, readonly, error, errorMessage, onChange } = props;
-    
+
     const [visited, updateVisitStatus] = useState<boolean>(false);
 
     const displayError: boolean = required ? (visited && error) : (value && value.length && error);

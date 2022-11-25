@@ -36,9 +36,9 @@ interface AdvancedSettingsProps {
 }
 
 export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
-    const {component, visibility, changeVisibility, updatePackage, resetDirectory, selectDirectory} = props;
-    
-    return(
+    const { component, visibility, changeVisibility, updatePackage, resetDirectory, selectDirectory } = props;
+
+    return (
         <AdvancedSettings>
             <AdvancedControlsHeader>
                 <AdvancedHeaderTitle>Advanced Settings</AdvancedHeaderTitle>
