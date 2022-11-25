@@ -7,7 +7,6 @@ env:
   ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.2.3/ballerina-2201.2.3-swan-lake.zip
   ballerina_deb_url: https://dist.ballerina.io/downloads/2201.2.3/ballerina-2201.2.3-swan-lake-linux-x64.deb
   vscVersion: 1.68.0
-  testStage: [test-connectors, test-block-level, test-module-level, test-se]
 
 jobs:
   Build_Stage:
@@ -143,7 +142,7 @@ jobs:
     needs: Build_Stage
     strategy:
       matrix:
-        testStage: ${{ env.testStage }}
+        testStage: [test-connectors, test-block-level, test-module-level, test-se]
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
