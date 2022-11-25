@@ -36,7 +36,6 @@ import {
     WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { debounce } from "lodash";
 import cloneDeep from "lodash.clonedeep";
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
@@ -48,6 +47,7 @@ import { MESSAGE_TYPE, SelectedPosition } from "../types";
 import { init } from "../utils/sentry";
 
 import { DiagramGenErrorBoundary } from "./ErrorBoundrary";
+import ErrorScreen from './ErrorBoundrary/Error';
 import {
     getDefaultSelectedPosition, getFunctionSyntaxTree, getLowcodeST, getSelectedPosition, getSyntaxTree, isDeleteModificationAvailable,
     isUnresolvedModulesAvailable
@@ -66,6 +66,8 @@ const ZOOM_STEP = 0.1;
 const MAX_ZOOM = 2;
 const MIN_ZOOM = 0.6;
 const undoRedo = new UndoRedoManager();
+const debounceTime: number = 5000;
+let lastPerfUpdate = 0;
 
 export function DiagramGenerator(props: DiagramGeneratorProps) {
     const {
@@ -117,10 +119,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         : { startLine, startColumn }
 
     const [selectedPosition, setSelectedPosition] = React.useState(initSelectedPosition);
+    const [isDiagramError, setIsDiagramError] = React.useState(false);
 
 
     React.useEffect(() => {
         (async () => {
+            let showDiagramError = false;
             try {
                 const langClient = await langClientPromise;
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
@@ -144,8 +148,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
                     getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
                     : { startLine, startColumn });
             } catch (err) {
-                throw err;
+                // tslint:disable-next-line: no-console
+                console.error(err)
+                showDiagramError = true;
             }
+
+            setIsDiagramError(showDiagramError);
         })();
     }, [lastUpdatedAt]);
 
@@ -267,14 +275,7 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
         }
     }
 
-    const addPerfData = React.useRef(
-        debounce(async (vistedSyntaxTree: STNode) => {
-            const langClient = await langClientPromise;
-            await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setSyntaxTree);
-        }, 1500)
-    ).current;
-
-    if (!syntaxTree) {
+    if (!syntaxTree && !isDiagramError) {
         return (<div className={classes.loaderContainer}><CirclePreloader position="relative" /></div>);
     }
 
@@ -289,182 +290,196 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
     // on top of typed context
     const missingProps: any = {};
 
+    const diagramComponent = (
+        <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt} >
+            <LowCodeEditor
+                {...missingProps}
+                selectedPosition={selectedPosition}
+                isReadOnly={false}
+                syntaxTree={syntaxTree}
+                zoomStatus={zoomStatus}
+                environment={lowCodeEnvInstance}
+                stSymbolInfo={getSymbolInfo()}
+                // tslint:disable-next-line: jsx-no-multiline-js
+                currentFile={{
+                    content: fileContent,
+                    path: filePath,
+                    size: 1,
+                    type: "File"
+                }}
+                importStatements={getImportStatements(syntaxTree)}
+                experimentalEnabled={experimentalEnabled}
+                lowCodeResourcesVersion={lowCodeResourcesVersion}
+                ballerinaVersion={balVersion}
+                isCodeServerInstance={isCodeServer}
+                openInDiagram={openInDiagram}
+                // tslint:disable-next-line: jsx-no-multiline-js
+                api={{
+                    helpPanel: {
+                        openConnectorHelp: (connector?: Partial<Connector>, method?: string) => undefined,
+                    },
+                    notifications: {
+                        triggerErrorNotification: (msg: Error | string) => undefined,
+                        triggerSuccessNotification: (msg: Error | string) => undefined,
+                    },
+                    ls: {
+                        getDiagramEditorLangClient: () => {
+                            return langClientPromise;
+                        },
+                        getExpressionEditorLangClient: () => {
+                            return langClientPromise;
+                        }
+                    },
+                    insights: {
+                        onEvent: (event: LowcodeEvent) => {
+                            props.sendTelemetryEvent(event);
+                        }
+                    },
+                    code: {
+                        modifyDiagram: async (mutations: STModification[], options?: any) => {
+                            const langClient = await langClientPromise;
+                            const uri = monaco.Uri.file(filePath).toString();
+                            setMutationInProgress(true);
+                            setLoaderText('Updating...');
+                            const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+                                astModifications: await InsertorDelete(mutations),
+                                documentIdentifier: {
+                                    uri
+                                }
+                            });
+                            let vistedSyntaxTree: STNode;
+                            if (parseSuccess) {
+                                undoRedo.addModification(source);
+                                setFileContent(source);
+                                props.updateFileContent(filePath, source);
+                                vistedSyntaxTree = await getLowcodeST(newST, filePath, langClient, experimentalEnabled, showMessage);
+                                setSyntaxTree(vistedSyntaxTree);
+                                if (isDeleteModificationAvailable(mutations)) {
+                                    showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
+                                }
+                                if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
+                                    const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
+                                    if (isAvailable) {
+                                        setModulePullInProgress(true);
+                                        setLoaderText('Pulling packages...');
+                                        const { parseSuccess: pullSuccess } = await resolveMissingDependency(filePath, source);
+                                        if (pullSuccess) {
+                                            // Rebuild the file At backend
+                                            langClient.didChange({
+                                                textDocument: { uri, version: 1 },
+                                                contentChanges: [
+                                                    {
+                                                        text: source
+                                                    }
+                                                ],
+                                            })
+                                            const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri } })
+                                            vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient, experimentalEnabled, showMessage);
+                                            setSyntaxTree(vistedSyntaxTree);
+                                        }
+                                        setModulePullInProgress(false);
+                                    }
+                                }
+
+                                let newActivePosition: SelectedPosition = { ...selectedPosition };
+                                for (const mutation of mutations) {
+                                    if (mutation.type.toLowerCase() !== "import" && mutation.type.toLowerCase() !== "delete") {
+                                        newActivePosition = getSelectedPosition(vistedSyntaxTree as ModulePart, mutation.startLine, mutation.startColumn);
+                                        break;
+                                    }
+                                }
+                                setSelectedPosition(newActivePosition.startColumn === 0 && newActivePosition.startLine === 0 && vistedSyntaxTree
+                                    ? getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
+                                    : newActivePosition);
+                            } else {
+                                // TODO show error
+                            }
+                            setMutationInProgress(false);
+                            if (mutations.length > 0) {
+                                const event: LowcodeEvent = {
+                                    type: DIAGRAM_MODIFIED,
+                                    name: `${mutations[0].type}`
+                                };
+                                props.sendTelemetryEvent(event);
+                            }
+                            await addPerfData(vistedSyntaxTree);
+                        },
+                        onMutate: (type: string, options: any) => undefined,
+                        setCodeLocationToHighlight: (position: NodePosition) => undefined,
+                        gotoSource: (position: { startLine: number, startColumn: number }) => {
+                            props.gotoSource(filePath, position);
+                        },
+                        getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
+                            const langClient = await langClientPromise;
+                            setMutationInProgress(true);
+                            setLoaderText('Fetching...');
+                            const res: FunctionDef = await getFunctionSyntaxTree(
+                                defFilePath ? defFilePath : monaco.Uri.file(filePath).toString(),
+                                lineRange,
+                                langClient
+                            );
+                            setMutationInProgress(false);
+                            return res;
+                        },
+                        updateFileContent: (content: string, skipForceSave?: boolean) => {
+                            return props.updateFileContent(filePath, content, skipForceSave);
+                        },
+                        undo,
+                        isMutationInProgress,
+                        isModulePullInProgress,
+                        loaderText
+                    },
+                    // FIXME Doesn't make sense to take these methods below from outside
+                    // Move these inside and get an external API for pref persistance
+                    // against a unique ID (eg AppID) for rerender from prev state
+                    panNZoom: {
+                        pan,
+                        fitToScreen,
+                        zoomIn,
+                        zoomOut
+                    },
+                    configPanel: {
+                        dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition, wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig, symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
+                        closeConfigOverlayForm: () => undefined,
+                        configOverlayFormPrepareStart: () => undefined,
+                        closeConfigPanel: () => undefined,
+                    },
+                    webView: {
+                        showTryitView,
+                        showDocumentationView
+                    },
+                    project: {
+                        run
+                    },
+                    library: {
+                        getLibrariesList,
+                        getLibrariesData,
+                        getLibraryData
+                    },
+                    runBackgroundTerminalCommand,
+                    openExternalUrl
+                }}
+            />
+        </DiagramGenErrorBoundary>
+    )
+
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
                 <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-                    <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt} >
-                        <LowCodeEditor
-                            {...missingProps}
-                            selectedPosition={selectedPosition}
-                            isReadOnly={false}
-                            syntaxTree={syntaxTree}
-                            zoomStatus={zoomStatus}
-                            environment={lowCodeEnvInstance}
-                            stSymbolInfo={getSymbolInfo()}
-                            // tslint:disable-next-line: jsx-no-multiline-js
-                            currentFile={{
-                                content: fileContent,
-                                path: filePath,
-                                size: 1,
-                                type: "File"
-                            }}
-                            importStatements={getImportStatements(syntaxTree)}
-                            experimentalEnabled={experimentalEnabled}
-                            lowCodeResourcesVersion={lowCodeResourcesVersion}
-                            ballerinaVersion={balVersion}
-                            isCodeServerInstance={isCodeServer}
-                            openInDiagram={openInDiagram}
-                            // tslint:disable-next-line: jsx-no-multiline-js
-                            api={{
-                                helpPanel: {
-                                    openConnectorHelp: (connector?: Partial<Connector>, method?: string) => undefined,
-                                },
-                                notifications: {
-                                    triggerErrorNotification: (msg: Error | string) => undefined,
-                                    triggerSuccessNotification: (msg: Error | string) => undefined,
-                                },
-                                ls: {
-                                    getDiagramEditorLangClient: () => {
-                                        return langClientPromise;
-                                    },
-                                    getExpressionEditorLangClient: () => {
-                                        return langClientPromise;
-                                    }
-                                },
-                                insights: {
-                                    onEvent: (event: LowcodeEvent) => {
-                                        props.sendTelemetryEvent(event);
-                                    }
-                                },
-                                code: {
-                                    modifyDiagram: async (mutations: STModification[], options?: any) => {
-                                        const langClient = await langClientPromise;
-                                        const uri = monaco.Uri.file(filePath).toString();
-                                        setMutationInProgress(true);
-                                        setLoaderText('Updating...');
-                                        const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
-                                            astModifications: await InsertorDelete(mutations),
-                                            documentIdentifier: {
-                                                uri
-                                            }
-                                        });
-                                        let vistedSyntaxTree: STNode;
-                                        if (parseSuccess) {
-                                            undoRedo.addModification(source);
-                                            setFileContent(source);
-                                            props.updateFileContent(filePath, source);
-                                            vistedSyntaxTree = await getLowcodeST(newST, filePath, langClient, experimentalEnabled, showMessage);
-                                            setSyntaxTree(vistedSyntaxTree);
-                                            if (isDeleteModificationAvailable(mutations)) {
-                                                showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
-                                            }
-                                            if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
-                                                const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
-                                                if (isAvailable) {
-                                                    setModulePullInProgress(true);
-                                                    setLoaderText('Pulling packages...');
-                                                    const { parseSuccess: pullSuccess } = await resolveMissingDependency(filePath, source);
-                                                    if (pullSuccess) {
-                                                        // Rebuild the file At backend
-                                                        langClient.didChange({
-                                                            textDocument: { uri, version: 1 },
-                                                            contentChanges: [
-                                                                {
-                                                                    text: source
-                                                                }
-                                                            ],
-                                                        })
-                                                        const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri } })
-                                                        vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient, experimentalEnabled, showMessage);
-                                                        setSyntaxTree(vistedSyntaxTree);
-                                                    }
-                                                    setModulePullInProgress(false);
-                                                }
-                                            }
-
-                                            let newActivePosition: SelectedPosition = { ...selectedPosition };
-                                            for (const mutation of mutations) {
-                                                if (mutation.type.toLowerCase() !== "import" && mutation.type.toLowerCase() !== "delete") {
-                                                    newActivePosition = getSelectedPosition(vistedSyntaxTree as ModulePart, mutation.startLine, mutation.startColumn);
-                                                    break;
-                                                }
-                                            }
-                                            setSelectedPosition(newActivePosition.startColumn === 0 && newActivePosition.startLine === 0 && vistedSyntaxTree
-                                                ? getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
-                                                : newActivePosition);
-                                        } else {
-                                            // TODO show error
-                                        }
-                                        setMutationInProgress(false);
-                                        if (mutations.length > 0) {
-                                            const event: LowcodeEvent = {
-                                                type: DIAGRAM_MODIFIED,
-                                                name: `${mutations[0].type}`
-                                            };
-                                            props.sendTelemetryEvent(event);
-                                        }
-                                        await addPerfData(vistedSyntaxTree);
-                                    },
-                                    onMutate: (type: string, options: any) => undefined,
-                                    setCodeLocationToHighlight: (position: NodePosition) => undefined,
-                                    gotoSource: (position: { startLine: number, startColumn: number }) => {
-                                        props.gotoSource(filePath, position);
-                                    },
-                                    getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
-                                        const langClient = await langClientPromise;
-                                        setMutationInProgress(true);
-                                        setLoaderText('Fetching...');
-                                        const res: FunctionDef = await getFunctionSyntaxTree(
-                                            defFilePath ? defFilePath : monaco.Uri.file(filePath).toString(),
-                                            lineRange,
-                                            langClient
-                                        );
-                                        setMutationInProgress(false);
-                                        return res;
-                                    },
-                                    updateFileContent: (content: string, skipForceSave?: boolean) => {
-                                        return props.updateFileContent(filePath, content, skipForceSave);
-                                    },
-                                    undo,
-                                    isMutationInProgress,
-                                    isModulePullInProgress,
-                                    loaderText
-                                },
-                                // FIXME Doesn't make sense to take these methods below from outside
-                                // Move these inside and get an external API for pref persistance
-                                // against a unique ID (eg AppID) for rerender from prev state
-                                panNZoom: {
-                                    pan,
-                                    fitToScreen,
-                                    zoomIn,
-                                    zoomOut
-                                },
-                                configPanel: {
-                                    dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition, wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig, symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
-                                    closeConfigOverlayForm: () => undefined,
-                                    configOverlayFormPrepareStart: () => undefined,
-                                    closeConfigPanel: () => undefined,
-                                },
-                                webView: {
-                                    showTryitView,
-                                    showDocumentationView
-                                },
-                                project: {
-                                    run
-                                },
-                                library: {
-                                    getLibrariesList,
-                                    getLibrariesData,
-                                    getLibraryData
-                                },
-                                runBackgroundTerminalCommand,
-                                openExternalUrl
-                            }}
-                        />
-                    </DiagramGenErrorBoundary>
+                    {isDiagramError && <ErrorScreen />}
+                    {!isDiagramError && diagramComponent}
                 </IntlProvider>
             </div>
         </MuiThemeProvider>
     );
+
+    async function addPerfData(vistedSyntaxTree: STNode) {
+        const currentTime: number = Date.now();
+        const langClient = await langClientPromise;
+        if (currentTime - lastPerfUpdate > debounceTime) {
+            await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setSyntaxTree);
+            lastPerfUpdate = currentTime;
+        }
+    }
 }
