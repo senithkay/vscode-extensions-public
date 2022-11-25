@@ -235,7 +235,7 @@ jobs:
           path: /coverageData
 
       - name: "Publish total code coverage"
-        script: |
+        run: |
           cd ballerina-low-code-editor
           npx nyc merge $(System.DefaultWorkingDirectory)/coverageData
           mkdir integration-tests/.nyc_output
