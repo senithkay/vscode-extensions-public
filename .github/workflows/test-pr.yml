@@ -1,10 +1,7 @@
-# Test build without tests
 name: Test PR
 
 on:
   pull_request:
-    branches:    
-      - '**'
 
 env:
   ballerina_version: 2201.2.3
