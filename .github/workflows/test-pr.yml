@@ -30,8 +30,8 @@ jobs:
       - name: Build plugin repo
         run: ./gradlew clean build -x test -x uiTest
         env:
-          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          IS_RELEASE: false
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+          IS_RELEASE: ${{ false }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Remove unwanted files
@@ -65,7 +65,7 @@ jobs:
       - name: Install node modules
         run: npm install
         env:
-          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
       - name: Set up Ballerina
         run: |
@@ -73,12 +73,18 @@ jobs:
           wget ${{ env.ballerina_zip_url }}
           unzip -qq ./ballerina-${{ env.ballerina_version }}-swan-lake.zip -d ./extractedDistribution
           rm ballerina-${{ env.ballerina_version }}-swan-lake.zip
-          balVersion=$(ls ${{ github.workspace }}/extractedDistribution)
-          balHome=${{ github.workspace }}/extractedDistribution/$balVersion
-          echo "##vso[task.prependpath]$balHome/bin"
+          balVersion=$(ls ./extractedDistribution)
+          balHome=$(./extractedDistribution/$balVersion
+
+          echo "::set-output name=balVersion::$balVersion"
+          echo "::set-output name=balHome::$balHome"
+          echo BAL_HOME=$balHome >> $GITHUB_ENV
 
       - name: Run Test
         run: xvfb-run --auto-servernum npm run test
+        env:
+          balVersion: ${{ steps.set-version.outputs.balVersion }}
+          balHome: ${{ steps.set-version.outputs.balHome }}
 
       - name: Convert lcov to cobertura
         run: python lcov_cobertura.py coverage/lcov.info -b src/ -o coverage/coverage.xml
@@ -116,7 +122,7 @@ jobs:
       - name: Install node modules
         run: npm install
         env:
-          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
       - name: Install Ballerina
         run: |
@@ -158,7 +164,7 @@ jobs:
           cd ballerina-low-code-editor  
           npm install
         env:
-          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
       - name: Install Cypress Dependencies
         run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
@@ -225,7 +231,7 @@ jobs:
           cd ballerina-low-code-editor  
           npm install
         env:
-          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
       - name: Download partial code coverages
         uses: actions/download-artifact@v3
