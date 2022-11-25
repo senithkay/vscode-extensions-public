@@ -234,14 +234,14 @@ jobs:
           name: PartialCodeCoverages
           path: /coverageData
 
-       - name: "Publish total code coverage"
-         script: |
+      - name: "Publish total code coverage"
+        script: |
           cd ballerina-low-code-editor
           npx nyc merge $(System.DefaultWorkingDirectory)/coverageData
           mkdir integration-tests/.nyc_output
           mv coverage.json integration-tests/.nyc_output/out.json
           npx nyc report --reporter html --reporter cobertura -t integration-tests/.nyc_output --report-dir integration-tests/coverage
-        condition: always()
+        if: always()
     
       - name: Generate plugin code coverage report
         uses: irongut/CodeCoverageSummary@v1.3.0
