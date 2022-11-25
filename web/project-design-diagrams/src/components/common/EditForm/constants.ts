@@ -21,6 +21,18 @@ export const PackageNameRegex: RegExp = new RegExp('^[a-zA-Z0-9\.\_]+$');
 export const OrganizationRegex: RegExp = new RegExp('^[a-zA-Z0-9\_]+$');
 export const VersionRegex: RegExp = new RegExp('^[a-zA-Z0-9\.\-]+$');
 
+export const PackageNameAntiRegex: RegExp = /[^a-zA-Z0-9_.]/g;
+
 export const PackageNameRules: string = 'Should only contain alphanumerics, underscore, and period.';
 export const OrganizationRules: string = 'Should only contain alphanumerics and underscore.';
 export const VersioningRules: string = 'Should follow the SemVer best practices.';
+
+export const ButtonColor: string = '#efeff5';
+
+export interface ComponentDetails {
+    name: string;
+    version: string;
+    organization: string;
+    package: string;
+    directory: string;
+}

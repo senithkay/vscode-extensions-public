@@ -25,10 +25,15 @@ import { ComponentModel } from './resources';
 export function renderDesignDiagrams(
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
     createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>,
+    pickDirectory: () => Promise<string>,
     target: HTMLElement) {
 
     render(
-        <DesignDiagram fetchProjectResources={fetchProjectResources} createService={createService} />,
+        <DesignDiagram
+            fetchProjectResources={fetchProjectResources}
+            createService={createService}
+            pickDirectory={pickDirectory}
+        />,
         target
     );
 }
