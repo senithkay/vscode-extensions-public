@@ -247,7 +247,7 @@ export class NodeInitVisitor implements Visitor {
             }
         } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY) {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
-            if (!this.intermediateNodes.some(intNode => intNode instanceof QueryExpressionNode)) {
+            if (this.isWithinQuery <= 1) {
                 this.intermediateNodes.push(queryNode);
             }
             this.isWithinQuery += 1;
