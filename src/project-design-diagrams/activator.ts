@@ -93,13 +93,11 @@ async function getProjectResources(): Promise<Map<string, ComponentModel>> {
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
         }).then((response) => {
-            if (isCompatible(2201.3, 1)) {
-                const packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
-                for (let [_key, packageModel] of packageModels) {
-                    if (packageModel.hasDiagnosticErrors) {
-                        window.showInformationMessage(DIAGNOSTICS_WARNING);
-                        break;
-                    }
+            const packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
+            for (let [_key, packageModel] of packageModels) {
+                if (packageModel.hasDiagnosticErrors) {
+                    window.showInformationMessage(DIAGNOSTICS_WARNING);
+                    break;
                 }
             }
             resolve(response.componentModels);
