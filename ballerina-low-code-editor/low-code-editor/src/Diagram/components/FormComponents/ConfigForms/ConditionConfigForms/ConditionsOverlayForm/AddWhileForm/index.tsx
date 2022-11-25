@@ -177,7 +177,8 @@ export function AddWhileForm(props: WhileProps) {
                         experimentalEnabled,
                         ballerinaVersion,
                         isCodeServerInstance,
-                        openExternalUrl
+                        openExternalUrl,
+                        skipSemicolon: true
                     }
                 )
             ) : (
