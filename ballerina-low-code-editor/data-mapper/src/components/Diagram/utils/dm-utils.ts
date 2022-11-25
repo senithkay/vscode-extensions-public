@@ -552,7 +552,7 @@ export function getOutputPortForField(fields: STNode[],
 			} else if (nextTypeMemberNodes) {
 				const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
 				if (nextField && fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
+					portIdBuffer = `${portIdBuffer}.${fieldIndex}.${nextField.type?.name || ''}`;
 					recField = nextField;
 				}
 			}
@@ -909,14 +909,7 @@ export function getSimpleNameRefNodes(selectedST: STNode, node: STNode) {
 }
 
 export function getFieldName(field: EditableRecordField) {
-	if (!field.type?.name
-		|| (field?.parentType
-			&& field.type.typeName === PrimitiveBalType.Record
-			&& field.parentType.type.typeName === PrimitiveBalType.Array)
-	) {
-		return '';
-	}
-	return getBalRecFieldName(field.type.name);
+	return field.type?.name ? getBalRecFieldName(field.type.name) : '';
 }
 
 export function getFieldLabel(fieldId: string) {
