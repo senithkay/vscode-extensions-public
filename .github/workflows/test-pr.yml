@@ -1,6 +1,7 @@
 name: Test PR
 
-on: [push, pull_request]
+on: 
+  pull_request:
 
 env:
   ballerina_version: 2201.2.3
