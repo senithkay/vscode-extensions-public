@@ -17,7 +17,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import ArrowDropdownIcon from '@mui/icons-material/ArrowDropDown';
@@ -29,6 +29,7 @@ import { PackagesPopup } from '../PackagesPopup/PackagesPopup';
 import { MenuPanel } from '../../MenuPanel/MenuPanel';
 import { Views } from '../../../../resources';
 import '../styles/styles.css';
+import { DiagramContext } from '../../../common';
 
 interface DefaultControlProps {
     projectPackages: Map<string, boolean>;
@@ -43,7 +44,10 @@ export function DefaultControls(props: DefaultControlProps) {
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
     const [anchorElement, setAnchorElement] = useState<HTMLButtonElement>(null);
 
+    const { createService } = useContext(DiagramContext);
+
     const openPkgsPopup = (event: React.MouseEvent<HTMLButtonElement>) => {
+        createService("YO", "testOrg", "1.0.1").then();
         setAnchorElement(event.currentTarget);
     };
 

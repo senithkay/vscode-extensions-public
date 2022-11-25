@@ -24,10 +24,11 @@ import { ComponentModel } from './resources';
 
 export function renderDesignDiagrams(
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
+    createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>,
     target: HTMLElement) {
 
     render(
-        <DesignDiagram fetchProjectResources={fetchProjectResources} />,
+        <DesignDiagram fetchProjectResources={fetchProjectResources} createService={createService} />,
         target
     );
 }
