@@ -11,6 +11,7 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ExpressionFunctionBody,
@@ -33,11 +34,13 @@ import { RecordFieldPortModel } from "../../Port";
 import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getBalRecFieldName,
+    getDefaultValue,
     getEnrichedRecordType,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
-    getTypeName
+    getTypeName,
+    getTypeOfValue
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -143,6 +146,10 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
             if (inPort && mappedOutPort) {
+                const mappedField = mappedOutPort.editableRecordField.type;
+                const keepDefault = !mappedField?.name
+                    && mappedField.typeName !== PrimitiveBalType.Array
+                    && mappedField.typeName !== PrimitiveBalType.Record;
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,
@@ -154,7 +161,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
-                    deleteLink: () => this.deleteField(field),
+                    deleteLink: () => this.deleteField(field, keepDefault),
                 }));
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
@@ -175,23 +182,34 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         });
     }
 
-    async deleteField(field: STNode) {
-        if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
+    async deleteField(field: STNode, keepDefaultVal?: boolean) {
+        let modifications: STModification[];
+        const typeOfValue = getTypeOfValue(this.recordField, field.position);
+        if (keepDefaultVal && !STKindChecker.isSpecificField(field)) {
+            modifications = [{
+                type: "INSERT",
+                config: {
+                    "STATEMENT": getDefaultValue(typeOfValue)
+                },
+                ...field.position
+            }];
+        } else if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
             // if Within query expression expanded view
-            await this.context.applyModifications([{
+            modifications = [{
                 type: "DELETE",
                 ...field.valueExpr?.position
-            }]);
+            }];
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
             traversNode(this.value.expression, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
-
-            await this.context.applyModifications([{
+            modifications = [{
                 type: "DELETE",
                 ...nodePositionsToDelete
-            }]);
+            }];
         }
+
+        await this.context.applyModifications(modifications);
     }
 
     public updatePosition() {
