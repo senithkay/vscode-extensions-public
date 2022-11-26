@@ -15,6 +15,7 @@ import {
 	MappingConstructor,
 	NodePosition,
 	OptionalFieldAccess,
+	QueryExpression,
 	RecordField,
 	RequiredParam, SimpleNameReference,
 	SpecificField,
@@ -101,6 +102,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		|| isMappedToMappingConstructorWithinArray(targetPort))
 	{
 		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
+	} else if (isMappedToSelectClauseExprListConstructor(targetPort)) {
+		const exprPosition = (targetPort.editableRecordField.value as QueryExpression).selectClause.expression.position;
+		return updateValueExprSource(rhs, exprPosition, applyModifications);
 	}
 
 	lhs = getBalRecFieldName(targetPort.field.name);
@@ -986,4 +990,12 @@ function isMappedToMappingConstructorWithinArray(targetPort: RecordFieldPortMode
 		&& targetPort.field.typeName === PrimitiveBalType.Record
 		&& targetPort.editableRecordField?.value
 		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value);
+}
+
+function isMappedToSelectClauseExprListConstructor(targetPort: RecordFieldPortModel): boolean {
+	return !targetPort.parentModel
+		&& targetPort.field.typeName === PrimitiveBalType.Array
+		&& targetPort?.editableRecordField?.value
+		&& STKindChecker.isQueryExpression(targetPort.editableRecordField.value)
+		&& STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression);
 }
