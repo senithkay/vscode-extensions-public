@@ -248,7 +248,7 @@ export class NodeInitVisitor implements Visitor {
             }
         } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY) {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
-            if (this.isWithinQuery <= 1) {
+            if (this.isWithinQuery === 0) {
                 this.intermediateNodes.push(queryNode);
             }
             this.isWithinQuery += 1;
@@ -257,7 +257,7 @@ export class NodeInitVisitor implements Visitor {
                 && STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody))
             {
                 const queryExpr = selectedSTNode.functionBody.expression;
-                if (!isPositionsEquals(queryExpr.position, node.position)) {
+                if (!isPositionsEquals(queryExpr.position, node.position) && this.isWithinQuery === 0) {
                     const queryNode = new QueryExpressionNode(this.context, node, parent);
                     this.intermediateNodes.push(queryNode);
                     this.isWithinQuery += 1;
