@@ -241,7 +241,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	while (nextField && nextField.parentType) {
 		const fieldName = nextField.type.name;
-		if (!(nextField.hasValue() && STKindChecker.isMappingConstructor(nextField.value))) {
+		if (fieldName && !(nextField.hasValue() && STKindChecker.isMappingConstructor(nextField.value))) {
 			parentFields.push(getBalRecFieldName(fieldName));
 		}
 
