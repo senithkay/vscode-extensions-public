@@ -50,7 +50,11 @@ export class SelectedSTFindingVisitor implements Visitor {
             } else if (node.dataMapperViewState) {
                 const elementIndex = (node.dataMapperViewState as DataMapperViewState).elementIndex;
                 if (elementIndex === +pathSegments[this.pathSegmentIndex]) {
-                    this.pathSegmentIndex++;
+                    if (STKindChecker.isMappingConstructor(node)) {
+                        this.pathSegmentIndex += 2;
+                    } else {
+                        this.pathSegmentIndex++;
+                    }
                 }
             } else {
                 return;

@@ -300,7 +300,7 @@ export class NodeInitVisitor implements Visitor {
         this.mapIdentifiers.push(node);
         if (this.isWithinQuery === 0 && node.expressions) {
             node.expressions.forEach((expr) => {
-                if (!STKindChecker.isMappingConstructor(expr)) {
+                if (!STKindChecker.isMappingConstructor(expr) && !STKindChecker.isListConstructor(expr)) {
                     const fieldAccessNodes = getFieldAccessNodes(expr);
                     const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, expr);
                     const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
