@@ -499,12 +499,12 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 export function getOutputPortForField(fields: STNode[],
                                       node: MappingConstructorNode | PrimitiveTypeNode | ListConstructorNode)
 	: [RecordFieldPortModel, RecordFieldPortModel] {
-	let nextTypeChildNodes: EditableRecordField[] = node.recordField.childrenTypes; // Represents fields of a record
-	let nextTypeMemberNodes: ArrayElement[] = node.recordField.elements; // Represents elements of an array
-	let recField: EditableRecordField;
+
+	let nextTypeNode: EditableRecordField = node.recordField;
 	let portIdBuffer;
+
 	if (node instanceof MappingConstructorNode) {
-		portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`;
+		portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}`;
 	} else if (node instanceof ListConstructorNode) {
 		portIdBuffer = `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`;
 	} else {
@@ -512,62 +512,48 @@ export function getOutputPortForField(fields: STNode[],
 	}
 	for (let i = 0; i < fields.length; i++) {
 		const field = fields[i];
-		if (STKindChecker.isSpecificField(field)) {
-			if (nextTypeChildNodes) {
-				portIdBuffer = `${portIdBuffer}.${field.fieldName.value}`
-				const recFieldTemp = nextTypeChildNodes.find(
-					(recF) => getBalRecFieldName(recF.type.name) === field.fieldName.value);
-				if (recFieldTemp) {
-					if (i === fields.length - 1) {
-						recField = recFieldTemp;
-					} else {
-						[nextTypeChildNodes, nextTypeMemberNodes] = getNextNodes(recFieldTemp);
-					}
-				}
-			} else if (nextTypeMemberNodes) {
-				const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
-				if (nextField && fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}.${fieldIndex}.${field.fieldName.value}`;
-					if (i === fields.length - 1) {
-						recField = nextField;
-					} else {
-						[nextTypeChildNodes, nextTypeMemberNodes] = getNextNodes(nextField);
-					}
-				}
+		const next = i + 1 < fields.length && fields[i + 1];
+		const nextPosition = next ? next.position : field.position;
+		if (STKindChecker.isSpecificField(field) && STKindChecker.isSpecificField(nextTypeNode.value)) {
+			const isLastField = i === fields.length - 1;
+			const targetPosition = isLastField
+				? nextTypeNode.value.position
+				: field?.valueExpr && nextTypeNode.value.valueExpr.position;
+			if (isPositionsEquals(targetPosition, nextPosition)) {
+				portIdBuffer = `${portIdBuffer}.${field.fieldName.value}`;
 			}
-		} else if (STKindChecker.isListConstructor(field) && nextTypeMemberNodes) {
-			const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
+		} else if (STKindChecker.isListConstructor(field) && nextTypeNode.elements) {
+			const [nextField, fieldIndex] = getNextField(nextTypeNode.elements, nextPosition);
 			if (nextField && fieldIndex !== -1) {
 				portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
-				[nextTypeChildNodes, nextTypeMemberNodes] = getNextNodes(nextField);
+				nextTypeNode = nextField;
 			}
 		} else {
-			if (nextTypeChildNodes) {
-				const fieldIndex = nextTypeChildNodes.findIndex(
-					(recF) => recF?.value && isPositionsEquals(field.position, recF.value.position));
+			if (nextTypeNode.childrenTypes) {
+				const fieldIndex = nextTypeNode.childrenTypes.findIndex(
+					(recF) => recF?.value && isPositionsEquals(nextPosition, recF.value.position));
 				if (fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
-					recField = nextTypeChildNodes[fieldIndex];
+					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${nextTypeNode.type.name}` : ''}`;
+					nextTypeNode = nextTypeNode.childrenTypes[fieldIndex];
+				} else if (isPositionsEquals(nextPosition, nextTypeNode?.value.position)) {
+					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${nextTypeNode.type.name}` : ''}`;
 				}
-			} else if (nextTypeMemberNodes) {
-				const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
+			} else if (nextTypeNode.elements) {
+				const [nextField, fieldIndex] = getNextField(nextTypeNode.elements, nextPosition);
 				if (nextField && fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}.${fieldIndex}.${nextField.type?.name || ''}`;
-					recField = nextField;
+					portIdBuffer = `${portIdBuffer}.${nextField.type?.name || ''}`;
 				}
 			}
 		}
 	}
-	if (recField) {
-		const portId = `${portIdBuffer}.IN`;
-		const port = (node.getPort(portId) as RecordFieldPortModel);
-		let mappedPort = port;
-		while (mappedPort && mappedPort.hidden) {
-			mappedPort = mappedPort.parentModel;
-		}
-		return [port, mappedPort];
+
+	const portId = `${portIdBuffer}.IN`;
+	const port = (node.getPort(portId) as RecordFieldPortModel);
+	let mappedPort = port;
+	while (mappedPort && mappedPort.hidden) {
+		mappedPort = mappedPort.parentModel;
 	}
-	return [null, null]
+	return [port, mappedPort];
 }
 
 export function getLinebreak(){
@@ -578,37 +564,14 @@ export function getLinebreak(){
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
-	                     nextFieldPosition: NodePosition): [EditableRecordField, number] {
-	let memberIndex = -1;
+                      nextFieldPosition: NodePosition): [EditableRecordField, number] {
 	const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
-		if (node.member.type.typeName === PrimitiveBalType.Record && node.member.value
-			&& STKindChecker.isMappingConstructor(node.member.value)) {
-			for (let i = 0; i < node.member.childrenTypes.length; i++) {
-				const field = node.member.childrenTypes[i];
-				if (field?.value && isPositionsEquals(nextFieldPosition, field.value.position)) {
-					memberIndex = i;
-					return true;
-				}
-			}
-		} else {
-			return node.member?.value && isPositionsEquals(nextFieldPosition, node.member.value.position);
-		}
+		return node.member?.value && isPositionsEquals(nextFieldPosition, node.member.value.position);
 	});
 	if (fieldIndex !== -1) {
-		if (memberIndex !== -1) {
-			return [nextTypeMemberNodes[fieldIndex].member.childrenTypes[memberIndex], fieldIndex];
-		}
 		return [nextTypeMemberNodes[fieldIndex].member, fieldIndex];
 	}
 	return [undefined, undefined];
-}
-
-function getNextNodes(nextField: EditableRecordField): [EditableRecordField[], ArrayElement[]] {
-	if (nextField.type.typeName === PrimitiveBalType.Record) {
-		return [nextField?.childrenTypes, undefined];
-	} else if (nextField.type.typeName === PrimitiveBalType.Array) {
-		return [undefined, nextField?.elements];
-	}
 }
 
 export function getEnrichedRecordType(type: Type,

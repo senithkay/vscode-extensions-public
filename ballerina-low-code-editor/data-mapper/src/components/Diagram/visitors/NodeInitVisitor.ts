@@ -6,6 +6,7 @@ import {
     LetClause,
     LetVarDecl,
     ListConstructor,
+    MappingConstructor,
     QueryExpression,
     SelectClause,
     SimpleNameReference,
@@ -40,7 +41,7 @@ export class NodeInitVisitor implements Visitor {
     private inputNodes: DataMapperNodeModel[] = [];
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
-    private specificFields: SpecificField[] = [];
+    private mapIdentifiers: STNode[] = [];
     private isWithinQuery: number = 0;
 
     constructor(
@@ -270,7 +271,7 @@ export class NodeInitVisitor implements Visitor {
         const selectedSTNode = this.selection.selectedST.stNode;
         if (selectedSTNode.position.startLine !== node.position.startLine
             && selectedSTNode.position.startColumn !== node.position.startColumn) {
-            this.specificFields.push(node)
+            this.mapIdentifiers.push(node)
         }
         if (this.isWithinQuery === 0
             && node.valueExpr
@@ -288,7 +289,7 @@ export class NodeInitVisitor implements Visitor {
                     node.fieldName.value,
                     parent,
                     inputNodes,
-                    this.specificFields.slice(0)
+                    this.mapIdentifiers.slice(0)
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
@@ -296,6 +297,7 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitListConstructor(node: ListConstructor, parent?: STNode): void {
+        this.mapIdentifiers.push(node);
         if (this.isWithinQuery === 0 && node.expressions) {
             node.expressions.forEach((expr) => {
                 if (!STKindChecker.isMappingConstructor(expr)) {
@@ -310,7 +312,7 @@ export class NodeInitVisitor implements Visitor {
                             "",
                             parent,
                             inputNodes,
-                            [...this.specificFields, expr],
+                            [...this.mapIdentifiers, expr],
                             true
                         );
                         this.intermediateNodes.push(linkConnectorNode);
@@ -336,7 +338,7 @@ export class NodeInitVisitor implements Visitor {
                     "",
                     parent,
                     inputNodes,
-                    [...this.specificFields, node.expression]
+                    [...this.mapIdentifiers, node.expression]
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
@@ -364,6 +366,10 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
+    beginVisitMappingConstructor(node: MappingConstructor, parent?: STNode): void {
+        this.mapIdentifiers.push(node);
+    }
+
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         this.isWithinQuery -= 1;
 
@@ -377,8 +383,20 @@ export class NodeInitVisitor implements Visitor {
     }
 
     endVisitSpecificField(node: SpecificField, parent?: STNode) {
-        if (this.specificFields.length > 0) {
-            this.specificFields.pop()
+        if (this.mapIdentifiers.length > 0) {
+            this.mapIdentifiers.pop()
+        }
+    }
+
+    endVisitListConstructor(node: ListConstructor, parent?: STNode) {
+        if (this.mapIdentifiers.length > 0) {
+            this.mapIdentifiers.pop()
+        }
+    }
+
+    endVisitMappingConstructor(node: MappingConstructor, parent?: STNode) {
+        if (this.mapIdentifiers.length > 0) {
+            this.mapIdentifiers.pop()
         }
     }
 

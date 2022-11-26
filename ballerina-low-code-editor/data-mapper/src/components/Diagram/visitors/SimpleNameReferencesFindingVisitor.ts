@@ -30,7 +30,8 @@ export class SimpleNameReferencesFindingVisitor implements Visitor {
 
     public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
         if (STKindChecker.isIdentifierToken(node.name)
-            && (parent && !STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent))
+            && (!parent
+                || (parent && !STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
             && this.possibleReferences.includes(node.name.value))
         {
             this.simpleNameReferenceNodes.push(node);

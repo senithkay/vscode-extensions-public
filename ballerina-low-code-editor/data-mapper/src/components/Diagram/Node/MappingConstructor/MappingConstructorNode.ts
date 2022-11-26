@@ -83,8 +83,11 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
-            if (STKindChecker.isSelectClause(this.value)){
-                this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
+            if (STKindChecker.isSelectClause(this.value)
+                && this.typeDef.typeName === PrimitiveBalType.Array
+                && this.typeDef.memberType.typeName === PrimitiveBalType.Record)
+            {
+                this.rootName = this.typeDef.memberType?.name;
             }
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));

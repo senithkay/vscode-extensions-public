@@ -100,7 +100,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
                     this.recordField.elements.forEach((field, index) => {
                         this.addPortsForOutputRecordField(field.member, "IN", this.rootName, index,
                             LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
-                            this.context.collapsedFields, parentPort.collapsed, isSelectClause);
+                            this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
             }

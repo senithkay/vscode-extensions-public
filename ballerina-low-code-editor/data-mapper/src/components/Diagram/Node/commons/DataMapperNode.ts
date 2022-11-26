@@ -181,25 +181,18 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		if (val) {
 			if (STKindChecker.isMappingConstructor(val)) {
 				val.fields.forEach((field) => {
-					if (STKindChecker.isSpecificField(field) && field.valueExpr) {
-						if (STKindChecker.isMappingConstructor(field.valueExpr)) {
-							foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
-						} else if (STKindChecker.isListConstructor(field.valueExpr)) {
-							field.valueExpr.expressions.forEach((expr) => {
-								if (!STKindChecker.isCommaToken(expr)) {
-									foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, field])];
-								}
-							})
-						} else if (STKindChecker.isFieldAccess(field.valueExpr)
-							|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
-							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
-						} else {
-							foundMappings.push(this.getOtherMappings(field, currentFields));
-						}
+					if (!STKindChecker.isCommaToken(field)) {
+						foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
 					}
-				})
-			} else if (STKindChecker.isFieldAccess(val) || STKindChecker.isSimpleNameReference(val)) {
-				foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], val));
+				});
+			} else if (STKindChecker.isSpecificField(val) && val.valueExpr) {
+				const isMappingConstructor = STKindChecker.isMappingConstructor(val.valueExpr);
+				const isListConstructor = STKindChecker.isListConstructor(val.valueExpr);
+				if (isMappingConstructor || isListConstructor) {
+					foundMappings = [...foundMappings, ...this.genMappings(val.valueExpr, [...currentFields, val])];
+				} else {
+					foundMappings.push(this.getOtherMappings(val, currentFields));
+				}
 			} else if (STKindChecker.isListConstructor(val)) {
 				val.expressions.forEach((expr) => {
 					if (!STKindChecker.isCommaToken(expr)) {
