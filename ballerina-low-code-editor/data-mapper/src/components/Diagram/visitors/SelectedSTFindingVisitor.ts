@@ -54,11 +54,11 @@ export class SelectedSTFindingVisitor implements Visitor {
                 if (elementIndex === +pathSegments[this.pathSegmentIndex]) {
                     if (STKindChecker.isMappingConstructor(node)) {
                         this.pathSegmentIndex++;
-                        const isNextFieldName = node.fields.some(field =>
+                        const hasNextFieldName = node.fields.some(field =>
                             STKindChecker.isSpecificField(field)
                             && field.fieldName.value === pathSegments[this.pathSegmentIndex]
                         );
-                        if (!isNextFieldName) {
+                        if (!hasNextFieldName) {
                             this.pathSegmentIndex++; // Skipping the record name segment
                         }
                     } else if (STKindChecker.isListConstructor(node) && !isNaN(+pathSegments[this.pathSegmentIndex++])) {
@@ -83,6 +83,23 @@ export class SelectedSTFindingVisitor implements Visitor {
         {
             this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }];
             this.pathSegmentIndex = 1;
+            const nextItem = STKindChecker.isMappingConstructor(node.valueExpr)
+                ? node.valueExpr
+                : STKindChecker.isQueryExpression(node.valueExpr)
+                    && STKindChecker.isMappingConstructor(node.valueExpr.selectClause.expression)
+                    ? node.valueExpr.selectClause.expression
+                    : undefined;
+            if (nextItem && this.prevST) {
+                const nexFieldPath = this.prevST[this.prevST.length - 1]?.fieldPath;
+                const nextPathSegment = nexFieldPath && nexFieldPath.split('.')[0];
+                const hasNextFieldName = nextItem.fields.some(field =>
+                    STKindChecker.isSpecificField(field)
+                    && field.fieldName.value === nextPathSegment
+                );
+                if (hasNextFieldName) {
+                    this.pathSegmentIndex = 0;
+                }
+            }
         } else if (node && STKindChecker.isFunctionDefinition(node)) {
             // Function definitions are repeated when the expr function body is query expression
             const functionDefs = this.prevST.filter(prevST =>
