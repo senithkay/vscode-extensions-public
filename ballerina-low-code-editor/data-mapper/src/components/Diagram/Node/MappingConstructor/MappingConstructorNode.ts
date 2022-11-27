@@ -146,8 +146,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
             if (inPort && mappedOutPort) {
-                const mappedField = mappedOutPort.editableRecordField.type;
-                const keepDefault = !mappedField?.name
+                const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
+                const keepDefault = mappedField && !mappedField?.name
                     && mappedField.typeName !== PrimitiveBalType.Array
                     && mappedField.typeName !== PrimitiveBalType.Record;
                 lm.addLabel(new ExpressionLabelModel({
