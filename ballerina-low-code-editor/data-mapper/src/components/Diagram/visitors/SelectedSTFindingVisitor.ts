@@ -42,8 +42,8 @@ export class SelectedSTFindingVisitor implements Visitor {
             if (STKindChecker.isSpecificField(node) && node.fieldName.value === pathSegments[this.pathSegmentIndex]) {
                 this.pathSegmentIndex++;
             } else if (STKindChecker.isListConstructor(node)
-                        && !isNaN(+pathSegments[this.pathSegmentIndex])
-                        && !node.dataMapperViewState) {
+                && !isNaN(+pathSegments[this.pathSegmentIndex])
+                && !node.dataMapperViewState) {
                 node.expressions.forEach((exprNode, index) => {
                     if (!STKindChecker.isCommaToken(exprNode)) {
                         (exprNode.dataMapperViewState as DataMapperViewState).elementIndex = index / 2;
@@ -53,7 +53,14 @@ export class SelectedSTFindingVisitor implements Visitor {
                 const elementIndex = (node.dataMapperViewState as DataMapperViewState).elementIndex;
                 if (elementIndex === +pathSegments[this.pathSegmentIndex]) {
                     if (STKindChecker.isMappingConstructor(node)) {
-                        this.pathSegmentIndex += 2; // Skipping the record name segment
+                        this.pathSegmentIndex++;
+                        const isNextFieldName = node.fields.some(field =>
+                            STKindChecker.isSpecificField(field)
+                            && field.fieldName.value === pathSegments[this.pathSegmentIndex]
+                        );
+                        if (!isNextFieldName) {
+                            this.pathSegmentIndex++; // Skipping the record name segment
+                        }
                     } else if (STKindChecker.isListConstructor(node) && !isNaN(+pathSegments[this.pathSegmentIndex++])) {
                         // Add element indexes for list constructors followed by another list constructor
                         node.expressions.forEach((exprNode, index) => {
