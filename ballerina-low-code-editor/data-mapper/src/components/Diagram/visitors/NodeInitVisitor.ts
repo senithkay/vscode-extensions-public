@@ -371,8 +371,9 @@ export class NodeInitVisitor implements Visitor {
     }
 
     endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
-        this.isWithinQuery -= 1;
-
+        if (this.isWithinQuery > 0) {
+            this.isWithinQuery -= 1;
+        }
     };
 
     endVisitBinaryExpression(node: BinaryExpression, parent?: STNode) {
