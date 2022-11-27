@@ -523,7 +523,10 @@ export function getOutputPortForField(fields: STNode[],
 			const targetPosition = isLastField
 				? nextTypeNode.value.position
 				: field?.valueExpr && nextTypeNode.value.valueExpr.position;
-			if (isPositionsEquals(targetPosition, nextPosition)) {
+			if (isPositionsEquals(targetPosition, nextPosition)
+				&& field.valueExpr
+				&& !STKindChecker.isMappingConstructor(field.valueExpr))
+			{
 				portIdBuffer = `${portIdBuffer}.${field.fieldName.value}`;
 			}
 		} else if (STKindChecker.isListConstructor(field) && nextTypeNode.elements) {
