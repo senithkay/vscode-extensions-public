@@ -106,8 +106,11 @@ export function EditForm(props: EditFormProps) {
     }
 
     const onSubmit = () => {
-        // let componentName: string = component.name.replaceAll(' ', '').replace(PackageNameAntiRegex, '');
-        // console.log(`${componentName}:`, component);
+        // processes the component name to match the package name conventions
+        // eg: Test-hello-world -> TestHelloWorld
+        let validatedName: string = component.name.split(PackageNameAntiRegex).reduce((composedName: string, subname: string) =>
+                composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
+        console.log(`${validatedName}:`, component);
     }
 
     return ReactDOM.createPortal(
