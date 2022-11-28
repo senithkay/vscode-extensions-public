@@ -20,7 +20,7 @@
 import React, { useState } from 'react';
 import FormHelperText from '@mui/material/FormHelperText';
 import TextField from '@mui/material/TextField';
-import { InputComponent } from '../styles';
+import { InputComponent, Required } from '../styles';
 
 interface TextFieldProps {
     label: string;
@@ -37,8 +37,7 @@ export function TextInputWidget(props: TextFieldProps) {
 
     const [visited, updateVisitStatus] = useState<boolean>(false);
 
-    const displayError: boolean = required === true ? (visited && error === true) :
-        (value !== undefined && value.length > 0 && error === true);
+    const displayError = visited && value.length > 0 && error;
 
     const onChangeText = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         if (!readonly && onChange) {
@@ -51,18 +50,22 @@ export function TextInputWidget(props: TextFieldProps) {
 
     return (
         <InputComponent>
-            <span>{label}</span>
+            <span>
+                {label}
+                {required && <Required>*</Required>}
+            </span>
             <TextField
                 id='outlined-basic'
-                variant='outlined'
-                size='small'
-                error={displayError}
                 value={value}
-                sx={{ paddingTop: '5px' }}
+                error={displayError}
+                onChange={(e) => onChangeText(e)}
                 placeholder={readonly ? value : ''}
+                required={required}
+                size='small'
+                sx={{ paddingTop: '5px' }}
+                variant='outlined'
                 InputProps={{ readOnly: readonly }}
                 inputProps={{ style: { fontFamily: 'GilmerRegular', fontSize: '14px' } }}
-                onChange={(e) => onChangeText(e)}
             />
             {displayError &&
                 <FormHelperText

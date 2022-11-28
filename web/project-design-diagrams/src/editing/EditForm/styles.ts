@@ -90,3 +90,8 @@ export const AdvancedControlsContainer = styled.div`
     flex-direction: row;
     justify-content: flex-end;
 `;
+
+export const Required = styled.span`
+    color: red;
+    font-size: 14px;
+`;
