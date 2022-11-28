@@ -10,27 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import { NodePosition, QueryExpression, STNode } from '@wso2-enterprise/syntax-tree';
-import { IDataMapperContext } from '../../../../../utils/DataMapperContext/DataMapperContext';
-import { genLetClauseVariableName } from '../../../../../utils/st-utils';
-import { useStyles } from '../styles';
-import clsx from 'clsx';
-import AddIcon from '@material-ui/icons/Add';
-import { CircularProgress } from '@material-ui/core';
+import { NodePosition, QueryExpression, STNode } from "@wso2-enterprise/syntax-tree";
+import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
+import { genLetClauseVariableName } from "../../../../../utils/st-utils";
+import { useStyles } from "../styles";
+import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
+import { CircularProgress } from "@material-ui/core";
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
     context: IDataMapperContext;
     addIndex: number;
-    visibleOnlyOnHover?: boolean;
 }
 
 export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
-    const { context, queryExprNode, addIndex, visibleOnlyOnHover } = props;
+    const { context, queryExprNode, addIndex } = props;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | SVGSVGElement>(null);
@@ -51,69 +49,73 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         if (addIndex >= 0 && insertAfterNode) {
             addPosition = {
                 ...insertAfterNode.position,
-                startColumn: insertAfterNode.position.endColumn
+                startColumn: insertAfterNode.position.endColumn,
             };
         } else {
             addPosition = {
                 ...queryExprNode.queryPipeline.fromClause.position,
-                startColumn: queryExprNode.queryPipeline.fromClause.position.endColumn
-            }
+                startColumn: queryExprNode.queryPipeline.fromClause.position.endColumn,
+            };
         }
 
         return addPosition;
-    }
+    };
 
     const onClickAddLetClause = async () => {
         handleClose();
-        setLoading(true)
+        setLoading(true);
         try {
             const addPosition = getAddFieldPosition();
-            const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses)
-            await context.applyModifications([{
-                type: "INSERT",
-                config: { "STATEMENT": ` let var ${variableName} = EXPRESSION` },
-                ...addPosition
-            }]);
+            const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses);
+            await context.applyModifications([
+                {
+                    type: "INSERT",
+                    config: { STATEMENT: ` let var ${variableName} = EXPRESSION` },
+                    ...addPosition,
+                },
+            ]);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     const onClickAddWhereClause = async () => {
         handleClose();
-        setLoading(true)
+        setLoading(true);
         try {
             const addPosition = getAddFieldPosition();
-            await context.applyModifications([{
-                type: "INSERT",
-                config: { "STATEMENT": ` where EXPRESSION` },
-                ...addPosition
-            }]);
+            await context.applyModifications([
+                {
+                    type: "INSERT",
+                    config: { STATEMENT: ` where EXPRESSION` },
+                    ...addPosition,
+                },
+            ]);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <>
-            {isLoading ? (
-                <div className={classes.addLoaderWrap}><CircularProgress size={14} /></div>
-            ) : (
-                <div
-                    className={clsx(visibleOnlyOnHover && classes.addIconWrap)}
-                >
-                    <AddIcon
-                        className={classes.addIcon}
-                        onClick={handleClick}
-                    />
+            <div className={classes.lineWrap}>
+                <div className={classes.line} />
+                <div className={classes.addButtonWrap}>
+                    {isLoading ? (
+                        <CircularProgress size={13} />
+                    ) : (
+                        <AddCircleOutline onClick={handleClick} className={classes.addIcon}/>
+                    )}
                 </div>
-            )}
+                <div className={classes.line} />
+            </div>
             <Menu
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                className={classes.addMenu}
             >
                 <MenuItem onClick={onClickAddWhereClause}>Add Where Clause</MenuItem>
                 <MenuItem onClick={onClickAddLetClause}>Add Let Clause</MenuItem>
