@@ -13,9 +13,18 @@ jobs:
   Build_Stage:
     name: Build repo
     timeout-minutes: 45
+    permissions:
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          message: |
+            Test with ${{ github.sha }}.
 
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
@@ -234,6 +243,8 @@ jobs:
     name: Publish code coverage results
     needs: [Build_Stage, PluginTest_Stage, UiTest_Stage, LowCode_Test_Stage]
     timeout-minutes: 5
+    permissions:
+      pull-requests: write 
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
@@ -283,5 +294,3 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md    
-
-
