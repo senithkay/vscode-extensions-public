@@ -17,7 +17,7 @@
  *
  */
 
-import { commands, ExtensionContext, ViewColumn, WebviewPanel, window, workspace } from "vscode";
+import { commands, ExtensionContext, OpenDialogOptions, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { join } from "path";
@@ -35,6 +35,13 @@ import { randomUUID } from "crypto";
 let context: ExtensionContext;
 let langClient: ExtendedLangClient;
 let designDiagramWebview: WebviewPanel | undefined;
+
+const directoryPickOptions: OpenDialogOptions = {
+    canSelectMany: false,
+    openLabel: 'Select',
+    canSelectFiles: false,
+    canSelectFolders: true
+};
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     context = <ExtensionContext>ballerinaExtInstance.context;
@@ -139,6 +146,16 @@ function setupWebviewPanel() {
                     const version: string = args[2];
                     createService (packageName, org, version);
                     return Promise.resolve(true);
+                }
+            },
+            {
+                methodName: "pickDirectory",
+                handler: async (): Promise<string | undefined> => {
+                    return window.showOpenDialog(directoryPickOptions).then(fileUri => {
+                        if (fileUri && fileUri[0]) {
+                            return fileUri[0].fsPath;
+                        }
+                    });
                 }
             }
         ];

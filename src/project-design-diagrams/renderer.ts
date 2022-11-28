@@ -67,8 +67,20 @@ export function render(webView: Webview) {
                 })
             }
 
+            function pickDirectory() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'pickDirectory',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(fetchProjectResources, createService, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(fetchProjectResources, createService, pickDirectory, document.getElementById("diagram-container"));
             }
             renderDiagrams();
         }

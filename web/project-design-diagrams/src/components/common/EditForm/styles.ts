@@ -23,7 +23,7 @@ export const PrimaryContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: 100vh;
-    min-width: 370px;
+    width: 370px;
 `;
 
 export const Header = styled.div`
@@ -56,5 +56,37 @@ export const ControlsContainer = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    padding: 10px;
+    padding: 20px 0px 10px 10px;
+`;
+
+export const AdvancedSettings = styled.div`
+    border-bottom: 1px solid #E0E2E9;
+    border-top: 1px solid #E0E2E9;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    padding: 15px 0px 15px 0px;
+`;
+
+export const AdvancedControlsHeader = styled.div`
+    align-items: center;
+    align-self: stretch;
+    color: #1D2028;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 35px;
+    padding: 0px 10px 0px 10px;
+`;
+
+export const AdvancedHeaderTitle = styled.span`
+    font-family: GilmerMedium;
+    font-size: 15px;
+    text-align: center;
+`;
+
+export const AdvancedControlsContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 `;

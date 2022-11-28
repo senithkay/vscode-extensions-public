@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,57 +17,86 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import ReactDOM from 'react-dom';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import Button from '@mui/material/Button';
 import { TextInputWidget } from './components/TextInput';
-import { OrganizationRegex, OrganizationRules, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex } from './constants';
+import {
+    ComponentDetails, OrganizationRegex, OrganizationRules, PackageNameAntiRegex, PackageNameRegex, PackageNameRules,
+    VersioningRules, VersionRegex
+} from './constants';
 import { ControlsContainer, Header, HeaderTitle, PrimaryContainer } from './styles';
+import { AdvancedSettingsWidget } from './components/AdvancedSettingsWidget';
+import { ControlButton } from './components/ControlButtons';
 import { Colors } from '../../../resources';
+import { DiagramContext } from '../DiagramContext/DiagramContext';
 
 interface EditFormProps {
     visibility: boolean;
     updateVisibility: (status: boolean) => void;
 }
 
-interface PackageDetails {
-    name: string;
-    version: string;
-    organization: string;
+const emptyInputs = (): ComponentDetails => {
+    return { name: '', version: '', organization: '', package: '', directory: '' };
 }
 
 export function EditForm(props: EditFormProps) {
     const { visibility, updateVisibility } = props;
+    const { pickDirectory } = useContext(DiagramContext);
 
-    const [packageDetails, updatePackageDetails] = useState<PackageDetails>({ name: '', version: '', organization: '' });
+    const [component, editComponent] = useState<ComponentDetails>(emptyInputs);
+    const [showAdvancedFeatures, setAdvancedFeatureVisibility] = useState<boolean>(false);
+
+    const chooseDirectory = () => {
+        pickDirectory().then((directoryPath) => {
+            editComponent({
+                ...component,
+                directory: directoryPath
+            });
+        })
+    };
+
+    const resetDirectory = () => {
+        editComponent({
+            ...component,
+            directory: ''
+        });
+    }
 
     const updateName = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        updatePackageDetails({
-            ...packageDetails,
+        editComponent({
+            ...component,
             name: event.target.value
         });
     }
 
     const updateVersion = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        updatePackageDetails({
-            ...packageDetails,
+        editComponent({
+            ...component,
             version: event.target.value
         });
     }
 
     const updateOrganization = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        updatePackageDetails({
-            ...packageDetails,
+        editComponent({
+            ...component,
             organization: event.target.value
         });
     }
 
+    const updatePackage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        editComponent({
+            ...component,
+            package: event.target.value
+        });
+    }
+
     const verifyInputs = (): boolean => {
-        if (packageDetails && PackageNameRegex.test(packageDetails.name) &&
-            OrganizationRegex.test(packageDetails.organization) && VersionRegex.test(packageDetails.version)) {
+        if (component && component.name && OrganizationRegex.test(component.organization) && VersionRegex.test(component.version)
+            && (component.package.length ? PackageNameRegex.test(component.package) : true)
+        ) {
             return true;
         }
         return false;
@@ -75,11 +104,12 @@ export function EditForm(props: EditFormProps) {
 
     const closeForm = () => {
         updateVisibility(false);
-        clearForm();
+        editComponent(emptyInputs());
     }
 
-    const clearForm = () => {
-        updatePackageDetails({ name: '', version: '', organization: '' });
+    const onSubmit = () => {
+        let componentName: string = component.name.replaceAll(' ', '').replace(PackageNameAntiRegex, '');
+        console.log(`${componentName}:`, component);
     }
 
     return ReactDOM.createPortal(
@@ -91,48 +121,52 @@ export function EditForm(props: EditFormProps) {
             <PrimaryContainer>
                 <Header>
                     <HeaderTitle>HTTP Service</HeaderTitle>
-                    <IconButton onClick={() => { closeForm() }}>
-                        <CloseIcon
-                            sx={{
-                                color: '#979797',
-                                height: '20px',
-                                width: '20px'
-                            }}
-                        />
+                    <IconButton size='small' onClick={() => { closeForm() }}>
+                        <CloseIcon />
                     </IconButton>
                 </Header>
 
                 <TextInputWidget
-                    label={'Package Name'}
-                    value={packageDetails.name}
-                    error={!PackageNameRegex.test(packageDetails.name)}
+                    label={'Component Name'}
+                    value={component.name}
+                    required={true}
+                    error={component.name.length < 1}
                     errorMessage={PackageNameRules}
                     onChange={updateName}
                 />
                 <TextInputWidget
                     label={'Organization'}
-                    value={packageDetails.organization}
-                    error={!OrganizationRegex.test(packageDetails.organization)}
+                    value={component.organization}
+                    required={true}
+                    error={!OrganizationRegex.test(component.organization)}
                     errorMessage={OrganizationRules}
                     onChange={updateOrganization}
                 />
                 <TextInputWidget
                     label={'Version'}
-                    value={packageDetails.version}
-                    error={!VersionRegex.test(packageDetails.version)}
+                    value={component.version}
+                    required={true}
+                    error={!VersionRegex.test(component.version)}
                     errorMessage={VersioningRules}
                     onChange={updateVersion}
                 />
 
+                <AdvancedSettingsWidget
+                    visibility={showAdvancedFeatures}
+                    changeVisibility={setAdvancedFeatureVisibility}
+                    component={component}
+                    updatePackage={updatePackage}
+                    selectDirectory={chooseDirectory}
+                    resetDirectory={resetDirectory}
+                />
+
                 <ControlsContainer>
-                    <Button
+                    <ControlButton
+                        label={'Create'}
+                        onClick={onSubmit}
+                        color={Colors.PRIMARY}
                         disabled={!verifyInputs()}
-                        variant='contained'
-                        size='medium'
-                        sx={{ backgroundColor: Colors.PRIMARY, '&:hover': { backgroundColor: Colors.PRIMARY } }}
-                    >
-                        Create
-                    </Button>
+                    />
                 </ControlsContainer>
             </PrimaryContainer>
         </Drawer>, document.body

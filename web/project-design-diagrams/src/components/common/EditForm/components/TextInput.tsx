@@ -25,15 +25,19 @@ import { InputComponent } from '../styles';
 interface TextFieldProps {
     label: string;
     value: string;
-    error: boolean;
-    errorMessage: string;
-    onChange: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+    readonly?: boolean;
+    required?: boolean;
+    error?: boolean;
+    errorMessage?: string;
+    onChange?: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
 }
 
 export function TextInputWidget(props: TextFieldProps) {
-    const { label, value, error, errorMessage, onChange } = props;
+    const { label, value, required, readonly, error, errorMessage, onChange } = props;
 
     const [visited, updateVisitStatus] = useState<boolean>(false);
+
+    const displayError: boolean = required ? (visited && error) : (value && value.length && error);
 
     const onChangeText = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         if (!visited) {
@@ -49,13 +53,15 @@ export function TextInputWidget(props: TextFieldProps) {
                 id='outlined-basic'
                 variant='outlined'
                 size='small'
-                error={visited && error}
+                error={displayError}
                 value={value}
                 sx={{ paddingTop: '5px' }}
+                placeholder={readonly ? value : ''}
+                InputProps={{ readOnly: readonly }}
                 inputProps={{ style: { fontFamily: 'GilmerRegular', fontSize: '14px' } }}
                 onChange={(e) => onChangeText(e)}
             />
-            {visited && error &&
+            {displayError &&
                 <FormHelperText
                     sx={{
                         fontFamily: 'GilmerRegular',
