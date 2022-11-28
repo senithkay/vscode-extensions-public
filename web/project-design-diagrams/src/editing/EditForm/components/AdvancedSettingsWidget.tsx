@@ -32,12 +32,11 @@ interface AdvancedSettingsProps {
     visibility: boolean;
     changeVisibility: (status: boolean) => void;
     updatePackage: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-    resetDirectory: () => void;
     selectDirectory: () => void;
 }
 
 export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
-    const { component, visibility, changeVisibility, updatePackage, resetDirectory, selectDirectory } = props;
+    const { component, visibility, changeVisibility, updatePackage, selectDirectory } = props;
     const { getProjectRoot } = useContext(DiagramContext);
 
     const [projectRoot, setProjectRoot] = useState<string>(undefined);
@@ -78,12 +77,6 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
                     />
 
                     <AdvancedControlsContainer>
-                        <ControlButton
-                            label={'Clear'}
-                            onClick={resetDirectory}
-                            color={ButtonColor}
-                            disabled={false}
-                        />
                         <ControlButton
                             label={'Select'}
                             onClick={selectDirectory}

@@ -56,13 +56,6 @@ export function EditForm(props: EditFormProps) {
         })
     };
 
-    const resetDirectory = () => {
-        editComponent({
-            ...component,
-            directory: ''
-        });
-    }
-
     const updateName = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         editComponent({
             ...component,
@@ -158,7 +151,6 @@ export function EditForm(props: EditFormProps) {
                     component={component}
                     updatePackage={updatePackage}
                     selectDirectory={chooseDirectory}
-                    resetDirectory={resetDirectory}
                 />
 
                 <ControlsContainer>
