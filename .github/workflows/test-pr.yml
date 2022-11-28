@@ -145,7 +145,7 @@ jobs:
     needs: Build_Stage
     strategy:
       matrix:
-        testStage: [test-connectors, test-block-level, test-module-level, test-se]
+        testStage: [test-connectors, test-block-level, test-module-level, test-entry-points, test-se, test-se-tools]
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
