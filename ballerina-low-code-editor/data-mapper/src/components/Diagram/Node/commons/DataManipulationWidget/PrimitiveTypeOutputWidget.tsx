@@ -101,12 +101,11 @@ export interface PrimitiveTypeOutputWidgetProps {
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: STNode) => Promise<void>;
-	isParentSelectClause?: boolean;
 }
 
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, isParentSelectClause } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
 
 	const hasValue = field && field?.elements && field.elements.length > 0;
@@ -194,7 +193,6 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 							getPort={getPort}
 							context={context}
 							deleteField={deleteField}
-							isParentSelectClause={isParentSelectClause}
 						/>
 					)
 				)}

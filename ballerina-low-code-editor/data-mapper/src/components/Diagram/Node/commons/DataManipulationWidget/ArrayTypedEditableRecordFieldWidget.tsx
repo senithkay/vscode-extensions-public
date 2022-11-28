@@ -202,6 +202,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             context={context}
                             fieldIndex={index}
                             deleteField={deleteField}
+                            isArrayElement={true}
                         />
                     </TreeBody>
                 );

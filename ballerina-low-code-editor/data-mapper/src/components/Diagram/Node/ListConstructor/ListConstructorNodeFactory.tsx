@@ -37,10 +37,8 @@ export class ListConstructorNodeFactory extends AbstractReactFactory<ListConstru
 
 	generateReactWidget(event: { model: ListConstructorNode; }): JSX.Element {
 		let valueLabel;
-		let isParentSelectClause;
 		if (STKindChecker.isSelectClause(event.model.value)){
 			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
-			isParentSelectClause = true;
 		}
 		return (
 			<PrimitiveTypeOutputWidget
@@ -52,7 +50,6 @@ export class ListConstructorNodeFactory extends AbstractReactFactory<ListConstru
 				typeName={event.model.typeName}
 				valueLabel={valueLabel}
 				deleteField={(node: STNode) => event.model.deleteField(node)}
-				isParentSelectClause={isParentSelectClause}
 			/>
 		);
 	}

@@ -32,11 +32,11 @@ export interface PrimitiveTypedEditableArrayElementWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     deleteField?: (node: STNode) => Promise<void>;
-    isParentSelectClause?: boolean;
+    isArrayElement?: boolean;
 }
 
 export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEditableArrayElementWidgetProps) {
-    const { parentId, field, getPort, engine, context, fieldIndex, deleteField, isParentSelectClause } = props;
+    const { parentId, field, getPort, engine, context, fieldIndex, deleteField, isArrayElement } = props;
     const classes = useStyles();
 
     const fieldId = fieldIndex !== undefined
@@ -81,16 +81,18 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                 onClick: handleEditable
             }
         ];
-        if (!isParentSelectClause) {
-            items.push({
-                title: ValueConfigOption.DeleteElement,
-                onClick: handleDelete
-            });
-        } else if (isParentSelectClause && value !== getDefaultValue(field.type)) {
-            items.push({
-                title: ValueConfigOption.DeleteValue,
-                onClick: handleDelete
-            });
+        if (value !== getDefaultValue(field.type)) {
+            if (isArrayElement) {
+                items.push({
+                    title: ValueConfigOption.DeleteElement,
+                    onClick: handleDelete
+                });
+            } else {
+                items.push({
+                    title: ValueConfigOption.DeleteValue,
+                    onClick: handleDelete
+                });
+            }
         }
         return items;
     }, [value]);
