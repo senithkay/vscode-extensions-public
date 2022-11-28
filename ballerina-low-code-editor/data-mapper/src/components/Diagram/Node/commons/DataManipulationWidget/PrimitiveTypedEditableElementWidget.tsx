@@ -24,7 +24,7 @@ import { getDefaultValue, getFieldLabel } from "../../../utils/dm-utils";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 
-export interface PrimitiveTypedEditableArrayElementWidgetProps {
+export interface PrimitiveTypedEditableElementWidgetProps {
     parentId: string;
     field: EditableRecordField;
     engine: DiagramEngine;
@@ -35,7 +35,7 @@ export interface PrimitiveTypedEditableArrayElementWidgetProps {
     isArrayElement?: boolean;
 }
 
-export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEditableArrayElementWidgetProps) {
+export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditableElementWidgetProps) {
     const { parentId, field, getPort, engine, context, fieldIndex, deleteField, isArrayElement } = props;
     const classes = useStyles();
 

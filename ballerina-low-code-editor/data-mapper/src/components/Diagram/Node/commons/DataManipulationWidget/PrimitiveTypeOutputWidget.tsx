@@ -27,7 +27,7 @@ import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
-import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
+import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -185,7 +185,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 							/>
 						)
 					) : (
-						<PrimitiveTypedEditableArrayElementWidget
+						<PrimitiveTypedEditableElementWidget
 							key={id}
 							parentId={id}
 							engine={engine}

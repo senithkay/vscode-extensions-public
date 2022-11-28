@@ -13,7 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { Button, IconButton } from "@material-ui/core";
+import {
+    Button,
+    CircularProgress,
+    IconButton
+} from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -39,10 +43,9 @@ import { getModification } from "../../../utils/modifications";
 import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
-import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
+import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
-import { CircularProgress } from "@material-ui/core";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -194,7 +197,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             } else {
                 return (
                     <TreeBody>
-                        <PrimitiveTypedEditableArrayElementWidget
+                        <PrimitiveTypedEditableElementWidget
                             parentId={fieldId}
                             field={element.member}
                             engine={engine}
