@@ -21,11 +21,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { DiagramContext } from '../../../components/common';
 import { TextInputWidget } from './TextInput';
 import { ControlButton } from './ControlButtons';
 import { ButtonColor, ComponentDetails, PackageNameRegex, PackageNameRules } from '../constants';
 import { AdvancedSettings, AdvancedControlsContainer, AdvancedControlsHeader, AdvancedHeaderTitle } from '../styles';
-import { DiagramContext } from '../../DiagramContext/DiagramContext';
 
 interface AdvancedSettingsProps {
     component: ComponentDetails;
