@@ -24,35 +24,31 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { DiagramContext } from '../../components/common/';
 import {
-    ComponentDetails, OrganizationRegex, OrganizationRules, PackageNameAntiRegex, PackageNameRegex, PackageNameRules,
-    VersioningRules, VersionRegex
+    OrganizationRegex, OrganizationRules, PackageNameAntiRegex, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex
 } from './resources/constants';
 import { ControlsContainer, Header, HeaderTitle, PrimaryContainer } from './resources/styles';
 import { AdvancedSettingsWidget, ControlButton, TextInputWidget } from './components';
-import { Colors } from '../../resources';
+import { AddComponentDetails, Colors } from '../../resources';
 
 interface EditFormProps {
     visibility: boolean;
     updateVisibility: (status: boolean) => void;
 }
 
-const emptyInputs = (): ComponentDetails => {
+const emptyInputs = (): AddComponentDetails => {
     return { name: '', version: '', organization: '', package: '', directory: '' };
 }
 
 export function EditForm(props: EditFormProps) {
     const { visibility, updateVisibility } = props;
-    const { pickDirectory } = useContext(DiagramContext);
+    const { createService, pickDirectory } = useContext(DiagramContext);
 
-    const [component, editComponent] = useState<ComponentDetails>(emptyInputs);
+    const [component, editComponent] = useState<AddComponentDetails>(emptyInputs);
     const [showAdvancedFeatures, setAdvancedFeatureVisibility] = useState<boolean>(false);
 
     const chooseDirectory = () => {
         pickDirectory().then((directoryPath) => {
-            editComponent({
-                ...component,
-                directory: directoryPath
-            });
+            setDirectory(directoryPath);
         })
     };
 
@@ -84,6 +80,13 @@ export function EditForm(props: EditFormProps) {
         });
     }
 
+    const setDirectory = (path: string) => {
+        editComponent({
+            ...component,
+            directory: path
+        });
+    }
+
     const verifyInputs = (): boolean => {
         if (component && component.name && OrganizationRegex.test(component.organization) && VersionRegex.test(component.version)
             && (component.package.length ? PackageNameRegex.test(component.package) : true)
@@ -103,7 +106,8 @@ export function EditForm(props: EditFormProps) {
         // eg: Test-hello-world -> TestHelloWorld
         let validatedName: string = component.name.split(PackageNameAntiRegex).reduce((composedName: string, subname: string) =>
                 composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
-        console.log(`${validatedName}:`, component);
+
+        createService({...component, package: component.package || validatedName});
     }
 
     return ReactDOM.createPortal(
@@ -150,6 +154,7 @@ export function EditForm(props: EditFormProps) {
                     changeVisibility={setAdvancedFeatureVisibility}
                     component={component}
                     updatePackage={updatePackage}
+                    setDirectory={setDirectory}
                     selectDirectory={chooseDirectory}
                 />
 

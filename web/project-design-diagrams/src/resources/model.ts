@@ -114,6 +114,14 @@ export interface ServiceModels {
     levelTwo: DiagramModel;
 }
 
+export interface AddComponentDetails {
+    name: string;
+    version: string;
+    organization: string;
+    package: string;
+    directory: string;
+}
+
 export enum Views {
     TYPE = 'T',
     TYPE_COMPOSITION = 'TC',

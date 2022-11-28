@@ -28,11 +28,3 @@ export const OrganizationRules: string = 'Should only contain alphanumerics and 
 export const VersioningRules: string = 'Should follow the SemVer best practices.';
 
 export const ButtonColor: string = '#efeff5';
-
-export interface ComponentDetails {
-    name: string;
-    version: string;
-    organization: string;
-    package: string;
-    directory: string;
-}

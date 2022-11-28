@@ -20,11 +20,11 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { DesignDiagram } from './DesignDiagram';
-import { ComponentModel } from './resources';
+import { AddComponentDetails, ComponentModel } from './resources';
 
 export function renderDesignDiagrams(
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
-    createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>,
+    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>,
     pickDirectory: () => Promise<string>,
     getProjectRoot: () => Promise<string>,
     target: HTMLElement) {

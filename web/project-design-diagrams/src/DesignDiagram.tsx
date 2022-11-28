@@ -22,7 +22,7 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { ComponentModel, Views } from './resources';
+import { AddComponentDetails, ComponentModel, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { AddButton, EditForm } from './editing';
 
@@ -46,7 +46,7 @@ const Container = styled.div`
 
 interface DiagramProps {
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>;
-    createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
+    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
     editingEnabled?: boolean;
@@ -81,7 +81,6 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     const onComponentAddClick = () => {
-        console.log("Button Clicked")
         setShowEditForm(true);
     }
 

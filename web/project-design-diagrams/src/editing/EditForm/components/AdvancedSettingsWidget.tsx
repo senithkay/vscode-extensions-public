@@ -17,34 +17,34 @@
  *
  */
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import IconButton from '@mui/material/IconButton';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { DiagramContext } from '../../../components/common';
 import { TextInputWidget } from './TextInput';
 import { ControlButton } from './ControlButtons';
-import { ButtonColor, ComponentDetails, PackageNameRegex, PackageNameRules } from '../resources/constants';
+import { AddComponentDetails } from '../../../resources';
+import { ButtonColor, PackageNameRegex, PackageNameRules } from '../resources/constants';
 import { AdvancedSettings, AdvancedControlsContainer, AdvancedControlsHeader, AdvancedHeaderTitle } from '../resources/styles';
 
 interface AdvancedSettingsProps {
-    component: ComponentDetails;
+    component: AddComponentDetails;
     visibility: boolean;
     changeVisibility: (status: boolean) => void;
     updatePackage: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    setDirectory: (path: string) => void;
     selectDirectory: () => void;
 }
 
 export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
-    const { component, visibility, changeVisibility, updatePackage, selectDirectory } = props;
+    const { component, visibility, changeVisibility, updatePackage, setDirectory, selectDirectory } = props;
     const { getProjectRoot } = useContext(DiagramContext);
-
-    const [projectRoot, setProjectRoot] = useState<string>(undefined);
 
     useEffect(() => {
         async function getDefaultDirectory() {
-            const projecRoot = await getProjectRoot();
-            setProjectRoot(projecRoot);
+            const projectRoot = await getProjectRoot();
+            setDirectory(projectRoot);
         }
         getDefaultDirectory();
     }, [])
@@ -72,7 +72,7 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
 
                     <TextInputWidget
                         label={'Directory'}
-                        value={component.directory || projectRoot}
+                        value={component.directory}
                         readonly={true}
                     />
 
