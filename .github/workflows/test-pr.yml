@@ -13,17 +13,9 @@ jobs:
   Build_Stage:
     name: Build repo
     timeout-minutes: 45
-    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
-        with:
-          message: |
-            Test with ${{ github.sha }}.
 
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
@@ -114,7 +106,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: coverage/plugin-coverage.xml
-          name: PartialCodeCoverages
+          name: CodeCoverages
 
   UiTest_Stage:
     name: Run UI tests
@@ -222,7 +214,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: ballerina-low-code-editor/integration-tests/.nyc_output/${{ matrix.testStage  }}.json
-          name: PartialCodeCoverages
+          name: CodeCoverages
 
       - name: Publish test videos
         uses: actions/upload-artifact@v3
@@ -242,7 +234,6 @@ jobs:
     name: Publish code coverage results
     needs: [Build_Stage, PluginTest_Stage, UiTest_Stage, LowCode_Test_Stage]
     timeout-minutes: 5
-    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
@@ -266,7 +257,7 @@ jobs:
       - name: Download partial code coverages
         uses: actions/download-artifact@v3
         with:
-          name: PartialCodeCoverages
+          name: CodeCoverages
           path: ./coverageData
 
       - name: "Publish total code coverage"
@@ -286,9 +277,8 @@ jobs:
           format: 'markdown'
           output: 'both'
 
-      - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
+      - name: Publish code coverage
+        uses: actions/upload-artifact@v3
         with:
-          recreate: true
-          path: code-coverage-results.md    
+          path: code-coverage-results.md
+          name: CodeCoverages    
