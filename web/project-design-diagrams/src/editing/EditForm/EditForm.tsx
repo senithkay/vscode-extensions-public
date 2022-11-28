@@ -26,8 +26,8 @@ import { DiagramContext } from '../../components/common/';
 import {
     ComponentDetails, OrganizationRegex, OrganizationRules, PackageNameAntiRegex, PackageNameRegex, PackageNameRules,
     VersioningRules, VersionRegex
-} from './constants';
-import { ControlsContainer, Header, HeaderTitle, PrimaryContainer } from './styles';
+} from './resources/constants';
+import { ControlsContainer, Header, HeaderTitle, PrimaryContainer } from './resources/styles';
 import { AdvancedSettingsWidget, ControlButton, TextInputWidget } from './components';
 import { Colors } from '../../resources';
 

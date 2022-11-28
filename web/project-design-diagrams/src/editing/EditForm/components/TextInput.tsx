@@ -20,7 +20,7 @@
 import React, { useState } from 'react';
 import FormHelperText from '@mui/material/FormHelperText';
 import TextField from '@mui/material/TextField';
-import { InputComponent, Required } from '../styles';
+import { InputComponent, Required } from '../resources/styles';
 
 interface TextFieldProps {
     label: string;

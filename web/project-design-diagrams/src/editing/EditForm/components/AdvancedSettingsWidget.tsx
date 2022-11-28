@@ -24,8 +24,8 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { DiagramContext } from '../../../components/common';
 import { TextInputWidget } from './TextInput';
 import { ControlButton } from './ControlButtons';
-import { ButtonColor, ComponentDetails, PackageNameRegex, PackageNameRules } from '../constants';
-import { AdvancedSettings, AdvancedControlsContainer, AdvancedControlsHeader, AdvancedHeaderTitle } from '../styles';
+import { ButtonColor, ComponentDetails, PackageNameRegex, PackageNameRules } from '../resources/constants';
+import { AdvancedSettings, AdvancedControlsContainer, AdvancedControlsHeader, AdvancedHeaderTitle } from '../resources/styles';
 
 interface AdvancedSettingsProps {
     component: ComponentDetails;
