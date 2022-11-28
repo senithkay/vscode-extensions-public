@@ -34,10 +34,8 @@ jobs:
           IS_RELEASE: ${{ false }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
-      - name: Remove unwanted files
-        run: |
-          find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
-          rm *.zip
+      - name: Remove node modules
+        run: find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
 
       - name: Cache build
         uses: actions/cache@v3
