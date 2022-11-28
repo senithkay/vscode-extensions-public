@@ -24,6 +24,9 @@ import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
 import { ComponentModel, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
+import { AddButton } from './editing/AddBtn/AddBtn';
+import { EditForm } from './components/common/EditForm/EditForm';
+
 import './resources/assets/font/fonts.css';
 
 const background = require('./resources/assets/PatternBg.svg') as string;
@@ -32,6 +35,7 @@ const Container = styled.div`
     align-items: center;
     background-image: url('${background}');
 	background-repeat: repeat;
+    position: relative;
     display: flex;
     flex-direction: column;
     font-family: GilmerRegular;
@@ -45,14 +49,16 @@ interface DiagramProps {
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>;
     createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
     pickDirectory: () => Promise<string>;
+    editingEnabled?: boolean;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { fetchProjectResources, createService, pickDirectory } = props;
+    const { fetchProjectResources, createService, pickDirectory, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
+    const [showEditForm, setShowEditForm] = useState(false);
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
@@ -74,9 +80,17 @@ export function DesignDiagram(props: DiagramProps) {
         })
     }
 
+    const onComponentAddClick = () => {
+        console.log("Button Clicked")
+        setShowEditForm(true);
+    }
+
     return (
         <DesignDiagramContext {...{getTypeComposition, currentView, pickDirectory, createService }}>
             <Container>
+            {editingEnabled && <AddButton onClick={onComponentAddClick}/>}
+            {showEditForm && <EditForm visibility={true} updateVisibility={setShowEditForm} />}
+
                 {currentView && projectPkgs ?
                     <>
                         <DiagramHeader
