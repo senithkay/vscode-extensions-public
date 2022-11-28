@@ -20,7 +20,7 @@
 import { commands, ExtensionContext, OpenDialogOptions, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
-import { join } from "path";
+import path, { join } from "path";
 import { debounce } from "lodash";
 import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
@@ -156,6 +156,27 @@ function setupWebviewPanel() {
                             return fileUri[0].fsPath;
                         }
                     });
+                }
+            },
+            {
+                methodName: "getProjectRoot",
+                handler: async (): Promise<string | undefined> => {
+                    const workspaceFolders = workspace.workspaceFolders;
+                    if (workspaceFolders && workspaceFolders?.length > 0) {
+                        let parentCandidate = path.parse(workspaceFolders[0].uri.fsPath).dir;
+                        workspaceFolders.forEach((workspaceFolder) => {
+                            const relative = path.relative(parentCandidate, workspaceFolder.uri.fsPath);
+                            const isSubdir = relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+                            if (!isSubdir) {
+                                const parsedPath = path.parse(workspaceFolder.uri.fsPath);
+                                if (parsedPath.dir !== parentCandidate) {
+                                    parentCandidate = path.parse(parentCandidate).dir
+                                }
+                            }
+                        });
+                        return parentCandidate;
+                    }
+                    return undefined;
                 }
             }
         ];

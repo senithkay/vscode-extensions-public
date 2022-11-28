@@ -26,6 +26,7 @@ export function renderDesignDiagrams(
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
     createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>,
     pickDirectory: () => Promise<string>,
+    getProjectRoot: () => Promise<string>,
     target: HTMLElement) {
 
     render(
@@ -33,6 +34,7 @@ export function renderDesignDiagrams(
             fetchProjectResources={fetchProjectResources}
             createService={createService}
             pickDirectory={pickDirectory}
+            getProjectRoot={getProjectRoot}
         />,
         target
     );
