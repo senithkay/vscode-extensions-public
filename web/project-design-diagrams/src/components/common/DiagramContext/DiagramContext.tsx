@@ -26,6 +26,7 @@ interface DiagramContextProps {
     currentView: Views;
     createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
     pickDirectory: () => Promise<string>;
+    getProjectRoot: () => Promise<string>;
 }
 
 interface IDiagramContext {
@@ -33,16 +34,17 @@ interface IDiagramContext {
     currentView: Views;
     createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
     pickDirectory: () => Promise<string>;
+    getProjectRoot: () => Promise<string>;
 }
 
 const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
-    const { getTypeComposition, createService, currentView, pickDirectory, children } = props;
+    const { getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, children } = props;
 
     return (
-        <DiagramContext.Provider value={{ getTypeComposition, createService, currentView, pickDirectory }}>
+        <DiagramContext.Provider value={{ getTypeComposition, createService, currentView, pickDirectory, getProjectRoot }}>
             {children}
         </DiagramContext.Provider>
     );

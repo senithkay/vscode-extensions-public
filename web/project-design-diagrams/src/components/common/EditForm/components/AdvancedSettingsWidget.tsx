@@ -17,7 +17,7 @@
  *
  */
 
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -25,6 +25,7 @@ import { TextInputWidget } from './TextInput';
 import { ControlButton } from './ControlButtons';
 import { ButtonColor, ComponentDetails, PackageNameRegex, PackageNameRules } from '../constants';
 import { AdvancedSettings, AdvancedControlsContainer, AdvancedControlsHeader, AdvancedHeaderTitle } from '../styles';
+import { DiagramContext } from '../../DiagramContext/DiagramContext';
 
 interface AdvancedSettingsProps {
     component: ComponentDetails;
@@ -37,6 +38,17 @@ interface AdvancedSettingsProps {
 
 export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
     const { component, visibility, changeVisibility, updatePackage, resetDirectory, selectDirectory } = props;
+    const { getProjectRoot } = useContext(DiagramContext);
+
+    const [projectRoot, setProjectRoot] = useState<string>(undefined);
+
+    useEffect(() => {
+        async function getDefaultDirectory() {
+            const projecRoot = await getProjectRoot();
+            setProjectRoot(projecRoot);
+        }
+        getDefaultDirectory();
+    }, [])
 
     return (
         <AdvancedSettings>
@@ -61,7 +73,7 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
 
                     <TextInputWidget
                         label={'Directory'}
-                        value={component.directory}
+                        value={component.directory || projectRoot}
                         readonly={true}
                     />
 

@@ -49,11 +49,12 @@ interface DiagramProps {
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>;
     createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
     pickDirectory: () => Promise<string>;
+    getProjectRoot: () => Promise<string>;
     editingEnabled?: boolean;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { fetchProjectResources, createService, pickDirectory, editingEnabled = true } = props;
+    const { fetchProjectResources, createService, pickDirectory, getProjectRoot, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
@@ -86,7 +87,7 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     return (
-        <DesignDiagramContext {...{getTypeComposition, currentView, pickDirectory, createService }}>
+        <DesignDiagramContext {...{getTypeComposition, currentView, pickDirectory, getProjectRoot, createService }}>
             <Container>
             {editingEnabled && <AddButton onClick={onComponentAddClick}/>}
             {showEditForm && <EditForm visibility={true} updateVisibility={setShowEditForm} />}
