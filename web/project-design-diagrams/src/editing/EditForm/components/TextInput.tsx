@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,13 +37,16 @@ export function TextInputWidget(props: TextFieldProps) {
 
     const [visited, updateVisitStatus] = useState<boolean>(false);
 
-    const displayError: boolean = required ? (visited && error) : (value && value.length && error);
+    const displayError: boolean = required === true ? (visited && error === true) :
+        (value !== undefined && value.length > 0 && error === true);
 
     const onChangeText = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        if (!visited) {
-            updateVisitStatus(true);
+        if (!readonly && onChange) {
+            if (!visited) {
+                updateVisitStatus(true);
+            }
+            onChange(e);
         }
-        onChange(e);
     }
 
     return (

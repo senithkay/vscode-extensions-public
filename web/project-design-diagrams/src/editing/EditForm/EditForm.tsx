@@ -22,16 +22,14 @@ import ReactDOM from 'react-dom';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { TextInputWidget } from './components/TextInput';
+import { DiagramContext } from '../../components/common/';
 import {
     ComponentDetails, OrganizationRegex, OrganizationRules, PackageNameAntiRegex, PackageNameRegex, PackageNameRules,
     VersioningRules, VersionRegex
 } from './constants';
 import { ControlsContainer, Header, HeaderTitle, PrimaryContainer } from './styles';
-import { AdvancedSettingsWidget } from './components/AdvancedSettingsWidget';
-import { ControlButton } from './components/ControlButtons';
-import { Colors } from '../../../resources';
-import { DiagramContext } from '../DiagramContext/DiagramContext';
+import { AdvancedSettingsWidget, ControlButton, TextInputWidget } from './components';
+import { Colors } from '../../resources';
 
 interface EditFormProps {
     visibility: boolean;
@@ -108,8 +106,8 @@ export function EditForm(props: EditFormProps) {
     }
 
     const onSubmit = () => {
-        let componentName: string = component.name.replaceAll(' ', '').replace(PackageNameAntiRegex, '');
-        console.log(`${componentName}:`, component);
+        // let componentName: string = component.name.replaceAll(' ', '').replace(PackageNameAntiRegex, '');
+        // console.log(`${componentName}:`, component);
     }
 
     return ReactDOM.createPortal(

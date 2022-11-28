@@ -24,8 +24,7 @@ import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
 import { ComponentModel, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
-import { AddButton } from './editing/AddBtn/AddBtn';
-import { EditForm } from './components/common/EditForm/EditForm';
+import { AddButton, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 
@@ -86,10 +85,10 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     return (
-        <DesignDiagramContext {...{getTypeComposition, currentView, pickDirectory, createService }}>
+        <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, createService }}>
             <Container>
-            {editingEnabled && <AddButton onClick={onComponentAddClick}/>}
-            {showEditForm && <EditForm visibility={true} updateVisibility={setShowEditForm} />}
+                {editingEnabled && <AddButton onClick={onComponentAddClick} />}
+                {showEditForm && <EditForm visibility={true} updateVisibility={setShowEditForm} />}
 
                 {currentView && projectPkgs ?
                     <>
