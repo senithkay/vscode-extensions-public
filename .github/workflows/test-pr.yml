@@ -34,14 +34,16 @@ jobs:
           IS_RELEASE: ${{ false }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
-      - name: Remove node modules
-        run: find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
+      - name: Compress build
+        run: |
+          find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
+          zip -r build.zip ./
 
-      - name: Cache build
-        uses: actions/cache@v3
+      - name: Save build
+        uses: actions/upload-artifact@v3
         with:
-          path: ./
-          key: repoBuild
+          path: build.zip
+          name: PluginBuild
 
   PluginTest_Stage:
     name: Run Plugin test
@@ -50,10 +52,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
-        uses: actions/cache@v3
+        uses: actions/download-artifact@v3
         with:
+          name: PluginBuild
           path: ./
-          key: repoBuild
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
 
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
@@ -105,10 +112,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
-        uses: actions/cache@v3
+        uses: actions/download-artifact@v3
         with:
+          name: PluginBuild
           path: ./
-          key: repoBuild
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
 
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
@@ -150,10 +162,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
-        uses: actions/cache@v3
+        uses: actions/download-artifact@v3
         with:
+          name: PluginBuild
           path: ./
-          key: repoBuild
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
 
       - name: Install node modules
         run: |
@@ -217,10 +234,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
-        uses: actions/cache@v3
+        uses: actions/download-artifact@v3
         with:
+          name: PluginBuild
           path: ./
-          key: repoBuild
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
 
       - name: Install node modules
         run: |
