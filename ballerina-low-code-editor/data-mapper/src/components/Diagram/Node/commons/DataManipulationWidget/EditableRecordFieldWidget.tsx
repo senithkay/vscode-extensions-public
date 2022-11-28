@@ -235,7 +235,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         {label}
                     </span>
 
-                    {!isDisabled && (
+                    {(!isDisabled || hasValue) && (
                         <>
                             {(isLoading || fieldId === props.context.fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />

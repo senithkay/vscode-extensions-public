@@ -35,7 +35,7 @@ describe('VSCode Data mapper Webview UI Tests', () => {
     const EXPECTED_NEW_RECORD_FROM_JSON = `type ImportedRecord record {
         string st1;
     };`;
-    const EXPECTED_TRANSFORM_FUNCTION = `function transform(ImportedRecord ImportedRecord, Input input) returns Output => {
+    const EXPECTED_TRANSFORM_FUNCTION = `function transform(ImportedRecord importedRecord, Input input) returns Output => {
         st1: input.st1
     };`;
 
