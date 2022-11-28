@@ -2,10 +2,9 @@ name: Comment Code Coverage on PR
 
 on:
   workflow_run:
-    workflows:
-      - "Test PR"
+    workflows: [Test PR]
     types:
-      - completed
+      - in_progress
 
 jobs:
   comment:
