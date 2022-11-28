@@ -55,11 +55,11 @@ export function render(webView: Webview) {
                 })
             }
             
-            function createService(packageName, org, version) {
+            function createService(componentDetails) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'createService',
-                        [packageName, org, version],
+                        [componentDetails],
                         (response) => {
                             resolve(response);
                         }

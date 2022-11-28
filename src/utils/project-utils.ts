@@ -18,7 +18,7 @@
  */
 
 import { BallerinaProject, ballerinaExtInstance } from "../core";
-import { window } from "vscode";
+import {Uri, window, workspace} from "vscode";
 import * as path from 'path';
 import { isSupportedVersion, VERSION } from "./config";
 
@@ -69,4 +69,8 @@ function getCurrenDirectoryPath(): string {
     throw new Error("There is no active editor");
 }
 
-export { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath };
+function addToWorkspace(url: string) {
+    workspace.updateWorkspaceFolders(workspace.workspaceFolders ? workspace.workspaceFolders.length : 0, null, { uri: Uri.parse(url)} );
+}
+
+export { addToWorkspace, getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath };
