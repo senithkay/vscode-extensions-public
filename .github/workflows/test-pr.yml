@@ -96,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: coverage
-          name: vscode-extension-coverage-${{ env.GITHUB_RUN_ATTEMPT }}
+          name: vscode-extension-coverage-${{ github.run_attempt }}
         if: always()
     
       - name: Rename code coverage file
@@ -152,7 +152,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: ./test-resources/screenshots/
-          name: Ui-test-screenshots-${{ env.GITHUB_RUN_ATTEMPT }}
+          name: Ui-test-screenshots-${{ github.run_attempt }}
         if: failure()
 
   LowCode_Test_Stage:
@@ -204,7 +204,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: ballerina-low-code-editor/integration-tests/cypress/screenshots
-          name: low-code-cypress-screenshots-${{ matrix.testStage  }}-${{ env.GITHUB_RUN_ATTEMPT }}
+          name: low-code-cypress-screenshots-${{ matrix.testStage  }}-${{ github.run_attempt }}
         if: failure()
       
       - name: Rename code coverage file
@@ -220,14 +220,14 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: ballerina-low-code-editor/integration-tests/cypress/videos
-          name: low-code-cypress-recordings-${{ matrix.testStage  }}-${{ env.GITHUB_RUN_ATTEMPT }}
+          name: low-code-cypress-recordings-${{ matrix.testStage  }}-${{ github.run_attempt }}
         if: failure()
     
       - name: Publish test failure console logs
         uses: actions/upload-artifact@v3
         with:
           path: ballerina-low-code-editor/integration-tests/logs
-          name: low-code-cypress-failure-test-logs-${{ matrix.testStage  }}-${{ env.GITHUB_RUN_ATTEMPT }}
+          name: low-code-cypress-failure-test-logs-${{ matrix.testStage  }}-${{ github.run_attempt }}
         if: failure()
 
   Publish_Coverage_Resuls_Stage:
