@@ -20,7 +20,7 @@ import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
 import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
-import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputWidget";
+import { ArrayTypeOutputWidget } from "../commons/DataManipulationWidget/ArrayTypeOutputWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import {
@@ -41,7 +41,7 @@ export class ListConstructorNodeFactory extends AbstractReactFactory<ListConstru
 			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
 		}
 		return (
-			<PrimitiveTypeOutputWidget
+			<ArrayTypeOutputWidget
 				id={`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 				engine={this.engine}
 				field={event.model.recordField}

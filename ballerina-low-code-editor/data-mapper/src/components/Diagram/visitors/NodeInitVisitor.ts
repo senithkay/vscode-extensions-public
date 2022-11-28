@@ -79,14 +79,14 @@ export class NodeInitVisitor implements Visitor {
                     {
                         isFnBodyQueryExpr = true;
                         const selectClause = node.functionBody.expression.selectClause;
-                        if (STKindChecker.isMappingConstructor(selectClause.expression)) {
+                        if (returnType.memberType.typeName === PrimitiveBalType.Record) {
                             this.outputNode = new MappingConstructorNode(
                                 this.context,
                                 selectClause,
                                 typeDesc,
                                 node.functionBody.expression
                             );
-                        } else if (STKindChecker.isListConstructor(selectClause.expression)) {
+                        } else if (returnType.memberType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
                                 this.context,
                                 selectClause,
