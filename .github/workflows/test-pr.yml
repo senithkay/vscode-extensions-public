@@ -71,6 +71,10 @@ jobs:
           wget ${{ env.ballerina_zip_url }}
           unzip -qq ./ballerina-${{ env.ballerina_version }}-swan-lake.zip -d ./extractedDistribution
           rm ballerina-${{ env.ballerina_version }}-swan-lake.zip
+          balVersion=$(ls ./extractedDistribution)
+          balHome=./extractedDistribution/$balVersion
+
+          echo "$balHome/bin" >> $GITHUB_PATH
 
       - name: Run Test
         run: xvfb-run --auto-servernum npm run test
