@@ -37,7 +37,7 @@ export function TextInputWidget(props: TextFieldProps) {
 
     const [visited, updateVisitStatus] = useState<boolean>(false);
 
-    const displayError = visited && value.length > 0 && error;
+    const displayError: boolean = visited && value.length > 0 && error;
 
     const onChangeText = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         if (!readonly && onChange) {
