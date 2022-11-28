@@ -99,6 +99,9 @@ jobs:
           name: vscode-extension-coverage-${{ env.GITHUB_RUN_ATTEMPT }}
         if: always()
     
+      - name: Rename code coverage file
+        run: mv coverage/coverage.xml coverage/plugin-coverage.xml
+    
       - name: Publish partial code coverage
         uses: actions/upload-artifact@v3
         with:
@@ -255,12 +258,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: PartialCodeCoverages
-          path: /coverageData
+          path: ./coverageData
 
       - name: "Publish total code coverage"
         run: |
           cd ballerina-low-code-editor
-          npx nyc merge $(System.DefaultWorkingDirectory)/coverageData
+          npx nyc merge ../coverageData
           mkdir integration-tests/.nyc_output
           mv coverage.json integration-tests/.nyc_output/out.json
           npx nyc report --reporter html --reporter cobertura -t integration-tests/.nyc_output --report-dir integration-tests/coverage
