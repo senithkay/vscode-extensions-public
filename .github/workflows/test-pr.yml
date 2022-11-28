@@ -277,8 +277,13 @@ jobs:
           format: 'markdown'
           output: 'both'
 
+      - run: |
+          mkdir totalCoverage
+          echo ${{ github.event.number }} | tee ./totalCoverage/number
+          mv code-coverage-results.md totalCoverage/code-coverage-results.md
+
       - name: Publish code coverage
         uses: actions/upload-artifact@v3
         with:
-          path: code-coverage-results.md
+          path: totalCoverage
           name: CodeCoverages    
