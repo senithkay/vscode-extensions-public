@@ -1,7 +1,6 @@
 name: Comment Code Coverage on PR
 
 on:
-  pull_request:
   workflow_run:
     workflows: [Test PR]
     types:
