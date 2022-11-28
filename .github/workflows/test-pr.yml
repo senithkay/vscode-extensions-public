@@ -13,7 +13,7 @@ jobs:
   Build_Stage:
     name: Build repo
     timeout-minutes: 45
-    permissions: read-all|write-all
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -242,7 +242,7 @@ jobs:
     name: Publish code coverage results
     needs: [Build_Stage, PluginTest_Stage, UiTest_Stage, LowCode_Test_Stage]
     timeout-minutes: 5
-    permissions: read-all|write-all
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
