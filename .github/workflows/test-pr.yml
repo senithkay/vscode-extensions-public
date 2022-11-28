@@ -72,7 +72,7 @@ jobs:
           unzip -qq ./ballerina-${{ env.ballerina_version }}-swan-lake.zip -d ./extractedDistribution
           rm ballerina-${{ env.ballerina_version }}-swan-lake.zip
           balVersion=$(ls ./extractedDistribution)
-          balHome=$(./extractedDistribution/$balVersion
+          balHome=$(./extractedDistribution/$balVersion)
 
           echo "::set-output name=balVersion::$balVersion"
           echo "::set-output name=balHome::$balHome"
