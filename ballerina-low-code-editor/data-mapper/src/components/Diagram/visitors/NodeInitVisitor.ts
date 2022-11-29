@@ -30,7 +30,7 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { OFFSETS, EXPANDED_QUERY_INPUT_NODE_PREFIX } from "../utils/constants";
-import { getFieldAccessNodes, getSimpleNameRefNodes, isComplexExpression } from "../utils/dm-utils";
+import { getInputNodes, isComplexExpression } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -156,9 +156,7 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isMappingConstructor(node.valueExpr)
             && !STKindChecker.isListConstructor(node.valueExpr)
         ) {
-            const fieldAccessNodes = getFieldAccessNodes(node.valueExpr);
-            const simpleNameRefNodes = getSimpleNameRefNodes(selectedSTNode, node.valueExpr);
-            const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+            const inputNodes = getInputNodes(node.valueExpr);
             if (inputNodes.length > 1
                 || (inputNodes.length === 1 && isComplexExpression(node.valueExpr))) {
                 const linkConnectorNode = new LinkConnectorNode(
@@ -178,9 +176,8 @@ export class NodeInitVisitor implements Visitor {
         if (this.isWithinQuery === 0 && node.expressions) {
             node.expressions.forEach((expr) => {
                 if (!STKindChecker.isMappingConstructor(expr)) {
-                    const fieldAccessNodes = getFieldAccessNodes(expr);
-                    const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, expr);
-                    const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+                    const inputNodes = getInputNodes(expr);
+
                     if (inputNodes.length > 1
                         || (inputNodes.length === 1 && isComplexExpression(expr))) {
                         const linkConnectorNode = new LinkConnectorNode(
@@ -203,10 +200,9 @@ export class NodeInitVisitor implements Visitor {
     beginVisitSelectClause(node: SelectClause, parent?: STNode): void {
         if (this.isWithinQuery === 0
             && !STKindChecker.isMappingConstructor(node.expression)
-            && !STKindChecker.isListConstructor(node.expression)) {
-            const fieldAccessNodes = getFieldAccessNodes(node.expression);
-            const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, node.expression);
-            const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+            && !STKindChecker.isListConstructor(node.expression))
+        {
+            const inputNodes = getInputNodes(node.expression);
             if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
