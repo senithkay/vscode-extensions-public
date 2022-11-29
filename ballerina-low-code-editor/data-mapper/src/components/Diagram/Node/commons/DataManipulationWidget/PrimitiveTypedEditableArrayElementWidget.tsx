@@ -59,7 +59,7 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
     }, [editable]);
 
     const label = (
-        <span style={{marginRight: "auto"}}>
+        <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn.getName()}`}>
             <span className={classes.valueLabel}>
                 {value}
             </span>

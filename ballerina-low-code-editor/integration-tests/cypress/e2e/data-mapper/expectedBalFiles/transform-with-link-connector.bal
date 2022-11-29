@@ -36,4 +36,6 @@ function unsupportedTransform(Input[]|error? input) returns Output? => {};
 
 function incompleteTransform() => {};
 
-function transform(Input input, SecondInput secondInput) returns Output => {};
+function transform(Input input, SecondInput secondInput) returns Output => {
+    st1: input.st1 + input.st2 + input.st3 + secondInput.st1
+};

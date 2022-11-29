@@ -31,17 +31,9 @@ export function DiagnosticWidget(props: DiagnosticWidgetProps) {
     const {diagnostic, value, onClick, isLabelElement} =  props;
     const classes = useStyles();
 
-    const comp = (
-        <div className={classes.element}>
-            <div className={classes.iconWrapper}>
-                <ErrorIcon  /> 
-            </div>
-        </div>
-    );
-
     return (
         <DiagnosticTooltip diagnostic={diagnostic} value={value}  onClick={onClick}>
-        <div className={isLabelElement && classes.element}>
+        <div className={isLabelElement && classes.element} data-testid={`expression-label-diagnostic`}>
             <div className={classes.iconWrapper}>
                 <ErrorIcon  /> 
             </div>

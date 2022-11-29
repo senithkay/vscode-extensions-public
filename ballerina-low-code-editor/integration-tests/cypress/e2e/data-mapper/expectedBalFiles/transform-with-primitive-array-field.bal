@@ -36,4 +36,9 @@ function unsupportedTransform(Input[]|error? input) returns Output? => {};
 
 function incompleteTransform() => {};
 
-function transform(Input input, SecondInput secondInput) returns Output => {};
+function transform(Input input, SecondInput secondInput) returns Output => {
+    stArr: [
+        input.st1,
+        "strValue"
+    ]
+};

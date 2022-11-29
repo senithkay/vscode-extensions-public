@@ -2,7 +2,8 @@
 type Input record {
     string st1;
     string st2;
-    int d1;
+    string st3;
+    int int1;
     record {
         string Id;
         boolean Confirmed;
@@ -11,16 +12,15 @@ type Input record {
 
 type SecondInput record {
     string st1;
-}
+};
 
 type UpdatedInput record {
     string st1;
-}
+};
 
 type Output record {
     string st1;
-    string st2;
-    decimal d1;
+    decimal d1?;
     record {
         string Id;
         boolean Confirmed;
@@ -30,7 +30,7 @@ type Output record {
 
 type UpdatedOutput record {
     string st1;
-}
+};
 
 function unsupportedTransform(Input[]|error? input) returns Output? => {};
 

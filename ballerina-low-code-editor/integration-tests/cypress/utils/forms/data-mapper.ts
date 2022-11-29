@@ -14,9 +14,7 @@
 export class DataMapper {
     private static selector = '[data-testid="data-mapper-form"]';
 
-    static disabledSaveButton() {
-        this.getForm().contains("Save").should('be.disabled')
-    }
+    static disabledSaveButton = () => this.getForm().contains("Save").should('be.disabled')
 
     static displayUnsupportedTypesBanner() {
         this.getForm().get('[data-test-id="unsupported-input-banner"]').should('exist')
@@ -64,24 +62,26 @@ export class DataMapper {
         cy.get('li').contains(recordName).click();
     }
 
+    static getFunctionName = () => this.getForm().get('[data-testid="data-mapper-config-fn-name"]').find("input");
+
     static updateFunctionName(name: string) {
-        this.getForm().get('[data-testid="data-mapper-config-fn-name"]').find("input").type(name).blur();
+        this.getFunctionName().type(name).blur();
     }
 
     static clearFunctionName() {
-        this.getForm().get('[data-testid="data-mapper-config-fn-name"]').find("input").clear().blur();
+        this.getFunctionName().clear().blur();
     }
 
     static checkFnName(inputValue) {
-        this.getForm().get('[data-testid="data-mapper-config-fn-name"]').find("input").should('have.value', inputValue)
+        this.getFunctionName().should('have.value', inputValue)
     }
 
     static containsValidFnName() {
-        this.getForm().get('[data-testid="data-mapper-config-fn-name"]').find("input").should('have.attr', 'aria-invalid', 'false');;
+        this.getFunctionName().should('have.attr', 'aria-invalid', 'false');;
     }
 
     static containsInvalidFnName() {
-        this.getForm().get('[data-testid="data-mapper-config-fn-name"]').find("input").should('have.attr', 'aria-invalid', 'true');;
+        this.getFunctionName().should('have.attr', 'aria-invalid', 'true');;
     }
 
     static editInputRecord(index: number) {
@@ -98,8 +98,8 @@ export class DataMapper {
 
     static saveConfig() {
         this.containsValidFnName();
-        this.getForm().contains("Save").should('not.be.disabled')
-        this.getForm().contains("Save").click();
+        // this.getForm().contains("Save").should('not.be.disabled')
+        this.getForm().contains("Save").should('not.be.disabled').click();
     }
 
     static openConfigureMenu() {
@@ -116,13 +116,103 @@ export class DataMapper {
 
     static createMapping(sourcePort: string, targetPort: string) {
         cy.get(`[data-name='${sourcePort}.OUT']`).click();
-        cy.get(`[data-name='mappingConstructor.${targetPort}.IN']`).click();
+        cy.get(`[data-name='mappingConstructor.${targetPort}.IN']`).click({force: true})
+    }
+
+    static createMappingToIntermediatePort(sourcePort: string, inputPorts: string) {
+        cy.get(`[data-name='${sourcePort}.OUT']`).click();
+        cy.get(`[data-testid='link-connector-node-${inputPorts}-input']`).click({force: true})
+    }
+
+    static deleteLinksWithLinkConnector(inputPorts: string[], targetPort: string) {
+        cy.get(`[data-testid='link-connector-delete-${inputPorts.join(' + ')}']`).click();
+
+        for(const port of inputPorts){
+            cy.get(`[data-testid='link-from-${port}.OUT-to-datamapper-intermediate-port']`).should('not.exist');
+        }
+        cy.get(`[data-testid='link-from-datamapper-intermediate-port-to-mappingConstructor.${targetPort}.IN']`).should('not.exist');
+    }
+
+    static linkExists(sourcePort: string, targetPort: string) {
+        cy.get(`[role="progressbar]"`).should('not.exist');
+        cy.get(`[data-testid='link-from-${sourcePort}.OUT-to-mappingConstructor.${targetPort}.IN']`)
+    }
+
+    static linkWithErrorExists(sourcePort: string, targetPort: string) {
+        cy.get(`[role="progressbar]"`).should('not.exist');
+        cy.get(`[data-testid='link-from-${sourcePort}.OUT-to-mappingConstructor.${targetPort}.IN']`).should('have.attr','data-diagnostics', 'true')
+    }
+
+    static checkIntermediateLinks(sourcePort: string[], targetPort: string) {
+        cy.get(`[role="progressbar]"`).should('not.exist');
+        for(const port of sourcePort){
+            cy.get(`[data-testid='link-from-${port}.OUT-to-datamapper-intermediate-port']`)
+        }
+        cy.get(`[data-testid='link-from-datamapper-intermediate-port-to-mappingConstructor.${targetPort}.IN']`)
+    }
+
+    static deleteLink(sourcePort: string, targetPort: string) {
+        cy.get(`[role="progressbar]"`).should('not.exist');
+        cy.get(`[data-testid='link-from-${sourcePort}.OUT-to-mappingConstructor.${targetPort}.IN']`).click();
+        cy.get(`[data-testid='expression-label-delete']`).click();
+        cy.get(`[data-testid='link-from-${sourcePort}.OUT-to-mappingConstructor.${targetPort}.IN']`).should('not.exist');
+    }
+
+    static deleteLinkWithDiagnostics(sourcePort: string, targetPort: string) {
+        cy.get(`[role="progressbar]"`).should('not.exist');
+        cy.get(`[data-testid='link-from-${sourcePort}.OUT-to-mappingConstructor.${targetPort}.IN']`).click();
+        cy.get(`[data-testid='expression-label-diagnostic']`);
+        cy.get(`[data-testid='expression-label-delete']`).click();
+        cy.get(`[data-testid='link-from-${sourcePort}.OUT-to-mappingConstructor.${targetPort}.IN']`).should('not.exist');
+    }
+
+    static targetNodeFieldMenuClick(field: string, option: string) {
+        cy.get(`[data-testid='value-config-mappingConstructor.${field}.IN']`).click();
+        cy.contains(option).click();
+    }
+
+    static directValueAssignmentExists(field: string, value: string) {
+        cy.get(`[data-testid='record-widget-field-mappingConstructor.${field}.IN']`).should("have.text", value);
+    }
+
+    static directValueAssignmentNotExists(field: string) {
+        cy.get(`[data-testid='record-widget-field-mappingConstructor.${field}.IN']`).should('not.exist');
+    }
+
+    static outputLabelContains(field: string, containsText) {
+        cy.get(`[data-testid='record-widget-field-label-mappingConstructor.${field}.IN']`).should("contain.text", containsText);
+    }
+
+    static outputLabelNotContain(field: string, containsText) {
+        cy.get(`[data-testid='record-widget-field-label-mappingConstructor.${field}.IN']`).should("not.contain.text", containsText);
+    }
+
+    static addElementToArrayField(field: string) {
+        cy.get(`[data-testid='array-widget-mappingConstructor.${field}.IN-add-element']`).click();
+    }
+
+    static isArrayFieldInitialized(field: string) {
+        cy.get(`[data-testid='array-widget-mappingConstructor.${field}.IN-values']`).should('exist')
+    }
+
+    static isArrayFieldNotInitialized(field: string) {
+        cy.get(`[data-testid='array-widget-mappingConstructor.${field}.IN-values']`).should('not.exist')
+    }
+
+    static checkPrimitiveArrayFieldElementValue(field: string, value: string) {
+        cy.get(`[data-testid='primitive-array-element-mappingConstructor.${field}.IN']`).should("have.text", value);
+    }
+
+    static arrayFieldPortEnabled(field: string) {
+        cy.get(`[data-testid='array-type-editable-record-field-mappingConstructor.${field}.IN']`).should('have.css', 'cursor', 'pointer')
+    }
+
+    static arrayFieldPortDisabled(field: string) {
+        cy.get(`[data-testid='array-type-editable-record-field-mappingConstructor.${field}.IN']`).should('have.css', 'cursor', 'not-allowed')
     }
 
     static saveShouldBeDisabled() {
-        this.getForm()
-            .contains("Save")
-            .should('be.disabled', { timeout: 5000 })
+        this.getForm().contains("Save").should('be.disabled', { timeout: 5000 })
         return this;
     }
 

@@ -154,7 +154,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const diagnostic = specificField.valueExpr?.typeData?.diagnostics[0]
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}

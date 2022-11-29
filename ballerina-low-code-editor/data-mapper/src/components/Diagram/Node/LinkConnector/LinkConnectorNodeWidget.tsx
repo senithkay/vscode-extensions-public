@@ -182,7 +182,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     return (!node.hidden && (
         <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
             <div className={classes.header}>
-                <DataMapperPortWidget engine={engine} port={node.inPort} />
+                <DataMapperPortWidget engine={engine} port={node.inPort} dataTestId={`link-connector-node-${node?.value}-input`}/>
                 <TooltipComponent interactive={false} arrow={true} title={"Multi-Input Expression"}>
                     <span className={classes.editIcon} >
                         <ExpressionIcon  />
@@ -213,7 +213,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         />
                     </div>
                 )}
-                <DataMapperPortWidget engine={engine} port={node.outPort} />
+                <DataMapperPortWidget engine={engine} port={node.outPort} dataTestId={`link-connector-node-${node?.value}-output`}/>
             </div>
         </div>
         )

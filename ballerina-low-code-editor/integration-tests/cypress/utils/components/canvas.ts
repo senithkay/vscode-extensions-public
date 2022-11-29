@@ -20,7 +20,7 @@ export class Canvas {
     static clickTopLevelPlusButton(targetLine: number = 0) {
         this.waitForDiagramUpdate();
         cy.get(`.plus-container[target-line="${targetLine}"] #Top_plus`)
-            .click();
+            .click({force: true});
         return this;
     }
 
