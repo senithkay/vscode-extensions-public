@@ -33,8 +33,12 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
-import { getFieldAccessNodes, getSimpleNameRefNodes, isComplexExpression } from "../utils/dm-utils";
-import { RecordTypeDescriptorStore } from "../utils/record-type-descriptor-store";
+import {
+    getFieldAccessNodes,
+    getSimpleNameRefNodes,
+    getTypeOfOutput,
+    isComplexExpression
+} from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -51,22 +55,11 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const typeDesc = node.functionSignature?.returnTypeDesc.type;
-        let typeDescPosition = typeDesc.position;
         let isFnBodyQueryExpr = false;
-        if (!isArraysSupported(this.context.ballerinaVersion)
-            && STKindChecker.isQualifiedNameReference(typeDesc))
-        {
-            typeDescPosition = typeDesc.identifier.position;
-        }
         if (typeDesc) {
             if (STKindChecker.isExpressionFunctionBody(node.functionBody)) {
-                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                const returnType = recordTypeDescriptors.getTypeDescriptor({
-                    startLine: typeDescPosition.startLine,
-                    startColumn: typeDescPosition.startColumn,
-                    endLine: typeDescPosition.startLine,
-                    endColumn: typeDescPosition.startColumn
-                });
+                const returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
+
                 if (returnType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
@@ -182,14 +175,7 @@ export class NodeInitVisitor implements Visitor {
                 const addInitialClauseHeight = 65;
                 const yPosition = 50 + (intermediateClausesHeight || addInitialClauseHeight);
                 // create output node
-                const fieldNamePosition = parent.fieldName.position;
-                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                const exprType = recordTypeDescriptors.getTypeDescriptor({
-                    startLine: fieldNamePosition.startLine,
-                    startColumn: fieldNamePosition.startColumn,
-                    endLine: fieldNamePosition.startLine,
-                    endColumn: fieldNamePosition.startColumn
-                });
+                const exprType = getTypeOfOutput(parent.fieldName, this.context.ballerinaVersion);
 
                 if (exprType.memberType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(

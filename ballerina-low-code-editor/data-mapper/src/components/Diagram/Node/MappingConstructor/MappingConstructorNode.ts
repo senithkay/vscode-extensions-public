@@ -40,10 +40,10 @@ import {
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
+    getTypeOfOutput,
     getTypeOfValue
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -70,19 +70,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-        let typeIdentifierPosition = this.typeIdentifier.position;
-        if (!isArraysSupported(this.context.ballerinaVersion)
-            && STKindChecker.isQualifiedNameReference(this.typeIdentifier))
-        {
-            typeIdentifierPosition = this.typeIdentifier.identifier.position;
-        }
-        this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: typeIdentifierPosition.startLine,
-            startColumn: typeIdentifierPosition.startColumn,
-            endLine: typeIdentifierPosition.startLine,
-            endColumn: typeIdentifierPosition.startColumn
-        });
+        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
 
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);

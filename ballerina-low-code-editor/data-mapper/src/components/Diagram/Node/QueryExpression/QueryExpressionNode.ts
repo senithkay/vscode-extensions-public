@@ -18,8 +18,7 @@ import {
     LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
     OFFSETS
 } from "../../utils/constants";
-import { getFieldNames } from "../../utils/dm-utils";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { getFieldNames, getTypeFromStore } from "../../utils/dm-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
@@ -68,17 +67,12 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     private async getSourceType() {
-        const sourceFieldAccess = this.value.queryPipeline.fromClause.expression;
+        const fromClause = this.value.queryPipeline.fromClause;
+        const sourceFieldAccess = fromClause.expression;
         const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
-            const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-            const type = recordTypeDescriptors.getTypeDescriptor({
-                startLine: sourceFieldAccess.position.startLine,
-                startColumn: sourceFieldAccess.position.startColumn,
-                endLine: sourceFieldAccess.position.endLine,
-                endColumn: sourceFieldAccess.position.endColumn
-            });
+            const type = getTypeFromStore(fromClause.expression.position);
 
             if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
                 this.sourceTypeDesc = type.memberType;

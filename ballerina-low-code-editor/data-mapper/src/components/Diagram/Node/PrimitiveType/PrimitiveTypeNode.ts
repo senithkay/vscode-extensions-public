@@ -35,10 +35,10 @@ import {
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
+    getTypeOfOutput,
     isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
@@ -63,13 +63,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-        this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: this.typeIdentifier.position.startLine,
-            startColumn: this.typeIdentifier.position.startColumn,
-            endLine: this.typeIdentifier.position.startLine,
-            endColumn: this.typeIdentifier.position.startColumn
-        });
+        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
 
         if (this.typeDef) {
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,

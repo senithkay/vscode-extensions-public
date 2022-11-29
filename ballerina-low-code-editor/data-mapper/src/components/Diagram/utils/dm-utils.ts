@@ -9,6 +9,7 @@ import {
 	FieldAccess,
 	FromClause,
 	FunctionDefinition,
+	IdentifierToken,
 	LetClause,
 	LetVarDecl,
 	ListConstructor,
@@ -26,11 +27,12 @@ import {
 
 import { useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
+import { isArraysSupported } from "../../DataMapper/utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { MappingConstructorNode, RequiredParamNode } from "../Node";
-import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
@@ -47,6 +49,7 @@ import {
 	PRIMITIVE_TYPE_TARGET_PORT_PREFIX
 } from "./constants";
 import { getModification } from "./modifications";
+import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: string[] = [];
@@ -916,6 +919,38 @@ export function getTypeOfValue(editableRecField: EditableRecordField, targetPosi
 		}
 	}
 	return undefined;
+}
+
+export function getTypeOfInputParam(param: RequiredParam, balVersion: string): Type {
+	const paramPosition = isArraysSupported(balVersion) && param?.paramName
+		? param.paramName.position
+		: STKindChecker.isQualifiedNameReference(param.typeName)
+			? param.typeName.identifier.position
+			: param.typeName.position;
+	return getTypeFromStore({
+		startLine: paramPosition.startLine,
+		startColumn: paramPosition.startColumn,
+		endLine: paramPosition.startLine,
+		endColumn: paramPosition.startColumn
+	});
+}
+
+export function getTypeOfOutput(typeIdentifier: TypeDescriptor | IdentifierToken, balVersion: string): Type {
+	let typeIdentifierPosition = typeIdentifier.position;
+	if (!isArraysSupported(balVersion) && STKindChecker.isQualifiedNameReference(typeIdentifier)) {
+		typeIdentifierPosition = typeIdentifier.identifier.position;
+	}
+	return getTypeFromStore({
+		startLine: typeIdentifierPosition.startLine,
+		startColumn: typeIdentifierPosition.startColumn,
+		endLine: typeIdentifierPosition.startLine,
+		endColumn: typeIdentifierPosition.startColumn
+	});
+}
+
+export function getTypeFromStore(position: NodePosition): Type {
+	const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+	return recordTypeDescriptors.getTypeDescriptor(position);
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],

@@ -1,10 +1,9 @@
 import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { RequiredParam } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { isArraysSupported } from "../../../DataMapper/utils";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { getTypeOfInputParam } from "../../utils/dm-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const REQ_PARAM_NODE_TYPE = "datamapper-node-required-param";
@@ -26,18 +25,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-        const paramPosition = isArraysSupported(this.context.ballerinaVersion) && this.value?.paramName
-            ? this.value.paramName.position
-            : STKindChecker.isQualifiedNameReference(this.value.typeName)
-                ? this.value.typeName.identifier.position
-                : this.value.typeName.position;
-        this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: paramPosition.startLine,
-            startColumn: paramPosition.startColumn,
-            endLine: paramPosition.startLine,
-            endColumn: paramPosition.startColumn
-        });
+        this.typeDef = getTypeOfInputParam(this.value, this.context.ballerinaVersion);
 
         if (this.typeDef) {
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", undefined, this.context.collapsedFields);
