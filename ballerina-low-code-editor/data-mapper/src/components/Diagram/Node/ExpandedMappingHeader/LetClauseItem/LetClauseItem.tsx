@@ -17,6 +17,7 @@ import {
     CaptureBindingPattern,
     LetClause,
     LetVarDecl,
+    NodePosition,
     QueryExpression,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
@@ -64,7 +65,7 @@ export function LetClauseItem(props: {
         }
     }
 
-    const onEdit = async () => {
+    const onEdit = () => {
         context.handleFieldToBeEdited(`${itemIndex}`);
         onEditClick();
     }
@@ -77,7 +78,8 @@ export function LetClauseItem(props: {
         if (key === "Enter") {
             setLoading(true);
             try {
-                const workspaceEdit = await getRenameEdits(context.filePath, updatedName, node.position, context.langClientPromise);
+                const workspaceEdit = await getRenameEdits(context.filePath, updatedName,
+                                                            node.position as NodePosition, context.langClientPromise);
                 const modifications: STModification[] = []
 
                 Object.values(workspaceEdit?.changes).forEach(edits => {

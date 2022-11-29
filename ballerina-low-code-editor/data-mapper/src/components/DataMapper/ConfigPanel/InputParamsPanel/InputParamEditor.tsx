@@ -17,9 +17,6 @@ import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/
 import styled from "@emotion/styled";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import camelCase from 'lodash.camelcase';
-import { CompletionItemKind } from "vscode-languageserver-protocol";
-import { Uri } from "monaco-editor";
-import { addToTargetPosition, CompletionParams } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { CurrentFileContext } from "../../Context/current-file-context";
 import { LSClientContext } from "../../Context/ls-client-context";
@@ -73,7 +70,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
     const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
 
     useEffect(() => {
-        (async () => {
+        void (async () => {
             setFetchingCompletions(true);
             const allCompletions = await getRecordCompletions(currentFileContent, langClientPromise, imports,
                                             fnSTPosition , path)

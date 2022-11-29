@@ -7,7 +7,7 @@ import { DefaultLinkSegmentWidget } from "./DefaultLinkSegmentWidget";
 export class DefaultLinkWidget extends ReactDiagramDefaultLinkWidget {
     generateLink(
         path: string,
-        extraProps: any,
+        extraProps: React.Attributes,
         id: string | number
     ): JSX.Element {
         const ref = React.createRef<SVGPathElement>();

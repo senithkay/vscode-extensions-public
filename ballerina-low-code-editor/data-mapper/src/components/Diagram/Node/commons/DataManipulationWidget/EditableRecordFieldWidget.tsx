@@ -18,7 +18,8 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic } from "vscode-languageserver-protocol";
 import classnames from "classnames";
 
 import ErrorIcon from "../../../../../assets/icons/Error";
@@ -74,7 +75,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             if (!context.isStmtEditorCanceled) {
                 handleEditValue();
             } else {
-                handleDeleteValue();
+                void handleDeleteValue();
                 context.handleFieldToBeEdited(undefined);
             }
         }
@@ -105,8 +106,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         if (field.value && STKindChecker.isSpecificField(field.value)) {
             props.context.enableStatementEditor({
                 value: field.value.valueExpr.source,
-                valuePosition: field.value.valueExpr.position,
-                label: field.value.fieldName.value
+                valuePosition: field.value.valueExpr.position as NodePosition,
+                label: field.value.fieldName.value as string
             });
         }
     };
@@ -151,14 +152,15 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         fieldName = field.parentType.type?.name ? `${field.parentType.type?.name}Item` : 'item';
     }
 
-    const diagnostic = specificField.valueExpr?.typeData?.diagnostics[0]
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const diagnostic = (specificField.valueExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
 
     const label = (
         <span style={{ marginRight: "auto" }}>
             <span
                 className={classnames(classes.valueLabel,
                     (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
-                style={{ marginLeft: !!fields ? 0 : indentation + 24 }}
+                style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
                 {fieldName}
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}

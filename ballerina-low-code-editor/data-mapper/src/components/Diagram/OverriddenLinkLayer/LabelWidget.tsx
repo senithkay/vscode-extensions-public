@@ -9,20 +9,19 @@ export interface LabelWidgetProps {
 	index: number;
 }
 
-namespace S {
-	export const Label = styled.div`
-		display: inline-block;
-		position: absolute;
-	`;
+export const Label = styled.div`
+	display: inline-block;
+	position: absolute;
+`;
 
-	export const Foreign = styled.foreignObject`
-		pointer-events: none;
-		overflow: visible;
-		&:focus {
-			outline: none;
-		}
-	`;
-}
+export const Foreign = styled.foreignObject`
+	pointer-events: none;
+	overflow: visible;
+	&:focus {
+		outline: none;
+	}
+`;
+
 
 export class OveriddenLabelWidget extends React.Component<LabelWidgetProps> {
 	ref: React.RefObject<HTMLDivElement>;
@@ -94,11 +93,11 @@ export class OveriddenLabelWidget extends React.Component<LabelWidgetProps> {
 
 		return (
 			<LinkOveryPortal>
-				<S.Foreign key={this.props.label.getID()} width={canvas?.offsetWidth} height={canvas?.offsetHeight}>
-				<S.Label ref={this.ref}>
-						{this.props.engine.getFactoryForLabel(this.props.label).generateReactWidget({ model: this.props.label })}
-					</S.Label>
-				</S.Foreign>
+				<Foreign key={this.props.label.getID()} width={canvas?.offsetWidth} height={canvas?.offsetHeight}>
+				<Label ref={this.ref}>
+					{this.props.engine.getFactoryForLabel(this.props.label).generateReactWidget({ model: this.props.label })}
+				</Label>
+				</Foreign>
 			</LinkOveryPortal>
 		);
 	}

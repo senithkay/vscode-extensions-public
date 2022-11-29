@@ -45,7 +45,7 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
         )
     }
 
-    generateModel(event: { initialConfig: any }): any {
+    generateModel(): RequiredParamNode {
         return undefined;
     }
 }

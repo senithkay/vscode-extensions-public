@@ -14,7 +14,7 @@
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
-import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams-core';
+import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
@@ -62,7 +62,7 @@ export class LetClauseNodeFactory extends AbstractReactFactory<LetClauseNode, Di
         )
     }
 
-    generateModel(event: { initialConfig: any }): any {
+    generateModel(): LetClauseNode {
         return undefined;
     }
 }

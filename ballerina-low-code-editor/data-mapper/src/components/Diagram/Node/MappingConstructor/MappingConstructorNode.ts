@@ -11,11 +11,13 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ExpressionFunctionBody,
     IdentifierToken,
     MappingConstructor,
+    NodePosition,
     SelectClause,
     STKindChecker,
     STNode,
@@ -63,11 +65,11 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         );
     }
 
-    async initPorts() {
+    initPorts(): void {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
         const typeIdentifierPosition = STKindChecker.isQualifiedNameReference(this.typeIdentifier)
-            ? this.typeIdentifier.identifier.position
-            : this.typeIdentifier.position;
+            ? this.typeIdentifier.identifier.position as NodePosition
+            : this.typeIdentifier.position as NodePosition;
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
             startLine: typeIdentifierPosition.startLine,
             startColumn: typeIdentifierPosition.startColumn,
@@ -78,7 +80,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)){
-                this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
+                this.rootName = this.typeIdentifier.value as string || this.typeIdentifier.source;
             }
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
@@ -88,7 +90,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordField = valueEnrichedType;
-                if (!!this.recordField.childrenTypes.length) {
+                if (this.recordField.childrenTypes.length) {
                     this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
                             MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
@@ -100,7 +102,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             ) {
                 // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
                 this.recordField = valueEnrichedType.elements[0].member;
-                if (!!this.recordField.childrenTypes.length) {
+                if (this.recordField.childrenTypes.length) {
                     this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
                             MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
@@ -113,7 +115,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         }
     }
 
-    async initLinks() {
+    initLinks(): void {
         const mappings = this.genMappings(this.value.expression as MappingConstructor);
         this.createLinks(mappings);
     }
@@ -132,7 +134,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
             const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
-            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
+            const lm = new DataMapperLinkModel(value,
+                                            filterDiagnostics(this.context.diagnostics, value.position as NodePosition),
+                                            true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
@@ -143,7 +147,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                         ? field.valueExpr
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
-                        ? field.fieldName.value
+                        ? field.fieldName.value as string
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field),
                 }));
@@ -172,9 +176,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             await this.context.applyModifications([{
                 type: "DELETE",
                 ...field.valueExpr?.position
-            }]);
+            } as STModification]);
         } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position as NodePosition, this.value.expression);
             traversNode(this.value.expression, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
 

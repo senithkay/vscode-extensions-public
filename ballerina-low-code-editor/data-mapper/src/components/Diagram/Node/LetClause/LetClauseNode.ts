@@ -15,6 +15,7 @@ import {
     CaptureBindingPattern,
     LetClause,
     LetVarDecl,
+    NodePosition,
     RecordTypeDesc,
     SimpleNameReference,
     STKindChecker
@@ -46,8 +47,8 @@ export class LetClauseNode extends DataMapperNodeModel {
         this.numberOfFields = 1;
     }
 
-    async initPorts() {
-        await this.getSourceType();
+    initPorts(): void {
+        this.getSourceType();
         if (this.sourceBindingPattern) {
             const name = this.sourceBindingPattern.variableName.value;
 
@@ -72,18 +73,19 @@ export class LetClauseNode extends DataMapperNodeModel {
         // Currently, we create links from "IN" ports and back tracing the inputs.
     }
 
-    private async getSourceType() {
+    private getSourceType() {
         const expr = (this.value.letVarDeclarations[0] as LetVarDecl)?.expression;
         const bindingPattern = (this.value.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
+            const exprPosition = expr.position as NodePosition;
 
             const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
             const type = recordTypeDescriptors.getTypeDescriptor({
-                startLine: expr.position.startLine,
-                startColumn: expr.position.startColumn,
-                endLine: expr.position.endLine,
-                endColumn: expr.position.endColumn
+                startLine: exprPosition.startLine,
+                startColumn: exprPosition.startColumn,
+                endLine: exprPosition.endLine,
+                endColumn: exprPosition.endColumn
             });
             if (type && type.typeName === PrimitiveBalType.Record) {
                 this.typeDef = type;

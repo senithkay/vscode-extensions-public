@@ -50,13 +50,13 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
 
         if (addIndex >= 0 && insertAfterNode) {
             addPosition = {
-                ...insertAfterNode.position,
-                startColumn: insertAfterNode.position.endColumn
+                ...insertAfterNode.position as NodePosition,
+                startColumn: (insertAfterNode.position as NodePosition).endColumn
             };
         } else {
             addPosition = {
-                ...queryExprNode.queryPipeline.fromClause.position,
-                startColumn: queryExprNode.queryPipeline.fromClause.position.endColumn
+                ...queryExprNode.queryPipeline.fromClause.position as NodePosition,
+                startColumn: (queryExprNode.queryPipeline.fromClause.position as NodePosition).endColumn
             }
         }
 

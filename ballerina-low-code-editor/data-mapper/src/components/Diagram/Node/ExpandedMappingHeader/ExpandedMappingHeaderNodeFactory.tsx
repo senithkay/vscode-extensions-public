@@ -38,7 +38,7 @@ export class ExpandedMappingHeaderNodeFactory extends AbstractReactFactory<Expan
         );
     }
 
-    generateModel(event: { initialConfig: any }): any {
+    generateModel(): ExpandedMappingHeaderNode {
         return undefined;
     }
 }

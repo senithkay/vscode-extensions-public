@@ -117,7 +117,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
 
     const typeName = getTypeName(field);
 
-    const indentation = !!fields ? 0 : ((treeDepth + 1) * 16) + 8;
+    const indentation = fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
         <span style={{ marginRight: "auto" }}>

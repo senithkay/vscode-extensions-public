@@ -120,7 +120,7 @@ export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic
 	Promise<CodeAction[]> => {
 
 	const langClient = await langClientPromise;
-	let codeActions: any[] = []
+	let codeActions: CodeAction[] = []
 
 	for (const diagnostic of diagnostics) {
 		const codeAction = await getCodeAction(Uri.file(fileURI).toString(), diagnostic, langClient)

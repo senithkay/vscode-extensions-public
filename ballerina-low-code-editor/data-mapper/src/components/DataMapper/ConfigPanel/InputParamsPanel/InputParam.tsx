@@ -75,7 +75,7 @@ const EditButton = styled(ButtonWithIcon)`
     color: #36B475;
 `;
 
-const InputParamContainer = styled.div((props) => ({
+const InputParamContainer = styled.div(() => ({
     background: 'white',
     padding: 10,
     borderRadius: 5,

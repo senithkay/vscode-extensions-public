@@ -1,5 +1,5 @@
 import { LayerModel, LayerModelGenerics } from '@projectstorm/react-canvas-core';
-import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { OverlayModel } from './OverlayModel/OverlayModel';
 
 export interface OverlayLayerModelGenerics extends LayerModelGenerics {

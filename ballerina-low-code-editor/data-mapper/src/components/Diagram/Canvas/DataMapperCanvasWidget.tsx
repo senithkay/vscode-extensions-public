@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from '@emotion/styled';
-import { CanvasEngine, TransformLayerWidget, SmartLayerWidget } from '@projectstorm/react-canvas-core'
+import { CanvasEngine, CanvasEngineListener, ListenerHandle, TransformLayerWidget, SmartLayerWidget } from '@projectstorm/react-canvas-core'
 import { OverlayLayerModel } from '../OverlayLayer/OverlayLayerModel';
 
 export interface DiagramProps {
@@ -8,24 +8,22 @@ export interface DiagramProps {
 	className?: string;
 }
 
-namespace S {
-	export const Canvas = styled.div`
-		position: relative;
-		cursor: move;
-		overflow: hidden;
-		& > svg {
-			overflow: visible;
-		}
-	`;
-}
+export const Canvas = styled.div`
+	position: relative;
+	cursor: move;
+	overflow: hidden;
+	& > svg {
+		overflow: visible;
+	}
+`;
 
 export const DMCanvasContainerID = "data-mapper-canvas-container";
 
 export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 	ref: React.RefObject<HTMLDivElement>;
-	keyUp: any;
-	keyDown: any;
-	canvasListener: any;
+	keyUp: (this: Document, event: KeyboardEvent) => void;
+	keyDown: (this: Document, event: KeyboardEvent) => void;
+	canvasListener: CanvasEngineListener | ListenerHandle;
 
 	constructor(props: DiagramProps) {
 		super(props);
@@ -63,11 +61,13 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 			}
 		});
 
-		this.keyDown = (event: any) => {
-			this.props.engine.getActionEventBus().fireAction({ event });
+		this.keyDown = (event: KeyboardEvent) => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+			this.props.engine.getActionEventBus().fireAction({ event: event as any });
 		};
-		this.keyUp = (event: any) => {
-			this.props.engine.getActionEventBus().fireAction({ event });
+		this.keyUp = (event: KeyboardEvent) => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+			this.props.engine.getActionEventBus().fireAction({ event: event as any });
 		};
 
 		document.addEventListener('keyup', this.keyUp);
@@ -85,7 +85,7 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
         const reArrangedLayers = [...nonSVGLayers, ...svgLayers, ...overlayLayers];
 
 		return (
-			<S.Canvas
+			<Canvas
 				id={DMCanvasContainerID}
 				className={this.props.className}
 				ref={this.ref}
@@ -118,7 +118,7 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 						</TransformLayerWidget>
 					);
 				})}
-			</S.Canvas>
+			</Canvas>
 		);
 	}
 }

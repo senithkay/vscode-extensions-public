@@ -13,7 +13,6 @@
 import {
     FieldAccess,
     OptionalFieldAccess,
-    QueryExpression,
     STKindChecker,
     STNode,
     Visitor
@@ -42,11 +41,11 @@ export class FieldAccessFindingVisitor implements Visitor {
         }
     }
 
-    public beginVisitQueryExpression(node: QueryExpression, parent?: STNode){
+    public beginVisitQueryExpression(){
         this.queryExpressionDepth += 1;
     }
 
-    public endVisitQueryExpression(node: QueryExpression, parent?: STNode){
+    public endVisitQueryExpression(){
         this.queryExpressionDepth -= 1;
     }
 

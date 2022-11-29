@@ -13,13 +13,10 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useState } from "react";
 
-import { Button, Divider, MenuItem, MenuList, withStyles } from "@material-ui/core";
+import { MenuItem, withStyles } from "@material-ui/core";
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
-import { Build } from "@material-ui/icons";
-import * as MonacoEditor from 'monaco-editor';
-import { CodeAction, Diagnostic, TextDocumentEdit, TextEdit } from "vscode-languageserver-protocol";
+import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-protocol";
 
-import ErrorIcon from "../../../../assets/icons/Error";
 import { tooltipBaseStyles, useStyles } from "../style";
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -65,7 +62,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
             }
         );
         modifications.sort((a, b) => a.startLine - b.startLine)
-        context.applyModifications(modifications);
+        void context.applyModifications(modifications);
     };
 
     if (additionalActions && additionalActions.length > 0) {

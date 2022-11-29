@@ -21,7 +21,7 @@ export class BinaryExpressionNodeFactory extends AbstractReactFactory<BinaryExpr
 		return <BinaryExpressionNodeWidget engine={this.engine} node={event.model} />;
 	}
 
-	generateModel(event: { initialConfig: any }): any {
+	generateModel(): BinaryExpressionNode {
 		return undefined;
 	}
 }

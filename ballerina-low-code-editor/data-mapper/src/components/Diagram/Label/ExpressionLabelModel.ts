@@ -1,6 +1,6 @@
 import { BaseModelOptions, DeserializeEvent } from '@projectstorm/react-canvas-core';
 import { LabelModel } from '@projectstorm/react-diagrams';
-import { STNode } from '@wso2-enterprise/syntax-tree';
+import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../Link';
@@ -35,6 +35,7 @@ export class ExpressionLabelModel extends LabelModel {
 		this.link = options.link;
 		this.field = options.field;
 		this.editorLabel = options.editorLabel;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		this.updateSource = this.updateSource.bind(this);
 		this.deleteLink = options.deleteLink;
 	}
@@ -51,19 +52,20 @@ export class ExpressionLabelModel extends LabelModel {
 		this.value = event.data.value;
 	}
 
-	async updateSource() {
+	updateSource(): void {
+		const valueNodePosition = this.valueNode.position as NodePosition;
 		const modifications = [
 			{
 				type: "INSERT",
 				config: {
 					"STATEMENT": this.value,
 				},
-				endColumn: this.valueNode.position.endColumn,
-				endLine: this.valueNode.position.endLine,
-				startColumn: this.valueNode.position.startColumn,
-				startLine: this.valueNode.position.startLine
+				endColumn: valueNodePosition.endColumn,
+				endLine: valueNodePosition.endLine,
+				startColumn: valueNodePosition.startColumn,
+				startLine: valueNodePosition.startLine
 			}
 		];
-		this.context.applyModifications(modifications);
+		void this.context.applyModifications(modifications);
 	}
 }

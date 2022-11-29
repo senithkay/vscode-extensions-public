@@ -48,7 +48,7 @@ export function WhereClauseItem(props: {
         }
     }
 
-    const onEdit = async () => {
+    const onEdit = () => {
         context.handleFieldToBeEdited(`${itemIndex}`);
         onEditClick();
     }

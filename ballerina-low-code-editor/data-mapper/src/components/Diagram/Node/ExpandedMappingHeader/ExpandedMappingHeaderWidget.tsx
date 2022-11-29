@@ -13,8 +13,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
     LetVarDecl,
+    NodePosition,
     STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
@@ -41,7 +43,7 @@ export function ExpandedMappingHeaderWidget(
         if (STKindChecker.isWhereClause(editNode)) {
             node.context.enableStatementEditor({
                 value: editNode.expression?.source,
-                valuePosition: editNode.expression?.position,
+                valuePosition: editNode.expression?.position as NodePosition,
                 label: "Where clause",
             });
         } else if (
@@ -52,20 +54,20 @@ export function ExpandedMappingHeaderWidget(
                 value: (editNode.letVarDeclarations[0] as LetVarDecl)
                     ?.expression?.source,
                 valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)
-                    ?.expression?.position,
+                    ?.expression?.position as NodePosition,
                 label: "Let clause",
             });
         } else if (STKindChecker.isFromClause(editNode)) {
             node.context.enableStatementEditor({
                 value: editNode.expression.source,
-                valuePosition: editNode.expression.position,
+                valuePosition: editNode.expression.position as NodePosition,
                 label: "From clause",
             });
         }
     };
 
     const deleteWhereClause = async (clauseItem: STNode) => {
-        await node.context.applyModifications([{ type: "DELETE", ...clauseItem.position }]);
+        await node.context.applyModifications([{ type: "DELETE", ...clauseItem.position } as STModification]);
     };
 
     const fromClause = props.node.queryExpr.queryPipeline.fromClause;

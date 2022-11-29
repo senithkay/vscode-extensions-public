@@ -5,10 +5,6 @@ import { LinkLayerWidgetProps } from '@projectstorm/react-diagrams';
 import { OveriddenLinkWidget } from './LinkWidget';
 import { LinkOverayContainerID } from './LinkOverlayPortal';
 
-namespace S {
-	export const Container = styled.div``;
-}
-
 export class OveriddenLinkLayerWidget extends React.Component<LinkLayerWidgetProps> {
 	render() {
 		return (

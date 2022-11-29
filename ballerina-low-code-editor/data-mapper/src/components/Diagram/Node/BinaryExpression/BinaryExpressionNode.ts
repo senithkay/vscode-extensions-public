@@ -1,4 +1,4 @@
-import { BinaryExpression, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { BinaryExpression, STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 

@@ -13,16 +13,16 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";
 
-import { TreeContainer, TreeHeader, TreeBody } from './Tree/Tree';
+import { TreeContainer, TreeHeader } from './Tree/Tree';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
     createStyles({
         typeLabel: {
             marginLeft: "3px",
@@ -76,6 +76,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
 
     let expanded = true;
     if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         expanded = false;
     }
 

@@ -36,10 +36,10 @@ export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveType
 	}
 
 	generateReactWidget(event: { model: PrimitiveTypeNode; }): JSX.Element {
-		let valueLabel;
+		let valueLabel: string;
 		let isParentSelectClause;
 		if (STKindChecker.isSelectClause(event.model.value)){
-			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
+			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 			isParentSelectClause = true;
 		}
 		return (
@@ -57,7 +57,7 @@ export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveType
 		);
 	}
 
-	generateModel(event: { initialConfig: any }): any {
+	generateModel(): PrimitiveTypeNode {
 		return undefined;
 	}
 }

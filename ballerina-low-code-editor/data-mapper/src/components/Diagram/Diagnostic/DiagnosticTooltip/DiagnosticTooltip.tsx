@@ -42,7 +42,7 @@ export function DiagnosticTooltip(props: Partial<Props>) {
 
     const codeRef = (ref: HTMLPreElement) => {
         if (ref) {
-            MonacoEditor.editor.colorizeElement(ref, { theme: 'choreoLightTheme' });
+            void MonacoEditor.editor.colorizeElement(ref, { theme: 'choreoLightTheme' });
         }
     }
 

@@ -6,8 +6,4 @@ export class FieldAccessToSpecificFied {
 		public value: FieldAccess | OptionalFieldAccess | SimpleNameReference,
 		public otherVal: STNode = undefined
 	){}
-
-	public createLink() {
-
-	}
 }

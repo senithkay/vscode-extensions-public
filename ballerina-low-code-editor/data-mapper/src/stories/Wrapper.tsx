@@ -41,7 +41,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
     const { langClientPromise, getFileContent, updateFileContent, filePath, lastUpdatedAt } = props;
     const [didOpen, setDidOpen] = React.useState(false);
     const [fileContent, setFileContent] = React.useState("");
-    const [lastUpdated, setLastUpdated] = React.useState(lastUpdatedAt);
+    const [, setLastUpdated] = React.useState(lastUpdatedAt);
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
 
     const classes = useStyles();
@@ -52,7 +52,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         // return updateFileContent(fPath, newContent);
     }
 
-    const updateActiveFileContent = (content: string, skipForceSave?: boolean) => {
+    const updateActiveFileContent = (content: string) => {
         return updateFileContent(filePath, content);
     }
 
@@ -67,16 +67,11 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         await updateFileContentOverride(filePath, stModifyResp.source);
     }
 
-    const newProps = {
-        ...props,
-        lastUpdatedAt: lastUpdated,
-        updateFileContent: updateFileContentOverride
-    }
-
     useEffect(() => {
         async function getSyntaxTree() {
             if (didOpen) {
                 const langClient = await langClientPromise;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
                     documentIdentifier: {
                         uri: Uri.file(filePath).toString()
@@ -91,7 +86,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
             }
             setFunctionST(undefined);
         }
-        getSyntaxTree();
+        void getSyntaxTree();
     }, [didOpen, fileContent])
 
     useEffect(() => {
@@ -119,9 +114,9 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
             });
             setDidOpen(true);
         }
-        openFileInLS();
+        void openFileInLS();
         return () => {
-            closeFileInLS();
+            void closeFileInLS();
         }
     }, []);
 
@@ -137,7 +132,9 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                         filePath={filePath}
                         applyModifications={applyModifications}
                         updateFileContent={updateActiveFileContent}
+                        // eslint-disable-next-line @typescript-eslint/no-empty-function
                         onClose={() => { }}
+                        // eslint-disable-next-line @typescript-eslint/no-empty-function
                         onSave={() => { }}
                         library={{
                             getLibrariesList: () => Promise.resolve(undefined),
@@ -155,8 +152,8 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                         onChange={
                             // tslint:disable-next-line: jsx-no-lambda
                             (fPath, newContent) => {
-                                updateFileContentOverride(fPath, newContent);
-                                langClientPromise.then((langClient) => {
+                                void updateFileContentOverride(fPath, newContent);
+                                void langClientPromise.then((langClient) => {
                                     langClient.didChange({
                                         textDocument: {
                                             uri: Uri.file(filePath).toString(),

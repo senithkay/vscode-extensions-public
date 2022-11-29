@@ -21,7 +21,7 @@ export class QueryExpressionNodeFactory extends AbstractReactFactory<QueryExpres
 		return <QueryExpressionNodeWidget engine={this.engine} node={event.model} />;
 	}
 
-	generateModel(event: { initialConfig: any }): any {
+	generateModel(): QueryExpressionNode {
 		return undefined;
 	}
 }

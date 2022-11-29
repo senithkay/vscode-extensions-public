@@ -20,7 +20,7 @@ export class LinkConnectorNodeFactory extends AbstractReactFactory<LinkConnector
 		return <LinkConnectorNodeWidget engine={this.engine} node={event.model} />;
 	}
 
-	generateModel(event: { initialConfig: any }): any {
+	generateModel(): LinkConnectorNode {
 		return undefined;
 	}
 }

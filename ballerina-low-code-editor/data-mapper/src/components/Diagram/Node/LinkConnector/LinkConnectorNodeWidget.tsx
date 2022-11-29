@@ -20,7 +20,7 @@ import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
@@ -148,14 +148,14 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         const valueNode = props.node.valueNode;
         if (STKindChecker.isSpecificField(valueNode)) {
             props.node.context.enableStatementEditor({
-                valuePosition: valueNode.valueExpr.position,
+                valuePosition: valueNode.valueExpr.position as NodePosition,
                 value: valueNode.valueExpr.source,
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
                     : props.node.editorLabel)
             });
         } else if(STKindChecker.isBinaryExpression(valueNode)) {
             props.node.context.enableStatementEditor({
-                valuePosition: valueNode.position,
+                valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.portName)
                     : props.node.editorLabel)

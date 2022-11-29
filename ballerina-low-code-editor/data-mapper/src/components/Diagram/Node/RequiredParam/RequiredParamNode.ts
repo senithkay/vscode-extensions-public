@@ -1,6 +1,6 @@
 import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
@@ -24,11 +24,11 @@ export class RequiredParamNode extends DataMapperNodeModel {
         this.numberOfFields = 1;
     }
 
-    async initPorts() {
+    initPorts(): void {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
         const paramPosition = STKindChecker.isQualifiedNameReference(this.value.typeName)
-            ? this.value.typeName.identifier.position
-            : this.value.typeName.position;
+            ? this.value.typeName.identifier.position as NodePosition
+            : this.value.typeName.position as NodePosition;
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
             startLine: paramPosition.startLine,
             startColumn: paramPosition.startColumn,

@@ -1,3 +1,7 @@
+
+/* eslint-disable @typescript-eslint/await-thenable */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -40,7 +44,6 @@ import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import { makeStyles, Theme, createStyles } from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
-import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
 import FitToScreenIcon from "../../assets/icons/fitToScreen";
 import { OFFSETS } from './utils/constants';
 
@@ -163,7 +166,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					const node = nodes[i];
 					node.setModel(newModel);
 					await node.initPorts();
-					await node.initLinks();
+					node.initLinks();
 					engine.repaintCanvas();
 				} catch (e) {
 					console.error(e)
@@ -173,7 +176,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			engine.setModel(newModel);
 			if (newModel.getLinks().length > 0) {
 				dagreEngine.redistribute(newModel);
-				engine.repaintCanvas(true);
+				await engine.repaintCanvas(true);
 			}
 			let requiredParamFields = 0;
 			let numberOfRequiredParamNodes = 0;
@@ -205,7 +208,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			newModel.addLayer(new OverlayLayerModel());
 			setModel(newModel);
 		}
-		genModel();
+		void genModel();
 	}, [nodes]);
 
 	const resetZoomAndOffset = () => {
@@ -226,7 +229,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 						<div className={classes.iconWrap} onClick={resetZoomAndOffset}>
 							<CachedIcon className={classes.icon} />
 						</div>
-						<div className={classes.iconWrap} onClick={() => engine.zoomToFitNodes({ margin: 20 })}>
+						<div className={classes.iconWrap} onClick={() => void engine.zoomToFitNodes({ margin: 20 })}>
 							<FitToScreenIcon />
 						</div>
 					</div>
@@ -236,6 +239,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	);
 
 
-};
+}
 
 export default React.memo(DataMapperDiagram);

@@ -20,7 +20,7 @@
         "moduleResolution": "node",
         "forceConsistentCasingInFileNames": true,
         "noImplicitReturns": false,
-        // "noImplicitThis": false,
+        "noImplicitThis": true,
         "noImplicitAny": true,
         "strictNullChecks": false,
         "suppressImplicitAnyIndexErrors": true,
@@ -31,8 +31,8 @@
         "esModuleInterop": true,
     },
     "include": [
-        "src",
-        "src/custom.d.ts"
+        "./src/**/*.*",
+        "./src/custom.d.ts"
     ],
     "exclude": [
         "node_modules",

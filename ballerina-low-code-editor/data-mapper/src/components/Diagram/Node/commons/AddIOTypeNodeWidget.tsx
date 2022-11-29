@@ -23,11 +23,7 @@ import {
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { default as AddIcon } from  "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { FunctionDefinition, RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
-
-import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { AddOutputTypeNode } from "../AddOutputType";
+import { FunctionDefinition, NodePosition, RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { RecordFromJson } from "./RecordFromJson";
 import { RecordItem } from "./RecordItem";
@@ -83,7 +79,8 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 		const records: React.ReactNode[] = [];
 		const recordTypeDescMap = stSymbolInfo.recordTypeDescriptions;
 		for (const st of recordTypeDescMap.values()) {
-			const recordName = (st as RecordTypeDesc)?.typeData.typeSymbol.name;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+			const recordName = (st as RecordTypeDesc)?.typeData.typeSymbol.name as string;
 			records.push(
 				<RecordItem recordName={recordName} onClickRecordItem={handleSelection} />
 			);
@@ -115,9 +112,9 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 	useEffect(() => {
 		if (selection !== '') {
 			if (title === 'Input') {
-				(async () => {
-					const position = functionST?.functionSignature.openParenToken.position;
-					const modifications = [
+				void (() => {
+					const position = functionST?.functionSignature.openParenToken.position as NodePosition;
+					const modifications: STModification[] = [
 						{
 							type: "INSERT",
 							config: {
@@ -132,9 +129,9 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 					applyModifications(modifications);
 				})();
 			} else {
-				(async () => {
-					const position = functionST.functionSignature.returnTypeDesc.type.position;
-					const modifications = [
+				void (() => {
+					const position = functionST.functionSignature.returnTypeDesc.type.position as NodePosition;
+					const modifications: STModification[] = [
 						{
 							type: "INSERT",
 							config: {

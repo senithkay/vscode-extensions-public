@@ -2,9 +2,8 @@ import styled from "@emotion/styled";
 import { LinearProgress, TextField } from "@material-ui/core";
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { CompletionResponse } from "@wso2-enterprise/ballerina-languageclient";
-import React, { useContext, useEffect, useState } from "react";
-import { CurrentFileContext } from "../Context/current-file-context";
-import { LSClientContext } from "../Context/ls-client-context";
+import React, { useEffect, useState } from "react";
+
 
 export interface TypeBrowserProps {
     type?: string;
@@ -12,8 +11,6 @@ export interface TypeBrowserProps {
     isLoading: boolean;
     recordCompletions: CompletionResponseWithModule[];
 }
-
-const typeLabelsToIgnore = ["StrandData"];
 
 export interface CompletionResponseWithModule extends CompletionResponse {
     module?: string;
@@ -23,10 +20,6 @@ export function TypeBrowser(props: TypeBrowserProps) {
     const { type, onChange, isLoading, recordCompletions } = props;
     const [selectedTypeStr, setSelectedTypeStr] = useState(type?.split(':')?.pop() || '')
 
-    const langClientPromise = useContext(LSClientContext);
-    const { path, content } = useContext(CurrentFileContext);
-
-
     useEffect(() => {
         setSelectedTypeStr(type?.split(':')?.pop() || '')
     }, [type])
@@ -35,7 +28,7 @@ export function TypeBrowser(props: TypeBrowserProps) {
     return (
         <>
             <Autocomplete
-                key={`type-select-${isLoading}`}
+                key={`type-select-${isLoading.toString()}`}
                 getOptionLabel={(option) => option?.insertText}
                 options={recordCompletions}
                 disabled={isLoading}

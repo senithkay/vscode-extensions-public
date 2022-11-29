@@ -228,10 +228,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             let targetPosition: NodePosition;
             let newElementSource: string;
             if (fieldsAvailable) {
-                targetPosition = listConstructor.expressions[listConstructor.expressions.length - 1].position;
+                targetPosition = listConstructor.expressions[listConstructor.expressions.length - 1].position as NodePosition;
                 newElementSource = `,${getLinebreak()}${defaultValue}`
             } else {
-                targetPosition = listConstructor.openBracket.position;
+                targetPosition = listConstructor.openBracket.position as NodePosition;
                 newElementSource = `${getLinebreak()}${defaultValue}`
             }
             const modification = [getModification(newElementSource, {

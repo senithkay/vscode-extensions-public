@@ -61,7 +61,7 @@ export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | Boo
 	| SingletonTypeDesc | StreamTypeDesc | StringTypeDesc | TableTypeDesc | TupleTypeDesc | TypedescTypeDesc | UnionTypeDesc
 	| XmlTypeDesc;
 
-
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IDataMapperNodeFactory {
 
 }
@@ -91,10 +91,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	// extend this class to add link init, port init logics
 
 	protected addPortsForInputRecordField(field: Type, type: "IN" | "OUT", parentId: string,
-										                             portPrefix?: string,
-										                             parent?: RecordFieldPortModel,
-										                             collapsedFields?: string[],
-										                             hidden? : boolean) : number {
+																	portPrefix?: string,
+																	parent?: RecordFieldPortModel,
+																	collapsedFields?: string[],
+																	hidden? : boolean) : number {
 		const fieldName = field?.name ? getBalRecFieldName(field.name) : '';
 		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
@@ -117,13 +117,13 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
-										                              parentId: string, elementIndex?: number,
-										                              portPrefix?: string,
-										                              parent?: RecordFieldPortModel,
-										                              collapsedFields?: string[],
-										                              hidden?: boolean,
-										                              isWithinSelectClause?: boolean
-																	 ) {
+																	parentId: string, elementIndex?: number,
+																	portPrefix?: string,
+																	parent?: RecordFieldPortModel,
+																	collapsedFields?: string[],
+																	hidden?: boolean,
+																	isWithinSelectClause?: boolean
+																	) {
 		const fieldName = getFieldName(field);
 		if (elementIndex !== undefined) {
 			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
@@ -156,9 +156,9 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForHeaderField(field: Type, name: string, type: "IN" | "OUT",
-									                         portPrefix?: string,
-									                         collapsedFields?: string[],
-									                         isWithinSelectClause?: boolean) : RecordFieldPortModel {
+															portPrefix?: string,
+															collapsedFields?: string[],
+															isWithinSelectClause?: boolean) : RecordFieldPortModel {
 		const fieldName = getBalRecFieldName(name);
 		const portName = portPrefix ? `${portPrefix}.${fieldName}` : fieldName;
 		const isCollapsed = collapsedFields && collapsedFields.includes(portName);

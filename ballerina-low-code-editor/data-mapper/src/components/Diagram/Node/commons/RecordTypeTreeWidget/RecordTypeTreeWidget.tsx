@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import styled from '@emotion/styled';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';

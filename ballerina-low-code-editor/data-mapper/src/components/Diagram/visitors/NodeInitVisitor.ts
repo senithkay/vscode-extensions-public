@@ -1,10 +1,10 @@
 import {
-    BinaryExpression,
     ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
     LetVarDecl,
     ListConstructor,
+    NodePosition,
     QueryExpression,
     SelectClause,
     SimpleNameReference,
@@ -36,14 +36,14 @@ export class NodeInitVisitor implements Visitor {
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
     private specificFields: SpecificField[] = [];
-    private isWithinQuery: number = 0;
+    private isWithinQuery = 0;
 
     constructor(
         private context: DataMapperContext,
         private selection: SelectionState
     ) { }
 
-    beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
+    beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
         if (typeDesc) {
             this.outputNode = new MappingConstructorNode(
@@ -55,7 +55,7 @@ export class NodeInitVisitor implements Visitor {
         }
         // create input nodes
         const params = node.functionSignature.parameters;
-        if (!!params.length) {
+        if (params.length) {
             for (let i = 0; i < params.length; i++) {
                 const param = params[i];
                 if (STKindChecker.isRequiredParam(param)) {
@@ -73,15 +73,13 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    beginVisitBinaryExpression(node: BinaryExpression, parent?: STNode) {
-    };
-
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
         const selectedSTNode = this.selection.selectedST.stNode;
-        if (STKindChecker.isSpecificField(selectedSTNode)
-            && node.position.startLine === selectedSTNode.valueExpr.position.startLine
-            && node.position.startColumn === selectedSTNode.valueExpr.position.startColumn) {
+        const nodePosition: NodePosition = node.position as NodePosition;
+        if (STKindChecker.isSpecificField(selectedSTNode) 
+            && nodePosition.startLine === (selectedSTNode.valueExpr.position as NodePosition).startLine
+            && nodePosition.startColumn === (selectedSTNode.valueExpr.position as NodePosition).startColumn) {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
                 const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 65;
                 const addInitialClauseHeight = 65;
@@ -122,7 +120,7 @@ export class NodeInitVisitor implements Visitor {
                             )?.name?.value !== "EXPRESSION"
                     );
 
-                for (let [index, item] of letClauses.entries()) {
+                for (const [, item] of letClauses.entries()) {
                     const paramNode = new LetClauseNode(this.context, item as LetClause);
                     paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
                     this.inputNodes.push(paramNode);
@@ -138,12 +136,12 @@ export class NodeInitVisitor implements Visitor {
             this.intermediateNodes.push(queryNode);
             this.isWithinQuery += 1;
         }
-    };
+    }
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         const selectedSTNode = this.selection.selectedST.stNode;
-        if (selectedSTNode.position.startLine !== node.position.startLine
-            && selectedSTNode.position.startColumn !== node.position.startColumn) {
+        if ((selectedSTNode.position as NodePosition).startLine !== (node.position as NodePosition).startLine
+            && (selectedSTNode.position as NodePosition).startColumn !== (node.position as NodePosition).startColumn) {
             this.specificFields.push(node)
         }
         if (this.isWithinQuery === 0
@@ -159,7 +157,7 @@ export class NodeInitVisitor implements Visitor {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
-                    node.fieldName.value,
+                    node.fieldName.value as string,
                     parent,
                     inputNodes,
                     this.specificFields.slice(0)
@@ -217,19 +215,11 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
+    endVisitQueryExpression?() {
         this.isWithinQuery -= 1;
-
-    };
-
-    endVisitBinaryExpression(node: BinaryExpression, parent?: STNode) {
-
-    };
-
-    endVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
     }
 
-    endVisitSpecificField(node: SpecificField, parent?: STNode) {
+    endVisitSpecificField() {
         if (this.specificFields.length > 0) {
             this.specificFields.pop()
         }

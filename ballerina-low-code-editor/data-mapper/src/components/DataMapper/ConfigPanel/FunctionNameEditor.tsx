@@ -4,7 +4,7 @@ import { FormTextInput } from "@wso2-enterprise/ballerina-low-code-edtior-ui-com
 
 export interface FunctionNameEditorProps {
     value: string;
-    onBlur: (event: any) => void;
+    onBlur: (event: unknown) => void;
     onChange: (newVal: string) => void;
     errorMessage?: string;
 }
