@@ -19,6 +19,7 @@
 
 import { commands, ExtensionContext, OpenDialogOptions, ProgressLocation, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
+import { randomUUID } from "crypto";
 import { existsSync } from "fs";
 import path, { join } from "path";
 import { debounce } from "lodash";
@@ -26,13 +27,11 @@ import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { ComponentModel, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
+import { AddComponentDetails, ComponentModel, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
 import { createTerminal } from "../project";
 import { addToWorkspace, getCurrenDirectoryPath } from "../utils/project-utils";
 import { runCommand } from "../testing/runner";
-import { randomUUID } from "crypto";
-import { AddComponentDetails } from "../../web/project-design-diagrams/src/resources";
 
 let context: ExtensionContext;
 let langClient: ExtendedLangClient;

@@ -107,7 +107,11 @@ export function EditForm(props: EditFormProps) {
         let validatedName: string = component.name.split(PackageNameAntiRegex).reduce((composedName: string, subname: string) =>
                 composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
 
-        createService({...component, package: component.package || validatedName});
+        createService({...component, package: component.package || validatedName}).then(() => {
+            closeForm();
+        }).catch((e) => {
+            console.log(e);
+        });
     }
 
     return ReactDOM.createPortal(
