@@ -16,7 +16,7 @@ import * as React from 'react';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
@@ -25,6 +25,7 @@ import { getTypeName } from "../../../utils/dm-utils";
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
 import { TreeContainer, TreeHeader, TreeBody } from '../Tree/Tree';
 import { IconButton } from '@material-ui/core';
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../../utils/constants';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -64,6 +65,14 @@ const useStyles = makeStyles((theme: Theme) =>
             height: "25px",
             width: "25px",
             marginLeft: "auto"
+        },
+        queryPortWrap: {
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center'
         }
     }),
 );
@@ -110,9 +119,15 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
         handleCollapse(id, !expanded);
     }
 
+    /** Invisible port to which the right angle link from the query header/clauses are connected to */
+    const invisiblePort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
     return (
         <TreeContainer>
+            <div className={classes.queryPortWrap}>
+                {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
+            </div>
+
             <TreeHeader>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&

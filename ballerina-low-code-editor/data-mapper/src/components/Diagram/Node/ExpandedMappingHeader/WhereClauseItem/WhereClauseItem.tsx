@@ -17,7 +17,6 @@ import { QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { useStyles } from "../styles";
 import { ClauseAddButton } from "../ClauseAddButton";
-import clsx from "clsx";
 import { CircularProgress } from "@material-ui/core";
 
 export function WhereClauseItem(props: {
@@ -28,14 +27,8 @@ export function WhereClauseItem(props: {
     queryExprNode: QueryExpression;
     itemIndex: number;
 }) {
-    const {
-        onEditClick,
-        onDeleteClick,
-        intermediateNode,
-        context,
-        queryExprNode,
-        itemIndex,
-    } = props;
+    const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } =
+        props;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
 
@@ -46,40 +39,27 @@ export function WhereClauseItem(props: {
         } finally {
             setLoading(false);
         }
-    }
-
-    const onEdit = () => {
-        context.handleFieldToBeEdited(`${itemIndex}`);
-        onEditClick();
-    }
+    };
 
     return (
         <>
-            <div className={clsx(classes.element, classes.clauseWrap)}>
-                <div className={classes.clause}>
-                    <span className={classes.clauseBold}>{`${intermediateNode.whereKeyword.value} `}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={onEdit}
-                    >
+            <div className={classes.clauseItem}>
+                <div className={classes.clauseKeyWrap}>{intermediateNode.whereKeyword.value}</div>
+
+                <div className={classes.clauseWrap}>
+                    <span className={classes.clauseExpression} onClick={onEditClick}>
                         {intermediateNode.expression.source}
                     </span>
                 </div>
-                {isLoading || context.fieldToBeEdited === `${itemIndex}` ? (
+
+                {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline
-                        className={clsx(classes.deleteIcon)}
-                        onClick={onDelete}
-                    />
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} />
                 )}
             </div>
-            <ClauseAddButton
-                context={context}
-                queryExprNode={queryExprNode}
-                addIndex={itemIndex}
-                visibleOnlyOnHover
-            />
+
+            <ClauseAddButton context={context} queryExprNode={queryExprNode} addIndex={itemIndex} />
         </>
     );
 }

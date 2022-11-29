@@ -370,7 +370,9 @@ export function addImportStatements(
     modulesToBeImported: string[]): string {
     let moduleList: string = "";
     modulesToBeImported.forEach(module => {
-        moduleList += "import " + module + "; ";
+        if (!currentFileContent.includes(module)){
+            moduleList += "import " + module + ";"; // INFO: Adding new line fix comes with code action PR
+        }
     });
     return moduleList + currentFileContent;
 }
