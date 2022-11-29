@@ -129,6 +129,14 @@ export enum Views {
     L2_SERVICES = 'S2'
 }
 
+export interface AddComponentDetails {
+    name: string;
+    version: string;
+    organization: string;
+    package: string;
+    directory: string;
+}
+
 export enum Level {
     ONE = 1,
     TWO = 2

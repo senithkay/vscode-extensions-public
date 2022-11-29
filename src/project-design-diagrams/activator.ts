@@ -17,7 +17,7 @@
  *
  */
 
-import { commands, ExtensionContext, OpenDialogOptions, ViewColumn, WebviewPanel, window, workspace } from "vscode";
+import { commands, ExtensionContext, OpenDialogOptions, ProgressLocation, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import path, { join } from "path";
@@ -28,9 +28,11 @@ import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
 import { ComponentModel, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
-import { createTerminal, runTerminalCommand } from "../project";
-import { getCurrenDirectoryPath } from "../utils/project-utils";
+import { createTerminal } from "../project";
+import { addToWorkspace, getCurrenDirectoryPath } from "../utils/project-utils";
+import { runCommand } from "../testing/runner";
 import { randomUUID } from "crypto";
+import { AddComponentDetails } from "../../web/project-design-diagrams/src/resources";
 
 let context: ExtensionContext;
 let langClient: ExtendedLangClient;
@@ -141,10 +143,7 @@ function setupWebviewPanel() {
             {
                 methodName: "createService",
                 handler: async (args: any[]): Promise<boolean | undefined> => {
-                    const packageName: string = args[0];
-                    const org: string = args[1];
-                    const version: string = args[2];
-                    createService (packageName, org, version);
+                    createService (args[0]);
                     return Promise.resolve(true);
                 }
             },
@@ -204,16 +203,36 @@ function isCompatible(ballerinaExtInstance: BallerinaExtension): boolean {
     }
 }
 
-function createService(packageName: string, orgName?: string, version?: string) {
-    // Navigate to parent dir
-    runTerminalCommand(`cd ../`);
-    runTerminalCommand(`bal new ${packageName} -t service`);
-    runTerminalCommand(`echo created bal module in \"$PWD\"`);
-    // Navigate to new package root
-    runTerminalCommand(`cd ${packageName}`);
-    // Change toml conf
-    runTerminalCommand(`sed -i '' -e 's/org = \"[a-z,A-Z,0-9,_]\\{1,\\}\"/org = "${orgName}"/g' Ballerina.toml`);
-    runTerminalCommand(`sed -i '' -e 's/version = \"[0-9].[0-9].[0-9]\"/org = "${version}"/g' Ballerina.toml`);
-    // Add Display annotation
-    runTerminalCommand(`sed -i '' -e 's/service \\/ on new http:Listener(9090) {/@display {\\n\\tlabel: \"GreetingService\",\\n\\tid: \"GreetingService-${randomUUID()}\"\\n}\\nservice \\/ on new http:Listener(9090) {/g' service.bal`);
+function createService(componentDetail: AddComponentDetails) {
+    const { directory: parentDirPath, package: packageName, name, version, organization: orgName } = componentDetail;
+
+    window.withProgress({
+        location: ProgressLocation.Window,
+        title: "Creating service...",
+        cancellable: false
+    }, async (progress) => {
+        progress.report({ increment: 0, message: "Starting to create the service..."});
+        // Run commands spawning a child process
+        const res = await runCommand('pwd', parentDirPath);
+        progress.report({ increment: 10, message: `Opened the workspace folder at ${res}` });
+        // Create the package
+        await runCommand(`bal new ${packageName} -t service`, parentDirPath);
+        progress.report({ increment: 40, message: `Created the package ${packageName} in the workspace folder` });
+        // Change toml conf
+        await runCommand(`sed -i '' -e 's/org = \"[a-z,A-Z,0-9,_]\\{1,\\}\"/org = "${orgName}"/g' Ballerina.toml`,
+            join(parentDirPath, packageName));
+        progress.report({ increment: 50, message: `Configured organization ${orgName} in package ${packageName}` });
+        await runCommand(`sed -i '' -e 's/org = \"[a-z,A-Z,0-9,_]\\{1,\\}\"/org = "${orgName}"/g' Ballerina.toml`,
+            join(parentDirPath, packageName));
+        progress.report({ increment: 50, message: `Configured organization ${orgName} in package ${packageName}` });
+        await runCommand(`sed -i '' -e 's/version = \"[0-9].[0-9].[0-9]\"/org = "${version}"/g' Ballerina.toml`, join(parentDirPath, packageName));
+        progress.report({ increment: 60, message: `Configured version ${version} in package ${packageName}` });
+        // Add Display annotation
+        await runCommand(`sed -i '' -e 's/service \\/ on new http:Listener(9090) {/@display {\\n\\tlabel: \"${name}\",\\n\\tid: \"${name}-${randomUUID()}\"\\n}\\nservice \\/ on new http:Listener(9090) {/g' service.bal`,
+            join(parentDirPath, packageName));
+        progress.report({ increment: 70, message: `Added service annotation to the service` });
+        // Add the created service package to the current workspace
+        addToWorkspace(join(parentDirPath, packageName));
+        progress.report({ increment: 100, message: `Added the service to the current workspace` });
+    });
 }

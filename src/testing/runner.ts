@@ -163,7 +163,7 @@ export async function runCommand(command, pathToRun: string | undefined) {
                 );
                 reject(err);
             } else {
-                resolve("OK");
+                resolve(stdout);
             }
         });
     });
