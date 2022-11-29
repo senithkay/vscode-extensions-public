@@ -156,7 +156,6 @@ describe("Primitive array field manipulation within mapping constructor", () => 
         DataMapper.targetNodeFieldMenuClick('Output.stArr', "Initialize Array");
         DataMapper.isArrayFieldInitialized('Output.stArr');
         DataMapper.arrayFieldPortDisabled('Output.stArr');
-
     });
 
     it("Add an element to the array field", () => {
@@ -166,6 +165,7 @@ describe("Primitive array field manipulation within mapping constructor", () => 
 
     it("Create mapping between the first array element and source node", () => {
         DataMapper.createMapping('input.st1', 'Output.stArr.0');
+        DataMapper.linkExists('input.st1', 'Output.stArr.0');
     });
 
     it("Add another element to the array field", () => {
@@ -193,5 +193,61 @@ describe("Primitive array field manipulation within mapping constructor", () => 
     it("Delete array assignment for the array field", () => {
         DataMapper.targetNodeFieldMenuClick('Output.stArr', "Delete Array");
         DataMapper.isArrayFieldNotInitialized('Output.stArr')
+    });
+})
+
+
+describe("Record type array field manipulation within mapping constructor", () => {
+    before(() => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM))
+        Canvas.getDataMapper("transform").clickEdit();
+    });
+
+    it("Initialize the record type array field", () => {
+        DataMapper.arrayFieldPortEnabled('Output.Items');
+        DataMapper.targetNodeFieldMenuClick('Output.Items', "Initialize Array");
+        DataMapper.isArrayFieldInitialized('Output.Items');
+        DataMapper.arrayFieldPortDisabled('Output.Items');
+    });
+
+    it("Add an element to the array field", () => {
+        DataMapper.addElementToArrayField('Output.Items');
+        DataMapper.checkRecordArrayFieldElement('Output.Items.0');
+    });
+
+    it("Create an invalid mapping between a string value and first record item in the array", () => {
+        DataMapper.createMapping('input.st1', 'Output.Items.0');
+        DataMapper.linkWithErrorExists('input.st1', 'Output.Items.0');
+        DataMapper.deleteLinkWithDiagnostics('input.st1', 'Output.Items.0');
+    });
+
+    it("Create mapping between a string value and a string field of the first record item in the array", () => {
+        DataMapper.addElementToArrayField('Output.Items');
+        DataMapper.checkRecordArrayFieldElement('Output.Items.0');
+        DataMapper.createMapping('input.st1', 'Output.Items.0.Id');
+        DataMapper.linkExists('input.st1', 'Output.Items.0.Id');
+    });
+
+    it("Edit value of the second element using statement editor", () => {
+        DataMapper.targetNodeFieldMenuClick('Output.Items.0.Confirmed', "Add Value");
+        StatementEditor.shouldBeVisible().getEditorPane();
+        EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
+        InputEditor.typeInput(`true`);
+        EditorPane.reTriggerDiagnostics("TrueKeyword", `true`)
+        StatementEditor.save();
+        DataMapper.checkRecordArrayFieldElementValue('Output.Items.0.Confirmed', `true`);
+    });
+    
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-with-record-array-field.bal");
+    });
+
+    it("Delete link between the input node and the second array element", () => DataMapper.deleteLink('input.st1', 'Output.Items.0.Id'));
+
+    it("Delete first element of the array field", () => DataMapper.targetNodeFieldMenuClick('Output.Items.0.Confirmed', "Delete Value"));
+    
+    it("Delete array assignment for the array field", () => {
+        DataMapper.targetNodeFieldMenuClick('Output.Items', "Delete Array");
+        DataMapper.isArrayFieldNotInitialized('Output.Items')
     });
 })

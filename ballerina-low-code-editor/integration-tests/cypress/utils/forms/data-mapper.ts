@@ -203,6 +203,10 @@ export class DataMapper {
         cy.get(`[data-testid='primitive-array-element-mappingConstructor.${field}.IN']`).should("have.text", value);
     }
 
+    static checkRecordArrayFieldElement(field: string) {
+        cy.get(`[data-testid='record-widget-field-label-mappingConstructor.${field}.IN']`);
+    }
+
     static arrayFieldPortEnabled(field: string) {
         cy.get(`[data-testid='array-type-editable-record-field-mappingConstructor.${field}.IN']`).should('have.css', 'cursor', 'pointer')
     }
@@ -210,6 +214,18 @@ export class DataMapper {
     static arrayFieldPortDisabled(field: string) {
         cy.get(`[data-testid='array-type-editable-record-field-mappingConstructor.${field}.IN']`).should('have.css', 'cursor', 'not-allowed')
     }
+
+    static checkRecordArrayFieldElementValue(field: string, value: string) {
+        cy.get(`[data-testid='record-widget-field-mappingConstructor.${field}.IN']`).should("contain.text", value);
+    }
+
+    // static checkRecordArrayFieldElementEnabled(field: string) {
+    //     cy.get(`[data-name='mappingConstructor.${field}.IN']`).should('have.css', 'cursor', 'pointer')
+    // }
+
+    // static checkRecordArrayFieldElementDisabled(field: string) {
+    //     cy.get(`[data-name='mappingConstructor.${field}.IN']`).should('have.css', 'cursor', 'not-allowed')
+    // }
 
     static saveShouldBeDisabled() {
         this.getForm().contains("Save").should('be.disabled', { timeout: 5000 })
