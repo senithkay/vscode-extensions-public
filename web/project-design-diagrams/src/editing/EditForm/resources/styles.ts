@@ -22,6 +22,8 @@ import styled from '@emotion/styled';
 export const PrimaryContainer = styled.div`
     display: flex;
     flex-direction: column;
+    font-family: GilmerRegular;
+    font-size: 15px;
     height: 100vh;
     width: 370px;
 `;
@@ -44,12 +46,16 @@ export const HeaderTitle = styled.span`
     text-align: center;
 `;
 
+export const TypeLabel = styled.span`
+    padding: 20px 10px 0px 10px;
+`;
+
 export const InputComponent = styled.div`
     display: flex;
     flex-direction: column;
     font-family: GilmerRegular;
     font-size: 15px;
-    padding: 10px;
+    padding: 8px 10px;
 `;
 
 export const ControlsContainer = styled.div`
@@ -64,8 +70,7 @@ export const AdvancedSettings = styled.div`
     border-top: 1px solid #E0E2E9;
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
-    padding: 15px 0px 15px 0px;
+    padding: 10px 0px;
 `;
 
 export const AdvancedControlsHeader = styled.div`
@@ -76,7 +81,7 @@ export const AdvancedControlsHeader = styled.div`
     flex-direction: row;
     justify-content: space-between;
     height: 35px;
-    padding: 0px 10px 0px 10px;
+    padding: 0px 10px;
 `;
 
 export const AdvancedHeaderTitle = styled.span`

@@ -17,6 +17,9 @@
  *
  */
 
+import { SxProps } from "@mui/material";
+import { CSSProperties } from "react";
+
 export const PackageNameRegex: RegExp = new RegExp('^[a-zA-Z0-9\.\_]+$');
 export const OrganizationRegex: RegExp = new RegExp('^[a-zA-Z0-9\_]+$');
 export const VersionRegex: RegExp = new RegExp('^[a-zA-Z0-9\.\-]+$');
@@ -28,3 +31,15 @@ export const OrganizationRules: string = 'Should only contain alphanumerics and 
 export const VersioningRules: string = 'Should follow the SemVer best practices.';
 
 export const ButtonColor: string = '#efeff5';
+
+export const TypeInputProps: SxProps = {
+    fontFamily: 'GilmerRegular',
+    fontSize: '14px',
+    height: '40px',
+    margin: '10px'
+}
+
+export const DefaultTextProps: CSSProperties = {
+    fontFamily: 'GilmerRegular',
+    fontSize: '15px'
+}

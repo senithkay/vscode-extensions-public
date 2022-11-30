@@ -17,34 +17,38 @@
  *
  */
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import { SelectChangeEvent } from '@mui/material/Select';
 import { DiagramContext } from '../../components/common/';
-import {
-    OrganizationRegex, OrganizationRules, PackageNameAntiRegex, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex
-} from './resources/constants';
+import { AddComponentDetails, Colors, ComponentType } from '../../resources';
+import { AdvancedSettingsWidget, BasicSettingsWidget, ControlButton, } from './components';
+import { OrganizationRegex, PackageNameRegex, VersionRegex } from './resources/constants';
 import { ControlsContainer, Header, HeaderTitle, PrimaryContainer } from './resources/styles';
-import { AdvancedSettingsWidget, ControlButton, TextInputWidget } from './components';
-import { AddComponentDetails, Colors } from '../../resources';
+import { initBallerinaComponent, transformComponentName } from './resources/utils';
 
 interface EditFormProps {
     visibility: boolean;
+    defaultOrg: string;
     updateVisibility: (status: boolean) => void;
 }
 
-const emptyInputs = (): AddComponentDetails => {
-    return { name: '', version: '', organization: '', package: '', directory: '' };
-}
-
 export function EditForm(props: EditFormProps) {
-    const { visibility, updateVisibility } = props;
+    const { visibility, defaultOrg, updateVisibility } = props;
     const { createService, pickDirectory } = useContext(DiagramContext);
 
-    const [component, editComponent] = useState<AddComponentDetails>(emptyInputs);
-    const [showAdvancedFeatures, setAdvancedFeatureVisibility] = useState<boolean>(false);
+    const [component, editComponent] = useState<AddComponentDetails>(initBallerinaComponent);
+    const [advancedVisibility, setAdvancedVisibility] = useState<boolean>(false);
+    const [validatedComponentName, setValidatedComponentName] = useState<string>(undefined);
+
+    useEffect(() => {
+        if (defaultOrg) {
+            editComponent({ ...component, org: defaultOrg });
+        }
+    }, [defaultOrg])
 
     const chooseDirectory = () => {
         pickDirectory().then((directoryPath) => {
@@ -53,44 +57,40 @@ export function EditForm(props: EditFormProps) {
     };
 
     const updateName = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        editComponent({
-            ...component,
-            name: event.target.value
-        });
+        editComponent({ ...component, name: event.target.value });
+        if (component.type === ComponentType.BALLERINA) {
+            setValidatedComponentName(transformComponentName(event.target.value));
+        }
     }
 
     const updateVersion = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        editComponent({
-            ...component,
-            version: event.target.value
-        });
+        editComponent({ ...component, version: event.target.value });
     }
 
     const updateOrganization = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        editComponent({
-            ...component,
-            organization: event.target.value
-        });
+        editComponent({ ...component, org: event.target.value });
     }
 
     const updatePackage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        editComponent({
-            ...component,
-            package: event.target.value
-        });
+        editComponent({ ...component, package: event.target.value });
     }
+
+    const updateType = (event: SelectChangeEvent) => {
+        editComponent({ ...component, type: event.target.value });
+    };
 
     const setDirectory = (path: string) => {
-        editComponent({
-            ...component,
-            directory: path
-        });
+        editComponent({ ...component, directory: path });
     }
 
+    const setInitBehaviour = (event: React.ChangeEvent<HTMLInputElement>) => {
+        editComponent({ ...component, initialize: event.target.checked });
+    };
+
     const verifyInputs = (): boolean => {
-        if (component && component.name && OrganizationRegex.test(component.organization) && VersionRegex.test(component.version)
-            && (component.package.length ? PackageNameRegex.test(component.package) : true)
-        ) {
+        if (component && component.name && (component.type === ComponentType.BALLERINA ?
+            ((component.package && PackageNameRegex.test(component.package) || validatedComponentName)
+                && (OrganizationRegex.test(component.org) || defaultOrg) && VersionRegex.test(component.version)) : true)) {
             return true;
         }
         return false;
@@ -98,20 +98,16 @@ export function EditForm(props: EditFormProps) {
 
     const closeForm = () => {
         updateVisibility(false);
-        editComponent(emptyInputs());
+        editComponent(initBallerinaComponent);
     }
 
     const onSubmit = () => {
-        // processes the component name to match the package name conventions
-        // eg: Test-hello-world -> TestHelloWorld
-        let validatedName: string = component.name.split(PackageNameAntiRegex).reduce((composedName: string, subname: string) =>
-                composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
-
-        createService({...component, package: component.package || validatedName}).then(() => {
-            closeForm();
-        }).catch((e) => {
-            console.log(e);
-        });
+        createService({ ...component, package: component.package || validatedComponentName, org: component.org || defaultOrg })
+            .then(() => {
+                closeForm();
+            }).catch((e) => {
+                console.log(e);
+            });
     }
 
     return ReactDOM.createPortal(
@@ -122,42 +118,26 @@ export function EditForm(props: EditFormProps) {
         >
             <PrimaryContainer>
                 <Header>
-                    <HeaderTitle>HTTP Service</HeaderTitle>
+                    <HeaderTitle>Add Component</HeaderTitle>
                     <IconButton size='small' onClick={() => { closeForm() }}>
                         <CloseIcon />
                     </IconButton>
                 </Header>
 
-                <TextInputWidget
-                    label={'Component Name'}
-                    value={component.name}
-                    required={true}
-                    error={component.name.length < 1}
-                    errorMessage={PackageNameRules}
-                    onChange={updateName}
-                />
-                <TextInputWidget
-                    label={'Organization'}
-                    value={component.organization}
-                    required={true}
-                    error={!OrganizationRegex.test(component.organization)}
-                    errorMessage={OrganizationRules}
-                    onChange={updateOrganization}
-                />
-                <TextInputWidget
-                    label={'Version'}
-                    value={component.version}
-                    required={true}
-                    error={!VersionRegex.test(component.version)}
-                    errorMessage={VersioningRules}
-                    onChange={updateVersion}
+                <BasicSettingsWidget
+                    component={component}
+                    updateName={updateName}
+                    updateType={updateType}
+                    setInitBehaviour={setInitBehaviour}
                 />
 
                 <AdvancedSettingsWidget
-                    visibility={showAdvancedFeatures}
-                    changeVisibility={setAdvancedFeatureVisibility}
-                    component={component}
+                    visibility={advancedVisibility}
+                    changeVisibility={setAdvancedVisibility}
+                    component={{ ...component, package: component.package || validatedComponentName, org: component.org || defaultOrg }}
                     updatePackage={updatePackage}
+                    updateOrganization={updateOrganization}
+                    updateVersion={updateVersion}
                     setDirectory={setDirectory}
                     selectDirectory={chooseDirectory}
                 />
