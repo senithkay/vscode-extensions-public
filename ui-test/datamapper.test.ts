@@ -60,7 +60,7 @@ describe('VSCode Data mapper Webview UI Tests', () => {
 
         // Close code editor as it blocks the vscode-extension-tester:Webview from detecting elements
         await new EditorView().closeEditor(FILE_NAME);
-        await wait(5000);
+        await wait(3000);
     });
 
     it('Configure data mapper transform function', async () => {
@@ -76,7 +76,7 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         const importJsonBtn = await webview.findWebElement(By.xpath("//button[@data-testid='import-json']"));
         await importJsonBtn.click();
 
-        await wait(5000);
+        await wait(3000);
 
         // Insert a name for the new record to be created
         const importJsonNameInput = await webview.findWebElement(By.xpath("//*[@data-testid='import-record-name']/*/input"));
