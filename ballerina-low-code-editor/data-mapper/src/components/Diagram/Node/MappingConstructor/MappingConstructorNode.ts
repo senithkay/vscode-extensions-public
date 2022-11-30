@@ -176,7 +176,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             await this.context.applyModifications([{
                 type: "DELETE",
                 ...field.valueExpr?.position
-            } as STModification]);
+            }]);
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(field.position as NodePosition, this.value.expression);
             traversNode(this.value.expression, linkDeleteVisitor);

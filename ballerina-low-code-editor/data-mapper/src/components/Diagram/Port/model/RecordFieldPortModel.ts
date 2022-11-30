@@ -55,13 +55,13 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 			sourcePortChanged: () => {
 				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
 			},
-			targetPortChanged: async () => {
+			targetPortChanged: (async () => {
 				if (Object.keys(lm.getTargetPort().links).length === 1){
 					lm.addLabel(await createSourceForMapping(lm));
 				} else {
 					modifySpecificFieldSource(lm);
 				}
-			}
+			})
 		});
 		return lm;
 	}
@@ -90,7 +90,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 
 	canLinkToPort(port: RecordFieldPortModel): boolean {
 		let isLinkExists = false;
-		if (port.portType == "IN") {
+		if (port.portType === "IN") {
 			isLinkExists = this.linkedPorts.some((linkedPort) => {
 				return port.getID() === linkedPort.getID()
 			})

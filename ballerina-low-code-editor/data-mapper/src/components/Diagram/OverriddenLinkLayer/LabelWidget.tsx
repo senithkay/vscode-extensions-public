@@ -1,6 +1,8 @@
 import * as React from 'react';
+
 import styled from '@emotion/styled';
 import { DiagramEngine, LabelModel } from '@projectstorm/react-diagrams';
+
 import { LinkOveryPortal } from './LinkOverlayPortal';
 
 export interface LabelWidgetProps {

@@ -31,6 +31,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
+import { useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -48,7 +49,6 @@ import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { isDMSupported } from "./utils";
-import { useDMStore } from "../../store/store";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -205,7 +205,7 @@ function DataMapperC(props: DataMapperProps) {
         state: DMState.NOT_INITIALIZED
     });
     const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
-	const {setFunctionST, setImports} = useDMStore();
+    const {setFunctionST, setImports} = useDMStore();
 
     const classes = useStyles();
 

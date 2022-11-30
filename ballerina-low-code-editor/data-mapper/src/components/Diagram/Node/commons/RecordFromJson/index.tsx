@@ -16,13 +16,13 @@ import React, { useEffect, useReducer } from 'react';
 import { FormControl, FormHelperText, TextareaAutosize } from "@material-ui/core";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import {
     FormHeaderSection,
     PrimaryButton,
     SecondaryButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
-import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 
 interface JsonToRecordState {
     isLoading?: boolean;
@@ -101,7 +101,7 @@ const useStyles = makeStyles(() =>
     })
 );
 
-const reducer = (state: JsonToRecordState, action: {type: string, payload: boolean|string }): JsonToRecordState      => {
+const reducer = (state: JsonToRecordState, action: {type: string, payload: boolean | string }): JsonToRecordState => {
     switch (action.type) {
         case 'jsonConversionStart':
             return {...state, isLoading: action.payload as boolean};

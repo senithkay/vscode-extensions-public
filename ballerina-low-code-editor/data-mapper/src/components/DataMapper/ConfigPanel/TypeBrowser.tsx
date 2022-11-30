@@ -1,9 +1,10 @@
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js
+import React, { useEffect, useState } from "react";
+
 import styled from "@emotion/styled";
 import { LinearProgress, TextField } from "@material-ui/core";
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { CompletionResponse } from "@wso2-enterprise/ballerina-languageclient";
-import React, { useEffect, useState } from "react";
-
 
 export interface TypeBrowserProps {
     type?: string;
@@ -42,13 +43,15 @@ export function TypeBrowser(props: TypeBrowserProps) {
                 onChange={(_, value: CompletionResponseWithModule) => onChange(value?.module ? `${value.module}:${value.insertText}` : value?.insertText)}
                 renderInput={(params) => <TextFieldStyled {...params} autoFocus={!isLoading && !selectedTypeStr} />}
                 renderOption={(item) =>
-                    <TypeSelectItem>
-                        <TypeSelectItemLabel>{item.label}</TypeSelectItemLabel>
-                        <TypeSelectItemModule>{item.module}</TypeSelectItemModule>
-                    </TypeSelectItem>
+                    (
+                        <TypeSelectItem>
+                            <TypeSelectItemLabel>{item.label}</TypeSelectItemLabel>
+                            <TypeSelectItemModule>{item.module}</TypeSelectItemModule>
+                        </TypeSelectItem>
+                    )
                 }
-                blurOnSelect
-                openOnFocus
+                blurOnSelect={true}
+                openOnFocus={true}
             />
             {isLoading && <LinearProgress />}
         </>

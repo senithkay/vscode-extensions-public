@@ -1,13 +1,14 @@
 
 import * as React from 'react';
-import "reflect-metadata";
 
-import { BinaryExpressionNode, BINARY_EXPR_NODE_TYPE } from './BinaryExpressionNode';
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import "reflect-metadata";
+import { container, injectable, singleton } from "tsyringe";
 
-import { injectable, container, singleton } from "tsyringe";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
+
+import { BinaryExpressionNode, BINARY_EXPR_NODE_TYPE } from './BinaryExpressionNode';
 import { BinaryExpressionNodeWidget } from './BinaryExpressionNodeWidget';
 
 @injectable()

@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
@@ -19,6 +19,7 @@ import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from "../../Port";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from '../../utils/constants';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 
@@ -26,7 +27,6 @@ import {
     FromClauseNode,
     QUERY_EXPR_SOURCE_NODE_TYPE
 } from './FromClauseNode';
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from '../../utils/constants';
 
 @injectable()
 @singleton()

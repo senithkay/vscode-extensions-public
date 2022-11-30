@@ -10,14 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import styled from "@emotion/styled";
 import { Box } from "@material-ui/core";
 import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
 import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+
 import { DataMapperInputParam } from "./types";
-import styled from "@emotion/styled";
 
 interface InputParamItemProps {
     index: number;
@@ -29,10 +31,12 @@ interface InputParamItemProps {
 export function InputParamItem(props: InputParamItemProps) {
     const { index, inputParam, onDelete, onEditClick } = props;
 
-    const label = <>
-        <TypeName isInvalid={inputParam.inInvalid}>{inputParam.type}</TypeName>
-        <span>{" " + inputParam.name}</span>
-    </>;
+    const label = (
+        <>
+            <TypeName isInvalid={inputParam.inInvalid}>{inputParam.type}</TypeName>
+            <span>{" " + inputParam.name}</span>
+        </>
+    );
 
     const handleDelete = () => {
         onDelete(index, inputParam);
@@ -46,10 +50,12 @@ export function InputParamItem(props: InputParamItemProps) {
                 {label}
             </ClickToEditContainer>
             <Box component="span" display="flex">
-                {!inputParam.inInvalid && <EditButton
-                    onClick={handleEdit}
-                    icon={<EditIcon fontSize="small" />}
-                />}
+                {!inputParam.inInvalid && (
+                    <EditButton
+                        onClick={handleEdit}
+                        icon={<EditIcon fontSize="small" />}
+                    />
+                )}
                 <DeleteButton
                     onClick={handleDelete}
                     icon={<DeleteOutLineIcon fontSize="small" />}

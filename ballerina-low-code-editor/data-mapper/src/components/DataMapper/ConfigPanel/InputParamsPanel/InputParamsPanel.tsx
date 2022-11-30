@@ -1,8 +1,12 @@
+// tslint:disable: jsx-no-multiline-js
+import React, { ReactNode, useState } from "react";
+
 import styled from "@emotion/styled";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import React, { ReactNode, useState } from "react";
+
 import { Title } from "../DataMapperConfigPanel";
 import { RecordButtonGroup } from "../RecordButtonGroup";
+
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";

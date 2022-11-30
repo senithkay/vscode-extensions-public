@@ -19,8 +19,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
 import classnames from "classnames";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -139,7 +139,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
     }
 
-    
     if (portIn && portIn.collapsed) {
         expanded = false;
     }
@@ -152,7 +151,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         fieldName = field.parentType.type?.name ? `${field.parentType.type?.name}Item` : 'item';
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const diagnostic = (specificField.valueExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
 
     const label = (
@@ -167,8 +165,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 {typeName && ":"}
             </span>
             {typeName && (
-                <span className={classnames(classes.typeLabel,
-                    (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}>
+                <span
+                    className={classnames(classes.typeLabel,
+                        (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}
+                >
                     {typeName}
                 </span>
             )}
@@ -213,21 +213,25 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     return (
         <>
             {!isArray && (
-                <div className={classnames(classes.treeLabel,
-                    (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
+                <div
+                    className={classnames(classes.treeLabel,
+                        (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}
+                >
                     <span className={classes.treeLabelInPort}>
                         {portIn &&
                             <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
                         }
                     </span>
                     <span className={classes.label}>
-                        {fields && <IconButton
-                            className={classes.expandIcon}
-                            style={{ marginLeft: indentation }}
-                            onClick={handleExpand}
-                        >
-                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                        </IconButton>}
+                        {fields && (
+                            <IconButton
+                                className={classes.expandIcon}
+                                style={{ marginLeft: indentation }}
+                                onClick={handleExpand}
+                            >
+                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                            </IconButton>
+                        )}
                         {label}
                     </span>
 

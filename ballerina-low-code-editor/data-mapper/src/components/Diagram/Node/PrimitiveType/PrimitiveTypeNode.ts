@@ -161,7 +161,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                     "STATEMENT": getDefaultValue(this.typeDef.memberType)
                 },
                 ...field.position
-            } as STModification];
+            }];
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(field.position as NodePosition, this.value.expression);
             traversNode(this.value.expression, linkDeleteVisitor);

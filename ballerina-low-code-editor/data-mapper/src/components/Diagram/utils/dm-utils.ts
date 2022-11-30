@@ -64,9 +64,7 @@ export function getFieldTypeName(field: RecordField) {
 		name = PrimitiveBalType.Record;
 	} else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
 		name = PrimitiveBalType.Array;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
 	} else if ((field.typeName as any)?.name) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
 		name = (field.typeName as any)?.name.value;
 	}
 	return name;
@@ -100,14 +98,14 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value)
 		&& !isEmptyValue(targetPort.editableRecordField.value.position as NodePosition)) {
 		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position as NodePosition,
-									void applyModifications);
+									applyModifications);
 	}
 
 	if (targetPort.field?.typeName === PrimitiveBalType.Record
 		&& targetPort.editableRecordField?.value
 		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value)) {
 		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position as NodePosition,
-									void applyModifications);
+									applyModifications);
 	}
 
 	lhs = getBalRecFieldName(targetPort.field.name);
@@ -231,8 +229,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 }
 
 export async function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
-												newValue: string,
-												applyModifications: (modifications: STModification[]) => Promise<void>) {
+												                                   newValue: string,
+												                                   applyModifications: (modifications: STModification[]) => Promise<void>) {
 
 	let source;
 	let targetMappingConstructor: STNode = mappingConstruct;
@@ -341,13 +339,13 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 			let targetPos: NodePosition;
 			Object.keys(targetPort.getLinks()).forEach((linkId) => {
 				if (linkId !== link.getID()) {
-					const link = targetPort.getLinks()[linkId]
+					const targerPortLink = targetPort.getLinks()[linkId]
 					if (sourcePort instanceof IntermediatePortModel) {
 						if (sourcePort.getParent() instanceof LinkConnectorNode) {
 							targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position as NodePosition
 						}
-					} else if (link.getLabels().length > 0) {
-						targetPos = (link.getLabels()[0] as ExpressionLabelModel).valueNode.position as NodePosition;
+					} else if (targerPortLink.getLabels().length > 0) {
+						targetPos = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode.position as NodePosition;
 					} else if (targetNode instanceof MappingConstructorNode) {
 						const linkConnector = targetNode
 							.getModel()
@@ -355,7 +353,7 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 							.find(
 								(node) =>
 									node instanceof LinkConnectorNode &&
-									node.targetPort.portName === (link.getTargetPort() as RecordFieldPortModel).portName
+									node.targetPort.portName === (targerPortLink.getTargetPort() as RecordFieldPortModel).portName
 							);
 						targetPos = (linkConnector as LinkConnectorNode).valueNode.position as NodePosition;
 					}
@@ -572,7 +570,7 @@ export function getLinebreak(){
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
-					nextFieldPosition: NodePosition): [EditableRecordField, number] {
+					                 nextFieldPosition: NodePosition): [EditableRecordField, number] {
 	let memberIndex = -1;
 	const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
 		if (node.member.type.typeName === PrimitiveBalType.Record && node.member.value
@@ -878,9 +876,9 @@ export function getFieldLabel(fieldId: string) {
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
-									fieldIndex: number,
-									targetPosition: NodePosition,
-									applyModifications: (modifications: STModification[]) => Promise<void>) {
+									                            fieldIndex: number,
+									                            targetPosition: NodePosition,
+									                            applyModifications: (modifications: STModification[]) => Promise<void>) {
 	let source = "";
 
 	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
@@ -910,7 +908,7 @@ async function createValueExprSource(lhs: string, rhs: string, fieldNames: strin
 }
 
 function updateValueExprSource(value: string, targetPosition: NodePosition,
-								applyModifications: (modifications: STModification[]) => void) {
+								                       applyModifications: (modifications: STModification[]) => void) {
 	applyModifications([getModification(value, {
 		...targetPosition
 	})]);

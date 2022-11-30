@@ -35,7 +35,6 @@ export class ExpressionLabelModel extends LabelModel {
 		this.link = options.link;
 		this.field = options.field;
 		this.editorLabel = options.editorLabel;
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		this.updateSource = this.updateSource.bind(this);
 		this.deleteLink = options.deleteLink;
 	}

@@ -1,7 +1,8 @@
-import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { AbstractModelFactory } from '@projectstorm/react-canvas-core';
-import { INT_PORT_TYPE_ID } from './IntermediatePortModel';
+import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { container, injectable, singleton } from 'tsyringe';
+
+import { INT_PORT_TYPE_ID } from './IntermediatePortModel';
 
 @injectable()
 @singleton()

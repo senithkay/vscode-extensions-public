@@ -82,7 +82,7 @@ export function DiagnosticTooltip(props: Partial<Props>) {
         </>
 
     );
-    const Diagnostic = () => (
+    const DiagnosticC = () => (
         <>
             <div className={classes.iconWrapper}>{iconComponent}</div>
             <div className={classes.diagnosticWrapper}>{diagnostic.message}</div>
@@ -92,7 +92,7 @@ export function DiagnosticTooltip(props: Partial<Props>) {
 
     const tooltipTitleComponent = (
         <pre className={classes.pre}>
-            {diagnostic.message && <Diagnostic />}
+            {diagnostic.message && <DiagnosticC />}
             {source && <Code />}
         </pre>
     );

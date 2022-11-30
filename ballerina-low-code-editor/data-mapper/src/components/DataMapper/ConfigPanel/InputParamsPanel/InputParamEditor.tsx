@@ -12,17 +12,18 @@
  */
 import React, { useContext, useEffect, useState } from "react";
 
+import styled from "@emotion/styled";
 import { Grid } from "@material-ui/core";
 import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import styled from "@emotion/styled";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import camelCase from 'lodash.camelcase';
 
+import { getRecordCompletions } from "../../../Diagram/utils/ls-utils";
 import { CurrentFileContext } from "../../Context/current-file-context";
 import { LSClientContext } from "../../Context/ls-client-context";
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
+
 import { DataMapperInputParam } from "./types";
-import { getRecordCompletions } from "../../../Diagram/utils/ls-utils";
 
 interface InputParamEditorProps {
     index?: number;
@@ -123,7 +124,8 @@ export function InputParamEditor(props: InputParamEditorProps) {
                             type={paramType}
                             onChange={handleParamTypeChange}
                             isLoading={fetchingCompletions}
-                            recordCompletions={recordCompletions} />
+                            recordCompletions={recordCompletions}
+                        />
                     </Grid>
                     <Grid item={true} xs={4}>
                         <FormTextInput

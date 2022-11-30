@@ -1,6 +1,9 @@
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js no-unused-expression
 import * as React from 'react';
+
 import styled from '@emotion/styled';
-import { CanvasEngine, CanvasEngineListener, ListenerHandle, TransformLayerWidget, SmartLayerWidget } from '@projectstorm/react-canvas-core'
+import { CanvasEngine, CanvasEngineListener, ListenerHandle, SmartLayerWidget, TransformLayerWidget } from '@projectstorm/react-canvas-core'
+
 import { OverlayLayerModel } from '../OverlayLayer/OverlayLayerModel';
 
 export interface DiagramProps {
@@ -62,11 +65,9 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 		});
 
 		this.keyDown = (event: KeyboardEvent) => {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
 			this.props.engine.getActionEventBus().fireAction({ event: event as any });
 		};
 		this.keyUp = (event: KeyboardEvent) => {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
 			this.props.engine.getActionEventBus().fireAction({ event: event as any });
 		};
 
@@ -78,11 +79,11 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 	render() {
 		const engine = this.props.engine;
 		const model = engine.getModel();
-        const layers = model.getLayers();
-        const svgLayers = layers.filter((layer) => layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
-        const nonSVGLayers = layers.filter((layer) => !layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
+  const layers = model.getLayers();
+  const svgLayers = layers.filter((layer) => layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
+  const nonSVGLayers = layers.filter((layer) => !layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
 		const overlayLayers = layers.filter(layer => layer instanceof OverlayLayerModel);
-        const reArrangedLayers = [...nonSVGLayers, ...svgLayers, ...overlayLayers];
+  const reArrangedLayers = [...nonSVGLayers, ...svgLayers, ...overlayLayers];
 
 		return (
 			<Canvas

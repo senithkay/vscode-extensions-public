@@ -210,11 +210,11 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         const mappingNode = (this.getModel().getNodes().find((node) => node instanceof MappingConstructorNode) as MappingConstructorNode)
         const mappingConstructor = mappingNode?.value?.expression as MappingConstructor;
 
-        if(mappingConstructor){
+        if (mappingConstructor){
             const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode.position as NodePosition, mappingConstructor);
             traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
-    
+
             void this.context.applyModifications([{
                 type: "DELETE",
                 ...nodePositionsToDelete

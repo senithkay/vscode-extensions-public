@@ -1,9 +1,10 @@
+// tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
-import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { Typography } from '@material-ui/core';
-
 import { createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
+import { DiagramEngine } from '@projectstorm/react-diagrams';
+
 import { BinaryExpressionNode } from './BinaryExpressionNode';
 
 const styles = () => createStyles({

@@ -1,9 +1,12 @@
+// tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
-import { OverlayModel } from './OverlayModel';
-import { ListenerHandle, PeformanceWidget } from '@projectstorm/react-canvas-core';
+
 import styled from '@emotion/styled';
-import ResizeObserver from 'resize-observer-polyfill';
+import { ListenerHandle, PeformanceWidget } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import ResizeObserver from 'resize-observer-polyfill';
+
+import { OverlayModel } from './OverlayModel';
 
 export interface OverlayProps {
 	node: OverlayModel;

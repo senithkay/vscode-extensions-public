@@ -9,8 +9,8 @@ export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
 
-	constructor(public value: STNode = undefined, public diagnostics: Diagnostic[] = [],
-				public isActualLink: boolean = false, public notContainsLabel?: boolean) {
+	constructor(public value?: STNode, public diagnostics: Diagnostic[] = [],
+				         public isActualLink: boolean = false, public notContainsLabel?: boolean) {
 		super({
 			type: LINK_TYPE_ID,
 			width: 1,
@@ -30,7 +30,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 	}
 
 	getSVGPath(): string {
-		if (this.points.length == 2) {
+		if (this.points.length === 2) {
 			const curve = new BezierCurve();
 			curve.setSource(this.getFirstPoint().getPosition());
 			curve.setTarget(this.getLastPoint().getPosition());

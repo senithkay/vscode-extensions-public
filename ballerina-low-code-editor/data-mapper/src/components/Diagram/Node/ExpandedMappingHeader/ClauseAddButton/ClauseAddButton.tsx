@@ -10,16 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { CircularProgress } from "@material-ui/core";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
 import { NodePosition, QueryExpression, STNode } from "@wso2-enterprise/syntax-tree";
+
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { genLetClauseVariableName } from "../../../../../utils/st-utils";
 import { useStyles } from "../styles";
-import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
-import { CircularProgress } from "@material-ui/core";
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;

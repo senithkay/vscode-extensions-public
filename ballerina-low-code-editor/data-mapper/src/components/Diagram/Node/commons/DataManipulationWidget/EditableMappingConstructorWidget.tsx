@@ -99,7 +99,7 @@ export interface EditableMappingConstructorWidgetProps {
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
 	valueLabel?: string;
-    deleteField?: (node: STNode) => Promise<void>;
+	deleteField?: (node: STNode) => Promise<void>;
 }
 
 

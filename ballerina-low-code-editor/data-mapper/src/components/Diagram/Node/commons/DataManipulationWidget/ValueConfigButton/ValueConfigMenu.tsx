@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React from 'react';
 
 import { IconButton } from "@material-ui/core";

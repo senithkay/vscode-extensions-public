@@ -18,10 +18,10 @@ import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
 import { getTypeName } from "../../utils/dm-utils";
 
 import { TreeContainer, TreeHeader } from './Tree/Tree';
-import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -85,7 +85,6 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
 
     let expanded = true;
     if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         expanded = false;
     }
 

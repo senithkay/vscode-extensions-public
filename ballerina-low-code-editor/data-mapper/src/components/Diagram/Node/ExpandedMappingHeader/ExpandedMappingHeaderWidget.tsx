@@ -10,9 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React from "react";
 
+import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
+import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
     LetVarDecl,
@@ -20,15 +22,12 @@ import {
     STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
-import clsx from "clsx";
 
 import { ClauseAddButton } from "./ClauseAddButton";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
 import { LetClauseItem } from "./LetClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
-import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;
@@ -65,7 +64,7 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
     };
 
     const deleteWhereClause = async (clauseItem: STNode) => {
-        await node.context.applyModifications([{ type: "DELETE", ...clauseItem.position } as STModification]);
+        await node.context.applyModifications([{ type: "DELETE", ...clauseItem.position }]);
     };
 
     const fromClause = props.node.queryExpr.queryPipeline.fromClause;
@@ -79,7 +78,9 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
                     <div className={classes.clauseWrap}>
                         <span
                             className={classes.clauseItemKey}
-                        >{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
+                        >
+                            {` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}
+                        </span>
                         <span
                             className={classes.clauseExpression}
                             onClick={() => onClickEdit(fromClause)}

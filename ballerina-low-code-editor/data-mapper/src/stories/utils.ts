@@ -17,7 +17,6 @@ export async function getFileContent(filePath: string): Promise<string> {
   }
 
 export async function updateFileContent(filePath: string, text: string): Promise<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath),
       {
         headers: {
@@ -29,7 +28,6 @@ export async function updateFileContent(filePath: string, text: string): Promise
       })
       .then(response => {
         return response.json()
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
       }).then(result => result.success);
   }
 

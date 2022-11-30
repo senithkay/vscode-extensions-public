@@ -1,15 +1,16 @@
+// tslint:disable: jsx-no-lambda no-empty jsx-no-multiline-js
 import React, { useEffect } from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { Uri } from 'monaco-editor';
 
 import { DataMapper } from '../components/DataMapper/DataMapper';
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
-import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
-import { Uri } from 'monaco-editor';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -71,7 +72,6 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         async function getSyntaxTree() {
             if (didOpen) {
                 const langClient = await langClientPromise;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
                     documentIdentifier: {
                         uri: Uri.file(filePath).toString()
@@ -122,58 +122,55 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
 
     return !didOpen || !functionST ? <>Opening the document...</>
         :
-        // tslint:disable-next-line: jsx-wrap-multiline
-        <div className={classes.root}>
-            <Grid container={true} spacing={3} className={classes.gridContainer} >
-                <Grid item={true} xs={8}>
-                    <DataMapper
-                        fnST={functionST}
-                        langClientPromise={langClientPromise}
-                        filePath={filePath}
-                        applyModifications={applyModifications}
-                        updateFileContent={updateActiveFileContent}
-                        // eslint-disable-next-line @typescript-eslint/no-empty-function
-                        onClose={() => { }}
-                        // eslint-disable-next-line @typescript-eslint/no-empty-function
-                        onSave={() => { }}
-                        library={{
-                            getLibrariesList: () => Promise.resolve(undefined),
-                            getLibrariesData: () => Promise.resolve(undefined),
-                            getLibraryData: () => Promise.resolve(undefined)
-                        }}
-                        importStatements={[]}
-                    />
-                </Grid>
-                <Grid item={true} xs={4}>
-                    <CodeEditor
-                        content={fileContent}
-                        filePath={filePath}
-                        // tslint:disable-next-line: jsx-no-multiline-js
-                        onChange={
-                            // tslint:disable-next-line: jsx-no-lambda
-                            (fPath, newContent) => {
-                                void updateFileContentOverride(fPath, newContent);
-                                void langClientPromise.then((langClient) => {
-                                    langClient.didChange({
-                                        textDocument: {
-                                            uri: Uri.file(filePath).toString(),
-                                            version: 1
-                                        },
-                                        contentChanges: [
-                                            {
-                                                text: newContent
-                                            }
-                                        ]
-                                    });
-                                    setLastUpdated((new Date()).toISOString());
-                                })
+        (
+            <div className={classes.root}>
+                <Grid container={true} spacing={3} className={classes.gridContainer} >
+                    <Grid item={true} xs={8}>
+                        <DataMapper
+                            fnST={functionST}
+                            langClientPromise={langClientPromise}
+                            filePath={filePath}
+                            applyModifications={applyModifications}
+                            updateFileContent={updateActiveFileContent}
+                            onClose={() => { }}
+                            onSave={() => { }}
+                            library={{
+                                getLibrariesList: () => Promise.resolve(undefined),
+                                getLibrariesData: () => Promise.resolve(undefined),
+                                getLibraryData: () => Promise.resolve(undefined)
+                            }}
+                            importStatements={[]}
+                        />
+                    </Grid>
+                    <Grid item={true} xs={4}>
+                        <CodeEditor
+                            content={fileContent}
+                            filePath={filePath}
+                            onChange={
+                                (fPath, newContent) => {
+                                    void updateFileContentOverride(fPath, newContent);
+                                    void langClientPromise.then((langClient) => {
+                                        langClient.didChange({
+                                            textDocument: {
+                                                uri: Uri.file(filePath).toString(),
+                                                version: 1
+                                            },
+                                            contentChanges: [
+                                                {
+                                                    text: newContent
+                                                }
+                                            ]
+                                        });
+                                        setLastUpdated((new Date()).toISOString());
+                                    })
+                                }
                             }
-                        }
-                    />
+                        />
+                    </Grid>
                 </Grid>
-            </Grid>
-            <code id='file-content-holder' style={{ display: "none" }}>
-                {fileContent}
-            </code>
-    </div>;
+                <code id='file-content-holder' style={{ display: "none" }}>
+                    {fileContent}
+                </code>
+            </div>
+        );
 }

@@ -184,7 +184,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     "STATEMENT": this.value,
                 },
                 ...targetPosition
-            } as STModification
+            }
         ];
         void this.context.applyModifications(modifications);
     }
@@ -211,7 +211,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     "STATEMENT": getDefaultValue(targetField)
                 },
                 ...this.valueNode.position
-            } as STModification];
+            }];
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position as NodePosition, this.parentNode);
             traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);

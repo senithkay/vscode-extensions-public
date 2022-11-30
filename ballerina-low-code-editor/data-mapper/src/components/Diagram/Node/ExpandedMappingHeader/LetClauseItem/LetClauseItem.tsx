@@ -10,9 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { CircularProgress } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
     CaptureBindingPattern,
     LetClause,
@@ -21,12 +24,11 @@ import {
     QueryExpression,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
+
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { useStyles } from "../styles";
-import { ClauseAddButton } from "../ClauseAddButton";
 import { getRenameEdits } from "../../../utils/ls-utils";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
-import { CircularProgress } from "@material-ui/core";
+import { ClauseAddButton } from "../ClauseAddButton";
+import { useStyles } from "../styles";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;
@@ -90,7 +92,7 @@ export function LetClauseItem(props: {
                         });
                     });
                 });
-                
+
                 modifications.sort((a, b) => a.startLine - b.startLine)
                 await context.applyModifications(modifications);
             } finally {

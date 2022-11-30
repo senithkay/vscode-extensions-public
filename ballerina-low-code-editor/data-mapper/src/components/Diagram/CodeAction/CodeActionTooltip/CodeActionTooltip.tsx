@@ -15,11 +15,11 @@ import React, { useState } from "react";
 
 import { MenuItem, withStyles } from "@material-ui/core";
 import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-protocol";
 
-import { tooltipBaseStyles, useStyles } from "../style";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { tooltipBaseStyles, useStyles } from "../style";
 
 interface Props extends TooltipProps {
     codeActions: CodeAction[];

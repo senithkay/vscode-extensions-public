@@ -10,9 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React from "react";
 
+import IconButton from "@material-ui/core/IconButton";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -21,9 +22,7 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getTypeName } from "../../../utils/dm-utils";
-import IconButton from "@material-ui/core/IconButton";
 
-// tslint:disable: jsx-no-multiline-js
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         treeLabel: {

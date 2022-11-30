@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
@@ -20,12 +21,11 @@ import {
     SimpleNameReference,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
-import { Point } from "@projectstorm/geometry";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc-let";
 
@@ -103,11 +103,11 @@ export class LetClauseNode extends DataMapperNodeModel {
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
-        if ( typeof x === 'number' && typeof y === 'number'){
+        if (typeof x === 'number' && typeof y === 'number'){
             if (!this.x){
                 this.x = x;
             }
-            super.setPosition(this.x,y);
+            super.setPosition(this.x, y);
         }
     }
 }

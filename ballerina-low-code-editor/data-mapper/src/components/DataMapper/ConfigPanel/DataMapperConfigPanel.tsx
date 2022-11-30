@@ -1,4 +1,5 @@
- import React, { FocusEvent, useContext, useEffect, useState } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { FocusEvent, useContext, useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
 import Divider from "@material-ui/core/Divider/Divider";
@@ -20,6 +21,8 @@ import {
 import { ExpressionFunctionBody, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import camelCase from "lodash.camelcase";
 
+import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
+import { CurrentFileContext } from "../Context/current-file-context";
 import { LSClientContext } from "../Context/ls-client-context";
 import { DataMapperProps } from "../DataMapper";
 
@@ -37,8 +40,6 @@ import {
     getOutputTypeFromST,
     isValidOutput
 } from "./utils";
-import { CurrentFileContext } from "../Context/current-file-context";
-import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
 export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
@@ -107,10 +108,10 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     useEffect(() => {
         void (async () => {
-            if(initiated){
+            if (initiated){
                 setFetchingCompletions(true);
-                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
-                                            importStatements,fnST?.position as NodePosition || targetPosition , path);
+                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise,
+                                            importStatements, fnST?.position as NodePosition || targetPosition , path);
                 setRecordCompletions(allCompletions);
                 setFetchingCompletions(false);
             }
@@ -140,7 +141,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     type: "INSERT",
                     config: { "STATEMENT": "{}" },
                     ...functionExpression.position
-                } as STModification)
+                })
             }
 
         } else {

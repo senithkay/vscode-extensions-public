@@ -52,8 +52,8 @@ const styles = makeStyles((theme: Theme) => createStyles({
         color: theme.palette.grey[400],
         boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
         borderRadius: "10px",
-		alignItems: "center",
-		overflow: "hidden",
+		      alignItems: "center",
+		      overflow: "hidden",
     },
     element: {
         backgroundColor: theme.palette.common.white,
@@ -153,7 +153,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
                     : props.node.editorLabel)
             });
-        } else if(STKindChecker.isBinaryExpression(valueNode)) {
+        } else if (STKindChecker.isBinaryExpression(valueNode)) {
             props.node.context.enableStatementEditor({
                 valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
