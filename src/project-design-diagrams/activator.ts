@@ -212,7 +212,7 @@ function createService(componentDetail: AddComponentDetails) {
     }, async (progress) => {
         progress.report({ increment: 0, message: "Starting to create the service..."});
         // Run commands spawning a child process
-        const res = await runCommand('pwd', parentDirPath);
+        const res = await runCommand('pwd', parentDirPath, true);
         progress.report({ increment: 10, message: `Opened the workspace folder at ${res}` });
         // Create the package
         await runCommand(`bal new ${packageName} -t service`, parentDirPath);
