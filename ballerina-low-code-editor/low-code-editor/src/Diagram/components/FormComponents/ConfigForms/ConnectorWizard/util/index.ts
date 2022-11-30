@@ -35,7 +35,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { isEndpointNode } from "../../../../../utils";
-import { visitor as ErrorFindingVisitor } from "../../../../../visitors/error-finding-visitor";
+import { visitor as ReturnTypeVisitor } from "../../../../../visitors/return-type-visitor";
 import { getFieldName, getFormattedModuleName } from "../../../../Portals/utils";
 import { isAllDefaultableFields, isAnyFieldSelected, isDependOnDriver } from "../../../Utils";
 
@@ -562,8 +562,8 @@ export function getReturnTypeImports(returnType: FormFieldReturnType) {
 
 export function isParentNodeWithErrorReturn(blockNode: STNode) {
     if (blockNode) {
-        traversNode(blockNode, ErrorFindingVisitor);
-        return ErrorFindingVisitor.hasError();
+        traversNode(blockNode, ReturnTypeVisitor);
+        return ReturnTypeVisitor.hasError();
     }
     return false;
 }

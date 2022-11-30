@@ -16,7 +16,7 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-class ErrorFindingVisitor implements Visitor {
+class ReturnTypeVisitor implements Visitor {
     private errorNode: STNode = undefined;
 
     public beginVisitErrorTypeDesc(node: ErrorTypeDesc, parent?: STNode) {
@@ -30,4 +30,4 @@ class ErrorFindingVisitor implements Visitor {
     }
 }
 
-export const visitor = new ErrorFindingVisitor();
+export const visitor = new ReturnTypeVisitor();

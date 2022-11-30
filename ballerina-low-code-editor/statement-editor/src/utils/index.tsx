@@ -302,7 +302,6 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
                 && diagTargetPosition.startColumn <= diagnosticStartCol));
     })
 
-    // getDiagnosticMessage(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
     getSelectedDiagnostics(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).map(diagnostic => {
         const message = diagnostic.message;
         let isPlaceHolderDiag = false;
@@ -1057,7 +1056,6 @@ export function isBalVersionUpdateOne(version: string): boolean{
 
 export function getContentFromSource(source: string, position: NodePosition) {
     const splitSource: string[] = source.split("\n");
-    // const splitSource: string[] = source.split(/\n/g) || [];
     let sliceContent = "";
     if (splitSource?.length) {
         for (let line = position.startLine; line <= (position.endLine || position.startLine); line++) {
