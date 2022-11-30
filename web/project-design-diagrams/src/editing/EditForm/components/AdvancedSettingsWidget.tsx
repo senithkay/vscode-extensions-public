@@ -79,7 +79,7 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
                             <TextInputWidget
                                 label={'Package Name'}
                                 value={component.package}
-                                required={false}
+                                required={true}
                                 error={!PackageNameRegex.test(component.package)}
                                 errorMessage={PackageNameRules}
                                 onChange={updatePackage}

@@ -142,7 +142,7 @@ function setupWebviewPanel() {
             {
                 methodName: "createService",
                 handler: async (args: any[]): Promise<boolean | undefined> => {
-                    createService (args[0]);
+                    createService(args[0]);
                     return Promise.resolve(true);
                 }
             },
@@ -203,14 +203,14 @@ function isCompatible(ballerinaExtInstance: BallerinaExtension): boolean {
 }
 
 function createService(componentDetail: AddComponentDetails) {
-    const { directory: parentDirPath, package: packageName, name, version, organization: orgName } = componentDetail;
+    const { directory: parentDirPath, package: packageName, name, version, org: orgName } = componentDetail;
 
     window.withProgress({
         location: ProgressLocation.Window,
         title: "Creating service...",
         cancellable: false
     }, async (progress) => {
-        progress.report({ increment: 0, message: "Starting to create the service..."});
+        progress.report({ increment: 0, message: "Starting to create the service..." });
         // Run commands spawning a child process
         const res = await runCommand('pwd', parentDirPath, true);
         progress.report({ increment: 10, message: `Opened the workspace folder at ${res}` });

@@ -25,7 +25,7 @@ export interface Entity {
 export interface AddComponentDetails {
     name: string;
     version: string;
-    organization: string;
+    org: string;
     package: string;
     directory: string;
 }
