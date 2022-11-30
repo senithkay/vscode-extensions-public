@@ -73,6 +73,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     onWizardClose: () => void;
     onCancel: () => void;
     isHeaderHidden?: boolean;
+    skipSemicolon?: boolean;
 }
 
 export function StatementEditor(props: StatementEditorProps) {
@@ -98,7 +99,8 @@ export function StatementEditor(props: StatementEditorProps) {
         ballerinaVersion,
         openExternalUrl,
         isCodeServerInstance,
-        isHeaderHidden
+        isHeaderHidden,
+        skipSemicolon
     } = props;
 
     const {
@@ -109,7 +111,8 @@ export function StatementEditor(props: StatementEditorProps) {
         isConfigurableStmt,
         isModuleVar,
         selectedNodePosition,
-        newConfigurableName
+        newConfigurableName,
+        hasIncorrectSyntax
     } = editor;
     const {
         editors,
@@ -122,10 +125,11 @@ export function StatementEditor(props: StatementEditorProps) {
         modelPosition: null,
         documentation: {}
     }
+    const skipStatementSemicolon = isExpressionMode || skipSemicolon || false;
 
     const [model, setModel] = useState<STNode>(null);
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
-    const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(false);
+    const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(hasIncorrectSyntax);
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StatementSyntaxDiagnostics[]>([]);
     const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
@@ -145,7 +149,7 @@ export function StatementEditor(props: StatementEditorProps) {
             handleChange(currentSource).then();
         } else if (undoItem) {
             const updatedContent = getUpdatedSource(undoItem.oldModel.model.source, currentFile.content,
-                targetPosition, moduleList, isExpressionMode);
+                targetPosition, moduleList, skipStatementSemicolon);
             await updateDraftFileContent(updatedContent);
             const diagnostics = await handleDiagnostics(undoItem.oldModel.model.source);
             setStmtModel(undoItem.oldModel.model, diagnostics);
@@ -161,7 +165,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
             const updatedContent = getUpdatedSource(redoItem.newModel.model.source, currentFile.content,
-                targetPosition, moduleList, isExpressionMode);
+                targetPosition, moduleList, skipStatementSemicolon);
             await updateDraftFileContent(updatedContent);
             const diagnostics = await handleDiagnostics(redoItem.newModel.model.source);
             setStmtModel(redoItem.newModel.model, diagnostics);
@@ -176,7 +180,7 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (!newConfigurableName || isPullingModule) {
-                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList, isExpressionMode);
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList, skipStatementSemicolon);
                 await updateDraftFileContent(updatedContent);
                 setDraftPosition(updateStatementPosition(updatedContent, source.trim(), targetPosition));
                 const diagnostics = await handleDiagnostics(source);
@@ -214,7 +218,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     for (const statement of statements) {
                         const index = statements.indexOf(statement);
                         const updatedContent = getUpdatedSource(statement, currentFile.content,
-                            targetPosition, moduleList, isExpressionMode);
+                            targetPosition, moduleList, skipStatementSemicolon);
                         await sendDidChange(fileURI, updatedContent, getLangClient);
                         let completions: SuggestionItem[];
 
@@ -230,7 +234,7 @@ export function StatementEditor(props: StatementEditorProps) {
                             }));
 
                             const content = getUpdatedSource(model.source, currentFile.content,
-                                targetPosition, moduleList, isExpressionMode);
+                                targetPosition, moduleList, skipStatementSemicolon);
                             await sendDidChange(fileURI, content, getLangClient);
                         }
                     }
@@ -262,7 +266,7 @@ export function StatementEditor(props: StatementEditorProps) {
         (async () => {
             if (editorModel) {
                 const updatedContent = getUpdatedSource(source.trim(), currentFile.content,
-                    targetPosition, moduleList, isExpressionMode);
+                    targetPosition, moduleList, skipStatementSemicolon);
                 await updateDraftFileContent(updatedContent);
                 const diagnostics = await handleDiagnostics(source);
                 setStmtModel(editorModel, diagnostics);
@@ -276,7 +280,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
-        const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, isExpressionMode);
+        const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, skipStatementSemicolon);
         await updateDraftFileContent(updatedContent);
 
         handleDiagnostics(updatedStatement).then();
@@ -318,14 +322,14 @@ export function StatementEditor(props: StatementEditorProps) {
         }
 
         if (!partialST.syntaxDiagnostics.length || (!isExpressionMode && config.type === CUSTOM_CONFIG_TYPE)) {
-            const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList, isExpressionMode);
+            const updatedContent = getUpdatedSource(partialST.source, currentFile.content, targetPosition, moduleList, skipStatementSemicolon);
             await updateDraftFileContent(updatedContent);
             const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
             const oldModel: StackElement = {
                 model: existingModel,
-                selectedPosition: currentModel.model.position
+                selectedPosition: currentModel.model ? currentModel.model.position : position
             }
             const newModel: StackElement = {
                 model: partialST,
@@ -339,7 +343,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
         } else if (partialST.syntaxDiagnostics.length){
             const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
-            const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, isExpressionMode);
+            const updatedContent = getUpdatedSource(updatedStatement, currentFile.content, targetPosition, moduleList, skipStatementSemicolon);
 
             await updateDraftFileContent(updatedContent);
             handleDiagnostics(updatedStatement).then();

@@ -35,8 +35,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
-import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
-import { SimpleNameReferencesFindingVisitor } from "../visitors/SimpleNameReferencesFindingVisitor";
+import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 
 import {
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
@@ -399,7 +398,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			if (node instanceof LetClauseNode) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
-				return bindingPattern?.variableName?.value === expr.source;
+				return bindingPattern?.variableName?.value === expr.source.trim();
 			} else if (node instanceof RequiredParamNode) {
 				return expr.name.value === node.value.paramName.value;
 			} else if (node instanceof FromClauseNode) {
@@ -764,14 +763,14 @@ export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 }
 
 export function isConnectedViaLink(field: STNode) {
-	const fieldAccessNodes = getFieldAccessNodes(field);
+	const inputNodes = getInputNodes(field);
 
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field);
 	const isListConstruct = STKindChecker.isListConstructor(field);
 	const isQueryExpression = STKindChecker.isQueryExpression(field)
 	const isSimpleNameRef = STKindChecker.isSimpleNameReference(field)
 
-	return (!!fieldAccessNodes.length || isQueryExpression || isSimpleNameRef)
+	return (!!inputNodes.length || isQueryExpression || isSimpleNameRef)
 		&& !isMappingConstruct && !isListConstruct;
 }
 
@@ -838,33 +837,12 @@ export function isArrayOrRecord(field: Type) {
 	return field.typeName === PrimitiveBalType.Array || field.typeName === PrimitiveBalType.Record;
 }
 
-export function getFieldAccessNodes(node: STNode) {
-	const fieldAccessFindingVisitor: FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
-	traversNode(node, fieldAccessFindingVisitor);
-	return fieldAccessFindingVisitor.getFieldAccessNodes();
+export function getInputNodes(node: STNode) {
+	const inputNodeFindingVisitor: InputNodeFindingVisitor = new InputNodeFindingVisitor();
+	traversNode(node, inputNodeFindingVisitor);
+	return inputNodeFindingVisitor.getFieldAccessNodes();
 }
 
-export function getSimpleNameRefNodes(selectedST: STNode, node: STNode) {
-	const possibleReferences: string[] = [];
-	if (STKindChecker.isFunctionDefinition(selectedST)) {
-		const params = selectedST.functionSignature.parameters;
-		params.forEach((param) => {
-			if (STKindChecker.isRequiredParam(param) && param?.paramName) {
-				possibleReferences.push(param.paramName.value);
-			}
-		});
-	} else if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
-		const bindingPattern = selectedST.valueExpr.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
-		if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-			possibleReferences.push(bindingPattern.variableName.value);
-		}
-	}
-
-	const simpleNameRefsFindingVisitor: SimpleNameReferencesFindingVisitor =
-		new SimpleNameReferencesFindingVisitor(possibleReferences);
-	traversNode(node, simpleNameRefsFindingVisitor);
-	return simpleNameRefsFindingVisitor.getSimpleNameReferenceNodes();
-}
 
 export function getFieldName(field: EditableRecordField) {
 	if (!field.type?.name
@@ -941,3 +919,7 @@ function isEmptyValue(position: NodePosition): boolean {
 	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
 }
 
+export function isComplexExpression (node: STNode): boolean {
+	return (STKindChecker.isConditionalExpression(node)
+			|| (STKindChecker.isBinaryExpression(node) && STKindChecker.isElvisToken(node.operator)))
+}

@@ -290,8 +290,8 @@ export function getMatchingConnector(actionInvo: STNode): BallerinaConnectorInfo
         }
     } else if ((viewState.isEndpoint || isEndpointNode(actionInvo))
         && (STKindChecker.isLocalVarDecl(actionInvo) || STKindChecker.isModuleVarDecl(actionInvo))
-        && (STKindChecker.isQualifiedNameReference(actionInvo.typedBindingPattern.typeDescriptor))) {
-        const nameReference = actionInvo.typedBindingPattern.typeDescriptor as QualifiedNameReference;
+        && (getQualifiedNameReferenceNodeFromType(actionInvo.typedBindingPattern.typeDescriptor))) {
+        const nameReference = getQualifiedNameReferenceNodeFromType(actionInvo.typedBindingPattern.typeDescriptor);
         const typeSymbol = nameReference.typeData?.typeSymbol;
         const module = typeSymbol?.moduleID;
         if (typeSymbol && module) {
@@ -308,6 +308,19 @@ export function getMatchingConnector(actionInvo: STNode): BallerinaConnectorInfo
         }
     }
     return connector;
+}
+
+export function getQualifiedNameReferenceNodeFromType(node: STNode): QualifiedNameReference {
+    if (STKindChecker.isQualifiedNameReference(node)) {
+        return node;
+    } else if (STKindChecker.isUnionTypeDesc(node)) {
+        if (STKindChecker.isQualifiedNameReference(node.leftTypeDesc)) {
+            return node.leftTypeDesc;
+        } else {
+            return getQualifiedNameReferenceNodeFromType(node.rightTypeDesc);
+        }
+    }
+    return undefined;
 }
 
 export function isEndpointNode(node: STNode): boolean {

@@ -91,6 +91,7 @@ export interface EditorModel {
     isExistingStmt?: boolean;
     selectedNodePosition?: NodePosition;
     newConfigurableName?: string;
+    hasIncorrectSyntax?: boolean;
 }
 
 export interface SymbolIcon {

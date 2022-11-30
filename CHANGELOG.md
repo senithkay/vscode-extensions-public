@@ -16,6 +16,9 @@
 - Data Mapper - UI shows a valid transform function as invalid [239] (https://github.com/wso2/ballerina-plugin-vscode/issues/239)
 - Data Mapper - Links are not getting rendered for multi input mappings contains root level references [240] (https://github.com/wso2/ballerina-plugin-vscode/issues/240)
 - Data Mapper - Generates invalid source when there is an invalid expression body [242] (https://github.com/wso2/ballerina-plugin-vscode/issues/242)
+- Oops embarassing error when trying to edit a ModuleVarDecl without initialization [285] (https://github.com/wso2/ballerina-plugin-vscode/issues/285)
+- Data Mapper - Output type disappears when creating data mapping function [293] (https://github.com/wso2/ballerina-plugin-vscode/issues/293)
+- Data Mapper - Data Mapper puts auto-gen input param name as Type Name [329] (https://github.com/wso2/ballerina-plugin-vscode/issues/329)
 
 ## **3.3.3**
 ### Fixed
