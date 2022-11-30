@@ -107,10 +107,10 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
-            if(initiated){
+            if (initiated) {
                 setFetchingCompletions(true);
-                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
-                                            importStatements,fnST?.position || targetPosition , path);
+                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise,
+                    importStatements, fnST?.position || targetPosition, path);
                 setRecordCompletions(allCompletions);
                 setFetchingCompletions(false);
             }
@@ -327,7 +327,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                             message="Only records are currently supported as data mapper inputs"
                                         />
                                     )
-                                }                            />
+                                } />
                             <FormDivider />
                             <OutputTypeConfigPanel data-testid='dm-output'>
                                 <Title>Output Type</Title>
@@ -353,8 +353,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                         )}
                                         <OutputTypeContainer isInvalid={outputType.inInvalid}>
                                             <TypeName>{outputType.type}</TypeName>
-                                            <DeleteButton 
-                                                onClick={handleOutputDeleteClick} 
+                                            <DeleteButton
+                                                onClick={handleOutputDeleteClick}
                                                 dataTestId="data-mapper-config-delete-output"
                                                 icon={<DeleteOutLineIcon fontSize="small" />} />
                                         </OutputTypeContainer>
