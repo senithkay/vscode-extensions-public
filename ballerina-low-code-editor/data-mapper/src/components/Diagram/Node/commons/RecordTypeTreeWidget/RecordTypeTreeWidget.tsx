@@ -139,6 +139,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                     <IconButton
                         className={classes.expandIcon}
                         onClick={handleExpand}
+                        data-testid={`${id}-expand-icon-record-source-node`}
                     >
                         {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                     </IconButton>

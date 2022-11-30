@@ -73,6 +73,7 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
                             underline="hover"
                             onClick={handleClick}
                             className={classes.link}
+                            data-testid={`dm-header-breadcrumb-${index}`}
                         >
                             {isFnDef ? label : `${label}:query`}
                         </Link>

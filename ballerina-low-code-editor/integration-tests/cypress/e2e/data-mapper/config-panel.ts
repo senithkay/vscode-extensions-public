@@ -45,7 +45,6 @@ describe("Create new data mapper with new record from json imports", () => {
     it("Canvas contains source and target nodes", () => {
         DataMapper.getSourceNode("input");
         DataMapper.getTargetNode("Output");
-        console.log('getCurrentSpecFolder() + "transform-from-json-imports.bal"', getCurrentSpecFolder() + "transform-from-json-imports.bal")
     });
 
     it("Generated source code is valid", () => {

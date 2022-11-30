@@ -260,6 +260,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             className={classes.expandIcon}
                             style={{ marginLeft: indentation }}
                             onClick={handleExpand}
+                            data-testid={`${portIn?.getName()}-expand-icon-array-field`}
                         >
                             {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                         </IconButton>

@@ -119,13 +119,14 @@ export function LetClauseItem(props: {
                                     setNameEditable(false);
                                     setUpdatedName(variableName);
                                 }}
+                                data-testid={`let-clause-name-input-${itemIndex}`}
                             />
                         ) : (
-                            <span onClick={() => setNameEditable(true)}>{updatedName}</span>
+                            <span onClick={() => setNameEditable(true)} data-testid={`let-clause-name-${itemIndex}`}>{updatedName}</span>
                         )}
                     </span>
                     <span>{letVarDeclaration.equalsToken.value}</span>
-                    <span className={classes.clauseExpression} onClick={onEditClick}>
+                    <span className={classes.clauseExpression} onClick={onEditClick} data-testid={`let-clause-expression-${itemIndex}`}>
                         {letVarDeclaration.expression.source}
                     </span>
                 </div>
@@ -133,7 +134,7 @@ export function LetClauseItem(props: {
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} />
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`let-clause-delete-${itemIndex}`}/>
                 )}
             </div>
 

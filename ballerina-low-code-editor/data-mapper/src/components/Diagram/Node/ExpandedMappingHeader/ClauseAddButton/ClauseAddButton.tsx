@@ -100,7 +100,7 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         <>
             <div className={classes.lineWrap}>
                 <div className={classes.line} />
-                <div className={classes.addButtonWrap}>
+                <div className={classes.addButtonWrap} data-testid={`intermediary-add-btn-${addIndex}`}>
                     {isLoading ? (
                         <CircularProgress size={13} />
                     ) : (

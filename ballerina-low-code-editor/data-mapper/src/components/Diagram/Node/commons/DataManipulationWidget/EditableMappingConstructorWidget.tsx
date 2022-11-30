@@ -152,6 +152,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						className={classes.expandIcon}
 						style={{ marginLeft: indentation }}
 						onClick={handleExpand}
+						data-testid={`${id}-expand-icon-mapping-target-node`}
 					>
 						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
 					</IconButton>

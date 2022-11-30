@@ -47,7 +47,7 @@ export function WhereClauseItem(props: {
                 <div className={classes.clauseKeyWrap}>{intermediateNode.whereKeyword.value}</div>
 
                 <div className={classes.clauseWrap}>
-                    <span className={classes.clauseExpression} onClick={onEditClick}>
+                    <span className={classes.clauseExpression} onClick={onEditClick} data-testid={`where-clause-expression-${itemIndex}`}>
                         {intermediateNode.expression.source}
                     </span>
                 </div>
@@ -55,7 +55,7 @@ export function WhereClauseItem(props: {
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} />
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`where-clause-delete-${itemIndex}`}/>
                 )}
             </div>
 

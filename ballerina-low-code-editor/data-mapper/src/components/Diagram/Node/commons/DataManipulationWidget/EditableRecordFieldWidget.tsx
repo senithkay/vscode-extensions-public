@@ -229,6 +229,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             className={classes.expandIcon}
                             style={{ marginLeft: indentation }}
                             onClick={handleExpand}
+                            data-testid={`${portIn.getName()}-expand-icon-element`}
                         >
                             {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                         </IconButton>}
