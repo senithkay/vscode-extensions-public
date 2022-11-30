@@ -334,15 +334,17 @@ function DataMapperC(props: DataMapperProps) {
     }, [selection.state])
 
     const showConfigPanel = useMemo(() => {
-        if (!fnST) {
+        if (!fnST || !nodes.length) {
             return true
         }
-        const inputParams = getInputsFromST(fnST);
-        const outputType = getOutputTypeFromST(fnST);
-        if (inputParams.length === 0 || !outputType) {
-            return true
-        }
-    }, [fnST])
+        const inputParams = getInputsFromST(fnST, ballerinaVersion);
+        const hasInvalidInputs = inputParams.some(input => input.inInvalid);
+
+        const output = getOutputTypeFromST(fnST, ballerinaVersion);
+        const isInvalidOutput = output.inInvalid;
+
+        return hasInvalidInputs || isInvalidOutput;
+    }, [fnST, nodes])
 
     useEffect(() => {
         handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen || showConfigPanel);

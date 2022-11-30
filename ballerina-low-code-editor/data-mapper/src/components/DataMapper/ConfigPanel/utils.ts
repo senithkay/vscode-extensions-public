@@ -5,7 +5,9 @@ import {
     createFunctionSignature,
     getSelectedDiagnostics,
     getSource,
+    PrimitiveBalType,
     STModification,
+    Type,
     updateFunctionSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -13,6 +15,8 @@ import * as monaco from "monaco-editor";
 import { CompletionItemKind, Diagnostic } from "vscode-languageserver-protocol";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
+import { getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-utils";
+import { DM_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupported } from "../utils";
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
 import { DataMapperInputParam } from "./InputParamsPanel/types";
@@ -20,42 +24,50 @@ import { DataMapperInputParam } from "./InputParamsPanel/types";
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
 
+function isSupportedInput(param: RequiredParam, type: Type, balVersion: string): boolean {
+    const hasTypeName = param?.typeName !== undefined;
+    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
+    const alreadySupportedType = DM_SUPPORTED_INPUT_TYPES.some(t => t === type.typeName);
+    return hasTypeName && (alreadySupportedType || (!isUnsupportedType && isArraysSupported(balVersion)));
+}
+
+function isSupportedOutput(typeDesc: STNode, type: Type, balVersion: string): boolean {
+    const hasType = typeDesc !== undefined;
+    const isRecordType = type.typeName === PrimitiveBalType.Record;
+    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
+    return hasType && (isRecordType || (!isUnsupportedType && isArraysSupported(balVersion)));
+}
+
 export function getFnNameFromST(fnST: FunctionDefinition) {
     return fnST && fnST.functionName.value;
 }
 
-export const isValidInput = (param: RequiredParam): boolean => {
-    return (
-        param?.typeName &&
-        (STKindChecker.isSimpleNameReference(param?.typeName) ||
-            STKindChecker.isQualifiedNameReference(param?.typeName))
-    );
-};
-
-export const isValidOutput = (fnST: FunctionDefinition): boolean => {
-    return (
-        fnST?.functionSignature?.returnTypeDesc?.type &&
-        (STKindChecker.isSimpleNameReference(fnST?.functionSignature?.returnTypeDesc?.type) ||
-            STKindChecker.isQualifiedNameReference(fnST?.functionSignature?.returnTypeDesc?.type))
-    );
-};
-
-export function getInputsFromST(fnST: FunctionDefinition): DataMapperInputParam[] {
+export function getInputsFromST(fnST: FunctionDefinition, balVersion: string): DataMapperInputParam[] {
     let params: DataMapperInputParam[] = [];
     if (fnST) {
         // TODO: Check other Param Types
         const reqParams = fnST.functionSignature.parameters.filter((val) => STKindChecker.isRequiredParam(val)) as RequiredParam[];
-        params = reqParams.map((param) => ({
-            name: param.paramName.value,
-            type: getTypeFromTypeDesc(param.typeName),
-            inInvalid: !isValidInput(param)
-        }));
+        params = reqParams.map((param) => {
+            const typeName = getTypeFromTypeDesc(param.typeName);
+            const typeInfo = getTypeOfInputParam(param, balVersion);
+            return {
+                name: param.paramName.value,
+                type: typeName,
+                inInvalid: typeInfo && !isSupportedInput(param, typeInfo, balVersion)
+            }
+        });
     }
     return params;
 }
 
-export function getOutputTypeFromST(fnST: FunctionDefinition) {
-    return getTypeFromTypeDesc(fnST.functionSignature?.returnTypeDesc?.type)
+export function getOutputTypeFromST(fnST: FunctionDefinition, balVersion: string) {
+    const typeDesc = fnST.functionSignature?.returnTypeDesc?.type;
+    const typeName = getTypeFromTypeDesc(typeDesc);
+    const typeInfo = getTypeOfOutput(typeDesc, balVersion);
+    return {
+        type: typeName,
+        inInvalid: typeInfo && !isSupportedOutput(typeDesc, typeInfo, balVersion)
+    }
 }
 
 export function getTypeFromTypeDesc(typeDesc: TypeDescriptor) {

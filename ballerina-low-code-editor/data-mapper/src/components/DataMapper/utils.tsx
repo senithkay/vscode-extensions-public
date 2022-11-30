@@ -10,6 +10,26 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+export const DM_UNSUPPORTED_TYPES = [
+    PrimitiveBalType.Enum,
+    PrimitiveBalType.Error,
+    PrimitiveBalType.Json,
+    PrimitiveBalType.Union,
+    PrimitiveBalType.Xml
+];
+
+// Input types that the dm were supporting even before expanding the type support
+export const DM_SUPPORTED_INPUT_TYPES = [
+    PrimitiveBalType.Boolean,
+    PrimitiveBalType.Decimal,
+    PrimitiveBalType.Float,
+    PrimitiveBalType.Int,
+    PrimitiveBalType.Record,
+    PrimitiveBalType.String
+];
+
 const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
 
 export function isDMSupported(version: string): boolean {

@@ -35,8 +35,7 @@ import {
     getFnNameFromST,
     getInputsFromST,
     getModifiedTargetPosition,
-    getOutputTypeFromST,
-    isValidOutput
+    getOutputTypeFromST
 } from "./utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
@@ -53,7 +52,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         currentFile,
         importStatements,
         syntaxTree,
-        filePath
+        filePath,
+        ballerinaVersion
     } = props;
     const formClasses = useFormStyles();
 
@@ -161,16 +161,13 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             if (fnNameFromST === undefined) {
                 setFnNameFromST(getFnNameFromST(fnST));
             }
-            const inputs = getInputsFromST(fnST);
+            const inputs = getInputsFromST(fnST, ballerinaVersion);
             if (inputs && inputs.length > 0 && inputParams.length === 0) {
-                setInputParams(getInputsFromST(fnST));
+                setInputParams(inputs);
             }
-            const output = getOutputTypeFromST(fnST);
+            const output = getOutputTypeFromST(fnST, ballerinaVersion);
             if (output) {
-                setOutputType({
-                    type: getOutputTypeFromST(fnST),
-                    inInvalid: !isValidOutput(fnST)
-                });
+                setOutputType(output);
             } else {
                 setOutputType({ type: '', inInvalid: true });
             }
