@@ -47,13 +47,20 @@ function isSupportedType(node: STNode,
                          type: Type,
                          kind: 'input' | 'output',
                          balVersion: string): [boolean, TypeNature?] {
-    if (node === undefined) {
+    if (!node) {
         return [false, TypeNature.NOT_FOUND];
     }
 
     const isUnionType = STKindChecker.isUnionTypeDesc(node);
     const isArrayType = STKindChecker.isArrayTypeDesc(node);
     const isMapType = STKindChecker.isMapTypeDesc(node);
+    const isRecordType = STKindChecker.isRecordTypeDesc(node);
+
+    if (!type && isRecordType) {
+        return [false, TypeNature.WHITELISTED];
+    } else if (!type) {
+        return [false, TypeNature.NOT_FOUND];
+    }
     const isInvalid = type && type.typeName === "$CompilationError$";
 
     let isAlreadySupportedType: boolean;
@@ -73,12 +80,12 @@ function isSupportedType(node: STNode,
         return [false, TypeNature.YET_TO_SUPPORT];
     } else if (isInvalid) {
         return [false, TypeNature.INVALID];
-    } else if (isUnsupportedType) {
-        return [false, TypeNature.BLACKLISTED];
-    } else if (isArraysSupported(balVersion)) {
+    } else if (!isUnsupportedType && isArraysSupported(balVersion)) {
         return [true];
-    } else {
+    } else if (!isUnsupportedType) {
         return [false, TypeNature.WHITELISTED];
+    } else {
+        return [false, TypeNature.BLACKLISTED];
     }
 }
 
