@@ -4,11 +4,13 @@
     "description": "Render-er for Ballerina notebook rich outputs",
     "main": "index.js",
     "scripts": {
+        "prebuild": "npm i",
         "start": "webpack-dev-server --open",
         "compile": "webpack --mode none",
         "build": "webpack",
         "storybook": "start-storybook -p 6006",
-        "build-storybook": "build-storybook"
+        "build-storybook": "build-storybook",
+        "postbuild": "copyfiles -f build/*.js ../../resources/jslibs"
     },
     "keywords": [],
     "author": "",
@@ -23,6 +25,7 @@
         "@storybook/react": "^6.3.9",
         "awesome-typescript-loader": "^5.2.1",
         "babel-loader": "^8.2.2",
+        "copyfiles": "^2.4.1",
         "preact": "^10.6.6",
         "source-map-loader": "^3.0.0",
         "typescript": "^3.9.10",
