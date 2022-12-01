@@ -1,9 +1,25 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
+import React, { useState } from "react";
+
 import styled from "@emotion/styled";
+import { WarningBanner } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import React, { ReactNode, useEffect, useState } from "react";
-import { CurrentFileContext } from "../../Context/current-file-context";
+
 import { Title } from "../DataMapperConfigPanel";
 import { RecordButtonGroup } from "../RecordButtonGroup";
+
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";
@@ -17,7 +33,6 @@ export interface InputConfigWidgetProps {
     imports: string[];
     fnSTPosition: NodePosition;
     currentFileContent: string;
-    banner: ReactNode;
 }
 
 export function InputParamsPanel(props: InputConfigWidgetProps) {
@@ -29,11 +44,12 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
         setAddExistType,
         currentFileContent,
         fnSTPosition,
-        imports,
-        banner
+        imports
     } = props;
 
     const [editingIndex, setEditingIndex] = useState(-1);
+
+    const hasInvalidInputs = inputParams.some(input => input.inInvalid);
 
     const handleEnableAddNewRecord = () => {
         enableAddNewRecord();
@@ -73,10 +89,14 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
         onUpdateParams([...inputParams.filter((item, i) => index !== i)]);
     };
 
+    const typeUnsupportedBanner = hasInvalidInputs && (
+        <Warning message='Only records are currently supported as data mapper inputs' />
+    );
+
     return (
         <InputParamsContainer data-testid='dm-inputs'>
             <Title>Inputs</Title>
-            {banner}
+            {typeUnsupportedBanner}
             {inputParams.map((param, index) =>
                 editingIndex === index ? (
                     <InputParamEditor
@@ -118,3 +138,9 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
 }
 
 const InputParamsContainer = styled.div(() => ({}));
+
+const Warning = styled(WarningBanner)`
+    border-width: 1px !important;
+    width: unset;
+    margin: 5px 0;
+`
