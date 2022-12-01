@@ -140,7 +140,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	}
 	// TODO: Handle root level arrays
 	return (
-		<TreeContainer>
+		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
 					{portIn && (!hasValue || !expanded) &&
@@ -152,6 +152,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						className={classes.expandIcon}
 						style={{ marginLeft: indentation }}
 						onClick={handleExpand}
+						data-testid={`${id}-expand-icon-mapping-target-node`}
 					>
 						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
 					</IconButton>

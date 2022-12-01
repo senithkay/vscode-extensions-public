@@ -154,7 +154,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const diagnostic = (specificField.valueExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
@@ -181,7 +181,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             value={value}
                             onClick={handleEditValue}
                         >
-                            <span className={classes.valueWithError}>
+                            <span className={classes.valueWithError} data-testid={`record-widget-field-${portIn?.getName()}`}>
                                 {value}
                                 <span className={classes.errorIconWrapper}>
                                     <ErrorIcon />
@@ -189,7 +189,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             </span>
                         </DiagnosticTooltip>
                     ) : (
-                        <span className={classes.value} onClick={handleEditValue}>{value}</span>
+                        <span
+                            className={classes.value}
+                            onClick={handleEditValue}
+                            data-testid={`record-widget-field-${portIn?.getName()}`}
+                        >
+                            {value}
+                        </span>
                     )}
                 </>
             )}
@@ -228,6 +234,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 className={classes.expandIcon}
                                 style={{ marginLeft: indentation }}
                                 onClick={handleExpand}
+                                data-testid={`${portIn.getName()}-expand-icon-element`}
                             >
                                 {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                             </IconButton>
@@ -240,7 +247,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             {(isLoading || fieldId === props.context.fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />
                             ) : (
-                                <ValueConfigMenu menuItems={valConfigMenuItems} />
+                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()}/>
                             )}
                         </>
                     )}

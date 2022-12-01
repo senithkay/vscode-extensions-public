@@ -189,7 +189,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
     const elements: React.ReactNode[] = [
         (
             <>
-                <div className={classes.element} onClick={onClickEdit}>
+                <div className={classes.element} onClick={onClickEdit} data-testid={`expression-label-edit`}>
                     <div className={classes.iconWrapper}>
                         <CodeOutlinedIcon className={classes.codeIconButton}/>
                     </div>
@@ -200,7 +200,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
                         {loadingScreen}
                     </div>
                 ) : (
-                    <div className={classes.element} onClick={onClickDelete}>
+                    <div className={classes.element} onClick={onClickDelete} data-testid={`expression-label-delete`}>
                         <div className={classes.iconWrapper}>
                             <DeleteIcon className={classes.deleteIconButton}/>
                         </div>
@@ -300,6 +300,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
             </div>
         ) : (
             <div
+                data-testid={`expression-label-for-${props.model?.link?.getSourcePort()?.getName()}-to-${props.model?.link?.getTargetPort()?.getName()}`}
                 className={clsx(
                     classes.container,
                     linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden

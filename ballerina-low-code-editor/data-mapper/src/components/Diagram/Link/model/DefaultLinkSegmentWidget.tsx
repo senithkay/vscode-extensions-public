@@ -2,12 +2,14 @@ import * as React from "react";
 
 import { DefaultLinkSegmentWidgetProps } from "@projectstorm/react-diagrams";
 
+import { IntermediatePortModel } from "../../Port";
+
 import { DataMapperLinkModel } from "./DataMapperLink";
 
 export class DefaultLinkSegmentWidget extends React.Component<DefaultLinkSegmentWidgetProps> {
     render() {
         const isSelected = !(this.props.link as DataMapperLinkModel).notContainsLabel &&
-                            (this.props.selected || this.props.link.isSelected());
+            (this.props.selected || this.props.link.isSelected());
 
         const Bottom = React.cloneElement(
             this.props.factory.generateLinkSegment(
@@ -22,6 +24,15 @@ export class DefaultLinkSegmentWidget extends React.Component<DefaultLinkSegment
             }
         );
 
+        const sourcePortName =
+            this.props.link.getSourcePort() instanceof IntermediatePortModel
+                ? this.props.link.getSourcePort().getOptions().type
+                : this.props.link.getSourcePort().getName();
+        const targetPortName =
+            this.props.link.getTargetPort() instanceof IntermediatePortModel
+                ? this.props.link.getTargetPort().getOptions().type
+                : this.props.link.getTargetPort().getName();
+
         const Top = React.cloneElement(Bottom, {
             strokeLinecap: "round",
             onMouseLeave: () => {
@@ -33,6 +44,8 @@ export class DefaultLinkSegmentWidget extends React.Component<DefaultLinkSegment
             ...this.props.extras,
             ref: null,
             "data-linkid": this.props.link.getID(),
+            "data-testid": `link-from-${sourcePortName}-to-${targetPortName}`,
+            "data-diagnostics": !!(this.props.link as DataMapperLinkModel)?.diagnostics?.length,
             strokeOpacity: isSelected ? 0.1 : 0,
             strokeWidth: 10, // Note: Original strokeWidth was 20
             onContextMenu: () => {

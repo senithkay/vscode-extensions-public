@@ -107,7 +107,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
     const invisiblePort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
     return (
-        <TreeContainer>
+        <TreeContainer data-testid={`${id}-node`}>
             <div className={classes.queryPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>

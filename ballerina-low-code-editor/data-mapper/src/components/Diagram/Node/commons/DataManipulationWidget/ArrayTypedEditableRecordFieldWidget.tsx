@@ -252,7 +252,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             <div className={classes.ArrayFieldRow}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
+                        <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} dataTestId={`array-type-editable-record-field-${portIn.getName()}`}/>
                     }
                 </span>
                 <span className={classes.label}>
@@ -261,6 +261,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             className={classes.expandIcon}
                             style={{ marginLeft: indentation }}
                             onClick={handleExpand}
+                            data-testid={`${portIn?.getName()}-expand-icon-array-field`}
                         >
                             {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                         </IconButton>
@@ -280,13 +281,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                     },
                                 ]}
                                 isDisabled={!typeName || typeName === "[]"}
+                                portName={portIn?.getName()}
                             />
                         )}
                     </>
                 )}
             </div>
             {expanded && hasValue && listConstructor && (
-                <div>
+                <div data-testid={`array-widget-${portIn?.getName()}-values`}>
                     <div className={classes.innerTreeLabel}>
                         <span>[</span>
                         {arrayElements}
@@ -296,6 +298,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             onClick={handleAddArrayElement}
                             startIcon={isAddingElement ? <CircularProgress size={16} /> : <AddIcon />}
                             disabled={isAddingElement}
+                            data-testid={`array-widget-${portIn?.getName()}-add-element`}
                         >
                             Add Element
                         </Button>

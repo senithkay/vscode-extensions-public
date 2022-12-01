@@ -68,7 +68,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
     if (additionalActions && additionalActions.length > 0) {
         additionalActions.forEach((item, index) => {
             menuItems.push(
-                <MenuItem key={`${item.title}-${index}`} onClick={item.onClick}>
+                <MenuItem key={`${item.title}-${index}`} onClick={item.onClick} data-testid={`code-action-additional-${index}`}>
                     {item.title}
                 </MenuItem>
             );
@@ -80,6 +80,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
                 <MenuItem
                     key={index}
                     onClick={() => onCodeActionSelect(action)}
+                    data-testid={`code-action-${index}`}
                 >
                     {action.title}
                 </MenuItem>

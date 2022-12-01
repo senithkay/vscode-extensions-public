@@ -23,7 +23,7 @@ export function FunctionNameEditor(props: FunctionNameEditorProps)  {
                 label="Name"
                 placeholder="Data Mapper Name"
                 errorMessage={errorMessage}
-
+                dataTestId={`data-mapper-config-fn-name`}
             />
             {isValidating && <LinearProgress />}
         </>

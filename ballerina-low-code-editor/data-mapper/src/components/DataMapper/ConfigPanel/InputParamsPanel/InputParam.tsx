@@ -54,10 +54,12 @@ export function InputParamItem(props: InputParamItemProps) {
                     <EditButton
                         onClick={handleEdit}
                         icon={<EditIcon fontSize="small" />}
+                        dataTestId={`data-mapper-config-edit-input-${index}`}
                     />
                 )}
                 <DeleteButton
                     onClick={handleDelete}
+                    dataTestId={`data-mapper-config-delete-input-${index}`}
                     icon={<DeleteOutLineIcon fontSize="small" />}
                 />
             </Box>

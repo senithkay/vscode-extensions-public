@@ -123,7 +123,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     const invisiblePort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
     return (
-        <TreeContainer>
+        <TreeContainer data-testid={`${id}-node`}>
             <div className={classes.queryPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>
@@ -138,6 +138,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                     <IconButton
                         className={classes.expandIcon}
                         onClick={handleExpand}
+                        data-testid={`${id}-expand-icon-record-source-node`}
                     >
                         {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                     </IconButton>

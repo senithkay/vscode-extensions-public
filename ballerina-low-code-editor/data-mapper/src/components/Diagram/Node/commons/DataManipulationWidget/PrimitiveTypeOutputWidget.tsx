@@ -140,7 +140,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	}
 
 	return (
-		<TreeContainer>
+		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
 					{portIn && (!hasValue || !expanded) &&
@@ -152,6 +152,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 						className={classes.expandIcon}
 						style={{ marginLeft: indentation }}
 						onClick={handleExpand}
+						data-testid={`${id}-expand-icon-primitive-type`}
 					>
 						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
 					</IconButton>

@@ -318,9 +318,17 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 setAddExistType={setAddExistType}
                                 isAddExistType={isAddExistType}
                                 currentFileContent={currentFile?.content}
-                                fnSTPosition={fnST?.position as NodePosition || targetPosition}
+                                fnSTPosition={(fnST?.position as NodePosition) || targetPosition}
                                 imports={importStatements}
-                                banner={fnST && hasInvalidInputs && <Warning message='Only records are currently supported as data mapper inputs' />}
+                                banner={
+                                    fnST &&
+                                    hasInvalidInputs && (
+                                        <Warning
+                                            testId="unsupported-input-banner"
+                                            message="Only records are currently supported as data mapper inputs"
+                                        />
+                                    )
+                                }
                             />
                             <FormDivider />
                             <OutputTypeConfigPanel data-testid='dm-output'>
@@ -339,10 +347,19 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                     </>
                                 ) : (
                                     <>
-                                        {outputType.type && outputType.inInvalid && <Warning message='Only record type is currently supported as data mapper output' />}
+                                        {outputType.type && outputType.inInvalid && (
+                                            <Warning
+                                                testId="unsupported-output-banner"
+                                                message="Only record type is currently supported as data mapper output"
+                                            />
+                                        )}
                                         <OutputTypeContainer isInvalid={outputType.inInvalid}>
                                             <TypeName>{outputType.type}</TypeName>
-                                            <DeleteButton onClick={handleOutputDeleteClick} icon={<DeleteOutLineIcon fontSize="small" />} />
+                                            <DeleteButton
+                                                onClick={handleOutputDeleteClick}
+                                                dataTestId="data-mapper-config-delete-output"
+                                                icon={<DeleteOutLineIcon fontSize="small" />}
+                                            />
                                         </OutputTypeContainer>
                                     </>
                                 )}
