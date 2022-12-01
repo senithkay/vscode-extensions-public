@@ -27,8 +27,12 @@ jobs:
           format: 'markdown'
           output: 'both'    
 
+      - name: Get PR Number
+        id: pr
+        run: echo ::set-output name=number::$(cat number)
+
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          number: ${{ steps.download-artifact.outputs.number }}
+          number: ${{ steps.pr.outputs.number }}
           path: code-coverage-results.md   
