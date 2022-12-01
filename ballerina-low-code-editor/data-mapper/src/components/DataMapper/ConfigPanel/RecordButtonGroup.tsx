@@ -17,11 +17,12 @@ export function RecordButtonGroup(props: RecordButtonGroupProps) {
         onClick={openRecordEditor}
         startIcon={<AddIcon />}
         color="primary"
+        data-testid='new-record'
       >
         New Record
       </Button>
       OR
-      <Button onClick={showTypeList} color="primary">
+      <Button onClick={showTypeList} color="primary" data-testid='exiting-record'>
         Existing Record
       </Button>
     </>

@@ -16,6 +16,7 @@ import React, { useState } from "react";
 import { BallerinaConstruct } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { getQualifiedNameReferenceNodeFromType } from '../../../../Utils/index'
 import { DefaultConnectorIcon, DefaultIconProps } from "../Icon/DefaultConnectorIcon";
 
 export interface ModuleIconProps {
@@ -42,10 +43,10 @@ export function ModuleIcon(props: ModuleIconProps) {
 
     if (node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node))) {
         let moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.moduleID;
-        if (STKindChecker.isUnionTypeDesc(node.typedBindingPattern.typeDescriptor)){
-            moduleInfo = node.typedBindingPattern.typeDescriptor?.leftTypeDesc.typeData.typeSymbol?.moduleID;
+        if (!moduleInfo && getQualifiedNameReferenceNodeFromType(node.typedBindingPattern.typeDescriptor)){
+            moduleInfo = getQualifiedNameReferenceNodeFromType(node.typedBindingPattern.typeDescriptor).typeData.typeSymbol?.moduleID;
         }
-        if (STKindChecker.isArrayTypeDesc(node.typedBindingPattern.typeDescriptor)) {
+        if (!moduleInfo && STKindChecker.isArrayTypeDesc(node.typedBindingPattern.typeDescriptor)) {
             moduleInfo = node.typedBindingPattern.typeDescriptor?.typeData.typeSymbol?.memberTypeDescriptor.moduleID;
         }
         if (moduleInfo){

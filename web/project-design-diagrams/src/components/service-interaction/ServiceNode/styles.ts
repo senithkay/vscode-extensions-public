@@ -29,7 +29,7 @@ interface StyleProps {
 export const ServiceNode = styled.div`
     background-color: ${(props: StyleProps) => props.level === Level.ONE ? `#FFFFFF` :
         props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
-    border: ${(props: StyleProps) => props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` : `1px solid  ${Colors.PRIMARY}`};
+    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     border-bottom-left-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
@@ -44,7 +44,7 @@ export const ServiceNode = styled.div`
 export const ServiceHead = styled.div`
     align-items: center;
     border-bottom: ${(props: StyleProps) => props.level === Level.TWO ?
-        props.isSelected ? `2px solid ${Colors.PRIMARY_SELECTED}` : `1px solid ${Colors.PRIMARY}` : ``};
+        `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}` : ``};
     display: flex;
     font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;

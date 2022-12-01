@@ -56,7 +56,7 @@ export function DesignDiagram(props: DiagramProps) {
 
     useEffect(() => {
         refreshDiagramResources();
-    }, [])
+    }, [props])
 
     const getTypeComposition = (typeID: string) => {
         previousScreen.current = currentView;

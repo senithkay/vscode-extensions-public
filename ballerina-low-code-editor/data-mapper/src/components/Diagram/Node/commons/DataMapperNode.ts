@@ -42,7 +42,12 @@ import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapp
 import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 import { RecordFieldPortModel } from "../../Port";
-import { getBalRecFieldName, getFieldAccessNodes, getFieldName, getSimpleNameRefNodes } from "../../utils/dm-utils";
+import {
+	getInputNodes,
+	getBalRecFieldName,
+	getFieldName,
+	isComplexExpression 
+} from "../../utils/dm-utils";
 
 export interface DataMapperNodeModelGenerics {
 	PORT: RecordFieldPortModel;
@@ -204,10 +209,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	protected getOtherMappings(node: STNode, currentFields: STNode[]) {
 		const valNode = STKindChecker.isSpecificField(node) ? node.valueExpr : node;
-		const fieldAccessNodes = getFieldAccessNodes(valNode);
-		const simpleNameRefNodes = getSimpleNameRefNodes(this.context.selection.selectedST.stNode, valNode);
-		const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
-		if (inputNodes.length === 1) {
+		const inputNodes = getInputNodes(valNode);
+		if (inputNodes.length === 1 && !isComplexExpression(valNode)) {
 			return new FieldAccessToSpecificFied([...currentFields, node], inputNodes[0], valNode);
 		}
 		return new FieldAccessToSpecificFied([...currentFields, node], undefined , valNode);

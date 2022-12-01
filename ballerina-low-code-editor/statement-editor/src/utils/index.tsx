@@ -370,7 +370,9 @@ export function addImportStatements(
     modulesToBeImported: string[]): string {
     let moduleList: string = "";
     modulesToBeImported.forEach(module => {
-        moduleList += "import " + module + "; ";
+        if (!currentFileContent.includes(module)){
+            moduleList += "import " + module + ";"; // INFO: Adding new line fix comes with code action PR
+        }
     });
     return moduleList + currentFileContent;
 }
@@ -856,7 +858,10 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
         let paramList = params[1].split(',');
         paramList = paramList.map((param: string) => {
             if (param) {
-                const paramName = param.trim().split(' ').pop();
+                let paramName = param.trim().split(' ').pop();
+                if (paramName[0] === "'" && keywords.includes(paramName.slice(1))){
+                    paramName = paramName.slice(1);
+                }
                 return `${PARAM_CONSTRUCTOR}${paramName}`;
             }
         });

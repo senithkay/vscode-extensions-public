@@ -75,6 +75,7 @@ export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     initialSource: string;
     extraModules?: Set<string>;
     isHeaderHidden?: boolean;
+    skipSemicolon?: boolean;
 }
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
@@ -100,6 +101,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         extraModules,
         runBackgroundTerminalCommand,
         isExpressionMode,
+        skipSemicolon,
         ballerinaVersion,
         isCodeServerInstance,
         openExternalUrl,
@@ -121,6 +123,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     useEffect(() => {
         (async () => {
             let model = null;
+            let hasIncorrectSyntax = false;
             if (initialSource) {
                 await sendDidOpen(fileURI, currentFile.originalContent ? currentFile.originalContent
                     : currentFile.content, getLangClient);
@@ -133,6 +136,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     model = partialST;
+                } else {
+                    hasIncorrectSyntax = true
                 }
             }
             const newEditor: EditorModel = {
@@ -143,6 +148,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 isConfigurableStmt,
                 isModuleVar,
                 undoRedoManager: new StmtEditorUndoRedoManager(),
+                hasIncorrectSyntax
             };
 
             setEditors((prevEditors: EditorModel[]) => {
@@ -248,6 +254,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             experimentalEnabled={experimentalEnabled}
                             runBackgroundTerminalCommand={runBackgroundTerminalCommand}
                             isExpressionMode={isExpressionMode}
+                            skipSemicolon={skipSemicolon}
                             ballerinaVersion={ballerinaVersion}
                             isCodeServerInstance={isCodeServerInstance}
                             openExternalUrl={openExternalUrl}

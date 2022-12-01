@@ -11,9 +11,10 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
+import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { QueryExpression } from "@wso2-enterprise/syntax-tree";
-
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { RightAnglePortModel } from "../../Port/RightAnglePort/RightAnglePortModel";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const EXPANDED_MAPPING_HEADER_NODE_TYPE = "datamapper-node-expanded-mapping-header";
@@ -22,6 +23,8 @@ export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
 
     public x: number;
     public y: number;
+    public sourcePort: RightAnglePortModel;
+    public targetPorts: PortModel<PortModelGenerics>[];
 
     constructor(
         public context: IDataMapperContext,
@@ -34,21 +37,25 @@ export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        // N/A
+        this.sourcePort = new RightAnglePortModel(false, EXPANDED_MAPPING_HEADER_NODE_TYPE)
+        this.addPort(this.sourcePort);
     }
 
-    initLinks() {
-        // Currently we create links from "IN" ports and back tracing the inputs.
+    async initLinks() {
+        for (const targetPort of this.targetPorts) {
+            const link = this.sourcePort.link(targetPort)
+            this.getModel().addAll(link);
+        }
     }
 
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
-        if ( typeof x === 'number' && typeof y === 'number'){
-            if (!this.x || !this.y){
+        if (typeof x === 'number' && typeof y === 'number') {
+            if (!this.x || !this.y) {
                 this.x = x;
                 this.y = y;
-                super.setPosition(x,y);
+                super.setPosition(x, y);
             }
         }
     }

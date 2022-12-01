@@ -124,7 +124,7 @@ export function InputEditor(props: InputEditorProps) {
             setIsEditing(false);
             if (currentModel.model === model && suggestion) {
                 setUserInput(suggestion);
-            } else if (STKindChecker.isFunctionCall(currentModel.model)
+            } else if (currentModel.model && STKindChecker.isFunctionCall(currentModel.model)
                         && currentModel.model.functionName === model && suggestion) {
                 setUserInput(suggestion);
             }
@@ -198,13 +198,13 @@ export function InputEditor(props: InputEditorProps) {
             // Check syntax diagnostics
             let isIncorrectSyntax = false;
             const semicolonRegex = new RegExp('(;)(?=(?:[^"]|"[^"]*")*$)');
-            if (userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
+            if (model && userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
                 isIncorrectSyntax = semicolonRegex.test(userInput);
             }
             if (isIncorrectSyntax) {
                 updateSyntaxDiagnostics(true);
             } else {
-                setUserInput(userInput) ;
+                setUserInput(userInput);
                 const input = (userInput === FUNCTION_CALL_PLACEHOLDER && config.type === CALL_CONFIG_TYPE) ?
                     FUNCTION_CALL : userInput;
                 // Replace empty interpolation with placeholder value
