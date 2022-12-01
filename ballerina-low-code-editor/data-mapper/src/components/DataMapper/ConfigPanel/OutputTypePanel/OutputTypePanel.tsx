@@ -21,6 +21,7 @@ import { Title } from "../DataMapperConfigPanel";
 import { DataMapperOutputParam } from "../InputParamsPanel/types";
 import { RecordButtonGroup } from "../RecordButtonGroup";
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
+import { getTypeIncompatibilityMsg } from "../utils";
 
 export interface OutputConfigWidgetProps {
     outputType: DataMapperOutputParam;
@@ -45,8 +46,10 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
         handleOutputDeleteClick
     } = props;
 
+    const typeIncompatibilityMsg = outputType.isUnsupported
+        && getTypeIncompatibilityMsg(outputType.typeNature, outputType.type, "output");
     const typeUnsupportedBanner = outputType.isUnsupported && (
-        <Warning message='Only record type is currently supported as data mapper output' />
+        <Warning message={typeIncompatibilityMsg} />
     );
 
     return (
@@ -66,7 +69,6 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
                 </>
             ) : (
                 <>
-                    {outputType.type && outputType.isUnsupported && typeUnsupportedBanner}
                     <OutputTypeContainer isInvalid={outputType.isUnsupported}>
                         <TypeName>{outputType.type}</TypeName>
                         <DeleteButton
@@ -74,6 +76,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
                             icon={<DeleteOutLineIcon fontSize="small" />}
                         />
                     </OutputTypeContainer>
+                    {outputType.type && outputType.isUnsupported && typeUnsupportedBanner}
                 </>
             )}
         </OutputTypeConfigPanel>

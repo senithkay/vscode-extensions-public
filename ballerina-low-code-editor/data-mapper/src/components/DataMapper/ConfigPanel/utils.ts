@@ -43,6 +43,17 @@ import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./Input
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
 
+/* tslint:disable-next-line */
+export const PROVIDED_TYPE = "${PROVIDED_TYPE}";
+/* tslint:disable-next-line */
+export const IO_KIND = "${IO_KIND}";
+export const DM_TYPES_UNSUPPORTED_MSG = `${PROVIDED_TYPE} is not supported as data mapper ${IO_KIND}`;
+export const DM_TYPES_NOT_FOUND_MSG = `Unrecognized type`;
+export const DM_TYPES_YET_TO_SUPPORT_MSG = `${PROVIDED_TYPE} is currently not supported as data mapper ${IO_KIND}`;
+export const DM_TYPES_SUPPORTED_IN_LATEST_MSG = `Type ${PROVIDED_TYPE} is not supported by the data mapper for your Ballerina version.
+ Please upgrade Ballerina to the latest version to use this type`;
+export const DM_TYPES_INVALID_MSG = `${PROVIDED_TYPE} is not a valid type descriptor`;
+
 function isSupportedType(node: STNode,
                          type: Type,
                          kind: 'input' | 'output',
@@ -127,9 +138,31 @@ export function getOutputTypeFromST(fnST: FunctionDefinition, balVersion: string
     }
 }
 
+export function getTypeIncompatibilityMsg(nature: TypeNature,
+                                          typeName: string,
+                                          kind?: 'input' | 'output'): string {
+    switch (nature) {
+        case TypeNature.WHITELISTED: {
+            return DM_TYPES_SUPPORTED_IN_LATEST_MSG.replace(PROVIDED_TYPE, typeName);
+        }
+        case TypeNature.BLACKLISTED: {
+            return DM_TYPES_UNSUPPORTED_MSG.replace(PROVIDED_TYPE, typeName).replace(IO_KIND, kind);
+        }
+        case TypeNature.YET_TO_SUPPORT: {
+            return DM_TYPES_YET_TO_SUPPORT_MSG.replace(PROVIDED_TYPE, typeName).replace(IO_KIND, kind);
+        }
+        case TypeNature.INVALID: {
+            return DM_TYPES_INVALID_MSG.replace(PROVIDED_TYPE, typeName);
+        }
+        case TypeNature.NOT_FOUND: {
+            return DM_TYPES_NOT_FOUND_MSG;
+        }
+    }
+}
+
 export function getTypeFromTypeDesc(typeDesc: TypeDescriptor) {
     if (typeDesc && STKindChecker.isSimpleNameReference(typeDesc)) {
-        return typeDesc.name.value;
+        return !typeDesc.name.isMissing ? typeDesc.name.value : typeDesc?.source?.trim();
     } else if (typeDesc && STKindChecker.isQualifiedNameReference(typeDesc)) {
         return typeDesc.source?.trim();
     }

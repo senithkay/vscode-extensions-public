@@ -19,6 +19,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Title } from "../DataMapperConfigPanel";
 import { RecordButtonGroup } from "../RecordButtonGroup";
+import { getTypeIncompatibilityMsg } from "../utils";
 
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
@@ -48,8 +49,6 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
     } = props;
 
     const [editingIndex, setEditingIndex] = useState(-1);
-
-    const hasInvalidInputs = inputParams.some(input => input.isUnsupported);
 
     const handleEnableAddNewRecord = () => {
         enableAddNewRecord();
@@ -89,32 +88,37 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
         onUpdateParams([...inputParams.filter((item, i) => index !== i)]);
     };
 
-    const typeUnsupportedBanner = hasInvalidInputs && (
-        <Warning message='Only records are currently supported as data mapper inputs' />
-    );
-
     return (
         <InputParamsContainer data-testid='dm-inputs'>
             <Title>Inputs</Title>
-            {typeUnsupportedBanner}
             {inputParams.map((param, index) =>
                 editingIndex === index ? (
-                    <InputParamEditor
-                        index={editingIndex}
-                        param={param}
-                        onUpdate={onUpdate}
-                        onCancel={onUpdateCancel}
-                        currentFileContent={currentFileContent}
-                        fnSTPosition={fnSTPosition}
-                        imports={imports}
-                    />
+                    <>
+                        <InputParamEditor
+                            index={editingIndex}
+                            param={param}
+                            onUpdate={onUpdate}
+                            onCancel={onUpdateCancel}
+                            currentFileContent={currentFileContent}
+                            fnSTPosition={fnSTPosition}
+                            imports={imports}
+                        />
+                        {param.isUnsupported && (
+                            <Warning message={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")} />
+                        )}
+                    </>
                 ) : (
-                    <InputParamItem
-                        index={index}
-                        inputParam={param}
-                        onEditClick={onEditClick}
-                        onDelete={onDeleteClick}
-                    />
+                    <>
+                        <InputParamItem
+                            index={index}
+                            inputParam={param}
+                            onEditClick={onEditClick}
+                            onDelete={onDeleteClick}
+                        />
+                        {param.isUnsupported && (
+                            <Warning message={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")} />
+                        )}
+                    </>
                 )
             )}
             {isAddExistType && (
