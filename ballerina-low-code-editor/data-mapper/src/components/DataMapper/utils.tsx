@@ -14,6 +14,16 @@ import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-com
 
 export const ObjectBalType = "object";
 
+// Input types that the dm were supporting even before expanding the type support
+export const DM_INHERENTLY_SUPPORTED_INPUT_TYPES = [
+    PrimitiveBalType.Boolean,
+    PrimitiveBalType.Decimal,
+    PrimitiveBalType.Float,
+    PrimitiveBalType.Int,
+    PrimitiveBalType.Record,
+    PrimitiveBalType.String
+];
+
 export const DM_UNSUPPORTED_TYPES = [
     PrimitiveBalType.Enum,
     PrimitiveBalType.Error,
@@ -23,16 +33,6 @@ export const DM_UNSUPPORTED_TYPES = [
     PrimitiveBalType.Var,
     PrimitiveBalType.Nil,
     ObjectBalType
-];
-
-// Input types that the dm were supporting even before expanding the type support
-export const DM_INHERENTLY_SUPPORTED_INPUT_TYPES = [
-    PrimitiveBalType.Boolean,
-    PrimitiveBalType.Decimal,
-    PrimitiveBalType.Float,
-    PrimitiveBalType.Int,
-    PrimitiveBalType.Record,
-    PrimitiveBalType.String
 ];
 
 const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");

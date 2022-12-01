@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     addToTargetPosition,
@@ -10,7 +22,14 @@ import {
     Type,
     updateFunctionSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, NodePosition, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import {
+    FunctionDefinition,
+    ModulePart,
+    NodePosition,
+    RequiredParam,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { CompletionItemKind, Diagnostic } from "vscode-languageserver-protocol";
 
@@ -19,29 +38,48 @@ import { getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-uti
 import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupported } from "../utils";
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
-import { DataMapperInputParam, DataMapperOutputParam } from "./InputParamsPanel/types";
+import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./InputParamsPanel/types";
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
 
-function isSupportedInput(param: RequiredParam, type: Type, balVersion: string): boolean {
-    const hasTypeName = param?.typeName !== undefined;
-    const isMapType = STKindChecker.isMapTypeDesc(param.typeName);
-    const isUnionType = STKindChecker.isUnionTypeDesc(param.typeName);
-    const isArrayType = STKindChecker.isArrayTypeDesc(param.typeName);
-    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName) || isMapType;
-    const alreadySupportedType = DM_INHERENTLY_SUPPORTED_INPUT_TYPES.some(t => {
-        return t === type.typeName && !isUnionType && !isArrayType;
-    });
-    return hasTypeName && (alreadySupportedType || (!isUnsupportedType && isArraysSupported(balVersion)));
-}
+function isSupportedType(node: STNode,
+                         type: Type,
+                         kind: 'input' | 'output',
+                         balVersion: string): [boolean, TypeNature?] {
+    if (node === undefined) {
+        return [false, TypeNature.NOT_FOUND];
+    }
 
-function isSupportedOutput(typeDesc: STNode, type: Type, balVersion: string): boolean {
-    const hasType = typeDesc !== undefined;
-    const isMapType = STKindChecker.isMapTypeDesc(typeDesc);
-    const isRecordType = type.typeName === PrimitiveBalType.Record && !STKindChecker.isArrayTypeDesc(typeDesc);
-    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName) || isMapType;
-    return hasType && (isRecordType || (!isMapType && !isUnsupportedType && isArraysSupported(balVersion)));
+    const isUnionType = STKindChecker.isUnionTypeDesc(node);
+    const isArrayType = STKindChecker.isArrayTypeDesc(node);
+    const isMapType = STKindChecker.isMapTypeDesc(node);
+    const isInvalid = type && type.typeName === "$CompilationError$";
+
+    let isAlreadySupportedType: boolean;
+    if (kind === 'input') {
+        isAlreadySupportedType = DM_INHERENTLY_SUPPORTED_INPUT_TYPES.some(t => {
+            return t === type.typeName && !isUnionType && !isArrayType;
+        });
+    } else {
+        isAlreadySupportedType = type.typeName === PrimitiveBalType.Record && !isArrayType;
+    }
+
+    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
+
+    if (isAlreadySupportedType) {
+        return [true];
+    } else if (isUnionType || isMapType) {
+        return [false, TypeNature.YET_TO_SUPPORT];
+    } else if (isInvalid) {
+        return [false, TypeNature.INVALID];
+    } else if (isUnsupportedType) {
+        return [false, TypeNature.BLACKLISTED];
+    } else if (isArraysSupported(balVersion)) {
+        return [true];
+    } else {
+        return [false, TypeNature.WHITELISTED];
+    }
 }
 
 export function getFnNameFromST(fnST: FunctionDefinition) {
@@ -56,11 +94,12 @@ export function getInputsFromST(fnST: FunctionDefinition, balVersion: string): D
         params = reqParams.map((param) => {
             const typeName = getTypeFromTypeDesc(param.typeName);
             const typeInfo = getTypeOfInputParam(param, balVersion);
-            const isInvalid = typeInfo && typeInfo.typeName === "$CompilationError$";
+            const [isSupported, nature] = isSupportedType(param.typeName, typeInfo, 'input', balVersion);
             return {
                 name: param.paramName.value,
                 type: typeName,
-                isUnsupported: typeInfo ? isInvalid || !isSupportedInput(param, typeInfo, balVersion) : true
+                isUnsupported: typeInfo ? !isSupported : true,
+                typeNature: nature
             }
         });
     }
@@ -72,10 +111,11 @@ export function getOutputTypeFromST(fnST: FunctionDefinition, balVersion: string
     if (typeDesc) {
         const typeName = getTypeFromTypeDesc(typeDesc);
         const typeInfo = getTypeOfOutput(typeDesc, balVersion);
-        const isInvalid = typeInfo && typeInfo.typeName === "$CompilationError$";
+        const [isSupported, nature] = isSupportedType(typeDesc, typeInfo, 'output', balVersion);
         return {
             type: typeName,
-            isUnsupported: typeInfo ? isInvalid || !isSupportedOutput(typeDesc, typeInfo, balVersion) : true
+            isUnsupported: typeInfo ? !isSupported : true,
+            typeNature: nature
         }
     }
 }
