@@ -22,10 +22,9 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { ComponentModel, Views } from './resources';
+import { AddComponentDetails, ComponentModel, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
-import { AddButton } from './editing/AddBtn/AddBtn';
-import { EditForm } from './components/common/EditForm/EditForm';
+import { AddButton, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 
@@ -47,7 +46,7 @@ const Container = styled.div`
 
 interface DiagramProps {
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>;
-    createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
+    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
     editingEnabled?: boolean;
@@ -82,15 +81,24 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     const onComponentAddClick = () => {
-        console.log("Button Clicked")
         setShowEditForm(true);
     }
 
+    const getDefaultOrg = (): string => {
+        let parentOrg: string = '';
+        if (projectComponents && projectComponents.size > 0) {
+            parentOrg = [...projectComponents][0][1].packageId.org;
+        }
+        return parentOrg;
+    }
+
     return (
-        <DesignDiagramContext {...{getTypeComposition, currentView, pickDirectory, getProjectRoot, createService }}>
+        <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, getProjectRoot, createService }}>
             <Container>
-            {editingEnabled && <AddButton onClick={onComponentAddClick}/>}
-            {showEditForm && <EditForm visibility={true} updateVisibility={setShowEditForm} />}
+                {editingEnabled && <AddButton onClick={onComponentAddClick} />}
+                {showEditForm && currentView === Views.L1_SERVICES &&
+                    <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={getDefaultOrg()} />
+                }
 
                 {currentView && projectPkgs ?
                     <>

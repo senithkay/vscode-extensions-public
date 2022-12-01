@@ -17,7 +17,6 @@
  *
  */
 
-
 import styled from '@emotion/styled';
 
 const background = require('../../../../resources/assets/PatternBg.svg') as string;
@@ -33,7 +32,7 @@ export const Canvas = styled.div`
 `;
 
 export const ControlPanel = styled.div`
-    bottom: 10px;
+    bottom: 15px;
     display: flex;
     flex-direction: column;
     height: 110px;

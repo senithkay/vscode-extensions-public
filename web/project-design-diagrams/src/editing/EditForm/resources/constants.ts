@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,9 @@
  *
  */
 
+import { SxProps } from "@mui/material";
+import { CSSProperties } from "react";
+
 export const PackageNameRegex: RegExp = new RegExp('^[a-zA-Z0-9\.\_]+$');
 export const OrganizationRegex: RegExp = new RegExp('^[a-zA-Z0-9\_]+$');
 export const VersionRegex: RegExp = new RegExp('^[a-zA-Z0-9\.\-]+$');
@@ -29,10 +32,14 @@ export const VersioningRules: string = 'Should follow the SemVer best practices.
 
 export const ButtonColor: string = '#efeff5';
 
-export interface ComponentDetails {
-    name: string;
-    version: string;
-    organization: string;
-    package: string;
-    directory: string;
+export const TypeInputProps: SxProps = {
+    fontFamily: 'GilmerRegular',
+    fontSize: '14px',
+    height: '40px',
+    margin: '10px'
+}
+
+export const DefaultTextProps: CSSProperties = {
+    fontFamily: 'GilmerRegular',
+    fontSize: '15px'
 }

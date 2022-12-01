@@ -17,25 +17,7 @@
  *
  */
 
-import React from 'react';
-import AddIcon from '@mui/icons-material/Add';
-import Fab from '@mui/material/Fab';
-import styled from '@emotion/styled';
-
-const Container = styled.div`
-    position: absolute;
-    bottom: 200px;
-    left: 100px;
-`;
-
-export function AddButton(props: { onClick: () => void }) {
-    const { onClick } = props;
-
-    return (
-        <Container onClick={onClick}>
-            <Fab color="primary" aria-label="add" >
-                <AddIcon />
-            </Fab>
-        </Container>
-    )
-}
+export { AdvancedSettingsWidget } from './AdvancedSettingsWidget';
+export { BasicSettingsWidget } from './BasicSettingsWidget';
+export { ControlButton } from './ControlButtons';
+export { TextInputWidget } from './TextInput';

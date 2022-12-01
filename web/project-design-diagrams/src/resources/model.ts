@@ -103,15 +103,30 @@ export interface Cardinality {
 }
 
 export interface ConnectorProps {
-	point: PointModel;
+    point: PointModel;
     previousPoint: PointModel;
-	cardinality: string;
+    cardinality: string;
     color: string;
 }
 
 export interface ServiceModels {
     levelOne: DiagramModel;
     levelTwo: DiagramModel;
+}
+
+export interface AddComponentDetails {
+    type: string;
+    name: string;
+    directory: string;
+    initialize: boolean;
+    package?: string;
+    org?: string;
+    version?: string;
+}
+
+export enum ComponentType {
+    BALLERINA = 'bal',
+    OTHER = 'other'
 }
 
 export enum Views {

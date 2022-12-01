@@ -18,13 +18,13 @@
  */
 
 import React, { createContext, ReactNode } from 'react';
-import { Views } from '../../../resources';
+import { AddComponentDetails, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
     getTypeComposition: (entityID: string) => void;
     currentView: Views;
-    createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
+    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
 }
@@ -32,7 +32,7 @@ interface DiagramContextProps {
 interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
     currentView: Views;
-    createService: (packageName: string, org?: string, version?: string) => Promise<boolean | undefined>;
+    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
 }

@@ -19,7 +19,7 @@
 
 import React from 'react';
 import Button from '@mui/material/Button';
-import { Colors } from '../../../../resources';
+import { Colors } from '../../../resources';
 
 interface ControlButtonProps {
     label: string;
