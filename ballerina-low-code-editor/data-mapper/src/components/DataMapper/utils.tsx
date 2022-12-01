@@ -12,12 +12,15 @@
  */
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+export const ObjectBalType = "object";
+
 export const DM_UNSUPPORTED_TYPES = [
     PrimitiveBalType.Enum,
     PrimitiveBalType.Error,
     PrimitiveBalType.Json,
     PrimitiveBalType.Union,
-    PrimitiveBalType.Xml
+    PrimitiveBalType.Xml,
+    ObjectBalType
 ];
 
 // Input types that the dm were supporting even before expanding the type support

@@ -17,12 +17,17 @@ import {
     useStyles as useFormStyles,
     WarningBanner,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+    ExpressionFunctionBody,
+    FunctionDefinition,
+    NodePosition,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 
 import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
 import { CurrentFileContext } from "../Context/current-file-context";
 import { LSClientContext } from "../Context/ls-client-context";
-import { DataMapperProps } from "../DataMapper";
 
 import { FunctionNameEditor } from "./FunctionNameEditor";
 import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
@@ -33,36 +38,55 @@ import {
     getDefaultFnName,
     getDiagnosticsForFnName,
     getFnNameFromST,
-    getInputsFromST,
-    getModifiedTargetPosition,
-    getOutputTypeFromST
+    getModifiedTargetPosition
 } from "./utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
 export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
 
-export function DataMapperConfigPanel(props: DataMapperProps) {
+export interface DataMapperConfigPanelProps {
+    fnST: FunctionDefinition;
+    targetPosition?: NodePosition;
+    importStatements: string[];
+    syntaxTree?: STNode;
+    filePath: string;
+    inputs: DataMapperInputParam[];
+    output: DataMapperOutputParam;
+    currentFile?: {
+        content: string,
+        path: string,
+        size: number
+    };
+    onSave: (fnName: string) => void;
+    onClose: () => void;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
+    recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element;
+}
+
+
+export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const {
-        onClose,
         fnST,
-        applyModifications,
         targetPosition,
-        onSave,
-        recordPanel,
-        currentFile,
         importStatements,
         syntaxTree,
         filePath,
-        ballerinaVersion
+        inputs,
+        output,
+        currentFile,
+        onSave,
+        onClose,
+        applyModifications,
+        recordPanel
     } = props;
     const formClasses = useFormStyles();
 
     const langClientPromise = useContext(LSClientContext);
 
     const [fnNameFromST, setFnNameFromST] = useState(getFnNameFromST(fnST));
-    const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
+    const [inputParams, setInputParams] = useState<DataMapperInputParam[]>(inputs);
     const [fnName, setFnName] = useState(fnNameFromST === undefined ? DM_DEFAULT_FUNCTION_NAME : fnNameFromST);
-    const [outputType, setOutputType] = useState<DataMapperOutputParam>({ type: '', inInvalid: false });
+    const [outputType, setOutputType] = useState<DataMapperOutputParam>(output);
     const [isNewRecord, setIsNewRecord] = useState(false);
     const [isAddExistType, setAddExistType] = useState(false);
     const [dmFuncDiagnostic, setDmFuncDiagnostic] = useState("");
@@ -102,10 +126,10 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
 
     useEffect(() => {
         (async () => {
-            if(initiated){
+            if (initiated){
                 setFetchingCompletions(true);
-                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
-                                            importStatements,fnST?.position || targetPosition , path);
+                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise,
+                                            importStatements, fnST?.position || targetPosition , path);
                 setRecordCompletions(allCompletions);
                 setFetchingCompletions(false);
             }
@@ -157,22 +181,18 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     };
 
     useEffect(() => {
-        if (fnST && initiated) {
+        setInputParams(inputs);
+        setOutputType(output);
+        setFnNameFromST(getFnNameFromST(fnST));
+    }, [inputs, output]);
+
+    useEffect(() => {
+        if (fnST) {
             if (fnNameFromST === undefined) {
                 setFnNameFromST(getFnNameFromST(fnST));
             }
-            const inputs = getInputsFromST(fnST, ballerinaVersion);
-            if (inputs && inputs.length > 0 && inputParams.length === 0) {
-                setInputParams(inputs);
-            }
-            const output = getOutputTypeFromST(fnST, ballerinaVersion);
-            if (output) {
-                setOutputType(output);
-            } else {
-                setOutputType({ type: '', inInvalid: true });
-            }
         }
-    }, [fnST, initiated]);
+    }, [fnST]);
 
     useEffect(() => {
         if (outputType.type) {

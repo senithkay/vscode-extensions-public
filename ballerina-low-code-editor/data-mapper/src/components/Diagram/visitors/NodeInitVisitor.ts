@@ -54,90 +54,92 @@ export class NodeInitVisitor implements Visitor {
     ) { }
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
-        const typeDesc = node.functionSignature?.returnTypeDesc.type;
+        const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
         let isFnBodyQueryExpr = false;
         if (typeDesc) {
             if (STKindChecker.isExpressionFunctionBody(node.functionBody)) {
                 const returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
 
-                if (returnType.typeName === PrimitiveBalType.Record) {
-                    this.outputNode = new MappingConstructorNode(
-                        this.context,
-                        node.functionBody,
-                        typeDesc
-                    );
-                } else if (returnType.typeName === PrimitiveBalType.Array) {
-                    if (STKindChecker.isQueryExpression(node.functionBody.expression)
-                        && this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY)
-                    {
-                        isFnBodyQueryExpr = true;
-                        const selectClause = node.functionBody.expression.selectClause;
-                        if (returnType.memberType.typeName === PrimitiveBalType.Record) {
-                            this.outputNode = new MappingConstructorNode(
+                if (returnType) {
+                    if (returnType.typeName === PrimitiveBalType.Record) {
+                        this.outputNode = new MappingConstructorNode(
+                            this.context,
+                            node.functionBody,
+                            typeDesc
+                        );
+                    } else if (returnType.typeName === PrimitiveBalType.Array) {
+                        if (STKindChecker.isQueryExpression(node.functionBody.expression)
+                            && this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY)
+                        {
+                            isFnBodyQueryExpr = true;
+                            const selectClause = node.functionBody.expression.selectClause;
+                            if (returnType.memberType.typeName === PrimitiveBalType.Record) {
+                                this.outputNode = new MappingConstructorNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    node.functionBody.expression
+                                );
+                            } else if (returnType.memberType.typeName === PrimitiveBalType.Array) {
+                                this.outputNode = new ListConstructorNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    node.functionBody.expression
+                                );
+                            } else {
+                                this.outputNode = new PrimitiveTypeNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    node.functionBody.expression
+                                );
+                            }
+
+                            const fromClauseNode = new FromClauseNode(
                                 this.context,
-                                selectClause,
-                                typeDesc,
-                                node.functionBody.expression
+                                node.functionBody.expression.queryPipeline.fromClause
                             );
-                        } else if (returnType.memberType.typeName === PrimitiveBalType.Array) {
+                            fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                            this.inputNodes.push(fromClauseNode);
+                            //
+                            // const letClauses =
+                            //     node.functionBody.expression.queryPipeline.intermediateClauses?.filter(
+                            //         (item) =>
+                            //             STKindChecker.isLetClause(item) &&
+                            //             (
+                            //                 (item.letVarDeclarations[0] as LetVarDecl)
+                            //                     ?.expression as SimpleNameReference
+                            //             )?.name?.value !== "EXPRESSION"
+                            //     );
+                            //
+                            // for (const [index, item] of letClauses.entries()) {
+                            //     const paramNode = new LetClauseNode(this.context, item as LetClause);
+                            //     paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                            //     this.inputNodes.push(paramNode);
+                            // }
+                            //
+                            // const queryNode = new ExpandedMappingHeaderNode(this.context, node.functionBody.expression);
+                            // queryNode.setLocked(true)
+                            // queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
+                            // this.intermediateNodes.push(queryNode);
+                        } else {
                             this.outputNode = new ListConstructorNode(
                                 this.context,
-                                selectClause,
-                                typeDesc,
-                                node.functionBody.expression
-                            );
-                        } else {
-                            this.outputNode = new PrimitiveTypeNode(
-                                this.context,
-                                selectClause,
-                                typeDesc,
-                                node.functionBody.expression
+                                node.functionBody,
+                                typeDesc
                             );
                         }
-
-                        const fromClauseNode = new FromClauseNode(
-                            this.context,
-                            node.functionBody.expression.queryPipeline.fromClause
-                        );
-                        fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-                        this.inputNodes.push(fromClauseNode);
-                        //
-                        // const letClauses =
-                        //     node.functionBody.expression.queryPipeline.intermediateClauses?.filter(
-                        //         (item) =>
-                        //             STKindChecker.isLetClause(item) &&
-                        //             (
-                        //                 (item.letVarDeclarations[0] as LetVarDecl)
-                        //                     ?.expression as SimpleNameReference
-                        //             )?.name?.value !== "EXPRESSION"
-                        //     );
-                        //
-                        // for (const [index, item] of letClauses.entries()) {
-                        //     const paramNode = new LetClauseNode(this.context, item as LetClause);
-                        //     paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-                        //     this.inputNodes.push(paramNode);
-                        // }
-                        //
-                        // const queryNode = new ExpandedMappingHeaderNode(this.context, node.functionBody.expression);
-                        // queryNode.setLocked(true)
-                        // queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
-                        // this.intermediateNodes.push(queryNode);
                     } else {
-                        this.outputNode = new ListConstructorNode(
+                        this.outputNode = new PrimitiveTypeNode(
                             this.context,
                             node.functionBody,
                             typeDesc
                         );
                     }
-                } else {
-                    this.outputNode = new PrimitiveTypeNode(
-                        this.context,
-                        node.functionBody,
-                        typeDesc
-                    );
+                    this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
                 }
             }
-            this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
         }
         // create input nodes
         if (!isFnBodyQueryExpr) {

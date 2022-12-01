@@ -19,23 +19,29 @@ import { getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-uti
 import { DM_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupported } from "../utils";
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
-import { DataMapperInputParam } from "./InputParamsPanel/types";
+import { DataMapperInputParam, DataMapperOutputParam } from "./InputParamsPanel/types";
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
 
 function isSupportedInput(param: RequiredParam, type: Type, balVersion: string): boolean {
     const hasTypeName = param?.typeName !== undefined;
-    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
-    const alreadySupportedType = DM_SUPPORTED_INPUT_TYPES.some(t => t === type.typeName);
+    const isMapType = STKindChecker.isMapTypeDesc(param.typeName);
+    const isUnionType = STKindChecker.isUnionTypeDesc(param.typeName);
+    const isArrayType = STKindChecker.isArrayTypeDesc(param.typeName);
+    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName) || isMapType;
+    const alreadySupportedType = DM_SUPPORTED_INPUT_TYPES.some(t => {
+        return t === type.typeName && !isUnionType && !isArrayType;
+    });
     return hasTypeName && (alreadySupportedType || (!isUnsupportedType && isArraysSupported(balVersion)));
 }
 
 function isSupportedOutput(typeDesc: STNode, type: Type, balVersion: string): boolean {
     const hasType = typeDesc !== undefined;
-    const isRecordType = type.typeName === PrimitiveBalType.Record;
-    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
-    return hasType && (isRecordType || (!isUnsupportedType && isArraysSupported(balVersion)));
+    const isMapType = STKindChecker.isMapTypeDesc(typeDesc);
+    const isRecordType = type.typeName === PrimitiveBalType.Record && !STKindChecker.isArrayTypeDesc(typeDesc);
+    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName) || isMapType;
+    return hasType && (isRecordType || (!isMapType && !isUnsupportedType && isArraysSupported(balVersion)));
 }
 
 export function getFnNameFromST(fnST: FunctionDefinition) {
@@ -53,20 +59,22 @@ export function getInputsFromST(fnST: FunctionDefinition, balVersion: string): D
             return {
                 name: param.paramName.value,
                 type: typeName,
-                inInvalid: typeInfo && !isSupportedInput(param, typeInfo, balVersion)
+                inInvalid: typeInfo ? !isSupportedInput(param, typeInfo, balVersion) : true
             }
         });
     }
     return params;
 }
 
-export function getOutputTypeFromST(fnST: FunctionDefinition, balVersion: string) {
-    const typeDesc = fnST.functionSignature?.returnTypeDesc?.type;
-    const typeName = getTypeFromTypeDesc(typeDesc);
-    const typeInfo = getTypeOfOutput(typeDesc, balVersion);
-    return {
-        type: typeName,
-        inInvalid: typeInfo && !isSupportedOutput(typeDesc, typeInfo, balVersion)
+export function getOutputTypeFromST(fnST: FunctionDefinition, balVersion: string): DataMapperOutputParam {
+    const typeDesc = fnST.functionSignature?.returnTypeDesc && fnST.functionSignature.returnTypeDesc.type;
+    if (typeDesc) {
+        const typeName = getTypeFromTypeDesc(typeDesc);
+        const typeInfo = getTypeOfOutput(typeDesc, balVersion);
+        return {
+            type: typeName,
+            inInvalid: typeInfo ? !isSupportedOutput(typeDesc, typeInfo, balVersion) : true
+        }
     }
 }
 
