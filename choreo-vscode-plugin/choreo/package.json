@@ -10,14 +10,51 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:choreo.helloWorld"
+    "onCommand:choreo.sign.in"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "choreo.helloWorld",
-        "title": "Hello World"
+        "command": "choreo.sign.in",
+        "title": "Sign In",
+        "category": "Choreo"
+      },
+      {
+        "command": "choreo.sign.out",
+        "title": "Sign Out",
+        "category": "Choreo"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+          {
+              "id": "wso2-choreo",
+              "title": "WSO2 Choreo",
+              "icon": "resources/icons/choreo.ico"
+          }
+      ]
+    },
+    "views": {
+      "wso2-choreo": [
+          {
+              "id": "choreo-projects",
+              "name": "Projects"
+          },
+          {
+            "id": "choreo-account",
+            "name": "Account"
+          } 
+      ]
+    },
+    "viewsWelcome": [
+      {
+          "view": "choreo-projects",
+          "contents": "Sign in to retrieve projects.\n[Sign In](command:ballerina.choreo.signin)"
+      },
+      {
+        "view": "choreo-account",
+        "contents": "Sign in to see account settings.\n[Sign In](command:ballerina.choreo.signin)"
       }
     ]
   },
