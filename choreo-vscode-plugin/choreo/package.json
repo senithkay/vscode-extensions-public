@@ -2,7 +2,12 @@
   "name": "choreo",
   "displayName": "WSO2 Choreo",
   "description": "WSO2 Choreo VSCode Extension",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "publisher": "wso2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wso2/ballerina-plugin-vscode"
+  },
   "engines": {
     "vscode": "^1.73.0"
   },
@@ -10,51 +15,51 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:choreo.sign.in"
+    "onCommand:wso2.choreo.sign.in"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "choreo.sign.in",
+        "command": "wso2.choreo.sign.in",
         "title": "Sign In",
         "category": "Choreo"
       },
       {
-        "command": "choreo.sign.out",
+        "command": "wso2.choreo.sign.out",
         "title": "Sign Out",
         "category": "Choreo"
       }
     ],
     "viewsContainers": {
       "activitybar": [
-          {
-              "id": "wso2-choreo",
-              "title": "WSO2 Choreo",
-              "icon": "resources/icons/choreo.ico"
-          }
+        {
+          "id": "wso2-choreo",
+          "title": "WSO2 Choreo",
+          "icon": "resources/icons/choreo.ico"
+        }
       ]
     },
     "views": {
       "wso2-choreo": [
-          {
-              "id": "choreo-projects",
-              "name": "Projects"
-          },
-          {
-            "id": "choreo-account",
-            "name": "Account"
-          } 
+        {
+          "id": "choreo-projects",
+          "name": "Projects"
+        },
+        {
+          "id": "choreo-account",
+          "name": "Account"
+        }
       ]
     },
     "viewsWelcome": [
       {
-          "view": "choreo-projects",
-          "contents": "Sign in to retrieve projects.\n[Sign In](command:ballerina.choreo.signin)"
+        "view": "choreo-projects",
+        "contents": "Sign in to retrieve projects.\n[Sign In](command:wso2.choreo.sign.in)"
       },
       {
         "view": "choreo-account",
-        "contents": "Sign in to see account settings.\n[Sign In](command:ballerina.choreo.signin)"
+        "contents": "Sign in to see account settings.\n[Sign In](command:wso2.choreo.sign.in)"
       }
     ]
   },
@@ -70,19 +75,26 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.73.0",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "16.x",
+    "@types/vscode": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.42.0",
     "@typescript-eslint/parser": "^5.42.0",
+    "@vscode/test-electron": "^2.2.0",
     "eslint": "^8.26.0",
     "glob": "^8.0.3",
     "mocha": "^10.1.0",
-    "typescript": "^4.8.4",
     "ts-loader": "^9.4.1",
+    "typescript": "^4.8.4",
+    "vsce": "^2.14.0",
     "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0",
-    "@vscode/test-electron": "^2.2.0"
+    "webpack-cli": "^4.10.0"
+  },
+  "dependencies": {
+    "axios": "^1.2.0",
+    "jwt-decode": "^3.1.2",
+    "keytar": "^7.9.0",
+    "pkce-challenge": "^3.0.0"
   }
 }

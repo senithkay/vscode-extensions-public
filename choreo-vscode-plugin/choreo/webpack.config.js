@@ -19,6 +19,7 @@ const extensionConfig = {
     libraryTarget: 'commonjs2'
   },
   externals: {
+    keytar: "commonjs keytar",
     vscode: 'commonjs vscode'
   },
   resolve: {
@@ -37,7 +38,7 @@ const extensionConfig = {
       }
     ]
   },
-  devtool: 'nosources-source-map',
+  devtool: 'source-map',
   infrastructureLogging: {
     level: "log",
   },
