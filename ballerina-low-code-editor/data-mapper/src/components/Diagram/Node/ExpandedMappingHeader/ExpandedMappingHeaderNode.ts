@@ -13,6 +13,7 @@
 import { Point } from "@projectstorm/geometry";
 import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { QueryExpression } from "@wso2-enterprise/syntax-tree";
+
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { RightAnglePortModel } from "../../Port/RightAnglePort/RightAnglePortModel";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
@@ -36,12 +37,12 @@ export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
         );
     }
 
-    async initPorts() {
+    initPorts() {
         this.sourcePort = new RightAnglePortModel(false, EXPANDED_MAPPING_HEADER_NODE_TYPE)
         this.addPort(this.sourcePort);
     }
 
-    async initLinks() {
+    initLinks() {
         for (const targetPort of this.targetPorts) {
             const link = this.sourcePort.link(targetPort)
             this.getModel().addAll(link);

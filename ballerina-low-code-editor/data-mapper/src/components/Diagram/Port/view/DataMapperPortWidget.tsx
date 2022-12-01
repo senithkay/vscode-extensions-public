@@ -93,7 +93,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 				</DisabledNewLinkingPortContainer>
 			</PortWidget>
 		)
-	
+
 	) : (
 		<DisabledPortContainer data-testid={dataTestId}>
 			<RadioButtonUncheckedIcon/>

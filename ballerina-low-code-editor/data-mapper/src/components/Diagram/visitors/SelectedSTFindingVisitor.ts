@@ -14,7 +14,6 @@ import {
     FunctionDefinition,
     SpecificField,
     STKindChecker,
-    STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -36,7 +35,7 @@ export class SelectedSTFindingVisitor implements Visitor {
         this.pathSegmentIndex = 1; // Field path always starts with the record root name
     }
 
-    beginVisitSTNode(node: FunctionDefinition | SpecificField, parent?: STNode) {
+    beginVisitSTNode(node: FunctionDefinition | SpecificField) {
         const item = this.prevST[0];
 
         if (item && item.stNode && STKindChecker.isSpecificField(item.stNode)) {

@@ -14,9 +14,11 @@
 import React from "react";
 
 import { Diagnostic } from "vscode-languageserver-protocol";
-import { useStyles } from "./style";
-import { DiagnosticTooltip } from "./DiagnosticTooltip/DiagnosticTooltip";
+
 import ErrorIcon from "../../../assets/icons/Error";
+
+import { DiagnosticTooltip } from "./DiagnosticTooltip/DiagnosticTooltip";
+import { useStyles } from "./style";
 
 
 export interface DiagnosticWidgetProps {
@@ -35,7 +37,7 @@ export function DiagnosticWidget(props: DiagnosticWidgetProps) {
         <DiagnosticTooltip diagnostic={diagnostic} value={value}  onClick={onClick}>
         <div className={isLabelElement && classes.element} data-testid={`expression-label-diagnostic`}>
             <div className={classes.iconWrapper}>
-                <ErrorIcon  /> 
+                <ErrorIcon  />
             </div>
         </div>
         </DiagnosticTooltip>

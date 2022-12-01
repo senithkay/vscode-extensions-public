@@ -1,7 +1,10 @@
 import * as React from "react";
+
 import { DefaultLinkSegmentWidgetProps } from "@projectstorm/react-diagrams";
-import { DataMapperLinkModel } from "./DataMapperLink";
+
 import { IntermediatePortModel } from "../../Port";
+
+import { DataMapperLinkModel } from "./DataMapperLink";
 
 export class DefaultLinkSegmentWidget extends React.Component<DefaultLinkSegmentWidgetProps> {
     render() {

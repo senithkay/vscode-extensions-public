@@ -1,3 +1,4 @@
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import * as React from "react";
 
 import { DefaultLinkWidget as ReactDiagramDefaultLinkWidget } from "@projectstorm/react-diagrams";
@@ -7,7 +8,7 @@ import { DefaultLinkSegmentWidget } from "./DefaultLinkSegmentWidget";
 export class DefaultLinkWidget extends ReactDiagramDefaultLinkWidget {
     generateLink(
         path: string,
-        extraProps: any,
+        extraProps: React.Attributes,
         id: string | number
     ): JSX.Element {
         const ref = React.createRef<SVGPathElement>();
@@ -24,7 +25,7 @@ export class DefaultLinkWidget extends ReactDiagramDefaultLinkWidget {
                 link={this.props.link}
                 forwardRef={ref}
                 onSelection={(selected) => {
-                    this.setState({ selected: selected });
+                    this.setState({ selected });
                 }}
                 extras={extraProps}
             />

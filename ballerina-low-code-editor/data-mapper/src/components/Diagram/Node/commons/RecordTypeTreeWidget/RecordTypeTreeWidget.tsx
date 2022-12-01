@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import styled from '@emotion/styled';
+import { IconButton } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -21,12 +21,11 @@ import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../../utils/constants';
 import { getTypeName } from "../../../utils/dm-utils";
+import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
-import { TreeContainer, TreeHeader, TreeBody } from '../Tree/Tree';
-import { IconButton } from '@material-ui/core';
-import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../../utils/constants';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

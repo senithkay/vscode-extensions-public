@@ -10,11 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
+// tslint:disable: no-empty-interface
 import * as React from 'react';
-import { DiagramEngine, LinkWidget, PointModel } from '@projectstorm/react-diagrams-core';
-import { RightAngleLinkFactory } from './RightAngleLinkFactory';
+
 import { Point } from '@projectstorm/geometry';
+import { DiagramEngine, LinkWidget, PointModel } from '@projectstorm/react-diagrams-core';
+
+import { RightAngleLinkFactory } from './RightAngleLinkFactory';
 import { RightAngleLinkModel } from './RightAngleLinkModel';
 
 export interface RightAngleLinkProps {
@@ -68,7 +70,7 @@ export class RightAngleLinkWidget extends React.Component<RightAngleLinkProps, R
 		this.props.link.setRenderedPaths([]);
 	}
 
-	generateLink(path: string, extraProps: any, id: string | number): JSX.Element {
+	generateLink(path: string, extraProps: Record<string, unknown>, id: string | number): JSX.Element {
 		const ref = React.createRef<SVGPathElement>();
 		this.refPaths.push(ref);
 
@@ -88,9 +90,9 @@ export class RightAngleLinkWidget extends React.Component<RightAngleLinkProps, R
 	}
 
 	render() {
-		//ensure id is present for all points on the path
-		let points = this.props.link.getPoints();
-		let paths = [];
+		// ensure id is present for all points on the path
+		const points = this.props.link.getPoints();
+		const paths = [];
 
 		// Get points based on link orientation
 		let pointLeft = points[0];
@@ -99,7 +101,7 @@ export class RightAngleLinkWidget extends React.Component<RightAngleLinkProps, R
 			pointLeft = points[points.length - 1];
 			pointRight = points[0];
 		}
-		let dy = Math.abs(points[0].getY() - points[points.length - 1].getY());
+		const dy = Math.abs(points[0].getY() - points[points.length - 1].getY());
 
 		// If there is existing link which has two points add one
 		// NOTE: It doesn't matter if check is for dy or dx
