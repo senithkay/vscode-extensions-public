@@ -88,6 +88,14 @@ export function DesignDiagram(props: DiagramProps) {
         setShowEditForm(true);
     }
 
+    const getDefaultOrg = (): string => {
+        let parentOrg: string = '';
+        if (projectComponents && projectComponents.size > 0) {
+            parentOrg = [...projectComponents][0][1].packageId.org;
+        }
+        return parentOrg;
+    }
+
     return (
         <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, getProjectRoot, createService }}>
             <Container>

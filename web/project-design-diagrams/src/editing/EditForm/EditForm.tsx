@@ -22,9 +22,10 @@ import ReactDOM from 'react-dom';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import { SelectChangeEvent } from '@mui/material/Select';
 import { DiagramContext } from '../../components/common/';
 import { AddComponentDetails, Colors } from '../../resources';
-import { AdvancedSettingsWidget, ControlButton, TextInputWidget, } from './components';
+import { AdvancedSettingsWidget, ControlButton, TextInputWidget } from './components';
 import { OrganizationRegex, PackageNameRegex, PackageNameRules, VersionRegex } from './resources/constants';
 import { ControlsContainer, Header, HeaderTitle, PrimaryContainer } from './resources/styles';
 import { initBallerinaComponent, transformComponentName } from './resources/utils';
@@ -72,9 +73,17 @@ export function EditForm(props: EditFormProps) {
         editComponent({ ...component, package: event.target.value });
     }
 
+    const updateType = (event: SelectChangeEvent) => {
+        editComponent({ ...component, type: event.target.value });
+    };
+
     const setDirectory = (path: string) => {
         editComponent({ ...component, directory: path });
     }
+
+    const setInitBehaviour = (event: React.ChangeEvent<HTMLInputElement>) => {
+        editComponent({ ...component, initialize: event.target.checked });
+    };
 
     const verifyInputs = (): boolean => {
         if (component && component.name && ((component.package && PackageNameRegex.test(component.package)) || validatedComponentName)

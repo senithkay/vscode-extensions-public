@@ -29,6 +29,7 @@ export function transformComponentName(componentName: string): string {
 
 export function initBallerinaComponent(): AddComponentDetails {
     return {
+
         name: '',
         directory: '',
         package: '',

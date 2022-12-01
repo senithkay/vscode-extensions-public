@@ -46,6 +46,10 @@ export const HeaderTitle = styled.span`
     text-align: center;
 `;
 
+export const TypeLabel = styled.span`
+    padding: 20px 10px 0px 10px;
+`;
+
 export const InputComponent = styled.div`
     display: flex;
     flex-direction: column;

@@ -17,7 +17,7 @@
  *
  */
 
-export { Colors, Level, ServiceTypes, Views } from './model';
+export { Colors, ComponentType, Level, ServiceTypes, Views } from './model';
 
 export type {
     AddComponentDetails,

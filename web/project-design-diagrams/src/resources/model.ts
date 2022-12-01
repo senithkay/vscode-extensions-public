@@ -122,6 +122,11 @@ export interface AddComponentDetails {
     directory: string;
 }
 
+export enum ComponentType {
+    BALLERINA = 'bal',
+    OTHER = 'other'
+}
+
 export enum Views {
     TYPE = 'T',
     TYPE_COMPOSITION = 'TC',
