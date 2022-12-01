@@ -103,9 +103,9 @@ export interface Cardinality {
 }
 
 export interface ConnectorProps {
-	point: PointModel;
+    point: PointModel;
     previousPoint: PointModel;
-	cardinality: string;
+    cardinality: string;
     color: string;
 }
 
@@ -117,7 +117,7 @@ export interface ServiceModels {
 export interface AddComponentDetails {
     name: string;
     version: string;
-    organization: string;
+    org: string;
     package: string;
     directory: string;
 }

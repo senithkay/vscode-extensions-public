@@ -25,7 +25,9 @@ import { DiagramContext } from '../../../components/common';
 import { TextInputWidget } from './TextInput';
 import { ControlButton } from './ControlButtons';
 import { AddComponentDetails } from '../../../resources';
-import { ButtonColor, PackageNameRegex, PackageNameRules } from '../resources/constants';
+import {
+    ButtonColor, OrganizationRegex, OrganizationRules, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex
+} from '../resources/constants';
 import { AdvancedSettings, AdvancedControlsContainer, AdvancedControlsHeader, AdvancedHeaderTitle } from '../resources/styles';
 
 interface AdvancedSettingsProps {
@@ -33,12 +35,23 @@ interface AdvancedSettingsProps {
     visibility: boolean;
     changeVisibility: (status: boolean) => void;
     updatePackage: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    updateOrganization: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    updateVersion: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     setDirectory: (path: string) => void;
     selectDirectory: () => void;
 }
 
 export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
-    const { component, visibility, changeVisibility, updatePackage, setDirectory, selectDirectory } = props;
+    const {
+        component,
+        visibility,
+        changeVisibility,
+        updatePackage,
+        updateOrganization,
+        updateVersion,
+        setDirectory,
+        selectDirectory
+    } = props;
     const { getProjectRoot } = useContext(DiagramContext);
 
     useEffect(() => {
@@ -51,8 +64,8 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
 
     return (
         <AdvancedSettings>
-            <AdvancedControlsHeader>
-                <AdvancedHeaderTitle>Advanced Settings</AdvancedHeaderTitle>
+            <AdvancedControlsHeader onClick={() => changeVisibility(!visibility)}>
+                <AdvancedHeaderTitle>More</AdvancedHeaderTitle>
 
                 <IconButton color='default' onClick={() => changeVisibility(!visibility)}>
                     {visibility ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -64,10 +77,28 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
                     <TextInputWidget
                         label={'Package Name'}
                         value={component.package}
-                        required={false}
+                        required={true}
                         error={!PackageNameRegex.test(component.package)}
                         errorMessage={PackageNameRules}
                         onChange={updatePackage}
+                    />
+
+                    <TextInputWidget
+                        label={'Organization'}
+                        value={component.org}
+                        required={true}
+                        error={!OrganizationRegex.test(component.org)}
+                        errorMessage={OrganizationRules}
+                        onChange={updateOrganization}
+                    />
+
+                    <TextInputWidget
+                        label={'Version'}
+                        value={component.version}
+                        required={true}
+                        error={!VersionRegex.test(component.version)}
+                        errorMessage={VersioningRules}
+                        onChange={updateVersion}
                     />
 
                     <TextInputWidget

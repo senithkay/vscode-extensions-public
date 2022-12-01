@@ -59,6 +59,7 @@ export function DesignDiagram(props: DiagramProps) {
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
+    const defaultOrg = useRef<string>(undefined);
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
@@ -75,6 +76,9 @@ export function DesignDiagram(props: DiagramProps) {
     const refreshDiagramResources = () => {
         fetchProjectResources().then((response) => {
             const components: Map<string, ComponentModel> = new Map(Object.entries(response));
+            if (components && components.size > 0) {
+                defaultOrg.current = [...components][0][1].packageId.org;
+            }
             setProjectPkgs(createRenderPackageObject(components.keys()));
             setProjectComponents(components);
         })
@@ -87,8 +91,8 @@ export function DesignDiagram(props: DiagramProps) {
     return (
         <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, getProjectRoot, createService }}>
             <Container>
-                {editingEnabled && <AddButton onClick={onComponentAddClick} />}
-                {showEditForm && <EditForm visibility={true} updateVisibility={setShowEditForm} />}
+                {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
+                {showEditForm && <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
 
                 {currentView && projectPkgs ?
                     <>
