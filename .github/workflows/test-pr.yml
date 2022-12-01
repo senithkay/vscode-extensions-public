@@ -159,6 +159,7 @@ jobs:
     name: Run low code tests
     needs: Build_Stage
     strategy:
+      fail-fast: false
       matrix:
         testStage: [test-connectors, test-block-level, test-module-level, test-entry-points, test-se, test-se-tools]
     timeout-minutes: 60
