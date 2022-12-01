@@ -45,7 +45,7 @@ export async function activateAuth(extension: ChoreoExtension) {
     choreoAuthConfig = new ChoreoAuthConfig();
     commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
         try {
-            choreoAuthConfig.setFidp(ChoreoFidp.Google);
+            choreoAuthConfig.setFidp(ChoreoFidp.google);
             await initiateInbuiltAuth(extension);
         } catch (error) {
             if (error instanceof Error) {

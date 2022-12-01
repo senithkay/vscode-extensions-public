@@ -49,35 +49,35 @@ export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
     }
 
     let choreoAccessToken: string | null = null;
-    await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.AccessToken).then((result) => {
+    await keytar.getPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.accessToken).then((result) => {
         choreoAccessToken = result;
     });
 
     let choreoUser: string | null = null;
-    await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.DisplayName).then((result) => {
+    await keytar.getPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.displayName).then((result) => {
         choreoUser = result;
     });
 
     let choreoRefreshToken: string | null = null;
-    await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.RefreshToken).then((result) => {
+    await keytar.getPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.refreshToken).then((result) => {
         choreoRefreshToken = result;
     });
 
     let choreoLoginTime: Date | null = null;
-    await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.LoginTime).then((result) => {
-        if (result != null) {
+    await keytar.getPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.loginTime).then((result) => {
+        if (result !== null) {
             choreoLoginTime = new Date(result);
         }
     });
 
     let choreoTokenExpiration: number | undefined;
-    await keytar.getPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.TokenExpiration).then((result) => {
-        if (result != null) {
+    await keytar.getPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.tokenExpiration).then((result) => {
+        if (result !== null) {
             choreoTokenExpiration = Number(result);
         }
     });
 
-    if (choreoAccessToken != null && choreoUser != null && choreoRefreshToken != null && choreoLoginTime != null) {
+    if (choreoAccessToken !== null && choreoUser !== null && choreoRefreshToken !== null && choreoLoginTime !== null) {
         return {
             loginStatus: true,
             choreoUser: choreoUser,
@@ -94,17 +94,17 @@ export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
 }
 
 export async function setChoreoKeytarSession(accessToken: string, displayName: string, refreshToken: string, loginTime: string, expirationTime: string) {
-    await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.AccessToken, accessToken);
-    await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.DisplayName, displayName);
-    await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.RefreshToken, refreshToken);
-    await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.LoginTime, loginTime);
-    await keytar.setPassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.TokenExpiration, expirationTime);
+    await keytar.setPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.accessToken, accessToken);
+    await keytar.setPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.displayName, displayName);
+    await keytar.setPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.refreshToken, refreshToken);
+    await keytar.setPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.loginTime, loginTime);
+    await keytar.setPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.tokenExpiration, expirationTime);
 }
 
 export async function deleteChoreoKeytarSession() {
-    await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.AccessToken);
-    await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.DisplayName);
-    await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.RefreshToken);
-    await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.LoginTime);
-    await keytar.deletePassword(ChoreoSessionConfig.ServiceName, ChoreoSessionConfig.TokenExpiration);
+    await keytar.deletePassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.accessToken);
+    await keytar.deletePassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.displayName);
+    await keytar.deletePassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.refreshToken);
+    await keytar.deletePassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.loginTime);
+    await keytar.deletePassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.tokenExpiration);
 }

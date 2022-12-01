@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /**
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -30,13 +31,13 @@ import { URLSearchParams } from 'url';
 const challenge = pkceChallenge();
 
 const AUTH_FAIL = "Choreo Login: ";
-const AuthCodeError = "Error while retreiving the authentication code details!";
-const AccessTokenError = "Error while retreiving the access token details!";
-const ApimTokenError = "Error while retreiving the apim token details!";
-const RefreshTokenError = "Error while retreiving the refresh token details!";
-const VSCodeTokenError = "Error while retreiving the VSCode token details!";
-const AnonUserError = "Error while creating an anonymous user!";
-const SessionExpired = "The session has expired, please login again!";
+const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
+const ACCESS_TOKEN_ERROR = "Error while retreiving the access token details!";
+const APIM_TOKEN_ERROR = "Error while retreiving the apim token details!";
+const REFRESH_TOKEN_ERROR = "Error while retreiving the refresh token details!";
+const VSCODE_TOKEN_ERROR = "Error while retreiving the VSCode token details!";
+const ANON_USER_ERROR = "Error while creating an anonymous user!";
+const SESSION_EXPIRED = "The session has expired, please login again!";
 
 export async function initiateInbuiltAuth(extension: ChoreoExtension) {
     const callbackUri = await vscode.env.asExternalUri(
@@ -56,7 +57,7 @@ export class OAuthTokenHandler {
 
     public async exchangeAuthToken(authCode: string): Promise<boolean> {
         if (!authCode) {
-            vscode.window.showErrorMessage(AUTH_FAIL + AuthCodeError);
+            vscode.window.showErrorMessage(AUTH_FAIL + AUTH_CODE_ERROR);
         } else {
             // To bypass the self signed server error.
             process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
@@ -89,7 +90,7 @@ export class OAuthTokenHandler {
 
                     await this.exchangeApimToken(token);
                 } else {
-                    vscode.window.showErrorMessage(AUTH_FAIL + AccessTokenError);
+                    vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
                 }
             }).catch((err) => {
                 vscode.window.showErrorMessage(AUTH_FAIL + err);
@@ -100,11 +101,11 @@ export class OAuthTokenHandler {
 
     public async exchangeApimToken(token: string) {
         if (!token) {
-            vscode.window.showErrorMessage(AUTH_FAIL + AccessTokenError);
+            vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
             return;
         }
 
-        if (choreoAuthConfig.getFidp() === ChoreoFidp.Anonymous) {
+        if (choreoAuthConfig.getFidp() === ChoreoFidp.anonymous) {
             await this.registerAnonUser(token);
         }
 
@@ -132,7 +133,7 @@ export class OAuthTokenHandler {
                 let apimToken = response.data.access_token;
                 await this.exchangeVSCodeToken(apimToken);
             } else {
-                vscode.window.showErrorMessage(AUTH_FAIL + ApimTokenError);
+                vscode.window.showErrorMessage(AUTH_FAIL + APIM_TOKEN_ERROR);
             }
         }).catch((err) => {
             vscode.window.showErrorMessage(AUTH_FAIL + err);
@@ -141,7 +142,7 @@ export class OAuthTokenHandler {
 
     public async exchangeVSCodeToken(apimToken: string) {
         if (!apimToken) {
-            vscode.window.showErrorMessage(AUTH_FAIL + ApimTokenError);
+            vscode.window.showErrorMessage(AUTH_FAIL + APIM_TOKEN_ERROR);
             return;
         }
 
@@ -179,11 +180,11 @@ export class OAuthTokenHandler {
                         vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
                         // this.extension.getChoreoSessionTreeProvider()?.refresh();
                     } else {
-                        vscode.window.showErrorMessage(AUTH_FAIL + VSCodeTokenError);
+                        vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
                     }
                 });
             } else {
-                vscode.window.showErrorMessage(AUTH_FAIL + VSCodeTokenError);
+                vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
             }
         }).catch((err) => {
             vscode.window.showErrorMessage(AUTH_FAIL + err);
@@ -192,7 +193,7 @@ export class OAuthTokenHandler {
 
     public async exchangeRefreshToken(refreshToken: string) {
         if (!refreshToken) {
-            vscode.window.showErrorMessage(AUTH_FAIL + RefreshTokenError);
+            vscode.window.showErrorMessage(AUTH_FAIL + REFRESH_TOKEN_ERROR);
             this.signOut();
             return;
         }
@@ -228,19 +229,19 @@ export class OAuthTokenHandler {
                         vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
                         // this.extension.getChoreoSessionTreeProvider()?.refresh();
                     } else {
-                        vscode.window.showErrorMessage(AUTH_FAIL + VSCodeTokenError);
+                        vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
                         this.signOut();
                     }
                 });
             } else {
-                vscode.window.showErrorMessage(AUTH_FAIL + VSCodeTokenError);
+                vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
                 this.signOut();
             }
         }).catch((err) => {
             console.debug(err);
 
             if (!isPluginStartup) {
-                vscode.window.showErrorMessage(AUTH_FAIL + SessionExpired);
+                vscode.window.showErrorMessage(AUTH_FAIL + SESSION_EXPIRED);
             }
             this.signOut();
         });
@@ -271,10 +272,10 @@ export class OAuthTokenHandler {
             }
         ).then(async (response) => {
             if (!response.data || !response.data['displayName']) {
-                vscode.window.showErrorMessage(AUTH_FAIL + AnonUserError);
+                vscode.window.showErrorMessage(AUTH_FAIL + ANON_USER_ERROR);
             }
         }).catch((err) => {
-            vscode.window.showErrorMessage(AUTH_FAIL + AnonUserError + " " + err);
+            vscode.window.showErrorMessage(AUTH_FAIL + ANON_USER_ERROR + " " + err);
         });
     }
 }

@@ -17,17 +17,17 @@
  *
  */
 export enum ChoreoSessionConfig {
-    ServiceName = "wso2.ballerina.choreo",
-    AccessToken = "access.token",
-    DisplayName = "display.name",
-    RefreshToken = "refresh.token",
-    LoginTime = "login.time",
-    TokenExpiration = "token.expiration.time"
+    serviceName = "wso2.ballerina.choreo",
+    accessToken = "access.token",
+    displayName = "display.name",
+    refreshToken = "refresh.token",
+    loginTime = "login.time",
+    tokenExpiration = "token.expiration.time"
 }
 
 export enum ChoreoFidp {
-    Google = "google",
-    Anonymous = "choreoanonymous"
+    google = "google",
+    anonymous = "choreoanonymous"
 }
 
 // Choreo V2 environment
@@ -45,7 +45,7 @@ export class ChoreoAuthConfig {
     private userRegistrationUrl: string = "https://app.choreo.dev/register-user";
 
     private scope: string = "openid+email+profile";
-    private fidp: ChoreoFidp = ChoreoFidp.Google;
+    private fidp: ChoreoFidp = ChoreoFidp.google;
 
     constructor() {
     }
