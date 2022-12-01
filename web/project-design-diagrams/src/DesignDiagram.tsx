@@ -59,7 +59,7 @@ export function DesignDiagram(props: DiagramProps) {
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
-    const defaultOrg = useRef<string>(undefined);
+    const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
