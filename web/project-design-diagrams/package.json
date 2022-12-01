@@ -4,10 +4,12 @@
   "description": "Generates the design diagrams for Ballerina projects.",
   "main": "index.js",
   "scripts": {
+    "prebuild": "npm i",
     "start": "webpack-dev-server --open",
     "build": "webpack",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "postbuild": "copyfiles -f build/*.js ../../resources/jslibs"
   },
   "keywords": [],
   "author": "",
@@ -42,6 +44,7 @@
     "@types/react-dom": "^18.0.6",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.2.5",
+    "copyfiles": "^2.4.1",
     "css-loader": "^6.7.1",
     "source-map-loader": "^4.0.0",
     "style-loader": "^3.3.1",
