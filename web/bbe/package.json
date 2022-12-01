@@ -15,7 +15,8 @@
     "watch": "tsc --pretty --watch",
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "watch:test": "jest --watch",
-    "storybook": "npx start-storybook -p 9001 -c .storybook"
+    "storybook": "npx start-storybook -p 9001 -c .storybook",
+    "postbuild": "npx copyfiles -f build/*.js build/themes/*.css build/themes/*.map ../../resources/jslibs"
   },
   "dependencies": {
     "classnames": "^2.2.6",
@@ -46,6 +47,7 @@
     "babel-loader": "^8.0.4",
     "clean-css": "^4.2.1",
     "copy-webpack-plugin": "^5.0.1",
+    "copyfiles": "^2.4.1",
     "css-loader": "^2.1.1",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "fast-xml-parser": "^3.12.7",
