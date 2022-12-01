@@ -59,7 +59,7 @@ export function getInputsFromST(fnST: FunctionDefinition, balVersion: string): D
             return {
                 name: param.paramName.value,
                 type: typeName,
-                inInvalid: typeInfo ? !isSupportedInput(param, typeInfo, balVersion) : true
+                isUnsupported: typeInfo ? !isSupportedInput(param, typeInfo, balVersion) : true
             }
         });
     }
@@ -73,7 +73,7 @@ export function getOutputTypeFromST(fnST: FunctionDefinition, balVersion: string
         const typeInfo = getTypeOfOutput(typeDesc, balVersion);
         return {
             type: typeName,
-            inInvalid: typeInfo ? !isSupportedOutput(typeDesc, typeInfo, balVersion) : true
+            isUnsupported: typeInfo ? !isSupportedOutput(typeDesc, typeInfo, balVersion) : true
         }
     }
 }

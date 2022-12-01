@@ -25,25 +25,27 @@ import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
 export interface OutputConfigWidgetProps {
     outputType: DataMapperOutputParam;
     fetchingCompletions: boolean;
+    completions: CompletionResponseWithModule[]
+    showOutputType: boolean;
     handleShowOutputType: () => void;
+    handleOutputTypeChange: (type: string) => void;
     handleShowRecordEditor: () => void;
     handleOutputDeleteClick: () => void;
-    handleOutputTypeChange: (type: string) => void;
-    completions: CompletionResponseWithModule[]
 }
 
 export function OutputTypePanel(props: OutputConfigWidgetProps) {
     const {
         outputType,
         fetchingCompletions,
+        completions,
+        showOutputType,
         handleShowOutputType,
         handleOutputTypeChange,
         handleShowRecordEditor,
-        handleOutputDeleteClick,
-        completions
+        handleOutputDeleteClick
     } = props;
 
-    const typeUnsupportedBanner = outputType.inInvalid && (
+    const typeUnsupportedBanner = outputType.isUnsupported && (
         <Warning message='Only record type is currently supported as data mapper output' />
     );
 
@@ -52,18 +54,20 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
             <Title>Output Type</Title>
             {!outputType.type ? (
                 <>
-                    <TypeBrowser
-                        type={outputType.type}
-                        onChange={handleOutputTypeChange}
-                        isLoading={fetchingCompletions}
-                        recordCompletions={completions}
-                    />
+                    {showOutputType && (
+                        <TypeBrowser
+                            type={outputType.type}
+                            onChange={handleOutputTypeChange}
+                            isLoading={fetchingCompletions}
+                            recordCompletions={completions}
+                        />
+                    )}
                     <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
                 </>
             ) : (
                 <>
-                    {outputType.type && outputType.inInvalid && typeUnsupportedBanner}
-                    <OutputTypeContainer isInvalid={outputType.inInvalid}>
+                    {outputType.type && outputType.isUnsupported && typeUnsupportedBanner}
+                    <OutputTypeContainer isInvalid={outputType.isUnsupported}>
                         <TypeName>{outputType.type}</TypeName>
                         <DeleteButton
                             onClick={handleOutputDeleteClick}

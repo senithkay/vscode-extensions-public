@@ -107,8 +107,8 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const [newRecords, setNewRecords] = useState<string[]>([]);
     const [initiated, setInitiated] = useState(false);
 
-    const hasInvalidInputs = inputParams.some(input => input.inInvalid);
-    const isValidConfig = fnName && inputParams.length > 0 && !hasInvalidInputs && outputType.type !== "" && !outputType.inInvalid && dmFuncDiagnostic === "";
+    const hasInvalidInputs = inputParams.some(input => input.isUnsupported);
+    const isValidConfig = fnName && inputParams.length > 0 && !hasInvalidInputs && outputType.type !== "" && !outputType.isUnsupported && dmFuncDiagnostic === "";
 
     useEffect(() => {
         (async () => {
@@ -237,11 +237,11 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                 setInputParams([...inputParams, {
                     name: newRecordType,
                     type: newRecordType,
-                    inInvalid: false,
+                    isUnsupported: false,
                 }])
             }
             if (newRecordBy === "output") {
-                setOutputType({ type: newRecordType, inInvalid: false });
+                setOutputType({ type: newRecordType, isUnsupported: false });
             }
             setNewRecords([...newRecords, newRecordType]);
         }
@@ -260,12 +260,12 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     };
 
     const handleOutputDeleteClick = () => {
-        setOutputType({ type: '', inInvalid: true });
+        setOutputType({ type: undefined});
         setShowOutputType(false);
     };
 
     const handleOutputTypeChange = (type: string) => {
-        setOutputType({ type, inInvalid: false })
+        setOutputType({ type, isUnsupported: false })
     }
 
     const breadCrumb = (
@@ -333,13 +333,14 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                             />
                             <FormDivider />
                             <OutputTypePanel
-                                outputType={output}
+                                outputType={outputType}
                                 fetchingCompletions={fetchingCompletions}
+                                completions={recordCompletions}
+                                showOutputType={showOutputType}
                                 handleShowOutputType={handleShowOutputType}
                                 handleOutputTypeChange={handleOutputTypeChange}
                                 handleShowRecordEditor={handleShowRecordEditor}
                                 handleOutputDeleteClick={handleOutputDeleteClick}
-                                completions={recordCompletions}
                             />
                         </FormBody>
                         <FormActionButtons

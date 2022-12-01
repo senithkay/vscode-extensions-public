@@ -1,10 +1,10 @@
 export interface DataMapperInputParam {
     name: string;
     type: string;
-    inInvalid?: boolean;
+    isUnsupported?: boolean;
 }
 
 export interface DataMapperOutputParam {
     type: string;
-    inInvalid?: boolean;
+    isUnsupported?: boolean;
 }

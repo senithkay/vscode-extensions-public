@@ -49,7 +49,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
 
     const [editingIndex, setEditingIndex] = useState(-1);
 
-    const hasInvalidInputs = inputParams.some(input => input.inInvalid);
+    const hasInvalidInputs = inputParams.some(input => input.isUnsupported);
 
     const handleEnableAddNewRecord = () => {
         enableAddNewRecord();

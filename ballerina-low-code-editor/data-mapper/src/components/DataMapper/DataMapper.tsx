@@ -332,21 +332,23 @@ function DataMapperC(props: DataMapperProps) {
         if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
             if (fnST) {
                 if (nodes.length > 0) {
-                    const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion) || [];
+                    const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
+                        || [];
                     setInputs(inputParams);
-                    const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion) || { type: undefined };
+                    const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
+                        || { type: undefined };
                     setOutput(outputType);
                 } else {
                     if (fnST.functionSignature.parameters.length === 0) {
                         setInputs([]);
                     }
                     if (!fnST.functionSignature?.returnTypeDesc) {
-                        setOutput({ type: undefined, inInvalid: true });
+                        setOutput({ type: undefined });
                     }
                 }
             } else {
                 setInputs([]);
-                setOutput({ type: undefined, inInvalid: true });
+                setOutput({ type: undefined });
             }
         }
     }, [nodeSetupCounter])
@@ -359,8 +361,8 @@ function DataMapperC(props: DataMapperProps) {
 
     const showConfigPanel = useMemo(() => {
         if (inputs && output) {
-            const hasInvalidInputs = !inputs.length || inputs.some(input => input.inInvalid);
-            const isInvalidOutput = output.inInvalid;
+            const hasInvalidInputs = !inputs.length || inputs.some(input => input.isUnsupported);
+            const isInvalidOutput = output.isUnsupported;
             return hasInvalidInputs || isInvalidOutput;
         }
     }, [inputs, output])
