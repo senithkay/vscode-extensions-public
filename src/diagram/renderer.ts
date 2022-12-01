@@ -94,6 +94,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
     const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
+            console.log('window langclient >>>', window.langclient)
             function getFileContent(url) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(

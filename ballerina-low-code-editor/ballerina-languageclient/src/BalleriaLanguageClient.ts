@@ -31,6 +31,7 @@ import {
     BallerinaTriggersResponse,
     CompletionParams,
     CompletionResponse,
+    DocumentIdentifier,
     ExecutorPositionsResponse,
     ExpressionTypeRequest,
     ExpressionTypeResponse,
@@ -60,6 +61,14 @@ import {
 } from './IBallerinaLanguageClient'
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { LSConnection } from "./LSConnection";
+
+interface BallerinaProjectComponents {
+    packages?: any[];
+}
+
+interface GetBallerinaPackagesParams {
+    documentIdentifiers: DocumentIdentifier[];
+}
 
 export class BalleriaLanguageClient implements IBallerinaLangClient {
 
@@ -290,5 +299,9 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public rename(params: RenameParams): Promise<WorkspaceEdit> {
         return this._clientConnection.sendRequest("textDocument/rename", params);
+    }
+
+    public getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
+        return this._clientConnection.sendRequest("ballerinaPackage/components", params);
     }
 }

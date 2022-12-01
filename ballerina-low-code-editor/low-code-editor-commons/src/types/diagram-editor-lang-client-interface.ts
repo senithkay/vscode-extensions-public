@@ -22,7 +22,7 @@ import {
 
 import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from ".";
 import { BaseLangClientInterface } from "./base-lang-client-interface";
-import { LinePosition, PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
+import { BallerinaProjectComponents, GetBallerinaPackagesParams, LinePosition, PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
 import {
     BallerinaConnectorRequest,
     BallerinaConnectorResponse,
@@ -159,4 +159,7 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     codeAction: (
         params: CodeActionParams
     ) => Thenable<CodeAction[]> ;
+    getBallerinaProjectComponents: (
+        params: GetBallerinaPackagesParams
+    ) => Promise<BallerinaProjectComponents>;
 }

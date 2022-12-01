@@ -160,6 +160,15 @@ export interface GetSyntaxTreeResponse {
     parseSuccess: boolean;
 }
 
+
+interface BallerinaProjectComponents {
+    packages?: any[];
+}
+
+interface GetBallerinaPackagesParams {
+    documentIdentifiers: DocumentIdentifier[];
+}
+
 export interface BallerinaRecordResponse {
     org: string;
     module: string;
@@ -881,4 +890,8 @@ export interface IBallerinaLangClient {
 
     rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
     // close: () => void;
+
+    getBallerinaProjectComponents: (
+        params: GetBallerinaPackagesParams
+    ) => Promise<BallerinaProjectComponents>;
 }

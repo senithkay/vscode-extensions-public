@@ -127,8 +127,16 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             let showDiagramError = false;
             try {
                 const langClient = await langClientPromise;
+                console.log('lang client >>>', langClient)
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
                 const content = await props.getFileContent(filePath);
+                const projectComponents = await langClient.getBallerinaProjectComponents({
+                    documentIdentifiers: [{
+                        uri: 'file:///home/charukak/test-projects/ballerina-tests/outline_tests'
+                    }]
+                });
+
+                console.log('componenet test >>>', projectComponents);
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
