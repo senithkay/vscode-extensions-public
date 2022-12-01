@@ -68,7 +68,7 @@ export class RecordTypeDescriptorStore {
         });
 
         for (const {type, requestedRange} of typesFromExpression.types) {
-            await this.setTypeDescriptors(type, requestedRange.startLine, requestedRange.endLine);
+            this.setTypeDescriptors(type, requestedRange.startLine, requestedRange.endLine);
         }
     }
 
@@ -83,11 +83,11 @@ export class RecordTypeDescriptorStore {
         });
 
         for (const {type, requestedPosition} of typesFromSymbol.types) {
-            await this.setTypeDescriptors(type, requestedPosition);
+            this.setTypeDescriptors(type, requestedPosition);
         }
     }
 
-    async setTypeDescriptors(type: Type, startPosition: LinePosition, endPosition?: LinePosition) {
+    setTypeDescriptors(type: Type, startPosition: LinePosition, endPosition?: LinePosition) {
         if (type) {
             const position: NodePosition = {
                 startLine: startPosition.line,

@@ -157,7 +157,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
 
     return (!node.hidden && (
         <>
-            {!!node.sourcePort && (
+            {(!!node.sourcePort && !!node.inPort && !!node.outPort) && (
                 <div className={classes.root} >
                     <div className={classes.header}>
                         <DataMapperPortWidget engine={engine} port={node.inPort} />

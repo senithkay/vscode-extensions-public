@@ -14,7 +14,9 @@
 import React from "react";
 
 import { CodeAction } from "vscode-languageserver-protocol";
+
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
+
 import { CodeActionTooltip } from "./CodeActionTooltip/CodeActionTooltip";
 import { LightBulbSVG } from "./LightBulb";
 import { useStyles } from "./style";

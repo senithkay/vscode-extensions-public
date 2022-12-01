@@ -14,7 +14,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -51,7 +51,7 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
         if (editable) {
             context.enableStatementEditor({
                 value: field?.value && field.value.source,
-                valuePosition: field?.value && field.value.position,
+                valuePosition: field?.value && field.value.position as NodePosition,
                 label: getFieldLabel(fieldId)
             });
             setEditable(false);
@@ -71,7 +71,7 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
     };
 
     const handleDelete = async () => {
-        deleteField(field.value);
+        await deleteField(field.value);
     };
 
     const valueConfigMenuItems = useMemo(() => {

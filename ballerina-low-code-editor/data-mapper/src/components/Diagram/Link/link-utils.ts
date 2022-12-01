@@ -1,4 +1,3 @@
-import { PortModel } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { RecordFieldPortModel } from "../Port";
@@ -7,7 +6,7 @@ import { getBalRecFieldName, getDefaultValue, getLinebreak } from "../utils/dm-u
 import { DataMapperLinkModel } from "./model/DataMapperLink";
 
 export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
-    const sourcePort = link.getSourcePort() as PortModel;
+    const sourcePort = link.getSourcePort() ;
 
     if (sourcePort instanceof RecordFieldPortModel) {
         return sourcePort.field.typeName === PrimitiveBalType.Array;

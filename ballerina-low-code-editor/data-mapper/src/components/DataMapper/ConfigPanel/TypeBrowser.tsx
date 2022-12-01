@@ -1,10 +1,10 @@
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js
+import React, { useEffect, useState } from "react";
+
 import styled from "@emotion/styled";
 import { LinearProgress, TextField } from "@material-ui/core";
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { CompletionResponse } from "@wso2-enterprise/ballerina-languageclient";
-import React, { useContext, useEffect, useState } from "react";
-import { CurrentFileContext } from "../Context/current-file-context";
-import { LSClientContext } from "../Context/ls-client-context";
 
 export interface TypeBrowserProps {
     type?: string;
@@ -12,8 +12,6 @@ export interface TypeBrowserProps {
     isLoading: boolean;
     recordCompletions: CompletionResponseWithModule[];
 }
-
-const typeLabelsToIgnore = ["StrandData"];
 
 export interface CompletionResponseWithModule extends CompletionResponse {
     module?: string;
@@ -23,10 +21,6 @@ export function TypeBrowser(props: TypeBrowserProps) {
     const { type, onChange, isLoading, recordCompletions } = props;
     const [selectedTypeStr, setSelectedTypeStr] = useState(type?.split(':')?.pop() || '')
 
-    const langClientPromise = useContext(LSClientContext);
-    const { path, content } = useContext(CurrentFileContext);
-
-
     useEffect(() => {
         setSelectedTypeStr(type?.split(':')?.pop() || '')
     }, [type])
@@ -35,7 +29,7 @@ export function TypeBrowser(props: TypeBrowserProps) {
     return (
         <>
             <Autocomplete
-                key={`type-select-${isLoading}`}
+                key={`type-select-${isLoading.toString()}`}
                 getOptionLabel={(option) => option?.insertText}
                 options={recordCompletions}
                 disabled={isLoading}
@@ -49,13 +43,15 @@ export function TypeBrowser(props: TypeBrowserProps) {
                 onChange={(_, value: CompletionResponseWithModule) => onChange(value?.module ? `${value.module}:${value.insertText}` : value?.insertText)}
                 renderInput={(params) => <TextFieldStyled {...params} autoFocus={!isLoading && !selectedTypeStr} />}
                 renderOption={(item) =>
-                    <TypeSelectItem>
-                        <TypeSelectItemLabel>{item.label}</TypeSelectItemLabel>
-                        <TypeSelectItemModule>{item.module}</TypeSelectItemModule>
-                    </TypeSelectItem>
+                    (
+                        <TypeSelectItem>
+                            <TypeSelectItemLabel>{item.label}</TypeSelectItemLabel>
+                            <TypeSelectItemModule>{item.module}</TypeSelectItemModule>
+                        </TypeSelectItem>
+                    )
                 }
-                blurOnSelect
-                openOnFocus
+                blurOnSelect={true}
+                openOnFocus={true}
             />
             {isLoading && <LinearProgress />}
         </>

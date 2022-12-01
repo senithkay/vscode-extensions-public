@@ -1,3 +1,4 @@
+// tslint:disable: jsx-no-multiline-js no-implicit-dependencies
 import * as React from 'react';
 
 import styled from '@emotion/styled';

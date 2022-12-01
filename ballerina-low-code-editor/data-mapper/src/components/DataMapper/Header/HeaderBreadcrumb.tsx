@@ -18,7 +18,6 @@ import Link from '@material-ui/core/Link';
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
-import { theme } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { SelectionState, ViewOption } from "../DataMapper";
