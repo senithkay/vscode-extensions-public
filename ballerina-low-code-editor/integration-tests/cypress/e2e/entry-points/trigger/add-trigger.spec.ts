@@ -50,7 +50,7 @@ describe('add a Github Trigger to an empty file', () => {
       .waitForConnectorsLoading()
       .selectTriggerType("Slack")
       .createBtnShouldNotBeClickable()
-      .selectServiceType("SlackEventsAppService")
+      .selectServiceType("AppService")
       .create();
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-trigger-slack.expected.bal");
@@ -68,8 +68,8 @@ describe('add a Github Trigger to an empty file', () => {
       .waitForConnectorsLoading()
       .selectTriggerType("Slack") //Need to fix this
       .createBtnShouldNotBeClickable()
-      .selectServiceType("SlackEventsAppService")
-      .addChannel("SlackEventsDndService")
+      .selectServiceType("AppService")
+      .addChannel("DndService")
       .create();
     SourceCode.shouldBeEqualTo(
       getCurrentSpecFolder() + "add-multiple-channel.expected.bal");
@@ -84,9 +84,9 @@ describe('add a Github Trigger to an empty file', () => {
     TriggerForm
       .selectTriggerType("Slack")
       .createBtnShouldNotBeClickable()
-      .selectServiceType("SlackEventsAppService")
-      .addChannel("SlackEventsDndService")
-      .deleteChannel("SlackEventsDndService")
+      .selectServiceType("AppService")
+      .addChannel("DndService")
+      .deleteChannel("DndService")
       .create();
 
     SourceCode.shouldBeEqualTo(
@@ -103,7 +103,7 @@ describe('add a Github Trigger to an empty file', () => {
     TriggerForm
       .selectTriggerType("Slack")
       .createBtnShouldNotBeClickable()
-      .selectServiceType("SlackEventsAppService")
+      .selectServiceType("AppService")
       .cancel()
       .selectTriggerType("Github")
       .createBtnShouldNotBeClickable()
