@@ -20,11 +20,13 @@ export const DM_UNSUPPORTED_TYPES = [
     PrimitiveBalType.Json,
     PrimitiveBalType.Union,
     PrimitiveBalType.Xml,
+    PrimitiveBalType.Var,
+    PrimitiveBalType.Nil,
     ObjectBalType
 ];
 
 // Input types that the dm were supporting even before expanding the type support
-export const DM_SUPPORTED_INPUT_TYPES = [
+export const DM_INHERENTLY_SUPPORTED_INPUT_TYPES = [
     PrimitiveBalType.Boolean,
     PrimitiveBalType.Decimal,
     PrimitiveBalType.Float,

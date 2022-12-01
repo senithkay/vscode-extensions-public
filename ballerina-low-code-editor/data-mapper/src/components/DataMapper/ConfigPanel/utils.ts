@@ -16,7 +16,7 @@ import { CompletionItemKind, Diagnostic } from "vscode-languageserver-protocol";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
 import { getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-utils";
-import { DM_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupported } from "../utils";
+import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupported } from "../utils";
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
 import { DataMapperInputParam, DataMapperOutputParam } from "./InputParamsPanel/types";
@@ -30,7 +30,7 @@ function isSupportedInput(param: RequiredParam, type: Type, balVersion: string):
     const isUnionType = STKindChecker.isUnionTypeDesc(param.typeName);
     const isArrayType = STKindChecker.isArrayTypeDesc(param.typeName);
     const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName) || isMapType;
-    const alreadySupportedType = DM_SUPPORTED_INPUT_TYPES.some(t => {
+    const alreadySupportedType = DM_INHERENTLY_SUPPORTED_INPUT_TYPES.some(t => {
         return t === type.typeName && !isUnionType && !isArrayType;
     });
     return hasTypeName && (alreadySupportedType || (!isUnsupportedType && isArraysSupported(balVersion)));
@@ -56,10 +56,11 @@ export function getInputsFromST(fnST: FunctionDefinition, balVersion: string): D
         params = reqParams.map((param) => {
             const typeName = getTypeFromTypeDesc(param.typeName);
             const typeInfo = getTypeOfInputParam(param, balVersion);
+            const isInvalid = typeInfo && typeInfo.typeName === "$CompilationError$";
             return {
                 name: param.paramName.value,
                 type: typeName,
-                isUnsupported: typeInfo ? !isSupportedInput(param, typeInfo, balVersion) : true
+                isUnsupported: typeInfo ? isInvalid || !isSupportedInput(param, typeInfo, balVersion) : true
             }
         });
     }
@@ -71,9 +72,10 @@ export function getOutputTypeFromST(fnST: FunctionDefinition, balVersion: string
     if (typeDesc) {
         const typeName = getTypeFromTypeDesc(typeDesc);
         const typeInfo = getTypeOfOutput(typeDesc, balVersion);
+        const isInvalid = typeInfo && typeInfo.typeName === "$CompilationError$";
         return {
             type: typeName,
-            isUnsupported: typeInfo ? !isSupportedOutput(typeDesc, typeInfo, balVersion) : true
+            isUnsupported: typeInfo ? isInvalid || !isSupportedOutput(typeDesc, typeInfo, balVersion) : true
         }
     }
 }
