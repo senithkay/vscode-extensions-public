@@ -19,7 +19,7 @@ import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
-import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { FUNCTION_BODY_QUERY, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
@@ -37,7 +37,9 @@ export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveType
 
 	generateReactWidget(event: { model: PrimitiveTypeNode; }): JSX.Element {
 		let valueLabel;
-		if (STKindChecker.isSelectClause(event.model.value)){
+		if (STKindChecker.isSelectClause(event.model.value)
+			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
+		{
 			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
 		}
 		return (

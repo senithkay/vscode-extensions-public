@@ -19,7 +19,7 @@ import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
-import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
+import { FUNCTION_BODY_QUERY, LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
 import { ArrayTypeOutputWidget } from "../commons/DataManipulationWidget/ArrayTypeOutputWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
@@ -37,7 +37,9 @@ export class ListConstructorNodeFactory extends AbstractReactFactory<ListConstru
 
 	generateReactWidget(event: { model: ListConstructorNode; }): JSX.Element {
 		let valueLabel;
-		if (STKindChecker.isSelectClause(event.model.value)){
+		if (STKindChecker.isSelectClause(event.model.value)
+			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
+		{
 			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
 		}
 		return (

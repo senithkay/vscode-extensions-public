@@ -19,6 +19,7 @@ import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
+import { FUNCTION_BODY_QUERY, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
@@ -26,7 +27,6 @@ import {
 	MappingConstructorNode,
 	MAPPING_CONSTRUCTOR_NODE_TYPE
 } from './MappingConstructorNode';
-import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
 
 @injectable()
 @singleton()
@@ -37,7 +37,9 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 
 	generateReactWidget(event: { model: MappingConstructorNode; }): JSX.Element {
 		let valueLabel;
-		if (STKindChecker.isSelectClause(event.model.value)){
+		if (STKindChecker.isSelectClause(event.model.value)
+			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
+		{
 			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
 		}
 		return (
