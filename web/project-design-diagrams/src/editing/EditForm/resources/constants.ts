@@ -17,8 +17,8 @@
  *
  */
 
-import { SxProps } from "@mui/material";
-import { CSSProperties } from "react";
+import { CSSProperties } from 'react';
+import { SxProps } from '@mui/material';
 
 export const PackageNameRegex: RegExp = new RegExp('^[a-zA-Z0-9\.\_]+$');
 export const OrganizationRegex: RegExp = new RegExp('^[a-zA-Z0-9\_]+$');

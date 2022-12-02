@@ -68,8 +68,10 @@ export const ControlsContainer = styled.div`
 export const AdvancedSettings = styled.div`
     border-bottom: 1px solid #E0E2E9;
     border-top: 1px solid #E0E2E9;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
+    margin-top: 10px;
     padding: 10px 0px;
 `;
 

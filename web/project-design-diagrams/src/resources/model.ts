@@ -115,13 +115,11 @@ export interface ServiceModels {
 }
 
 export interface AddComponentDetails {
-    type: string;
     name: string;
+    version: string;
+    org: string;
+    package: string;
     directory: string;
-    initialize: boolean;
-    package?: string;
-    org?: string;
-    version?: string;
 }
 
 export enum ComponentType {

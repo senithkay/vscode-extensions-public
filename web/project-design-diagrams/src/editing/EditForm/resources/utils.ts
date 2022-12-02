@@ -17,7 +17,7 @@
  *
  */
 
-import { AddComponentDetails, ComponentType } from '../../../resources';
+import { AddComponentDetails } from '../../../resources';
 import { PackageNameAntiRegex } from './constants';
 
 export function transformComponentName(componentName: string): string {
@@ -29,21 +29,11 @@ export function transformComponentName(componentName: string): string {
 
 export function initBallerinaComponent(): AddComponentDetails {
     return {
-        type: ComponentType.BALLERINA,
+
         name: '',
         directory: '',
-        initialize: false,
         package: '',
         org: '',
         version: '0.1.0'
-    };
-}
-
-export function initOtherComponent(): AddComponentDetails {
-    return {
-        type: ComponentType.OTHER,
-        name: '',
-        directory: '',
-        initialize: false
     };
 }

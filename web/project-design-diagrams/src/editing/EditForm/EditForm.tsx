@@ -22,10 +22,9 @@ import ReactDOM from 'react-dom';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { SelectChangeEvent } from '@mui/material/Select';
 import { DiagramContext } from '../../components/common/';
-import { AddComponentDetails, Colors, ComponentType } from '../../resources';
-import { AdvancedSettingsWidget, BasicSettingsWidget, ControlButton, } from './components';
+import { AddComponentDetails, Colors } from '../../resources';
+import { AdvancedSettingsWidget, ControlButton, TextInputWidget } from './components';
 import { OrganizationRegex, PackageNameRegex, VersionRegex } from './resources/constants';
 import { ControlsContainer, Header, HeaderTitle, PrimaryContainer } from './resources/styles';
 import { initBallerinaComponent, transformComponentName } from './resources/utils';
@@ -42,7 +41,7 @@ export function EditForm(props: EditFormProps) {
 
     const [component, editComponent] = useState<AddComponentDetails>(initBallerinaComponent);
     const [advancedVisibility, setAdvancedVisibility] = useState<boolean>(false);
-    const [validatedComponentName, setValidatedComponentName] = useState<string>(undefined);
+    const [validatedComponentName, setValidatedComponentName] = useState<string>('');
 
     useEffect(() => {
         if (defaultOrg) {
@@ -58,9 +57,7 @@ export function EditForm(props: EditFormProps) {
 
     const updateName = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         editComponent({ ...component, name: event.target.value });
-        if (component.type === ComponentType.BALLERINA) {
-            setValidatedComponentName(transformComponentName(event.target.value));
-        }
+        setValidatedComponentName(transformComponentName(event.target.value));
     }
 
     const updateVersion = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -75,22 +72,13 @@ export function EditForm(props: EditFormProps) {
         editComponent({ ...component, package: event.target.value });
     }
 
-    const updateType = (event: SelectChangeEvent) => {
-        editComponent({ ...component, type: event.target.value });
-    };
-
     const setDirectory = (path: string) => {
         editComponent({ ...component, directory: path });
     }
 
-    const setInitBehaviour = (event: React.ChangeEvent<HTMLInputElement>) => {
-        editComponent({ ...component, initialize: event.target.checked });
-    };
-
     const verifyInputs = (): boolean => {
-        if (component && component.name && (component.type === ComponentType.BALLERINA ?
-            ((component.package && PackageNameRegex.test(component.package) || validatedComponentName)
-                && (OrganizationRegex.test(component.org) || defaultOrg) && VersionRegex.test(component.version)) : true)) {
+        if (component && component.name && (component.package ? PackageNameRegex.test(component.package) : validatedComponentName)
+            && (component.org ? OrganizationRegex.test(component.org) : defaultOrg) && VersionRegex.test(component.version)) {
             return true;
         }
         return false;
@@ -118,17 +106,17 @@ export function EditForm(props: EditFormProps) {
         >
             <PrimaryContainer>
                 <Header>
-                    <HeaderTitle>Add Component</HeaderTitle>
+                    <HeaderTitle>Add HTTP Component</HeaderTitle>
                     <IconButton size='small' onClick={() => { closeForm() }}>
                         <CloseIcon />
                     </IconButton>
                 </Header>
 
-                <BasicSettingsWidget
-                    component={component}
-                    updateName={updateName}
-                    updateType={updateType}
-                    setInitBehaviour={setInitBehaviour}
+                <TextInputWidget
+                    label={'Component Name'}
+                    value={component.name}
+                    required={true}
+                    onChange={updateName}
                 />
 
                 <AdvancedSettingsWidget

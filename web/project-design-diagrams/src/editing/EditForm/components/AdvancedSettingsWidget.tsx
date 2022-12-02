@@ -24,7 +24,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { DiagramContext } from '../../../components/common';
 import { TextInputWidget } from './TextInput';
 import { ControlButton } from './ControlButtons';
-import { AddComponentDetails, ComponentType } from '../../../resources';
+import { AddComponentDetails } from '../../../resources';
 import {
     ButtonColor, OrganizationRegex, OrganizationRules, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex
 } from '../resources/constants';
@@ -64,7 +64,7 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
 
     return (
         <AdvancedSettings>
-            <AdvancedControlsHeader>
+            <AdvancedControlsHeader onClick={() => changeVisibility(!visibility)}>
                 <AdvancedHeaderTitle>More</AdvancedHeaderTitle>
 
                 <IconButton color='default' onClick={() => changeVisibility(!visibility)}>
@@ -74,36 +74,32 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
 
             {visibility &&
                 <>
-                    {component.type === ComponentType.BALLERINA &&
-                        <>
-                            <TextInputWidget
-                                label={'Package Name'}
-                                value={component.package}
-                                required={true}
-                                error={!PackageNameRegex.test(component.package)}
-                                errorMessage={PackageNameRules}
-                                onChange={updatePackage}
-                            />
+                    <TextInputWidget
+                        label={'Package Name'}
+                        value={component.package}
+                        required={true}
+                        error={!PackageNameRegex.test(component.package)}
+                        errorMessage={PackageNameRules}
+                        onChange={updatePackage}
+                    />
 
-                            <TextInputWidget
-                                label={'Organization'}
-                                value={component.org}
-                                required={true}
-                                error={!OrganizationRegex.test(component.org)}
-                                errorMessage={OrganizationRules}
-                                onChange={updateOrganization}
-                            />
+                    <TextInputWidget
+                        label={'Organization'}
+                        value={component.org}
+                        required={true}
+                        error={!OrganizationRegex.test(component.org)}
+                        errorMessage={OrganizationRules}
+                        onChange={updateOrganization}
+                    />
 
-                            <TextInputWidget
-                                label={'Version'}
-                                value={component.version}
-                                required={true}
-                                error={!VersionRegex.test(component.version)}
-                                errorMessage={VersioningRules}
-                                onChange={updateVersion}
-                            />
-                        </>
-                    }
+                    <TextInputWidget
+                        label={'Version'}
+                        value={component.version}
+                        required={true}
+                        error={!VersionRegex.test(component.version)}
+                        errorMessage={VersioningRules}
+                        onChange={updateVersion}
+                    />
 
                     <TextInputWidget
                         label={'Directory'}

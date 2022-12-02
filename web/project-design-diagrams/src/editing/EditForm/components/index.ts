@@ -18,6 +18,5 @@
  */
 
 export { AdvancedSettingsWidget } from './AdvancedSettingsWidget';
-export { BasicSettingsWidget } from './BasicSettingsWidget';
 export { ControlButton } from './ControlButtons';
 export { TextInputWidget } from './TextInput';
