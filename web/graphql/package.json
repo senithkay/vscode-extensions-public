@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prebuild": "npm i --legacy-peer-deps",
     "start": "webpack-dev-server --open",
     "build": "webpack",
     "storybook": "start-storybook -p 6006",

@@ -14,10 +14,12 @@
       "moduleResolution": "node",
       "resolveJsonModule": true,
       "isolatedModules": true,
-      "noEmit": true,
       "jsx": "react",
       "target": "ES6",
-      "strictNullChecks": false
+      "strictNullChecks": false,
+      "typeRoots": [
+        "node_modules/@types"
+      ]
     },
     "include": [
       "src/index.tsx"
