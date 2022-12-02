@@ -27,7 +27,7 @@ import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { AddComponentDetails, ComponentModel, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
+import { AddComponentDetails, ComponentModel, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, Service, USER_TIP } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
 import { createTerminal } from "../project";
 import { addToWorkspace, getCurrenDirectoryPath } from "../utils/project-utils";
@@ -103,6 +103,7 @@ async function getProjectResources(): Promise<Map<string, ComponentModel>> {
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
         }).then((response) => {
+            injectDeploymentMetadata(new Map(Object.entries(response.componentModels)));
             resolve(response.componentModels);
         }).catch((error) => {
             reject(error);
@@ -200,6 +201,25 @@ function isCompatible(ballerinaExtInstance: BallerinaExtension): boolean {
     } else {
         return false;
     }
+}
+
+// For testing purposes
+function injectDeploymentMetadata(components: Map<string, ComponentModel>) {
+    components.forEach((component) => {
+        const services: Map<string, Service> = new Map(Object.entries(component.services));
+        services.forEach((service) => {
+            service.deploymentMetadata = {
+                gateways: {
+                    internet: {
+                        isExposed: Math.random() < 0.5
+                    },
+                    intranet: {
+                        isExposed: Math.random() > 0.5
+                    }
+                }
+            }
+        })
+    })
 }
 
 function createService(componentDetail: AddComponentDetails) {

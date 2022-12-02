@@ -38,6 +38,7 @@ export interface Service {
     resources: ResourceFunction[];
     remoteFunctions: RemoteFunction[];
     serviceType: string;
+    deploymentMetadata: DeploymentMetadata;
 }
 
 interface ServiceAnnotation {
@@ -100,6 +101,17 @@ interface Association {
 export interface Cardinality {
     self: string;
     associate: string;
+}
+
+export interface DeploymentMetadata {
+    gateways: {
+        internet: {
+            isExposed: boolean;
+        },
+        intranet: {
+            isExposed: boolean;
+        }
+    }
 }
 
 export interface ConnectorProps {

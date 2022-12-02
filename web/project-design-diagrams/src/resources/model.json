@@ -1,0 +1,88 @@
+{
+    "<PACKAGE_ID>": {
+        "packageId": {
+            "name": "string",
+            "org": "string",
+            "version": "string"
+        },
+        "services": {
+            "<SERVICE_ID>": {
+                "annotation": {
+                    "id": "string",
+                    "label": "string"
+                },
+                "path": "string",
+                "serviceId": "string",
+                "serviceType": "string",
+                "elementLocation": {},
+                "resources": [
+                    {
+                        "identifier": "string",
+                        "parameters": [
+                            {
+                                "name": "string",
+                                "type": [],
+                                "isRequired": "boolean",
+                                "in": "string"
+                            }
+                        ],
+                        "returns": [],
+                        "interactions": [
+                            {
+                                "resourceId": {
+                                    "serviceId": "string",
+                                    "path": "string",
+                                    "action": "string"
+                                },
+                                "connectorType": "string",
+                                "elementLocation": {}
+                            }
+                        ],
+                        "elementLocation": {}
+                    }
+                ],
+                "remoteFunctions": [
+                    {
+                        "name": "string",
+                        "parameters": [],
+                        "returns": [],
+                        "interactions": [],
+                        "elementLocation": {}
+                    }
+                ],
+                "deploymentMetadata": {
+                    "gateways": {
+                        "internet": {
+                            "isExposed": "boolean"
+                        },
+                        "intranet": {
+                            "isExposed": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "entities": {
+            "<ENTITY_ID>": {
+                "attributes": [
+                    {
+                        "name": "string",
+                        "type": "string",
+                        "defaultValue": "string",
+                        "required": "boolean",
+                        "associations": [
+                            {
+                                "associate": "string",
+                                "cardinality": {
+                                    "self": "string",
+                                    "associate": "string"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "inclusions": []
+            }
+        }
+    }
+}
