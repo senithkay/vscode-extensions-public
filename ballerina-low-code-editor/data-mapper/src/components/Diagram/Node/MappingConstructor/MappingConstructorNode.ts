@@ -17,6 +17,7 @@ import {
     ExpressionFunctionBody,
     IdentifierToken,
     MappingConstructor,
+    NodePosition,
     QueryExpression,
     SelectClause,
     STKindChecker,
@@ -25,7 +26,6 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { isArraysSupported } from "../../../DataMapper/utils";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
@@ -88,7 +88,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             this.typeName = getTypeName(valueEnrichedType.type);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordField = valueEnrichedType;
-                if (!!this.recordField.childrenTypes.length) {
+                if (this.recordField.childrenTypes.length) {
                     this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
                             MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
@@ -100,7 +100,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             ) {
                 // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
                 this.recordField = valueEnrichedType.elements[0].member;
-                if (!!this.recordField.childrenTypes.length) {
+                if (this.recordField.childrenTypes.length) {
                     this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
                             MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
@@ -113,7 +113,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         }
     }
 
-    async initLinks() {
+    initLinks(): void {
         const mappings = this.genMappings(this.value.expression as MappingConstructor);
         this.createLinks(mappings);
     }
@@ -132,7 +132,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
             const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
-            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
+            const lm = new DataMapperLinkModel(value,
+                                            filterDiagnostics(this.context.diagnostics, value.position as NodePosition),
+                                            true);
             if (inPort && mappedOutPort) {
                 const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
                 const keepDefault = mappedField && !mappedField?.name
@@ -147,7 +149,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                         ? field.valueExpr
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
-                        ? field.fieldName.value
+                        ? field.fieldName.value as string
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field, keepDefault),
                 }));
@@ -188,7 +190,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 ...field.valueExpr?.position
             }];
         } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position as NodePosition, this.value.expression);
             traversNode(this.value.expression, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
             modifications = [{

@@ -1,3 +1,7 @@
+
+/* eslint-disable @typescript-eslint/await-thenable */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
@@ -10,14 +14,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda no-console
 import * as React from 'react';
 
+import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import CachedIcon from '@material-ui/icons/Cached';
+import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DefaultDiagramState, DefaultLabelFactory, DefaultLinkFactory, DefaultNodeFactory, DefaultPortFactory, DiagramEngine, DiagramModel, NodeLayerFactory, PathFindingLinkFactory } from '@projectstorm/react-diagrams';
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 
+import FitToScreenIcon from "../../assets/icons/fitToScreen";
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
@@ -27,21 +34,17 @@ import * as Links from "./Link";
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
-import { RequiredParamNode } from './Node';
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
+import { FromClauseNode } from './Node/FromClause';
+import { LetClauseNode } from './Node/LetClause';
 import { LinkConnectorNode } from './Node/LinkConnector';
 import { MappingConstructorNode } from './Node/MappingConstructor';
 import { QueryExpressionNode } from './Node/QueryExpression';
-import * as Ports from "./Port";
-import { FromClauseNode } from './Node/FromClause';
-import { LetClauseNode } from './Node/LetClause';
+import { RequiredParamNode } from './Node/RequiredParam';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
-import { makeStyles, Theme, createStyles } from '@material-ui/core';
-import CachedIcon from '@material-ui/icons/Cached';
-import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
-import FitToScreenIcon from "../../assets/icons/fitToScreen";
+import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
 
 
@@ -158,12 +161,11 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			newModel.setZoomLevel(zoomLevel);
 			newModel.setOffset(offSetX, offSetY);
 			newModel.addAll(...nodes);
-			for (let i = 0; i < nodes.length; i++) {
+			for (const node of nodes) {
 				try {
-					const node = nodes[i];
 					node.setModel(newModel);
 					await node.initPorts();
-					await node.initLinks();
+					node.initLinks();
 					engine.repaintCanvas();
 				} catch (e) {
 					console.error(e)
@@ -173,14 +175,14 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			engine.setModel(newModel);
 			if (newModel.getLinks().length > 0) {
 				dagreEngine.redistribute(newModel);
-				engine.repaintCanvas(true);
+				await engine.repaintCanvas(true);
 			}
 			let requiredParamFields = 0;
 			let numberOfRequiredParamNodes = 0;
 			let additionalSpace = 0;
 			nodes.forEach((node) => {
 				if (node instanceof MappingConstructorNode){
-					if (Object.values(node.getPorts()).some(port=>Object.keys(port.links).length)){
+					if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
 						node.setPosition(OFFSETS.TARGET_NODE.X, 0);
 					} else {
 						// Bring mapping constructor node close to input node, if it doesn't have any links
@@ -205,14 +207,14 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			newModel.addLayer(new OverlayLayerModel());
 			setModel(newModel);
 		}
-		genModel();
+		void genModel();
 	}, [nodes]);
 
 	const resetZoomAndOffset = () => {
-		const model = engine.getModel();
-		model.setZoomLevel(defaultModelOptions.zoom);
-		model.setOffset(0, 0);
-		engine.setModel(model);
+		const currentModel = engine.getModel();
+		currentModel.setZoomLevel(defaultModelOptions.zoom);
+		currentModel.setOffset(0, 0);
+		engine.setModel(currentModel);
 	}
 
 	return (
@@ -226,7 +228,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 						<div className={classes.iconWrap} onClick={resetZoomAndOffset}>
 							<CachedIcon className={classes.icon} />
 						</div>
-						<div className={classes.iconWrap} onClick={() => engine.zoomToFitNodes({ margin: 20 })}>
+						<div className={classes.iconWrap} onClick={() => void engine.zoomToFitNodes({ margin: 20 })}>
 							<FitToScreenIcon />
 						</div>
 					</div>
@@ -236,6 +238,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	);
 
 
-};
+}
 
 export default React.memo(DataMapperDiagram);

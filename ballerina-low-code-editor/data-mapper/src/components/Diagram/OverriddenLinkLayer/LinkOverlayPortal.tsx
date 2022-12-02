@@ -5,5 +5,5 @@ export const LinkOverayContainerID = "data-mapper-link-overlay-container";
 
 export const LinkOveryPortal: React.FC<{}> = (props) => {
     const container = document.getElementById(LinkOverayContainerID);
-	return container !== null ? ReactDOM.createPortal(props.children, container) : <></>;
+    return container !== null ? ReactDOM.createPortal(props.children, container) : <></>;
 }

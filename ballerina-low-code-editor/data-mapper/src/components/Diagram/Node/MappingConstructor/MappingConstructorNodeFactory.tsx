@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-lambda
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
@@ -36,11 +37,11 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 	}
 
 	generateReactWidget(event: { model: MappingConstructorNode; }): JSX.Element {
-		let valueLabel;
+		let valueLabel: string;
 		if (STKindChecker.isSelectClause(event.model.value)
 			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
 		{
-			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
+			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
 		return (
 			<EditableMappingConstructorWidget
@@ -57,7 +58,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 		);
 	}
 
-	generateModel(event: { initialConfig: any }): any {
+	generateModel(): MappingConstructorNode {
 		return undefined;
 	}
 }

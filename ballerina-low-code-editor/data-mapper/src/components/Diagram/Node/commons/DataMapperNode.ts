@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -44,10 +57,9 @@ import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import {
 	getBalRecFieldName,
-	getFieldAccessNodes,
 	getFieldName,
-	getSimpleNameRefNodes,
-	isComplexExpression 
+	getInputNodes,
+	isComplexExpression
 } from "../../utils/dm-utils";
 
 export interface DataMapperNodeModelGenerics {
@@ -60,7 +72,6 @@ export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | Boo
 	| ParenthesisedTypeDesc | QualifiedNameReference | ReadonlyTypeDesc | RecordTypeDesc | SimpleNameReference
 	| SingletonTypeDesc | StreamTypeDesc | StringTypeDesc | TableTypeDesc | TupleTypeDesc | TypedescTypeDesc | UnionTypeDesc
 	| XmlTypeDesc;
-
 
 export interface IDataMapperNodeFactory {
 
@@ -117,13 +128,13 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
-										                              parentId: string, elementIndex?: number,
-										                              portPrefix?: string,
-										                              parent?: RecordFieldPortModel,
-										                              collapsedFields?: string[],
-										                              hidden?: boolean,
-										                              isWithinSelectClause?: boolean
-																	 ) {
+											                             parentId: string, elementIndex?: number,
+											                             portPrefix?: string,
+											                             parent?: RecordFieldPortModel,
+											                             collapsedFields?: string[],
+											                             hidden?: boolean,
+											                             isWithinSelectClause?: boolean
+											) {
 		const fieldName = getFieldName(field);
 		if (elementIndex !== undefined) {
 			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
@@ -208,9 +219,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	protected getOtherMappings(node: STNode, currentFields: STNode[]) {
 		const valNode = STKindChecker.isSpecificField(node) ? node.valueExpr : node;
-		const fieldAccessNodes = getFieldAccessNodes(valNode);
-		const simpleNameRefNodes = getSimpleNameRefNodes(this.context.selection.selectedST.stNode, valNode);
-		const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+		const inputNodes = getInputNodes(valNode);
 		if (inputNodes.length === 1 && !isComplexExpression(valNode) && !STKindChecker.isQueryExpression(valNode)) {
 			return new FieldAccessToSpecificFied([...currentFields, node], inputNodes[0], valNode);
 		}

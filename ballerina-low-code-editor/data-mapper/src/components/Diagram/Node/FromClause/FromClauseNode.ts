@@ -15,6 +15,7 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 import {
     CaptureBindingPattern,
     FromClause,
+    NodePosition,
     RecordTypeDesc,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
@@ -46,8 +47,8 @@ export class FromClauseNode extends DataMapperNodeModel {
         this.initialYPosition = 0;
     }
 
-    async initPorts() {
-        await this.getSourceType();
+    initPorts(): void {
+        this.getSourceType();
         if (this.sourceBindingPattern) {
             const name = this.sourceBindingPattern.variableName.value;
 
@@ -68,12 +69,12 @@ export class FromClauseNode extends DataMapperNodeModel {
         // Currently, we create links from "IN" ports and back tracing the inputs.
     }
 
-    private async getSourceType() {
+    private getSourceType() {
         const bindingPattern = this.value.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
         }
-        const type = getTypeFromStore(this.value.expression.position);
+        const type = getTypeFromStore(this.value.expression.position as NodePosition);
         if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
             this.typeDef = type.memberType;
         }
@@ -82,11 +83,11 @@ export class FromClauseNode extends DataMapperNodeModel {
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
-        if ( typeof x === 'number' && typeof y === 'number'){
+        if (typeof x === 'number' && typeof y === 'number'){
             if (!this.x){
                 this.x = x;
             }
-            super.setPosition(this.x,y);
+            super.setPosition(this.x, y);
         }
     }
 }

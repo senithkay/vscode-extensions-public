@@ -49,7 +49,10 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
     const typeIncompatibilityMsg = outputType.isUnsupported
         && getTypeIncompatibilityMsg(outputType.typeNature, outputType.type, "output");
     const typeUnsupportedBanner = outputType.isUnsupported && (
-        <Warning message={typeIncompatibilityMsg} />
+        <Warning
+            testId="unsupported-output-banner"
+            message={typeIncompatibilityMsg}
+        />
     );
 
     return (
@@ -74,6 +77,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
                         <DeleteButton
                             onClick={handleOutputDeleteClick}
                             icon={<DeleteOutLineIcon fontSize="small" />}
+                            dataTestId="data-mapper-config-delete-output"
                         />
                     </OutputTypeContainer>
                     {outputType.type && outputType.isUnsupported && typeUnsupportedBanner}

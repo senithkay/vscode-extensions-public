@@ -24,7 +24,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FunctionDefinition,
-    ModulePart,
+
     NodePosition,
     RequiredParam,
     STKindChecker,
@@ -174,13 +174,13 @@ export function getModifiedTargetPosition(currentRecords: string[], currentTarge
         return currentTargetPosition;
     } else {
         if (STKindChecker.isModulePart(syntaxTree)) {
-            const modulePart = syntaxTree as ModulePart;
+            const modulePart = syntaxTree ;
             const memberPositions: NodePosition[] = [];
             modulePart.members.forEach((member: STNode) => {
                 if (STKindChecker.isTypeDefinition(member)) {
                     const name = member.typeName.value;
                     if (currentRecords.includes(name)) {
-                        memberPositions.push(member.position);
+                        memberPositions.push(member.position as NodePosition);
                     }
                 }
             });
@@ -223,15 +223,15 @@ export async function getDiagnosticsForFnName(name: string,
     let diagTargetPosition: NodePosition;
     if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
         fnConfigPosition = {
-            ...fnST?.functionSignature?.position,
-            startLine: fnST.functionName.position?.startLine,
-            startColumn: fnST.functionName.position?.startColumn
+            ...fnST?.functionSignature?.position as NodePosition,
+            startLine: (fnST.functionName.position as NodePosition)?.startLine,
+            startColumn: (fnST.functionName.position as NodePosition)?.startColumn
         }
         diagTargetPosition = {
-            startLine: fnST.functionName.position.startLine,
-            startColumn: fnST.functionName.position.startColumn,
-            endLine: fnST.functionName.position.endLine,
-            endColumn: fnST.functionName.position.startColumn + name.length
+            startLine: (fnST.functionName.position as NodePosition).startLine,
+            startColumn: (fnST.functionName.position as NodePosition).startColumn,
+            endLine: (fnST.functionName.position as NodePosition).endLine,
+            endColumn: (fnST.functionName.position as NodePosition).startColumn + name.length
         };
         stModification = updateFunctionSignature(name, parametersStr, returnTypeStr, fnConfigPosition);
     } else {

@@ -10,15 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React from "react";
 
+import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
+import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
     LetVarDecl,
+    NodePosition,
     STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
-import clsx from "clsx";
 
 import { ClauseAddButton } from "./ClauseAddButton";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
@@ -29,36 +32,32 @@ import { WhereClauseItem } from "./WhereClauseItem";
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;
     title: string;
+
+    engine: DiagramEngine;
+    port: PortModel<PortModelGenerics>;
 }
 
-export function ExpandedMappingHeaderWidget(
-    props: ExpandedMappingHeaderWidgetProps
-) {
-    const { node } = props;
+export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetProps) {
+    const { node, engine, port } = props;
     const classes = useStyles();
 
     const onClickEdit = (editNode: STNode) => {
         if (STKindChecker.isWhereClause(editNode)) {
             node.context.enableStatementEditor({
                 value: editNode.expression?.source,
-                valuePosition: editNode.expression?.position,
+                valuePosition: editNode.expression?.position as NodePosition,
                 label: "Where clause",
             });
-        } else if (
-            STKindChecker.isLetClause(editNode) &&
-            editNode.letVarDeclarations[0]
-        ) {
+        } else if (STKindChecker.isLetClause(editNode) && editNode.letVarDeclarations[0]) {
             node.context.enableStatementEditor({
-                value: (editNode.letVarDeclarations[0] as LetVarDecl)
-                    ?.expression?.source,
-                valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)
-                    ?.expression?.position,
+                value: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.source,
+                valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.position as NodePosition,
                 label: "Let clause",
             });
         } else if (STKindChecker.isFromClause(editNode)) {
             node.context.enableStatementEditor({
                 value: editNode.expression.source,
-                valuePosition: editNode.expression.position,
+                valuePosition: editNode.expression.position as NodePosition,
                 label: "From clause",
             });
         }
@@ -69,67 +68,55 @@ export function ExpandedMappingHeaderWidget(
     };
 
     const fromClause = props.node.queryExpr.queryPipeline.fromClause;
-    const intermediateClauses =
-        props.node.queryExpr.queryPipeline.intermediateClauses;
+    const intermediateClauses = props.node.queryExpr.queryPipeline.intermediateClauses;
 
     return (
-        <div className={classes.root}>
-            <div className={classes.element}>
-                <div className={classes.clause}>
-                    <span className={classes.clauseBold}>{fromClause.fromKeyword.value}</span>
-                    <span className={classes.clauseItem}>{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={() => onClickEdit(fromClause)}
-                    >
-                        {fromClause.expression.source}
-                    </span>
+        <>
+            <div>
+                <div className={classes.clauseItem}>
+                    <div className={classes.clauseKeyWrap}>{fromClause.fromKeyword.value}</div>
+                    <div className={classes.clauseWrap}>
+                        <span
+                            className={classes.clauseItemKey}
+                        >
+                            {` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}
+                        </span>
+                        <span
+                            className={classes.clauseExpression}
+                            onClick={() => onClickEdit(fromClause)}
+                        >
+                            {fromClause.expression.source}
+                        </span>
+                    </div>
                 </div>
-            </div>
-            {intermediateClauses.length > 0 && (
+
                 <ClauseAddButton
                     context={node.context}
                     queryExprNode={node.queryExpr}
                     addIndex={-1}
-                    visibleOnlyOnHover
                 />
-            )}
-            {intermediateClauses.length > 0 ? (
-                intermediateClauses?.map((clauseItem, index) => {
-                    const itemProps = {
-                        key: index,
-                        onEditClick: () => onClickEdit(clauseItem),
-                        onDeleteClick: () => deleteWhereClause(clauseItem),
-                        context: node.context,
-                        queryExprNode: node.queryExpr,
-                        itemIndex: index,
-                    };
-                    if (STKindChecker.isWhereClause(clauseItem)) {
-                        return (
-                            <WhereClauseItem
-                                {...itemProps}
-                                intermediateNode={clauseItem}
-                            />
-                        );
-                    } else if (STKindChecker.isLetClause(clauseItem)) {
-                        return (
-                            <LetClauseItem
-                                {...itemProps}
-                                intermediateNode={clauseItem}
-                            />
-                        );
-                    }
-                })
-            ) : (
-                <div className={clsx(classes.element, classes.empty)}>
-                    <div className={classes.title}>Add Clause</div>
-                    <ClauseAddButton
-                        context={node.context}
-                        queryExprNode={node.queryExpr}
-                        addIndex={-1}
-                    />
+
+                {intermediateClauses.length > 0 &&
+                    intermediateClauses?.map((clauseItem, index) => {
+                        const itemProps = {
+                            key: index,
+                            onEditClick: () => onClickEdit(clauseItem),
+                            onDeleteClick: () => deleteWhereClause(clauseItem),
+                            context: node.context,
+                            queryExprNode: node.queryExpr,
+                            itemIndex: index,
+                        };
+                        if (STKindChecker.isWhereClause(clauseItem)) {
+                            return <WhereClauseItem {...itemProps} intermediateNode={clauseItem} />;
+                        } else if (STKindChecker.isLetClause(clauseItem)) {
+                            return <LetClauseItem {...itemProps} intermediateNode={clauseItem} />;
+                        }
+                    })}
+
+                <div className={classes.queryInputInputPortWrap}>
+                    <PortWidget port={port} engine={engine} />
                 </div>
-            )}
-        </div>
+            </div>
+        </>
     );
 }

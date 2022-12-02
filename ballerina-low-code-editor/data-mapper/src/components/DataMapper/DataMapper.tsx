@@ -133,7 +133,7 @@ export interface SelectionState {
 
 export interface ExpressionInfo {
     value: string;
-    valuePosition: any;
+    valuePosition: NodePosition;
     label?: string;
 }
 
@@ -150,21 +150,27 @@ enum DMState {
 
 const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload?: SelectionState, index?: number }) => {
     switch (action.type) {
-        case ViewOption.EXPAND:
-            const previousST = !!state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
+        case ViewOption.EXPAND: {
+            const previousST = state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
             return { ...state, selectedST: action.payload.selectedST, prevST: previousST };
-        case ViewOption.COLLAPSE:
+        }
+        case ViewOption.COLLAPSE: {
             const prevSelection = state.prevST.pop();
             return { ...state, selectedST: prevSelection, prevST: [...state.prevST] };
-        case ViewOption.NAVIGATE:
+        }
+        case ViewOption.NAVIGATE: {
             const targetST = state.prevST[action.index];
             return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
-        case ViewOption.RESET:
+        }
+        case ViewOption.RESET:  {
             return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED };
-        case ViewOption.INITIALIZE:
+        }
+        case ViewOption.INITIALIZE: {
             return { selectedST: action.payload.selectedST, prevST: action.payload.prevST, state: DMState.INITIALIZED };
-        default:
+        }
+        default: {
             return state;
+        }
     }
 };
 
@@ -284,7 +290,7 @@ function DataMapperC(props: DataMapperProps) {
     }, [fnST]);
 
     useEffect(() => {
-        (async () => {
+        void (async () => {
             try {
                 if (selection.selectedST.stNode) {
                     const diagnostics = await handleDiagnostics(filePath, langClientPromise)

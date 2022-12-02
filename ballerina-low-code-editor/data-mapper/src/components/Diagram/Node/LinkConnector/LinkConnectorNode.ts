@@ -1,6 +1,19 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import { PrimitiveBalType, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FieldAccess,
+    NodePosition,
     OptionalFieldAccess,
     SimpleNameReference,
     STKindChecker,
@@ -57,10 +70,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         );
         if (STKindChecker.isSpecificField(valueNode)) {
             this.value = valueNode.valueExpr ? valueNode.valueExpr.source.trim() : '';
-            this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.valueExpr.position);
+            this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.valueExpr.position as NodePosition);
         } else {
-            this.value = valueNode.value ? valueNode.value.trim()  : valueNode.source.trim();
-            this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.position);
+            this.value = valueNode.value ? (valueNode.value as string).trim()  : valueNode.source.trim();
+            this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.position as NodePosition);
         }
 
 
@@ -113,7 +126,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     initLinks(): void {
         if (!this.hidden) {
-            this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
+            this.sourcePorts.forEach((sourcePort) => {
                 const inPort = this.inPort;
 
                 const lm = new DataMapperLinkModel(undefined, undefined, true);
@@ -121,8 +134,6 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 lm.setSourcePort(sourcePort);
                 sourcePort.addLinkedPort(this.inPort);
                 sourcePort.addLinkedPort(this.targetMappedPort)
-
-                const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
 
                 lm.registerListener({
                     selectionChanged(event) {
@@ -162,15 +173,13 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             }
         } else {
             if (this.targetMappedPort) {
-                this.sourcePorts.forEach((sourcePort, sourcePortIndex) => {
+                this.sourcePorts.forEach((sourcePort) => {
                     const inPort = this.targetMappedPort;
 
                     const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
                     lm.setTargetPort(this.targetMappedPort);
                     lm.setSourcePort(sourcePort);
                     sourcePort.addLinkedPort(this.targetMappedPort);
-
-                    const fieldAccessNode = this.fieldAccessNodes[sourcePortIndex];
 
                     lm.registerListener({
                         selectionChanged(event) {
@@ -189,10 +198,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         }
     }
 
-    async updateSource() {
+    updateSource(): void {
         const targetPosition = STKindChecker.isSpecificField(this.valueNode)
-            ? this.valueNode.valueExpr.position
-            : this.valueNode.position;
+            ? this.valueNode.valueExpr.position as NodePosition
+            : this.valueNode.position as NodePosition;
         const modifications = [
             {
                 type: "INSERT",
@@ -202,7 +211,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 ...targetPosition
             }
         ];
-        this.context.applyModifications(modifications);
+        void this.context.applyModifications(modifications);
     }
 
     public updatePosition() {
@@ -214,7 +223,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         return this.diagnostics.length > 0;
     }
 
-    public deleteLink() {
+    public deleteLink(): void {
         const targetField = this.targetPort.field;
         let modifications: STModification[];
         if (!targetField?.name && targetField?.typeName !== PrimitiveBalType.Array
@@ -229,7 +238,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 ...this.valueNode.position
             }];
         } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position, this.parentNode);
+            const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position as NodePosition, this.parentNode);
             traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
 
@@ -239,6 +248,6 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             }];
         }
 
-        this.context.applyModifications(modifications);
+        void this.context.applyModifications(modifications);
     }
 }

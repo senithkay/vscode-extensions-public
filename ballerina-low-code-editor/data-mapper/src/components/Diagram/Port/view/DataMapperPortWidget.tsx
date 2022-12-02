@@ -14,6 +14,7 @@ export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
 	port: IntermediatePortModel | RecordFieldPortModel;
 	disable?: boolean;
+	dataTestId?: string;
 }
 
 enum PortState {
@@ -23,7 +24,7 @@ enum PortState {
 }
 
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {
-	const { engine, port, disable } = props;
+	const { engine, port, disable, dataTestId } = props;
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const [ disableNewLinking, setDisableNewLinking] = useState<boolean>(false);
 
@@ -68,7 +69,8 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		hasError,
 		hasLinks,
 		active: portState === PortState.PortSelected,
-		disable
+		disable,
+		'data-testid': dataTestId
 	};
 
 	return !disable ? (
@@ -91,9 +93,9 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 				</DisabledNewLinkingPortContainer>
 			</PortWidget>
 		)
-	
+
 	) : (
-		<DisabledPortContainer>
+		<DisabledPortContainer data-testid={dataTestId}>
 			<RadioButtonUncheckedIcon/>
 		</DisabledPortContainer>
 	);

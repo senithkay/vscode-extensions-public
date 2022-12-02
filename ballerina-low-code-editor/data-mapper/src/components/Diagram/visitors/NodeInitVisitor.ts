@@ -1,12 +1,25 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    BinaryExpression,
+    CaptureBindingPattern,
     ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
     LetVarDecl,
     ListConstructor,
     MappingConstructor,
+    NodePosition,
     QueryExpression,
     SelectClause,
     SimpleNameReference,
@@ -19,7 +32,6 @@ import {
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { SelectionState } from "../../DataMapper/DataMapper";
-import { isArraysSupported } from "../../DataMapper/utils";
 import {
     MappingConstructorNode,
     QueryExpressionNode,
@@ -32,10 +44,10 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
-import { FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
+import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
-    getFieldAccessNodes,
-    getSimpleNameRefNodes,
+    getInputNodes,
     getTypeOfOutput,
     isComplexExpression
 } from "../utils/dm-utils";
@@ -46,14 +58,14 @@ export class NodeInitVisitor implements Visitor {
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
     private mapIdentifiers: STNode[] = [];
-    private isWithinQuery: number = 0;
+    private isWithinQuery = 0;
 
     constructor(
         private context: DataMapperContext,
         private selection: SelectionState
     ) { }
 
-    beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
+    beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
         let isFnBodyQueryExpr = false;
         if (typeDesc) {
@@ -144,9 +156,9 @@ export class NodeInitVisitor implements Visitor {
         // create input nodes
         if (!isFnBodyQueryExpr) {
             const params = node.functionSignature.parameters;
-            if (!!params.length) {
-                for (let i = 0; i < params.length; i++) {
-                    const param = params[i];
+            if (params.length) {
+                for (
+                    const param of params) {
                     if (STKindChecker.isRequiredParam(param)) {
                         const paramNode = new RequiredParamNode(
                             this.context,
@@ -163,19 +175,16 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    beginVisitBinaryExpression(node: BinaryExpression, parent?: STNode) {
-    };
-
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
         const selectedSTNode = this.selection.selectedST.stNode;
+        const nodePosition: NodePosition = node.position as NodePosition;
         if (STKindChecker.isSpecificField(selectedSTNode)
-            && node.position.startLine === selectedSTNode.valueExpr.position.startLine
-            && node.position.startColumn === selectedSTNode.valueExpr.position.startColumn) {
+            && nodePosition.startLine === (selectedSTNode.valueExpr.position as NodePosition).startLine
+            && nodePosition.startColumn === (selectedSTNode.valueExpr.position as NodePosition).startColumn) {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
-                const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 65;
-                const addInitialClauseHeight = 65;
-                const yPosition = 50 + (intermediateClausesHeight || addInitialClauseHeight);
+                const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 80;
+                const yPosition = 50 + intermediateClausesHeight;
                 // create output node
                 const exprType = getTypeOfOutput(parent.fieldName, this.context.ballerinaVersion);
 
@@ -202,37 +211,49 @@ export class NodeInitVisitor implements Visitor {
                     );
                 }
 
-                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, yPosition + OFFSETS.TARGET_NODE.Y);
+                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + 80, yPosition + OFFSETS.TARGET_NODE.Y);
+
+                const expandedHeaderPorts: RightAnglePortModel[] = [];
 
                 // create input nodes
-                const fromClauseNode = new FromClauseNode(
-                    this.context,
-                    node.queryPipeline.fromClause
-                );
-                fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, yPosition);
+                const fromClauseNode = new FromClauseNode(this.context, node.queryPipeline.fromClause);
+                fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, yPosition);
                 this.inputNodes.push(fromClauseNode);
                 fromClauseNode.initialYPosition = yPosition;
 
-                const letClauses =
-                    node.queryPipeline.intermediateClauses?.filter(
-                        (item) =>
-                            STKindChecker.isLetClause(item) &&
-                            (
-                                (item.letVarDeclarations[0] as LetVarDecl)
-                                    ?.expression as SimpleNameReference
-                            )?.name?.value !== "EXPRESSION"
-                    );
+                const fromClauseNodeValueLabel = (
+                    node.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
+                )?.variableName?.value;
+                const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
+                expandedHeaderPorts.push(fromClausePort);
+                fromClauseNode.addPort(fromClausePort);
 
-                for (let [index, item] of letClauses.entries()) {
+                const letClauses = node.queryPipeline.intermediateClauses?.filter(
+                    (item) =>
+                        STKindChecker.isLetClause(item) &&
+                        ((item.letVarDeclarations[0] as LetVarDecl)?.expression as SimpleNameReference)?.name?.value !==
+                        "EXPRESSION"
+                );
+
+                for (const [, item] of letClauses.entries()) {
                     const paramNode = new LetClauseNode(this.context, item as LetClause);
-                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
                     this.inputNodes.push(paramNode);
+
+                    const letClauseValueLabel = (
+                        ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
+                            ?.bindingPattern as CaptureBindingPattern
+                    )?.variableName?.value;
+                    const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
+                    expandedHeaderPorts.push(letClausePort);
+                    paramNode.addPort(letClausePort);
                 }
 
                 const queryNode = new ExpandedMappingHeaderNode(this.context, node);
-                queryNode.setLocked(true)
+                queryNode.setLocked(true);
                 queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
                 this.intermediateNodes.push(queryNode);
+                queryNode.targetPorts = expandedHeaderPorts;
             }
         } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY) {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
@@ -253,12 +274,12 @@ export class NodeInitVisitor implements Visitor {
             }
 
         }
-    };
+    }
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         const selectedSTNode = this.selection.selectedST.stNode;
-        if (selectedSTNode.position.startLine !== node.position.startLine
-            && selectedSTNode.position.startColumn !== node.position.startColumn) {
+        if ((selectedSTNode.position as NodePosition).startLine !== (node.position as NodePosition).startLine
+            && (selectedSTNode.position as NodePosition).startColumn !== (node.position as NodePosition).startColumn) {
             this.mapIdentifiers.push(node)
         }
         if (this.isWithinQuery === 0
@@ -266,15 +287,13 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isMappingConstructor(node.valueExpr)
             && !STKindChecker.isListConstructor(node.valueExpr)
         ) {
-            const fieldAccessNodes = getFieldAccessNodes(node.valueExpr);
-            const simpleNameRefNodes = getSimpleNameRefNodes(selectedSTNode, node.valueExpr);
-            const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+            const inputNodes = getInputNodes(node.valueExpr);
             if (inputNodes.length > 1
                 || (inputNodes.length === 1 && isComplexExpression(node.valueExpr))) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
-                    node.fieldName.value,
+                    node.fieldName.value as string,
                     parent,
                     inputNodes,
                     this.mapIdentifiers.slice(0)
@@ -289,9 +308,7 @@ export class NodeInitVisitor implements Visitor {
         if (this.isWithinQuery === 0 && node.expressions) {
             node.expressions.forEach((expr) => {
                 if (!STKindChecker.isMappingConstructor(expr) && !STKindChecker.isListConstructor(expr)) {
-                    const fieldAccessNodes = getFieldAccessNodes(expr);
-                    const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, expr);
-                    const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+                    const inputNodes = getInputNodes(expr);
                     if (inputNodes.length > 1
                         || (inputNodes.length === 1 && isComplexExpression(expr))) {
                         const linkConnectorNode = new LinkConnectorNode(
@@ -316,9 +333,7 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isMappingConstructor(node.expression)
             && !STKindChecker.isListConstructor(node.expression))
         {
-            const fieldAccessNodes = getFieldAccessNodes(node.expression);
-            const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, node.expression);
-            const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+            const inputNodes = getInputNodes(node.expression);
             if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
@@ -337,9 +352,7 @@ export class NodeInitVisitor implements Visitor {
         if (!STKindChecker.isMappingConstructor(node.expression)
             && !STKindChecker.isListConstructor(node.expression))
         {
-            const fieldAccessNodes = getFieldAccessNodes(node.expression);
-            const simpleNameRefNodes = getSimpleNameRefNodes(this.selection.selectedST.stNode, node.expression);
-            const inputNodes = [...fieldAccessNodes, ...simpleNameRefNodes];
+            const inputNodes = getInputNodes(node.expression);
             if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
@@ -354,36 +367,29 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    beginVisitMappingConstructor(node: MappingConstructor, parent?: STNode): void {
+    beginVisitMappingConstructor(node: MappingConstructor): void {
         this.mapIdentifiers.push(node);
     }
 
-    endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
+    endVisitQueryExpression?() {
         if (this.isWithinQuery > 0) {
             this.isWithinQuery -= 1;
         }
     };
 
-    endVisitBinaryExpression(node: BinaryExpression, parent?: STNode) {
-
-    };
-
-    endVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
-    }
-
-    endVisitSpecificField(node: SpecificField, parent?: STNode) {
+    endVisitSpecificField() {
         if (this.mapIdentifiers.length > 0) {
             this.mapIdentifiers.pop()
         }
     }
 
-    endVisitListConstructor(node: ListConstructor, parent?: STNode) {
+    endVisitListConstructor() {
         if (this.mapIdentifiers.length > 0) {
             this.mapIdentifiers.pop()
         }
     }
 
-    endVisitMappingConstructor(node: MappingConstructor, parent?: STNode) {
+    endVisitMappingConstructor() {
         if (this.mapIdentifiers.length > 0) {
             this.mapIdentifiers.pop()
         }

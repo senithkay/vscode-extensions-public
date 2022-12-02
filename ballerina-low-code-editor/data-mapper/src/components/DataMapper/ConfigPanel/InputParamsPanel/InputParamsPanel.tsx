@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 
 import styled from "@emotion/styled";
 import { WarningBanner } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -80,11 +80,11 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
         setEditingIndex(-1);
     };
 
-    const onEditClick = (index: number, param: DataMapperInputParam) => {
+    const onEditClick = (index: number) => {
         setEditingIndex(index);
     };
 
-    const onDeleteClick = (index: number, param: DataMapperInputParam) => {
+    const onDeleteClick = (index: number) => {
         onUpdateParams([...inputParams.filter((item, i) => index !== i)]);
     };
 
@@ -104,7 +104,10 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
                             imports={imports}
                         />
                         {param.isUnsupported && (
-                            <Warning message={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")} />
+                            <Warning
+                                testId="unsupported-input-banner"
+                                message={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")}
+                            />
                         )}
                     </>
                 ) : (
@@ -116,7 +119,10 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
                             onDelete={onDeleteClick}
                         />
                         {param.isUnsupported && (
-                            <Warning message={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")} />
+                            <Warning
+                                testId="unsupported-input-banner"
+                                message={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")}
+                            />
                         )}
                     </>
                 )

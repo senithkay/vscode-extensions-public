@@ -15,6 +15,7 @@ import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/balleri
 import {
     ExpressionFunctionBody,
     IdentifierToken,
+    NodePosition,
     QueryExpression,
     SelectClause,
     STKindChecker,
@@ -84,7 +85,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         }
     }
 
-    async initLinks() {
+    initLinks(): void {
         const mappings = this.genMappings(this.value.expression);
         this.createLinks(mappings);
     }
@@ -111,7 +112,9 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             } else {
                 [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             }
-            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
+            const lm = new DataMapperLinkModel(value,
+                                            filterDiagnostics(this.context.diagnostics, value.position as NodePosition),
+                                            true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
@@ -122,7 +125,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                         ? field.valueExpr
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
-                        ? field.fieldName.value
+                        ? field.fieldName.value as string
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field),
                 }));

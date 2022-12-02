@@ -16,6 +16,7 @@ import {
     FunctionDefinition,
     LetClause,
     LetVarDecl,
+    NodePosition,
     SpecificField,
     STKindChecker,
     STNode,
@@ -40,24 +41,24 @@ export class RecordTypeFindingVisitor implements Visitor {
         this.isArraysSupported = isArraysSupported
     }
 
-    public beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
+    public beginVisitFunctionDefinition(node: FunctionDefinition) {
         if (this.isArraysSupported) {
             this.fnDefPositions = {
                 fnNamePosition: {
-                    line: node.functionName.position.startLine,
-                    offset: node.functionName.position.startColumn
+                    line: (node.functionName.position as NodePosition).startLine,
+                    offset: (node.functionName.position as NodePosition).startColumn
                 },
                 returnTypeDescPosition: {
-                    line: node.functionSignature.returnTypeDesc.type.position.startLine,
-                    offset: node.functionSignature.returnTypeDesc.type.position.startColumn
+                    line: (node.functionSignature.returnTypeDesc.type.position as NodePosition).startLine,
+                    offset: (node.functionSignature.returnTypeDesc.type.position as NodePosition).startColumn
                 }
             }
         } else {
             node.functionSignature.parameters.map((param: STNode) => {
                 if (STKindChecker.isRequiredParam(param)) {
-                    const paramPosition = STKindChecker.isQualifiedNameReference(param.typeName)
-                        ? param.typeName.identifier.position
-                        : param.position;
+                    const paramPosition: NodePosition = STKindChecker.isQualifiedNameReference(param.typeName)
+                        ? param.typeName.identifier.position as NodePosition
+                        : param.position as NodePosition as NodePosition;
                     this.symbolNodesPositions.push({
                         line: paramPosition.startLine,
                         offset: paramPosition.startColumn
@@ -65,9 +66,9 @@ export class RecordTypeFindingVisitor implements Visitor {
                 }
             });
             if (node.functionSignature?.returnTypeDesc) {
-                const typePosition = STKindChecker.isQualifiedNameReference(node.functionSignature.returnTypeDesc.type)
-                    ? node.functionSignature.returnTypeDesc.type.identifier.position
-                    : node.functionSignature.returnTypeDesc.type.position;
+                const typePosition: NodePosition = STKindChecker.isQualifiedNameReference(node.functionSignature.returnTypeDesc.type)
+                    ? node.functionSignature.returnTypeDesc.type.identifier.position as NodePosition
+                    : node.functionSignature.returnTypeDesc.type.position as NodePosition;
                 this.symbolNodesPositions.push({
                     line: typePosition.startLine,
                     offset: typePosition.startColumn
@@ -76,8 +77,8 @@ export class RecordTypeFindingVisitor implements Visitor {
         }
     }
 
-    public beginVisitFromClause(node: FromClause, parent?: STNode) {
-        const typePosition = node.expression.position;
+    public beginVisitFromClause(node: FromClause) {
+        const typePosition: NodePosition = node.expression.position as NodePosition;
         this.expressionNodeRanges.push({
             startLine: {
                 line: typePosition.startLine,
@@ -90,8 +91,8 @@ export class RecordTypeFindingVisitor implements Visitor {
         });
     }
 
-    public beginVisitSpecificField(node: SpecificField, parent?: STNode) {
-        const fieldNamePosition = node.fieldName.position;
+    public beginVisitSpecificField(node: SpecificField) {
+        const fieldNamePosition: NodePosition = node.fieldName.position as NodePosition;
         this.symbolNodesPositions.push({
             line: fieldNamePosition.startLine,
             offset: fieldNamePosition.startColumn
@@ -99,7 +100,7 @@ export class RecordTypeFindingVisitor implements Visitor {
     }
 
     public beginVisitLetClause(node: LetClause){
-        const typePosition = (node.letVarDeclarations[0] as LetVarDecl)?.expression?.position;
+        const typePosition: NodePosition = (node.letVarDeclarations[0] as LetVarDecl)?.expression?.position as NodePosition;
         this.expressionNodeRanges.push({
             startLine: {
                 line: typePosition.startLine,

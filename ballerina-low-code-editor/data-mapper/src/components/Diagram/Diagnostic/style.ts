@@ -62,7 +62,8 @@ export const useStyles = makeStyles((theme: Theme) =>
                 color: "#8190ef",
             },
             fontFamily: "'Gilmer', sans-serif"
-        },pre: {
+        },
+        pre: {
             margin: 0,
             overflowX: "auto",
             whiteSpace: "pre-wrap",

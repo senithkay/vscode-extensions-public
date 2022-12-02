@@ -1,7 +1,20 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
+    NodePosition,
     QueryExpression,
     STKindChecker,
     STNode,
@@ -51,9 +64,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         );
     }
 
-    async initPorts() {
-        await this.getSourceType();
-        await this.getTargetType();
+    initPorts(): void {
+        this.getSourceType();
+        this.getTargetType();
         this.inPort = new IntermediatePortModel(
             md5(JSON.stringify(this.value.position) + "IN")
             , "IN"
@@ -66,7 +79,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         this.addPort(this.outPort);
     }
 
-    private async getSourceType() {
+    private getSourceType(): void {
         const fromClause = this.value.queryPipeline.fromClause;
         const sourceFieldAccess = fromClause.expression;
         const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
@@ -106,8 +119,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         }
     }
 
-    private async getTargetType() {
-        const fieldNamePosition = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.position;
+    private getTargetType(): void {
+        const fieldNamePosition = STKindChecker.isSpecificField(this.parentNode)
+                                    && this.parentNode.fieldName.position as NodePosition;
         if (fieldNamePosition) {
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode || node instanceof ListConstructorNode) {
@@ -117,7 +131,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         if (port instanceof RecordFieldPortModel
                             && port?.editableRecordField && port.editableRecordField?.value
                             && STKindChecker.isSpecificField(port.editableRecordField.value)
-                            && isPositionsEquals(port.editableRecordField.value.fieldName.position, fieldNamePosition)
+                            && isPositionsEquals(port.editableRecordField.value.fieldName.position as NodePosition,
+                                            fieldNamePosition)
                         ) {
                             this.targetPort = port;
                         }
@@ -163,7 +178,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 this.sourcePort.addLinkedPort(this.inPort);
                 this.sourcePort.addLinkedPort(this.targetPort);
                 link.registerListener({
-                    selectionChanged(event) {
+                    selectionChanged: (event) => {
                         if (event.isSelected) {
                             this.sourcePort.fireEvent({}, "link-selected");
                             this.inPort.fireEvent({}, "link-selected");
@@ -183,12 +198,12 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 link.setSourcePort(this.outPort);
                 link.setTargetPort(this.targetPort);
                 link.registerListener({
-                    selectionChanged(event) {
+                    selectionChanged: (event) => {
                         if (event.isSelected) {
-                            this.targetPort[1].fireEvent({}, "link-selected");
+                            this.targetPort.fireEvent({}, "link-selected");
                             this.outPort.fireEvent({}, "link-selected");
                         } else {
-                            this.targetPort[1].fireEvent({}, "link-unselected");
+                            this.targetPort.fireEvent({}, "link-unselected");
                             this.outPort.fireEvent({}, "link-unselected");
                         }
                     },
@@ -203,14 +218,14 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 link.setTargetPort(this.targetPort);
                 this.sourcePort.addLinkedPort(this.targetPort);
                 link.registerListener({
-                    selectionChanged(event) {
+                    selectionChanged: (event) => {
                         if (event.isSelected) {
                             this.sourcePort.fireEvent({}, "link-selected");
-                            this.targetPort[1].fireEvent({}, "link-selected");
+                            this.targetPort.fireEvent({}, "link-selected");
                         } else {
 
                             this.sourcePort.fireEvent({}, "link-unselected");
-                            this.targetPort[1].fireEvent({}, "link-unselected");
+                            this.targetPort.fireEvent({}, "link-unselected");
                         }
                     },
                 })
@@ -226,7 +241,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         }
     }
 
-    public async deleteLink() {
+    public deleteLink(): void {
         let modifications: STModification[];
         const dmNode = this.getModel().getNodes().find(node =>
             node instanceof MappingConstructorNode || node instanceof ListConstructorNode
@@ -234,7 +249,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         if (dmNode) {
             if (STKindChecker.isSpecificField(this.parentNode)) {
                 const rootConstruct = dmNode.value.expression;
-                const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode.position, rootConstruct);
+                const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode.position as NodePosition, rootConstruct);
                 traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
                 const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
                 modifications = [{
@@ -254,6 +269,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             }
         }
 
-        await this.context.applyModifications(modifications);
+        void this.context.applyModifications(modifications);
     }
 }
