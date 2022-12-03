@@ -27,10 +27,12 @@ import { ConnectorWizard } from "./components/FormComponents/ConfigForms/Connect
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
+import { ServiceDesignOverlay } from "./components/ServiceDesignOverlay";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
 import { visitor as STFindingVisitor } from "./visitors/st-finder-visitor";
+
 
 export function Diagram() {
     const {
@@ -88,6 +90,8 @@ export function Diagram() {
     const [isPlusWidgetActive, setIsPlusWidgetActive] = useState(false);
 
     let isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
+
+    const isServiceDesignOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "ServiceDesign";
 
     // React.useEffect(() => {
     //     setIsErrorStateDialogOpen(diagramErrors);
@@ -202,7 +206,7 @@ export function Diagram() {
         const modifications: STModification[] = [];
 
         // delete action
-        if (STKindChecker.isIfElseStatement(model) && !model.viewState.isMainIfBody){
+        if (STKindChecker.isIfElseStatement(model) && !model.viewState.isMainIfBody) {
             const ifElseRemovePosition = model.position;
             ifElseRemovePosition.endLine = model.elseBody.elseBody.position.startLine;
             ifElseRemovePosition.endColumn = model.elseBody.elseBody.position.startColumn;
@@ -264,8 +268,8 @@ export function Diagram() {
             isLoading: false,
             formType: dialogType,
             formArgs: {
-               ...plusWidgetProps,
-               viewState: plusViewState
+                ...plusWidgetProps,
+                viewState: plusViewState
             }
         };
         setFormConfig({
@@ -345,7 +349,7 @@ export function Diagram() {
         h = h + (window.innerHeight - h);
     }
 
-    const dataMapperArgs = {ballerinaVersion, ...formConfig};
+    const dataMapperArgs = { ballerinaVersion, ...formConfig };
 
     // let hasConfigurable = false;
     // if (originalSyntaxTree) {
@@ -393,12 +397,17 @@ export function Diagram() {
                             }
                         }}
                     />
-                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && (
+                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && !isServiceDesignOpen && (
                         <FormGenerator {...formConfig} />
                     )}
                     {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
                         <DataMapperOverlay
                             {...dataMapperArgs}
+                        />
+                    )}
+                    {isFormOpen && isServiceDesignOpen && !isConnectorConfigWizardOpen && (
+                        <ServiceDesignOverlay
+                            {...formConfig}
                         />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (

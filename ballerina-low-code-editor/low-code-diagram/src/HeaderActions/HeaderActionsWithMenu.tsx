@@ -150,9 +150,36 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         onClickTryIt();
     };
 
+    const handleOnClickDesign = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (renderEditForm) {
+            renderEditForm(
+                model,
+                model?.position,
+                { formType: "ServiceDesign", isLoading: false },
+                handleEditBtnCancel,
+                handleEditBtnCancel
+            );
+        }
+    };
+
     const optionMenu = (
         <div ref={catMenu} className={"rectangle-menu"}>
             <>
+                {!isFunction &&
+                    (
+                        <div
+                            onClick={handleOnClickDesign}
+                            className={classNames("menu-option", "line-vertical", "middle")}
+                            id="design-button"
+                        >
+                            <div className="icon">
+                                <LabelTryIcon />
+                            </div>
+                            <div className="other">Design</div>
+                        </div>
+                    )
+                }
                 {onClickRun &&
                     (
                         <div
