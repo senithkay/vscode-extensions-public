@@ -55,6 +55,14 @@ export enum PALETTE_COMMANDS {
 
 export type EditorProps = EditorState & EditorAPI;
 
+export const OverviewDiagram: React.FC<EditorProps> = (props: EditorProps) => {
+    return (
+        <div>
+            Hello 123
+        </div>
+    )
+}
+
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,

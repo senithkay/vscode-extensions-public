@@ -289,6 +289,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             openInDiagram
                         }
                     };
+                    console.log('>>> BLCEditor',BLCEditor);
                     BLCEditor.renderDiagramEditor(options);
                 } catch(e) {
                     if (e.message === 'ballerinaComposer is not defined') {

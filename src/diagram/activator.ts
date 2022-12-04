@@ -212,6 +212,24 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
 			});
 	});
+
+	const diagramRenderDisposableAlt = commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM_ALT, (...args: any[]) => {
+		console.log(">>> hello from diagram alt", args);
+
+		console.log("project path >>>", workspace.workspaceFolders);
+
+		// TODO: update telemetry constants to overview diagram related stuff
+		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
+		return ballerinaExtInstance.onReady()
+			.then(() => {
+				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : {});
+			})
+			.catch((e) => {
+				ballerinaExtInstance.showPluginActivationError();
+				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
+			});
+	});
+
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
 	experimentalEnabled = ballerinaExtension.enabledExperimentalFeatures();

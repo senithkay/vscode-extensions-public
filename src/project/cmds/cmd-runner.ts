@@ -42,7 +42,8 @@ export enum PALETTE_COMMANDS {
     PERFORMANCE_FORECAST_DISABLE = 'performance.forecasting.disable',
     TRY_IT = 'ballerina.tryit',
     OPEN_IN_DIAGRAM = 'ballerina.openIn.diagram',
-    SHOW_DIAGRAM = 'ballerina.show.diagram'
+    SHOW_DIAGRAM = 'ballerina.show.diagram',
+    SHOW_DIAGRAM_ALT = 'ballerina.show.diagram.alt'
 }
 
 
