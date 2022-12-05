@@ -17,7 +17,9 @@
  *
  */
 
+import { wait } from "../util";
 import { By, WebView } from "vscode-extension-tester";
+import { DEFAULT_UI_LOAD_TIME } from "../constants";
 
 let webview: WebView;
 let currentElement: any;
@@ -28,21 +30,25 @@ export class Service {
     }
 
     async getHeader() {
+        await wait(DEFAULT_UI_LOAD_TIME);
         currentElement = await webview.findWebElement(By.className("service-header"));
         return this;
     }
 
     async getServiceOptions() {
+        await wait(DEFAULT_UI_LOAD_TIME);
         currentElement = (await currentElement.findElements(By.className("amendment-option")))[0];
         return this;
     }
 
     async getRun() {
+        await wait(DEFAULT_UI_LOAD_TIME);
         currentElement = await webview.findWebElement(By.id("run-button"));
         return this;
     }
 
     async getTryIt() {
+        await wait(DEFAULT_UI_LOAD_TIME);
         currentElement = await webview.findWebElement(By.id("try-button"));
         return this;
     }
