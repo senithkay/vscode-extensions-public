@@ -28,7 +28,7 @@ jobs:
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
       - name: Build plugin repo
-        run: ./gradlew clean build -x test -x uiTest
+        run: npm run build
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
           IS_RELEASE: ${{ false }}
