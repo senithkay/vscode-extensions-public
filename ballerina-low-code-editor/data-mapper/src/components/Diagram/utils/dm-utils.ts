@@ -8,7 +8,6 @@ import {
 	CaptureBindingPattern,
 	FieldAccess,
 	FromClause,
-	FunctionDefinition,
 	IdentifierToken,
 	LetClause,
 	LetVarDecl,
@@ -17,8 +16,8 @@ import {
 	NodePosition,
 	OptionalFieldAccess,
 	QueryExpression,
-	RecordField,
-	RequiredParam, SimpleNameReference,
+	RequiredParam,
+	SimpleNameReference,
 	SpecificField,
 	STKindChecker,
 	STNode,
@@ -64,23 +63,6 @@ export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	return fieldNames.reverse();
 }
 
-export function getFieldTypeName(field: RecordField) {
-	let name: string;
-	if (STKindChecker.isRecordTypeDesc(field.typeName)) {
-		name = PrimitiveBalType.Record;
-	} else if (STKindChecker.isArrayTypeDesc(field.typeName)) {
-		name = PrimitiveBalType.Array;
-	} else if ((field.typeName as any)?.name) {
-		name = (field.typeName as any)?.name.value;
-	}
-	return name;
-}
-
-export function getParamForName(name: string, st: FunctionDefinition) {
-	return st.functionSignature.parameters.find((param) =>
-		STKindChecker.isRequiredParam(param) && param.paramName?.value === name); // TODO add support for other param types
-}
-
 export async function createSourceForMapping(link: DataMapperLinkModel) {
 	let source = "";
 	let lhs = "";
@@ -101,7 +83,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	if (isMappedToPrimitiveTypePort(targetPort)
 		|| isMappedToRootListConstructor(targetPort)
-		|| isMappedToMappingConstructorWithinArray(targetPort))
+		|| isMappedToMappingConstructorWithinArray(targetPort)
+		|| isMappedToExprFuncBody(targetPort, targetNode.context.selection.selectedST.stNode))
 	{
 		const valuePosition = targetPort.editableRecordField.value.position as NodePosition;
 		const isValueEmpty = isEmptyValue(valuePosition);
@@ -997,6 +980,15 @@ function isMappedToRootListConstructor(targetPort: RecordFieldPortModel): boolea
 		&& targetPort.field.typeName === PrimitiveBalType.Array
 		&& targetPort?.editableRecordField?.value
 		&& STKindChecker.isListConstructor(targetPort.editableRecordField.value);
+}
+
+function isMappedToExprFuncBody(targetPort: RecordFieldPortModel, selectedSTNode: STNode): boolean {
+	const exprPosition: NodePosition = STKindChecker.isFunctionDefinition(selectedSTNode)
+		&& STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody)
+		&& selectedSTNode.functionBody.expression.position;
+	return !targetPort.parentModel
+		&& targetPort?.editableRecordField?.value
+		&& isPositionsEquals(targetPort?.editableRecordField?.value.position as NodePosition, exprPosition);
 }
 
 function isMappedToMappingConstructorWithinArray(targetPort: RecordFieldPortModel): boolean {

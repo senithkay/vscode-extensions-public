@@ -26,7 +26,10 @@ import { Diagnostic } from "vscode-languageserver-protocol";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
-import { OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
+import {
+    LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
+    OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+} from "../../utils/constants";
 import {
     getDefaultValue,
     getInputNodeExpr,
@@ -34,7 +37,6 @@ import {
     getOutputPortForField
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ListConstructorNode } from "../ListConstructor";
@@ -110,6 +112,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                         if (node instanceof PrimitiveTypeNode) {
                             this.targetPort = node.getPort(
                                 `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.recordField.type.typeName}.IN`
+                            ) as RecordFieldPortModel;
+                        } else if (node instanceof ListConstructorNode) {
+                            this.targetPort = node.getPort(
+                                `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}.IN`
                             ) as RecordFieldPortModel;
                         }
                         this.targetMappedPort = this.targetPort;

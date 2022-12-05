@@ -108,6 +108,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const hasValue = field && field?.elements && field.elements.length > 0;
 	const isBodyListConstructor = field?.value && STKindChecker.isListConstructor(field.value);
+	const hasSyntaxDiagnostics = field?.value && field.value.syntaxDiagnostics.length > 0;
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -142,7 +143,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		<TreeContainer>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
-					{portIn && (!hasValue
+					{portIn && !hasSyntaxDiagnostics && (!hasValue
 							|| !expanded
 							|| !isBodyListConstructor
 							|| (STKindChecker.isListConstructor(field.value) && field.value.expressions.length === 0)
@@ -162,7 +163,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 				</span>
 			</TreeHeader>
 			<TreeBody>
-				{expanded && field && isBodyListConstructor && (
+				{expanded && field && isBodyListConstructor && !hasSyntaxDiagnostics && (
 					<ArrayTypedEditableRecordFieldWidget
 						key={id}
 						engine={engine}
