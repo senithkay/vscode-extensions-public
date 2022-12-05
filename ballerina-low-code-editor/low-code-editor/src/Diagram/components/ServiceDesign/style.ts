@@ -11,9 +11,15 @@
  * associated services.
  */
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 export const useStyles = makeStyles(() =>
     createStyles({
+        root: {
+            flexGrow: 1,
+            height: "100%",
+            overflow: "hidden"
+        },
         headerContainer: {
             width: "100%",
             height: 50,
@@ -60,6 +66,38 @@ export const useStyles = makeStyles(() =>
         breadCrumb: {
             width: "100%",
             display: "flex"
-        }
+        },
+        resourceMethodPathWrapper: {
+            display: 'flex',
+            flexDirection: 'row',
+            padding: '15px 5px'
+        },
+        methodTypeContainer: {
+            display: 'block',
+            width: '35%',
+        },
+        resourcePathWrapper: {
+            width: '63%',
+            marginLeft: theme.spacing(1.25)
+        },
+        advancedToggleWrapper: {
+            width: '10%',
+            marginTop: 32
+        },
+        plusIconWrapper: {
+            height: 16,
+            width: 16,
+            marginTop: 5
+        },
+        wizardFormControlExtended: {
+            width: 600,
+            "& .MuiFormControl-marginNormal": {
+                margin: '0 !important',
+            },
+        },
+        resourceWrapper: {
+            marginBottom: "15px",
+            padding: "5px 0"
+        },
     }),
 );

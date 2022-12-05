@@ -16,8 +16,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { ErrorIcon, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
-import "./style.scss";
+import "../style.scss";
 import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { ResourceQueryParams } from "./ResourceQueryParams";
+import { ResourceOtherParams } from "./ResourceOtherParams";
 
 interface ResourceHeaderProps {
     model: ResourceAccessorDefinition;
@@ -28,51 +30,6 @@ interface ResourceHeaderProps {
 export function ResourceHeader(props: ResourceHeaderProps) {
     const { model, onExpandClick, isExpanded } = props;
 
-    const sourceSnippet = model?.source;
-    const diagnostics = model?.typeData?.diagnostics;
-    // const diagnosticMsgs = getDiagnosticInfo(diagnostics);
-    // const diagramContext = useContext(Context);
-    // const gotoSource = diagramContext?.api?.code?.gotoSource;
-    // const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
-    // const showTooltip = diagramContext?.api?.edit?.showTooltip;
-    const [tooltip, setTooltip] = useState(undefined);
-    // const { isReadOnly } = diagramContext.props;
-
-    // const onDeleteClick = () => {
-    //     if (deleteComponent) {
-    //         deleteComponent(model);
-    //     }
-    // };
-
-    // const onClickOpenInCodeView = () => {
-    //     if (model && gotoSource) {
-    //         const position: NodePosition = model.position as NodePosition;
-    //         gotoSource({ startLine: position.startLine, startColumn: position.startColumn });
-    //     }
-    // }
-    // const openInCodeView = !isReadOnly && model && model.position && onClickOpenInCodeView;
-
-    // const errorIcon = diagnosticMsgs?.severity === "ERROR" ? <ErrorIcon /> : <WarningIcon />;
-
-    // const errorSnippet = {
-    //     diagnosticMsgs: diagnosticMsgs?.message,
-    //     code: sourceSnippet,
-    //     severity: diagnosticMsgs?.severity
-    // }
-    // const iconElement = (
-    //     <div className="error-icon-wrapper">
-    //         {errorIcon}
-    //     </div>
-    // );
-
-
-    // TODO:Check this and fix the tooltip rendering issue
-    // useEffect(() => {
-    //     if (diagnosticMsgs && showTooltip) {
-    //         setTooltip(showTooltip(iconElement, errorSnippet.diagnosticMsgs, undefined, model));
-    //     }
-    // }, [model]);
-
     return (
         <div
             className={classNames("function-signature", model.functionName.value)}
@@ -81,25 +38,16 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             <div className={classNames("resource-badge", model.functionName.value)}>
                 <p className={"text"}>{model.functionName.value.toUpperCase()}</p>
             </div>
-            {/* <div className="param-wrapper">
+            <div className="param-wrapper">
                 <ResourceQueryParams
                     parameters={model.functionSignature.parameters}
                     relativeResourcePath={model.relativeResourcePath}
                 />
                 <ResourceOtherParams parameters={model.functionSignature.parameters} />
-            </div> */}
+            </div>
             <div className="return-type">
                 {model.functionSignature.returnTypeDesc?.source}
             </div>
-            {/* {diagnosticMsgs ?
-                (
-                    <div>
-                        {tooltip ? tooltip : iconElement}
-                    </div>
-                )
-                : null
-            } */}
-
             <ComponentExpandButton
                 isExpanded={isExpanded}
                 onClick={onExpandClick}

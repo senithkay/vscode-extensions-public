@@ -32,7 +32,7 @@ import { Uri } from "monaco-editor";
 import { Context } from "../../../Contexts/Diagram";
 import { RecordEditor } from "../FormComponents/ConfigForms";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
-import { ServiceDesignC } from "../ServiceDesign/ServiceDesign";
+import { ServiceDesign } from "../ServiceDesign";
 
 import { ServiceDesignStyles } from "./style";
 
@@ -73,7 +73,7 @@ export function ServiceDesignOverlay(props: DataMapperProps) {
         className={serviceDesignClasses.overlay}
       >
         <div className={serviceDesignClasses.container}>
-          <ServiceDesignC
+          <ServiceDesign
             fnST={functionST}
             langClientPromise={
               getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
@@ -81,7 +81,6 @@ export function ServiceDesignOverlay(props: DataMapperProps) {
             currentFile={currentFile}
             onClose={onClose}
           />
-          Service Design
         </div>
       </DiagramOverlay>
     </DiagramOverlayContainer>
