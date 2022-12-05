@@ -35,17 +35,9 @@ export const ControlPanel = styled.div`
     bottom: 15px;
     display: flex;
     flex-direction: column;
-    height: 110px;
+    height: 150px;
     justify-content: space-between;
     position: absolute;
     right: 15px;
-    width: 32px;
-`;
-
-export const ExportButton = styled.div`
-    bottom: 10px;
-    height: 32px;
-    left: 12px;
-    position: absolute;
     width: 32px;
 `;

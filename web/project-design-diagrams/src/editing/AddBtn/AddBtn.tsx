@@ -21,11 +21,12 @@ import React from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
 import styled from '@emotion/styled';
+import { Colors } from '../../resources';
 
 const Container = styled.div`
     position: absolute;
-    bottom: 200px;
-    left: 100px;
+    bottom: 15px;
+    left: 15px;
 `;
 
 export function AddButton(props: { onClick: () => void }) {
@@ -33,7 +34,7 @@ export function AddButton(props: { onClick: () => void }) {
 
     return (
         <Container onClick={onClick}>
-            <Fab color="primary" aria-label="add" >
+            <Fab sx={{ backgroundColor: Colors.PRIMARY, color: 'white' }} aria-label='add' >
                 <AddIcon />
             </Fab>
         </Container>
