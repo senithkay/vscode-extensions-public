@@ -46,7 +46,7 @@ const Container = styled.div`
 
 interface DiagramProps {
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>;
-    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>;
+    createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
     editingEnabled?: boolean;
@@ -86,14 +86,6 @@ export function DesignDiagram(props: DiagramProps) {
 
     const onComponentAddClick = () => {
         setShowEditForm(true);
-    }
-
-    const getDefaultOrg = (): string => {
-        let parentOrg: string = '';
-        if (projectComponents && projectComponents.size > 0) {
-            parentOrg = [...projectComponents][0][1].packageId.org;
-        }
-        return parentOrg;
     }
 
     return (

@@ -18,15 +18,17 @@
  */
 
 import styled from '@emotion/styled';
-import { Colors, Level } from '../../../resources';
+import { Colors, Level } from '../../../../resources';
 
 interface StyleProps {
+    isNew?: boolean;
     level?: Level;
     isResource?: boolean;
     isSelected?: boolean;
 }
 
 export const ServiceNode = styled.div`
+    animation: ${(props: StyleProps) => props.isNew ? `fadeIn 5s` : ''};
     background-color: ${(props: StyleProps) => props.level === Level.ONE ? `#FFFFFF` :
         props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
     border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};

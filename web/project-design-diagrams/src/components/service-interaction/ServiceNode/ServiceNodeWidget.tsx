@@ -17,14 +17,16 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from './ServiceNodeModel';
 import { ServiceLinkModel } from '../ServiceLink/ServiceLinkModel';
 import { ServiceHeadWidget } from './ServiceHead/ServiceHead';
 import { FunctionCard } from './FunctionCards/FunctionCard';
 import { Level } from '../../../resources';
-import { ServiceNode } from './styles';
+import { ServiceNode } from './styles/styles';
+import { DiagramContext } from '../../common';
+import './styles/styles.css';
 
 interface ServiceNodeWidgetProps {
 	node: ServiceNodeModel;
@@ -34,6 +36,17 @@ interface ServiceNodeWidgetProps {
 export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	const { node, engine } = props;
 	const [selectedLinks, setSelectedLinks] = useState<ServiceLinkModel[]>([]);
+	const { newComponentID, setNewComponentID } = useContext(DiagramContext);
+	const isNewNode = useRef<boolean>(newComponentID === node.getID());
+
+	useEffect(() => {
+		if (isNewNode.current) {
+			setNewComponentID(undefined);
+			setTimeout(() => {
+				isNewNode.current = false;
+			}, 4000)
+		}
+	}, [])
 
 	useEffect(() => {
 		node.registerListener({
@@ -45,7 +58,12 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	}, [node])
 
 	return (
-		<ServiceNode level={node.level} isSelected={node.checkSelectedList(selectedLinks, node.getID())}>
+		<ServiceNode
+			className='fadeIn'
+			isNew={isNewNode.current}
+			isSelected={node.checkSelectedList(selectedLinks, node.getID())}
+			level={node.level}
+		>
 			<ServiceHeadWidget
 				engine={engine}
 				node={node}

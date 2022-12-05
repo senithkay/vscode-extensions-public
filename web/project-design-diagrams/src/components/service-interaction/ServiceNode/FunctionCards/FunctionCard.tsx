@@ -23,7 +23,7 @@ import { ServiceNodeModel } from '../ServiceNodeModel';
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
 import { ResourceFunction, RemoteFunction } from '../../../../resources';
-import { FunctionContainer } from '../styles';
+import { FunctionContainer } from '../styles/styles';
 
 interface FunctionCardProps {
     engine: DiagramEngine;

@@ -142,9 +142,8 @@ function setupWebviewPanel() {
             },
             {
                 methodName: "createService",
-                handler: async (args: any[]): Promise<boolean | undefined> => {
-                    createService(args[0]);
-                    return Promise.resolve(true);
+                handler: async (args: any[]): Promise<string> => {
+                    return createService(args[0]);
                 }
             },
             {
@@ -222,50 +221,54 @@ function injectDeploymentMetadata(components: Map<string, ComponentModel>) {
     })
 }
 
-function createService(componentDetail: AddComponentDetails) {
-    const { directory: parentDirPath, package: packageName, name, version, org: orgName } = componentDetail;
+function createService(componentDetail: AddComponentDetails): Promise<string> {
+    return new Promise((resolve) => {
+        const { directory: parentDirPath, package: packageName, name, version, org: orgName } = componentDetail;
+        let serviceId: string = "";
 
-    window.withProgress({
-        location: ProgressLocation.Window,
-        title: "Creating service...",
-        cancellable: false
-    }, async (progress) => {
-        progress.report({ increment: 0, message: "Starting to create the service..." });
-        // Run commands spawning a child process
-        const res = await runCommand('pwd', parentDirPath, true);
-        progress.report({ increment: 10, message: `Opened the workspace folder at ${res}` });
-        // Create the package
-        await runCommand(`bal new ${packageName} -t service`, parentDirPath);
-        progress.report({ increment: 40, message: `Created the package ${packageName} in the workspace folder` });
-        const newPkgRootPath = join(join(parentDirPath, packageName), 'Ballerina.toml');
-        // Change toml conf
-        readFile(newPkgRootPath, 'utf-8', function (err, contents) {
-            if (err) {
-                progress.report({ increment: 50, message: `"Error while reading toml config " ${err}` });
-                return;
-            }
-            let replaced = contents.replace(/org = "[a-z,A-Z,0-9,_]+"/, `org = \"${orgName}\"`);
-            replaced = replaced.replace(/version = "[0-9].[0-9].[0-9]"/, `version = "${version}"`);
-            replaced = replaced.replace(/service \/ on new http:Listener(9090)/, `service \/ on new http:Listener(9090) {@display {\n\tlabel: "${name}",\n\tid: "${name}-${randomUUID()}"\n}\nservice \/ on new http:Listener(9090) {`);
-            writeFile(newPkgRootPath, replaced, 'utf-8', function (err) {
-                progress.report({ increment: 50, message: `Configured toml file successfully` });
+        window.withProgress({
+            location: ProgressLocation.Window,
+            title: "Creating service...",
+            cancellable: false
+        }, async (progress) => {
+            progress.report({ increment: 0, message: "Starting to create the service..." });
+            // Run commands spawning a child process
+            const res = await runCommand('pwd', parentDirPath, true);
+            progress.report({ increment: 10, message: `Opened the workspace folder at ${res}` });
+            // Create the package
+            await runCommand(`bal new ${packageName} -t service`, parentDirPath);
+            progress.report({ increment: 40, message: `Created the package ${packageName} in the workspace folder` });
+            const newPkgRootPath = join(join(parentDirPath, packageName), 'Ballerina.toml');
+            serviceId = `${name}-${randomUUID()}`;
+            // Change toml conf
+            readFile(newPkgRootPath, 'utf-8', function (err, contents) {
+                if (err) {
+                    progress.report({ increment: 50, message: `"Error while reading toml config " ${err}` });
+                    return;
+                }
+                let replaced = contents.replace(/org = "[a-z,A-Z,0-9,_]+"/, `org = \"${orgName}\"`);
+                replaced = replaced.replace(/version = "[0-9].[0-9].[0-9]"/, `version = "${version}"`);
+                writeFile(newPkgRootPath, replaced, 'utf-8', function (err) {
+                    progress.report({ increment: 50, message: `Configured toml file successfully` });
+                });
             });
-        });
-        progress.report({ increment: 60, message: `Configured version ${version} in package ${packageName}` });
-        const newServicePath = join(join(parentDirPath, packageName), 'service.bal');
-        // Add Display annotation
-        readFile(newServicePath, 'utf-8', function (err, contents) {
-            if (err) {
-                progress.report({ increment: 70, message: `"Error while reading service file " ${err}` });
-                return;
-            }
-            const replaced = contents.replace(/service \/ on new http:Listener\(9090\) \{/, `@display {\n\tlabel: "${name}",\n\tid: "${name}-${randomUUID()}"\n}\nservice \/ on new http:Listener(9090) {`);
-            writeFile(newServicePath, replaced, 'utf-8', function (err) {
-                progress.report({ increment: 80, message: `Added service annotation successfully` });
-                return;
+            progress.report({ increment: 60, message: `Configured version ${version} in package ${packageName}` });
+            const newServicePath = join(join(parentDirPath, packageName), 'service.bal');
+            // Add Display annotation
+            readFile(newServicePath, 'utf-8', function (err, contents) {
+                if (err) {
+                    progress.report({ increment: 70, message: `"Error while reading service file " ${err}` });
+                    return;
+                }
+                const replaced = contents.replace(/service \/ on new http:Listener\(9090\) \{/, `@display {\n\tlabel: "${name}",\n\tid: "${serviceId}"\n}\nservice \/ on new http:Listener(9090) {`);
+                writeFile(newServicePath, replaced, 'utf-8', function (err) {
+                    progress.report({ increment: 80, message: `Added service annotation successfully` });
+                    return;
+                });
             });
+            addToWorkspace(join(parentDirPath, packageName));
+            progress.report({ increment: 100, message: `Added the service to the current workspace` });
+            return resolve(serviceId);
         });
-        addToWorkspace(join(parentDirPath, packageName));
-        progress.report({ increment: 100, message: `Added the service to the current workspace` });
     });
 }

@@ -17,25 +17,14 @@
  *
  */
 
-import React from 'react';
-import AddIcon from '@mui/icons-material/Add';
-import Fab from '@mui/material/Fab';
-import styled from '@emotion/styled';
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        border: 1px solid #ffaf4d;
+        background-color: #fcead4;
+    }
 
-const Container = styled.div`
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
-`;
-
-export function AddButton(props: { onClick: () => void }) {
-    const { onClick } = props;
-
-    return (
-        <Container onClick={onClick}>
-            <Fab color='primary' aria-label='add' >
-                <AddIcon />
-            </Fab>
-        </Container>
-    )
+    100% {
+        opacity: 1;
+    }
 }

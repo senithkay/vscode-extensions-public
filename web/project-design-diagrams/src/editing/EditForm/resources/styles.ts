@@ -25,6 +25,7 @@ export const PrimaryContainer = styled.div`
     font-family: GilmerRegular;
     font-size: 15px;
     height: 100vh;
+    opacity: ${(props: {isLoading: boolean}) => props.isLoading ? 0.5 : 1};
     width: 370px;
 `;
 
