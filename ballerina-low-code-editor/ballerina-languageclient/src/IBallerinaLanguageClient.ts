@@ -50,7 +50,7 @@ export enum EXTENDED_APIS {
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
     SYMBOL_GET_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
     SYMBOL_GET_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
-    SYMBOL_GET_TYPES_FROM_FN_SIGNATURE = 'ballerinaSymbol/getTypesFromFnDefinition'
+    SYMBOL_GET_TYPES_FROM_FN_DEFINITION = 'ballerinaSymbol/getTypesFromFnDefinition'
 }
 
 export enum DIAGNOSTIC_SEVERITY {

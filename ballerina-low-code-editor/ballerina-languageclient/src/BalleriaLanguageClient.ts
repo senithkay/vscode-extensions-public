@@ -290,7 +290,7 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
     }
 
     public getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Thenable<TypesFromSymbolResponse> {
-        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPES_FROM_FN_SIGNATURE, params);
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPES_FROM_FN_DEFINITION, params);
     }
 
     public rename(params: RenameParams): Promise<WorkspaceEdit> {
