@@ -20,6 +20,9 @@
 import createEngine, { DiagramEngine } from '@projectstorm/react-diagrams';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import { ExtServiceNodeFactory, ServiceLinkFactory, ServiceNodeFactory, ServicePortFactory } from '../components/service-interaction';
+import { GatewayNodeFactory } from "../components/gateway/GatewayNode/GatewayNodeFactory";
+import { GatewayPortFactory } from "../components/gateway/GatewayPort/GatewayPortFactory";
+import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLinkFactory";
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();
@@ -35,6 +38,9 @@ export function createRenderPackageObject(projectPackages: IterableIterator<stri
 export function createServicesEngine(): DiagramEngine {
     const diagramEngine: DiagramEngine = createEngine({registerDefaultPanAndZoomCanvasAction: true,
         registerDefaultZoomCanvasAction: false});
+    diagramEngine.getNodeFactories().registerFactory(new GatewayNodeFactory());
+    diagramEngine.getPortFactories().registerFactory(new GatewayPortFactory());
+    diagramEngine.getLinkFactories().registerFactory(new GatewayLinkFactory());
     diagramEngine.getLinkFactories().registerFactory(new ServiceLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new ServicePortFactory());
     diagramEngine.getNodeFactories().registerFactory(new ServiceNodeFactory());
