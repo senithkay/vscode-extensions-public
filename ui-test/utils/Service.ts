@@ -18,11 +18,11 @@
  */
 
 import { wait } from "../util";
-import { By, WebView } from "vscode-extension-tester";
+import { By, WebElement, WebView } from "vscode-extension-tester";
 import { DEFAULT_UI_LOAD_TIME } from "../constants";
 
 let webview: WebView;
-let currentElement: any;
+let currentElement: WebElement;
 
 export class Service {
     constructor(element) {
@@ -54,7 +54,7 @@ export class Service {
     }
 
     async click() {
-        currentElement.click();
+        await currentElement.click();
         return this;
     }
 }
