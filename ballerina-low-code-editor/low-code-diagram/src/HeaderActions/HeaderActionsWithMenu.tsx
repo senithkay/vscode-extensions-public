@@ -137,7 +137,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
     }, [model]);
 
     React.useEffect(() => {
-        if(isEditViewVisible && renderEditForm) {
+        if (isEditViewVisible && renderEditForm) {
             renderEditForm(
                 model,
                 model?.position,

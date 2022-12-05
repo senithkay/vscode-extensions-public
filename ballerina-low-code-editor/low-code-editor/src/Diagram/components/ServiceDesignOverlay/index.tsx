@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { DataMapper } from "@wso2-enterprise/ballerina-data-mapper";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
   ConfigOverlayFormStatus,
@@ -27,15 +26,13 @@ import {
   STKindChecker,
   STNode,
 } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "monaco-editor";
 
 import { Context } from "../../../Contexts/Diagram";
-import { RecordEditor } from "../FormComponents/ConfigForms";
+import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 import { ServiceDesign } from "../ServiceDesign";
 
 import { ServiceDesignStyles } from "./style";
-import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
 
 export interface ServiceDesignProps {
   model?: STNode;
@@ -45,7 +42,7 @@ export interface ServiceDesignProps {
 }
 
 export function ServiceDesignOverlay(props: ServiceDesignProps) {
-  const { targetPosition, onCancel: onClose, model } = props;
+  const { onCancel: onClose, model } = props;
 
   const serviceDesignClasses = ServiceDesignStyles();
 
@@ -69,27 +66,27 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
 
-  const handleFormEdit = (model:STNode,  targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => {
+  const handleFormEdit = (stModel: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClosex?: () => void, onSave?: () => void) => {
     setFormConfig({
-        model,
-        configOverlayFormStatus,
-        onCancel: () => {
-            setIsFormOpen(false);
-            if (onClose) {
-                onClose();
-            }
-        },
-        onSave: () => {
-            setIsFormOpen(false);
-            if (onSave) {
-                onSave();
-            }
-        },
-        targetPosition
+      model: stModel,
+      configOverlayFormStatus,
+      onCancel: () => {
+        setIsFormOpen(false);
+        if (onClosex) {
+          onClose();
+        }
+      },
+      onSave: () => {
+        setIsFormOpen(false);
+        if (onSave) {
+          onSave();
+        }
+      },
+      targetPosition
     });
     setIsFormOpen(true);
-};
-  
+  };
+
   return (
     <DiagramOverlayContainer>
       <DiagramOverlay

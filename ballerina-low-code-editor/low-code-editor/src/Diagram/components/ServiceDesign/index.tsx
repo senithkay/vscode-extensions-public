@@ -9,12 +9,13 @@
  * this license, please see the license as well as any agreement you’ve
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
- */
+*/
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo, useReducer, useState } from "react";
+import { useIntl } from "react-intl";
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { ConfigOverlayFormStatus, getSource, TopLevelPlusIcon, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
     ResourceAccessorDefinition,
@@ -22,20 +23,10 @@ import {
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../Contexts/Diagram";
-import { ServiceHeader } from "./ServiceHeader";
-import classNames from "classnames";
-import "./style.scss";
 import { ResourceBody } from "./Resource";
+import { ServiceHeader } from "./ServiceHeader";
 import { useStyles } from "./style";
-import { ConfigOverlayFormStatus, getSource, TopLevelPlusIcon, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormHeaderSection, SelectDropdownWithButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
-import { Button, FormControl } from "@material-ui/core";
-import { getUpdatedSource } from "../FormComponents/Utils";
-import { useIntl } from "react-intl";
-import { AddIcon } from "../../../assets/icons";
-import { SERVICE_METHODS } from "./util";
+import "./style.scss";
 
 export interface ServiceDesignProps {
     fnST: STNode;
@@ -99,7 +90,7 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
                         </>
                     )}
                 </div>
-                <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
+                <div className="plus-btn-wrapper" onClick={handlePlusClick}>
                     <TopLevelPlusIcon selected={isPlusClicked} />
                 </div>
             </>

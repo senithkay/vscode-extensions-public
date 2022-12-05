@@ -409,8 +409,7 @@ export function getPayloadString(payload: Payload): string {
     }
 }
 
-export function generateParamString(queryParamString: string, payloadString: string,
-    advancedParamString: string): string {
+export function generateParamString(queryParamString: string, payloadString: string, advancedParamString: string): string {
     let paramString = "";
     if (advancedParamString && !payloadString && !queryParamString) {
         paramString = advancedParamString;
@@ -722,9 +721,7 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
     return splitContent.join('\n');
 }
 
-export function getUpdatedSource(statement: string, currentFileContent: string,
-    targetPosition: NodePosition, moduleList?: Set<string>,
-    skipSemiColon?: boolean): string {
+export function getUpdatedSource(statement: string, currentFileContent: string, targetPosition: NodePosition, moduleList?: Set<string>, skipSemiColon?: boolean): string {
 
     const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);

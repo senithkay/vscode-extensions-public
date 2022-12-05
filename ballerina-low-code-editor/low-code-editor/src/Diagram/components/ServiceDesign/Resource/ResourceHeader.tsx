@@ -14,12 +14,14 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { ErrorIcon, LabelEditIcon, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
+
 import "../style.scss";
-import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ResourceQueryParams } from "./ResourceQueryParams";
+
 import { ResourceOtherParams } from "./ResourceOtherParams";
+import { ResourceQueryParams } from "./ResourceQueryParams";
 
 interface ResourceHeaderProps {
     model: ResourceAccessorDefinition;

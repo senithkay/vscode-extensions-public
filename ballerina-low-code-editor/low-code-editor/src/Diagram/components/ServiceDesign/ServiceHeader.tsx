@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import HomeIcon from '@material-ui/icons/Home';
 import CloseIcon  from '@material-ui/icons/Close';
+import HomeIcon from '@material-ui/icons/Home';
 
 import { useStyles } from "./style";
 

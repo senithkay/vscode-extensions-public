@@ -34,11 +34,14 @@
         margin-top: 6px;;
     }
 }
+
 .function-box {
     box-sizing: border-box;
     border: 1px dashed #c1e4fc;
     border-radius: 6px;
     background-color: #f4faff;
+    overflow-y: scroll;
+    max-height: 85%;
 
     &.expanded {
         border: 1px solid #c1e4fc;
@@ -150,6 +153,7 @@
 
                     .signature-param {
                         margin-right: 24px;
+                        padding: 8px;
                     }
 
                     .type-descriptor {
@@ -160,9 +164,6 @@
                         font-weight: 500;
                     }
 
-                    .signature-param {
-                        margin-right: 24px;
-                    }
                 }
             }
         }
