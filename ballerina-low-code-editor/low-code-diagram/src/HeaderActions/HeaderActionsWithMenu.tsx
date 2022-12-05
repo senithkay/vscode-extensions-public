@@ -59,7 +59,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
     } = props;
 
     const diagramContext = useContext(Context);
-    const { isReadOnly } = diagramContext.props;
+    const { isReadOnly, syntaxTree } = diagramContext.props;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
     const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
@@ -136,6 +136,18 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
         setIsDeleteViewVisible(false);
     }, [model]);
 
+    React.useEffect(() => {
+        if(isEditViewVisible && renderEditForm) {
+            renderEditForm(
+                model,
+                model?.position,
+                { formType: "ServiceDesign", isLoading: false },
+                handleEditBtnCancel,
+                handleEditBtnCancel
+            );
+        }
+    }, [syntaxTree]);
+
     const showMenuClick = (e: React.MouseEvent) => {
         setIsMenuVisible(!isMenuVisible);
     };
@@ -151,6 +163,7 @@ export function HeaderActionsWithMenu(props: HeaderActionsProps) {
     };
 
     const handleOnClickDesign = (e: React.MouseEvent) => {
+        setIsEditViewVisible(true);
         e.stopPropagation();
         if (renderEditForm) {
             renderEditForm(

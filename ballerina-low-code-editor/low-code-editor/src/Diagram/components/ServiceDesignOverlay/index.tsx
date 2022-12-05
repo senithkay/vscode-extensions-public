@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { DataMapper } from "@wso2-enterprise/ballerina-data-mapper";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
@@ -35,15 +35,16 @@ import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 import { ServiceDesign } from "../ServiceDesign";
 
 import { ServiceDesignStyles } from "./style";
+import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
 
-export interface DataMapperProps {
+export interface ServiceDesignProps {
   model?: STNode;
   targetPosition?: NodePosition;
   onCancel?: () => void;
   configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
-export function ServiceDesignOverlay(props: DataMapperProps) {
+export function ServiceDesignOverlay(props: ServiceDesignProps) {
   const { targetPosition, onCancel: onClose, model } = props;
 
   const serviceDesignClasses = ServiceDesignStyles();
@@ -65,6 +66,30 @@ export function ServiceDesignOverlay(props: DataMapperProps) {
     }
   }, [model]);
 
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
+
+  const handleFormEdit = (model:STNode,  targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => {
+    setFormConfig({
+        model,
+        configOverlayFormStatus,
+        onCancel: () => {
+            setIsFormOpen(false);
+            if (onClose) {
+                onClose();
+            }
+        },
+        onSave: () => {
+            setIsFormOpen(false);
+            if (onSave) {
+                onSave();
+            }
+        },
+        targetPosition
+    });
+    setIsFormOpen(true);
+};
+  
   return (
     <DiagramOverlayContainer>
       <DiagramOverlay
@@ -80,7 +105,11 @@ export function ServiceDesignOverlay(props: DataMapperProps) {
             }
             currentFile={currentFile}
             onClose={onClose}
+            handleDiagramEdit={handleFormEdit}
           />
+          {isFormOpen && (
+            <FormGenerator {...formConfig} />
+          )}
         </div>
       </DiagramOverlay>
     </DiagramOverlayContainer>

@@ -11,6 +11,29 @@
  * associated services.
  */
 
+
+.menu-option {
+    display: flex;
+    flex-direction: row;
+    width: 85px;
+    align-items: center;
+
+
+    &:hover {
+        cursor: pointer;
+        
+    }
+
+    .icon {
+        padding-left: 15px;
+        padding-right: 8px;
+    }
+
+
+    .icon-adjust {
+        margin-top: 6px;;
+    }
+}
 .function-box {
     box-sizing: border-box;
     border: 1px dashed #c1e4fc;

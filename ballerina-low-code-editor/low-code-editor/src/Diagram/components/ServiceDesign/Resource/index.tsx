@@ -20,12 +20,12 @@ import classNames from "classnames";
 
 
 import { useStyles } from "../style";
-import { ResourceAccessorDefinition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ResourceAccessorDefinition, STNode } from "@wso2-enterprise/syntax-tree";
 import { ResourceHeader } from "./ResourceHeader";
 import { Divider } from "@material-ui/core";
 import { ConfigPanelSection, SelectDropdownWithButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { Context } from "../../../../Contexts/Diagram";
-import { createResource, getSource, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, createResource, getSource, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { generateParameterSectionString, getParamString, getPartialSTForModuleMembers, getResourcePath, getUpdatedSource, SERVICE_METHODS } from "../util";
 import { useIntl } from "react-intl";
 import { EXPR_SCHEME, FILE_SCHEME, sendDidChange } from "../../FormComponents/Utils";
@@ -33,10 +33,11 @@ import { monaco } from "react-monaco-editor";
 
 export interface ResourceBodyProps {
     model: ResourceAccessorDefinition;
+    handleDiagramEdit: (model:STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
 }
 
 export function ResourceBody(props: ResourceBodyProps) {
-    const { model } = props;
+    const { model, handleDiagramEdit } = props;
     const classes = useStyles();
     const intl = useIntl();
 
@@ -44,6 +45,17 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     const handleIsExpand = () => {
         setIsExpanded(!isExpanded)
+    }
+
+    const onEdit = (e?: React.MouseEvent) => {
+        e.stopPropagation();
+        const lastMemberPosition: NodePosition = {
+            endColumn: model.position.endColumn,
+            endLine: model.position.endLine - 1,
+            startColumn: model.position.startColumn,
+            startLine: model.position.startLine -1
+        }
+        handleDiagramEdit(model, lastMemberPosition, {formType: "ResourceAccessorDefinition", isLoading: false });
     }
 
     const {
@@ -241,7 +253,7 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     return (
         <div className={classNames("function-box", model.functionName.value)}>
-            <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} />
+            <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit}/>
             {isExpanded && body}
         </div>
     );

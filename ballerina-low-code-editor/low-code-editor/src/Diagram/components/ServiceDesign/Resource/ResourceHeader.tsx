@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { ErrorIcon, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ErrorIcon, LabelEditIcon, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import "../style.scss";
@@ -25,10 +25,11 @@ interface ResourceHeaderProps {
     model: ResourceAccessorDefinition;
     onExpandClick: () => void;
     isExpanded: boolean;
+    onEdit: () => void;
 }
 
 export function ResourceHeader(props: ResourceHeaderProps) {
-    const { model, onExpandClick, isExpanded } = props;
+    const { model, onExpandClick, isExpanded, onEdit } = props;
 
     return (
         <div
@@ -47,6 +48,12 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             </div>
             <div className="return-type">
                 {model.functionSignature.returnTypeDesc?.source}
+            </div>
+            <div className="menu-option" onClick={onEdit}>
+                <div className={classNames("icon", "icon-adjust")}>
+                    <LabelEditIcon />
+                </div>
+                <div className="other">Edit</div>
             </div>
             <ComponentExpandButton
                 isExpanded={isExpanded}

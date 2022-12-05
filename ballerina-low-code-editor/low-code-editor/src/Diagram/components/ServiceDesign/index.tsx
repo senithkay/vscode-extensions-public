@@ -16,6 +16,7 @@ import React, { useContext, useEffect, useMemo, useReducer, useState } from "rea
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    NodePosition,
     ResourceAccessorDefinition,
     ServiceDeclaration,
     STNode,
@@ -27,7 +28,7 @@ import classNames from "classnames";
 import "./style.scss";
 import { ResourceBody } from "./Resource";
 import { useStyles } from "./style";
-import { getSource, TopLevelPlusIcon, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, getSource, TopLevelPlusIcon, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection, SelectDropdownWithButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import { Button, FormControl } from "@material-ui/core";
@@ -45,6 +46,7 @@ export interface ServiceDesignProps {
         size: number
     };
     onClose: () => void;
+    handleDiagramEdit: (model:STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
 }
 
 export function ServiceDesign(propsz: ServiceDesignProps) {
@@ -53,7 +55,8 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
         fnST,
         onClose,
         langClientPromise,
-        currentFile
+        currentFile,
+        handleDiagramEdit
     } = propsz;
 
     const [isPlusClicked, setPlusClicked] = useState(false);
@@ -69,14 +72,20 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
         const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
         children.push(
             <div className={'service-member'} data-start-position={startPosition} >
-                <ResourceBody model={member as ResourceAccessorDefinition} />
+                <ResourceBody handleDiagramEdit={handleDiagramEdit} model={member as ResourceAccessorDefinition} />
             </div>
         );
     });
 
 
     const handlePlusClick = () => {
-        setPlusClicked(!isPlusClicked);
+        const lastMemberPosition: NodePosition = {
+            endColumn: fnSTZ.closeBraceToken.position.endColumn,
+            endLine: fnSTZ.closeBraceToken.position.endLine - 1,
+            startColumn: fnSTZ.closeBraceToken.position.startColumn,
+            startLine: fnSTZ.closeBraceToken.position.startLine -1
+        }
+        handleDiagramEdit(undefined, lastMemberPosition, {formType: "ResourceAccessorDefinition", isLoading: false });
     };
 
     // const handleResourceParamChange = async (
@@ -141,26 +150,26 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
                 key={"resource"}
                 className={classes.resourceWrapper}
             >
-            <FormHeaderSection
-                onCancel={handlePlusClick}
-                formTitle={resourceConfigTitle}
-                defaultMessage={'Configure Resource'}
+                <FormHeaderSection
+                    onCancel={handlePlusClick}
+                    formTitle={resourceConfigTitle}
+                    defaultMessage={'Configure Resource'}
                 // formType={formType}
-            />
-            <div className={classes.resourceMethodPathWrapper}>
-                <div className={classes.methodTypeContainer}>
-                    <SelectDropdownWithButton
-                        dataTestId='api-method'
-                        defaultValue={""}
-                        customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
-                        onChange={handleMethodChange}
-                        label={httpMethodTitle}
-                        disabled={false}
-                    />
-                </div>
-                <div className={classes.resourcePathWrapper}>
-                    {/* <FieldTitle title='Resource Path' optional={true} /> */}
-                    {/* <LiteExpressionEditor
+                />
+                <div className={classes.resourceMethodPathWrapper}>
+                    <div className={classes.methodTypeContainer}>
+                        <SelectDropdownWithButton
+                            dataTestId='api-method'
+                            defaultValue={""}
+                            customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
+                            onChange={handleMethodChange}
+                            label={httpMethodTitle}
+                            disabled={false}
+                        />
+                    </div>
+                    <div className={classes.resourcePathWrapper}>
+                        {/* <FieldTitle title='Resource Path' optional={true} /> */}
+                        {/* <LiteExpressionEditor
                     testId="resource-path"
                     diagnostics={
                         (currentComponentName === "Path" && currentComponentSyntaxDiag)
@@ -173,20 +182,20 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
                     onFocus={onPathFocus}
                     disabled={currentComponentName !== "Path" && isEditInProgress}
                 /> */}
-                </div>
-                <div className={classes.advancedToggleWrapper}>
-                    <div className={classes.plusIconWrapper}>
-                        <Button
-                            data-test-id="request-add-button"
-                            onClick={handlePathAddClick}
-                            startIcon={<AddIcon />}
-                            color="primary"
-                            disabled={false}
-                        />
+                    </div>
+                    <div className={classes.advancedToggleWrapper}>
+                        <div className={classes.plusIconWrapper}>
+                            <Button
+                                data-test-id="request-add-button"
+                                onClick={handlePathAddClick}
+                                startIcon={<AddIcon />}
+                                color="primary"
+                                disabled={false}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         </FormControl>
     );
 
@@ -206,7 +215,6 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
                         <TopLevelPlusIcon selected={isPlusClicked} />
                     }
                 </div>
-                {isPlusClicked && resourceForm}
             </>
         </div>
     )
