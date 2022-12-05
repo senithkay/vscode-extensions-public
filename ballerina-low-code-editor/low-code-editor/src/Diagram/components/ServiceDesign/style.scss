@@ -29,3 +29,22 @@
 .service-member:last-of-type {
     margin: 5px 10px 10px 10px;
 }
+
+.plus-btn-wrapper {
+    .plus-text {
+        visibility: hidden;
+        color: #5567D5;
+        padding-left: 5px;
+        font-size: 13px;
+    }
+
+    .show {
+        visibility: visible;
+    }
+
+    &:hover {
+        .plus-text {
+            visibility: visible;
+        }
+    }
+}

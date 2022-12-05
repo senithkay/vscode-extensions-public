@@ -46,7 +46,7 @@ export interface ServiceDesignProps {
         size: number
     };
     onClose: () => void;
-    handleDiagramEdit: (model:STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
+    handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
 }
 
 export function ServiceDesign(propsz: ServiceDesignProps) {
@@ -83,121 +83,10 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
             endColumn: fnSTZ.closeBraceToken.position.endColumn,
             endLine: fnSTZ.closeBraceToken.position.endLine - 1,
             startColumn: fnSTZ.closeBraceToken.position.startColumn,
-            startLine: fnSTZ.closeBraceToken.position.startLine -1
+            startLine: fnSTZ.closeBraceToken.position.startLine - 1
         }
-        handleDiagramEdit(undefined, lastMemberPosition, {formType: "ResourceAccessorDefinition", isLoading: false });
+        handleDiagramEdit(undefined, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false });
     };
-
-    // const handleResourceParamChange = async (
-    //     resMethod: string,
-    //     pathStr: string,
-    //     paramStr: string,
-    //     returnStr: string,
-    //     stModel?: STNode,
-    //     currentValue?: string) => {
-    //     const pathString = pathStr ? pathStr : ".";
-    //     const codeSnippet = getSource(
-    //         updateResourceSignature(resMethod, pathString, paramStr, returnStr, targetPosition));
-    //     const position = model ? ({
-    //         startLine: model.functionName.position.startLine - 1,
-    //         startColumn: model.functionName.position.startColumn,
-    //         endLine: model.functionSignature.position.endLine - 1,
-    //         endColumn: model.functionSignature.position.endColumn
-    //     }) : targetPosition;
-    //     const updatedContent = getUpdatedSource(codeSnippet, model?.source, position, undefined,
-    //         true);
-    //     const partialST = await getPartialSTForModuleMembers(
-    //         { codeSnippet: updatedContent.trim() }, getLangClient, true
-    //     );
-
-    //     if (!partialST.syntaxDiagnostics.length) {
-    //         onChange(updatedContent, partialST, undefined, { model: stModel }, currentValue, completionEditorTypeKinds, 0,
-    //             { startLine: -1, startColumn: -4 });
-
-    //         setCurrentComponentSyntaxDiag(undefined);
-    //     } else {
-    //         setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
-    //     }
-
-    // };
-
-    const handleMethodChange = async (value: string) => {
-        // await handleResourceParamChange(
-        //     value.toLowerCase(),
-        //     getResourcePath(model.relativeResourcePath),
-        //     generateParameterSectionString(model?.functionSignature?.parameters),
-        //     model.functionSignature?.returnTypeDesc?.type?.source
-        // );
-    };
-
-    const handlePathAddClick = () => {
-
-    }
-
-    const httpMethodTitle = intl.formatMessage({
-        id: "lowcode.develop.apiConfigWizard.httpMethod.title",
-        defaultMessage: "HTTP Method"
-    });
-
-    const resourceConfigTitle = intl.formatMessage({
-        id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
-        defaultMessage: "Configure Resource"
-    });
-
-    const resourceForm = (
-        <FormControl data-testid="resource-form" className={classes.wizardFormControlExtended}>
-            <div
-                key={"resource"}
-                className={classes.resourceWrapper}
-            >
-                <FormHeaderSection
-                    onCancel={handlePlusClick}
-                    formTitle={resourceConfigTitle}
-                    defaultMessage={'Configure Resource'}
-                // formType={formType}
-                />
-                <div className={classes.resourceMethodPathWrapper}>
-                    <div className={classes.methodTypeContainer}>
-                        <SelectDropdownWithButton
-                            dataTestId='api-method'
-                            defaultValue={""}
-                            customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
-                            onChange={handleMethodChange}
-                            label={httpMethodTitle}
-                            disabled={false}
-                        />
-                    </div>
-                    <div className={classes.resourcePathWrapper}>
-                        {/* <FieldTitle title='Resource Path' optional={true} /> */}
-                        {/* <LiteExpressionEditor
-                    testId="resource-path"
-                    diagnostics={
-                        (currentComponentName === "Path" && currentComponentSyntaxDiag)
-                        || getResourcePathDiagnostics()
-                    }
-                    defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
-                    externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}
-                    onChange={handlePathChange}
-                    completions={completions}
-                    onFocus={onPathFocus}
-                    disabled={currentComponentName !== "Path" && isEditInProgress}
-                /> */}
-                    </div>
-                    <div className={classes.advancedToggleWrapper}>
-                        <div className={classes.plusIconWrapper}>
-                            <Button
-                                data-test-id="request-add-button"
-                                onClick={handlePathAddClick}
-                                startIcon={<AddIcon />}
-                                color="primary"
-                                disabled={false}
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </FormControl>
-    );
 
     return (
         <div className={classes.root}>
@@ -211,9 +100,7 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
                     )}
                 </div>
                 <div className={'plus-btn-wrapper'} onClick={handlePlusClick}>
-                    {
-                        <TopLevelPlusIcon selected={isPlusClicked} />
-                    }
+                    <TopLevelPlusIcon selected={isPlusClicked} />
                 </div>
             </>
         </div>
