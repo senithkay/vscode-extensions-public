@@ -21,18 +21,21 @@ import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { ServicePortModel } from '../ServicePort/ServicePortModel';
 import { Level, Service, ServiceTypes } from '../../../resources';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
+import { GatewayType } from "../../gateway/types";
 
 export class ServiceNodeModel extends SharedNodeModel {
 	readonly level: Level;
 	readonly serviceObject: Service;
 	readonly serviceType: ServiceTypes;
+	readonly targetGateways: GatewayType[];
 
-	constructor(serviceObject: Service, level: Level) {
+	constructor(serviceObject: Service, level: Level, targetGateways?: GatewayType[]) {
 		super('serviceNode', serviceObject.serviceId);
 
 		this.level = level;
 		this.serviceObject = serviceObject;
 		this.serviceType = this.getServiceType();
+		this.targetGateways = targetGateways;
 
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.LEFT));
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.RIGHT));
@@ -60,5 +63,9 @@ export class ServiceNodeModel extends SharedNodeModel {
 			}
 		}
 		return ServiceTypes.OTHER;
+	}
+
+	getTargetGateways = (): GatewayType[] => {
+		return this.targetGateways;
 	}
 }
