@@ -23,6 +23,7 @@ import { ExtServiceNodeFactory, ServiceLinkFactory, ServiceNodeFactory, ServiceP
 import { GatewayNodeFactory } from "../components/gateway/GatewayNode/GatewayNodeFactory";
 import { GatewayPortFactory } from "../components/gateway/GatewayPort/GatewayPortFactory";
 import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLinkFactory";
+import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeModel";
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();
@@ -55,4 +56,26 @@ export function createEntitiesEngine(): DiagramEngine {
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntityFactory());
     return diagramEngine;
+}
+
+export function positionGatewayNodes(engine: DiagramEngine) {
+    const model = engine.getModel();
+    const gatewayNodes: GatewayNodeModel[] = <GatewayNodeModel[]>
+        (model.getNodes().filter((node) => node instanceof GatewayNodeModel));
+    const canvas = engine.getCanvas();
+    if (canvas) {
+        const midX = canvas.clientWidth / 2;
+        const midY = canvas.clientHeight / 2;
+        gatewayNodes.forEach((node) => {
+            if (node.type === 'NORTH') {
+                node.setPosition(midX - 600, midY - 210);
+            } else if (node.type === 'SOUTH') {
+                node.setPosition(midX - 600, midY);
+            } else if (node.type === 'EAST') {
+                node.setPosition(canvas.clientWidth - 1200, midY - 275);
+            } else if (node.type === 'WEST') {
+                node.setPosition(midX - 1200, midY - 275);
+            }
+        });
+    }
 }
