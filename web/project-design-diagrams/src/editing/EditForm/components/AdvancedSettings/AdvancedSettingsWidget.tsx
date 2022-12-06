@@ -17,23 +17,19 @@
  *
  */
 
-import React, { useContext, useEffect } from 'react';
-import IconButton from '@mui/material/IconButton';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { DiagramContext } from '../../../components/common';
-import { TextInputWidget } from './TextInput';
-import { ControlButton } from './ControlButtons';
-import { AddComponentDetails } from '../../../resources';
+import React, { useContext, useEffect, useState } from 'react';
+import { DiagramContext } from '../../../../components/common';
+import { TextInputWidget } from '../InputWidget/TextInput';
+import { DirectoryPicker } from './DirectoryPicker';
+import { VisibilityButton } from '../Controls/VisibilityButton';
+import { AddComponentDetails } from '../../../../resources';
 import {
-    ButtonColor, OrganizationRegex, OrganizationRules, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex
-} from '../resources/constants';
-import { AdvancedSettings, AdvancedControlsContainer, AdvancedControlsHeader, AdvancedHeaderTitle } from '../resources/styles';
+    OrganizationRegex, OrganizationRules, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex
+} from '../../resources/constants';
+import { AdvancedSettings, AdvancedControlsHeader, TitleText } from '../../resources/styles';
 
 interface AdvancedSettingsProps {
     component: AddComponentDetails;
-    visibility: boolean;
-    changeVisibility: (status: boolean) => void;
     updatePackage: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     updateOrganization: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     updateVersion: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -42,16 +38,8 @@ interface AdvancedSettingsProps {
 }
 
 export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
-    const {
-        component,
-        visibility,
-        changeVisibility,
-        updatePackage,
-        updateOrganization,
-        updateVersion,
-        setDirectory,
-        selectDirectory
-    } = props;
+    const [visibility, changeVisibility] = useState<boolean>(false);
+    const { component, updatePackage, updateOrganization, updateVersion, setDirectory, selectDirectory } = props;
     const { getProjectRoot } = useContext(DiagramContext);
 
     useEffect(() => {
@@ -64,12 +52,13 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
 
     return (
         <AdvancedSettings>
-            <AdvancedControlsHeader onClick={() => changeVisibility(!visibility)}>
-                <AdvancedHeaderTitle>More</AdvancedHeaderTitle>
+            <AdvancedControlsHeader>
+                <TitleText>More</TitleText>
 
-                <IconButton color='default' onClick={() => changeVisibility(!visibility)}>
-                    {visibility ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                </IconButton>
+                <VisibilityButton
+                    onClick={changeVisibility}
+                    visibility={visibility}
+                />
             </AdvancedControlsHeader>
 
             {visibility &&
@@ -101,20 +90,10 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
                         onChange={updateVersion}
                     />
 
-                    <TextInputWidget
-                        label={'Directory'}
-                        value={component.directory}
-                        readonly={true}
+                    <DirectoryPicker
+                        component={component}
+                        selectDirectory={selectDirectory}
                     />
-
-                    <AdvancedControlsContainer>
-                        <ControlButton
-                            label={'Select'}
-                            onClick={selectDirectory}
-                            color={ButtonColor}
-                            disabled={false}
-                        />
-                    </AdvancedControlsContainer>
                 </>
             }
         </AdvancedSettings>

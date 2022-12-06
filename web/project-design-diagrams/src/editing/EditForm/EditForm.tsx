@@ -25,9 +25,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
 import { DiagramContext } from '../../components/common/';
 import { AddComponentDetails, Colors } from '../../resources';
-import { AdvancedSettingsWidget, ControlButton, TextInputWidget } from './components';
+import { AdvancedSettingsWidget, CreateButton, TextInputWidget } from './components';
 import { OrganizationRegex, PackageNameRegex, VersionRegex } from './resources/constants';
-import { ControlsContainer, Header, HeaderTitle, PrimaryContainer } from './resources/styles';
+import { ControlsContainer, Header, PrimaryContainer, TitleText } from './resources/styles';
 import { initBallerinaComponent, transformComponentName } from './resources/utils';
 
 interface EditFormProps {
@@ -41,7 +41,6 @@ export function EditForm(props: EditFormProps) {
     const { createService, pickDirectory, setNewComponentID } = useContext(DiagramContext);
 
     const [component, editComponent] = useState<AddComponentDetails>(initBallerinaComponent);
-    const [advancedVisibility, setAdvancedVisibility] = useState<boolean>(false);
     const [generatingComponent, setGenerationStatus] = useState<boolean>(false);
     const [validatedComponentName, setValidatedComponentName] = useState<string>('');
 
@@ -111,7 +110,7 @@ export function EditForm(props: EditFormProps) {
         >
             <PrimaryContainer isLoading={generatingComponent}>
                 <Header>
-                    <HeaderTitle>Add HTTP Component</HeaderTitle>
+                    <TitleText>Add HTTP Component</TitleText>
                     <IconButton size='small' onClick={() => { closeForm() }}>
                         <CloseIcon />
                     </IconButton>
@@ -125,8 +124,6 @@ export function EditForm(props: EditFormProps) {
                 />
 
                 <AdvancedSettingsWidget
-                    visibility={advancedVisibility}
-                    changeVisibility={setAdvancedVisibility}
                     component={{ ...component, package: component.package || validatedComponentName, org: component.org || defaultOrg }}
                     updatePackage={updatePackage}
                     updateOrganization={updateOrganization}
@@ -136,7 +133,7 @@ export function EditForm(props: EditFormProps) {
                 />
 
                 <ControlsContainer>
-                    <ControlButton
+                    <CreateButton
                         label={'Create'}
                         onClick={onSubmit}
                         color={Colors.PRIMARY}
@@ -146,7 +143,7 @@ export function EditForm(props: EditFormProps) {
             </PrimaryContainer>
 
             {generatingComponent &&
-                <CircularProgress sx={{top: '30%', left: '45%', position: 'absolute', color: Colors.PRIMARY}} />
+                <CircularProgress sx={{ top: '30%', left: '45%', position: 'absolute', color: Colors.PRIMARY }} />
             }
         </Drawer>, document.body
     );

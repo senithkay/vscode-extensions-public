@@ -22,7 +22,7 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { AddComponentDetails, ComponentModel, Views } from './resources';
+import { AddComponentDetails, Colors, ComponentModel, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { AddButton, EditForm } from './editing';
 
@@ -87,11 +87,11 @@ export function DesignDiagram(props: DiagramProps) {
     return (
         <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, getProjectRoot, createService }}>
             <Container>
-                {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
-                {showEditForm && <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
-
                 {currentView && projectPkgs ?
                     <>
+                        {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
+                        {showEditForm &&
+                            <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
                         <DiagramHeader
                             currentView={currentView}
                             prevView={previousScreen.current}
@@ -109,7 +109,7 @@ export function DesignDiagram(props: DiagramProps) {
                             />
                         }
                     </> :
-                    <CircularProgress />
+                    <CircularProgress sx={{ color: Colors.PRIMARY }} />
                 }
             </Container>
         </DesignDiagramContext>
