@@ -66,6 +66,7 @@ function isSupportedType(node: STNode,
     const isArrayType = STKindChecker.isArrayTypeDesc(node);
     const isMapType = STKindChecker.isMapTypeDesc(node);
     const isRecordType = STKindChecker.isRecordTypeDesc(node);
+    const isOptionalType = STKindChecker.isOptionalTypeDesc(node);
 
     if (!type && isRecordType) {
         return [false, TypeNature.WHITELISTED];
@@ -85,13 +86,11 @@ function isSupportedType(node: STNode,
 
     const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
 
-    if (isAlreadySupportedType) {
-        return [true];
-    } else if (isUnionType || isMapType) {
+    if (isUnionType || isMapType || isOptionalType) {
         return [false, TypeNature.YET_TO_SUPPORT];
     } else if (isInvalid) {
         return [false, TypeNature.INVALID];
-    } else if (!isUnsupportedType && isArraysSupported(balVersion)) {
+    } else if (isAlreadySupportedType || (!isUnsupportedType && isArraysSupported(balVersion))) {
         return [true];
     } else if (!isUnsupportedType) {
         return [false, TypeNature.WHITELISTED];
