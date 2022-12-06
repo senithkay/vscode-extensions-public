@@ -49,7 +49,12 @@ export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension,
             }
         }
 
-        if (!currentProject || currentProject === {}) {
+        if (!currentProject) {
+            return;
+        }
+
+        if (currentProject.kind == "SINGLE_FILE_PROJECT") {
+            isDebug ? commands.executeCommand(INTERNAL_DEBUG_COMMAND) : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
             return;
         }
 
