@@ -28,12 +28,8 @@ import { AddButton, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 
-const background = require('./resources/assets/PatternBg.svg') as string;
-
 const Container = styled.div`
     align-items: center;
-    background-image: url('${background}');
-	background-repeat: repeat;
     position: relative;
     display: flex;
     flex-direction: column;
