@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Divider, IconButton, Menu, MenuItem } from "@material-ui/core";
 import { NodePosition } from "@wso2-enterprise/ballerina-languageclient";
@@ -36,8 +36,7 @@ export function CodeActionButton(props: CodeActionButtonProps) {
     const stmtCtx = useContext(StatementEditorContext);
     const {
         currentFile,
-        modelCtx: { currentModel, statementModel, updateStatementModel },
-        getLangClient,
+        modelCtx: { statementModel, updateStatementModel },
     } = stmtCtx;
 
     const [updatedSource, setUpdatedSource] = useState(currentFile.draftSource);
@@ -46,6 +45,10 @@ export function CodeActionButton(props: CodeActionButtonProps) {
     const codeActions = filterCodeActions(syntaxDiagnostic.codeActions);
     const open = Boolean(anchorEl);
     const actionMenuItems: React.ReactNode[] = [];
+
+    useEffect(() => {
+        setUpdatedSource(currentFile.draftSource);
+    }, [currentFile.draftSource]);
 
     if (codeActions) {
         codeActions.reverse();
@@ -100,7 +103,7 @@ export function CodeActionButton(props: CodeActionButtonProps) {
             if (changingPosition.startLine < editorActivePosition.startLine) {
                 const newLine = getStatementLine(currentSource, editorActiveStatement);
                 editorActivePosition.startLine = newLine;
-                editorActivePosition.endLine += (newLine - editorActivePosition.startLine);
+                editorActivePosition.endLine += newLine - editorActivePosition.startLine;
             }
         });
 

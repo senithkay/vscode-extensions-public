@@ -1066,7 +1066,7 @@ export function getContentFromSource(source: string, position: NodePosition) {
     return sliceContent;
 }
 
-export function updateStatementPosition(source: string, statement: string, targetPosition: NodePosition): NodePosition {
+export function getStatementPosition(source: string, statement: string, targetPosition: NodePosition): NodePosition {
     const newStartLine = getStatementLine(source, statement);
     if (newStartLine !== targetPosition.startLine) {
         const position = { ...targetPosition };
@@ -1083,14 +1083,16 @@ export function updateStatementPosition(source: string, statement: string, targe
 }
 
 export function getStatementLine(source: string, statement: string): number {
-    if (source.includes(statement)) {
-        const splitSource = source.split(statement);
-        if (splitSource.length > 1) {
-            const newLine = splitSource[0].split("\n").length;
-            return newLine > 0 ? newLine - 1 : 0;
+    const stmtFirstLine = statement.split('\n')[0];
+    const sourceLines = source.split('\n');
+    let stmtNewFirstLine = 0;
+    sourceLines.forEach((sourceLine, line) => {
+        if (sourceLine.includes(stmtFirstLine)){
+            stmtNewFirstLine = line;
+            return;
         }
-    }
-    return 0;
+    });
+    return stmtNewFirstLine;
 }
 
 export function filterCodeActions(codeActions: CodeAction[]): CodeAction[] {

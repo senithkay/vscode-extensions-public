@@ -11,7 +11,6 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: no-console
 import React, { useEffect, useRef, useState } from 'react';
 
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -39,10 +38,10 @@ import {
     getNextNode, getParentFunctionModel,
     getPreviousNode,
     getSelectedModelPosition,
-    getUpdatedSource,
-    isBindingPattern, isDocumentationSupportedModel, isModuleMember,
+    getStatementPosition,
+    getUpdatedSource, isBindingPattern, isDocumentationSupportedModel,
+    isModuleMember,
     isOperator,
-    updateStatementPosition,
 } from "../../utils";
 import {
     getCodeAction,
@@ -182,7 +181,15 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (!newConfigurableName) {
-                initEditor();
+                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList, isExpressionMode);
+                await updateDraftFileContent(updatedContent);
+                await handleDiagnostics(source);
+
+                const newCurrentModel: STNode = selectedNodePosition
+                    ? getCurrentModel(selectedNodePosition, editorModel) : undefined;
+
+                setCurrentModel({ model: newCurrentModel });
+                await handleDocumentation(newCurrentModel);
             }
         })();
     }, [editor]);
@@ -257,27 +264,21 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (editorModel) {
-                const updatedContent = getUpdatedSource(source.trim(), currentFile.content,
-                    targetPosition, moduleList, skipStatementSemicolon);
-                await updateDraftFileContent(updatedContent);
-                const diagnostics = await handleDiagnostics(source);
-                setStmtModel(editorModel, diagnostics);
+                await updateEditorModel();
             }
         })();
     }, [editorModel]);
 
-    const initEditor = async () => {
-        const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList, skipStatementSemicolon);
+    const updateEditorModel = async () => {
+        const updatedContent = getUpdatedSource(source.trim(), currentFile.content,
+                targetPosition, moduleList, skipStatementSemicolon);
         await updateDraftFileContent(updatedContent);
-        setDraftPosition(updateStatementPosition(updatedContent, source.trim(), targetPosition));
-        const diagnostics = await handleDiagnostics(source);
 
-        const newCurrentModel: STNode = selectedNodePosition
-            ? getCurrentModel(selectedNodePosition, editorModel) : undefined;
+        const newTargetPosition = getStatementPosition(updatedContent, source.trim(), targetPosition);
+        const diagnostics = await handleDiagnostics(source, newTargetPosition);
 
+        setDraftPosition(newTargetPosition);
         setStmtModel(editorModel, diagnostics);
-        setCurrentModel({ model: newCurrentModel });
-        await handleDocumentation(newCurrentModel);
     }
 
     const restArg = (restCheckClicked: boolean) => {
@@ -408,19 +409,17 @@ export function StatementEditor(props: StatementEditorProps) {
         });
     }
 
-    const handleDiagnostics = async (statement: string): Promise<Diagnostic[]> => {
+    const handleDiagnostics = async (statement: string, targetedPosition?: NodePosition): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-        console.log('>>> handleDiagnostics', diag);
         if (config.type === CONNECTOR){
-            pullUnresolvedModules(diag, statement).then();
+            pullUnresolvedModules(diag).then();
         }
         if (config.type !== CONNECTOR && config.type !== ACTION){
             removeUnusedModules(diag);
         }
-        const filteredDiagnostics = getFilteredDiagnosticMessages(statement, draftPosition, diag);
+        const filteredDiagnostics = getFilteredDiagnosticMessages(statement, (targetedPosition || draftPosition), diag);
         const messagesWithCodeActions = await handleCodeAction(filteredDiagnostics);
-        console.log('>>> messagesWithCodeActions', messagesWithCodeActions, diag);
         setStmtDiagnostics(messagesWithCodeActions);
         return diag;
     }
@@ -487,7 +486,7 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[], statement: string) => {
+    const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
         if (!(!!moduleList?.size && runBackgroundTerminalCommand && !isPullingModule)) {
             return;
         }
@@ -507,22 +506,16 @@ export function StatementEditor(props: StatementEditorProps) {
             });
         }
         if (pullCommand !== "") {
-            console.log('>>> pullUnresolvedModules', pullCommand, isPullingModule);
             setIsPullingModule(true);
             const cmdRes = await runBackgroundTerminalCommand(pullCommand);
             setIsPullingModule(false);
-            console.log('>>> run background terminal command', cmdRes);
             if (cmdRes && !cmdRes.error){
-                console.log('>>> pulling complete, initEditor');
-                await initEditor();
-                console.log('>>> complete initEditor');
+                await updateEditorModel();
             }else if (cmdRes && cmdRes.error){
                 setErrorMsg(cmdRes.message);
             }else{
                 setErrorMsg("Something is wrong when pulling the module");
             }
-        }else{
-            console.log('>>> nothing to pull', isPullingModule);
         }
     };
 

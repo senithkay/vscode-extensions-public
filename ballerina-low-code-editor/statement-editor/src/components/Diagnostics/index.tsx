@@ -11,7 +11,6 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: no-console
 
 import React, { useContext, useState } from "react";
 
@@ -31,8 +30,6 @@ export function Diagnostics() {
         statementCtx: { diagnostics, errorMsg },
     } = stmtCtx;
     let hasCodeAction = false;
-
-    console.log('>>> diagnostics panel', diagnostics);
 
     function actionButton(diag: StatementSyntaxDiagnostics) {
         if (filterCodeActions(diag.codeActions).length > 0) {

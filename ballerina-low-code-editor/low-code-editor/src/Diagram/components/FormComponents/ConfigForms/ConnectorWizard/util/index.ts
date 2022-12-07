@@ -561,8 +561,8 @@ export function getReturnTypeImports(returnType: FormFieldReturnType) {
 }
 
 export function isParentNodeWithErrorReturn(blockNode: STNode) {
-    if (blockNode) {
-        traversNode(blockNode, ReturnTypeVisitor);
+    if (blockNode && (STKindChecker.isFunctionDefinition(blockNode) || STKindChecker.isResourceAccessorDefinition(blockNode))) {
+        traversNode(blockNode.functionSignature, ReturnTypeVisitor);
         return ReturnTypeVisitor.hasError();
     }
     return false;
