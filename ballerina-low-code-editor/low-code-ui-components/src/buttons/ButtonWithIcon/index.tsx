@@ -25,11 +25,12 @@ export interface ButtonWithIconProps {
     icon: JSX.Element;
     size?: any;
     disabled?: boolean;
+    dataTestId?: string
 }
 
 export function ButtonWithIcon(props: ButtonWithIconProps) {
     const classes = useStyles();
-    const { icon, onClick, size, className, disabled } = props;
+    const { icon, onClick, size, className, disabled, dataTestId } = props;
     return (
         <IconButton
             onClick={onClick}
@@ -37,6 +38,7 @@ export function ButtonWithIcon(props: ButtonWithIconProps) {
             role="button"
             size={size}
             disabled={disabled}
+            data-testid={dataTestId}
         >{icon}
         </IconButton>
     );

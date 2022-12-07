@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import "reflect-metadata";
 import {
     injectable, injectAll
   } from 'tsyringe';
-import "reflect-metadata";
-  
+
 @injectable()
 export class DataMapperDIContext {
     constructor(

@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { FocusEvent, useContext, useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
 import Divider from "@material-ui/core/Divider/Divider";
@@ -17,7 +18,7 @@ import {
     useStyles as useFormStyles,
     WarningBanner,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import camelCase from "lodash.camelcase";
 
 import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
@@ -77,7 +78,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const isValidConfig = fnName && inputParams.length > 0 && !hasInvalidInputs && outputType.type !== "" && !outputType.inInvalid && dmFuncDiagnostic === "";
 
     useEffect(() => {
-        (async () => {
+        void (async () => {
             setValidationInProgress(true);
             try {
                 const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType.type,
@@ -106,11 +107,11 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
 
     useEffect(() => {
-        (async () => {
-            if(initiated){
+        void (async () => {
+            if (initiated){
                 setFetchingCompletions(true);
-                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise, 
-                                            importStatements,fnST?.position || targetPosition , path);
+                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise,
+                                            importStatements, fnST?.position as NodePosition || targetPosition , path);
                 setRecordCompletions(allCompletions);
                 setFetchingCompletions(false);
             }
@@ -128,8 +129,8 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
             modifications.push(
                 updateFunctionSignature(fnName, parametersStr, returnTypeStr, {
-                    ...fnST?.functionSignature?.position,
-                    startColumn: fnST?.functionName?.position?.startColumn,
+                    ...fnST?.functionSignature?.position as NodePosition,
+                    startColumn: (fnST?.functionName?.position as NodePosition)?.startColumn,
                 })
             );
 
@@ -158,7 +159,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             );
         }
         onSave(fnName);
-        applyModifications(modifications);
+        void applyModifications(modifications);
     };
 
     useEffect(() => {
@@ -189,7 +190,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     }, [outputType]);
 
     useEffect(() => {
-        (async () => {
+        void (async () => {
             setValidationInProgress(true);
             try {
                 if (fnNameFromST) {
@@ -261,7 +262,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         />
     );
 
-    const onNameOutFocus = async (event: any) => {
+    const onNameOutFocus = async (event: FocusEvent<HTMLInputElement>) => {
         const name = event.target.value;
         if (name === "") {
             setDmFuncDiagnostic("missing function name");
@@ -279,7 +280,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         }
     };
 
-    const onNameChange = async (name: string) => {
+    const onNameChange = (name: string) => {
         setFnName(name);
         setDmFuncDiagnostic("");
     };
@@ -317,9 +318,17 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 setAddExistType={setAddExistType}
                                 isAddExistType={isAddExistType}
                                 currentFileContent={currentFile?.content}
-                                fnSTPosition={fnST?.position || targetPosition}
+                                fnSTPosition={(fnST?.position as NodePosition) || targetPosition}
                                 imports={importStatements}
-                                banner={fnST && hasInvalidInputs && <Warning message='Only records are currently supported as data mapper inputs' />}
+                                banner={
+                                    fnST &&
+                                    hasInvalidInputs && (
+                                        <Warning
+                                            testId="unsupported-input-banner"
+                                            message="Only records are currently supported as data mapper inputs"
+                                        />
+                                    )
+                                }
                             />
                             <FormDivider />
                             <OutputTypeConfigPanel data-testid='dm-output'>
@@ -338,10 +347,19 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                     </>
                                 ) : (
                                     <>
-                                        {outputType.type && outputType.inInvalid && <Warning message='Only record type is currently supported as data mapper output' />}
+                                        {outputType.type && outputType.inInvalid && (
+                                            <Warning
+                                                testId="unsupported-output-banner"
+                                                message="Only record type is currently supported as data mapper output"
+                                            />
+                                        )}
                                         <OutputTypeContainer isInvalid={outputType.inInvalid}>
                                             <TypeName>{outputType.type}</TypeName>
-                                            <DeleteButton onClick={handleOutputDeleteClick} icon={<DeleteOutLineIcon fontSize="small" />} />
+                                            <DeleteButton
+                                                onClick={handleOutputDeleteClick}
+                                                dataTestId="data-mapper-config-delete-output"
+                                                icon={<DeleteOutLineIcon fontSize="small" />}
+                                            />
                                         </OutputTypeContainer>
                                     </>
                                 )}

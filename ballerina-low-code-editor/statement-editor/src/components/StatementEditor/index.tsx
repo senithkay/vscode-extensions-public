@@ -387,7 +387,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const handleModules = (module: string) => {
         let moduleIncluded: boolean;
-        importStatements.forEach(importedModule => {
+        importStatements?.forEach(importedModule => {
             if (importedModule.includes(module)) {
                 moduleIncluded = true;
             }

@@ -10,14 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { CircularProgress } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import { QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
+
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { useStyles } from "../styles";
 import { ClauseAddButton } from "../ClauseAddButton";
-import { CircularProgress } from "@material-ui/core";
+import { useStyles } from "../styles";
 
 export function WhereClauseItem(props: {
     intermediateNode: WhereClause;
@@ -47,7 +49,7 @@ export function WhereClauseItem(props: {
                 <div className={classes.clauseKeyWrap}>{intermediateNode.whereKeyword.value}</div>
 
                 <div className={classes.clauseWrap}>
-                    <span className={classes.clauseExpression} onClick={onEditClick}>
+                    <span className={classes.clauseExpression} onClick={onEditClick} data-testid={`where-clause-expression-${itemIndex}`}>
                         {intermediateNode.expression.source}
                     </span>
                 </div>
@@ -55,7 +57,7 @@ export function WhereClauseItem(props: {
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} />
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`where-clause-delete-${itemIndex}`}/>
                 )}
             </div>
 

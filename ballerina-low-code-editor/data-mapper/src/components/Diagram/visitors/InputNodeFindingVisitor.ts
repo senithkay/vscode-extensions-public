@@ -13,7 +13,6 @@
 import {
     FieldAccess,
     OptionalFieldAccess,
-    QueryExpression,
     SimpleNameReference,
     STKindChecker,
     STNode,
@@ -31,14 +30,14 @@ export class InputNodeFindingVisitor implements Visitor {
 
     public beginVisitFieldAccess(node: FieldAccess, parent?: STNode) {
         if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth == 0) {
+            && this.queryExpressionDepth === 0) {
             this.inputNodes.push(node)
         }
     }
 
     public beginVisitOptionalFieldAccess(node: OptionalFieldAccess, parent?: STNode) {
         if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth == 0) {
+            && this.queryExpressionDepth === 0) {
             this.inputNodes.push(node)
         }
     }
@@ -49,17 +48,17 @@ export class InputNodeFindingVisitor implements Visitor {
             parent &&
             !STKindChecker.isFieldAccess(parent) &&
             !STKindChecker.isOptionalFieldAccess(parent) &&
-            this.queryExpressionDepth == 0
+            this.queryExpressionDepth === 0
         ) {
             this.inputNodes.push(node);
         }
     }
 
-    public beginVisitQueryExpression(node: QueryExpression, parent?: STNode) {
+    public beginVisitQueryExpression() {
         this.queryExpressionDepth += 1;
     }
 
-    public endVisitQueryExpression(node: QueryExpression, parent?: STNode) {
+    public endVisitQueryExpression(){
         this.queryExpressionDepth -= 1;
     }
 

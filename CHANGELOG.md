@@ -1,6 +1,10 @@
 # Change Log
 ##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
 
+## **3.3.5**
+### Fixed
+- Broken links in readme [335] (https://github.com/wso2/ballerina-plugin-vscode/issues/335)
+
 ## **3.3.4**
 ### Improved
 - Data Mapper - Display banner if DM function contains unsupported input/output types [217] (https://github.com/wso2/ballerina-plugin-vscode/issues/217)

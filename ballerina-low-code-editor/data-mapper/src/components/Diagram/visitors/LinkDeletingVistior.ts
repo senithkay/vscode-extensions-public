@@ -12,7 +12,6 @@
  */
 import {
     BinaryExpression,
-    FieldAccess,
     ListConstructor,
     MappingConstructor,
     NodePosition,
@@ -23,7 +22,6 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { isPositionsEquals } from "../../../utils/st-utils";
-const { isSpecificField, isMappingConstructor, isCommaToken, isFieldAccess } = STKindChecker;
 
 export class LinkDeletingVisitor implements Visitor {
     /** NodePosition of the specific field or mapping construct that needs to be removed */
@@ -57,21 +55,23 @@ export class LinkDeletingVisitor implements Visitor {
             // LHS could be another binary expression or field access node
             // RHS is always field access node
 
-            if (node.lhsExpr && isFieldAccess(node.lhsExpr) && isPositionsEquals(this.fieldPosition, node.lhsExpr.position)) {
+            if (node.lhsExpr && STKindChecker.isFieldAccess(node.lhsExpr)
+                && isPositionsEquals(this.fieldPosition, node.lhsExpr.position as NodePosition)) {
                 // If LHS is a field access node to be deleted
                 // Then also delete the operator right to it
                 this.deletePosition = {
-                    ...node.lhsExpr.position,
-                    endLine: node.operator.position?.endLine,
-                    endColumn: node.operator.position?.endColumn,
+                    ...(node.lhsExpr.position as NodePosition),
+                    endLine: (node.operator.position as NodePosition)?.endLine,
+                    endColumn: (node.operator.position as NodePosition)?.endColumn,
                 }
-            }else if (node.rhsExpr && isFieldAccess(node.rhsExpr) && isPositionsEquals(this.fieldPosition, node.rhsExpr.position)){
+            }else if (node.rhsExpr && STKindChecker.isFieldAccess(node.rhsExpr)
+                    && isPositionsEquals(this.fieldPosition, node.rhsExpr.position as NodePosition)){
                 // If RHS is a field access node to be deleted
                 // Then also delete the operator left to it
                 this.deletePosition = {
-                    ...node.rhsExpr.position,
-                    startLine: node.operator.position?.startLine,
-                    startColumn: node.operator.position?.startColumn,
+                    ...(node.rhsExpr.position as NodePosition),
+                    startLine: (node.operator.position as NodePosition)?.startLine,
+                    startColumn: (node.operator.position as NodePosition)?.startColumn,
                 }
             }
         }
@@ -85,12 +85,12 @@ export class LinkDeletingVisitor implements Visitor {
     private findDeletePosition(node: MappingConstructor, isChildOfList: boolean) {
         if (this.deletePosition === null) {
             const deleteIndex = node.fields.findIndex((field: STNode) => {
-                if (isSpecificField(field) && isMappingConstructor(field.valueExpr)) {
+                if (STKindChecker.isSpecificField(field) && STKindChecker.isMappingConstructor(field.valueExpr)) {
                     // If its a nested map constructor, then compare with the value expression position
-                    return isPositionsEquals(this.fieldPosition, field.valueExpr.position);
+                    return isPositionsEquals(this.fieldPosition, (field.valueExpr.position as NodePosition));
                 } else {
                     // Else if its a normal field access elements
-                    return isPositionsEquals(this.fieldPosition, field.position);
+                    return isPositionsEquals(this.fieldPosition, (field.position as NodePosition));
                 }
             });
 
@@ -105,14 +105,16 @@ export class LinkDeletingVisitor implements Visitor {
                 const isLastElement = deleteIndex + 1 === node.fields.length;
 
                 let updatedDeletePosition = this.fieldPosition;
-                if (isSpecificField(selected) && isMappingConstructor(selected.valueExpr)) {
+                if (STKindChecker.isSpecificField(selected) && STKindChecker.isMappingConstructor(selected.valueExpr)) {
                     // If its a nested map constructor, then select the delete position as the selected node position
-                    updatedDeletePosition = selected.position;
+                    updatedDeletePosition = (selected.position as NodePosition);
                 }
 
                 if (node.fields.length === 1) {
                     // If only one element in the construct (Could be a root level or sub level map construct)
-                    if (isPositionsEquals(node.position, this.rootMapConstruct.position) || isChildOfList) {
+                    if (isPositionsEquals((node.position as NodePosition),
+                                            (this.rootMapConstruct.position as NodePosition))
+                        || isChildOfList) {
                         // If only single element in the root level mapping, then only delete that link
                         // Or if the last element is within a mapping construct which is within a list constructor
                         this.deletePosition = updatedDeletePosition;
@@ -120,24 +122,25 @@ export class LinkDeletingVisitor implements Visitor {
                         // if there's only a single element in a sub level record mapping
                         // Then, will need to delete record mapping construct element itself
                         // Therefore rerunning the same visitor with the parent record map as the one to delete
-                        const linkDeleteVisitor = new LinkDeletingVisitor(node.position, this.rootMapConstruct);
+                        const linkDeleteVisitor = new LinkDeletingVisitor((node.position as NodePosition),
+                                                                        this.rootMapConstruct);
                         traversNode(this.rootMapConstruct, linkDeleteVisitor);
                         this.deletePosition = linkDeleteVisitor.getPositionToDelete();
                     }
-                } else if (previous && isCommaToken(previous) && isLastElement) {
+                } else if (previous && STKindChecker.isCommaToken(previous) && isLastElement) {
                     // if its the last element, need to delete previous comma as well
                     this.deletePosition = {
                         ...updatedDeletePosition,
-                        startLine: previous.position?.startLine,
-                        startColumn: previous.position?.startColumn,
+                        startLine: (previous.position as NodePosition)?.startLine,
+                        startColumn: (previous.position as NodePosition)?.startColumn,
                     };
-                } else if (next && isCommaToken(next)) {
+                } else if (next && STKindChecker.isCommaToken(next)) {
                     // When there are multiple mappings and user tries to delete a link other than the last one
                     // Then, will need to delete the next comma node as well
                     this.deletePosition = {
                         ...updatedDeletePosition,
-                        endLine: next.position?.endLine,
-                        endColumn: next.position?.endColumn,
+                        endLine: (next.position as NodePosition)?.endLine,
+                        endColumn: (next.position as NodePosition)?.endColumn,
                     };
                 }
             }
@@ -147,7 +150,7 @@ export class LinkDeletingVisitor implements Visitor {
     private findDeletePositionWithinListConstructor(node: ListConstructor) {
         if (this.deletePosition === null) {
             const deleteIndex = node.expressions.findIndex((expression: STNode) => {
-                return isPositionsEquals(this.fieldPosition, expression.position);
+                return isPositionsEquals(this.fieldPosition, expression.position as NodePosition);
             });
 
             if (deleteIndex !== -1) {
@@ -156,26 +159,26 @@ export class LinkDeletingVisitor implements Visitor {
                 const next = node.expressions[deleteIndex + 1];
                 const isLastElement = deleteIndex + 1 === node.expressions.length;
 
-                const updatedDeletePosition = selected.position;
+                const updatedDeletePosition = selected.position as NodePosition;
 
                 if (node.expressions.length === 1) {
                     this.deletePosition = updatedDeletePosition;
-                } else if (previous && isCommaToken(previous) && isLastElement) {
+                } else if (previous && STKindChecker.isCommaToken(previous) && isLastElement) {
                     this.deletePosition = {
                         ...updatedDeletePosition,
-                        startLine: previous.position?.startLine,
-                        startColumn: previous.position?.startColumn,
+                        startLine: (previous.position as NodePosition)?.startLine,
+                        startColumn: (previous.position as NodePosition)?.startColumn,
                     };
-                } else if (next && isCommaToken(next)) {
+                } else if (next && STKindChecker.isCommaToken(next)) {
                     this.deletePosition = {
                         ...updatedDeletePosition,
-                        endLine: next.position?.endLine,
-                        endColumn: next.position?.endColumn,
+                        endLine: (next.position as NodePosition)?.endLine,
+                        endColumn: (next.position as NodePosition)?.endColumn,
                     };
                 }
             } else {
                 for (const item of node.expressions) {
-                    if (isMappingConstructor(item)) {
+                    if (STKindChecker.isMappingConstructor(item)) {
                         this.findDeletePosition(item, true);
                     }
                 }

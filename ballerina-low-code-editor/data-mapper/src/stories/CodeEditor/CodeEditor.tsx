@@ -37,7 +37,7 @@ export interface CodeEditorProps {
     selectedArea?: NodePosition;
 }
 
-let storeTriggerredChange: boolean = false;
+let storeTriggerredChange = false;
 let codeHighlightOldDecoration: string[] = [];
 
 export function CodeEditor(props: CodeEditorProps) {
@@ -61,7 +61,7 @@ export function CodeEditor(props: CodeEditorProps) {
       }, [selectedArea, monacoRef?.current]);
 
 
-    const handleCodeChange = (newCode: string, event: monaco.editor.IModelContentChangedEvent) => {
+    const handleCodeChange = (newCode: string) => {
         if (!storeTriggerredChange) {
             debouncedOnChange(filePath, newCode);
         }
@@ -85,6 +85,7 @@ export function CodeEditor(props: CodeEditorProps) {
     const handleEditorMount: EditorDidMount = (monacoEditor, { languages, editor }) => {
         languages.register({ id: BALLERINA_LANG });
         languages.setMonarchTokensProvider(BALLERINA_LANG, {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
             tokenizer: grammar as any,
         });
         // MonacoServices.install(monaco as any);

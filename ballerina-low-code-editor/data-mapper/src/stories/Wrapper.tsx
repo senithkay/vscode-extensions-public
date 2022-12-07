@@ -1,15 +1,16 @@
+// tslint:disable: jsx-no-lambda no-empty jsx-no-multiline-js
 import React, { useEffect } from 'react';
 
 import Grid from '@material-ui/core/Grid';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { Uri } from 'monaco-editor';
 
 import { DataMapper } from '../components/DataMapper/DataMapper';
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
-import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
-import { Uri } from 'monaco-editor';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,7 +42,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
     const { langClientPromise, getFileContent, updateFileContent, filePath, lastUpdatedAt } = props;
     const [didOpen, setDidOpen] = React.useState(false);
     const [fileContent, setFileContent] = React.useState("");
-    const [lastUpdated, setLastUpdated] = React.useState(lastUpdatedAt);
+    const [, setLastUpdated] = React.useState(lastUpdatedAt);
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
 
     const classes = useStyles();
@@ -52,7 +53,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         // return updateFileContent(fPath, newContent);
     }
 
-    const updateActiveFileContent = (content: string, skipForceSave?: boolean) => {
+    const updateActiveFileContent = (content: string) => {
         return updateFileContent(filePath, content);
     }
 
@@ -65,12 +66,6 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
             astModifications: modifications
         });
         await updateFileContentOverride(filePath, stModifyResp.source);
-    }
-
-    const newProps = {
-        ...props,
-        lastUpdatedAt: lastUpdated,
-        updateFileContent: updateFileContentOverride
     }
 
     useEffect(() => {
@@ -91,7 +86,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
             }
             setFunctionST(undefined);
         }
-        getSyntaxTree();
+        void getSyntaxTree();
     }, [didOpen, fileContent])
 
     useEffect(() => {
@@ -119,64 +114,63 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
             });
             setDidOpen(true);
         }
-        openFileInLS();
+        void openFileInLS();
         return () => {
-            closeFileInLS();
+            void closeFileInLS();
         }
     }, []);
 
     return !didOpen || !functionST ? <>Opening the document...</>
         :
-        // tslint:disable-next-line: jsx-wrap-multiline
-        <div className={classes.root}>
-            <Grid container={true} spacing={3} className={classes.gridContainer} >
-                <Grid item={true} xs={8}>
-                    <DataMapper
-                        fnST={functionST}
-                        langClientPromise={langClientPromise}
-                        filePath={filePath}
-                        applyModifications={applyModifications}
-                        updateFileContent={updateActiveFileContent}
-                        onClose={() => { }}
-                        onSave={() => { }}
-                        library={{
-                            getLibrariesList: () => Promise.resolve(undefined),
-                            getLibrariesData: () => Promise.resolve(undefined),
-                            getLibraryData: () => Promise.resolve(undefined)
-                        }}
-                        importStatements={[]}
-                    />
-                </Grid>
-                <Grid item={true} xs={4}>
-                    <CodeEditor
-                        content={fileContent}
-                        filePath={filePath}
-                        // tslint:disable-next-line: jsx-no-multiline-js
-                        onChange={
-                            // tslint:disable-next-line: jsx-no-lambda
-                            (fPath, newContent) => {
-                                updateFileContentOverride(fPath, newContent);
-                                langClientPromise.then((langClient) => {
-                                    langClient.didChange({
-                                        textDocument: {
-                                            uri: Uri.file(filePath).toString(),
-                                            version: 1
-                                        },
-                                        contentChanges: [
-                                            {
-                                                text: newContent
-                                            }
-                                        ]
-                                    });
-                                    setLastUpdated((new Date()).toISOString());
-                                })
+        (
+            <div className={classes.root}>
+                <Grid container={true} spacing={3} className={classes.gridContainer} >
+                    <Grid item={true} xs={8}>
+                        <DataMapper
+                            fnST={functionST}
+                            langClientPromise={langClientPromise}
+                            filePath={filePath}
+                            applyModifications={applyModifications}
+                            updateFileContent={updateActiveFileContent}
+                            onClose={() => { }}
+                            onSave={() => { }}
+                            library={{
+                                getLibrariesList: () => Promise.resolve(undefined),
+                                getLibrariesData: () => Promise.resolve(undefined),
+                                getLibraryData: () => Promise.resolve(undefined)
+                            }}
+                            importStatements={[]}
+                        />
+                    </Grid>
+                    <Grid item={true} xs={4}>
+                        <CodeEditor
+                            content={fileContent}
+                            filePath={filePath}
+                            onChange={
+                                (fPath, newContent) => {
+                                    void updateFileContentOverride(fPath, newContent);
+                                    void langClientPromise.then((langClient) => {
+                                        langClient.didChange({
+                                            textDocument: {
+                                                uri: Uri.file(filePath).toString(),
+                                                version: 1
+                                            },
+                                            contentChanges: [
+                                                {
+                                                    text: newContent
+                                                }
+                                            ]
+                                        });
+                                        setLastUpdated((new Date()).toISOString());
+                                    })
+                                }
                             }
-                        }
-                    />
+                        />
+                    </Grid>
                 </Grid>
-            </Grid>
-            <code id='file-content-holder' style={{ display: "none" }}>
-                {fileContent}
-            </code>
-    </div>;
+                <code id='file-content-holder' style={{ display: "none" }}>
+                    {fileContent}
+                </code>
+            </div>
+        );
 }

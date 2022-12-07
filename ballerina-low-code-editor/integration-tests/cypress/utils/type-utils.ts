@@ -12,7 +12,8 @@ export type topLevelOptions =
     | "Enum"
     | "Class"
     | "Other"
-    | "Resource";
+    | "Resource"
+    | "Data Mapper";
 
 export type blockLevelOptions =
     | "Connector"
