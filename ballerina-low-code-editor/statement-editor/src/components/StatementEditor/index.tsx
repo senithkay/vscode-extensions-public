@@ -509,12 +509,16 @@ export function StatementEditor(props: StatementEditorProps) {
             setIsPullingModule(true);
             const cmdRes = await runBackgroundTerminalCommand(pullCommand);
             setIsPullingModule(false);
-            if (cmdRes && !cmdRes.error){
-                await updateEditorModel();
-            }else if (cmdRes && cmdRes.error){
-                setErrorMsg(cmdRes.message);
-            }else{
-                setErrorMsg("Something is wrong when pulling the module");
+            updateEditorModel().then(()=>{
+                // HACK: Trying twice to fetch code actions. 
+                // Because immediate request after module pulling doesn't get any code actions.
+                updateEditorModel().then();
+            });
+            if (cmdRes && cmdRes.error){
+                // TODO: Handle module pulling failed error properly
+                // tslint-disable-next-line
+                console.error('Module pulling failed!', cmdRes.error);
+                updateEditorModel().then();
             }
         }
     };
