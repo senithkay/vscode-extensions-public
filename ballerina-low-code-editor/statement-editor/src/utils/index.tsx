@@ -329,10 +329,11 @@ export function getUpdatedSource(
     skipSemiColon?: boolean,
     trimStatement = true
 ): string {
+    let stmt = statement;
     if (trimStatement) {
-        statement.trim();
+        stmt = statement.trim();
     }
-    const updatedStatement = skipSemiColon ? statement : (statement.endsWith(';') ? statement : statement + ';');
+    const updatedStatement = skipSemiColon ? stmt : (stmt.endsWith(';') ? stmt : stmt + ';');
     let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement, trimStatement);
     if (moduleList?.size > 0) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);

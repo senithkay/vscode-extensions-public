@@ -11,6 +11,8 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: no-console
+
 import React, { useContext, useState } from "react";
 
 import { Box, List, ListItemText, Typography } from "@material-ui/core";
@@ -26,9 +28,11 @@ export function Diagnostics() {
     const statementEditorDiagnosticClasses = useStatementEditorDiagnosticStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
-        statementCtx: { diagnostics },
+        statementCtx: { diagnostics, errorMsg },
     } = stmtCtx;
     let hasCodeAction = false;
+
+    console.log('>>> diagnostics panel', diagnostics);
 
     function actionButton(diag: StatementSyntaxDiagnostics) {
         if (filterCodeActions(diag.codeActions).length > 0) {
@@ -61,6 +65,13 @@ export function Diagnostics() {
                                 />
                             )
                     )}
+                {errorMsg && errorMsg.length > 0 && (
+                    <ListItemText
+                        data-testid="error-message"
+                        key="error"
+                        primary={<Typography style={{ display: "flex", flexDirection: "row" }}>{errorMsg}</Typography>}
+                    />
+                )}
             </List>
         </div>
     );

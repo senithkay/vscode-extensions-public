@@ -49,7 +49,8 @@ export const StatementEditorContext = React.createContext({
         hasRestArg: false
     },
     statementCtx: {
-        diagnostics: []
+        diagnostics: [],
+        errorMsg: ""
     },
     suggestionsCtx: {
         lsSuggestions: [],
@@ -120,6 +121,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: StatementSyntaxDiagnostics[],
+    errorMsg?: string,
     lsSuggestions?: LSSuggestions,
     hasSyntaxDiagnostics?: boolean,
     updateSyntaxDiagnostics?: (hasSyntaxIssues: boolean) => void,
@@ -159,6 +161,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         draftSource,
         draftPosition,
         diagnostics,
+        errorMsg,
         lsSuggestions,
         documentation,
         restArg,
@@ -205,7 +208,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     updateEditing
                 },
                 statementCtx: {
-                    diagnostics
+                    diagnostics,
+                    errorMsg
                 },
                 suggestionsCtx: {
                     lsSuggestions: lsSuggestions.directSuggestions,

@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: no-console
 import React, { useEffect, useRef, useState } from 'react';
 
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -131,6 +132,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const [currentModel, setCurrentModel] = useState<CurrentModel>({ model });
     const [hasSyntaxDiagnostics, setHasSyntaxDiagnostics] = useState<boolean>(hasIncorrectSyntax);
     const [stmtDiagnostics, setStmtDiagnostics] = useState<StatementSyntaxDiagnostics[]>([]);
+    const [errorMsg, setErrorMsg] = useState<string>();
     const [moduleList, setModuleList] = useState(extraModules?.size > 0 ? extraModules : new Set<string>());
     const [lsSuggestionsList, setLSSuggestionsList] = useState<LSSuggestions>({ directSuggestions: [] });
     const [documentation, setDocumentation] = useState<DocumentationInfo>(initSymbolInfo);
@@ -179,21 +181,11 @@ export function StatementEditor(props: StatementEditorProps) {
 
     useEffect(() => {
         (async () => {
-            if (!newConfigurableName || isPullingModule) {
-                const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList, skipStatementSemicolon);
-                await updateDraftFileContent(updatedContent);
-                setDraftPosition(updateStatementPosition(updatedContent, source.trim(), targetPosition));
-                const diagnostics = await handleDiagnostics(source);
-
-                const newCurrentModel: STNode = selectedNodePosition
-                    ? getCurrentModel(selectedNodePosition, editorModel) : undefined;
-
-                setStmtModel(editorModel, diagnostics);
-                setCurrentModel({ model: newCurrentModel });
-                await handleDocumentation(newCurrentModel);
+            if (!newConfigurableName) {
+                initEditor();
             }
         })();
-    }, [editor, isPullingModule]);
+    }, [editor]);
 
     useEffect(() => {
         (async () => {
@@ -273,6 +265,20 @@ export function StatementEditor(props: StatementEditorProps) {
             }
         })();
     }, [editorModel]);
+
+    const initEditor = async () => {
+        const updatedContent = getUpdatedSource(source.trim(), currentFile.content, targetPosition, moduleList, skipStatementSemicolon);
+        await updateDraftFileContent(updatedContent);
+        setDraftPosition(updateStatementPosition(updatedContent, source.trim(), targetPosition));
+        const diagnostics = await handleDiagnostics(source);
+
+        const newCurrentModel: STNode = selectedNodePosition
+            ? getCurrentModel(selectedNodePosition, editorModel) : undefined;
+
+        setStmtModel(editorModel, diagnostics);
+        setCurrentModel({ model: newCurrentModel });
+        await handleDocumentation(newCurrentModel);
+    }
 
     const restArg = (restCheckClicked: boolean) => {
         setRestArg(restCheckClicked);
@@ -405,14 +411,16 @@ export function StatementEditor(props: StatementEditorProps) {
     const handleDiagnostics = async (statement: string): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
+        console.log('>>> handleDiagnostics', diag);
         if (config.type === CONNECTOR){
-            await pullUnresolvedModules(diag);
+            pullUnresolvedModules(diag, statement).then();
         }
         if (config.type !== CONNECTOR && config.type !== ACTION){
             removeUnusedModules(diag);
         }
         const filteredDiagnostics = getFilteredDiagnosticMessages(statement, draftPosition, diag);
         const messagesWithCodeActions = await handleCodeAction(filteredDiagnostics);
+        console.log('>>> messagesWithCodeActions', messagesWithCodeActions, diag);
         setStmtDiagnostics(messagesWithCodeActions);
         return diag;
     }
@@ -479,7 +487,7 @@ export function StatementEditor(props: StatementEditorProps) {
         }
     };
 
-    const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
+    const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[], statement: string) => {
         if (!(!!moduleList?.size && runBackgroundTerminalCommand && !isPullingModule)) {
             return;
         }
@@ -499,9 +507,22 @@ export function StatementEditor(props: StatementEditorProps) {
             });
         }
         if (pullCommand !== "") {
+            console.log('>>> pullUnresolvedModules', pullCommand, isPullingModule);
             setIsPullingModule(true);
-            await runBackgroundTerminalCommand(pullCommand);
+            const cmdRes = await runBackgroundTerminalCommand(pullCommand);
             setIsPullingModule(false);
+            console.log('>>> run background terminal command', cmdRes);
+            if (cmdRes && !cmdRes.error){
+                console.log('>>> pulling complete, initEditor');
+                await initEditor();
+                console.log('>>> complete initEditor');
+            }else if (cmdRes && cmdRes.error){
+                setErrorMsg(cmdRes.message);
+            }else{
+                setErrorMsg("Something is wrong when pulling the module");
+            }
+        }else{
+            console.log('>>> nothing to pull', isPullingModule);
         }
     };
 
@@ -600,6 +621,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     hasRedo={undoRedoManager.hasRedo()}
                     hasUndo={undoRedoManager.hasUndo() || hasSyntaxDiagnostics}
                     diagnostics={stmtDiagnostics}
+                    errorMsg={errorMsg}
                     lsSuggestions={lsSuggestionsList}
                     editorManager={editorManager}
                     targetPosition={targetPosition}

@@ -63,6 +63,7 @@ export function EndpointForm(props: FormGeneratorProps) {
     const imports = getConnectorImports(syntaxTree, connector.package.organization, connector.moduleName);
     const moduleName = getFormattedModuleName(connector.moduleName);
     const parentWithError = isParentNodeWithErrorReturn(functionNode);
+    const isModuleVar = (!functionNode || isModuleType);
     let initialSource = "EXPRESSION";
 
     if (model && model.source) {
@@ -76,7 +77,7 @@ export function EndpointForm(props: FormGeneratorProps) {
             const returnType = getFormFieldReturnType(initFunction.returnType);
 
             initialSource = getInitialSource(
-                (returnType?.hasError && parentWithError) // INFO: New code actions will update parent function and `check` keyword
+                (returnType?.hasError && (isModuleVar || parentWithError)) // INFO: New code actions will update parent function and `check` keyword
                     ? createCheckObjectDeclaration(
                           `${moduleName}:${connector.name}`,
                           genVariableName(`${moduleName}Ep`, getAllVariables(stSymbolInfo)),
@@ -133,7 +134,7 @@ export function EndpointForm(props: FormGeneratorProps) {
                     extraModules: imports,
                     experimentalEnabled,
                     runBackgroundTerminalCommand,
-                    isModuleVar: isModuleType ?? false,
+                    isModuleVar,
                     ballerinaVersion,
                 })}
         </>
