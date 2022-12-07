@@ -26,10 +26,10 @@ import { CONF_NAME_PLACEHOLDER } from '../../utils/expressions';
 import { sendDidChange } from "../../utils/ls-utils";
 import Breadcrumb from "../Breadcrumb";
 import { CloseButton } from "../Button/CloseButton";
+import { EditorOverlay, OverlayType } from '../EditorOverlay';
 import { EditorPane } from '../EditorPane';
 import { Help } from "../Help";
 import { useStatementEditorStyles } from "../styles";
-import { EditorOverlay, OverlayType } from '../EditorOverlay';
 
 export interface ViewContainerProps {
     isStatementValid: boolean;
@@ -166,7 +166,7 @@ export function ViewContainer(props: ViewContainerProps) {
                 )
                 }
                 {isDisableEditor && (
-                    <EditorOverlay type={OverlayType.Disabled}/>                    
+                    <EditorOverlay type={OverlayType.Disabled}/>
                 )}
                 {isPullingModule && !isDisableEditor && (
                     <EditorOverlay type={OverlayType.ModulePulling}/>

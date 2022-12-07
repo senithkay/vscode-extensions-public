@@ -13,10 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { useStyles } from "./style";
-import { useStatementEditorStyles } from "../styles";
-import SourceMissingImg from "../../assets/images/SourceMissingImg";
 import PullingModuleImg from "../../assets/images/PullingModuleImg";
+import SourceMissingImg from "../../assets/images/SourceMissingImg";
+import { useStatementEditorStyles } from "../styles";
+
+import { useStyles } from "./style";
 
 export enum OverlayType {
     Disabled,
