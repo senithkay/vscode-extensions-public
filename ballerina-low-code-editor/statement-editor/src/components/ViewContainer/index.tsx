@@ -29,6 +29,7 @@ import { CloseButton } from "../Button/CloseButton";
 import { EditorPane } from '../EditorPane';
 import { Help } from "../Help";
 import { useStatementEditorStyles } from "../styles";
+import { EditorOverlay, OverlayType } from '../EditorOverlay';
 
 export interface ViewContainerProps {
     isStatementValid: boolean;
@@ -165,14 +166,10 @@ export function ViewContainer(props: ViewContainerProps) {
                 )
                 }
                 {isDisableEditor && (
-                    <div className={overlayClasses.mainStatementWrapper} data-testid="disable-overlay">
-                        <div className={overlayClasses.loadingWrapper}>The source code has changed. Please retry editing the statement.</div>
-                    </div>
+                    <EditorOverlay type={OverlayType.Disabled}/>                    
                 )}
                 {isPullingModule && !isDisableEditor && (
-                    <div className={overlayClasses.mainStatementWrapper} data-testid="package-pulling-loader">
-                        <div className={overlayClasses.loadingWrapper}>Pulling package...</div>
-                    </div>
+                    <EditorOverlay type={OverlayType.ModulePulling}/>
                 )}
                 {!isPullingModule && !isDisableEditor && (
                     <>
