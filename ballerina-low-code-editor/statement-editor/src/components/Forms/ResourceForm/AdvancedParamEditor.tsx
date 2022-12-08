@@ -112,7 +112,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                     returnString = `${returnString} ${current.source ? current.source : current.value}`
                     return returnString.trim();
                 }, '');
-                newParamString = `${currentParamString}, ${type} ${genParamName('param', parameterNames)}`;
+                newParamString = (parameters.length > 0) ? `${currentParamString}, ${type} ${genParamName(
+                    'param', parameterNames)}` : `${type} ${genParamName('param',
+                    parameterNames)}`;
             } else {
                 newParamString = parameters.reduce((prev, current, currentIndex) => {
                     let returnString = prev;
