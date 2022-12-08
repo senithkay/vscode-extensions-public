@@ -1,15 +1,20 @@
 import { debug } from "console";
-import { commands, ExtensionContext, TreeItem, TreeView } from "vscode";
+import { commands, EventEmitter, ExtensionContext, TreeItem, TreeView } from "vscode";
+import { ChoreoLoginStatus } from "./auth/events";
 import { OAuthTokenHandler } from "./auth/inbuilt-impl";
 import { ChoreoSession } from "./auth/session";
+import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 import { choreoSignedInCtxKey } from "./constants";
 
 export namespace ext {
     export let context: ExtensionContext;
-    export let isPluginStartup = true;
+    export let isPluginStartup: boolean;
+    export let api: ChoreoExtensionApi;
 
     export namespace auth {
         // auth releated
+        export let onStatusChanged: EventEmitter<ChoreoLoginStatus>;
+
         let choreoSession: ChoreoSession = { loginStatus: false };
 
         export function setChoreoSession(choreoSession: ChoreoSession) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,19 +16,22 @@
  * under the License.
  */
  import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
+import { ext } from "../../extensionVariables";
+import { ChoreoProjectTreeItem } from "./ProjectsTreeItem";
 
  
- export class ProjectsTreeProvider implements TreeDataProvider<TreeItem> {
+ export class ProjectsTreeProvider implements TreeDataProvider<ChoreoProjectTreeItem> {
 
      getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
          return element;
      }
  
-     getChildren(element?: TreeItem): ProviderResult<TreeItem[]> {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve([{ id: "1", label: "test"}]);
-            }, 5000);
+     getChildren(element?: TreeItem): ProviderResult<ChoreoProjectTreeItem[]> {
+        return new Promise(async (resolve) => {
+           const loginSuccess = await ext.api.waitForLogin();
+           if (loginSuccess) {
+                resolve([]);
+           }
         });
      }
  

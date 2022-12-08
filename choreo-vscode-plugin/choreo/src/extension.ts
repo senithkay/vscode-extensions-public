@@ -19,16 +19,22 @@
 import * as vscode from 'vscode';
 import { window } from 'vscode';
 import { activateAuth } from './auth';
+import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { choreoProjectsTreeId } from './constants';
 import { ext } from './extensionVariables';
-import { ProjectsTreeProvider } from './views/projects-tree-provider';
+import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 
 export function activate(context: vscode.ExtensionContext) {
+	ext.isPluginStartup = true;
+	ext.context = context;
 
 	activateAuth();
-	
+
 	ext.projectsTreeView = createProjectTreeView();
 	ext.isPluginStartup = false;
+
+	ext.api = new ChoreoExtensionApi();
+	return ext.api;
 }
 
 

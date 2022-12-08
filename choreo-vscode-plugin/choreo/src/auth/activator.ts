@@ -17,16 +17,20 @@
  *
  */
 import * as vscode from 'vscode';
-import { commands, window } from "vscode";
+import { commands, EventEmitter, window } from "vscode";
 import { deleteChoreoKeytarSession } from "./auth-session";
 import { initiateInbuiltAuth, OAuthTokenHandler } from "./inbuilt-impl";
 import { ChoreoAuthConfig, ChoreoFidp } from "./config";
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
 import { choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
+import { ChoreoLoginStatus } from './events';
 
 export let choreoAuthConfig: ChoreoAuthConfig;
 export async function activateAuth() {
+
+    ext.auth.onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
+    
     vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
             if (uri.path === '/choreo-signin') {
@@ -45,6 +49,7 @@ export async function activateAuth() {
     choreoAuthConfig = new ChoreoAuthConfig();
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {
+            ext.auth.onStatusChanged.fire('LoggingIn');
             choreoAuthConfig.setFidp(ChoreoFidp.google);
             await initiateInbuiltAuth();
         } catch (error) {
@@ -61,6 +66,7 @@ export async function activateAuth() {
                 loginStatus: false
             });
             // extension.getChoreoSessionTreeProvider()?.refresh();
+            ext.auth.onStatusChanged.fire('LoggedOut');
             window.showInformationMessage('Successfully signed out from Choreo!');
         } catch (error) {
             if (error instanceof Error) {

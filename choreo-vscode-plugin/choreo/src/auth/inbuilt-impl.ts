@@ -170,6 +170,7 @@ export class OAuthTokenHandler {
                     ext.auth.setChoreoSession(result);
                     if (result.loginStatus) {
                         this.status = true;
+                        ext.auth.onStatusChanged.fire('LoggedIn');
                         // Show the success message in vscode.
                         vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
                         // this.extension.getChoreoSessionTreeProvider()?.refresh();
@@ -219,6 +220,7 @@ export class OAuthTokenHandler {
                     ext.auth.setChoreoSession(result);
                     if (result.loginStatus) {
                         this.status = true;
+                        ext.auth.onStatusChanged.fire('LoggedIn');
                         // Show the success message in vscode.
                         vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
                         // this.extension.getChoreoSessionTreeProvider()?.refresh();
