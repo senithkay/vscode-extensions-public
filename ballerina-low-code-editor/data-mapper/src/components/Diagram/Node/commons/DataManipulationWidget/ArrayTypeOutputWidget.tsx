@@ -171,7 +171,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 						field={field}
 						getPort={getPort}
 						parentId={id}
-						mappingConstruct={undefined}
+						parentMappingConstruct={undefined}
 						context={context}
 						deleteField={deleteField}
 						isReturnTypeDesc={true}

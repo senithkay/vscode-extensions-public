@@ -18,7 +18,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { MappingConstructor, STNode } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -94,7 +94,7 @@ export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	editableRecordFields: EditableRecordField[];
 	typeName: string;
-	value: MappingConstructor;
+	value: STNode;
 	engine: DiagramEngine;
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
@@ -108,12 +108,12 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const classes = useStyles();
 
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
+	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
 
 	const portIn = getPort(`${id}.IN`);
-	const portOut = getPort(`${id}.OUT`);
 
 	let expanded = true;
-	if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
+	if ((portIn && portIn.collapsed)) {
 		expanded = false;
 	}
 
@@ -138,12 +138,12 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const handleExpand = () => {
 		context.handleCollapse(id, !expanded);
 	}
-	// TODO: Handle root level arrays
+
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
-					{portIn && (!hasValue || !expanded) &&
+					{portIn && (!hasValue || !expanded || !isBodyMappingConstructor) &&
 						<DataMapperPortWidget engine={engine} port={portIn} />
 					}
 				</span>
@@ -158,11 +158,6 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					</IconButton>
 					{label}
 				</span>
-				<span className={classes.treeLabelOutPort}>
-					{portOut &&
-						<DataMapperPortWidget engine={engine} port={portOut} />
-					}
-				</span>
 			</TreeHeader>
 			<TreeBody>
 				{expanded && editableRecordFields &&
@@ -174,7 +169,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 								field={item}
 								getPort={getPort}
 								parentId={id}
-								mappingConstruct={value}
+								parentMappingConstruct={value}
 								context={context}
 								treeDepth={0}
 								deleteField={deleteField}

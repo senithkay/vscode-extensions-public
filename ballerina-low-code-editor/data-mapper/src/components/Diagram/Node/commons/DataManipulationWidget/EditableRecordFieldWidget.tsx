@@ -18,7 +18,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -44,7 +44,7 @@ export interface EditableRecordFieldWidgetProps {
     field: EditableRecordField;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
-    mappingConstruct: MappingConstructor;
+    parentMappingConstruct: STNode;
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
@@ -52,7 +52,7 @@ export interface EditableRecordFieldWidgetProps {
 }
 
 export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
+    const { parentId, field, getPort, engine, parentMappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -62,6 +62,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
+    const mappingConstruct = STKindChecker.isMappingConstructor(parentMappingConstruct) && parentMappingConstruct;
     const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
@@ -261,7 +262,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         field={field}
                         getPort={getPort}
                         parentId={parentId}
-                        mappingConstruct={mappingConstruct}
+                        parentMappingConstruct={mappingConstruct}
                         context={context}
                         fieldIndex={fieldIndex}
                         treeDepth={treeDepth}
@@ -279,7 +280,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 field={subField}
                                 getPort={getPort}
                                 parentId={fieldId}
-                                mappingConstruct={mappingConstruct}
+                                parentMappingConstruct={mappingConstruct}
                                 context={context}
                                 treeDepth={treeDepth + 1}
                                 deleteField={deleteField}
