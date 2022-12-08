@@ -15,7 +15,6 @@ import React, { ReactNode, useState } from "react";
 
 import styled from "@emotion/styled";
 import { WarningBanner } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Title } from "../DataMapperConfigPanel";
 import { RecordButtonGroup } from "../RecordButtonGroup";
@@ -24,6 +23,7 @@ import { getTypeIncompatibilityMsg } from "../utils";
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";
+import { CompletionResponseWithModule } from "../TypeBrowser";
 
 export interface InputConfigWidgetProps {
     inputParams: DataMapperInputParam[];
@@ -31,9 +31,8 @@ export interface InputConfigWidgetProps {
     onUpdateParams: (newParams: DataMapperInputParam[]) => void;
     enableAddNewRecord: () => void;
     setAddExistType: (value: boolean) => void;
-    imports: string[];
-    fnSTPosition: NodePosition;
-    currentFileContent: string;
+    completions: CompletionResponseWithModule[];
+    loadingCompletions: boolean;
 }
 
 export function InputParamsPanel(props: InputConfigWidgetProps) {
@@ -43,9 +42,8 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
         onUpdateParams,
         enableAddNewRecord,
         setAddExistType,
-        currentFileContent,
-        fnSTPosition,
-        imports
+        completions,
+        loadingCompletions
     } = props;
 
     const [editingIndex, setEditingIndex] = useState(-1);
@@ -99,9 +97,8 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
                             param={param}
                             onUpdate={onUpdate}
                             onCancel={onUpdateCancel}
-                            currentFileContent={currentFileContent}
-                            fnSTPosition={fnSTPosition}
-                            imports={imports}
+                            completions={completions}
+                            loadingCompletions={loadingCompletions}
                         />
                         {param.isUnsupported && (
                             <Warning
@@ -132,9 +129,8 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
                     param={{ name: "", type: "" }}
                     onSave={onAddNew}
                     onCancel={disableAddNew}
-                    currentFileContent={currentFileContent}
-                    fnSTPosition={fnSTPosition}
-                    imports={imports}
+                    completions={completions}
+                    loadingCompletions={loadingCompletions}
                 />
             )}
             {!isAddExistType && editingIndex === -1 && (

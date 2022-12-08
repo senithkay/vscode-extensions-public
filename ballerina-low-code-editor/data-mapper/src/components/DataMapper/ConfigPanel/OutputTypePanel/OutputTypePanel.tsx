@@ -22,6 +22,7 @@ import { DataMapperOutputParam } from "../InputParamsPanel/types";
 import { RecordButtonGroup } from "../RecordButtonGroup";
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
 import { getTypeIncompatibilityMsg } from "../utils";
+import { InputParamEditor } from "../InputParamsPanel/InputParamEditor";
 
 export interface OutputConfigWidgetProps {
     outputType: DataMapperOutputParam;
@@ -29,7 +30,8 @@ export interface OutputConfigWidgetProps {
     completions: CompletionResponseWithModule[]
     showOutputType: boolean;
     handleShowOutputType: () => void;
-    handleOutputTypeChange: (type: string) => void;
+    handleHideOutputType: () => void;
+    handleOutputTypeChange: (type: string, isArray: boolean) => void;
     handleShowRecordEditor: () => void;
     handleOutputDeleteClick: () => void;
 }
@@ -41,6 +43,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
         completions,
         showOutputType,
         handleShowOutputType,
+        handleHideOutputType,
         handleOutputTypeChange,
         handleShowRecordEditor,
         handleOutputDeleteClick
@@ -61,11 +64,12 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
             {!outputType.type ? (
                 <>
                     {showOutputType && (
-                        <TypeBrowser
-                            type={outputType.type}
-                            onChange={handleOutputTypeChange}
-                            isLoading={fetchingCompletions}
-                            recordCompletions={completions}
+                        <InputParamEditor
+                            onCancel={handleHideOutputType}
+                            onUpdate={(_, param) => handleOutputTypeChange(param.type, param.isArray)}
+                            loadingCompletions={fetchingCompletions}
+                            completions={completions}
+                            hideName={true}
                         />
                     )}
                     <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
@@ -73,7 +77,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
             ) : (
                 <>
                     <OutputTypeContainer isInvalid={outputType.isUnsupported}>
-                        <TypeName>{outputType.type}</TypeName>
+                        <TypeName>{outputType?.isArray ? `${outputType.type}[]` : outputType.type}</TypeName>
                         <DeleteButton
                             onClick={handleOutputDeleteClick}
                             icon={<DeleteOutLineIcon fontSize="small" />}
