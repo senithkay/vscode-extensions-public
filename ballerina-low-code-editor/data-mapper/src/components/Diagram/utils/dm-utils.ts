@@ -1003,6 +1003,7 @@ function isMappedToExprFuncBody(targetPort: RecordFieldPortModel, selectedSTNode
 		&& selectedSTNode.functionBody.expression.position;
 	return !targetPort.parentModel
 		&& targetPort?.editableRecordField?.value
+		&& !STKindChecker.isQueryExpression(targetPort.editableRecordField.value)
 		&& isPositionsEquals(targetPort?.editableRecordField?.value.position as NodePosition, exprPosition);
 }
 
