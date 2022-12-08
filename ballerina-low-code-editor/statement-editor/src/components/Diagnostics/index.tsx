@@ -31,10 +31,10 @@ export function Diagnostics() {
     } = stmtCtx;
     let hasCodeAction = false;
 
-    function actionButton(diag: StatementSyntaxDiagnostics) {
+    function actionButton(diag: StatementSyntaxDiagnostics, key?: number) {
         if (filterCodeActions(diag.codeActions).length > 0) {
             hasCodeAction = true;
-            return <CodeActionButton syntaxDiagnostic={diag} />;
+            return <CodeActionButton syntaxDiagnostic={diag} index={key}/>;
         } else if (hasCodeAction) {
             return <Box style={{ width: "30px", marginRight: "6px" }} />;
         }
@@ -52,7 +52,7 @@ export function Diagnostics() {
                                     key={index}
                                     primary={(
                                         <Typography style={{ display: "flex", flexDirection: "row" }}>
-                                            {actionButton(diag)}
+                                            {actionButton(diag, index)}
                                             <div className={statementEditorDiagnosticClasses.diagnosticsErrorIcon}>
                                                 <DiagnosticsErrorIcon />
                                             </div>

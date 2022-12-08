@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { Divider, IconButton, Menu, MenuItem } from "@material-ui/core";
+import { IconButton, Menu, MenuItem } from "@material-ui/core";
 import { NodePosition } from "@wso2-enterprise/ballerina-languageclient";
 import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-protocol";
 
@@ -26,10 +26,11 @@ import { useStyles } from "./style";
 
 export interface CodeActionButtonProps {
     syntaxDiagnostic: StatementSyntaxDiagnostics;
+    index?: number;
 }
 
 export function CodeActionButton(props: CodeActionButtonProps) {
-    const { syntaxDiagnostic } = props;
+    const { syntaxDiagnostic, index: key } = props;
 
     const classes = useStyles();
 
@@ -57,7 +58,12 @@ export function CodeActionButton(props: CodeActionButtonProps) {
                 applyCodeAction(action);
             };
             actionMenuItems.push(
-                <MenuItem key={index} onClick={onSelectCodeAction}>
+                <MenuItem
+                    key={index}
+                    onClick={onSelectCodeAction}
+                    data-testid="code-action-menu-item"
+                    data-index={index}
+                >
                     {action.title}
                 </MenuItem>
             );
@@ -117,8 +123,8 @@ export function CodeActionButton(props: CodeActionButtonProps) {
     };
 
     return (
-        <div className={classes.container} data-testid="code-action-btn">
-            <IconButton className={classes.iconButton} onClick={onClickCodeAction}>
+        <div className={classes.container} data-testid="code-action-btn" data-index={key}>
+            <IconButton className={classes.iconButton} onClick={onClickCodeAction} data-testid="code-action-icon">
                 <CodeActionIcon />
             </IconButton>
             <Menu
@@ -128,6 +134,7 @@ export function CodeActionButton(props: CodeActionButtonProps) {
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 transformOrigin={{ vertical: "top", horizontal: "left" }}
                 className={classes.menu}
+                data-testid="code-action-menu"
             >
                 {actionMenuItems}
             </Menu>
