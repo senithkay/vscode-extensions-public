@@ -22,18 +22,18 @@ import { deleteChoreoKeytarSession } from "./auth-session";
 import { initiateInbuiltAuth, OAuthTokenHandler } from "./inbuilt-impl";
 import { ChoreoAuthConfig, ChoreoFidp } from "./config";
 import { URLSearchParams } from 'url';
-import { PALETTE_COMMANDS } from '../commands';
-import { ChoreoExtension } from '../core/ChoreoExtension';
+import { ext } from '../extensionVariables';
+import { choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
 
 export let choreoAuthConfig: ChoreoAuthConfig;
-export async function activateAuth(extension: ChoreoExtension) {
+export async function activateAuth() {
     vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
             if (uri.path === '/choreo-signin') {
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get('code');
                 if (authCode) {
-                    const tokenHandler = new OAuthTokenHandler(extension);
+                    const tokenHandler = new OAuthTokenHandler();
                     tokenHandler.exchangeAuthToken(authCode);
                 } else {
                     vscode.window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
@@ -43,10 +43,10 @@ export async function activateAuth(extension: ChoreoExtension) {
     });
 
     choreoAuthConfig = new ChoreoAuthConfig();
-    commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNIN, async () => {
+    commands.registerCommand(choreoSignInCmdId, async () => {
         try {
             choreoAuthConfig.setFidp(ChoreoFidp.google);
-            await initiateInbuiltAuth(extension);
+            await initiateInbuiltAuth();
         } catch (error) {
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
@@ -54,10 +54,10 @@ export async function activateAuth(extension: ChoreoExtension) {
         }
     });
 
-    commands.registerCommand(PALETTE_COMMANDS.CHOREO_SIGNOUT, async () => {
+    commands.registerCommand(choreoSignOutCmdId, async () => {
         try {
             deleteChoreoKeytarSession();
-            extension.setChoreoSession({
+            ext.auth.setChoreoSession({
                 loginStatus: false
             });
             // extension.getChoreoSessionTreeProvider()?.refresh();

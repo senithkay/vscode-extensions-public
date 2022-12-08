@@ -55,11 +55,13 @@
     "viewsWelcome": [
       {
         "view": "choreo-projects",
-        "contents": "Sign in to retrieve projects.\n[Sign In](command:wso2.choreo.sign.in)"
+        "contents": "Sign in to retrieve projects.\n[Sign In](command:wso2.choreo.sign.in)",
+        "when": "!isSignedInToChoreo"
       },
       {
         "view": "choreo-account",
-        "contents": "Sign in to see account settings.\n[Sign In](command:wso2.choreo.sign.in)"
+        "contents": "Sign in to see account settings.\n[Sign In](command:wso2.choreo.sign.in)",
+        "when": "!isSignedInToChoreo"
       }
     ]
   },

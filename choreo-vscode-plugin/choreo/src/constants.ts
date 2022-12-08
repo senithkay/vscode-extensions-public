@@ -16,7 +16,10 @@
  * under the License.
  *
  */
-export enum PALETTE_COMMANDS {
-    CHOREO_SIGNIN = 'wso2.choreo.sign.in',
-    CHOREO_SIGNOUT = 'wso2.choreo.sign.out',
-}
+export const choreoSignInCmdId = 'wso2.choreo.sign.in';
+export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
+
+export const choreoSignedInCtxKey = 'isSignedInToChoreo';
+ 
+// views
+export const choreoProjectsTreeId = 'choreo-projects';

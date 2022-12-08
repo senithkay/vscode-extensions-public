@@ -23,10 +23,9 @@ import { deleteChoreoKeytarSession, getChoreoKeytarSession, setChoreoKeytarSessi
 import jwt_decode from "jwt-decode";
 import { choreoAuthConfig } from "./activator";
 import { ChoreoFidp } from "./config";
-import { isPluginStartup } from "../extension";
-import { ChoreoExtension } from '../core/ChoreoExtension';
 import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
+import { ext } from '../extensionVariables';
 
 const challenge = pkceChallenge();
 
@@ -39,7 +38,7 @@ const VSCODE_TOKEN_ERROR = "Error while retreiving the VSCode token details!";
 const ANON_USER_ERROR = "Error while creating an anonymous user!";
 const SESSION_EXPIRED = "The session has expired, please login again!";
 
-export async function initiateInbuiltAuth(extension: ChoreoExtension) {
+export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
         vscode.Uri.parse(getAuthURL())
     );
@@ -47,13 +46,8 @@ export async function initiateInbuiltAuth(extension: ChoreoExtension) {
 }
 
 export class OAuthTokenHandler {
-    public extension: ChoreoExtension;
     status: boolean = false;
     displayName: string = "Choreo User";
-
-    constructor(extension: ChoreoExtension) {
-        this.extension = extension;
-    }
 
     public async exchangeAuthToken(authCode: string): Promise<boolean> {
         if (!authCode) {
@@ -173,7 +167,7 @@ export class OAuthTokenHandler {
                     String(refreshToken), String(loginTime), String(expirationTime));
 
                 await getChoreoKeytarSession().then((result) => {
-                    this.extension.setChoreoSession(result);
+                    ext.auth.setChoreoSession(result);
                     if (result.loginStatus) {
                         this.status = true;
                         // Show the success message in vscode.
@@ -222,7 +216,7 @@ export class OAuthTokenHandler {
                     String(newRefreshToken), String(loginTime), String(expirationTime));
 
                 await getChoreoKeytarSession().then((result) => {
-                    this.extension.setChoreoSession(result);
+                    ext.auth.setChoreoSession(result);
                     if (result.loginStatus) {
                         this.status = true;
                         // Show the success message in vscode.
@@ -240,7 +234,7 @@ export class OAuthTokenHandler {
         }).catch((err) => {
             console.debug(err);
 
-            if (!isPluginStartup) {
+            if (!ext.isPluginStartup) {
                 vscode.window.showErrorMessage(AUTH_FAIL + SESSION_EXPIRED);
             }
             this.signOut();
@@ -249,7 +243,7 @@ export class OAuthTokenHandler {
 
     signOut() {
         deleteChoreoKeytarSession();
-        this.extension.setChoreoSession({
+        ext.auth.setChoreoSession({
             loginStatus: false
         });
         // this.extension.getChoreoSessionTreeProvider()?.refresh();

@@ -25,7 +25,11 @@
      }
  
      getChildren(element?: TreeItem): ProviderResult<TreeItem[]> {
-         return [];
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve([{ id: "1", label: "test"}]);
+            }, 5000);
+        });
      }
  
      refresh(): void {
