@@ -40,7 +40,7 @@ describe("Expanded query view within mapping constructor", () => {
     it("Navigate into expanded query view", () => {
         DataMapper.clickExpandQueryView('Output.Items');
         DataMapper.getQueryExprNode("source.ItemsItem");
-        DataMapper.getTargetNode("Items");
+        DataMapper.getTargetNode();
     });
 
     it("Add an intermediary where clause", () => {
@@ -65,10 +65,10 @@ describe("Expanded query view within mapping constructor", () => {
     });
 
     it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExpression('ItemsItem.Id', 'Items.Id');
+        DataMapper.createMappingFromQueryExpression('ItemsItem.Id', 'Id');
         cy.wait(4000);
-        DataMapper.createMappingFromQueryExpression('variable', 'Items.Id');
-        DataMapper.checkIntermediateLinks(['expandedQueryExpr.source.ItemsItem.Id', 'expandedQueryExpr.source.variable'], 'Items.Id')
+        DataMapper.createMappingFromQueryExpression('variable', 'Id');
+        DataMapper.checkIntermediateLinks(['expandedQueryExpr.source.ItemsItem.Id', 'expandedQueryExpr.source.variable'], 'Id')
     });
 
     it("Rename let clause variable name", () => {
