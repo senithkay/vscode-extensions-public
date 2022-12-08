@@ -58,7 +58,8 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
 
     // set L2 model
     let l2Model = new DiagramModel();
-    l2Model.addAll(...Array.from(l2Nodes.values()), ...Array.from(l2ExtNodes.values()), ...l2Links);
+    l2Model.addAll(...Array.from(gwNodes.values()), ...Array.from(l2Nodes.values()),
+        ...Array.from(l2ExtNodes.values()), ...l2Links);
 
     return {
         levelOne: l1Model,
@@ -116,7 +117,7 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                 let l1SourceNode: ServiceNodeModel = l1Nodes.get(service.serviceId);
                 let l2SourceNode: ServiceNodeModel = l2Nodes.get(service.serviceId);
 
-                generateL1GWLinks(l1SourceNode);
+                mapGWInteractions(l1SourceNode, l2SourceNode);
 
                 if (l1SourceNode && l2SourceNode) {
                     mapInteractions(l1SourceNode, l2SourceNode, service.resources);
@@ -127,13 +128,16 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
     });
 }
 
-function generateL1GWLinks(serviceModel: ServiceNodeModel) {
-    serviceModel.getTargetGateways().forEach((gwType: GatewayType) => {
-        generateL1GWLink(serviceModel, gwType);
+function mapGWInteractions(l1SourceNode: ServiceNodeModel, l2SourceNode: ServiceNodeModel) {
+    l1SourceNode.getTargetGateways().forEach((gwType: GatewayType) => {
+        mapL1GWInteraction(l1SourceNode, gwType);
+    });
+    l2SourceNode.getTargetGateways().forEach((gwType: GatewayType) => {
+        mapL2GWInteraction(l2SourceNode, gwType);
     });
 }
 
-function generateL1GWLink(serviceModel: ServiceNodeModel, gwType: GatewayType) {
+function mapL1GWInteraction(serviceModel: ServiceNodeModel, gwType: GatewayType) {
     const linkID: string = `${serviceModel.getID()}-${gwType}-in`;
     if ((serviceModel?.targetGateways.length > 0) && !l1Links.has(linkID)) {
         const link: GatewayLinkModel = new GatewayLinkModel(Level.ONE);
@@ -141,6 +145,16 @@ function generateL1GWLink(serviceModel: ServiceNodeModel, gwType: GatewayType) {
         const targetGW: GatewayNodeModel = gwNodes.get(gwType);
         const targetPort: GatewayPortModel = targetGW.getPortFromID(`${gwType}-in`);
         l1Links.set(linkID, createLinks(sourcePort, targetPort, link));
+    }
+}
+
+function mapL2GWInteraction(serviceModel: ServiceNodeModel, gwType: GatewayType) {
+    if ((serviceModel?.targetGateways.length > 0)) {
+        const link: GatewayLinkModel = new GatewayLinkModel(Level.TWO);
+        const sourcePort: ServicePortModel = serviceModel.getPortFromID(`right-${serviceModel.serviceObject.serviceId}`);
+        const targetGW: GatewayNodeModel = gwNodes.get(gwType);
+        const targetPort: GatewayPortModel = targetGW.getPortFromID(`${gwType}-in`);
+        l2Links.push(createLinks(sourcePort, targetPort, link));
     }
 }
 
