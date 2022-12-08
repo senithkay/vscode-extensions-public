@@ -19,7 +19,7 @@
 import React, {useEffect} from 'react';
 import { GatewayLinkModel } from './GatewayLinkModel';
 import { DiagramEngine } from "@projectstorm/react-diagrams";
-import {Colors} from "../../../resources";
+import { Colors } from "../../../resources";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -47,9 +47,6 @@ export function GatewayLinkWidget(props: WidgetProps) {
                     d={link.getCurvePath()}
                     fill='none'
                     pointerEvents='all'
-                    // onMouseLeave={onMouseLeave}
-                    // onMouseMove={e => callingFunction ? setPosition({ x: e.pageX, y: e.pageY }) : {}}
-                    // onMouseOver={onMouseOver}
                     stroke={Colors.GATEWAY}
                     strokeWidth={1}
                 />
