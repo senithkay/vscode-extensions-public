@@ -1,0 +1,25 @@
+.component {
+    height: 100px;
+    width: 300px;
+    border: 2px solid black;
+    margin: 0 15px;
+    display: flex;
+    flex-direction: column;
+
+    .label {
+        padding: 5px;
+    }
+
+    .break {
+        flex: 1;
+    }
+
+    .title {
+        font-size: 18px;
+    }
+
+    .file {
+        display: flex;
+        flex-direction: row-reverse;
+    }
+}

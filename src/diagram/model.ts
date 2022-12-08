@@ -19,11 +19,17 @@
 
 import { Uri } from 'vscode';
 
+export enum ViewMode {
+    LOW_CODE,
+    OVERVIEW
+}
+
 export interface DiagramOptions {
     startLine?: number;
     startColumn?: number;
     isDiagram: boolean;
     fileUri?: Uri;
+    viewMode?: ViewMode
 }
 
 export interface SyntaxTree {

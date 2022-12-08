@@ -17,15 +17,17 @@
  *
  */
 
-import { Uri, Webview } from 'vscode';
+import { Uri, Webview, workspace } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { ViewMode } from './model';
 
-export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, webView: Webview): string {
-    return renderDiagram(filePath, startLine, startColumn, experimental, openInDiagram, webView);
+export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, viewMode: ViewMode, webView: Webview): string {
+    console.log('>>> test', viewMode);
+    return renderDiagram(filePath, startLine, startColumn, experimental, openInDiagram, viewMode, webView);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, webView: Webview): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, viewMode: ViewMode, webView: Webview): string {
 
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
@@ -255,7 +257,9 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 startColumn,
                 lastUpdatedAt,
                 experimentalEnabled,
-                openInDiagram
+                openInDiagram,
+                viewMode,
+                projectPaths
             }) {
                 try {
                     const options = {
@@ -263,6 +267,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                         editorProps: {
                             langClientPromise: Promise.resolve(getLangClient()),
                             filePath,
+                            projectPaths,
                             startLine,
                             startColumn,
                             getFileContent,
@@ -290,7 +295,12 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                         }
                     };
                     console.log('>>> BLCEditor',BLCEditor);
-                    BLCEditor.renderDiagramEditor(options);
+                    if (viewMode && viewMode === 1) {
+                        BLCEditor.renderOverviewDiagram(options);
+                    } else {
+                        BLCEditor.renderDiagramEditor(options);
+                    }
+                    
                 } catch(e) {
                     if (e.message === 'ballerinaComposer is not defined') {
                         drawLoading();
@@ -368,13 +378,16 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 })
             }
             webViewRPCHandler.addMethod("updateDiagram", (args) => {
+                console.log('update diagram webview rpc >>>', args);
                 drawDiagram({
-                    filePath: args[0].filePath,
+                    filePath: ${viewMode === ViewMode.LOW_CODE ? 'args[0].fliePath' : 'undefined'},
                     startLine: args[0].startLine,
                     startColumn: args[0].startColumn,
                     lastUpdatedAt: (new Date()).toISOString(),
                     experimentalEnabled: ${experimental},
-                    openInDiagram: args[0].openInDiagram
+                    openInDiagram: args[0].openInDiagram,
+                    viewMode: ${viewMode},
+                    projectPaths: ${viewMode === ViewMode.OVERVIEW ? JSON.stringify(workspace.workspaceFolders) : 'undefined'}
                 });
                 return Promise.resolve({});
             });
@@ -383,12 +396,14 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 return Promise.resolve({});
             });
             drawDiagram({
-                filePath: ${JSON.stringify(ballerinaFilePath)},
+                filePath: ${viewMode === ViewMode.LOW_CODE ? JSON.stringify(ballerinaFilePath) : 'undefined'},
                 startLine: ${startLine},
                 startColumn: ${startColumn},
                 lastUpdatedAt: (new Date()).toISOString(),
                 experimentalEnabled: ${experimental},
-                openInDiagram: ${JSON.stringify(openInDiagram)}
+                openInDiagram: ${JSON.stringify(openInDiagram)},
+                viewMode: ${viewMode},
+                projectPaths: ${viewMode === ViewMode.OVERVIEW ? JSON.stringify(workspace.workspaceFolders) : 'undefined'}
             });
 
             window.addEventListener('focus', event => {

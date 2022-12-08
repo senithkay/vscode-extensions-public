@@ -24,7 +24,6 @@ import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { DataMapperOverlay } from "./components/DataMapperOverlay";
 import { ConnectorWizard } from "./components/FormComponents/ConfigForms/ConnectorWizard";
-import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
 import "./style.scss";
@@ -55,8 +54,6 @@ export function Diagram() {
             }
         },
         props: {
-            diagnostics,
-            warnings,
             syntaxTree,
             isLoadingAST,
             isReadOnly,
@@ -71,12 +68,8 @@ export function Diagram() {
     } = useContext(DiagramContext);
 
     const classes = useStyles();
-    const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
-    const numberOfErrors = diagnostics && diagnostics.length;
-    const numberOfWarnings = (warnings && warnings.length);
     // const diagramErrors = diagnostics && diagnostics.length > 0;
     // const diagramWarnings = warnings && warnings.length > 0;
-    const warningsInDiagram = warnings && warnings.length > 0;
     // const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
@@ -84,8 +77,6 @@ export function Diagram() {
     const [connectorWizardProps, setConnectorWizardProps] = useState<ConnectorWizardProps>(undefined);
     const [isDialogActive, setIsDialogActive] = useState(false);
     const [activeDialog, setActiveDialog] = useState(undefined);
-    const [activePlusWidget, setActivePlusWidget] = useState(undefined);
-    const [isPlusWidgetActive, setIsPlusWidgetActive] = useState(false);
 
     let isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
 
@@ -127,13 +118,7 @@ export function Diagram() {
         }
     }, [openInDiagram]);
 
-    const openErrorDialog = () => {
-        // setIsErrorStateDialogOpen(true);
-    }
 
-    const closeErrorDialog = () => {
-        // setIsErrorStateDialogOpen(false);
-    }
 
     const handleDiagramAdd = (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => {
         setFormConfig({
@@ -288,8 +273,7 @@ export function Diagram() {
         component: any,
         content?: string,
         onClick?: () => void,
-        model?: STNode,
-        additionalParams?: any): any => {
+        model?: STNode): any => {
         return (
             <DiagramTooltipCodeSnippet content={content} componentModel={model} onClick={onClick}  >
                 {component}
@@ -339,7 +323,6 @@ export function Diagram() {
     // const child = getSTComponent(syntaxTree); // TODO: Handle datamapper switching logic
     const viewState = syntaxTree.viewState as ViewState;
     let h = viewState.bBox.h ? (viewState.bBox.h + DefaultConfig.canvas.childPaddingY) : DefaultConfig.canvas.height;
-    const w = viewState.bBox.w ? (viewState.bBox.w + DefaultConfig.canvas.childPaddingX) : DefaultConfig.canvas.width;
 
     if (h < window.innerHeight) {
         h = h + (window.innerHeight - h);

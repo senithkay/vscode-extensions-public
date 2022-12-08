@@ -18,7 +18,7 @@
 import { createElement } from "react";
 import { render } from "react-dom";
 
-import { Diagram, EditorProps, OverviewDiagram } from "./Diagram";
+import { Diagram, EditorProps, WorkspaceOverview } from "./Diagram";
 
 export function renderDiagramEditor(options: { target: HTMLElement, editorProps: EditorProps }) {
     const DiagramElement = createElement(Diagram, options.editorProps);
@@ -30,6 +30,6 @@ export function renderOverviewDiagram(options: {
     target: HTMLElement,
     editorProps: EditorProps
 }) {
-    const DiagramElement = createElement(OverviewDiagram, options.editorProps);
+    const DiagramElement = createElement(WorkspaceOverview, options.editorProps);
     return render(DiagramElement, options.target);
 }

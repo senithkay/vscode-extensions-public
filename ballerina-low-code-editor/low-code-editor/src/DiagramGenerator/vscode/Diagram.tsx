@@ -3,14 +3,24 @@ import * as React from "react";
 import { ANALYZE_TYPE, CommandResponse, DiagramEditorLangClientInterface, GetSyntaxTreeResponse, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramGenerator } from "..";
+import { LowCodeDiagramGenerator, OverviewDiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
 import { PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from "../performanceUtil";
 
 import './style.scss';
 
+// TODO: check if there is a way to take this from the vscode dependency
+export interface WorkspaceFolder {
+    readonly uri: {
+        external: string
+    };
+    readonly name: string;
+    readonly index: number;
+}
+
 export interface EditorState {
-    filePath: string;
+    filePath?: string;
+    projectPaths?: WorkspaceFolder[],
     langClientPromise: Promise<DiagramEditorLangClientInterface>;
     startColumn: number;
     startLine: number;
@@ -55,11 +65,11 @@ export enum PALETTE_COMMANDS {
 
 export type EditorProps = EditorState & EditorAPI;
 
-export const OverviewDiagram: React.FC<EditorProps> = (props: EditorProps) => {
+export const WorkspaceOverview: React.FC<EditorProps> = (props: EditorProps) => {
     return (
-        <div>
-            Hello 123
-        </div>
+        <OverviewDiagramGenerator
+            {...props}
+        />
     )
 }
 
@@ -78,7 +88,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
     return (
         <div className="lowcode-main-wrapper">
             <DiagramGenErrorBoundary lastUpdatedAt={restProps.lastUpdatedAt}>
-                <DiagramGenerator
+                <LowCodeDiagramGenerator
                     {...state}
                     getFileContent={getFileContent}
                     updateFileContent={updateFileContent}

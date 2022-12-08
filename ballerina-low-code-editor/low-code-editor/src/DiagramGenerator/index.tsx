@@ -20,6 +20,7 @@ import {
     CommandResponse, ConditionConfig,
     Connector,
     DiagramDiagnostic,
+    DiagramEditorLangClientInterface,
     DIAGRAM_MODIFIED,
     FunctionDef,
     getImportStatements,
@@ -56,6 +57,7 @@ import { addPerformanceData } from "./performanceUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
+import { OverviewDiagram } from "../OverviewDiagram";
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
@@ -69,7 +71,7 @@ const undoRedo = new UndoRedoManager();
 const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
 
-export function DiagramGenerator(props: DiagramGeneratorProps) {
+export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
     const {
         langClientPromise,
         filePath,
@@ -490,4 +492,12 @@ export function DiagramGenerator(props: DiagramGeneratorProps) {
             lastPerfUpdate = currentTime;
         }
     }
+}
+
+
+export function OverviewDiagramGenerator(props: EditorProps) {
+
+    return (
+        <OverviewDiagram {...props} />
+    )
 }

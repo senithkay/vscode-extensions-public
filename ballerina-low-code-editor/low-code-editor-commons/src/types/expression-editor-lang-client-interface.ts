@@ -31,7 +31,39 @@ export interface CompletionParams {
 }
 
 export interface BallerinaProjectComponents {
-    packages?: any[];
+    packages?: PackageSummary[];
+}
+
+export interface PackageSummary {
+    name: string,
+    filePath: string,
+    modules: ModuleSummary[]
+}
+
+export interface ComponentSummary {
+    functions: ComponentInfo[],
+    services: ComponentInfo[],
+    records: ComponentInfo[],
+    objects: ComponentInfo[],
+    classes: ComponentInfo[],
+    types: ComponentInfo[],
+    constants: ComponentInfo[],
+    enums: ComponentInfo[],
+    listeners: ComponentInfo[],
+    moduleVariables: ComponentInfo[],
+}
+
+export interface ModuleSummary extends ComponentSummary {
+    name: string
+}
+
+export interface ComponentInfo {
+    name: string,
+    filePath: string,
+    startLine: number,
+    startColumn: number,
+    endLine: number,
+    endColumn: number,
 }
 
 export interface GetBallerinaPackagesParams {

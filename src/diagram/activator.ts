@@ -34,7 +34,7 @@ import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEve
 import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { sep } from "path";
-import { CommandResponse, DiagramOptions, Member, SyntaxTree } from './model';
+import { CommandResponse, DiagramOptions, Member, SyntaxTree, ViewMode } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand, runBackgroundTerminalCommand, openExternalUrl } from '../utils/runCommand';
 import { Diagnostic } from '.';
@@ -73,8 +73,11 @@ let currentDocumentURI: Uri;
 let experimentalEnabled: boolean;
 let openNodeInDiagram: NodePosition;
 
+
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
-	isCommand: boolean = false, openInDiagram?): Promise<void> {
+	isCommand: boolean = false, openInDiagram?,
+	mode: ViewMode = ViewMode.LOW_CODE): Promise<void> {
+	console.log('>>> show diagram', mode);
 
 	openNodeInDiagram = openInDiagram;
 	const editor = window.activeTextEditor;
@@ -97,14 +100,16 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			fileUri: editor!.document.uri,
 			startLine: editor!.selection.active.line,
 			startColumn: editor!.selection.active.character,
-			isDiagram: true
+			isDiagram: true,
+			viewMode: mode
 		};
 	} else {
 		diagramElement = {
 			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
 			startLine,
 			startColumn,
-			isDiagram: true
+			isDiagram: true,
+			viewMode: mode
 		};
 	}
 
@@ -194,8 +199,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				filePath: path,
 				startLine: 0,
 				startColumn: 0,
-				openInDiagram: position
+				openInDiagram: position,
+				viewMode: diagramElement?.viewMode
 			}];
+			console.log('update diagram in registerCommand >>>', args)
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 		}
 	});
@@ -222,7 +229,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : {});
+				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : {}, ViewMode.OVERVIEW);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
@@ -232,6 +239,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
+	context.subscriptions.push(diagramRenderDisposableAlt);
 	experimentalEnabled = ballerinaExtension.enabledExperimentalFeatures();
 }
 
@@ -585,7 +593,7 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram, this.webviewPanel.webview);
+					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram, diagramElement.viewMode || ViewMode.LOW_CODE, this.webviewPanel.webview);
 			} else {
 				callUpdateDiagramMethod();
 			}
@@ -636,6 +644,7 @@ export function callUpdateDiagramMethod() {
 		startLine: diagramElement!.startLine,
 		startColumn: diagramElement!.startColumn
 	}];
+	console.log('>>> updatediagram args', args);
 	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 }
 
