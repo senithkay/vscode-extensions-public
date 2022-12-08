@@ -25,6 +25,7 @@ type Output record {
         string Id;
         boolean Confirmed;
     }[] Items;
+    InnerOutput[] innerOutput;
     string[] stArr;
 };
 
@@ -32,16 +33,21 @@ type UpdatedOutput record {
     string st1;
 };
 
+type InnerOutput record {
+    string st1;
+    int i1;
+};
+
 function unsupportedTransform(Input[]|error? input) returns Output? => {};
 
 function incompleteTransform() => {};
 
 function transform(Input input, SecondInput secondInput) returns Output => {
-    Items: from var ItemsItem in input.Items
+    innerOutput: from var ItemsItem in input.Items
         where true
         let var updatedName = "strValue"
         select {
-            Id: ItemsItem.Id + updatedName,
-            Confirmed:
+            st1: ItemsItem.Id + updatedName,
+            i1:
         }
 };
