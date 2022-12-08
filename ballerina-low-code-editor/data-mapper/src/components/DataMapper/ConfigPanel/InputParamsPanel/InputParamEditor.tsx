@@ -10,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda
 import React, {  useState } from "react";
 
 import styled from "@emotion/styled";
@@ -18,6 +20,7 @@ import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/
 import camelCase from 'lodash.camelcase';
 
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
+
 import { DataMapperInputParam } from "./types";
 
 interface InputParamEditorProps {
@@ -97,28 +100,30 @@ export function InputParamEditor(props: InputParamEditorProps) {
                         recordCompletions={completions}
                     />
                 </Grid>
-                {!hideName && <Grid item={true} xs={4}>
-                    <IputLabel>Name</IputLabel>
-                    <FormTextInput
-                        defaultValue={paramName}
-                        customProps={{ validate: validateNameValue }}
-                        onChange={setParamName}
-                        errorMessage={pramError}
-                    />
-                </Grid>}
-                
+                {!hideName && (
+                    <Grid item={true} xs={4}>
+                        <IputLabel>Name</IputLabel>
+                        <FormTextInput
+                            defaultValue={paramName}
+                            customProps={{ validate: validateNameValue }}
+                            onChange={setParamName}
+                            errorMessage={pramError}
+                        />
+                    </Grid>
+                )}
+
             </Grid>
             <Box mt={1}/>
             <Grid container={true} item={true} spacing={2}>
                 <Grid item={true} xs={6}>
                     <FormControlLabel
-                        control={
+                        control={(
                             <Checkbox
                                 checked={isArray}
                                 onChange={(event) => setIsArray(event.target.checked)}
                                 color="primary"
                             />
-                        }
+                        )}
                         label="Is Array"
                     />
                 </Grid>

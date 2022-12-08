@@ -18,12 +18,12 @@ import { WarningBanner } from "@wso2-enterprise/ballerina-low-code-edtior-ui-com
 
 import { Title } from "../DataMapperConfigPanel";
 import { RecordButtonGroup } from "../RecordButtonGroup";
+import { CompletionResponseWithModule } from "../TypeBrowser";
 import { getTypeIncompatibilityMsg } from "../utils";
 
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";
-import { CompletionResponseWithModule } from "../TypeBrowser";
 
 export interface InputConfigWidgetProps {
     inputParams: DataMapperInputParam[];

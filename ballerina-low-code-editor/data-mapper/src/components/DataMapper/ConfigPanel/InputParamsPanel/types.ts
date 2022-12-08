@@ -16,14 +16,14 @@ export interface DataMapperInputParam {
     type: string;
     isUnsupported?: boolean;
     typeNature?: TypeNature;
-    isArray: boolean;
+    isArray?: boolean;
 }
 
 export interface DataMapperOutputParam {
     type: string;
     isUnsupported?: boolean;
     typeNature?: TypeNature;
-    isArray: boolean;
+    isArray?: boolean;
 }
 
 export enum TypeNature {

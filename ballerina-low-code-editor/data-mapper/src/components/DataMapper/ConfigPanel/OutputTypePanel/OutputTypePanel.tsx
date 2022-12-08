@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda
 import React from "react";
 
 import styled from "@emotion/styled";
@@ -18,11 +19,11 @@ import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import { ButtonWithIcon, WarningBanner } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { Title } from "../DataMapperConfigPanel";
+import { InputParamEditor } from "../InputParamsPanel/InputParamEditor";
 import { DataMapperOutputParam } from "../InputParamsPanel/types";
 import { RecordButtonGroup } from "../RecordButtonGroup";
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
 import { getTypeIncompatibilityMsg } from "../utils";
-import { InputParamEditor } from "../InputParamsPanel/InputParamEditor";
 
 export interface OutputConfigWidgetProps {
     outputType: DataMapperOutputParam;
