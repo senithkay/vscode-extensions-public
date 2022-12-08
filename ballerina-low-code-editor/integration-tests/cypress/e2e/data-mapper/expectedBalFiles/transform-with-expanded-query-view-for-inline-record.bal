@@ -42,4 +42,12 @@ function unsupportedTransform(Input[]|error? input) returns Output? => {};
 
 function incompleteTransform() => {};
 
-function transform(Input input, SecondInput secondInput) returns Output => {};
+function transform(Input input, SecondInput secondInput) returns Output => {
+    Items: from var ItemsItem in input.Items
+        where true
+        let var updatedName = "strValue"
+        select {
+            Id: ItemsItem.Id + updatedName,
+            Confirmed:
+        }
+};
