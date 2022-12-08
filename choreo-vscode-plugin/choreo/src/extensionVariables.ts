@@ -15,10 +15,10 @@ export namespace ext {
         // auth releated
         export let onStatusChanged: EventEmitter<ChoreoLoginStatus>;
 
-        let choreoSession: ChoreoSession = { loginStatus: false };
+        export let choreoSession: ChoreoSession = { loginStatus: false };
 
         export function setChoreoSession(choreoSession: ChoreoSession) {
-            choreoSession = choreoSession;
+            ext.auth.choreoSession = choreoSession;
             commands.executeCommand('setContext', choreoSignedInCtxKey, choreoSession.loginStatus);
         }
 
@@ -31,7 +31,7 @@ export namespace ext {
                     new OAuthTokenHandler().exchangeRefreshToken(choreoSession.choreoRefreshToken!);
                 }
             }
-            return choreoSession;
+            return ext.auth.choreoSession;
         }
         // end auth related
     }

@@ -1,5 +1,6 @@
 import path = require("path");
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
+import { Organization } from "../../api/types";
 
 /**
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
@@ -18,15 +19,14 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
  * specific language governing permissions and limitations
  * under the License.
  */
-export class ChoreoProjectTreeItem extends TreeItem {
+export class ChoreoOrgTreeItem extends TreeItem {
     constructor(
-      public readonly label: string,
-      private version: string,
+      public readonly org: Organization,
       public readonly collapsibleState: TreeItemCollapsibleState
     ) {
-      super(label, collapsibleState);
-      this.tooltip = `${this.label}-${this.version}`;
-      this.description = this.version;
+      super(org.handle, collapsibleState);
+      this.tooltip = `Organization: ${org.name}`;
+      this.description = 'Organization';
     }
   
     iconPath = {

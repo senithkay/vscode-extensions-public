@@ -15,27 +15,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
+import { reject } from "lodash";
+import { ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
+import { getUserInfo } from "../../api/user";
 import { ext } from "../../extensionVariables";
-import { ChoreoProjectTreeItem } from "./ProjectsTreeItem";
+import { ChoreoOrgTreeItem } from "./OrganizationTreeItem";
 
  
- export class ProjectsTreeProvider implements TreeDataProvider<ChoreoProjectTreeItem> {
+ export class ProjectsTreeProvider implements TreeDataProvider<ChoreoOrgTreeItem> {
 
      getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
          return element;
      }
  
-     getChildren(element?: TreeItem): ProviderResult<ChoreoProjectTreeItem[]> {
-        return new Promise(async (resolve) => {
-           const loginSuccess = await ext.api.waitForLogin();
-           if (loginSuccess) {
-                resolve([]);
-           }
-        });
+     getChildren(element?: TreeItem): ProviderResult<ChoreoOrgTreeItem[]> {
+        if (!element) {
+            return this.loadOrgTree();
+        } else if (element instanceof ChoreoOrgTreeItem) {
+            
+        }
      }
  
      refresh(): void {
+     }
+
+     private async loadOrgTree(): Promise<ChoreoOrgTreeItem[]> {
+        return new Promise(async (resolve) => {
+            const loginSuccess = await ext.api.waitForLogin();
+            if (loginSuccess) {
+                 const userInfo = await getUserInfo();
+                 if (userInfo.organizations && userInfo.organizations.length > 0) {
+                     const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.Collapsed));
+                     resolve(treeItems);
+                     return;
+                 }
+            } 
+            reject("Cannot fetch organizations of the user.");
+         });
      }
  }
  

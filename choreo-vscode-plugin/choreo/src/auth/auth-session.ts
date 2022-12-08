@@ -16,38 +16,11 @@
  * under the License.
  *
  */
-import { readFileSync, existsSync } from "fs";
 import { ChoreoSessionConfig } from "./config";
 import keytar = require("keytar");
-import path = require("path");
 import { ChoreoSession } from "./session";
-const os = require("os");
-const KEY_FILE_PATH = path.join(os.homedir(), ".config", "choreo", "vscode", "auth.json");
 
 export async function getChoreoKeytarSession(): Promise<ChoreoSession> {
-    if (existsSync(KEY_FILE_PATH)) {
-        const data = readFileSync(KEY_FILE_PATH, { encoding: 'utf-8' });
-        const session = JSON.parse(data).session;
-        return {
-            loginStatus: true,
-            choreoUser: session.username,
-            choreoAccessToken: session.token,
-            choreoRefreshToken: session.refreshToken,
-            choreoLoginTime: new Date()
-        };
-    }
-
-    if (process.env.OVERRIDE_CHOREO_AUTHENTICATION === 'true' && process.env.VSCODE_CHOREO_SESSION_USERNAME
-        && process.env.VSCODE_CHOREO_SESSION_TOKEN) {
-        return {
-            loginStatus: true,
-            choreoUser: process.env.VSCODE_CHOREO_SESSION_USERNAME,
-            choreoAccessToken: process.env.VSCODE_CHOREO_SESSION_TOKEN,
-            choreoRefreshToken: process.env.VSCODE_CHOREO_REFRESH_TOKEN,
-            choreoLoginTime: new Date()
-        };
-    }
-
     let choreoAccessToken: string | null = null;
     await keytar.getPassword(ChoreoSessionConfig.serviceName, ChoreoSessionConfig.accessToken).then((result) => {
         choreoAccessToken = result;

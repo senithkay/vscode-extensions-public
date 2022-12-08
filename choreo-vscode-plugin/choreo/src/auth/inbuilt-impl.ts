@@ -26,6 +26,7 @@ import { ChoreoFidp } from "./config";
 import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
+import { ChoreoSession } from './session';
 
 const challenge = pkceChallenge();
 
@@ -81,8 +82,11 @@ export class OAuthTokenHandler {
                     if (userName) {
                         this.displayName = userName;
                     }
-
-                    await this.exchangeApimToken(token);
+                    setSessionFromTokenResponse(response, this.displayName);
+                    // FIXME: Stop token exchange and use current token for Choreo Extension
+                    // If we need to exchange it for an APIM token in future, eg: for perf forecaster, 
+                    // lets continue the below flow and capture those into a seperate state.
+                    // await this.exchangeApimToken(token);
                 } else {
                     vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
                 }
@@ -159,25 +163,7 @@ export class OAuthTokenHandler {
             }
         ).then(async (response) => {
             if (response) {
-                let vscodeToken = response.data.access_token;
-                let refreshToken = response.data.refresh_token;
-                let loginTime = new Date();
-                let expirationTime = response.data.expires_in;
-                await setChoreoKeytarSession(String(vscodeToken), String(this.displayName),
-                    String(refreshToken), String(loginTime), String(expirationTime));
-
-                await getChoreoKeytarSession().then((result) => {
-                    ext.auth.setChoreoSession(result);
-                    if (result.loginStatus) {
-                        this.status = true;
-                        ext.auth.onStatusChanged.fire('LoggedIn');
-                        // Show the success message in vscode.
-                        vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
-                        // this.extension.getChoreoSessionTreeProvider()?.refresh();
-                    } else {
-                        vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
-                    }
-                });
+                this.status = await setSessionFromTokenResponse(response, this.displayName);
             } else {
                 vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
             }
@@ -209,26 +195,7 @@ export class OAuthTokenHandler {
             }
         ).then(async (response) => {
             if (response) {
-                let accessToken = response.data.access_token;
-                let newRefreshToken = response.data.refresh_token;
-                let loginTime = new Date();
-                let expirationTime = response.data.expires_in;
-                await setChoreoKeytarSession(String(accessToken), String(this.displayName),
-                    String(newRefreshToken), String(loginTime), String(expirationTime));
-
-                await getChoreoKeytarSession().then((result) => {
-                    ext.auth.setChoreoSession(result);
-                    if (result.loginStatus) {
-                        this.status = true;
-                        ext.auth.onStatusChanged.fire('LoggedIn');
-                        // Show the success message in vscode.
-                        vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
-                        // this.extension.getChoreoSessionTreeProvider()?.refresh();
-                    } else {
-                        vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
-                        this.signOut();
-                    }
-                });
+                this.status = await setSessionFromTokenResponse(response, this.displayName);
             } else {
                 vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
                 this.signOut();
@@ -248,7 +215,6 @@ export class OAuthTokenHandler {
         ext.auth.setChoreoSession({
             loginStatus: false
         });
-        // this.extension.getChoreoSessionTreeProvider()?.refresh();
     }
 
     public async registerAnonUser(token: string) {
@@ -281,4 +247,28 @@ function getAuthURL(): string {
         + `&code_challenge_method=S256&code_challenge=${challenge.code_challenge}`
         + `&fidp=${choreoAuthConfig.getFidp()}&redirect_uri=${choreoAuthConfig.getRedirectUri()}&`
         + `client_id=${choreoAuthConfig.getClientId()}&scope=${choreoAuthConfig.getScope()}`;
+}
+
+
+async function setSessionFromTokenResponse(tokenResp: any, displayName: string) {
+    let vscodeToken = tokenResp.data.access_token;
+    let refreshToken = tokenResp.data.refresh_token;
+    let loginTime = new Date();
+    let expirationTime = tokenResp.data.expires_in;
+    let status: boolean = false;
+    await setChoreoKeytarSession(String(vscodeToken), String(displayName),
+        String(refreshToken), String(loginTime), String(expirationTime));
+
+    await getChoreoKeytarSession().then((result) => {
+        if (result.loginStatus) {
+            status = true;
+            ext.auth.setChoreoSession(result);
+            ext.auth.onStatusChanged.fire('LoggedIn');
+            // Show the success message in vscode.
+            vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
+        } else {
+            vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
+        }
+    });
+    return status;
 }
