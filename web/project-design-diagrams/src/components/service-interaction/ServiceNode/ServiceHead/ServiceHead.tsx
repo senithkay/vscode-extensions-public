@@ -71,6 +71,10 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
             />
+            <ServicePortWidget
+                port={node.getPort(`top-${node.getID()}`)}
+                engine={engine}
+            />
         </ServiceHead>
     )
 }

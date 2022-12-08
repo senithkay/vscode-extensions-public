@@ -17,7 +17,7 @@
  *
  */
 
-import React, {CSSProperties } from 'react';
+import React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { GatewayNodeModel } from './GatewayNodeModel';
 import { GatewayContainer } from './style';
@@ -45,12 +45,10 @@ export function GatewayNodeWidget(props: GatewayNodeWidgetProps) {
             transform = 'rotate(0)';
             break;
         case 'EAST':
-            transform = 'rotate(90deg)';
             topMargin = 200;
             leftMargin = 1000;
             break;
         case 'WEST':
-            transform = 'rotate(-90deg)';
             break;
         default:
     }
@@ -65,10 +63,12 @@ export function GatewayNodeWidget(props: GatewayNodeWidgetProps) {
             <GatewayPortWidget
                 port={node.getPort('in') as GatewayPortModel}
                 engine={engine}
+                type={node.type}
             />
             <GatewayPortWidget
                 port={node.getPort('out') as GatewayPortModel}
                 engine={engine}
+                type={node.type}
             />
         </GatewayContainer>
     );

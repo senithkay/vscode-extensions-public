@@ -39,6 +39,7 @@ export class ServiceNodeModel extends SharedNodeModel {
 
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.LEFT));
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.RIGHT));
+		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.TOP));
 
 		if (level === Level.TWO) {
 			this.serviceObject.resources.forEach(resource => {

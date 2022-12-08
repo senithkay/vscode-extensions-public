@@ -17,38 +17,44 @@
  *
  */
 import React, { CSSProperties } from 'react';
-import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams-core';
 import { GatewayPortModel } from './GatewayPortModel';
-import {GatewayPort} from "./style";
+import { GatewayType } from "../types";
 
 interface GatewayPortWidgetProps {
     engine: DiagramEngine;
     port: GatewayPortModel;
+    type: GatewayType;
 }
 
 export function GatewayPortWidget(props: GatewayPortWidgetProps) {
-    const { engine, port } = props;
-    // const portStyles: CSSProperties =
-    //   port.getOptions().alignment === PortModelAlignment.TOP
-    //     ? { top: 0 }
-    //     : { top: 32 };
-    // const portStyles: CSSProperties = {top: 0};
-
-    // const classes = useStyles();
+    const { engine, port, type } = props;
+    let portStyles: CSSProperties = { bottom: 0 };
+    switch (type) {
+        case 'NORTH':
+            portStyles = { top: 30, left: 40 };
+            break;
+        case 'EAST':
+            portStyles = { top: 12 };
+            break;
+        case 'SOUTH':
+            portStyles = { top: 12, left: 40 };
+            break;
+        case 'WEST':
+            portStyles = { top: 12, left: 40 };
+            break;
+    }
 
     return (
-        <GatewayPort>
-            <PortWidget
-                port={port}
-                engine={engine}
-                // style={{
-                //     top: 32,
-                //     backgroundColor: 'red',
-                //     width: 10,
-                //     height: 10
-                // }}
-            />
-        </GatewayPort>
+        <PortWidget
+            port={port}
+            engine={engine}
+            style={{
+                height: '5px',
+                position: 'absolute',
+                width: '2px',
+                ...portStyles
+            }}
+        />
     );
 }
