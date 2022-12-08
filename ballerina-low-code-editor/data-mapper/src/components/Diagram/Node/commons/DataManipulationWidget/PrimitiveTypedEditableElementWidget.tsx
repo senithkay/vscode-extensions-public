@@ -90,18 +90,16 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
                 onClick: handleEditable
             }
         ];
-        if (value !== getDefaultValue(field.type)) {
-            if (isArrayElement) {
-                items.push({
-                    title: ValueConfigOption.DeleteElement,
-                    onClick: handleDelete
-                });
-            } else {
-                items.push({
-                    title: ValueConfigOption.DeleteValue,
-                    onClick: handleDelete
-                });
-            }
+        if (isArrayElement) {
+            items.push({
+                title: ValueConfigOption.DeleteElement,
+                onClick: handleDelete
+            });
+        } else if (value !== getDefaultValue(field.type)) {
+            items.push({
+                title: ValueConfigOption.DeleteValue,
+                onClick: handleDelete
+            });
         }
         return items;
     }, [value]);
