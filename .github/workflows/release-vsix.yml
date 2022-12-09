@@ -8,7 +8,7 @@ on:
 
 jobs:
   Build:
-    uses: ./.github/template/build.yml
+    uses: ./.github/workflows/build.yml
     with:
       isRelease: true
 
