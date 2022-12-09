@@ -48,10 +48,11 @@ export class RecordTypeFindingVisitor implements Visitor {
                     line: (node.functionName.position as NodePosition).startLine,
                     offset: (node.functionName.position as NodePosition).startColumn
                 },
-                returnTypeDescPosition: {
-                    line: (node.functionSignature.returnTypeDesc.type.position as NodePosition).startLine,
-                    offset: (node.functionSignature.returnTypeDesc.type.position as NodePosition).startColumn
-                }
+                returnTypeDescPosition: node.functionSignature?.returnTypeDesc ?
+                    {
+                        line: (node.functionSignature.returnTypeDesc.type.position as NodePosition).startLine,
+                        offset: (node.functionSignature.returnTypeDesc.type.position as NodePosition).startColumn
+                    } : null
             }
         } else {
             node.functionSignature.parameters.map((param: STNode) => {

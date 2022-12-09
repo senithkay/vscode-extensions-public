@@ -44,7 +44,7 @@ import { StatementEditorComponent } from "../StatementEditorComponent/StatementE
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { DataMapperInputParam, DataMapperOutputParam } from "./ConfigPanel/InputParamsPanel/types";
-import { getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
+import { getFnNameFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
@@ -209,6 +209,7 @@ function DataMapperC(props: DataMapperProps) {
     const [collapsedFields, setCollapsedFields] = React.useState<string[]>([]);
     const [inputs, setInputs] = useState<DataMapperInputParam[]>();
     const [output, setOutput] = useState<DataMapperOutputParam>();
+    const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [nodeSetupCounter, setNodeSetupCounter] = useState(0);
     const { setFunctionST, setImports } = useDMStore();
 
@@ -230,9 +231,11 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
-    const onConfigSave = (fnName: string) => {
+    const onConfigSave = (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => {
         setConfigPanelOpen(false);
-        onSave(fnName);
+        setInputs(inputParams);
+        setOutput(outputType);
+        onSave(funcName);
     }
 
     const enableStatementEditor = (expressionInfo: ExpressionInfo) => {
@@ -337,24 +340,36 @@ function DataMapperC(props: DataMapperProps) {
     useEffect(() => {
         if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
             if (fnST) {
-                if (nodes.length > 0) {
-                    const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
-                        || [];
-                    setInputs(inputParams);
-                    const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
-                        || { type: undefined };
-                    setOutput(outputType);
-                } else {
-                    if (fnST.functionSignature.parameters.length === 0) {
-                        setInputs([]);
-                    }
-                    if (!fnST.functionSignature?.returnTypeDesc) {
-                        setOutput({ type: undefined });
+                const hasSwitchFunction = fnName !== getFnNameFromST(fnST);
+                if (hasSwitchFunction) {
+                    if (nodes.length > 0) {
+                        // When open the DM of an existing function using code lens
+                        const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
+                            || [];
+                        setInputs(inputParams);
+                        const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
+                            || { type: undefined, isUnsupported: true };
+                        setOutput(outputType);
+                        setFnName(getFnNameFromST(fnST));
+                    } else {
+                        // When open the DM of an existing incomplete function using code lens
+                        const hasNoParameter = fnST.functionSignature.parameters.length === 0;
+                        const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
+                        if (hasNoParameter) {
+                            setInputs([]);
+                        }
+                        if (hasNoReturnType) {
+                            setOutput({ type: undefined, isUnsupported: true });
+                        }
+                        if (hasNoParameter || hasNoReturnType) {
+                            setFnName(getFnNameFromST(fnST));
+                        }
                     }
                 }
             } else {
+                // When open the DM using the main menu
                 setInputs([]);
-                setOutput({ type: undefined });
+                setOutput({ type: undefined, isUnsupported: true });
             }
         }
     }, [nodeSetupCounter])

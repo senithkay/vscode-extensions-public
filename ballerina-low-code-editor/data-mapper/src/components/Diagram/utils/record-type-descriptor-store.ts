@@ -93,10 +93,7 @@ export class RecordTypeDescriptorStore {
                                            fileUri: string,
                                            fnDefPositions: FnDefPositions) {
 
-        if (!fnDefPositions.fnNamePosition || !fnDefPositions.returnTypeDescPosition) {
-            return;
-        }
-        const typesFromSymbol = await langClient.getTypesFromFnDefinition({
+        const FnParamsAndReturnType = await langClient.getTypesFromFnDefinition({
             documentIdentifier: {
                 uri: fileUri
             },
@@ -104,13 +101,13 @@ export class RecordTypeDescriptorStore {
             returnTypeDescPosition: fnDefPositions.returnTypeDescPosition
         });
 
-        for (const {type, requestedPosition} of typesFromSymbol.types) {
+        for (const {type, requestedPosition} of FnParamsAndReturnType.types) {
             this.setTypeDescriptors(type, requestedPosition);
         }
     }
 
     setTypeDescriptors(type: Type, startPosition: LinePosition, endPosition?: LinePosition) {
-        if (type) {
+        if (type && startPosition) {
             const position: NodePosition = {
                 startLine: startPosition.line,
                 startColumn: startPosition.offset,

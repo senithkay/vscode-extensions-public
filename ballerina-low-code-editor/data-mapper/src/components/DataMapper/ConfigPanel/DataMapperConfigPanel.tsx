@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { FocusEvent, useContext, useEffect, useState } from "react";
+import React, { FocusEvent, useContext, useEffect, useMemo, useState } from "react";
 
 import styled from "@emotion/styled";
 import Divider from "@material-ui/core/Divider/Divider";
@@ -68,7 +68,7 @@ export interface DataMapperConfigPanelProps {
         path: string,
         size: number
     };
-    onSave: (fnName: string) => void;
+    onSave: (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => void;
     onClose: () => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element;
@@ -107,8 +107,15 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const [initiated, setInitiated] = useState(false);
     const [isValidationInProgress, setValidationInProgress] = useState(false);
 
-    const hasInvalidInputs = inputParams.some(input => input.isUnsupported);
-    const isValidConfig = fnName && inputParams.length > 0 && !hasInvalidInputs && outputType.type !== "" && !outputType.isUnsupported && dmFuncDiagnostic === "";
+    const isValidConfig = useMemo(() => {
+        const hasInvalidInputs = inputParams.some(input => input.isUnsupported);
+        return fnName
+            && inputParams.length > 0
+            && !hasInvalidInputs
+            && outputType.type !== ""
+            && !outputType.isUnsupported
+            && dmFuncDiagnostic === "";
+    }, [fnName, inputParams, outputType, dmFuncDiagnostic])
 
     useEffect(() => {
         void (async () => {
@@ -191,7 +198,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                 )
             );
         }
-        onSave(fnName);
+        onSave(fnName, inputParams, outputType);
         void applyModifications(modifications);
     };
 
@@ -270,7 +277,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     };
 
     const handleOutputDeleteClick = () => {
-        setOutputType({ type: undefined});
+        setOutputType({ type: undefined, isUnsupported: true});
         setShowOutputType(false);
     };
 
