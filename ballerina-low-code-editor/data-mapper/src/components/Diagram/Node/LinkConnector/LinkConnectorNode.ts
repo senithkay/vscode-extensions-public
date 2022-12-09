@@ -24,6 +24,7 @@ import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import {
@@ -232,8 +233,13 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public deleteLink(): void {
         const targetField = this.targetPort.field;
         let modifications: STModification[];
-        if (!targetField?.name && targetField?.typeName !== PrimitiveBalType.Array
+        const selectedST = this.context.selection.selectedST.stNode;
+        const exprFuncBodyPosition: NodePosition = STKindChecker.isFunctionDefinition(selectedST)
+            && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
+            && selectedST.functionBody.expression.position;
+        if ((!targetField?.name && targetField?.typeName !== PrimitiveBalType.Array
             && targetField?.typeName !== PrimitiveBalType.Record)
+            || (isPositionsEquals(exprFuncBodyPosition, this.valueNode.position)))
         {
             // Fallback to the default value if the target is a primitive type element
             modifications = [{
