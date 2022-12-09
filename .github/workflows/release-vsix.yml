@@ -11,6 +11,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       isRelease: true
+    secrets: inherit  
 
   Release:
     name: Release VSIX
