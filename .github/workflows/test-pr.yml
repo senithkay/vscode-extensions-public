@@ -12,4 +12,6 @@ env:
 jobs:
   Build:
     uses: ./.github/template/build.yml
+    with:
+      isRelease: false
     

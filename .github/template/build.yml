@@ -2,6 +2,10 @@ name: Build and run Tests
 
 on: 
   workflow_call:
+    inputs:
+      isRelease:
+        required: true
+        type: boolean
 
 env:
   ballerina_version: 2201.2.3
@@ -31,7 +35,7 @@ jobs:
         run: npm run build
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
-          IS_RELEASE: ${{ false }}
+          IS_RELEASE: ${{ inputs.isRelease }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Compress build
