@@ -104,7 +104,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		if (!isValueEmpty) {
 			return updateValueExprSource(rhs, valuePosition, applyModifications);
 		}
-	} else if (isMappedToSelectClauseExprListConstructor(targetPort)) {
+	} else if (isMappedToSelectClauseExprConstructor(targetPort)) {
 		const exprPosition = (targetPort.editableRecordField.value as QueryExpression)
 			.selectClause.expression.position as NodePosition;
 		return updateValueExprSource(rhs, exprPosition, applyModifications);
@@ -1022,10 +1022,12 @@ function isMappedToMappingConstructorWithinArray(targetPort: RecordFieldPortMode
 		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value);
 }
 
-function isMappedToSelectClauseExprListConstructor(targetPort: RecordFieldPortModel): boolean {
+function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel): boolean {
 	return !targetPort.parentModel
 		&& targetPort.field.typeName === PrimitiveBalType.Array
 		&& targetPort?.editableRecordField?.value
 		&& STKindChecker.isQueryExpression(targetPort.editableRecordField.value)
-		&& STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression);
+		&& (STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression)
+			|| STKindChecker.isMappingConstructor(targetPort.editableRecordField.value.selectClause.expression)
+		);
 }
