@@ -55,6 +55,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
+    public mappings: FieldAccessToSpecificFied[];
     public x: number;
     public y: number;
 
@@ -113,8 +114,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
-        const mappings = this.genMappings(this.value.expression as MappingConstructor);
-        this.createLinks(mappings);
+        this.mappings = this.genMappings(this.value.expression as MappingConstructor);
+        this.createLinks(this.mappings);
     }
 
     private createLinks(mappings: FieldAccessToSpecificFied[]) {

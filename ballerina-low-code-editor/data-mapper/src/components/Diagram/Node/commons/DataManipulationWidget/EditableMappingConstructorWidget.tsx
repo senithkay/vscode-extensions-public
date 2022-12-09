@@ -22,7 +22,9 @@ import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
+import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
+import { isEmptyValue } from "../../../utils/dm-utils";
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
@@ -99,16 +101,35 @@ export interface EditableMappingConstructorWidgetProps {
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
 	valueLabel?: string;
+	mappings?: FieldAccessToSpecificFied[];
 	deleteField?: (node: STNode) => Promise<void>;
 }
 
 
 export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
-	const { id, editableRecordFields, typeName, value, engine, getPort, context, valueLabel, deleteField } = props;
+	const {
+        id,
+        editableRecordFields,
+        typeName,
+        value,
+        engine,
+        getPort,
+        context,
+        mappings,
+        valueLabel,
+        deleteField
+    } = props;
 	const classes = useStyles();
 
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
 	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
+	const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
+	const hasEmptyFields = mappings.length === 0 || !mappings.some(mapping => {
+        if (mapping.value) {
+            return !isEmptyValue(mapping.value.position);
+        }
+        return true;
+    });
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -143,8 +164,12 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
-					{portIn && (!hasValue || !expanded || !isBodyMappingConstructor) &&
-						<DataMapperPortWidget engine={engine} port={portIn} />
+					{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
+                            || !expanded
+                            || !isBodyMappingConstructor
+                            || hasEmptyFields
+                        ) &&
+                        <DataMapperPortWidget engine={engine} port={portIn}/>
 					}
 				</span>
 				<span className={classes.label}>
