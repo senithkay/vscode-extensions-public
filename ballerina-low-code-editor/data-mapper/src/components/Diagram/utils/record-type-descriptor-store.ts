@@ -93,6 +93,9 @@ export class RecordTypeDescriptorStore {
                                            fileUri: string,
                                            fnDefPositions: FnDefPositions) {
 
+        if (fnDefPositions.fnNamePosition === undefined || fnDefPositions.returnTypeDescPosition === undefined) {
+            return;
+        }
         const FnParamsAndReturnType = await langClient.getTypesFromFnDefinition({
             documentIdentifier: {
                 uri: fileUri
