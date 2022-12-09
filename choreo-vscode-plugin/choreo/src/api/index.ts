@@ -18,8 +18,10 @@
  *
  */
 import axios from "axios";
+import { GraphQLClient } from 'graphql-request';
+
 import { ext } from "../extensionVariables";
-import { API_BASE_URL } from "./config";
+import { API_BASE_URL, PROJECTS_API_URL } from "./config";
 
 export function getChoreoClient() {
     return axios.create({
@@ -27,4 +29,12 @@ export function getChoreoClient() {
         headers: {'Authorization': 'Bearer ' + ext.auth.getChoreoSession().choreoAccessToken},
     });
       
+}
+
+export function getProjectsApiClient() {
+    return new GraphQLClient(PROJECTS_API_URL, {
+        headers: {
+            Authorization: 'Bearer ' + ext.auth.getChoreoSession().choreoAccessToken,
+        },
+    });
 }

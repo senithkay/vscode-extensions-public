@@ -16,6 +16,18 @@
  * under the License.
  *
  */
-export const API_BASE_URL = 'https://app.choreo.dev';
+import * as gql from 'gql-query-builder';
+import { getProjectsApiClient } from '.';
+import { Project } from './types';
 
-export const PROJECTS_API_URL = 'https://apis.choreo.dev/projects/1.0.0/graphql';
+export function getProjectsByOrg(orgId: string): Promise<Project[]> {
+    const getProjectsByOrg = gql.query({
+        operation: 'projects',
+        variables: {
+            orgId: { value: orgId, required: true },
+        },
+        fields: ['id', 'orgId', 'name', 'version', 'createdDate', 'handler', 'region']
+    });
+
+    return getProjectsApiClient().request(getProjectsByOrg.query, getProjectsByOrg.variables);
+}

@@ -17,6 +17,7 @@
  */
 import { reject } from "lodash";
 import { ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
+import { getProjectsByOrg } from "../../api/queries";
 import { getUserInfo } from "../../api/user";
 import { ext } from "../../extensionVariables";
 import { ChoreoOrgTreeItem } from "./OrganizationTreeItem";
@@ -32,7 +33,11 @@ import { ChoreoOrgTreeItem } from "./OrganizationTreeItem";
         if (!element) {
             return this.loadOrgTree();
         } else if (element instanceof ChoreoOrgTreeItem) {
-            
+            const orgId = element.org.id;
+            getProjectsByOrg(orgId)
+                .then((projects) => {
+                    console.log(projects);
+                });
         }
      }
  
