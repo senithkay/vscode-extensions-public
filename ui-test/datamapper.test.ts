@@ -119,6 +119,9 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         const outputSelectionItem = await webview.findWebElement(By.xpath("//li/*/*[contains(text(),'Output')]"));
         await outputSelectionItem.click();
 
+        const outputUpdateButton = await webview.findWebElement(By.xpath("//button//*[contains(text(),'Update')]"));
+        await outputUpdateButton.click();
+
         // Click save button to create the data mapper transform function
         const saveButton = await webview.findWebElement(By.xpath("//button[@data-testid='save-btn']"));
         await saveButton.click();
