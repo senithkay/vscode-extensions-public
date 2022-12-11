@@ -30,11 +30,11 @@ import {
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, getMessageObject } from '../telemetry';
+import { CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM } from '../telemetry';
 import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse, PFSession } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { sep } from "path";
-import { CommandResponse, DiagramOptions, Member, SyntaxTree, ViewMode } from './model';
+import { CommandResponse, DiagramOptions, Member, SyntaxTree } from './model';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { runCommand, runBackgroundTerminalCommand, openExternalUrl } from '../utils/runCommand';
 import { Diagnostic } from '.';
@@ -75,20 +75,18 @@ let openNodeInDiagram: NodePosition;
 
 
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
-	isCommand: boolean = false, openInDiagram?,
-	mode: ViewMode = ViewMode.LOW_CODE): Promise<void> {
-	console.log('>>> show diagram', mode);
+	isCommand: boolean = false, openInDiagram?): Promise<void> {
 
 	openNodeInDiagram = openInDiagram;
 	const editor = window.activeTextEditor;
-	if (isCommand) {
-		if (!editor || !editor.document.fileName.endsWith('.bal')) {
-			const message = 'Current file is not a ballerina file.';
-			sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
-			window.showErrorMessage(message);
-			return;
-		}
-	}
+	// if (isCommand) {
+	// 	if (!editor || !editor.document.fileName.endsWith('.bal')) {
+	// 		const message = 'Current file is not a ballerina file.';
+	// 		sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
+	// 		window.showErrorMessage(message);
+	// 		return;
+	// 	}
+	// }
 
 	if (isCommand) {
 		if (!editor) {
@@ -101,7 +99,6 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			startLine: editor!.selection.active.line,
 			startColumn: editor!.selection.active.character,
 			isDiagram: true,
-			viewMode: mode
 		};
 	} else {
 		diagramElement = {
@@ -109,7 +106,6 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			startLine,
 			startColumn,
 			isDiagram: true,
-			viewMode: mode
 		};
 	}
 
@@ -200,7 +196,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				startLine: 0,
 				startColumn: 0,
 				openInDiagram: position,
-				viewMode: diagramElement?.viewMode
 			}];
 			console.log('update diagram in registerCommand >>>', args)
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
@@ -220,26 +215,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 			});
 	});
 
-	const diagramRenderDisposableAlt = commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM_ALT, (...args: any[]) => {
-		console.log(">>> hello from diagram alt", args);
-
-		console.log("project path >>>", workspace.workspaceFolders);
-
-		// TODO: update telemetry constants to overview diagram related stuff
-		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
-		return ballerinaExtInstance.onReady()
-			.then(() => {
-				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : {}, ViewMode.OVERVIEW);
-			})
-			.catch((e) => {
-				ballerinaExtInstance.showPluginActivationError();
-				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
-			});
-	});
-
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
-	context.subscriptions.push(diagramRenderDisposableAlt);
 	experimentalEnabled = ballerinaExtension.enabledExperimentalFeatures();
 }
 
@@ -593,7 +570,7 @@ class DiagramPanel {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
 				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram, diagramElement.viewMode || ViewMode.LOW_CODE, this.webviewPanel.webview);
+					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram, this.webviewPanel.webview);
 			} else {
 				callUpdateDiagramMethod();
 			}

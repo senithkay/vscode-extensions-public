@@ -36,13 +36,14 @@ import {
     STSymbolInfo,
     WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import messages from '../lang/en.json';
+import { OverviewDiagram } from "../OverviewDiagram";
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE, SelectedPosition } from "../types";
 import { init } from "../utils/sentry";
@@ -57,7 +58,7 @@ import { addPerformanceData } from "./performanceUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
-import { OverviewDiagram } from "../OverviewDiagram";
+import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
@@ -83,7 +84,8 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
         panY,
         resolveMissingDependency,
         openInDiagram,
-        experimentalEnabled
+        experimentalEnabled,
+        focusPosition
     } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
@@ -138,6 +140,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     }]
                 });
 
+
                 console.log('componenet test >>>', projectComponents);
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
@@ -146,7 +149,16 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
-                setSyntaxTree(vistedSyntaxTree);
+
+                if (focusPosition) {
+                    const stFindingVisitor = new STFindingVisitor();
+                    stFindingVisitor.setPosition(focusPosition);
+                    traversNode(vistedSyntaxTree, stFindingVisitor);
+                    setSyntaxTree(stFindingVisitor.getSTNode());
+                } else {
+                    setSyntaxTree(vistedSyntaxTree);
+                }
+
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
                 setLowCodeResourcesVersion(await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION"));

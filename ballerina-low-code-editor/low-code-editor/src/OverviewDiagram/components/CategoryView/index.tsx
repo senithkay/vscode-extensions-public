@@ -11,6 +11,7 @@
  * associated services.
  */
 
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import React from "react";
 
 import { ComponentViewInfo } from "../../util";
@@ -20,20 +21,21 @@ import './style.scss'
 
 interface CategoryViewProps {
     heading: string;
-    components: ComponentViewInfo[]
+    components: ComponentViewInfo[],
+    updateSelection: (position: NodePosition, file: string) => void;
 }
 
 export function CategoryView(props: CategoryViewProps) {
-    const { components, heading } = props;
+    const { components, heading, updateSelection } = props;
 
-    const views = components.map(comp => <ComponentView info={comp} />)
+    const views = components.map(comp => <ComponentView info={comp} updateSelection={updateSelection} />)
 
     return (
-        <>
+        <div>
             <h3>{heading}</h3>
             <div className="component-container">
                 {views}
             </div>
-        </>
+        </div>
     );
 }

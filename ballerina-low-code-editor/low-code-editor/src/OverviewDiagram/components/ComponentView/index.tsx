@@ -10,8 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
 import React from "react";
+
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { ComponentViewInfo } from "../../util";
 
@@ -19,12 +20,20 @@ import './style.scss';
 
 interface ComponentViewProps {
     info: ComponentViewInfo;
+    updateSelection: (position: NodePosition, file: string) => void;
 }
 
 export function ComponentView(props: ComponentViewProps) {
-    const { info } = props;
+    const { info, updateSelection } = props;
+    
+    const handleComponentClick = () => {
+        const {filePath, moduleName, folderPath, name, ...position} = info;
+        console.log(info);
+        updateSelection(position, "");
+    }
+
     return (
-        <div className="component">
+        <div className="component" onClick={handleComponentClick}>
             <div className="title label">{info.name.length ? info.name : '/'}</div>
             <div className="break" />
             <div className="file label">{info.filePath}</div>

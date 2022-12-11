@@ -29,7 +29,6 @@ export interface DiagramOptions {
     startColumn?: number;
     isDiagram: boolean;
     fileUri?: Uri;
-    viewMode?: ViewMode
 }
 
 export interface SyntaxTree {

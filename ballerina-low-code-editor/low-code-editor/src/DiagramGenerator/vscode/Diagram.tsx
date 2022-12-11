@@ -21,6 +21,7 @@ export interface WorkspaceFolder {
 export interface EditorState {
     filePath?: string;
     projectPaths?: WorkspaceFolder[],
+    focusPosition?: NodePosition,
     langClientPromise: Promise<DiagramEditorLangClientInterface>;
     startColumn: number;
     startLine: number;

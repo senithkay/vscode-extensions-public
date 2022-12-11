@@ -14,15 +14,20 @@
 import React, { useState } from "react";
 
 import { BallerinaProjectComponents, ComponentSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { EditorProps } from "../DiagramGenerator/vscode/Diagram";
+import { Diagram, EditorProps } from "../DiagramGenerator/vscode/Diagram";
 
-import { ComponentCollection } from "./util";
 import { CategoryView } from "./components/CategoryView";
+import { ComponentCollection } from "./util";
+
+export const DEFAULT_MODULE_NAME = 'default';
 
 export function OverviewDiagram(props: EditorProps) {
-    const { langClientPromise, projectPaths, lastUpdatedAt } = props;
+    const { langClientPromise, projectPaths, lastUpdatedAt, filePath, openInDiagram } = props;
     const [components, updateProjectComponents] = useState<ComponentCollection>();
+    const [selectedFile, setSelectedFile] = useState<string>(filePath);
+    const [focusPosition, setFocusPosition] = useState<NodePosition>();
 
     React.useEffect(() => {
         (async () => {
@@ -59,7 +64,7 @@ export function OverviewDiagram(props: EditorProps) {
                                     currentComponents[key].push({
                                         ...element,
                                         folderPath: packageInfo.filePath,
-                                        moduleName: module.name ? module.name : '.'
+                                        moduleName: module.name ? module.name : DEFAULT_MODULE_NAME
                                     })
                                 });
                             }
@@ -78,10 +83,19 @@ export function OverviewDiagram(props: EditorProps) {
         })();
     }, [lastUpdatedAt]);
 
+    const handleUpdateSelection = (position: NodePosition, file: string) => {
+        setSelectedFile(file);
+        setFocusPosition(position);
+    }
+
     // console.log('>>> component', componentViews);
     const comps = components && Object.keys(components)
         .filter(key => components[key].length)
-        .map(key => <CategoryView heading={key} components={components[key]} />)
+        .map(key => <CategoryView heading={key} components={components[key]} updateSelection={handleUpdateSelection} />)
+
+    const diagramRenderCondition: boolean = (!!openInDiagram && !!selectedFile && selectedFile.length > 0)
+        || (!!focusPosition && !!selectedFile && selectedFile.length > 0);
+
 
     return (
         <>
@@ -91,7 +105,8 @@ export function OverviewDiagram(props: EditorProps) {
                     <div>{key}</div>
                 )
             })} */}
-            {comps}
+            {!diagramRenderCondition && comps}
+            {diagramRenderCondition && <Diagram {...props} focusPosition={focusPosition} />}
         </>
     )
 }

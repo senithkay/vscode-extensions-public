@@ -20,14 +20,12 @@
 import { Uri, Webview, workspace } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { ViewMode } from './model';
 
-export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, viewMode: ViewMode, webView: Webview): string {
-    console.log('>>> test', viewMode);
-    return renderDiagram(filePath, startLine, startColumn, experimental, openInDiagram, viewMode, webView);
+export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, webView: Webview): string {
+    return renderDiagram(filePath, startLine, startColumn, experimental, openInDiagram, webView);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, viewMode: ViewMode, webView: Webview): string {
+function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, webView: Webview): string {
 
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
@@ -258,7 +256,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 lastUpdatedAt,
                 experimentalEnabled,
                 openInDiagram,
-                viewMode,
                 projectPaths
             }) {
                 try {
@@ -294,13 +291,8 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             openInDiagram
                         }
                     };
-                    console.log('>>> BLCEditor',BLCEditor);
-                    if (viewMode && viewMode === 1) {
-                        BLCEditor.renderOverviewDiagram(options);
-                    } else {
-                        BLCEditor.renderDiagramEditor(options);
-                    }
-                    
+
+                    BLCEditor.renderOverviewDiagram(options);
                 } catch(e) {
                     if (e.message === 'ballerinaComposer is not defined') {
                         drawLoading();
@@ -380,14 +372,13 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
             webViewRPCHandler.addMethod("updateDiagram", (args) => {
                 console.log('update diagram webview rpc >>>', args);
                 drawDiagram({
-                    filePath: ${viewMode === ViewMode.LOW_CODE ? 'args[0].fliePath' : 'undefined'},
+                    filePath: args[0].fliePath,
                     startLine: args[0].startLine,
                     startColumn: args[0].startColumn,
                     lastUpdatedAt: (new Date()).toISOString(),
                     experimentalEnabled: ${experimental},
                     openInDiagram: args[0].openInDiagram,
-                    viewMode: ${viewMode},
-                    projectPaths: ${viewMode === ViewMode.OVERVIEW ? JSON.stringify(workspace.workspaceFolders) : 'undefined'}
+                    projectPaths: ${JSON.stringify(workspace.workspaceFolders)}
                 });
                 return Promise.resolve({});
             });
@@ -396,14 +387,13 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 return Promise.resolve({});
             });
             drawDiagram({
-                filePath: ${viewMode === ViewMode.LOW_CODE ? JSON.stringify(ballerinaFilePath) : 'undefined'},
+                filePath: ${JSON.stringify(ballerinaFilePath)},
                 startLine: ${startLine},
                 startColumn: ${startColumn},
                 lastUpdatedAt: (new Date()).toISOString(),
                 experimentalEnabled: ${experimental},
                 openInDiagram: ${JSON.stringify(openInDiagram)},
-                viewMode: ${viewMode},
-                projectPaths: ${viewMode === ViewMode.OVERVIEW ? JSON.stringify(workspace.workspaceFolders) : 'undefined'}
+                projectPaths: ${JSON.stringify(workspace.workspaceFolders)}
             });
 
             window.addEventListener('focus', event => {
