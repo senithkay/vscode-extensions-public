@@ -18,6 +18,8 @@
  */
 export const choreoSignInCmdId = 'wso2.choreo.sign.in';
 export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
+export const setSelectedOrgCmdId = 'wso2.choreo.org.setAsSelected';
+export const refreshProjectsListCmdId = 'wso2.choreo.projects.refresh';
 
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
  

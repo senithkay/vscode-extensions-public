@@ -204,7 +204,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
 
 export async function signIn() {
     ext.api.status = 'LoggingIn';
-    let choreoTokenInfo = await getChoreoToken(ChoreoToken);
+    const choreoTokenInfo = await getChoreoToken(ChoreoToken);
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
         let tokenDuration = (new Date().getTime() - new Date(choreoTokenInfo.loginTime).getTime()) / 1000;
@@ -219,6 +219,13 @@ export async function signIn() {
         ext.api.selectedOrg = userInfo.organizations[0];
         ext.api.status = "LoggedIn";
     } 
+}
+
+export async function exchangeOrgAccessTokens(orgHandle: string) {
+    const choreoTokenInfo = await getChoreoToken(ChoreoToken);
+    if (choreoTokenInfo?.accessToken) {
+        await exchangeApimToken(choreoTokenInfo?.accessToken, orgHandle);
+    }
 }
 
 export async function signOut() {

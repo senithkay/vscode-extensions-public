@@ -33,10 +33,12 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     constructor() {
-        const subscription = ext.api.onStatusChanged(() => {
+        ext.context.subscriptions.push(ext.api.onStatusChanged(() => {
             this.refresh();
-        });
-        ext.context.subscriptions.push(subscription);
+        }));
+        ext.context.subscriptions.push(ext.api.onOrganizationChanged(() => {
+            this.refresh();
+        }));
     }
 
      getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
@@ -46,7 +48,7 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
      getChildren(element?: TreeItem): ProviderResult<AccountTreeItem[]> {
         if (ext.api.status === "LoggedIn") {
             if (!element) {
-                return  [new ChoreoSignOutTreeItem(), new ChoreoOrganizationsTreeItem()];
+                return  [new ChoreoOrganizationsTreeItem(), new ChoreoSignOutTreeItem()];
             } else if (element instanceof ChoreoOrganizationsTreeItem) {
                 return this.loadOrgTree();
             }
@@ -57,8 +59,8 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
         }
      }
  
-     refresh(): void {
-        this._onDidChangeTreeData.fire();
+     refresh(treeItem?: AccountTreeItem): void {
+        this._onDidChangeTreeData.fire(treeItem);
      }
 
      private async loadOrgTree(): Promise<ChoreoOrgTreeItem[]> {

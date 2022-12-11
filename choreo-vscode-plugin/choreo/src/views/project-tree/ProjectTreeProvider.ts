@@ -29,10 +29,12 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     constructor() {
-        const subscription = ext.api.onStatusChanged(() => {
+        ext.context.subscriptions.push(ext.api.onStatusChanged(() => {
             this.refresh();
-        });
-        ext.context.subscriptions.push(subscription);
+        }));
+        ext.context.subscriptions.push(ext.api.onOrganizationChanged(() => {
+            this.refresh();
+        }));
     }
 
     getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {

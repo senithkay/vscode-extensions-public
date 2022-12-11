@@ -15,10 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { TreeItem, TreeItemCollapsibleState } from "vscode";
+import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Organization } from "../../api/types";
 import { ext } from "../../extensionVariables";
-import { getIconPath } from "../../icons";
 
 export class ChoreoOrgTreeItem extends TreeItem {
     constructor(
@@ -29,10 +28,8 @@ export class ChoreoOrgTreeItem extends TreeItem {
       const isSelected = ext.api.selectedOrg?.id === org.id;
       this.description = isSelected ? '*' : '';
       this.tooltip = `Organization handle: ${org.handle}\nOwner: ${org.owner.id}`;
+      this.contextValue = "choreo.org";
     }
   
-    iconPath = {
-      light: getIconPath('organization', "light"),
-      dark: getIconPath('organization', "dark")
-    };
+    iconPath = new ThemeIcon("organization");
 }

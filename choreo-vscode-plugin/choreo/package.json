@@ -29,6 +29,18 @@
         "command": "wso2.choreo.sign.out",
         "title": "Sign Out",
         "category": "Choreo"
+      },
+      {
+        "command": "wso2.choreo.org.setAsSelected",
+        "title": "Set As Seleted"
+      },
+      {
+        "command": "wso2.choreo.projects.refresh",
+        "title": "Refresh",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
       }
     ],
     "viewsContainers": {
@@ -58,7 +70,22 @@
         "contents": "Sign in to retrieve projects.\n[Sign In](command:wso2.choreo.sign.in)",
         "when": "choreoLoginStatus == LoggedOut"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "wso2.choreo.projects.refresh",
+          "when": "view == choreo-projects",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "wso2.choreo.org.setAsSelected",
+          "when": "view == choreo-account && viewItem == choreo.org"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

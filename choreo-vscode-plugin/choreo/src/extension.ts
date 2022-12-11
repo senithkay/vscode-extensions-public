@@ -17,12 +17,14 @@
  *
  */
 import * as vscode from 'vscode';
-import { window } from 'vscode';
+import { ThemeIcon, window } from 'vscode';
 import { activateAuth } from './auth';
+import { exchangeOrgAccessTokens } from './auth/inbuilt-impl';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { choreoAccountTreeId, choreoProjectsTreeId } from './constants';
+import { choreoAccountTreeId, choreoProjectsTreeId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
+import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -47,10 +49,21 @@ function createProjectTreeView() {
 
 
 function createAccountTreeView() {
+
 	const accountTreeProvider = new AccountTreeProvider();
+	vscode.commands.registerCommand(setSelectedOrgCmdId, async (treeItem) => {
+		if (treeItem instanceof ChoreoOrgTreeItem) {
+			treeItem.iconPath = new ThemeIcon('loading~spin');
+			accountTreeProvider.refresh(treeItem);
+			await exchangeOrgAccessTokens(treeItem.org.handle);
+			ext.api.selectedOrg = treeItem.org;
+		}
+	});
     return window.createTreeView(choreoAccountTreeId, {
         treeDataProvider: accountTreeProvider, showCollapseAll: false
     });
+
+	
 }
 
 function setupEvents() {
