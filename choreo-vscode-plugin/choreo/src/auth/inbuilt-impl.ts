@@ -25,6 +25,7 @@ import { choreoAuthConfig } from "./activator";
 import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
+import { getUserInfo } from '../api/user';
 
 const challenge = pkceChallenge();
 
@@ -38,7 +39,7 @@ const SESSION_EXPIRED = "The session has expired, please login again!";
 
 const ExchangeGrantType = 'urn:ietf:params:oauth:grant-type:token-exchange';
 const JWTTokenType = 'urn:ietf:params:oauth:token-type:jwt';
-const ApimScope = 'apim:api_manage apim:subscription_manage apim:tier_manage apim:admin';
+const ApimScope = 'apim:api_manage apim:subscription_manage apim:tier_manage apim:admin apim:publisher_settings environments:view_prod environments:view_dev choreo:user_manage choreo:role_manage apim:dcr:app_manage choreo:deployment_manage choreo:dev_env_manage choreo:prod_env_manage choreo:component_manage choreo:project_manage apim:api_publish apim:document_manage apim:api_settings apim:subscription_view';
 const RefreshTokenGrantType = 'refresh_token';
 
 const CommonReqHeaders = {
@@ -82,7 +83,8 @@ export async function exchangeAuthToken(authCode: string) {
             if (response.data) {
                 let token = response.data.access_token;
                 await storeToken(ChoreoToken, response);
-                await exchangeApimToken(token);
+                const userInfo = await getUserInfo();
+                await exchangeApimToken(token, userInfo.organizations[0].handle);
             } else {
                 vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
             }
@@ -92,7 +94,7 @@ export async function exchangeAuthToken(authCode: string) {
     }
 }
 
-export async function exchangeApimToken(token: string) {
+export async function exchangeApimToken(token: string, orgHandle: string) {
     if (!token) {
         vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
         return;
@@ -103,7 +105,8 @@ export async function exchangeApimToken(token: string) {
         subject_token_type: JWTTokenType,
         requested_token_type: JWTTokenType,
         scope: ApimScope,
-        subject_token: token
+        subject_token: token,
+        orgHandle,
     });
 
     await axios.post(
