@@ -21,7 +21,7 @@ import { getChoreoClient } from ".";
 import { UserInfo } from "./types";
 
 export async function getUserInfo(): Promise<UserInfo> {
-    const client = getChoreoClient();
+    const client = await getChoreoClient();
     return new Promise(async (resolve, reject) => {
         try {
             const resp = await client.get('/validate-user', {

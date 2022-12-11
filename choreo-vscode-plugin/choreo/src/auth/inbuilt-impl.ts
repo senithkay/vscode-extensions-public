@@ -19,14 +19,12 @@
  */
  import * as vscode from 'vscode';
 import axios from "axios";
-import { deleteChoreoKeytarSession, getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
+import { deleteChoreoToken, getChoreoToken, storeChoreoToken } from "./storage";
 import jwt_decode from "jwt-decode";
 import { choreoAuthConfig } from "./activator";
-import { ChoreoFidp } from "./config";
 import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
-import { ChoreoSession } from './session';
 
 const challenge = pkceChallenge();
 
@@ -36,8 +34,17 @@ const ACCESS_TOKEN_ERROR = "Error while retreiving the access token details!";
 const APIM_TOKEN_ERROR = "Error while retreiving the apim token details!";
 const REFRESH_TOKEN_ERROR = "Error while retreiving the refresh token details!";
 const VSCODE_TOKEN_ERROR = "Error while retreiving the VSCode token details!";
-const ANON_USER_ERROR = "Error while creating an anonymous user!";
 const SESSION_EXPIRED = "The session has expired, please login again!";
+
+const ExchangeGrantType = 'urn:ietf:params:oauth:grant-type:token-exchange';
+const JWTTokenType = 'urn:ietf:params:oauth:token-type:jwt';
+const ApimScope = 'apim:api_manage apim:subscription_manage apim:tier_manage apim:admin';
+const RefreshTokenGrantType = 'refresh_token';
+
+const CommonReqHeaders = {
+    'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
+    'Accept': 'application/json'
+};
 
 export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
@@ -46,200 +53,158 @@ export async function initiateInbuiltAuth() {
     vscode.commands.executeCommand("vscode.open", callbackUri);
 }
 
-export class OAuthTokenHandler {
-    status: boolean = false;
-    displayName: string = "Choreo User";
+export const ChoreoToken = "choreo.token";
+export const ChoreoApimToken = "choreo.apim.token";
+export const ChoreoVscodeToken = "choreo.vscode.token";
 
-    public async exchangeAuthToken(authCode: string): Promise<boolean> {
-        if (!authCode) {
-            vscode.window.showErrorMessage(AUTH_FAIL + AUTH_CODE_ERROR);
+export async function exchangeAuthToken(authCode: string) {
+    if (!authCode) {
+        vscode.window.showErrorMessage(AUTH_FAIL + AUTH_CODE_ERROR);
+    } else {
+        // To bypass the self signed server error.
+        process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+
+        const params = new URLSearchParams({
+            client_id: choreoAuthConfig.getClientId(),
+            code: authCode,
+            grant_type: 'authorization_code',
+            redirect_uri: choreoAuthConfig.getRedirectUri(),
+            code_verifier: challenge.code_verifier
+        });
+
+        await axios.post(
+            choreoAuthConfig.getTokenUri(),
+            params.toString(),
+            {
+                headers: CommonReqHeaders
+            }
+        ).then(async (response) => {
+            if (response.data) {
+                let token = response.data.access_token;
+                await storeToken(ChoreoToken, response);
+                await exchangeApimToken(token);
+            } else {
+                vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
+            }
+        }).catch((err) => {
+            vscode.window.showErrorMessage(AUTH_FAIL + err);
+        });
+    }
+}
+
+export async function exchangeApimToken(token: string) {
+    if (!token) {
+        vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
+        return;
+    }
+    const params = new URLSearchParams({
+        client_id: choreoAuthConfig.getApimClientId(),
+        grant_type: ExchangeGrantType,
+        subject_token_type: JWTTokenType,
+        requested_token_type: JWTTokenType,
+        scope: ApimScope,
+        subject_token: token
+    });
+
+    await axios.post(
+        choreoAuthConfig.getApimTokenUri(),
+        params.toString(),
+        {
+            headers: {
+                ...CommonReqHeaders,
+                'Authorization': "Bearer " + token
+            }
+        }
+    ).then(async (response) => {
+        if (response) {
+            let apimToken = response.data.access_token;
+            await storeToken(ChoreoApimToken, response);
+            await exchangeVSCodeToken(apimToken);
         } else {
-            // To bypass the self signed server error.
-            process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-
-            const params = new URLSearchParams({
-                client_id: choreoAuthConfig.getClientId(),
-                code: authCode,
-                grant_type: 'authorization_code',
-                redirect_uri: choreoAuthConfig.getRedirectUri(),
-                code_verifier: challenge.code_verifier
-            });
-
-            await axios.post(
-                choreoAuthConfig.getTokenUri(),
-                params.toString(),
-                {
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
-                        'Accept': 'application/json'
-                    }
-                }
-            ).then(async (response) => {
-                if (response.data) {
-                    let token = response.data.access_token;
-                    let decoded: any = jwt_decode(token);
-                    let userName: string = decoded["name"];
-                    if (userName) {
-                        this.displayName = userName;
-                    }
-                    setSessionFromTokenResponse(response, this.displayName);
-                    // FIXME: Stop token exchange and use current token for Choreo Extension
-                    // If we need to exchange it for an APIM token in future, eg: for perf forecaster, 
-                    // lets continue the below flow and capture those into a seperate state.
-                    // await this.exchangeApimToken(token);
-                } else {
-                    vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
-                }
-            }).catch((err) => {
-                vscode.window.showErrorMessage(AUTH_FAIL + err);
-            });
-        }
-        return this.status;
-    }
-
-    public async exchangeApimToken(token: string) {
-        if (!token) {
-            vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
-            return;
-        }
-
-        if (choreoAuthConfig.getFidp() === ChoreoFidp.anonymous) {
-            await this.registerAnonUser(token);
-        }
-
-        const params = new URLSearchParams({
-            client_id: choreoAuthConfig.getApimClientId(),
-            grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
-            subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
-            requested_token_type: 'urn:ietf:params:oauth:token-type:jwt',
-            scope: 'apim:api_manage apim:subscription_manage apim:tier_manage apim:admin',
-            subject_token: token
-        });
-
-        await axios.post(
-            choreoAuthConfig.getApimTokenUri(),
-            params.toString(),
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
-                    'Accept': 'application/json',
-                    'Authorization': "Bearer " + token
-                }
-            }
-        ).then(async (response) => {
-            if (response) {
-                let apimToken = response.data.access_token;
-                await this.exchangeVSCodeToken(apimToken);
-            } else {
-                vscode.window.showErrorMessage(AUTH_FAIL + APIM_TOKEN_ERROR);
-            }
-        }).catch((err) => {
-            vscode.window.showErrorMessage(AUTH_FAIL + err);
-        });
-    }
-
-    public async exchangeVSCodeToken(apimToken: string) {
-        if (!apimToken) {
             vscode.window.showErrorMessage(AUTH_FAIL + APIM_TOKEN_ERROR);
-            return;
         }
+    }).catch((err) => {
+        vscode.window.showErrorMessage(AUTH_FAIL + err);
+    });
+}
 
-        const params = new URLSearchParams({
-            client_id: choreoAuthConfig.getVscodeClientId(),
-            grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
-            subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
-            requested_token_type: 'urn:ietf:params:oauth:token-type:jwt',
-            scope: 'apim:api_manage apim:subscription_manage apim:tier_manage apim:admin',
-            subject_token: apimToken
-        });
-
-        await axios.post(
-            choreoAuthConfig.getApimTokenUri(),
-            params.toString(),
-            {
-                headers: {
-                    'Content+-Type': 'application/x-www-form-urlencoded; charset=utf8'
-                }
-            }
-        ).then(async (response) => {
-            if (response) {
-                this.status = await setSessionFromTokenResponse(response, this.displayName);
-            } else {
-                vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
-            }
-        }).catch((err) => {
-            vscode.window.showErrorMessage(AUTH_FAIL + err);
-        });
+export async function exchangeVSCodeToken(apimToken: string) {
+    if (!apimToken) {
+        vscode.window.showErrorMessage(AUTH_FAIL + APIM_TOKEN_ERROR);
+        return;
     }
 
-    public async exchangeRefreshToken(refreshToken: string) {
-        if (!refreshToken) {
-            vscode.window.showErrorMessage(AUTH_FAIL + REFRESH_TOKEN_ERROR);
-            this.signOut();
-            return;
+    const params = new URLSearchParams({
+        client_id: choreoAuthConfig.getVscodeClientId(),
+        grant_type: ExchangeGrantType,
+        subject_token_type: JWTTokenType,
+        requested_token_type: JWTTokenType,
+        scope: ApimScope,
+        subject_token: apimToken
+    });
+
+    await axios.post(
+        choreoAuthConfig.getApimTokenUri(),
+        params.toString(),
+        {
+            headers: CommonReqHeaders,
+
         }
+    ).then(async (response) => {
+        if (response) {
+            await storeToken(ChoreoVscodeToken, response);
+            ext.api.onStatusChanged.fire('LoggedIn');
+            // Show the success message in vscode.
+            vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
+        } else {
+            vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
+        }
+    }).catch((err) => {
+        vscode.window.showErrorMessage(AUTH_FAIL + err);
+    });
+}
 
-        const params = new URLSearchParams({
-            client_id: choreoAuthConfig.getVscodeClientId(),
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken
-        });
-
-        await axios.post(
-            choreoAuthConfig.getApimTokenUri(),
-            params.toString(),
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
-        ).then(async (response) => {
-            if (response) {
-                this.status = await setSessionFromTokenResponse(response, this.displayName);
-            } else {
-                vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
-                this.signOut();
-            }
-        }).catch((err) => {
-            console.debug(err);
-
-            if (!ext.isPluginStartup) {
-                vscode.window.showErrorMessage(AUTH_FAIL + SESSION_EXPIRED);
-            }
-            this.signOut();
-        });
+export async function exchangeRefreshToken(refreshToken: string) {
+    if (!refreshToken) {
+        vscode.window.showErrorMessage(AUTH_FAIL + REFRESH_TOKEN_ERROR);
+        signOut();
+        return;
     }
 
-    signOut() {
-        deleteChoreoKeytarSession();
-        ext.auth.setChoreoSession({
-            loginStatus: false
-        });
-    }
+    const params = new URLSearchParams({
+        client_id: choreoAuthConfig.getVscodeClientId(),
+        grant_type: RefreshTokenGrantType,
+        refresh_token: refreshToken
+    });
 
-    public async registerAnonUser(token: string) {
-        const requestPayload = {
-            name: this.displayName,
-        };
+    await axios.post(
+        choreoAuthConfig.getApimTokenUri(),
+        params.toString(),
+        {
+            headers: CommonReqHeaders
+        }
+    ).then(async (response) => {
+        if (response) {
+           await storeToken(ChoreoVscodeToken, response);
+        } else {
+            vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
+            signOut();
+        }
+    }).catch((err) => {
+        console.debug(err);
 
-        await axios.post(
-            choreoAuthConfig.getUserRegistrationUrl(),
-            requestPayload,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-        ).then(async (response) => {
-            if (!response.data || !response.data['displayName']) {
-                vscode.window.showErrorMessage(AUTH_FAIL + ANON_USER_ERROR);
-            }
-        }).catch((err) => {
-            vscode.window.showErrorMessage(AUTH_FAIL + ANON_USER_ERROR + " " + err);
-        });
-    }
+        if (!ext.isPluginStartup) {
+            vscode.window.showErrorMessage(AUTH_FAIL + SESSION_EXPIRED);
+        }
+        signOut();
+    });
+}
+
+export async function signOut() {
+    await deleteChoreoToken(ChoreoToken);
+    await deleteChoreoToken(ChoreoApimToken);
+    await deleteChoreoToken(ChoreoVscodeToken);
+    ext.api.onStatusChanged.fire('LoggedOut');
 }
 
 function getAuthURL(): string {
@@ -250,25 +215,11 @@ function getAuthURL(): string {
 }
 
 
-async function setSessionFromTokenResponse(tokenResp: any, displayName: string) {
-    let vscodeToken = tokenResp.data.access_token;
+async function storeToken(tokenId: string, tokenResp: any) {
+    let accessToken = tokenResp.data.access_token;
     let refreshToken = tokenResp.data.refresh_token;
     let loginTime = new Date();
     let expirationTime = tokenResp.data.expires_in;
-    let status: boolean = false;
-    await setChoreoKeytarSession(String(vscodeToken), String(displayName),
+    await storeChoreoToken(String(tokenId), String(accessToken),
         String(refreshToken), String(loginTime), String(expirationTime));
-
-    await getChoreoKeytarSession().then((result) => {
-        if (result.loginStatus) {
-            status = true;
-            ext.auth.setChoreoSession(result);
-            ext.auth.onStatusChanged.fire('LoggedIn');
-            // Show the success message in vscode.
-            vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
-        } else {
-            vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
-        }
-    });
-    return status;
 }

@@ -19,22 +19,23 @@
  */
 import axios from "axios";
 import { GraphQLClient } from 'graphql-request';
+import { ChoreoApimToken, ChoreoToken } from "../auth/inbuilt-impl";
+import { getChoreoToken } from "../auth/storage";
 
-import { ext } from "../extensionVariables";
 import { API_BASE_URL, PROJECTS_API_URL } from "./config";
 
-export function getChoreoClient() {
+export async function getChoreoClient() {
     return axios.create({
         baseURL: API_BASE_URL,
-        headers: {'Authorization': 'Bearer ' + ext.auth.getChoreoSession().choreoAccessToken},
+        headers: {'Authorization': 'Bearer ' + (await getChoreoToken(ChoreoToken))?.accessToken},
     });
       
 }
 
-export function getProjectsApiClient() {
+export async function getProjectsApiClient() {
     return new GraphQLClient(PROJECTS_API_URL, {
         headers: {
-            Authorization: 'Bearer ' + ext.auth.getChoreoSession().choreoAccessToken,
+            Authorization: 'Bearer '  + (await getChoreoToken(ChoreoApimToken))?.accessToken,
         },
     });
 }

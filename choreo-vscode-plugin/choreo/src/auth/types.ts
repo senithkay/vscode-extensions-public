@@ -16,12 +16,9 @@
  * under the License.
  *
  */
-export interface ChoreoSession {
-    loginStatus: boolean;
-    choreoUser?: string;
-    choreoAccessToken?: string;
-    choreoCookie?: string;
-    choreoRefreshToken?: string;
-    choreoLoginTime?: Date;
-    tokenExpirationTime?: number;
+export interface ChoreoAccessToken {
+    accessToken?: string;
+    refreshToken?: string;
+    loginTime?: Date;
+    expirationTime?: number;
 }

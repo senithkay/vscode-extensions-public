@@ -18,17 +18,16 @@ import { ChoreoLoginStatus } from "./auth/events";
  * under the License.
  *
  */
-import { Disposable, Event } from 'vscode';
+import { Disposable, Event, EventEmitter } from 'vscode';
 import { ext } from "./extensionVariables";
 
 export class ChoreoExtensionApi {
 
     public status: ChoreoLoginStatus = "Initializing";
-	public onStatusChanged: Event<ChoreoLoginStatus>;
+	public onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
 
     constructor() {
-        this.onStatusChanged = ext.auth.onStatusChanged.event;
-        const subscription: Disposable = this.onStatusChanged((newStatus) => this.status = newStatus);
+        const subscription: Disposable = this.onStatusChanged.event((newStatus) => this.status = newStatus);
         ext.context.subscriptions.push(subscription);
     }
 
@@ -41,7 +40,7 @@ export class ChoreoExtensionApi {
             case 'Initializing':
             case 'LoggingIn':
                 return new Promise<boolean>(resolve => {
-                    const subscription: Disposable = this.onStatusChanged(() => {
+                    const subscription: Disposable = this.onStatusChanged.event(() => {
                         subscription.dispose();
                         resolve(this.waitForLogin());
                     });

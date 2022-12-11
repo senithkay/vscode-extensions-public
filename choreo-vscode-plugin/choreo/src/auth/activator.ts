@@ -17,28 +17,23 @@
  *
  */
 import * as vscode from 'vscode';
-import { commands, EventEmitter, window } from "vscode";
-import { deleteChoreoKeytarSession } from "./auth-session";
-import { initiateInbuiltAuth, OAuthTokenHandler } from "./inbuilt-impl";
+import { commands, window } from "vscode";
+import { exchangeAuthToken, initiateInbuiltAuth, signOut } from "./inbuilt-impl";
 import { ChoreoAuthConfig, ChoreoFidp } from "./config";
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
 import { choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
-import { ChoreoLoginStatus } from './events';
 
 export let choreoAuthConfig: ChoreoAuthConfig;
 export async function activateAuth() {
 
-    ext.auth.onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
-    
     vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
             if (uri.path === '/choreo-signin') {
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get('code');
                 if (authCode) {
-                    const tokenHandler = new OAuthTokenHandler();
-                    tokenHandler.exchangeAuthToken(authCode);
+                    exchangeAuthToken(authCode);
                 } else {
                     vscode.window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
                 }
@@ -49,7 +44,7 @@ export async function activateAuth() {
     choreoAuthConfig = new ChoreoAuthConfig();
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {
-            ext.auth.onStatusChanged.fire('LoggingIn');
+            ext.api.onStatusChanged.fire('LoggingIn');
             choreoAuthConfig.setFidp(ChoreoFidp.google);
             await initiateInbuiltAuth();
         } catch (error) {
@@ -61,12 +56,7 @@ export async function activateAuth() {
 
     commands.registerCommand(choreoSignOutCmdId, async () => {
         try {
-            deleteChoreoKeytarSession();
-            ext.auth.setChoreoSession({
-                loginStatus: false
-            });
-            // extension.getChoreoSessionTreeProvider()?.refresh();
-            ext.auth.onStatusChanged.fire('LoggedOut');
+            await signOut();
             window.showInformationMessage('Successfully signed out from Choreo!');
         } catch (error) {
             if (error instanceof Error) {
