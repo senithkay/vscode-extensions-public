@@ -23,16 +23,12 @@ import {
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { default as AddIcon } from  "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { FunctionDefinition, RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
-
-import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { AddOutputTypeNode } from "../AddOutputType";
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
+import { STModification, STSymbolInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FunctionDefinition, NodePosition, RecordTypeDesc } from "@wso2-enterprise/syntax-tree";
 
 import { RecordFromJson } from "./RecordFromJson";
 import { RecordItem } from "./RecordItem";
-import { STModification, STSymbolInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 
 const useStyles = makeStyles(() =>
 	createStyles({
@@ -67,9 +63,9 @@ const useStyles = makeStyles(() =>
 export interface AddOutputTypeNodeWidgetProps {
 	title: string;
 	applyModifications: (modifications: STModification[]) => void;
-    langClientPromise: Promise<IBallerinaLangClient>;
-    stSymbolInfo: STSymbolInfo;
-    functionST?: FunctionDefinition;
+ langClientPromise: Promise<IBallerinaLangClient>;
+ stSymbolInfo: STSymbolInfo;
+ functionST?: FunctionDefinition;
 }
 
 export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
@@ -83,7 +79,7 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 		const records: React.ReactNode[] = [];
 		const recordTypeDescMap = stSymbolInfo.recordTypeDescriptions;
 		for (const st of recordTypeDescMap.values()) {
-			const recordName = (st as RecordTypeDesc)?.typeData.typeSymbol.name;
+			const recordName = (st as RecordTypeDesc)?.typeData.typeSymbol.name as string;
 			records.push(
 				<RecordItem recordName={recordName} onClickRecordItem={handleSelection} />
 			);
@@ -115,9 +111,9 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 	useEffect(() => {
 		if (selection !== '') {
 			if (title === 'Input') {
-				(async () => {
-					const position = functionST?.functionSignature.openParenToken.position;
-					const modifications = [
+				void (() => {
+					const position = functionST?.functionSignature.openParenToken.position as NodePosition;
+					const modifications: STModification[] = [
 						{
 							type: "INSERT",
 							config: {
@@ -132,9 +128,9 @@ export function AddIOTypeNodeWidget(props: AddOutputTypeNodeWidgetProps) {
 					applyModifications(modifications);
 				})();
 			} else {
-				(async () => {
-					const position = functionST.functionSignature.returnTypeDesc.type.position;
-					const modifications = [
+				void (() => {
+					const position = functionST.functionSignature.returnTypeDesc.type.position as NodePosition;
+					const modifications: STModification[] = [
 						{
 							type: "INSERT",
 							config: {

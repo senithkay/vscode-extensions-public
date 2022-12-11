@@ -1,11 +1,11 @@
 import {
-    BinaryExpression,
     CaptureBindingPattern,
     ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
     LetVarDecl,
     ListConstructor,
+    NodePosition,
     QueryExpression,
     SelectClause,
     SimpleNameReference,
@@ -29,7 +29,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
-import { OFFSETS, EXPANDED_QUERY_INPUT_NODE_PREFIX } from "../utils/constants";
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX, OFFSETS } from "../utils/constants";
 import { getInputNodes, isComplexExpression } from "../utils/dm-utils";
 
 export class NodeInitVisitor implements Visitor {
@@ -38,14 +38,14 @@ export class NodeInitVisitor implements Visitor {
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
     private specificFields: SpecificField[] = [];
-    private isWithinQuery: number = 0;
+    private isWithinQuery = 0;
 
     constructor(
         private context: DataMapperContext,
         private selection: SelectionState
     ) { }
 
-    beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
+    beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature.returnTypeDesc?.type;
         if (typeDesc) {
             this.outputNode = new MappingConstructorNode(
@@ -57,9 +57,8 @@ export class NodeInitVisitor implements Visitor {
         }
         // create input nodes
         const params = node.functionSignature.parameters;
-        if (!!params.length) {
-            for (let i = 0; i < params.length; i++) {
-                const param = params[i];
+        if (params.length) {
+            for (const param of params) {
                 if (STKindChecker.isRequiredParam(param)) {
                     const paramNode = new RequiredParamNode(
                         this.context,
@@ -75,24 +74,20 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    beginVisitBinaryExpression(node: BinaryExpression, parent?: STNode) {
-    };
-
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
         const selectedSTNode = this.selection.selectedST.stNode;
+        const nodePosition: NodePosition = node.position as NodePosition;
         if (STKindChecker.isSpecificField(selectedSTNode)
-            && node.position.startLine === selectedSTNode.valueExpr.position.startLine
-            && node.position.startColumn === selectedSTNode.valueExpr.position.startColumn) {
+            && nodePosition.startLine === (selectedSTNode.valueExpr.position as NodePosition).startLine
+            && nodePosition.startColumn === (selectedSTNode.valueExpr.position as NodePosition).startColumn) {
             if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
                 const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 80;
                 const yPosition = 50 + intermediateClausesHeight;
                 // create output node
-                if (STKindChecker.isMappingConstructor(node.selectClause.expression)) {
-                    this.outputNode = new MappingConstructorNode(this.context, node.selectClause, parent.fieldName);
-                } else {
-                    this.outputNode = new PrimitiveTypeNode(this.context, node.selectClause, parent.fieldName);
-                }
+                this.outputNode = STKindChecker.isMappingConstructor(node.selectClause.expression)
+                                ? new MappingConstructorNode(this.context, node.selectClause, parent.fieldName)
+                                : new PrimitiveTypeNode(this.context, node.selectClause, parent.fieldName);
 
                 this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + 80, yPosition + OFFSETS.TARGET_NODE.Y);
 
@@ -118,7 +113,7 @@ export class NodeInitVisitor implements Visitor {
                         "EXPRESSION"
                 );
 
-                for (let [index, item] of letClauses.entries()) {
+                for (const [, item] of letClauses.entries()) {
                     const paramNode = new LetClauseNode(this.context, item as LetClause);
                     paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
                     this.inputNodes.push(paramNode);
@@ -143,12 +138,12 @@ export class NodeInitVisitor implements Visitor {
             this.intermediateNodes.push(queryNode);
             this.isWithinQuery += 1;
         }
-    };
+    }
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         const selectedSTNode = this.selection.selectedST.stNode;
-        if (selectedSTNode.position.startLine !== node.position.startLine
-            && selectedSTNode.position.startColumn !== node.position.startColumn) {
+        if ((selectedSTNode.position as NodePosition).startLine !== (node.position as NodePosition).startLine
+            && (selectedSTNode.position as NodePosition).startColumn !== (node.position as NodePosition).startColumn) {
             this.specificFields.push(node)
         }
         if (this.isWithinQuery === 0
@@ -162,7 +157,7 @@ export class NodeInitVisitor implements Visitor {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
-                    node.fieldName.value,
+                    node.fieldName.value as string,
                     parent,
                     inputNodes,
                     this.specificFields.slice(0)
@@ -217,19 +212,11 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    endVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
+    endVisitQueryExpression?() {
         this.isWithinQuery -= 1;
-
-    };
-
-    endVisitBinaryExpression(node: BinaryExpression, parent?: STNode) {
-
-    };
-
-    endVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
     }
 
-    endVisitSpecificField(node: SpecificField, parent?: STNode) {
+    endVisitSpecificField() {
         if (this.specificFields.length > 0) {
             this.specificFields.pop()
         }

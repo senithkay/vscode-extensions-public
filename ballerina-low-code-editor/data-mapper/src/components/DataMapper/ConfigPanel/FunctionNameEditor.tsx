@@ -5,7 +5,7 @@ import { FormTextInput } from "@wso2-enterprise/ballerina-low-code-edtior-ui-com
 
 export interface FunctionNameEditorProps {
     value: string;
-    onBlur: (event: any) => void;
+    onBlur: (event: unknown) => void;
     onChange: (newVal: string) => void;
     isValidating: boolean;
     errorMessage?: string;
@@ -23,7 +23,7 @@ export function FunctionNameEditor(props: FunctionNameEditorProps)  {
                 label="Name"
                 placeholder="Data Mapper Name"
                 errorMessage={errorMessage}
-
+                dataTestId={`data-mapper-config-fn-name`}
             />
             {isValidating && <LinearProgress />}
         </>

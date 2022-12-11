@@ -1,10 +1,13 @@
-import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
-import { IntermediatePortModel } from "./IntermediatePortModel";
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
-import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 
 import Brightness1 from '@material-ui/icons/Brightness1';
+import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+
+import { IntermediatePortModel } from "./IntermediatePortModel";
+
 
 export interface IntermediatePortWidgetProps {
 	engine: DiagramEngine;

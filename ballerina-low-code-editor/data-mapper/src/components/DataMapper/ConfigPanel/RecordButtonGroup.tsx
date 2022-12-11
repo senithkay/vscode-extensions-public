@@ -1,7 +1,7 @@
+import React from "react";
+
 import Button from "@material-ui/core/Button";
 import AddIcon from "@material-ui/icons/Add";
-
-import React, { useContext, useEffect, useState } from "react";
 
 export interface RecordButtonGroupProps {
   openRecordEditor: () => void;

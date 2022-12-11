@@ -2,6 +2,7 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 import {
     CaptureBindingPattern,
     MappingConstructor,
+    NodePosition,
     QueryExpression,
     STKindChecker,
     STNode,
@@ -47,9 +48,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         );
     }
 
-    async initPorts() {
-        await this.getSourceType();
-        await this.getTargetType();
+    initPorts(): void {
+        this.getSourceType();
+        this.getTargetType();
         this.inPort = new IntermediatePortModel(
             md5(JSON.stringify(this.value.position) + "IN")
             , "IN"
@@ -62,18 +63,19 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         this.addPort(this.outPort);
     }
 
-    private async getSourceType() {
+    private getSourceType(): void {
         const sourceFieldAccess = this.value.queryPipeline.fromClause.expression;
         const bindingPattern = this.value.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
             if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
                 const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                const sourceFieldAccessPosition = sourceFieldAccess.position as NodePosition;
                 const type = recordTypeDescriptors.getTypeDescriptor({
-                    startLine: sourceFieldAccess.position.startLine,
-                    startColumn: sourceFieldAccess.position.startColumn,
-                    endLine: sourceFieldAccess.position.endLine,
-                    endColumn: sourceFieldAccess.position.endColumn
+                    startLine: sourceFieldAccessPosition.startLine,
+                    startColumn: sourceFieldAccessPosition.startColumn,
+                    endLine: sourceFieldAccessPosition.endLine,
+                    endColumn: sourceFieldAccessPosition.endColumn
                 });
 
                 if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
@@ -101,8 +103,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         }
     }
 
-    private async getTargetType() {
-        const fieldNamePosition = STKindChecker.isSpecificField(this.parentNode) && this.parentNode.fieldName.position;
+    private getTargetType(): void {
+        const fieldNamePosition = STKindChecker.isSpecificField(this.parentNode)
+                                    && this.parentNode.fieldName.position as NodePosition;
         if (!fieldNamePosition) {
             return;
         }
@@ -114,7 +117,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     if (port instanceof RecordFieldPortModel
                         && port?.editableRecordField && port.editableRecordField?.value
                         && STKindChecker.isSpecificField(port.editableRecordField.value)
-                        && isPositionsEquals(port.editableRecordField.value.fieldName.position, fieldNamePosition)
+                        && isPositionsEquals(port.editableRecordField.value.fieldName.position as NodePosition,
+                                            fieldNamePosition)
                     ) {
                         this.targetPort = port;
                     }
@@ -139,7 +143,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 this.sourcePort.addLinkedPort(this.inPort);
                 this.sourcePort.addLinkedPort(this.targetPort);
                 link.registerListener({
-                    selectionChanged(event) {
+                    selectionChanged: (event) => {
                         if (event.isSelected) {
                             this.sourcePort.fireEvent({}, "link-selected");
                             this.inPort.fireEvent({}, "link-selected");
@@ -159,12 +163,12 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 link.setSourcePort(this.outPort);
                 link.setTargetPort(this.targetPort);
                 link.registerListener({
-                    selectionChanged(event) {
+                    selectionChanged: (event) => {
                         if (event.isSelected) {
-                            this.targetPort[1].fireEvent({}, "link-selected");
+                            this.targetPort.fireEvent({}, "link-selected");
                             this.outPort.fireEvent({}, "link-selected");
                         } else {
-                            this.targetPort[1].fireEvent({}, "link-unselected");
+                            this.targetPort.fireEvent({}, "link-unselected");
                             this.outPort.fireEvent({}, "link-unselected");
                         }
                     },
@@ -179,14 +183,14 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 link.setTargetPort(this.targetPort);
                 this.sourcePort.addLinkedPort(this.targetPort);
                 link.registerListener({
-                    selectionChanged(event) {
+                    selectionChanged: (event) => {
                         if (event.isSelected) {
                             this.sourcePort.fireEvent({}, "link-selected");
-                            this.targetPort[1].fireEvent({}, "link-selected");
+                            this.targetPort.fireEvent({}, "link-selected");
                         } else {
 
                             this.sourcePort.fireEvent({}, "link-unselected");
-                            this.targetPort[1].fireEvent({}, "link-unselected");
+                            this.targetPort.fireEvent({}, "link-unselected");
                         }
                     },
                 })
@@ -202,16 +206,16 @@ export class QueryExpressionNode extends DataMapperNodeModel {
         }
     }
 
-    public deleteLink() {
+    public deleteLink(): void {
         const mappingNode = (this.getModel().getNodes().find((node) => node instanceof MappingConstructorNode) as MappingConstructorNode)
         const mappingConstructor = mappingNode?.value?.expression as MappingConstructor;
 
-        if(mappingConstructor){
-            const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode.position, mappingConstructor);
+        if (mappingConstructor){
+            const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode.position as NodePosition, mappingConstructor);
             traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
-    
-            this.context.applyModifications([{
+
+            void this.context.applyModifications([{
                 type: "DELETE",
                 ...nodePositionsToDelete
             }]);

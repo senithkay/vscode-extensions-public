@@ -13,17 +13,17 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
 import { getTypeName } from "../../utils/dm-utils";
 
-import { TreeContainer, TreeHeader, TreeBody } from './Tree/Tree';
-import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
+import { TreeContainer, TreeHeader } from './Tree/Tree';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
     createStyles({
         typeLabel: {
             marginLeft: "3px",
@@ -107,7 +107,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
     const invisiblePort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
     return (
-        <TreeContainer>
+        <TreeContainer data-testid={`${id}-node`}>
             <div className={classes.queryPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>

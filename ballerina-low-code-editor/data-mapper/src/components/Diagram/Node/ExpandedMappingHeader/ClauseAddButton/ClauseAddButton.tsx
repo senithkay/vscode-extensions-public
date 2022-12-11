@@ -10,16 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { CircularProgress } from "@material-ui/core";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
 import { NodePosition, QueryExpression, STNode } from "@wso2-enterprise/syntax-tree";
+
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { genLetClauseVariableName } from "../../../../../utils/st-utils";
 import { useStyles } from "../styles";
-import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
-import { CircularProgress } from "@material-ui/core";
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
@@ -48,14 +50,14 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
 
         if (addIndex >= 0 && insertAfterNode) {
             addPosition = {
-                ...insertAfterNode.position,
-                startColumn: insertAfterNode.position.endColumn,
+                ...insertAfterNode.position as NodePosition,
+                startColumn: (insertAfterNode.position as NodePosition).endColumn
             };
         } else {
             addPosition = {
-                ...queryExprNode.queryPipeline.fromClause.position,
-                startColumn: queryExprNode.queryPipeline.fromClause.position.endColumn,
-            };
+                ...queryExprNode.queryPipeline.fromClause.position as NodePosition,
+                startColumn: (queryExprNode.queryPipeline.fromClause.position as NodePosition).endColumn
+            }
         }
 
         return addPosition;
@@ -100,7 +102,7 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         <>
             <div className={classes.lineWrap}>
                 <div className={classes.line} />
-                <div className={classes.addButtonWrap}>
+                <div className={classes.addButtonWrap} data-testid={`intermediary-add-btn-${addIndex}`}>
                     {isLoading ? (
                         <CircularProgress size={13} />
                     ) : (
