@@ -18,62 +18,54 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Diagram, EditorProps } from "../DiagramGenerator/vscode/Diagram";
 
-import { CategoryView } from "./components/CategoryView";
+import { NavigationBar } from "./components/NavigationBar";
+import * as Views from './components/ViewTypes';
+import { CategoryView } from "./components/ViewTypes/CategoryView";
+import './style.scss';
 import { ComponentCollection } from "./util";
 
 export const DEFAULT_MODULE_NAME = 'default';
 
+enum ViewMode {
+    MODULE = 'Module',
+    FILE = 'File',
+    TYPE = 'Type'
+}
+
 export function OverviewDiagram(props: EditorProps) {
     const { langClientPromise, projectPaths, lastUpdatedAt, filePath, openInDiagram } = props;
-    const [components, updateProjectComponents] = useState<ComponentCollection>();
+    // const [components, updateProjectComponents] = useState<ComponentCollection>();
+    const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
     const [selectedFile, setSelectedFile] = useState<string>(filePath);
     const [focusPosition, setFocusPosition] = useState<NodePosition>();
+    const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
+
+    const handleViewModeChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
+        switch (evt.target.value) {
+            case ViewMode.MODULE:
+                setViewMode(ViewMode.MODULE);
+                break;
+            case ViewMode.FILE:
+                setViewMode(ViewMode.FILE);
+                break;
+            case ViewMode.TYPE:
+                setViewMode(ViewMode.TYPE);
+                break;
+            default:
+            // ignored
+        }
+    }
 
     React.useEffect(() => {
         (async () => {
-            const showDiagramError = false;
-            // console.log('>>> file path from props', projectPaths);
             try {
                 const langClient = await langClientPromise;
                 const filePaths: any = projectPaths.map(path => ({ uri: path.uri.external }))
-                // console.log('>>> file paths', filePaths);
-                const projectComponents: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
+                const projectCompResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [...filePaths]
                 });
 
-                console.log('>>>', projectComponents);
-
-                const currentComponents: ComponentCollection = {
-                    functions: [],
-                    services: [],
-                    records: [],
-                    objects: [],
-                    classes: [],
-                    types: [],
-                    constants: [],
-                    enums: [],
-                    listeners: [],
-                    moduleVariables: []
-                };
-                // TODO: Handle the processing of response json in a better way
-                projectComponents.packages.forEach(packageInfo => {
-                    packageInfo.modules.forEach(module => {
-                        Object.keys(module).forEach(key => {
-                            if (key !== 'name') {
-                                module[key].forEach((element: any) => {
-                                    currentComponents[key].push({
-                                        ...element,
-                                        folderPath: packageInfo.filePath,
-                                        moduleName: module.name ? module.name : DEFAULT_MODULE_NAME
-                                    })
-                                });
-                            }
-                        })
-                    })
-                })
-
-                updateProjectComponents(currentComponents);
-                // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
+                updateProjectComponenets(projectCompResponse);
             } catch (err) {
                 // TODO: do the error view diagram
                 // tslint:disable-next-line: no-console
@@ -88,25 +80,43 @@ export function OverviewDiagram(props: EditorProps) {
         setFocusPosition(position);
     }
 
-    // console.log('>>> component', componentViews);
-    const comps = components && Object.keys(components)
-        .filter(key => components[key].length)
-        .map(key => <CategoryView heading={key} components={components[key]} updateSelection={handleUpdateSelection} />)
+    const handleBackNavigation = () => {
+        setFocusPosition(undefined);
+    }
+
+    const renderView = () => {
+        const CurrentView = Views[viewMode];
+        if (!CurrentView) return <></>;
+        return (
+            <CurrentView
+                projectComponents={projectComponents}
+                updateSelection={handleUpdateSelection}
+            />
+        )
+    }
+
+    const viewSelector = (
+        <div className="overview-action-bar">
+            <div>
+                <span className="label">Group By</span>
+                <select onChange={handleViewModeChange} value={viewMode}>
+                    <option value={ViewMode.MODULE}>{ViewMode.MODULE}</option>
+                    <option value={ViewMode.FILE}>{ViewMode.FILE}</option>
+                    <option value={ViewMode.TYPE}>{ViewMode.TYPE}</option>
+                </select>
+            </div >
+        </div>
+    )
 
     const diagramRenderCondition: boolean = (!!openInDiagram && !!selectedFile && selectedFile.length > 0)
         || (!!focusPosition && !!selectedFile && selectedFile.length > 0);
 
-
     return (
         <>
-            {/* {components && Object.keys(components).map(key => {
-                const comp = components[key].map((el: any) => <div>{JSON.stringify(el)}</div>)
-                return (
-                    <div>{key}</div>
-                )
-            })} */}
-            {!diagramRenderCondition && comps}
-            {diagramRenderCondition && <Diagram {...props} focusPosition={focusPosition} />}
+            <NavigationBar diagramHasDepth={diagramRenderCondition} handleBackClick={handleBackNavigation} />
+            {!diagramRenderCondition && viewSelector}
+            {!diagramRenderCondition && renderView()}
+            {diagramRenderCondition && <Diagram {...props} filePath={selectedFile} focusPosition={focusPosition} />}
         </>
     )
 }

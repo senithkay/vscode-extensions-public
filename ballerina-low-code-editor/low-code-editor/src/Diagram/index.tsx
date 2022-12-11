@@ -321,12 +321,6 @@ export function Diagram() {
     // todo: need to handle this when file is empty
     // AST node passed in to this is can be a top level node or a compilation unit.
     // const child = getSTComponent(syntaxTree); // TODO: Handle datamapper switching logic
-    const viewState = syntaxTree.viewState as ViewState;
-    let h = viewState.bBox.h ? (viewState.bBox.h + DefaultConfig.canvas.childPaddingY) : DefaultConfig.canvas.height;
-
-    if (h < window.innerHeight) {
-        h = h + (window.innerHeight - h);
-    }
 
     const dataMapperArgs = {ballerinaVersion, ...formConfig};
 

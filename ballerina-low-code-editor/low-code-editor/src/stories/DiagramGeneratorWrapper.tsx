@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { Uri } from 'monaco-editor';
 
-import { LowCodeDiagramGenerator, DiagramGeneratorProps } from '../DiagramGenerator';
+import { DiagramGeneratorProps, LowCodeDiagramGenerator } from '../DiagramGenerator';
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
 

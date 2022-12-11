@@ -10,11 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
 import React from "react";
 
 export function ModuleView() {
     return (
-        <div>ModuleView</div>
+        <div>Module View</div>
     )
 }

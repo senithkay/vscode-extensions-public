@@ -14,7 +14,8 @@ import React from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { ComponentViewInfo } from "../../util";
+import { DEFAULT_MODULE_NAME } from "../../..";
+import { ComponentViewInfo } from "../../../util";
 
 import './style.scss';
 
@@ -23,13 +24,21 @@ interface ComponentViewProps {
     updateSelection: (position: NodePosition, file: string) => void;
 }
 
+function generateFileLocation(moduleName: string, folderPath: string, fileName: string) {
+    const modulePath = moduleName !== DEFAULT_MODULE_NAME ? `modules/${moduleName}` : '';
+    return `${folderPath}${modulePath}/${fileName}`
+}
+
 export function ComponentView(props: ComponentViewProps) {
     const { info, updateSelection } = props;
-    
+
+
+
     const handleComponentClick = () => {
-        const {filePath, moduleName, folderPath, name, ...position} = info;
-        console.log(info);
-        updateSelection(position, "");
+        const { filePath, moduleName, folderPath, name, ...position } = info;
+        // tslint:disable-next-line: no-console
+        console.log('>>> clicked component', info);
+        updateSelection(position, generateFileLocation(moduleName, folderPath.replace('file://', ''), filePath));
     }
 
     return (

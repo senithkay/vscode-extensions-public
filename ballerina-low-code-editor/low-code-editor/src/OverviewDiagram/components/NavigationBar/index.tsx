@@ -10,15 +10,28 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ImportDeclaration, ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
+import React from "react";
 
-export function getImportStatements(syntaxTree: STNode): string[] {
-    const importStatements: string[] = [];
-    const st = syntaxTree as ModulePart;
+import './style.scss';
 
-    st?.imports.map((importDeclaration: ImportDeclaration) => (
-        importStatements.push(importDeclaration.source.trim())
-    ));
+interface NavigationBarProps {
+    diagramHasDepth: boolean;
+    handleBackClick: () => void;
+}
 
-    return importStatements;
+export function NavigationBar(props: NavigationBarProps) {
+    const { diagramHasDepth, handleBackClick } = props;
+
+    const backButton = (
+        <div className="segment">
+            <button onClick={handleBackClick}>Back</button>
+        </div>
+    )
+
+    return (
+        <div className="top-bar">
+            {diagramHasDepth && backButton}
+            <div className="segment">Project Overview</div>
+        </div>
+    )
 }

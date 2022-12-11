@@ -42,6 +42,7 @@ import cloneDeep from "lodash.clonedeep";
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
+import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
@@ -58,7 +59,6 @@ import { addPerformanceData } from "./performanceUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
-import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
@@ -108,6 +108,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
         panY: defaultPanY,
     };
 
+    const [fullSyntaxTree, setFullSyntaxTree] = React.useState(undefined);
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
     const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
     const [fileContent, setFileContent] = React.useState("");
@@ -131,17 +132,10 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
             let showDiagramError = false;
             try {
                 const langClient = await langClientPromise;
-                console.log('lang client >>>', langClient)
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
                 const content = await props.getFileContent(filePath);
-                const projectComponents = await langClient.getBallerinaProjectComponents({
-                    documentIdentifiers: [{
-                        uri: 'file:///home/charukak/test-projects/ballerina-tests/outline_tests'
-                    }]
-                });
 
-
-                console.log('componenet test >>>', projectComponents);
+                console.log('componenet test >>>', filePath, focusPosition);
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
@@ -151,6 +145,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 }
 
                 if (focusPosition) {
+                    console.log('focus position >>>', focusPosition)
                     const stFindingVisitor = new STFindingVisitor();
                     stFindingVisitor.setPosition(focusPosition);
                     traversNode(vistedSyntaxTree, stFindingVisitor);
@@ -158,6 +153,8 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 } else {
                     setSyntaxTree(vistedSyntaxTree);
                 }
+
+                setFullSyntaxTree(vistedSyntaxTree);
 
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
@@ -193,18 +190,67 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
     }, []);
 
     React.useEffect(() => {
-        setSelectedPosition(startColumn === 0 && startLine === 0 && syntaxTree ?
-            getDefaultSelectedPosition(syntaxTree as ModulePart)
-            : { startLine, startColumn });
+        (async () => {
+            let showDiagramError = false;
+            try {
+                const langClient = await langClientPromise;
+                const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
+                const content = await props.getFileContent(filePath);
 
-        const client = KeyboardNavigationManager.getClient();
-        client.bindNewKey(['command+z', 'ctrl+z'], undo);
-        client.bindNewKey(['command+shift+z', 'ctrl+y'], redo);
+                console.log('componenet test >>>', filePath, focusPosition);
+                // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
+                //     resolveMissingDependency(filePath, content);
+                // }
+                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath, langClient, experimentalEnabled, showMessage);
+                if (!vistedSyntaxTree) {
+                    return (<div><h1>Parse error...!</h1></div>);
+                }
 
-        return () => {
-            client.resetMouseTrapInstance();
-        }
-    }, [syntaxTree]);
+                if (focusPosition) {
+                    console.log('focus position >>>', focusPosition)
+                    const stFindingVisitor = new STFindingVisitor();
+                    stFindingVisitor.setPosition(focusPosition);
+                    traversNode(vistedSyntaxTree, stFindingVisitor);
+                    setSyntaxTree(stFindingVisitor.getSTNode());
+                } else {
+                    setSyntaxTree(vistedSyntaxTree);
+                }
+
+                setFullSyntaxTree(vistedSyntaxTree);
+
+                undoRedo.updateContent(filePath, content);
+                setFileContent(content);
+                setLowCodeResourcesVersion(await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION"));
+                setLowCodeEnvInstance(await getEnv("VSCODE_CHOREO_SENTRY_ENV"));
+                // Add performance data
+                await addPerfData(vistedSyntaxTree);
+
+                setSelectedPosition(startColumn === 0 && startLine === 0 ?
+                    getDefaultSelectedPosition(vistedSyntaxTree as ModulePart)
+                    : { startLine, startColumn });
+            } catch (err) {
+                // tslint:disable-next-line: no-console
+                console.error(err)
+                showDiagramError = true;
+            }
+
+            setIsDiagramError(showDiagramError);
+        })();
+    }, [filePath])
+
+    // React.useEffect(() => {
+    //     setSelectedPosition(startColumn === 0 && startLine === 0 && syntaxTree ?
+    //         getDefaultSelectedPosition(syntaxTree as ModulePart)
+    //         : { startLine, startColumn });
+
+    //     const client = KeyboardNavigationManager.getClient();
+    //     client.bindNewKey(['command+z', 'ctrl+z'], undo);
+    //     client.bindNewKey(['command+shift+z', 'ctrl+y'], redo);
+
+    //     return () => {
+    //         client.resetMouseTrapInstance();
+    //     }
+    // }, [syntaxTree]);
 
     function zoomIn() {
         const newZoomStatus = cloneDeep(zoomStatus);
@@ -311,6 +357,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
     // FIXME: Doing this to make main branch build pass so others can continue merging changes
     // on top of typed context
     const missingProps: any = {};
+    console.log('>>> selected ST', syntaxTree);
 
     const diagramComponent = (
         <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt} >
@@ -329,7 +376,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     size: 1,
                     type: "File"
                 }}
-                importStatements={getImportStatements(syntaxTree)}
+                importStatements={getImportStatements(fullSyntaxTree)}
                 experimentalEnabled={experimentalEnabled}
                 lowCodeResourcesVersion={lowCodeResourcesVersion}
                 ballerinaVersion={balVersion}
@@ -500,7 +547,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
         const currentTime: number = Date.now();
         const langClient = await langClientPromise;
         if (currentTime - lastPerfUpdate > debounceTime) {
-            await addPerformanceData(vistedSyntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setSyntaxTree);
+            await addPerformanceData(syntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setSyntaxTree);
             lastPerfUpdate = currentTime;
         }
     }

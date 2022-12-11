@@ -10,15 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ImportDeclaration, ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 
-export function getImportStatements(syntaxTree: STNode): string[] {
-    const importStatements: string[] = [];
-    const st = syntaxTree as ModulePart;
+import React from "react";
 
-    st?.imports.map((importDeclaration: ImportDeclaration) => (
-        importStatements.push(importDeclaration.source.trim())
-    ));
-
-    return importStatements;
+export function FileView() {
+    return (
+        <div>FileView</div>
+    )
 }

@@ -207,7 +207,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : {});
+				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : undefined);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
