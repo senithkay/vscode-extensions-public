@@ -21,14 +21,15 @@ import { getProjectsByOrg } from "../../api/queries";
 import { getUserInfo } from "../../api/user";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
+import { ChoreoSignInTreeItem } from "./ChoreoSignInTreeItem";
+import { ChoreoSignOutTreeItem } from "./ChoreoSignOutTreeItem";
 import { ChoreoOrgTreeItem } from "./OrganizationTreeItem";
-import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
 
-export type ProjectTreeItem = ChoreoOrgTreeItem | ChoreoProjectTreeItem | ChoreoSignInPendingTreeItem;
+export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | ChoreoSignInTreeItem | ChoreoSignInPendingTreeItem;
+ 
+ export class AccountTreeProvider implements TreeDataProvider<AccountTreeItem> {
 
-export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
-
-    private _onDidChangeTreeData = new EventEmitter<ProjectTreeItem | undefined | void>();
+    private _onDidChangeTreeData = new EventEmitter<AccountTreeItem | undefined | void >();
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     constructor() {
@@ -38,42 +39,41 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
         ext.context.subscriptions.push(subscription);
     }
 
-    getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
-        return element;
-    }
-
-    getChildren(element?: TreeItem): ProviderResult<ProjectTreeItem[]> {
+     getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
+         return element;
+     }
+ 
+     getChildren(element?: TreeItem): ProviderResult<AccountTreeItem[]> {
         if (ext.api.status === "LoggedIn") {
+            const treeItems = [new ChoreoSignOutTreeItem()];
             if (!element) {
-                return this.loadOrgTree();
-            } else if (element instanceof ChoreoOrgTreeItem) {
-                const orgId = element.org.id;
-                return getProjectsByOrg(orgId)
-                    .then((projects) => {
-                        return projects.map((proj) => new ChoreoProjectTreeItem(proj, TreeItemCollapsibleState.Collapsed));
-                    });
-            }
+                // treeItems.push(this.loadOrgTree());
+            } 
+            return treeItems;
+        } else if (ext.api.status === "LoggedOut") {
+            return [new ChoreoSignInTreeItem()];
         } else if (ext.api.status === "LoggingIn") {
-            return ext.api.waitForLogin().then(() => []);
+            return [new ChoreoSignInPendingTreeItem()];
         }
-    }
-
-    refresh(): void {
+     }
+ 
+     refresh(): void {
         this._onDidChangeTreeData.fire();
-    }
+     }
 
-    private async loadOrgTree(): Promise<ChoreoOrgTreeItem[]> {
+     private async loadOrgTree(): Promise<ChoreoOrgTreeItem[]> {
         return new Promise(async (resolve) => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
-                const userInfo = await getUserInfo();
-                if (userInfo.organizations && userInfo.organizations.length > 0) {
-                    const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.Collapsed));
-                    resolve(treeItems);
-                    return;
-                }
-            }
+                 const userInfo = await getUserInfo();
+                 if (userInfo.organizations && userInfo.organizations.length > 0) {
+                     const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.Collapsed));
+                     resolve(treeItems);
+                     return;
+                 }
+            } 
             reject("Cannot fetch organizations of the user.");
-        });
-    }
-}
+         });
+     }
+ }
+ 

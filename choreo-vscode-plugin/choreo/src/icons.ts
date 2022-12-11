@@ -16,12 +16,9 @@
  * under the License.
  *
  */
-export const choreoSignInCmdId = 'wso2.choreo.sign.in';
-export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
+import path = require("path");
+import { ext } from "./extensionVariables";
 
-export const choreoSignedInCtxKey = 'isSignedInToChoreo';
- 
-// views
-export const choreoProjectsTreeId = 'choreo-projects';
-export const choreoAccountTreeId = 'choreo-account';
-
+export function getIconPath(iconName: string, type: "light"|"dark") {
+    return ext.context.asAbsolutePath(path.join('resources', 'icons', type, `${iconName}.svg`));
+}

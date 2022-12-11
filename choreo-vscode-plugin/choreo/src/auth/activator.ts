@@ -18,7 +18,7 @@
  */
 import * as vscode from 'vscode';
 import { commands, window } from "vscode";
-import { ChoreoToken, exchangeAuthToken, exchangeRefreshToken, initiateInbuiltAuth, signOut } from "./inbuilt-impl";
+import { ChoreoToken, exchangeAuthToken, exchangeRefreshToken, initiateInbuiltAuth as openAuthURL, signOut } from "./inbuilt-impl";
 import { ChoreoAuthConfig, ChoreoFidp } from "./config";
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
@@ -31,6 +31,7 @@ export async function activateAuth() {
     vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
             if (uri.path === '/choreo-signin') {
+                ext.api.onStatusChanged.fire('LoggingIn');
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get('code');
                 if (authCode) {
@@ -47,7 +48,21 @@ export async function activateAuth() {
         try {
             ext.api.onStatusChanged.fire('LoggingIn');
             choreoAuthConfig.setFidp(ChoreoFidp.google);
-            await initiateInbuiltAuth();
+            const openSuccess = await openAuthURL();
+            if (openSuccess) {
+                await window.withProgress({
+                    title: 'Signing in to Choreo',
+                    location: vscode.ProgressLocation.Notification,
+                    cancellable: true
+                }, async (_progress, cancellationToken) => {
+                    cancellationToken.onCancellationRequested(async () => {
+                        await signOut();
+                    });
+                    await ext.api.waitForLogin();
+                });
+            } else {
+                window.showErrorMessage("Unable to open external link for authentication.");
+            }
         } catch (error) {
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
@@ -70,7 +85,7 @@ export async function activateAuth() {
 async function initFromExistingChoreoSession() {
     const choreoTokenInfo = await getChoreoToken(ChoreoToken);
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
-         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
+        && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
         let tokenDuration = (new Date().getTime() - new Date(choreoTokenInfo.loginTime).getTime()) / 1000;
         if (tokenDuration > choreoTokenInfo.expirationTime) {
             await exchangeRefreshToken(choreoTokenInfo.refreshToken);

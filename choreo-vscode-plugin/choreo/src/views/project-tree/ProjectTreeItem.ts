@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import path = require("path");
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Project } from "../../api/types";
+import { getIconPath } from "../../icons";
 
 export class ChoreoProjectTreeItem extends TreeItem {
     constructor(
@@ -26,12 +26,12 @@ export class ChoreoProjectTreeItem extends TreeItem {
       public readonly collapsibleState: TreeItemCollapsibleState
     ) {
       super(project.name, collapsibleState);
-      this.tooltip = `Created: ${project.createdData}`;
       this.description = project.version;
     }
   
+  
     iconPath = {
-      light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
-      dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
+      light: getIconPath('project', "light"),
+      dark: getIconPath('project', "dark")
     };
 }

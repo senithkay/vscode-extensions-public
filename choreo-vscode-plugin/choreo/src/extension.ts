@@ -20,8 +20,9 @@ import * as vscode from 'vscode';
 import { window } from 'vscode';
 import { activateAuth } from './auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { choreoProjectsTreeId } from './constants';
+import { choreoAccountTreeId, choreoProjectsTreeId } from './constants';
 import { ext } from './extensionVariables';
+import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -32,6 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 	activateAuth();
 
 	ext.projectsTreeView = createProjectTreeView();
+	ext.accountTreeView = createAccountTreeView();
 	ext.isPluginStartup = false;
 	return ext.api;
 }
@@ -41,6 +43,14 @@ function createProjectTreeView() {
 	const choreoResourcesProvider = new ProjectsTreeProvider();
     return window.createTreeView(choreoProjectsTreeId, {
         treeDataProvider: choreoResourcesProvider, showCollapseAll: true
+    });
+}
+
+
+function createAccountTreeView() {
+	const accountTreeProvider = new AccountTreeProvider();
+    return window.createTreeView(choreoAccountTreeId, {
+        treeDataProvider: accountTreeProvider, showCollapseAll: false
     });
 }
 

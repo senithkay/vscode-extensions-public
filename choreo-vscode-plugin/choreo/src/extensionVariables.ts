@@ -12,5 +12,5 @@ export namespace ext {
 
     // views
     export let projectsTreeView: TreeView<TreeItem>;
-
+    export let accountTreeView: TreeView<TreeItem>;
 }

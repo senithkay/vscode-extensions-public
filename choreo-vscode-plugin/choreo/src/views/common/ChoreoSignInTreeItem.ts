@@ -14,14 +14,14 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
-export const choreoSignInCmdId = 'wso2.choreo.sign.in';
-export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
+import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from "vscode";
 
-export const choreoSignedInCtxKey = 'isSignedInToChoreo';
- 
-// views
-export const choreoProjectsTreeId = 'choreo-projects';
-export const choreoAccountTreeId = 'choreo-account';
-
+export class ChoreoSignInPendingTreeItem extends TreeItem {
+    constructor(
+    ) {
+      super("Waiting for Choreo sign-in...", TreeItemCollapsibleState.None);
+    }
+  
+    iconPath = new ThemeIcon('loading~spin');
+}

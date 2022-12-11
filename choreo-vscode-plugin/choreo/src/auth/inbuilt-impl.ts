@@ -51,7 +51,7 @@ export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
         vscode.Uri.parse(getAuthURL())
     );
-    vscode.commands.executeCommand("vscode.open", callbackUri);
+    return vscode.env.openExternal(callbackUri);
 }
 
 export const ChoreoToken = "choreo.token";

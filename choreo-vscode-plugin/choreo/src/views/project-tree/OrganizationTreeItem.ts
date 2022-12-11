@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import path = require("path");
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Organization } from "../../api/types";
+import { getIconPath } from "../../icons";
 
 export class ChoreoOrgTreeItem extends TreeItem {
     constructor(
@@ -26,11 +26,10 @@ export class ChoreoOrgTreeItem extends TreeItem {
     ) {
       super(org.handle, collapsibleState);
       this.tooltip = `Organization: ${org.name}`;
-      this.description = 'Organization';
     }
   
     iconPath = {
-      light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
-      dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
+      light: getIconPath('organization', "light"),
+      dark: getIconPath('organization', "dark")
     };
 }
