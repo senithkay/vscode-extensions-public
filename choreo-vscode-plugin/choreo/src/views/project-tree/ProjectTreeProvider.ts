@@ -16,7 +16,7 @@
  * under the License.
  */
 import { reject } from "lodash";
-import { ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
+import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
 import { getProjectsByOrg } from "../../api/queries";
 import { getUserInfo } from "../../api/user";
 import { ext } from "../../extensionVariables";
@@ -26,23 +26,36 @@ import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
  
  export class ProjectsTreeProvider implements TreeDataProvider<ChoreoOrgTreeItem|ChoreoProjectTreeItem> {
 
+    private _onDidChangeTreeData = new EventEmitter<ChoreoOrgTreeItem | ChoreoProjectTreeItem | undefined | void >();
+    readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
+
+    constructor() {
+        const subscription = ext.api.onStatusChanged.event(() => {
+            this.refresh();
+        });
+        ext.context.subscriptions.push(subscription);
+    }
+
      getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
          return element;
      }
  
      getChildren(element?: TreeItem): ProviderResult<ChoreoOrgTreeItem[]|ChoreoProjectTreeItem[]> {
-        if (!element) {
-            return this.loadOrgTree();
-        } else if (element instanceof ChoreoOrgTreeItem) {
-            const orgId = element.org.id;
-            return getProjectsByOrg(orgId)
-                .then((projects) => {
-                    return projects.map((proj) => new ChoreoProjectTreeItem(proj, TreeItemCollapsibleState.Collapsed));
-                });
+        if (ext.api.status !== "LoggedOut") {
+            if (!element) {
+                return this.loadOrgTree();
+            } else if (element instanceof ChoreoOrgTreeItem) {
+                const orgId = element.org.id;
+                return getProjectsByOrg(orgId)
+                    .then((projects) => {
+                        return projects.map((proj) => new ChoreoProjectTreeItem(proj, TreeItemCollapsibleState.Collapsed));
+                    });
+            }
         }
      }
  
      refresh(): void {
+        this._onDidChangeTreeData.fire();
      }
 
      private async loadOrgTree(): Promise<ChoreoOrgTreeItem[]> {

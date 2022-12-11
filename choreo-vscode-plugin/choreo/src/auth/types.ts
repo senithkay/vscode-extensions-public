@@ -19,6 +19,6 @@
 export interface ChoreoAccessToken {
     accessToken?: string;
     refreshToken?: string;
-    loginTime?: Date;
+    loginTime?: string;
     expirationTime?: number;
 }

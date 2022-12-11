@@ -27,13 +27,12 @@ import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 export function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = true;
 	ext.context = context;
+	ext.api = new ChoreoExtensionApi();
 
 	activateAuth();
 
 	ext.projectsTreeView = createProjectTreeView();
 	ext.isPluginStartup = false;
-
-	ext.api = new ChoreoExtensionApi();
 	return ext.api;
 }
 

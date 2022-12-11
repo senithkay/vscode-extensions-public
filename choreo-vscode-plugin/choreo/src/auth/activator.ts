@@ -18,15 +18,16 @@
  */
 import * as vscode from 'vscode';
 import { commands, window } from "vscode";
-import { exchangeAuthToken, initiateInbuiltAuth, signOut } from "./inbuilt-impl";
+import { ChoreoToken, exchangeAuthToken, exchangeRefreshToken, initiateInbuiltAuth, signOut } from "./inbuilt-impl";
 import { ChoreoAuthConfig, ChoreoFidp } from "./config";
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
 import { choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
+import { getChoreoToken } from './storage';
 
 export let choreoAuthConfig: ChoreoAuthConfig;
 export async function activateAuth() {
-
+    initFromExistingChoreoSession();
     vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
             if (uri.path === '/choreo-signin') {
@@ -64,4 +65,18 @@ export async function activateAuth() {
             }
         }
     });
+}
+
+async function initFromExistingChoreoSession() {
+    const choreoTokenInfo = await getChoreoToken(ChoreoToken);
+    if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
+         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
+        let tokenDuration = (new Date().getTime() - new Date(choreoTokenInfo.loginTime).getTime()) / 1000;
+        if (tokenDuration > choreoTokenInfo.expirationTime) {
+            await exchangeRefreshToken(choreoTokenInfo.refreshToken);
+        }
+        ext.api.onStatusChanged.fire('LoggedIn');
+    } else {
+        ext.api.onStatusChanged.fire('LoggedOut');
+    }
 }
