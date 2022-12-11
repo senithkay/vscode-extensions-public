@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -17,16 +18,16 @@
  */
 import path = require("path");
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import { Organization } from "../../api/types";
+import { Project } from "../../api/types";
 
-export class ChoreoOrgTreeItem extends TreeItem {
+export class ChoreoProjectTreeItem extends TreeItem {
     constructor(
-      public readonly org: Organization,
+      public readonly project: Project,
       public readonly collapsibleState: TreeItemCollapsibleState
     ) {
-      super(org.handle, collapsibleState);
-      this.tooltip = `Organization: ${org.name}`;
-      this.description = 'Organization';
+      super(project.name, collapsibleState);
+      this.tooltip = `Created: ${project.createdData}`;
+      this.description = project.version;
     }
   
     iconPath = {

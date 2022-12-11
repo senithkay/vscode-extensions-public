@@ -41,5 +41,11 @@ export interface UserInfo {
 }
 
 export interface Project {
-    
+    createdData: string;
+    handler: string;
+    id: string;
+    name: string;
+    orgId: string;
+    region: string;
+    version: string;
 }

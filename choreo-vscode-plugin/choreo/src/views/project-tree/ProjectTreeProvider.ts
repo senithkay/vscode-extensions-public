@@ -21,22 +21,23 @@ import { getProjectsByOrg } from "../../api/queries";
 import { getUserInfo } from "../../api/user";
 import { ext } from "../../extensionVariables";
 import { ChoreoOrgTreeItem } from "./OrganizationTreeItem";
+import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
 
  
- export class ProjectsTreeProvider implements TreeDataProvider<ChoreoOrgTreeItem> {
+ export class ProjectsTreeProvider implements TreeDataProvider<ChoreoOrgTreeItem|ChoreoProjectTreeItem> {
 
      getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
          return element;
      }
  
-     getChildren(element?: TreeItem): ProviderResult<ChoreoOrgTreeItem[]> {
+     getChildren(element?: TreeItem): ProviderResult<ChoreoOrgTreeItem[]|ChoreoProjectTreeItem[]> {
         if (!element) {
             return this.loadOrgTree();
         } else if (element instanceof ChoreoOrgTreeItem) {
             const orgId = element.org.id;
-            getProjectsByOrg(orgId)
+            return getProjectsByOrg(orgId)
                 .then((projects) => {
-                    console.log(projects);
+                    return projects.map((proj) => new ChoreoProjectTreeItem(proj, TreeItemCollapsibleState.Collapsed));
                 });
         }
      }

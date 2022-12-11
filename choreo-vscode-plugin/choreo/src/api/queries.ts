@@ -39,5 +39,5 @@ export async function getProjectsByOrg(orgId: string): Promise<Project[]> {
         }
     `;
 
-    return (await getProjectsApiClient()).request(query);
+    return (await (await getProjectsApiClient()).request(query)).projects;
 }
