@@ -17,13 +17,13 @@
  */
 import { reject } from "lodash";
 import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
-import { getProjectsByOrg } from "../../api/queries";
 import { getUserInfo } from "../../api/user";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
 import { ChoreoSignInTreeItem } from "./ChoreoSignInTreeItem";
 import { ChoreoSignOutTreeItem } from "./ChoreoSignOutTreeItem";
-import { ChoreoOrgTreeItem } from "./OrganizationTreeItem";
+import { ChoreoOrgTreeItem } from "./ChoreoOrganizationTreeItem";
+import { ChoreoOrganizationsTreeItem } from "./ChoreoOrganizationsTreeItem";
 
 export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | ChoreoSignInTreeItem | ChoreoSignInPendingTreeItem;
  
@@ -45,11 +45,11 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
  
      getChildren(element?: TreeItem): ProviderResult<AccountTreeItem[]> {
         if (ext.api.status === "LoggedIn") {
-            const treeItems = [new ChoreoSignOutTreeItem()];
             if (!element) {
-                // treeItems.push(this.loadOrgTree());
-            } 
-            return treeItems;
+                return  [new ChoreoSignOutTreeItem(), new ChoreoOrganizationsTreeItem()];
+            } else if (element instanceof ChoreoOrganizationsTreeItem) {
+                return this.loadOrgTree();
+            }
         } else if (ext.api.status === "LoggedOut") {
             return [new ChoreoSignInTreeItem()];
         } else if (ext.api.status === "LoggingIn") {
@@ -67,7 +67,7 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
             if (loginSuccess) {
                  const userInfo = await getUserInfo();
                  if (userInfo.organizations && userInfo.organizations.length > 0) {
-                     const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.Collapsed));
+                     const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.None));
                      resolve(treeItems);
                      return;
                  }
