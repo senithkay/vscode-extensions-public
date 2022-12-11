@@ -54,7 +54,9 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
                     });
             }
         } else if (ext.api.status === "LoggingIn") {
-            return ext.api.waitForLogin().then(() => []);
+            return [new ChoreoSignInPendingTreeItem()];
+        } else {
+            return [];
         }
     }
 

@@ -26,6 +26,7 @@ import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
 import { getUserInfo } from '../api/user';
+import jwtDecode from 'jwt-decode';
 
 const challenge = pkceChallenge();
 
@@ -85,6 +86,7 @@ export async function exchangeAuthToken(authCode: string) {
                 await storeToken(ChoreoToken, response);
                 const userInfo = await getUserInfo();
                 await exchangeApimToken(token, userInfo.organizations[0].handle);
+                await signIn(response.data.access_token);
             } else {
                 vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
             }
@@ -156,7 +158,6 @@ export async function exchangeVSCodeToken(apimToken: string) {
     ).then(async (response) => {
         if (response) {
             await storeToken(ChoreoVscodeToken, response);
-            ext.api.onStatusChanged.fire('LoggedIn');
             // Show the success message in vscode.
             vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
         } else {
@@ -203,11 +204,22 @@ export async function exchangeRefreshToken(refreshToken: string) {
     });
 }
 
+export async function signIn(accessToken: string) {
+    ext.api.onStatusChanged.fire('LoggedIn');
+    ext.api.userName = await getUserName(accessToken);
+}
+
+export async function getUserName(accessToken: string) {
+    const decoded: any = jwtDecode(accessToken);
+    return decoded["name"];
+}
+
 export async function signOut() {
     await deleteChoreoToken(ChoreoToken);
     await deleteChoreoToken(ChoreoApimToken);
     await deleteChoreoToken(ChoreoVscodeToken);
     ext.api.onStatusChanged.fire('LoggedOut');
+    ext.api.userName = undefined;
 }
 
 function getAuthURL(): string {

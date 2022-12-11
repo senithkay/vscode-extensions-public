@@ -20,19 +20,17 @@ import { ChoreoLoginStatus } from "./auth/events";
  */
 import { commands, Disposable, Event, EventEmitter } from 'vscode';
 import { ext } from "./extensionVariables";
+import { getChoreoToken } from "./auth/storage";
+import { ChoreoToken } from "./auth/inbuilt-impl";
+import jwtDecode from "jwt-decode";
 
 export class ChoreoExtensionApi {
-
+    public userName: string | undefined;
     public status: ChoreoLoginStatus;
 	public onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
 
     constructor() {
         this.status = "Initializing";
-        const subscription: Disposable = this.onStatusChanged.event((newStatus) => {
-            this.status = newStatus;
-            commands.executeCommand("setContext", "choreoLoginStatus", newStatus);
-        });
-        ext.context.subscriptions.push(subscription);
     }
 
     public async waitForLogin(): Promise<boolean> {
@@ -48,6 +46,7 @@ export class ChoreoExtensionApi {
                         subscription.dispose();
                         resolve(this.waitForLogin());
                     });
+                    ext.context.subscriptions.push(subscription);
                 });
             default:
                 const status: never = this.status;

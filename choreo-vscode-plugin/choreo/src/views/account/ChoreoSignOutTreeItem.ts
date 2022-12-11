@@ -17,6 +17,7 @@
  */
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { choreoSignOutCmdId } from "../../constants";
+import { ext } from "../../extensionVariables";
 import { getIconPath } from "../../icons";
 
 export class ChoreoSignOutTreeItem extends TreeItem {
@@ -25,14 +26,13 @@ export class ChoreoSignOutTreeItem extends TreeItem {
       super("Sign out from Choreo...", TreeItemCollapsibleState.None);
       this.command = {
         command: choreoSignOutCmdId,
-        title: "Sign out from Choreo"
+        title: `Sign out ${ext.api.userName ? ext.api.userName : ''} from Choreo`
       };
+      this.description = ext.api.userName;
     }
   
     iconPath = {
       light: getIconPath('sign-out', "light"),
       dark: getIconPath('sign-out', "dark")
     };
-
-
 }

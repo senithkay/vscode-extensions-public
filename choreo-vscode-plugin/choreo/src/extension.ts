@@ -29,11 +29,10 @@ export function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = true;
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
-
-	activateAuth();
-
+	setupEvents();
 	ext.projectsTreeView = createProjectTreeView();
 	ext.accountTreeView = createAccountTreeView();
+	activateAuth();
 	ext.isPluginStartup = false;
 	return ext.api;
 }
@@ -52,6 +51,14 @@ function createAccountTreeView() {
     return window.createTreeView(choreoAccountTreeId, {
         treeDataProvider: accountTreeProvider, showCollapseAll: false
     });
+}
+
+function setupEvents() {
+	const subscription: vscode.Disposable = ext.api.onStatusChanged.event(async (newStatus) => {
+		ext.api.status = newStatus;
+		vscode.commands.executeCommand("setContext", "choreoLoginStatus", newStatus);
+	});
+	ext.context.subscriptions.push(subscription);
 }
 
 

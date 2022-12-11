@@ -18,7 +18,7 @@
  */
 import * as vscode from 'vscode';
 import { commands, window } from "vscode";
-import { ChoreoToken, exchangeAuthToken, exchangeRefreshToken, initiateInbuiltAuth as openAuthURL, signOut } from "./inbuilt-impl";
+import { ChoreoToken, exchangeAuthToken, exchangeRefreshToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./inbuilt-impl";
 import { ChoreoAuthConfig, ChoreoFidp } from "./config";
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
@@ -27,7 +27,7 @@ import { getChoreoToken } from './storage';
 
 export let choreoAuthConfig: ChoreoAuthConfig;
 export async function activateAuth() {
-    initFromExistingChoreoSession();
+    await initFromExistingChoreoSession();
     vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
             if (uri.path === '/choreo-signin') {
@@ -61,6 +61,7 @@ export async function activateAuth() {
                     await ext.api.waitForLogin();
                 });
             } else {
+                await signOut();
                 window.showErrorMessage("Unable to open external link for authentication.");
             }
         } catch (error) {
@@ -90,8 +91,8 @@ async function initFromExistingChoreoSession() {
         if (tokenDuration > choreoTokenInfo.expirationTime) {
             await exchangeRefreshToken(choreoTokenInfo.refreshToken);
         }
-        ext.api.onStatusChanged.fire('LoggedIn');
+        await signIn(choreoTokenInfo?.accessToken);
     } else {
-        ext.api.onStatusChanged.fire('LoggedOut');
+        await signOut();
     }
 }
