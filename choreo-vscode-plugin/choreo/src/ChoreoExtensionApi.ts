@@ -23,9 +23,11 @@ import { ext } from "./extensionVariables";
 import { getChoreoToken } from "./auth/storage";
 import { ChoreoToken } from "./auth/inbuilt-impl";
 import jwtDecode from "jwt-decode";
+import { Organization } from "./api/types";
 
 export class ChoreoExtensionApi {
     public userName: string | undefined;
+    public selectedOrg: Organization | undefined;
     public status: ChoreoLoginStatus;
 	public onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
 

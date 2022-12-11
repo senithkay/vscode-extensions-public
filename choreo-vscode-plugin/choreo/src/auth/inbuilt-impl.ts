@@ -27,6 +27,7 @@ import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
 import { getUserInfo } from '../api/user';
 import jwtDecode from 'jwt-decode';
+import { Organization } from '../api/types';
 
 const challenge = pkceChallenge();
 
@@ -82,11 +83,8 @@ export async function exchangeAuthToken(authCode: string) {
             }
         ).then(async (response) => {
             if (response.data) {
-                let token = response.data.access_token;
                 await storeToken(ChoreoToken, response);
-                const userInfo = await getUserInfo();
-                await exchangeApimToken(token, userInfo.organizations[0].handle);
-                await signIn(response.data.access_token);
+                await signIn();
             } else {
                 vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
             }
@@ -176,20 +174,20 @@ export async function exchangeRefreshToken(refreshToken: string) {
     }
 
     const params = new URLSearchParams({
-        client_id: choreoAuthConfig.getVscodeClientId(),
+        client_id: choreoAuthConfig.getClientId(),
         grant_type: RefreshTokenGrantType,
         refresh_token: refreshToken
     });
 
     await axios.post(
-        choreoAuthConfig.getApimTokenUri(),
+        choreoAuthConfig.getTokenUri(),
         params.toString(),
         {
             headers: CommonReqHeaders
         }
     ).then(async (response) => {
         if (response) {
-           await storeToken(ChoreoVscodeToken, response);
+           await storeToken(ChoreoToken, response);
         } else {
             vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
             signOut();
@@ -204,14 +202,23 @@ export async function exchangeRefreshToken(refreshToken: string) {
     });
 }
 
-export async function signIn(accessToken: string) {
-    ext.api.onStatusChanged.fire('LoggedIn');
-    ext.api.userName = await getUserName(accessToken);
-}
-
-export async function getUserName(accessToken: string) {
-    const decoded: any = jwtDecode(accessToken);
-    return decoded["name"];
+export async function signIn() {
+    ext.api.onStatusChanged.fire('LoggingIn');
+    let choreoTokenInfo = await getChoreoToken(ChoreoToken);
+    if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
+        && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
+        let tokenDuration = (new Date().getTime() - new Date(choreoTokenInfo.loginTime).getTime()) / 1000;
+        if (tokenDuration > choreoTokenInfo.expirationTime) {
+            await exchangeRefreshToken(choreoTokenInfo.refreshToken);
+            await signIn();
+            return;
+        }
+        const userInfo = await getUserInfo();
+        await exchangeApimToken(choreoTokenInfo?.accessToken, userInfo.organizations[0].handle);
+        ext.api.userName = userInfo.displayName;
+        ext.api.selectedOrg = userInfo.organizations[0];
+        ext.api.onStatusChanged.fire('LoggedIn');
+    } 
 }
 
 export async function signOut() {
@@ -220,6 +227,7 @@ export async function signOut() {
     await deleteChoreoToken(ChoreoVscodeToken);
     ext.api.onStatusChanged.fire('LoggedOut');
     ext.api.userName = undefined;
+    ext.api.selectedOrg = undefined;
 }
 
 function getAuthURL(): string {

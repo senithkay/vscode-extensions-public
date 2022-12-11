@@ -21,10 +21,9 @@ import { getProjectsByOrg } from "../../api/queries";
 import { getUserInfo } from "../../api/user";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
-import { ChoreoOrgTreeItem } from "./OrganizationTreeItem";
 import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
 
-export type ProjectTreeItem = ChoreoOrgTreeItem | ChoreoProjectTreeItem | ChoreoSignInPendingTreeItem;
+export type ProjectTreeItem =ChoreoProjectTreeItem | ChoreoSignInPendingTreeItem;
 
 export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
 
@@ -45,13 +44,7 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     getChildren(element?: TreeItem): ProviderResult<ProjectTreeItem[]> {
         if (ext.api.status === "LoggedIn") {
             if (!element) {
-                return this.loadOrgTree();
-            } else if (element instanceof ChoreoOrgTreeItem) {
-                const orgId = element.org.id;
-                return getProjectsByOrg(orgId)
-                    .then((projects) => {
-                        return projects.map((proj) => new ChoreoProjectTreeItem(proj, TreeItemCollapsibleState.Collapsed));
-                    });
+                return this.loadProjects();
             }
         } else if (ext.api.status === "LoggingIn") {
             return [new ChoreoSignInPendingTreeItem()];
@@ -64,18 +57,16 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
         this._onDidChangeTreeData.fire();
     }
 
-    private async loadOrgTree(): Promise<ChoreoOrgTreeItem[]> {
-        return new Promise(async (resolve) => {
-            const loginSuccess = await ext.api.waitForLogin();
-            if (loginSuccess) {
-                const userInfo = await getUserInfo();
-                if (userInfo.organizations && userInfo.organizations.length > 0) {
-                    const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.Collapsed));
-                    resolve(treeItems);
-                    return;
-                }
-            }
-            reject("Cannot fetch organizations of the user.");
-        });
+    private async loadProjects(): Promise<ChoreoProjectTreeItem[]> {
+        const selectedOrg = ext.api.selectedOrg;
+        if (selectedOrg) {
+            return getProjectsByOrg(selectedOrg.id)
+                .then((projects) => {
+                    return projects.map((proj) => new ChoreoProjectTreeItem(proj, TreeItemCollapsibleState.Collapsed));
+                });
+        } else {
+            throw Error("Selected organization is not set.");
+        }
+
     }
 }

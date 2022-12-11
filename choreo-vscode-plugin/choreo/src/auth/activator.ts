@@ -27,6 +27,7 @@ import { getChoreoToken } from './storage';
 
 export let choreoAuthConfig: ChoreoAuthConfig;
 export async function activateAuth() {
+    choreoAuthConfig = new ChoreoAuthConfig();
     await initFromExistingChoreoSession();
     vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
@@ -43,7 +44,6 @@ export async function activateAuth() {
         }
     });
 
-    choreoAuthConfig = new ChoreoAuthConfig();
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {
             ext.api.onStatusChanged.fire('LoggingIn');
@@ -87,11 +87,8 @@ async function initFromExistingChoreoSession() {
     const choreoTokenInfo = await getChoreoToken(ChoreoToken);
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
-        let tokenDuration = (new Date().getTime() - new Date(choreoTokenInfo.loginTime).getTime()) / 1000;
-        if (tokenDuration > choreoTokenInfo.expirationTime) {
-            await exchangeRefreshToken(choreoTokenInfo.refreshToken);
-        }
-        await signIn(choreoTokenInfo?.accessToken);
+            
+        await signIn();
     } else {
         await signOut();
     }
