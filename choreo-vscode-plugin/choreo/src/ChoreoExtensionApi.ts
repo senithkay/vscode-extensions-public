@@ -18,25 +18,46 @@ import { ChoreoLoginStatus } from "./auth/events";
  * under the License.
  *
  */
-import { commands, Disposable, Event, EventEmitter } from 'vscode';
+import { Disposable, EventEmitter } from 'vscode';
 import { ext } from "./extensionVariables";
-import { getChoreoToken } from "./auth/storage";
-import { ChoreoToken } from "./auth/inbuilt-impl";
-import jwtDecode from "jwt-decode";
+
 import { Organization } from "./api/types";
 
 export class ChoreoExtensionApi {
     public userName: string | undefined;
-    public selectedOrg: Organization | undefined;
-    public status: ChoreoLoginStatus;
-	public onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
+
+    private _status: ChoreoLoginStatus;
+    private _selectedOrg: Organization | undefined;
+
+    private _onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
+    public onStatusChanged = this._onStatusChanged.event;
+
+
+	private _onOrganizationChanged = new EventEmitter<Organization | undefined>();
+    public onOrganizationChanged = this._onOrganizationChanged.event;
 
     constructor() {
-        this.status = "Initializing";
+        this._status = "Initializing";
+    }
+
+    public get status(): ChoreoLoginStatus {
+        return this._status;
+    }
+    public set status(value: ChoreoLoginStatus) {
+        this._status = value;
+        this._onStatusChanged.fire(value);
+    }
+
+    public get selectedOrg(): Organization | undefined {
+        return this._selectedOrg;
+    }
+    public set selectedOrg(selectedOrg: Organization | undefined) {
+        this._selectedOrg = selectedOrg;
+        this._onOrganizationChanged.fire(selectedOrg);
     }
 
     public async waitForLogin(): Promise<boolean> {
-		switch (this.status) {
+		switch (this._status) {
             case 'LoggedIn':
                 return true;
             case 'LoggedOut':
@@ -44,14 +65,14 @@ export class ChoreoExtensionApi {
             case 'Initializing':
             case 'LoggingIn':
                 return new Promise<boolean>(resolve => {
-                    const subscription: Disposable = this.onStatusChanged.event(() => {
+                    const subscription: Disposable = this.onStatusChanged(() => {
                         subscription.dispose();
                         resolve(this.waitForLogin());
                     });
                     ext.context.subscriptions.push(subscription);
                 });
             default:
-                const status: never = this.status;
+                const status: never = this._status;
                 throw new Error(`Unexpected status '${status}'`);
         }
 	}

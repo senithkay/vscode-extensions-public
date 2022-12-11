@@ -32,7 +32,7 @@ export async function activateAuth() {
     vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
             if (uri.path === '/choreo-signin') {
-                ext.api.onStatusChanged.fire('LoggingIn');
+                ext.api.status = "LoggingIn";
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get('code');
                 if (authCode) {
@@ -46,7 +46,7 @@ export async function activateAuth() {
 
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {
-            ext.api.onStatusChanged.fire('LoggingIn');
+            ext.api.status = "LoggingIn";
             choreoAuthConfig.setFidp(ChoreoFidp.google);
             const openSuccess = await openAuthURL();
             if (openSuccess) {
@@ -87,7 +87,6 @@ async function initFromExistingChoreoSession() {
     const choreoTokenInfo = await getChoreoToken(ChoreoToken);
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
-            
         await signIn();
     } else {
         await signOut();

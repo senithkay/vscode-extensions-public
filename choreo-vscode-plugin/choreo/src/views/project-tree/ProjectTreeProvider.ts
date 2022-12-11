@@ -15,10 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { reject } from "lodash";
 import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
 import { getProjectsByOrg } from "../../api/queries";
-import { getUserInfo } from "../../api/user";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
 import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
@@ -31,7 +29,7 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     constructor() {
-        const subscription = ext.api.onStatusChanged.event(() => {
+        const subscription = ext.api.onStatusChanged(() => {
             this.refresh();
         });
         ext.context.subscriptions.push(subscription);

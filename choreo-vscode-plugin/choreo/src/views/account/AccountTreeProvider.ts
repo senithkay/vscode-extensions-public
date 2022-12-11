@@ -33,7 +33,7 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     constructor() {
-        const subscription = ext.api.onStatusChanged.event(() => {
+        const subscription = ext.api.onStatusChanged(() => {
             this.refresh();
         });
         ext.context.subscriptions.push(subscription);

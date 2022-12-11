@@ -54,8 +54,7 @@ function createAccountTreeView() {
 }
 
 function setupEvents() {
-	const subscription: vscode.Disposable = ext.api.onStatusChanged.event(async (newStatus) => {
-		ext.api.status = newStatus;
+	const subscription: vscode.Disposable = ext.api.onStatusChanged(async (newStatus) => {
 		vscode.commands.executeCommand("setContext", "choreoLoginStatus", newStatus);
 	});
 	ext.context.subscriptions.push(subscription);

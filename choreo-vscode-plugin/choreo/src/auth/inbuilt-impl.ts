@@ -203,7 +203,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
 }
 
 export async function signIn() {
-    ext.api.onStatusChanged.fire('LoggingIn');
+    ext.api.status = 'LoggingIn';
     let choreoTokenInfo = await getChoreoToken(ChoreoToken);
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
@@ -217,7 +217,7 @@ export async function signIn() {
         await exchangeApimToken(choreoTokenInfo?.accessToken, userInfo.organizations[0].handle);
         ext.api.userName = userInfo.displayName;
         ext.api.selectedOrg = userInfo.organizations[0];
-        ext.api.onStatusChanged.fire('LoggedIn');
+        ext.api.status = "LoggedIn";
     } 
 }
 
@@ -225,7 +225,7 @@ export async function signOut() {
     await deleteChoreoToken(ChoreoToken);
     await deleteChoreoToken(ChoreoApimToken);
     await deleteChoreoToken(ChoreoVscodeToken);
-    ext.api.onStatusChanged.fire('LoggedOut');
+    ext.api.status = "LoggedOut";
     ext.api.userName = undefined;
     ext.api.selectedOrg = undefined;
 }
