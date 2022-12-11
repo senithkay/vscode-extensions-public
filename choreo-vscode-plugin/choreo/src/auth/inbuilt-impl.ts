@@ -20,14 +20,11 @@
  import * as vscode from 'vscode';
 import axios from "axios";
 import { deleteChoreoToken, getChoreoToken, storeChoreoToken } from "./storage";
-import jwt_decode from "jwt-decode";
 import { choreoAuthConfig } from "./activator";
 import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
 import { getUserInfo } from '../api/user';
-import jwtDecode from 'jwt-decode';
-import { Organization } from '../api/types';
 
 const challenge = pkceChallenge();
 
@@ -85,6 +82,7 @@ export async function exchangeAuthToken(authCode: string) {
             if (response.data) {
                 await storeToken(ChoreoToken, response);
                 await signIn();
+                vscode.window.showInformationMessage(`Successfully signed into Choreo!`);
             } else {
                 vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
             }
@@ -156,8 +154,6 @@ export async function exchangeVSCodeToken(apimToken: string) {
     ).then(async (response) => {
         if (response) {
             await storeToken(ChoreoVscodeToken, response);
-            // Show the success message in vscode.
-            vscode.window.showInformationMessage(`Successfully Logged into Choreo!`);
         } else {
             vscode.window.showErrorMessage(AUTH_FAIL + VSCODE_TOKEN_ERROR);
         }

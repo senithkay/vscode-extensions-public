@@ -49,3 +49,29 @@ export interface Project {
     region: string;
     version: string;
 }
+
+export interface ApiVersion {
+    apiVersion: string;
+    proxyName: string;
+    proxyUrl: string;
+    proxyId: string;
+    id: string;
+    state: string;
+    latest: boolean;
+    branch: string;
+    accessibility: string;
+}
+
+export interface Component {
+    projectId: string;
+    id: string;
+    description: string;
+    name: string;
+    handler: string;
+    displayName: string;
+    displayType: string;
+    version: string;
+    createdAt: Date;
+    orgHandler: string;
+    apiVersions: ApiVersion[];
+}

@@ -16,12 +16,14 @@
  * under the License.
  */
 import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
-import { getProjectsByOrg } from "../../api/queries";
+import { getComponentsByProject, getProjectsByOrg } from "../../api/queries";
+import { Project } from "../../api/types";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
+import { ChoreoComponentTreeItem } from "./ComponentTreeItem";
 import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
 
-export type ProjectTreeItem =ChoreoProjectTreeItem | ChoreoSignInPendingTreeItem;
+export type ProjectTreeItem = ChoreoProjectTreeItem | ChoreoSignInPendingTreeItem;
 
 export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
 
@@ -45,6 +47,8 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
         if (ext.api.status === "LoggedIn") {
             if (!element) {
                 return this.loadProjects();
+            } else if (element instanceof ChoreoProjectTreeItem) {
+                return this.loadComponents(element.project);
             }
         } else if (ext.api.status === "LoggingIn") {
             return [new ChoreoSignInPendingTreeItem()];
@@ -55,6 +59,15 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
 
     refresh(): void {
         this._onDidChangeTreeData.fire();
+    }
+
+    private async loadComponents(project: Project): Promise<ChoreoComponentTreeItem[]> {
+        const selectedOrg = ext.api.selectedOrg;
+        if (selectedOrg) {
+            return getComponentsByProject(selectedOrg.handle, project.id)
+                .then((components) => components.map((cmp) => new ChoreoComponentTreeItem(cmp)));
+        }
+        return [];
     }
 
     private async loadProjects(): Promise<ChoreoProjectTreeItem[]> {

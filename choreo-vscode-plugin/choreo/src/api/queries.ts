@@ -19,7 +19,7 @@
 // import * as gql from 'gql-query-builder';
 import { gql } from 'graphql-request';
 import { getProjectsApiClient } from '.';
-import { Project } from './types';
+import { Component, Project } from './types';
 
 export async function getProjectsByOrg(orgId: string): Promise<Project[]> {
     // Seems BE doesn't support variable, hence temp disabling query builder.
@@ -40,4 +40,36 @@ export async function getProjectsByOrg(orgId: string): Promise<Project[]> {
     `;
 
     return (await (await getProjectsApiClient()).request(query)).projects;
+}
+
+export async function getComponentsByProject(orgHandle: string, projectId: string): Promise<Component[]> {
+    const query = gql`   
+            query { 
+                components(orgHandler: "${orgHandle}", projectId: "${projectId}") {
+                    projectId, 
+                    id, 
+                    description, 
+                    name, 
+                    handler, 
+                    displayName, 
+                    displayType, 
+                    version, 
+                    createdAt, 
+                    orgHandler, 
+                    apiVersions { 
+                        apiVersion,
+                        proxyName,
+                        proxyUrl,
+                        proxyId,
+                        id,
+                        state,
+                        latest,
+                        branch,
+                        accessibility
+                    }
+                } 
+            }
+    `;
+
+    return (await (await getProjectsApiClient()).request(query)).components;
 }
