@@ -64,7 +64,7 @@ function createProjectTreeView() {
                     cancellationToken.onCancellationRequested(async () => {
                         // TODO: Cancel
                     });
-                    await mockDelay();
+                    await vscode.commands.executeCommand("git.clone", `https://github.com/${organizationApp}/${nameApp}` );
                 });
 			} else {
 				vscode.window.showErrorMessage(`Cannot clone Choreo managed repository.`);
