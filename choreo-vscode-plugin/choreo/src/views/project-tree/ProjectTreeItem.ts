@@ -30,6 +30,7 @@ export class ChoreoProjectTreeItem extends TreeItem {
       const { createdData, handler, region } = project;
       this.tooltip = 
       `Project Handle: ${handler}\n${createdData ? `Created At: ${createdData}\n` : ''}Region: ${region}`;
+      this.contextValue = "choreo.project";
     }
   
   

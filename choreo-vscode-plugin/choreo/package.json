@@ -39,6 +39,10 @@
         "title": "Clone"
       },
       {
+        "command": "wso2.choreo.project.clone",
+        "title": "Clone all Components"
+      },
+      {
         "command": "wso2.choreo.projects.refresh",
         "title": "Refresh",
         "icon": {
@@ -91,6 +95,10 @@
         {
           "command": "wso2.choreo.component.clone",
           "when": "view == choreo-projects && viewItem == choreo.component"
+        },
+        {
+          "command": "wso2.choreo.project.clone",
+          "when": "view == choreo-projects && viewItem == choreo.project"
         }
       ]
     }
