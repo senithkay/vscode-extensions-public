@@ -38,6 +38,7 @@ import {
     Expression,
     ExpressionGroup,
     EXPR_PLACEHOLDER,
+    listBindingPattern,
     logical,
     memberAccess,
     operators,
@@ -46,7 +47,6 @@ import {
     range,
     relational,
     SELECTED_EXPRESSION,
-    structuralConstructors,
     trap,
     typeDesc
 } from "../../../utils/expressions";
@@ -132,7 +132,7 @@ export function ToolbarOperators() {
             } else if (currentModel?.model?.parent?.parent && STKindChecker.isTypedBindingPattern(currentModel.model.parent.parent)) {
                 filteredGroups = [typeDesc]
             } else if (config.type === "AssignmentStatement" && STKindChecker.isIdentifierToken(currentModel.model)) {
-                filteredGroups = [structuralConstructors, memberAccess]
+                filteredGroups = [listBindingPattern, memberAccess]
             }
 
             setFilteredExpressions(filteredGroups);

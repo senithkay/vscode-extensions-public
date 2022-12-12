@@ -84,7 +84,7 @@ export const memberAccess : ExpressionGroup = {
             name: "Member Access",
             template: `${SELECTED_EXPRESSION}[${EXPR_PLACEHOLDER}]`,
             example: "Es[Ex]",
-            symbol: "[]"
+            symbol: "Es[Ex]"
         }
     ],
     relatedModelType: ModelType.EXPRESSION
@@ -101,7 +101,7 @@ export const structuralConstructors: ExpressionGroup = {
             name: "List",
             template: `[ ${SELECTED_EXPRESSION} ]`,
             example: "[ Es ]",
-            symbol: "[]"
+            symbol: "[Es]"
         }, {
             name: "Mapping",
             template: ` { key: ${EXPR_PLACEHOLDER} }`,
@@ -116,6 +116,20 @@ export const structuralConstructors: ExpressionGroup = {
     ],
     relatedModelType: ModelType.EXPRESSION
 }
+
+export const listBindingPattern: ExpressionGroup = {
+    name: "List Binding Pattern",
+    expressions: [
+        {
+            name: "List Binding",
+            template: `[ ${SELECTED_EXPRESSION}, ${EXPR_PLACEHOLDER} ]`,
+            example: "[ Es, Ex ]",
+            symbol: "[Es, Ex]"
+        }
+    ],
+    relatedModelType: ModelType.EXPRESSION
+}
+
 //     6.8 Object construction
 //         6.8.1 Object constructor
 //             6.8.1.1 Fields
@@ -650,7 +664,7 @@ export const typeDesc : ExpressionGroup = {
             name: "Array",
             template: `${SELECTED_EXPRESSION}[]`,
             example: "Es[]",
-            symbol: "[]"
+            symbol: "Es[]"
         }, {
             name: "Union",
             template: `${SELECTED_EXPRESSION} | ${TYPE_DESC_PLACEHOLDER}`,
