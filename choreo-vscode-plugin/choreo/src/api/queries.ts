@@ -16,21 +16,11 @@
  * under the License.
  *
  */
-// import * as gql from 'gql-query-builder';
 import { gql } from 'graphql-request';
 import { getProjectsApiClient } from '.';
 import { Component, ComponentDetailed, Project } from './types';
 
 export async function getProjectsByOrg(orgId: string): Promise<Project[]> {
-    // Seems BE doesn't support variable, hence temp disabling query builder.
-    // const getProjectsByOrg = gql.query({
-    //     operation: 'projects',
-    //     variables: {
-    //         orgId: { value: orgId, required: true },
-    //     },
-    //     fields: ['id', 'orgId', 'name', 'version', 'createdDate', 'handler', 'region']
-    // });
-
     const query = gql`
         query{
             projects(orgId: ${orgId}){

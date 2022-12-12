@@ -43,9 +43,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 function createProjectTreeView() {
 	const choreoResourcesProvider = new ProjectsTreeProvider();
+
 	vscode.commands.registerCommand(refreshProjectsListCmdId, async () => {
 		choreoResourcesProvider.refresh();
 	});
+
 	vscode.commands.registerCommand(cloneComponentCmdId, async (treeItem) => {
 		if (treeItem instanceof ChoreoComponentTreeItem) {
 			const { repository } = treeItem.component;
@@ -71,9 +73,16 @@ function createProjectTreeView() {
 			}
 		}
 	});
-    return window.createTreeView(choreoProjectsTreeId, {
+
+    const treeView = window.createTreeView(choreoProjectsTreeId, {
         treeDataProvider: choreoResourcesProvider, showCollapseAll: true
     });
+
+	ext.context.subscriptions.push(ext.api.onOrganizationChanged((newOrg) => {
+		treeView.description = newOrg?.name;
+	}));
+
+	return treeView;
 }
 
 
