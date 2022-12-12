@@ -80,9 +80,9 @@ export function HelperPane(props: HelperPaneProps) {
     };
 
     useEffect(() => {
-        if (toolbarCtx.toolbarMoreExp === "changeToExpressionTab") {
+        if (toolbarCtx.toolbarMoreExp === true) {
             setSelectedTab(TabElements.expressions);
-            toolbarCtx.onClickMoreExp("")
+            toolbarCtx.onClickMoreExp(false)
         }
     }, [toolbarCtx.toolbarMoreExp]);
 

@@ -151,7 +151,7 @@ export default function Toolbar(props: ToolbarProps) {
     }
 
     const onClickExpressions = () => {
-        toolbarCtx.onClickMoreExp("changeToExpressionTab");
+        toolbarCtx.onClickMoreExp(true);
     }
 
     useEffect(() => {
