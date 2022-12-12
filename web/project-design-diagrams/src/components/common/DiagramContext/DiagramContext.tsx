@@ -18,11 +18,13 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { AddComponentDetails, Views } from '../../../resources';
+import { AddComponentDetails, Location, Views } from '../../../resources';
+
 
 interface DiagramContextProps {
     children?: ReactNode;
     getTypeComposition: (entityID: string) => void;
+    go2source: (location: Location) => void;
     currentView: Views;
     createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
@@ -31,6 +33,7 @@ interface DiagramContextProps {
 
 interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
+    go2source: (location: Location) => void;
     currentView: Views;
     createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
@@ -44,10 +47,11 @@ export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
-    const { getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, children } = props;
+    const { getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, go2source, children } = props;
 
     const Ctx = {
         getTypeComposition,
+        go2source,
         createService,
         currentView,
         pickDirectory,

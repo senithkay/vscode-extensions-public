@@ -40,6 +40,7 @@ export interface Service {
     serviceType: string;
     dependencies: Dependency[];
     deploymentMetadata: DeploymentMetadata;
+    elementLocation: Location;
 }
 
 interface ServiceAnnotation {
@@ -50,6 +51,7 @@ interface ServiceAnnotation {
 export interface Dependency {
     serviceId: string;
     connectorType: string;
+    elementLocation: Location;
 }
 
 export interface ResourceFunction {
@@ -58,6 +60,7 @@ export interface ResourceFunction {
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
+    elementLocation: Location;
 }
 
 export interface RemoteFunction {
@@ -65,11 +68,13 @@ export interface RemoteFunction {
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
+    elementLocation: Location;
 }
 
 export interface Interaction {
     resourceId: ResourceId;
     connectorType: string;
+    elementLocation: Location;
 }
 
 export interface Parameter {
@@ -88,6 +93,7 @@ export interface ResourceId {
 export interface Entity {
     attributes: Attribute[];
     inclusions: string[];
+    elementLocation: Location;
 }
 
 export interface Attribute {
@@ -97,6 +103,7 @@ export interface Attribute {
     required: boolean;
     nillable: boolean;
     associations: Association[];
+    elementLocation: Location;
 }
 
 interface Association {
@@ -140,9 +147,15 @@ export interface AddComponentDetails {
     directory: string;
 }
 
-export enum ComponentType {
-    BALLERINA = 'bal',
-    OTHER = 'other'
+export interface Location {
+    filePath: string;
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
+interface LinePosition {
+    line: number;
+    offset: number;
 }
 
 export enum Views {
@@ -168,6 +181,6 @@ export enum Colors {
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
-    SECONDARY_SELECTED = '#f7f1e9',
-    SHADED_SELECTED = '#f7e4cb'
+    SECONDARY_SELECTED = '#fffaf2',
+    SHADED_SELECTED = '#faead2'
 }

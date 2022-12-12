@@ -20,10 +20,11 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { DesignDiagram } from './DesignDiagram';
-import { AddComponentDetails, ComponentModel } from './resources';
+import { AddComponentDetails, Location, ComponentModel } from './resources';
 
 export function renderDesignDiagrams(
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
+    go2Source: (location: Location) => void,
     createService: (componentDetails: AddComponentDetails) => Promise<string>,
     pickDirectory: () => Promise<string>,
     getProjectRoot: () => Promise<string>,
@@ -35,6 +36,7 @@ export function renderDesignDiagrams(
             createService={createService}
             pickDirectory={pickDirectory}
             getProjectRoot={getProjectRoot}
+            go2source={go2Source}
         />,
         target
     );

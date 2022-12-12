@@ -17,7 +17,7 @@
  *
  */
 
-export { Colors, ComponentType, Level, ServiceTypes, Views } from './model';
+export { Colors, Level, ServiceTypes, Views } from './model';
 
 export type {
     AddComponentDetails,
@@ -28,6 +28,7 @@ export type {
     Dependency,
     Entity,
     Interaction,
+    Location,
     RemoteFunction,
     ResourceFunction,
     ResourceId,

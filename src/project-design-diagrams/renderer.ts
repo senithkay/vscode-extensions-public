@@ -91,8 +91,15 @@ export function render(webView: Webview) {
                 })
             }
 
+            function go2source(location) {
+                vscode.postMessage({
+                    command: 'go2source',
+                    location: location
+                })
+            }
+
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(fetchProjectResources, createService, pickDirectory, getProjectRoot, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(fetchProjectResources, go2source, createService, pickDirectory, getProjectRoot, document.getElementById("diagram-container"));
             }
             renderDiagrams();
         }
