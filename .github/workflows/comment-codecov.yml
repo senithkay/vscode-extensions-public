@@ -19,10 +19,21 @@ jobs:
           run_id: ${{ github.event.workflow_run.id }}
           name: CodeCoverages
 
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Merge reports
+        run: |
+          npm i -g cobertura-merge
+          sed -i -e 's/\/home\/runner\/work\/ballerina\-plugin\-vscode\/ballerina-plugin-vscode\///g' lowcode-coverage.xml
+          npx cobertura-merge -o output.xml package1=plugin-coverage.xml package2=lowcode-coverage.xml
+      
       - name: Generate plugin code coverage report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: plugin-coverage.xml, lowcode-coverage.xml
+          filename: output.xml
           badge: true
           format: 'markdown'
           output: 'both'    
