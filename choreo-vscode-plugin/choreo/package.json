@@ -35,11 +35,15 @@
         "title": "Set As Seleted"
       },
       {
+        "command": "wso2.choreo.component.clone",
+        "title": "Clone"
+      },
+      {
         "command": "wso2.choreo.projects.refresh",
         "title": "Refresh",
         "icon": {
-          "light": "resources/light/refresh.svg",
-          "dark": "resources/dark/refresh.svg"
+          "light": "resources/icons/light/refresh.svg",
+          "dark": "resources/icons/dark/refresh.svg"
         }
       }
     ],
@@ -83,6 +87,10 @@
         {
           "command": "wso2.choreo.org.setAsSelected",
           "when": "view == choreo-account && viewItem == choreo.org"
+        },
+        {
+          "command": "wso2.choreo.component.clone",
+          "when": "view == choreo-projects && viewItem == choreo.component"
         }
       ]
     }

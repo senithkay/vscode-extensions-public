@@ -17,15 +17,19 @@
  * under the License.
  */
 import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from "vscode";
-import { Component } from "../../api/types";
+import { Component, ComponentDetailed } from "../../api/types";
 
 export class ChoreoComponentTreeItem extends TreeItem {
+
+    public detailedComponent: ComponentDetailed | undefined;
+
     constructor(
       public readonly component: Component
     ) {
       super(component.displayName, TreeItemCollapsibleState.None);
       this.tooltip = component.description;
       this.description = component.version;
+      this.contextValue = "choreo.component";
     }
     iconPath = new ThemeIcon("package");
 }

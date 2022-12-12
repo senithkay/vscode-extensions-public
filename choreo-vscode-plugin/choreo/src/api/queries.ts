@@ -19,7 +19,7 @@
 // import * as gql from 'gql-query-builder';
 import { gql } from 'graphql-request';
 import { getProjectsApiClient } from '.';
-import { Component, Project } from './types';
+import { Component, ComponentDetailed, Project } from './types';
 
 export async function getProjectsByOrg(orgId: string): Promise<Project[]> {
     // Seems BE doesn't support variable, hence temp disabling query builder.
@@ -55,7 +55,27 @@ export async function getComponentsByProject(orgHandle: string, projectId: strin
                     displayType, 
                     version, 
                     createdAt, 
-                    orgHandler, 
+                    orgHandler,
+                    repository{
+                        nameApp,
+                        nameConfig,
+                        branch,
+                        branchApp,
+                        organizationApp,
+                        organizationConfig,
+                        isUserManage,
+                        appSubPath,
+                        byocBuildConfig {
+                        id,
+                        isMainContainer,
+                        containerId,
+                        componentId,
+                        repositoryId,
+                        dockerContext,
+                        dockerfilePath,
+                        oasFilePath,
+                        }
+                    }, 
                     apiVersions { 
                         apiVersion,
                         proxyName,
@@ -72,4 +92,79 @@ export async function getComponentsByProject(orgHandle: string, projectId: strin
     `;
 
     return (await (await getProjectsApiClient()).request(query)).components;
+}
+
+export async function getComponent(projectId: string, componentHandler: string): Promise<ComponentDetailed> {
+    const query = gql`
+        query{
+            component(
+                projectId: "${projectId}",
+                componentHandler: "${componentHandler}"
+            ){
+            id,
+            name,
+            handler,
+            description,
+            displayType,
+            displayName,
+            ownerName,
+            orgId,
+            orgHandler,
+            version,
+            labels,
+            createdAt,
+            updatedAt,
+            projectId,
+            apiId,
+            httpBased,
+            isMigrationCompleted,
+            repository{
+                nameApp,
+                nameConfig,
+                branch,
+                branchApp,
+                organizationApp,
+                organizationConfig,
+                isUserManage,
+                appSubPath,
+                byocBuildConfig {
+                id,
+                isMainContainer,
+                containerId,
+                componentId,
+                repositoryId,
+                dockerContext,
+                dockerfilePath,
+                oasFilePath,
+                }
+            },
+            apiVersions{
+                apiVersion,
+                proxyName,
+                proxyUrl,
+                proxyId,
+                id,
+                state,
+                latest,
+                branch,
+                accessibility,
+                appEnvVersions{
+                environmentId,
+                releaseId,
+                release{
+                    id,
+                    metadata{
+                    choreoEnv
+                    },
+                    environmentId,
+                    environment,
+                    gitHash,
+                    gitOpsHash,
+                }
+                }
+            }
+            }
+        }
+    `;
+    return (await (await getProjectsApiClient()).request(query)).component;
 }

@@ -23,7 +23,7 @@ import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
 import { ChoreoComponentTreeItem } from "./ComponentTreeItem";
 import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
 
-export type ProjectTreeItem = ChoreoProjectTreeItem | ChoreoSignInPendingTreeItem;
+export type ProjectTreeItem = ChoreoProjectTreeItem | ChoreoComponentTreeItem | ChoreoSignInPendingTreeItem;
 
 export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
 
@@ -57,8 +57,8 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
         }
     }
 
-    refresh(): void {
-        this._onDidChangeTreeData.fire();
+    refresh(item?: ProjectTreeItem): void {
+        this._onDidChangeTreeData.fire(item);
     }
 
     private async loadComponents(project: Project): Promise<ChoreoComponentTreeItem[]> {

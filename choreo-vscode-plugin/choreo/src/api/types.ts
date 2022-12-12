@@ -73,5 +73,52 @@ export interface Component {
     version: string;
     createdAt: Date;
     orgHandler: string;
+    repository: Repository;
     apiVersions: ApiVersion[];
+}
+
+export interface Repository {
+    nameApp: string;
+    nameConfig: string;
+    branch: string;
+    branchApp: string;
+    organizationApp: string;
+    organizationConfig: string;
+    isUserManage: boolean;
+    appSubPath?: any;
+    byocBuildConfig?: any;
+}
+
+export interface Metadata {
+    choreoEnv: string;
+}
+
+export interface Release {
+    id: string;
+    metadata: Metadata;
+    environmentId: string;
+    environment?: any;
+    gitHash?: any;
+    gitOpsHash?: any;
+}
+
+export interface AppEnvVersion {
+    environmentId: string;
+    releaseId: string;
+    release: Release;
+}
+
+export interface ApiVersionDetailed extends ApiVersion {
+    appEnvVersions: AppEnvVersion[];
+}
+
+export interface ComponentDetailed extends Component {
+    ownerName: string;
+    orgId: number;
+    labels: any[];
+    updatedAt: Date;
+    apiId?: any;
+    httpBased: boolean;
+    isMigrationCompleted: boolean;
+    apiVersions: ApiVersionDetailed[];
 }

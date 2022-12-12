@@ -16,7 +16,6 @@
  * under the License.
  */
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import { Organization } from "../../api/types";
 import { ext } from "../../extensionVariables";
 import { getIconPath } from "../../icons";
 

@@ -21,10 +21,11 @@ import { ThemeIcon, window } from 'vscode';
 import { activateAuth } from './auth';
 import { exchangeOrgAccessTokens } from './auth/inbuilt-impl';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { choreoAccountTreeId, choreoProjectsTreeId, setSelectedOrgCmdId } from './constants';
+import { choreoAccountTreeId, choreoProjectsTreeId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
+import { ChoreoComponentTreeItem } from './views/project-tree/ComponentTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -42,6 +43,34 @@ export function activate(context: vscode.ExtensionContext) {
 
 function createProjectTreeView() {
 	const choreoResourcesProvider = new ProjectsTreeProvider();
+	vscode.commands.registerCommand(refreshProjectsListCmdId, async () => {
+		choreoResourcesProvider.refresh();
+	});
+	vscode.commands.registerCommand(cloneComponentCmdId, async (treeItem) => {
+		if (treeItem instanceof ChoreoComponentTreeItem) {
+			const { repository } = treeItem.component;
+			const { isUserManage, organizationApp, nameApp } = repository;
+			if (isUserManage) {
+				const mockDelay = () => {
+					return new Promise((resolve) => {
+						setTimeout(() => { resolve(true); }, 3000);
+					});
+				};
+				await window.withProgress({
+                    title: `Cloning ${organizationApp}/${nameApp} repo locally.`,
+                    location: vscode.ProgressLocation.Notification,
+                    cancellable: true
+                }, async (_progress, cancellationToken) => {
+                    cancellationToken.onCancellationRequested(async () => {
+                        // TODO: Cancel
+                    });
+                    await mockDelay();
+                });
+			} else {
+				vscode.window.showErrorMessage(`Cannot clone Choreo managed repository.`);
+			}
+		}
+	});
     return window.createTreeView(choreoProjectsTreeId, {
         treeDataProvider: choreoResourcesProvider, showCollapseAll: true
     });
