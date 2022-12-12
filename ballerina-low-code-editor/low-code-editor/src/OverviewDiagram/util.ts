@@ -13,6 +13,8 @@
 
 import { ComponentInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { DEFAULT_MODULE_NAME } from ".";
+
 export interface ComponentViewInfo extends ComponentInfo {
     folderPath: string;
     moduleName: string;
@@ -29,4 +31,10 @@ export interface ComponentCollection {
     enums: ComponentViewInfo[],
     listeners: ComponentViewInfo[],
     moduleVariables: ComponentViewInfo[]
+}
+
+
+export function generateFileLocation(moduleName: string, folderPath: string, fileName: string) {
+    const modulePath = moduleName !== DEFAULT_MODULE_NAME ? `modules/${moduleName}` : '';
+    return `${folderPath}${modulePath}/${fileName}`
 }

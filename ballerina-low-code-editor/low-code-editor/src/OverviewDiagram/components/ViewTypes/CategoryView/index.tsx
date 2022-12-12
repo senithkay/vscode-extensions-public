@@ -86,8 +86,6 @@ export function CategoryView(props: CategoryViewProps) {
         )
     })
 
-    console.log('>>> categories', currentComponents, categories)
-
     return (
         <>
             {categories}
