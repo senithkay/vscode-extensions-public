@@ -797,7 +797,7 @@ export function getTypeName(field: Type): string {
 			return `${field?.typeInfo?.moduleName}:${field.typeInfo.name}`;
 		}
 		return field?.typeInfo?.name || 'record';
-	} else if (field.typeName === PrimitiveBalType.Array) {
+	} else if (field.typeName === PrimitiveBalType.Array && field?.memberType) {
 		return `${getTypeName(field.memberType)}[]`;
 	} else if (field.typeName === PrimitiveBalType.Union) {
 		return field.members?.map(item => getTypeName(item)).join(' | ');

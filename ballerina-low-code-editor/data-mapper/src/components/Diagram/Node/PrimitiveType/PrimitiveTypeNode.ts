@@ -149,7 +149,9 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     async deleteField(field: STNode) {
-        const typeOfValue = STKindChecker.isSelectClause(this.value) ? this.typeDef.memberType : this.typeDef;
+        const typeOfValue = STKindChecker.isSelectClause(this.value) && this.typeDef?.memberType
+            ? this.typeDef.memberType
+            : this.typeDef;
         const modifications: STModification[] = [{
                 type: "INSERT",
                 config: {

@@ -76,6 +76,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)
                 && this.typeDef.typeName === PrimitiveBalType.Array
+                && this.typeDef?.memberType
                 && this.typeDef.memberType.typeName === PrimitiveBalType.Record)
             {
                 this.rootName = this.typeDef.memberType?.name;

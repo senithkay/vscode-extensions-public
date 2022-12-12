@@ -85,14 +85,14 @@ export class NodeInitVisitor implements Visitor {
                         {
                             isFnBodyQueryExpr = true;
                             const selectClause = node.functionBody.expression.selectClause;
-                            if (returnType.memberType.typeName === PrimitiveBalType.Record) {
+                            if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Record) {
                                 this.outputNode = new MappingConstructorNode(
                                     this.context,
                                     selectClause,
                                     typeDesc,
                                     node.functionBody.expression
                                 );
-                            } else if (returnType.memberType.typeName === PrimitiveBalType.Array) {
+                            } else if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Array) {
                                 this.outputNode = new ListConstructorNode(
                                     this.context,
                                     selectClause,
@@ -188,14 +188,14 @@ export class NodeInitVisitor implements Visitor {
                 // create output node
                 const exprType = getTypeOfOutput(parent.fieldName, this.context.ballerinaVersion);
 
-                if (exprType.memberType.typeName === PrimitiveBalType.Record) {
+                if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         node.selectClause,
                         parent.fieldName,
                         node
                     );
-                } else if (exprType.memberType.typeName === PrimitiveBalType.Array) {
+                } else if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Array) {
                     this.outputNode = new ListConstructorNode(
                         this.context,
                         node.selectClause,
