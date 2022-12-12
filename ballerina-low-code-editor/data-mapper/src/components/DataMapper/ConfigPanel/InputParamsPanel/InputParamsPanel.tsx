@@ -1,9 +1,12 @@
+// tslint:disable: jsx-no-multiline-js
+import React, { ReactNode, useState } from "react";
+
 import styled from "@emotion/styled";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import React, { ReactNode, useEffect, useState } from "react";
-import { CurrentFileContext } from "../../Context/current-file-context";
+
 import { Title } from "../DataMapperConfigPanel";
 import { RecordButtonGroup } from "../RecordButtonGroup";
+
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
 import { DataMapperInputParam } from "./types";
@@ -65,11 +68,11 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
         setEditingIndex(-1);
     };
 
-    const onEditClick = (index: number, param: DataMapperInputParam) => {
+    const onEditClick = (index: number) => {
         setEditingIndex(index);
     };
 
-    const onDeleteClick = (index: number, param: DataMapperInputParam) => {
+    const onDeleteClick = (index: number) => {
         onUpdateParams([...inputParams.filter((item, i) => index !== i)]);
     };
 

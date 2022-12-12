@@ -6,7 +6,6 @@ import {
 	BasePositionModelGenerics,
 } from '@projectstorm/react-canvas-core';
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import * as _ from 'lodash';
 
 export interface OverlayModelListener extends BaseModelListener {
 	positionChanged?(event: BaseEntityEvent<OverlayModel>): void;
@@ -36,8 +35,6 @@ export class OverlayModel<G extends OverlayModelGenerics = OverlayModelGenerics>
 	setPosition(point: Point): void;
 	setPosition(x: number, y: number): void;
 	setPosition(x: number | Point, y?: number): void {
-		const old = this.position;
-
 		if (x instanceof Point) {
 			super.setPosition(x);
 		} else {

@@ -34,11 +34,13 @@ export class ExpandedMappingHeaderNodeFactory extends AbstractReactFactory<Expan
             <ExpandedMappingHeaderWidget
                 node={event.model}
                 title={`Query: ${event.model.queryExpr.queryPipeline.fromClause.expression.source}`}
+                engine={this.engine}
+                port={event.model.getPort(EXPANDED_MAPPING_HEADER_NODE_TYPE)}
             />
         );
     }
 
-    generateModel(event: { initialConfig: any }): any {
+    generateModel(): ExpandedMappingHeaderNode {
         return undefined;
     }
 }

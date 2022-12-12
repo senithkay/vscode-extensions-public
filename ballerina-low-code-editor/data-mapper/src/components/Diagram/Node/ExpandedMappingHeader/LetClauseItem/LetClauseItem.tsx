@@ -10,23 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { CircularProgress } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
     CaptureBindingPattern,
     LetClause,
     LetVarDecl,
+    NodePosition,
     QueryExpression,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
+
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { useStyles } from "../styles";
-import { ClauseAddButton } from "../ClauseAddButton";
-import clsx from "clsx";
 import { getRenameEdits } from "../../../utils/ls-utils";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
-import { CircularProgress } from "@material-ui/core";
+import { ClauseAddButton } from "../ClauseAddButton";
+import { useStyles } from "../styles";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;
@@ -46,11 +48,9 @@ export function LetClauseItem(props: {
     } = props;
     const classes = useStyles();
     const [nameEditable, setNameEditable] = useState(false);
-    const letVarDeclaration = intermediateNode
-        .letVarDeclarations[0] as LetVarDecl;
+    const letVarDeclaration = intermediateNode.letVarDeclarations[0] as LetVarDecl;
     const variableName = (
-        letVarDeclaration.typedBindingPattern
-            .bindingPattern as CaptureBindingPattern
+        letVarDeclaration.typedBindingPattern.bindingPattern as CaptureBindingPattern
     )?.variableName?.value;
     const [updatedName, setUpdatedName] = useState(variableName);
     const [isLoading, setLoading] = useState(false);
@@ -62,12 +62,7 @@ export function LetClauseItem(props: {
         } finally {
             setLoading(false);
         }
-    }
-
-    const onEdit = async () => {
-        context.handleFieldToBeEdited(`${itemIndex}`);
-        onEditClick();
-    }
+    };
 
     const onKeyUp = async (key: string, node?: STNode) => {
         if (key === "Escape") {
@@ -77,11 +72,16 @@ export function LetClauseItem(props: {
         if (key === "Enter") {
             setLoading(true);
             try {
-                const workspaceEdit = await getRenameEdits(context.filePath, updatedName, node.position, context.langClientPromise);
-                const modifications: STModification[] = []
+                const workspaceEdit = await getRenameEdits(
+                    context.filePath,
+                    updatedName,
+                    node.position as NodePosition,
+                    context.langClientPromise
+                );
+                const modifications: STModification[] = [];
 
-                Object.values(workspaceEdit?.changes).forEach(edits => {
-                    edits.forEach(edit => {
+                Object.values(workspaceEdit?.changes).forEach((edits) => {
+                    edits.forEach((edit) => {
                         modifications.push({
                             type: "INSERT",
                             config: { STATEMENT: edit.newText },
@@ -89,10 +89,11 @@ export function LetClauseItem(props: {
                             endLine: edit.range.end.line,
                             startColumn: edit.range.start.character,
                             startLine: edit.range.start.line,
-                        })
-                    })
-                })
+                        });
+                    });
+                });
 
+                modifications.sort((a, b) => a.startLine - b.startLine)
                 await context.applyModifications(modifications);
             } finally {
                 setLoading(false);
@@ -100,13 +101,12 @@ export function LetClauseItem(props: {
         }
     };
 
-
     return (
         <>
-            <div className={clsx(classes.element, classes.clauseWrap)}>
-                <div className={classes.clause}>
-                    <span className={classes.clauseBold}>{intermediateNode.letKeyword.value}</span>
-                    <span className={classes.clauseItem}>{` ${letVarDeclaration.typedBindingPattern.typeDescriptor.source}`}</span>
+            <div className={classes.clauseItem}>
+                <div className={classes.clauseKeyWrap}>{intermediateNode.letKeyword.value}</div>
+
+                <div className={classes.clauseWrap}>
                     <span className={classes.clauseExpression}>
                         {nameEditable ? (
                             <input
@@ -114,15 +114,12 @@ export function LetClauseItem(props: {
                                 className={classes.input}
                                 autoFocus={true}
                                 value={updatedName}
-                                onChange={(event) =>
-                                    setUpdatedName(event.target.value)
-                                }
+                                onChange={(event) => setUpdatedName(event.target.value)}
                                 onKeyUp={(event) =>
                                     onKeyUp(
                                         event.key,
                                         (
-                                            letVarDeclaration
-                                                .typedBindingPattern
+                                            letVarDeclaration.typedBindingPattern
                                                 .bindingPattern as CaptureBindingPattern
                                         )?.variableName
                                     )
@@ -131,36 +128,26 @@ export function LetClauseItem(props: {
                                     setNameEditable(false);
                                     setUpdatedName(variableName);
                                 }}
+                                data-testid={`let-clause-name-input-${itemIndex}`}
                             />
                         ) : (
-                            <span onClick={() => setNameEditable(true)}>
-                                {updatedName}
-                            </span>
+                            <span onClick={() => setNameEditable(true)} data-testid={`let-clause-name-${itemIndex}`}>{updatedName}</span>
                         )}
                     </span>
-                    <span className={classes.clauseItem}>{` ${letVarDeclaration.equalsToken.value} `}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={onEdit}
-                    >
+                    <span>{letVarDeclaration.equalsToken.value}</span>
+                    <span className={classes.clauseExpression} onClick={onEditClick} data-testid={`let-clause-expression-${itemIndex}`}>
                         {letVarDeclaration.expression.source}
                     </span>
                 </div>
-                {isLoading || context.fieldToBeEdited === `${itemIndex}` ? (
+
+                {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline
-                        className={clsx(classes.deleteIcon)}
-                        onClick={onDelete}
-                    />
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`let-clause-delete-${itemIndex}`}/>
                 )}
             </div>
-            <ClauseAddButton
-                context={context}
-                queryExprNode={queryExprNode}
-                addIndex={itemIndex}
-                visibleOnlyOnHover
-            />
+
+            <ClauseAddButton context={context} queryExprNode={queryExprNode} addIndex={itemIndex} />
         </>
     );
 }

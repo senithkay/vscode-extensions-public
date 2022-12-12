@@ -10,18 +10,18 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React from 'react';
 
 import { IconButton } from "@material-ui/core";
 import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { createStyles, makeStyles } from "@material-ui/core/styles";
 
 import TripleDotsIcon from "../../../../../../assets/icons/TripleDotsIcon";
 
 import { ValueConfigMenuItem } from "./ValueConfigMenuItem";
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
     createStyles({
         tripleDotsIcon: {
             color: "#5567D5",
@@ -53,10 +53,11 @@ export enum ValueConfigOption {
 export interface ValueConfigMenuProps {
     menuItems: ValueConfigMenuItem[]
     isDisabled?: boolean;
+    portName?: string
 }
 
 export function ValueConfigMenu(props: ValueConfigMenuProps) {
-    const { menuItems, isDisabled } = props;
+    const { menuItems, isDisabled, portName } = props;
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
     const open = Boolean(anchorEl);
@@ -76,6 +77,7 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                 className={classes.tripleDotsIcon}
                 onClick={(e) => handleClick(e)}
                 disabled={isDisabled}
+                data-testid={`value-config-${portName}`}
             >
                 <TripleDotsIcon />
             </IconButton>
@@ -95,6 +97,7 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                                 title={menuItem.title}
                                 onClick={menuItem.onClick}
                                 onClose={handleClose}
+                                data-testid={`value-config-${portName}-item-${menuItem.title}`}
                             />
                         )
                     })

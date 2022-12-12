@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from '@projectstorm/react-canvas-core';
+import { AbstractReactFactory, GenerateWidgetEvent } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { OverlayLayerModel } from './OverlayLayerModel';
@@ -11,7 +11,7 @@ export class OverlayLayerFactory extends AbstractReactFactory<OverlayLayerModel,
 		super('diagram-overlays');
 	}
 
-	generateModel(event: GenerateModelEvent): OverlayLayerModel {
+	generateModel(): OverlayLayerModel {
 		return new OverlayLayerModel();
 	}
 

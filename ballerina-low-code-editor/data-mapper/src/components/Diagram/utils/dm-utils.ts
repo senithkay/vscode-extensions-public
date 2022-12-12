@@ -35,8 +35,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
-import { FieldAccessFindingVisitor } from "../visitors/FieldAccessFindingVisitor";
-import { SimpleNameReferencesFindingVisitor } from "../visitors/SimpleNameReferencesFindingVisitor";
+import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 
 import {
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
@@ -97,14 +96,16 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	if (!isArrayOrRecord(targetPort.field)
 		&& targetPort.editableRecordField?.value
 		&& !STKindChecker.isSpecificField(targetPort.editableRecordField.value)
-		&& !isEmptyValue(targetPort.editableRecordField.value.position)) {
-		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
+		&& !isEmptyValue(targetPort.editableRecordField.value.position as NodePosition)) {
+		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position as NodePosition,
+									applyModifications);
 	}
 
 	if (targetPort.field?.typeName === PrimitiveBalType.Record
 		&& targetPort.editableRecordField?.value
 		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value)) {
-		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position, applyModifications);
+		return updateValueExprSource(rhs, targetPort.editableRecordField.value.position as NodePosition,
+									applyModifications);
 	}
 
 	lhs = getBalRecFieldName(targetPort.field.name);
@@ -145,7 +146,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				const valueExpr = specificField.valueExpr;
 
 				if (!valueExpr.source) {
-					return createValueExprSource(lhs, rhs, fieldNames, i, specificField.colon.position, applyModifications);
+					return createValueExprSource(lhs, rhs, fieldNames, i, specificField.colon.position as NodePosition,
+												applyModifications);
 				}
 
 				if (STKindChecker.isMappingConstructor(valueExpr)) {
@@ -171,14 +173,16 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		} else {
 			const specificField = getSpecificField(targetMappingConstruct, lhs);
 			if (specificField && !specificField.valueExpr.source) {
-				return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position, applyModifications);
+				return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position as NodePosition,
+											applyModifications);
 			}
 			source = `${lhs}: ${rhs}`;
 		}
 	} else {
 		const specificField = getSpecificField(targetMappingConstruct, lhs);
 		if (specificField && !specificField.valueExpr.source) {
-			return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position, applyModifications);
+			return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position as NodePosition,
+										applyModifications);
 		}
 		source = `${lhs}: ${rhs}`;
 	}
@@ -187,10 +191,10 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	if (targetMappingConstruct) {
 		const fieldsAvailable = !!targetMappingConstruct.fields.length;
 		if (fieldsAvailable) {
-			targetPosition = mappingConstruct.fields[mappingConstruct.fields.length - 1].position;
+			targetPosition = mappingConstruct.fields[mappingConstruct.fields.length - 1].position as NodePosition;
 			source = `,${getLinebreak()}${source}`;
 		} else {
-			targetPosition = mappingConstruct.openBrace.position;
+			targetPosition = mappingConstruct.openBrace.position as NodePosition;
 			source = `${getLinebreak()}${source}`
 		}
 		targetPosition = {
@@ -199,12 +203,12 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			startColumn: targetPosition.endColumn
 		}
 	} else if (targetNode instanceof MappingConstructorNode) {
-		targetPosition = targetNode.value.expression.position;
+		targetPosition = targetNode.value.expression.position as NodePosition;
 		source = `{${getLinebreak()}${source}}`;
 	}
 
 	modifications.push(getModification(source, targetPosition));
-	applyModifications(modifications);
+	void applyModifications(modifications);
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 0
@@ -225,8 +229,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 }
 
 export async function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
-	                                              newValue: string,
-	                                              applyModifications: (modifications: STModification[]) => Promise<void>) {
+												                                   newValue: string,
+												                                   applyModifications: (modifications: STModification[]) => Promise<void>) {
 
 	let source;
 	let targetMappingConstructor: STNode = mappingConstruct;
@@ -245,14 +249,14 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 			if (!rootField.valueExpr.source) {
 				return createValueExprSource(fieldName, newValue, parentFields.reverse(), 0,
-					rootField.colon.position, applyModifications);
+					rootField.colon.position as NodePosition, applyModifications);
 			}
 
 			if (STKindChecker.isMappingConstructor(rootField.valueExpr)) {
 				const specificField = getSpecificField(rootField.valueExpr, fieldName);
 				if (specificField && !specificField.valueExpr.source) {
 					return createValueExprSource(fieldName, newValue, parentFields, 1,
-						specificField.colon.position, applyModifications);
+						specificField.colon.position as NodePosition, applyModifications);
 				}
 				source = createSpecificField(parentFields.reverse());
 				targetMappingConstructor = rootField.valueExpr;
@@ -260,11 +264,11 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 				&& STKindChecker.isMappingConstructor(rootField.valueExpr.expressions[0])) {
 				for (const expr of rootField.valueExpr.expressions) {
 					if (STKindChecker.isMappingConstructor(expr)
-						&& isPositionsEquals(expr.position, mappingConstruct.position)) {
+						&& isPositionsEquals(expr.position as NodePosition, mappingConstruct.position as NodePosition)) {
 						const specificField = getSpecificField(expr, fieldName);
 						if (specificField && !specificField.valueExpr.source) {
 							return createValueExprSource(fieldName, newValue, parentFields, 1,
-								specificField.colon.position, applyModifications);
+								specificField.colon.position as NodePosition, applyModifications);
 						}
 						source = createSpecificField(parentFields.reverse());
 						targetMappingConstructor = expr;
@@ -282,7 +286,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 			&& getSpecificField(targetMappingConstructor, field.type.name);
 		if (specificField && !specificField.valueExpr.source) {
 			return createValueExprSource(field.type.name, newValue, parentFields, 1,
-				specificField.colon.position, applyModifications);
+				specificField.colon.position as NodePosition, applyModifications);
 		}
 		source = createSpecificField(parentFields.reverse());
 	}
@@ -291,10 +295,10 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 	if (STKindChecker.isMappingConstructor(targetMappingConstructor)) {
 		const fieldsAvailable = !!targetMappingConstructor.fields.length;
 		if (fieldsAvailable) {
-			targetPosition = targetMappingConstructor.fields[targetMappingConstructor.fields.length - 1].position;
+			targetPosition = targetMappingConstructor.fields[targetMappingConstructor.fields.length - 1].position as NodePosition;
 			source = `,${source}`;
 		} else {
-			targetPosition = targetMappingConstructor.openBrace.position;
+			targetPosition = targetMappingConstructor.openBrace.position as NodePosition;
 		}
 		targetPosition = {
 			...targetPosition,
@@ -302,7 +306,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 			startColumn: targetPosition.endColumn
 		}
 	} else {
-		targetPosition = targetMappingConstructor.position;
+		targetPosition = targetMappingConstructor.position as NodePosition;
 		source = `{${getLinebreak()}${source}}`;
 	}
 
@@ -316,7 +320,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 	}
 }
 
-export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
+export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 	let rhs = "";
 	const modifications: STModification[] = [];
 	const sourcePort = link.getSourcePort();
@@ -335,13 +339,13 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 			let targetPos: NodePosition;
 			Object.keys(targetPort.getLinks()).forEach((linkId) => {
 				if (linkId !== link.getID()) {
-					const link = targetPort.getLinks()[linkId]
+					const targerPortLink = targetPort.getLinks()[linkId]
 					if (sourcePort instanceof IntermediatePortModel) {
 						if (sourcePort.getParent() instanceof LinkConnectorNode) {
-							targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position
+							targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position as NodePosition
 						}
-					} else if (link.getLabels().length > 0) {
-						targetPos = (link.getLabels()[0] as ExpressionLabelModel).valueNode.position;
+					} else if (targerPortLink.getLabels().length > 0) {
+						targetPos = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode.position as NodePosition;
 					} else if (targetNode instanceof MappingConstructorNode) {
 						const linkConnector = targetNode
 							.getModel()
@@ -349,9 +353,9 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 							.find(
 								(node) =>
 									node instanceof LinkConnectorNode &&
-									node.targetPort.portName === (link.getTargetPort() as RecordFieldPortModel).portName
+									node.targetPort.portName === (targerPortLink.getTargetPort() as RecordFieldPortModel).portName
 							);
-						targetPos = (linkConnector as LinkConnectorNode).valueNode.position;
+						targetPos = (linkConnector as LinkConnectorNode).valueNode.position as NodePosition;
 					}
 
 				}
@@ -368,7 +372,7 @@ export async function modifySpecificFieldSource(link: DataMapperLinkModel) {
 					startLine: targetPos.endLine
 				});
 
-				(targetNode as DataMapperNodeModel).context.applyModifications(modifications)
+				void (targetNode as DataMapperNodeModel).context.applyModifications(modifications)
 			}
 		}
 	}
@@ -385,7 +389,7 @@ export function findNodeByValueNode(value: RequiredParam | FromClause | LetClaus
 				&& STKindChecker.isFromClause(node.value))
 			|| (STKindChecker.isLetClause(value) && node instanceof LetClauseNode
 				&& STKindChecker.isLetClause(node.value)))
-			&& isPositionsEquals(value.position, node.value.position)) {
+			&& isPositionsEquals(value.position as NodePosition, node.value.position as NodePosition)) {
 			foundNode = node;
 		}
 	});
@@ -399,7 +403,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			if (node instanceof LetClauseNode) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
-				return bindingPattern?.variableName?.value === expr.source;
+				return bindingPattern?.variableName?.value === expr.source.trim();
 			} else if (node instanceof RequiredParamNode) {
 				return expr.name.value === node.value.paramName.value;
 			} else if (node instanceof FromClauseNode) {
@@ -461,7 +465,7 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 				const fieldName = fieldNames[i];
 				portIdBuffer += `.${fieldName}`;
 				const recField = nextTypeNode.fields.find(
-					(field: any) => getBalRecFieldName(field.name) === fieldName);
+					(field: Type) => getBalRecFieldName(field.name) === fieldName);
 				if (recField) {
 					if (i === fieldNames.length - 1) {
 						const portId = portIdBuffer + ".OUT";
@@ -501,7 +505,7 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 		const field = fields[i];
 		if (STKindChecker.isSpecificField(field)) {
 			if (nextTypeChildNodes) {
-				portIdBuffer = `${portIdBuffer}.${field.fieldName.value}`
+				portIdBuffer = `${portIdBuffer}.${field.fieldName.value as string}`
 				const recFieldTemp = nextTypeChildNodes.find(
 					(recF) => getBalRecFieldName(recF.type.name) === field.fieldName.value);
 				if (recFieldTemp) {
@@ -512,9 +516,9 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 					}
 				}
 			} else if (nextTypeMemberNodes) {
-				const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
+				const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position as NodePosition);
 				if (nextField && fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}.${fieldIndex}.${field.fieldName.value}`;
+					portIdBuffer = `${portIdBuffer}.${fieldIndex}.${field.fieldName.value as string}`;
 					if (i === fields.length - 1) {
 						recField = nextField;
 					} else {
@@ -523,7 +527,7 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 				}
 			}
 		} else if (STKindChecker.isListConstructor(field) && nextTypeMemberNodes) {
-			const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
+			const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position as NodePosition);
 			if (nextField && fieldIndex !== -1) {
 				portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
 				[nextTypeChildNodes, nextTypeMemberNodes] = getNextNodes(nextField);
@@ -531,13 +535,14 @@ export function getOutputPortForField(fields: STNode[], node: MappingConstructor
 		} else {
 			if (nextTypeChildNodes) {
 				const fieldIndex = nextTypeChildNodes.findIndex(
-					(recF) => recF?.value && isPositionsEquals(field.position, recF.value.position));
+					(recF) => recF?.value && isPositionsEquals(field.position as NodePosition,
+																recF.value.position as NodePosition));
 				if (fieldIndex !== -1) {
 					portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
 					recField = nextTypeChildNodes[fieldIndex];
 				}
 			} else if (nextTypeMemberNodes) {
-				const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position);
+				const [nextField, fieldIndex] = getNextField(nextTypeMemberNodes, field.position as NodePosition);
 				if (nextField && fieldIndex !== -1) {
 					portIdBuffer = `${portIdBuffer}.${fieldIndex}`;
 					recField = nextField;
@@ -565,20 +570,20 @@ export function getLinebreak(){
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
-	                     nextFieldPosition: NodePosition): [EditableRecordField, number] {
+					                 nextFieldPosition: NodePosition): [EditableRecordField, number] {
 	let memberIndex = -1;
 	const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
 		if (node.member.type.typeName === PrimitiveBalType.Record && node.member.value
 			&& STKindChecker.isMappingConstructor(node.member.value)) {
 			for (let i = 0; i < node.member.childrenTypes.length; i++) {
 				const field = node.member.childrenTypes[i];
-				if (field?.value && isPositionsEquals(nextFieldPosition, field.value.position)) {
+				if (field?.value && isPositionsEquals(nextFieldPosition, field.value.position as NodePosition)) {
 					memberIndex = i;
 					return true;
 				}
 			}
 		} else {
-			return node.member?.value && isPositionsEquals(nextFieldPosition, node.member.value.position);
+			return node.member?.value && isPositionsEquals(nextFieldPosition, node.member.value.position as NodePosition);
 		}
 	});
 	if (fieldIndex !== -1) {
@@ -640,7 +645,8 @@ export function getEnrichedRecordType(type: Type,
 			}
 		} else if (node && STKindChecker.isFunctionDefinition(selectedST)
 			&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
-			&& isPositionsEquals(selectedST.functionBody.expression.position, node.position))
+			&& isPositionsEquals(selectedST.functionBody.expression.position as NodePosition,
+								node.position as NodePosition))
 		{
 			nextNode = undefined;
 		} else {
@@ -764,14 +770,14 @@ export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 }
 
 export function isConnectedViaLink(field: STNode) {
-	const fieldAccessNodes = getFieldAccessNodes(field);
+	const inputNodes = getInputNodes(field);
 
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field);
 	const isListConstruct = STKindChecker.isListConstructor(field);
 	const isQueryExpression = STKindChecker.isQueryExpression(field)
 	const isSimpleNameRef = STKindChecker.isSimpleNameReference(field)
 
-	return (!!fieldAccessNodes.length || isQueryExpression || isSimpleNameRef)
+	return (!!inputNodes.length || isQueryExpression || isSimpleNameRef)
 		&& !isMappingConstruct && !isListConstruct;
 }
 
@@ -838,33 +844,12 @@ export function isArrayOrRecord(field: Type) {
 	return field.typeName === PrimitiveBalType.Array || field.typeName === PrimitiveBalType.Record;
 }
 
-export function getFieldAccessNodes(node: STNode) {
-	const fieldAccessFindingVisitor: FieldAccessFindingVisitor = new FieldAccessFindingVisitor();
-	traversNode(node, fieldAccessFindingVisitor);
-	return fieldAccessFindingVisitor.getFieldAccessNodes();
+export function getInputNodes(node: STNode) {
+	const inputNodeFindingVisitor: InputNodeFindingVisitor = new InputNodeFindingVisitor();
+	traversNode(node, inputNodeFindingVisitor);
+	return inputNodeFindingVisitor.getFieldAccessNodes();
 }
 
-export function getSimpleNameRefNodes(selectedST: STNode, node: STNode) {
-	const possibleReferences: string[] = [];
-	if (STKindChecker.isFunctionDefinition(selectedST)) {
-		const params = selectedST.functionSignature.parameters;
-		params.forEach((param) => {
-			if (STKindChecker.isRequiredParam(param) && param?.paramName) {
-				possibleReferences.push(param.paramName.value);
-			}
-		});
-	} else if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
-		const bindingPattern = selectedST.valueExpr.queryPipeline.fromClause.typedBindingPattern.bindingPattern;
-		if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-			possibleReferences.push(bindingPattern.variableName.value);
-		}
-	}
-
-	const simpleNameRefsFindingVisitor: SimpleNameReferencesFindingVisitor =
-		new SimpleNameReferencesFindingVisitor(possibleReferences);
-	traversNode(node, simpleNameRefsFindingVisitor);
-	return simpleNameRefsFindingVisitor.getSimpleNameReferenceNodes();
-}
 
 export function getFieldName(field: EditableRecordField) {
 	if (!field.type?.name
@@ -891,9 +876,9 @@ export function getFieldLabel(fieldId: string) {
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
-	                                    fieldIndex: number,
-	                                    targetPosition: NodePosition,
-	                                    applyModifications: (modifications: STModification[]) => Promise<void>) {
+									                            fieldIndex: number,
+									                            targetPosition: NodePosition,
+									                            applyModifications: (modifications: STModification[]) => Promise<void>) {
 	let source = "";
 
 	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
@@ -910,7 +895,7 @@ async function createValueExprSource(lhs: string, rhs: string, fieldNames: strin
 	})]);
 
 	function createValueExpr(missingFields: string[], isRoot?: boolean): string {
-		return !!missingFields.length
+		return missingFields.length
 			? isRoot
 				? `{${getLinebreak()}${createValueExpr(missingFields.slice(1))}}`
 				: `\t${missingFields[0]}: {${getLinebreak()}${createValueExpr(missingFields.slice(1))}}`
@@ -923,7 +908,7 @@ async function createValueExprSource(lhs: string, rhs: string, fieldNames: strin
 }
 
 function updateValueExprSource(value: string, targetPosition: NodePosition,
-	                              applyModifications: (modifications: STModification[]) => void) {
+								                       applyModifications: (modifications: STModification[]) => void) {
 	applyModifications([getModification(value, {
 		...targetPosition
 	})]);

@@ -1,6 +1,6 @@
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-export function isObject(item: any) {
+export function isObject(item: unknown) {
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
 }
 
@@ -21,7 +21,7 @@ export function genLetClauseVariableName(intermediateClauses: (STNode)[]): strin
             for (const item of clause.letVarDeclarations) {
                 if (STKindChecker.isLetVarDecl(item) && item.typedBindingPattern.bindingPattern.source.trim() === varName) {
                     index++;
-                    varName = baseName + index;
+                    varName = baseName + index.toString();
                 }
             }
         }
