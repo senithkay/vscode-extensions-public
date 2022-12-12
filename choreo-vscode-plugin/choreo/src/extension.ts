@@ -60,16 +60,18 @@ function createProjectTreeView() {
 	vscode.commands.registerCommand(cloneAllComponentsCmdId, async (treeItem) => {
 		if (treeItem instanceof ChoreoProjectTreeItem) {
 
-			const { id } = treeItem.project;
+			const workspaceName = vscode.workspace.name;
+			const workspaceFolders = vscode.workspace.workspaceFolders;
+
+			if (!workspaceName || !workspaceFolders) {
+				vscode.window.showErrorMessage('A workspace should be already opened to proceed.');
+				return;
+			}
+
+			const { id, name } = treeItem.project;
 			const selectedOrg = ext.api.selectedOrg;
-
+			
 			if (selectedOrg) {
-				const components = await getComponentsByProject(selectedOrg.handle, id);
-				const repos = components.map((cmp) => cmp.repository);
-
-				const choreoManagedRepos = repos.filter((repo) => !repo.isUserManage);
-				const userManagedRepos = repos.filter((repo) => repo.isUserManage);
-				
 				const parentDirs = await window.showOpenDialog({
 					canSelectFiles: false,
 					canSelectFolders: true,
@@ -86,7 +88,7 @@ function createProjectTreeView() {
 				const parentPath = parentDirs[0].fsPath;
 				
 				await window.withProgress({
-					title: `Cloning ${userManagedRepos.length} repos locally.`,
+					title: `Cloning ${name} components locally.`,
 					location: vscode.ProgressLocation.Notification,
 					cancellable: true
 				}, async (_progress, cancellationToken) => {
@@ -96,15 +98,21 @@ function createProjectTreeView() {
 					cancellationToken.onCancellationRequested(async () => {
 						cancelled = true;
 					});
+					const components = await getComponentsByProject(selectedOrg.handle, id);
+					const repos = components.map((cmp) => cmp.repository);
+
+					const choreoManagedRepos = repos.filter((repo) => !repo.isUserManage);
+					const userManagedRepos = repos.filter((repo) => repo.isUserManage);
 
 					while (!cancelled && currentCloneIndex < userManagedRepos.length) {
 						const { organizationApp, nameApp } = userManagedRepos[currentCloneIndex];
 						await vscode.commands.executeCommand("git.clone", `https://github.com/${organizationApp}/${nameApp}`, parentPath);
+						await vscode.commands.executeCommand("workbench.explorer.fileView.focus");
 						currentCloneIndex = currentCloneIndex + 1;
 					}
 
 					if (choreoManagedRepos.length > 0) {
-						vscode.window.showWarningMessage(`Could not clone following Choreo managed repositories.\n${choreoManagedRepos.map((repo) => `${repo.organizationApp}/${repo.nameApp}\n`)}`);
+						vscode.window.showWarningMessage(`Could not clone ${choreoManagedRepos.length} Choreo managed repos.\n`);
 					}
 
 				});

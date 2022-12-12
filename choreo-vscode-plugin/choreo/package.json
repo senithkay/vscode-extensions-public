@@ -40,7 +40,7 @@
       },
       {
         "command": "wso2.choreo.project.clone",
-        "title": "Clone all Components"
+        "title": "Clone to workspace"
       },
       {
         "command": "wso2.choreo.projects.refresh",
