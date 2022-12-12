@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,28 +17,23 @@
  *
  */
 
-import React, { useContext, useState } from 'react';
-import CodeIcon from '@mui/icons-material/Code';
-import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { Location } from '../../../resources';
+import React, { useState } from 'react';
+import RouteIcon from '@mui/icons-material/Route';
 
-export function Go2SourceWidget(props: { location: Location }) {
-    const { location } = props;
-    const { go2source } = useContext(DiagramContext);
-
+export function LinkingWidget() {
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     return (
-        <CodeIcon
-            onClick={() => go2source(location)}
+        <RouteIcon
             onMouseOver={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{
-                backgroundColor: isHovered ? '#49ad63' : '',
+                backgroundColor: isHovered ? 'orange' : '',
                 borderRadius: '50%',
-                color: isHovered ? 'whitesmoke' : '#49ad63',
+                color: isHovered ? 'whitesmoke' : 'orange',
                 cursor: 'pointer',
-                fontSize: '18px'
+                fontSize: '18px',
+                padding: '2px'
             }}
         />
     );

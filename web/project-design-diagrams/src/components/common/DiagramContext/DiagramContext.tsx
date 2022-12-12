@@ -29,6 +29,7 @@ interface DiagramContextProps {
     createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
+    editingEnabled: boolean;
 }
 
 interface IDiagramContext {
@@ -40,6 +41,7 @@ interface IDiagramContext {
     getProjectRoot: () => Promise<string>;
     setNewComponentID: (name: string) => void;
     newComponentID: string;
+    editingEnabled: boolean;
 }
 
 const defaultState: any = {};
@@ -47,7 +49,7 @@ export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
-    const { getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, go2source, children } = props;
+    const { getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, go2source, editingEnabled, children } = props;
 
     const Ctx = {
         getTypeComposition,
@@ -57,7 +59,8 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         pickDirectory,
         getProjectRoot,
         setNewComponentID,
-        newComponentID
+        newComponentID,
+        editingEnabled
     }
 
     return (

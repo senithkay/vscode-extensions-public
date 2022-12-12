@@ -85,7 +85,7 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     return (
-        <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, getProjectRoot, createService, go2source }}>
+        <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, getProjectRoot, createService, go2source, editingEnabled }}>
             <Container>
                 {currentView && projectPkgs ?
                     <>

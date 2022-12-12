@@ -17,13 +17,13 @@
  *
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
-import { NodeMenuWidget } from '../../../common';
-import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes } from '../../../../resources';
+import { DiagramContext, NodeMenuWidget } from '../../../common';
+import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes, Views } from '../../../../resources';
 import { ServiceHead, ServiceName } from '../styles/styles';
 
 interface ServiceHeadProps {
@@ -34,6 +34,7 @@ interface ServiceHeadProps {
 
 export function ServiceHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
+    const { currentView, editingEnabled } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -74,6 +75,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     <NodeMenuWidget
                         background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
                         location={node.serviceObject.elementLocation}
+                        linkingEnabled={editingEnabled && currentView === Views.L1_SERVICES}
                     />
                 }
             <ServicePortWidget
