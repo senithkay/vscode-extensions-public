@@ -34,8 +34,6 @@ export async function getChoreoToken(tokenKey: string): Promise<ChoreoAccessToke
             const newChoreoToken = await _getChoreoToken(ChoreoToken);
             if (newChoreoToken?.accessToken && ext.api.selectedOrg) {
                 await exchangeApimToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
-            } else {
-                throw Error("Error while refreshing access token");
             }
         }
     }
