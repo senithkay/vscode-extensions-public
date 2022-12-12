@@ -19,7 +19,7 @@
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import {
-    ComponentModel, Interaction, Level, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes
+    ComponentModel, Dependency, Interaction, Level, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes
 } from '../../resources';
 import { ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
 
@@ -88,10 +88,40 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                 if (l1SourceNode && l2SourceNode) {
                     mapInteractions(l1SourceNode, l2SourceNode, service.resources);
                     mapInteractions(l1SourceNode, l2SourceNode, service.remoteFunctions);
+
+                    if (service.dependencies) {
+                        mapDependencies(l1SourceNode, l2SourceNode, service.dependencies);
+                    }
                 }
             });
         }
     });
+}
+
+function mapDependencies(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, dependencies: Dependency[]) {
+    dependencies.forEach((dependency) => {
+        if (dependency.serviceId && l1Nodes.has(dependency.serviceId) && l2Nodes.has(dependency.serviceId)) {
+            let linkID: string = `${l1Source.getID()}-${dependency.serviceId}`;
+            if (!l1Links.has(linkID)) {
+                const l1TargetNode: ServiceNodeModel = l1Nodes.get(dependency.serviceId);
+                if (l1TargetNode) {
+                    let link: ServiceLinkModel = setLinkPorts(l1Source, l1TargetNode);
+                    if (link) {
+                        l1Links.set(linkID, link);
+                    }
+                }
+            }
+            const l2TargetNode: ServiceNodeModel = l2Nodes.get(dependency.serviceId);
+            if (l2TargetNode) {
+                let link: ServiceLinkModel = setLinkPorts(l2Source, l2TargetNode);
+                if (link) {
+                    l2Links.push(link);
+                }
+            }
+        } else if (dependency.connectorType) {
+            mapExtServices(l1Source, l2Source, dependency.connectorType);
+        }
+    })
 }
 
 function mapInteractions(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, functions: ResourceFunction[] | RemoteFunction[]) {
@@ -165,10 +195,15 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
 }
 
 function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, connectorType: string,
-    callingFunction: ResourceFunction | RemoteFunction) {
+    callingFunction?: ResourceFunction | RemoteFunction) {
     // create L1 external service nodes and links
-    let l1ExtService: ExtServiceNodeModel = new ExtServiceNodeModel(connectorType);
-    l1ExtNodes.set(connectorType, l1ExtService);
+    let l1ExtService: ExtServiceNodeModel;
+    if (l1ExtNodes.has(connectorType)) {
+        l1ExtService = l1ExtNodes.get(connectorType);
+    } else {
+        l1ExtService = new ExtServiceNodeModel(connectorType);
+        l1ExtNodes.set(connectorType, l1ExtService);
+    }
 
     let l1Link: ServiceLinkModel = mapExtLinks(l1Source, l1ExtService, undefined);
     if (l1Link) {
@@ -176,10 +211,15 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
     }
 
     // create L2 external service nodes and links
-    let l2ExtService: ExtServiceNodeModel = new ExtServiceNodeModel(connectorType);
-    l2ExtNodes.set(connectorType, l2ExtService);
+    let l2ExtService: ExtServiceNodeModel;
+    if (l2ExtNodes.has(connectorType)) {
+        l2ExtService = l2ExtNodes.get(connectorType);
+    } else {
+        l2ExtService = new ExtServiceNodeModel(connectorType);
+        l2ExtNodes.set(connectorType, l2ExtService);
+    }
 
-    let sourcePortID: string = isResource(callingFunction) ?
+    let sourcePortID: string = !callingFunction ? undefined : isResource(callingFunction) ?
         `right-${callingFunction.resourceId.action}/${callingFunction.identifier}` : `right-${callingFunction.name}`;
     let l2Link: ServiceLinkModel = mapExtLinks(l2Source, l2ExtService, sourcePortID);
     if (l2Link) {

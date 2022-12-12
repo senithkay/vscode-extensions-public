@@ -25,6 +25,7 @@ export type {
     Cardinality,
     ComponentModel,
     ConnectorProps,
+    Dependency,
     Entity,
     Interaction,
     RemoteFunction,

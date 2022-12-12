@@ -38,12 +38,18 @@ export interface Service {
     resources: ResourceFunction[];
     remoteFunctions: RemoteFunction[];
     serviceType: string;
+    dependencies: Dependency[];
     deploymentMetadata: DeploymentMetadata;
 }
 
 interface ServiceAnnotation {
     id: string;
     label: string;
+}
+
+export interface Dependency {
+    serviceId: string;
+    connectorType: string;
 }
 
 export interface ResourceFunction {

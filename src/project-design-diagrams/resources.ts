@@ -15,6 +15,7 @@ export interface Service {
     resources: any[];
     remoteFunctions: any[];
     serviceType: string;
+    dependencies: any[];
     deploymentMetadata: DeploymentMetadata;
 }
 
