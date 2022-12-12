@@ -28,7 +28,11 @@ export class ChoreoComponentTreeItem extends TreeItem {
     ) {
       super(component.displayName, TreeItemCollapsibleState.None);
       this.tooltip = component.description;
-      this.description = component.version;
+      const { repository, createdAt, version } = component;
+			const { isUserManage, organizationApp, nameApp } = repository;
+      this.description = version;
+      this.tooltip = 
+        `${isUserManage ? '' : 'Choreo managed component\n'}Repository: ${organizationApp}/${nameApp}\nCreated At: ${new Date(createdAt)}`;
       this.contextValue = "choreo.component";
     }
     iconPath = new ThemeIcon("package");

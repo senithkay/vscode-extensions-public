@@ -27,6 +27,9 @@ export class ChoreoProjectTreeItem extends TreeItem {
     ) {
       super(project.name, collapsibleState);
       this.description = project.version;
+      const { createdData, handler, region } = project;
+      this.tooltip = 
+      `Project Handle: ${handler}\n${createdData ? `Created At: ${createdData}\n` : ''}Region: ${region}`;
     }
   
   

@@ -23,7 +23,7 @@ export class ChoreoOrganizationsTreeItem extends TreeItem {
     constructor(
     ) {
       super("Organizations", TreeItemCollapsibleState.Collapsed);
-      this.tooltip = `Selected org is ${ext.api.selectedOrg?.name}*`;
+      this.tooltip = `Selected Org: ${ext.api.selectedOrg?.name}`;
     }
   
     iconPath = {
