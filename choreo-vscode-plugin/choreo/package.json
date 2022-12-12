@@ -52,7 +52,7 @@
         {
           "id": "wso2-choreo",
           "title": "WSO2 Choreo",
-          "icon": "resources/icons/choreo.ico"
+          "icon": "resources/icons/choreo.svg"
         }
       ]
     },
