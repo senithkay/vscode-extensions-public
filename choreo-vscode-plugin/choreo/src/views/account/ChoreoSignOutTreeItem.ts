@@ -26,9 +26,8 @@ export class ChoreoSignOutTreeItem extends TreeItem {
       super("Sign out from Choreo...", TreeItemCollapsibleState.None);
       this.command = {
         command: choreoSignOutCmdId,
-        title: `Sign out ${ext.api.userName ? ext.api.userName : ''} from Choreo`
+        title: 'Sign out from Choreo'
       };
-      this.description = ext.api.userName;
     }
   
     iconPath = {

@@ -97,11 +97,20 @@ function createAccountTreeView() {
 			ext.api.selectedOrg = treeItem.org;
 		}
 	});
-    return window.createTreeView(choreoAccountTreeId, {
+
+    const treeView = window.createTreeView(choreoAccountTreeId, {
         treeDataProvider: accountTreeProvider, showCollapseAll: false
     });
 
-	
+	ext.context.subscriptions.push(ext.api.onStatusChanged((newStatus) => {
+		let description = '';
+		if (newStatus === "LoggedIn" && ext.api.userName) {
+			description = ext.api.userName;
+		}
+		treeView.description = description;
+	}));
+
+	return treeView;
 }
 
 function setupEvents() {
