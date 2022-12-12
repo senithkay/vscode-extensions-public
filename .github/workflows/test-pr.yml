@@ -28,7 +28,7 @@ jobs:
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
       - name: Build plugin repo
-        run: ./gradlew clean build -x test -x uiTest
+        run: npm run build
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
           IS_RELEASE: ${{ false }}
@@ -68,7 +68,7 @@ jobs:
           node-version: 16.x
 
       - name: Install node modules
-        run: npm install
+        run: npm install --legacy-peer-deps
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
@@ -131,7 +131,7 @@ jobs:
           node-version: 16.x
 
       - name: Install node modules
-        run: npm install
+        run: npm install --legacy-peer-deps
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
@@ -269,19 +269,11 @@ jobs:
           mv coverage.json integration-tests/.nyc_output/out.json
           npx nyc report --reporter html --reporter cobertura -t integration-tests/.nyc_output --report-dir integration-tests/coverage
         if: always()
-    
-      - name: Generate plugin code coverage report
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: coverageData/plugin-coverage.xml, ballerina-low-code-editor/integration-tests/coverage/cobertura-coverage.xml
-          badge: true
-          format: 'markdown'
-          output: 'both'
 
       - run: |
           mkdir totalCoverage
           echo ${{ github.event.number }} | tee ./totalCoverage/number
-          mv code-coverage-results.md totalCoverage/code-coverage-results.md
+          mv ballerina-low-code-editor/integration-tests/coverage/cobertura-coverage.xml totalCoverage/lowcode-coverage.xml 
 
       - name: Publish code coverage
         uses: actions/upload-artifact@v3
