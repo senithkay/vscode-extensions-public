@@ -19,8 +19,30 @@
 import { ChoreoSessionConfig } from "./config";
 import keytar = require("keytar");
 import { ChoreoAccessToken } from "./types";
+import { ChoreoToken, exchangeApimToken, exchangeRefreshToken } from "./inbuilt-impl";
+import { ext } from "../extensionVariables";
 
 export async function getChoreoToken(tokenKey: string): Promise<ChoreoAccessToken|undefined> {
+    
+    const currentChoreoToken = await _getChoreoToken(ChoreoToken);
+    if (currentChoreoToken?.accessToken && currentChoreoToken.expirationTime
+        && currentChoreoToken.loginTime && currentChoreoToken.refreshToken) {
+
+        let tokenDuration = (new Date().getTime() - new Date(currentChoreoToken.loginTime).getTime()) / 1000;
+        if (tokenDuration > currentChoreoToken.expirationTime) {
+            await exchangeRefreshToken(currentChoreoToken.refreshToken);
+            const newChoreoToken = await _getChoreoToken(ChoreoToken);
+            if (newChoreoToken?.accessToken && ext.api.selectedOrg) {
+                await exchangeApimToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
+            } else {
+                throw Error("Error while refreshing access token");
+            }
+        }
+    }
+    return _getChoreoToken(tokenKey);
+}
+
+async function _getChoreoToken(tokenKey: string): Promise<ChoreoAccessToken|undefined> {
     const serviceName = ChoreoSessionConfig.serviceName + tokenKey;
     let choreoAccessToken: string | null = null;
     await keytar.getPassword(serviceName, ChoreoSessionConfig.accessToken).then((result) => {

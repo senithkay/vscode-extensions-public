@@ -203,12 +203,6 @@ export async function signIn() {
     const choreoTokenInfo = await getChoreoToken(ChoreoToken);
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
-        let tokenDuration = (new Date().getTime() - new Date(choreoTokenInfo.loginTime).getTime()) / 1000;
-        if (tokenDuration > choreoTokenInfo.expirationTime) {
-            await exchangeRefreshToken(choreoTokenInfo.refreshToken);
-            await signIn();
-            return;
-        }
         const userInfo = await getUserInfo();
         await exchangeApimToken(choreoTokenInfo?.accessToken, userInfo.organizations[0].handle);
         ext.api.userName = userInfo.displayName;

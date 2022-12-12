@@ -18,7 +18,7 @@
  */
 import * as vscode from 'vscode';
 import { commands, window } from "vscode";
-import { ChoreoToken, exchangeAuthToken, exchangeRefreshToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./inbuilt-impl";
+import { ChoreoToken, exchangeAuthToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./inbuilt-impl";
 import { ChoreoAuthConfig, ChoreoFidp } from "./config";
 import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
