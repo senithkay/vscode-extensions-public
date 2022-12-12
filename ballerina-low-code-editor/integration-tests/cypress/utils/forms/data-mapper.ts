@@ -251,6 +251,14 @@ export class DataMapper {
         cy.get(`[data-testid='let-clause-expression-${index}']`).click();
     }
 
+    static clickLimitExpression = (index: number) => {
+        cy.get(`[data-testid='limit-clause-expression-${index}']`).click();
+    }
+
+    static clickOrderByExpression = (index: number) => {
+        cy.get(`[data-testid='order-by-clause-expression-${index}']`).click();
+    }
+
     static updateLetVariableName = (index: number, newName: string) => {
         cy.get(`[data-testid='let-clause-name-${index}']`).click();
         cy.get(`[data-testid="let-clause-name-input-${index}"]`).clear().type(`${newName}{enter}`)

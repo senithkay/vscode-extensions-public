@@ -15,14 +15,14 @@ import React, { useState } from "react";
 
 import { CircularProgress } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
-import { QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
+import { LimitClause, QueryExpression } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { useStyles } from "../styles";
 
-export function WhereClauseItem(props: {
-    intermediateNode: WhereClause;
+export function LimitClauseItem(props: {
+    intermediateNode: LimitClause;
     onEditClick: () => void;
     onDeleteClick: () => Promise<void>;
     context: IDataMapperContext;
@@ -46,10 +46,10 @@ export function WhereClauseItem(props: {
     return (
         <>
             <div className={classes.clauseItem}>
-                <div className={classes.clauseKeyWrap}>{intermediateNode.whereKeyword.value}</div>
+                <div className={classes.clauseKeyWrap}>{intermediateNode.limitKeyword.value}</div>
 
                 <div className={classes.clauseWrap}>
-                    <span className={classes.clauseExpression} onClick={() => onEditClick()} data-testid={`where-clause-expression-${itemIndex}`}>
+                    <span className={classes.clauseExpression} onClick={() => onEditClick()} data-testid={`limit-clause-expression-${itemIndex}`}>
                         {intermediateNode.expression.source}
                     </span>
                 </div>
@@ -57,7 +57,7 @@ export function WhereClauseItem(props: {
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`where-clause-delete-${itemIndex}`}/>
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`limit-clause-delete-${itemIndex}`}/>
                 )}
             </div>
 

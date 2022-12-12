@@ -11,7 +11,8 @@ export const useStyles = makeStyles((theme: Theme) =>
                 color: theme.palette.common.black,
                 "& $deleteIcon": {
                     opacity: 1,
-                }
+                },
+
             },
         },
         lineWrap: {
@@ -51,6 +52,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             padding: '26px 10px',
             boxShadow: '0px 5px 50px rgba(203, 206, 219, 0.5)',
+
+            '&:hover': {
+                "& $addOrderKeyIcon": {
+                    opacity: 0.7,
+                }
+            },
+
         },
         buttonWrapper: {
             border: '1px solid #e6e7ec',
@@ -59,6 +67,20 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         clauseItemKey: {
             marginLeft: 5
+        },
+        clauseExpressionLight: {
+            marginLeft: 5,
+            marginRight: 5,
+            display: 'flex',
+            alignItems: 'center',
+            transition: 'background 0.2s',
+            '&:hover': {
+                background: theme.palette.grey[100],
+                "& $deleteOrderKeyIcon": {
+                    opacity: 0.7,
+                },
+
+            }
         },
         clauseExpression: {
             background: theme.palette.grey[100],
@@ -92,6 +114,30 @@ export const useStyles = makeStyles((theme: Theme) =>
                 color: theme.palette.error.dark,
             }
         },
+        deleteOrderKeyIcon: {
+            cursor: 'pointer',
+            color: theme.palette.error.main,
+            fontSize: '20px',
+            transition: 'opacity 0.2s ease-in-out',
+            opacity: 0,
+            paddingRight: 5,
+            '&:hover': {
+                opacity: 1,
+                color: theme.palette.error.dark,
+            }
+        },
+        addOrderKeyIcon: {
+            cursor: 'pointer',
+            color: theme.palette.grey[600],
+            fontSize: '20px',
+            transition: 'opacity 0.2s ease-in-out',
+            opacity: 0,
+            paddingRight: 5,
+            '&:hover': {
+                opacity: 1,
+                color: theme.palette.grey[800],
+            }
+        },
         input: {
             maxWidth: '120px',
             padding: "5px",
@@ -119,6 +165,25 @@ export const useStyles = makeStyles((theme: Theme) =>
                 fontSize: '11px',
                 paddingBottom: "1px",
                 paddingTop: "1px"
+            }
+        },
+        orderSelect: {
+            '& .MuiSelect-select:focus': {
+                backgroundColor: 'unset',
+            },
+
+            background: theme.palette.grey[100],
+
+            borderRadius: 5,
+            cursor: 'pointer',
+            paddingLeft: 5,
+            paddingRight: 5,
+            marginLeft: 5,
+            marginRight: 5,
+            transition: 'border 0.2s',
+            border: `1px solid transparent`,
+            '&:hover': {
+                border: `1px solid ${theme.palette.grey[300]}`
             }
         }
     })

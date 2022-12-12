@@ -25,6 +25,8 @@ import {
 import { ClauseAddButton } from "./ClauseAddButton";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
 import { LetClauseItem } from "./LetClauseItem";
+import { LimitClauseItem } from "./LimitClauseItem";
+import { OrderByClauseItem } from "./OrderClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
 
@@ -53,16 +55,28 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
                 valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.position as NodePosition,
                 label: "Let clause",
             });
+        } else if (STKindChecker.isLimitClause(editNode)) {
+            node.context.enableStatementEditor({
+                value: editNode.expression?.source,
+                valuePosition: editNode.expression?.position as NodePosition,
+                label: "Limit clause",
+            });
         } else if (STKindChecker.isFromClause(editNode)) {
             node.context.enableStatementEditor({
                 value: editNode.expression.source,
                 valuePosition: editNode.expression.position as NodePosition,
                 label: "From clause",
             });
+        } else if (STKindChecker.isOrderKey(editNode)) {
+            node.context.enableStatementEditor({
+                value: editNode.expression.source,
+                valuePosition: editNode.expression.position,
+                label: "Order by clause key",
+            });
         }
     };
 
-    const deleteWhereClause = async (clauseItem: STNode) => {
+    const deleteClause = async (clauseItem: STNode) => {
         await node.context.applyModifications([{ type: "DELETE", ...clauseItem.position }]);
     };
 
@@ -99,8 +113,8 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
                     intermediateClauses?.map((clauseItem, index) => {
                         const itemProps = {
                             key: index,
-                            onEditClick: () => onClickEdit(clauseItem),
-                            onDeleteClick: () => deleteWhereClause(clauseItem),
+                            onEditClick: (editNode?: STNode) => onClickEdit(editNode || clauseItem),
+                            onDeleteClick: () => deleteClause(clauseItem),
                             context: node.context,
                             queryExprNode: node.queryExpr,
                             itemIndex: index,
@@ -109,6 +123,10 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
                             return <WhereClauseItem {...itemProps} intermediateNode={clauseItem} />;
                         } else if (STKindChecker.isLetClause(clauseItem)) {
                             return <LetClauseItem {...itemProps} intermediateNode={clauseItem} />;
+                        } else if (STKindChecker.isLimitClause(clauseItem)) {
+                            return <LimitClauseItem {...itemProps} intermediateNode={clauseItem} />;
+                        } else if (STKindChecker.isOrderByClause(clauseItem)) {
+                            return <OrderByClauseItem {...itemProps} intermediateNode={clauseItem} />;
                         }
                     })}
 

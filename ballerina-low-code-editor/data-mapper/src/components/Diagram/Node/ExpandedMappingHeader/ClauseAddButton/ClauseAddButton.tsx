@@ -98,6 +98,40 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         }
     };
 
+    const onClickAddLimitClause = async () => {
+        handleClose();
+        setLoading(true);
+        try {
+            const addPosition = getAddFieldPosition();
+            await context.applyModifications([
+                {
+                    type: "INSERT",
+                    config: { STATEMENT: ` limit EXPRESSION` },
+                    ...addPosition,
+                },
+            ]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const onClickAddOrderByClause = async () => {
+        handleClose();
+        setLoading(true);
+        try {
+            const addPosition = getAddFieldPosition();
+            await context.applyModifications([
+                {
+                    type: "INSERT",
+                    config: { STATEMENT: ` order by EXPRESSION ascending` },
+                    ...addPosition,
+                },
+            ]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <>
             <div className={classes.lineWrap}>
@@ -121,6 +155,8 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
             >
                 <MenuItem onClick={onClickAddWhereClause}>Add Where Clause</MenuItem>
                 <MenuItem onClick={onClickAddLetClause}>Add Let Clause</MenuItem>
+                <MenuItem onClick={onClickAddLimitClause}>Add Limit Clause</MenuItem>
+                <MenuItem onClick={onClickAddOrderByClause}>Add Order by Clause</MenuItem>
             </Menu>
         </>
     );

@@ -135,7 +135,7 @@ export function LetClauseItem(props: {
                         )}
                     </span>
                     <span>{letVarDeclaration.equalsToken.value}</span>
-                    <span className={classes.clauseExpression} onClick={onEditClick} data-testid={`let-clause-expression-${itemIndex}`}>
+                    <span className={classes.clauseExpression} onClick={() => onEditClick()} data-testid={`let-clause-expression-${itemIndex}`}>
                         {letVarDeclaration.expression.source}
                     </span>
                 </div>

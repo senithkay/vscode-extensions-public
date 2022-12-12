@@ -46,6 +46,8 @@ function transform(Input input, SecondInput secondInput) returns Output => {
     Items: from var ItemsItem in input.Items
         where true
         let var updatedName = "strValue"
+        limit 10
+        order by ItemsItem.Id ascending
         select {
             Id: ItemsItem.Id + updatedName,
             Confirmed:

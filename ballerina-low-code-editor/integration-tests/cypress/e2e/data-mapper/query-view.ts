@@ -76,6 +76,28 @@ describe("Expanded query view for inline record within mapping constructor", () 
         DataMapper.getQueryExprNode("source.updatedName");
     });
 
+    it("Add an intermediary limit clause with a value", () => {
+        cy.wait(3000);
+        DataMapper.addIntermediaryClause(1, 'Add Limit Clause');
+        DataMapper.clickLimitExpression(2);
+        StatementEditor.shouldBeVisible().getEditorPane();
+        EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
+        InputEditor.typeInput(`10`);
+        EditorPane.reTriggerDiagnostics("DecimalIntegerLiteralToken", `10`)
+        StatementEditor.save();
+    });
+
+    it("Add an intermediary order by clause with a value", () => {
+        cy.wait(3000);
+        DataMapper.addIntermediaryClause(2, 'Add Order by Clause');
+        DataMapper.clickOrderByExpression(3);
+        StatementEditor.shouldBeVisible().getEditorPane();
+        EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
+        InputEditor.typeInput(`ItemsItem.Id`);
+        EditorPane.reTriggerDiagnostics("IdentifierToken", `ItemsItem`)
+        StatementEditor.save();
+    });
+
     it("Generated source code is valid", () => {
         SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-with-expanded-query-view-for-inline-record.bal");
     });
