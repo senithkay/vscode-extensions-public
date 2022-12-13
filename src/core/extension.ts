@@ -611,7 +611,9 @@ export class BallerinaExtension {
         commands.executeCommand('setContext', 'isChoreoAuthEnabled', value);
     }
     public getChoreoSession(): ChoreoSession {
-        throw new Error("Pending wiring from Choreo Extension");
+        return {
+            loginStatus: false
+        };
     }
     
     public getCodeServerContext(): CodeServerContext {
