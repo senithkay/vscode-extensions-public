@@ -84,9 +84,6 @@ export function ResourceQueryParams(props: ResourceQueryParamsProps) {
             <p className={"path-text"}>
                 {pathElements.length === 1 && pathElements[0] === '.' ? "/" : pathElements}
                 <span>&nbsp;</span>
-                {queryParamComponents.length > 0 ? "?" : ""}
-                <span>&nbsp;</span>
-                {queryParamComponents}
             </p>
         </div>
     );

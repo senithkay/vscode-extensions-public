@@ -20,9 +20,12 @@ export const useStyles = makeStyles(() =>
             height: "100%",
             overflow: "hidden"
         },
+        plusButton: {
+            marginLeft: 18
+        },
         headerContainer: {
             width: "100%",
-            height: 50,
+            // height: 50,
             display: "flex",
             padding: 15,
             backgroundColor: "white",
@@ -99,5 +102,21 @@ export const useStyles = makeStyles(() =>
             marginBottom: "15px",
             padding: "5px 0"
         },
+        serviceList: {
+            overflowY: "scroll",
+            maxHeight: "84%"
+        },
+        expandAll: {
+            textAlign: "right"
+        },
+        collapseBtn: {
+            display: "inline-flex",
+            border: "1px solid #5667d5",
+            borderRadius: 5,
+            paddingLeft: 15,
+            marginTop: 5,
+            marginRight: 20,
+            cursor: "pointer"
+        }
     }),
 );

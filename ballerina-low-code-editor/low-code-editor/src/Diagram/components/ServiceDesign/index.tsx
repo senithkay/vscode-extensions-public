@@ -27,6 +27,8 @@ import { ResourceBody } from "./Resource";
 import { ServiceHeader } from "./ServiceHeader";
 import { useStyles } from "./style";
 import "./style.scss";
+import { ComponentExpandButton, LinePrimaryButton, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { AddIcon } from "../../../assets/icons";
 
 export interface ServiceDesignProps {
     fnST: STNode;
@@ -51,6 +53,9 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
     } = propsz;
 
     const [isPlusClicked, setPlusClicked] = useState(false);
+    const [isAllExpanded, setIsAllExpanded] = useState(false);
+    const [children, setChildren] = useState<JSX.Element[]>([]);
+
 
     const classes = useStyles();
     const intl = useIntl();
@@ -58,16 +63,25 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
 
     const fnSTZ = fnST as ServiceDeclaration;
 
-    const children: JSX.Element[] = [];
-    fnSTZ?.members.forEach((member) => {
-        const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
-        children.push(
-            <div className={'service-member'} data-start-position={startPosition} >
-                <ResourceBody handleDiagramEdit={handleDiagramEdit} model={member as ResourceAccessorDefinition} />
-            </div>
-        );
-    });
+    useEffect(() => {
+        const cc: JSX.Element[] = [];
+        fnSTZ?.members.forEach((member) => {
+            const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
+            cc.push(
+                <div className={'service-member'} data-start-position={startPosition} >
+                    <ResourceBody handleDiagramEdit={handleDiagramEdit} model={member as ResourceAccessorDefinition} isExpandedAll={isAllExpanded} />
+                </div>
+            );
+        });
+        setChildren(cc);
+    }, [fnSTZ, isAllExpanded]);
 
+
+
+    const onExpandAllClick = () => {
+        const ex = !isAllExpanded;
+        setIsAllExpanded(ex);
+    }
 
     const handlePlusClick = () => {
         const lastMemberPosition: NodePosition = {
@@ -81,19 +95,35 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
 
     return (
         <div className={classes.root}>
-            <>
-                <ServiceHeader onClose={onClose} />
-                <div>
-                    {fnSTZ && (
+            {fnSTZ && (
+                <>
+                    <ServiceHeader onClose={onClose} model={fnSTZ} />
+                    <div className={classes.expandAll}>
+                        <div className={classes.collapseBtn} onClick={onExpandAllClick}>
+                            Collapse All
+                            <ComponentExpandButton
+                                isExpanded={isAllExpanded}
+                                onClick={onExpandAllClick}
+                            />
+                        </div>
+                    </div>
+                    <div className={classes.serviceList}>
                         <>
                             {children}
                         </>
-                    )}
-                </div>
-                <div className="plus-btn-wrapper" onClick={handlePlusClick}>
-                    <TopLevelPlusIcon selected={isPlusClicked} />
-                </div>
-            </>
+                    </div>
+
+                    <div className={classes.plusButton}>
+                        <LinePrimaryButton
+                            text={"Add Resource"}
+                            onClick={handlePlusClick}
+                            dataTestId="add-new-btn"
+                            startIcon={<AddIcon />}
+                        />
+                    </div>
+                </>
+            )}
+
         </div>
     )
 }

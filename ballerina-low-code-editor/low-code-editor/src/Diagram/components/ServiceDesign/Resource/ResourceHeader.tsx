@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { ErrorIcon, LabelEditIcon, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ErrorIcon, LabelDeleteIcon, LabelEditIcon, STModification, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -28,10 +28,11 @@ interface ResourceHeaderProps {
     onExpandClick: () => void;
     isExpanded: boolean;
     onEdit: () => void;
+    onDelete: () => void;
 }
 
 export function ResourceHeader(props: ResourceHeaderProps) {
-    const { model, onExpandClick, isExpanded, onEdit } = props;
+    const { model, onExpandClick, isExpanded, onEdit, onDelete } = props;
 
     return (
         <div
@@ -39,23 +40,28 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             onClick={onExpandClick}
         >
             <div className={classNames("resource-badge", model.functionName.value)}>
-                <p className={"text"}>{model.functionName.value.toUpperCase()}</p>
+                <p className={"text"}><b> {model.functionName.value.toUpperCase()} </b></p>
             </div>
             <div className="param-wrapper">
                 <ResourceQueryParams
                     parameters={model.functionSignature.parameters}
                     relativeResourcePath={model.relativeResourcePath}
                 />
-                <ResourceOtherParams parameters={model.functionSignature.parameters} />
-            </div>
-            <div className="return-type">
-                {model.functionSignature.returnTypeDesc?.source}
             </div>
             <div className="menu-option" onClick={onEdit}>
                 <div className={classNames("icon", "icon-adjust")}>
                     <LabelEditIcon />
                 </div>
-                <div className="other">Edit</div>
+                {/* <div className="other">Edit</div> */}
+            </div>
+            <div
+                onClick={onDelete}
+                className={classNames("menu-option", "right")}
+                id="delete-button"
+            >
+                <div className={classNames("icon", "icon-adjust")}>
+                    <LabelDeleteIcon />
+                </div>
             </div>
             <ComponentExpandButton
                 isExpanded={isExpanded}

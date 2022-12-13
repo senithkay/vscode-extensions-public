@@ -13,19 +13,52 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import CloseIcon  from '@material-ui/icons/Close';
+import CloseIcon from '@material-ui/icons/Close';
 import HomeIcon from '@material-ui/icons/Home';
 
 import { useStyles } from "./style";
+import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export interface ServiceHeaderProps {
+    model: ServiceDeclaration;
     onClose?: () => void;
     onConfigOpen?: () => void;
 }
 
 export function ServiceHeader(props: ServiceHeaderProps) {
-    const { onClose } = props;
+    const { model, onClose } = props;
     const classes = useStyles();
+
+    let servicePath = "";
+
+    model.absoluteResourcePath.forEach(item => {
+        servicePath += item.value;
+    });
+
+
+
+    let serviceType = "";
+    let listeningOnText = "";
+    let isUnsupportedType;
+
+    if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
+        if (
+            STKindChecker.isQualifiedNameReference(
+                model.expressions[0].typeDescriptor
+            )
+        ) {
+            serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
+            listeningOnText = model.expressions[0].source;
+        }
+        // } else if (STKindChecker.isSimpleNameReference(model.expressions[0]) && stSymbolInfo) {
+        //     const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(
+        //         model.expressions[0].name.value
+        //     ) as ListenerDeclaration;
+        //     if (listenerNode && STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
+        //         serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
+        //         listeningOnText = model.expressions[0].source;
+        //     }
+    }
 
     return (
         <div className={classes.headerContainer}>
@@ -34,10 +67,15 @@ export function ServiceHeader(props: ServiceHeaderProps) {
             </div>
             <div className={classes.breadCrumb}>
                 <div className={classes.title}> Service Design </div>
+                {/* <div className={"header-segment"}>{serviceType}</div> */}
+                <div className={"header-segment-path"}>{servicePath}</div>
+                <div className={"header-segment-listener"}>
+                    {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ""}
+                </div>
             </div>
             <div className={classes.closeButton} onClick={onClose} >
                 <CloseIcon />
             </div>
-        </div>
+        </div >
     );
 }

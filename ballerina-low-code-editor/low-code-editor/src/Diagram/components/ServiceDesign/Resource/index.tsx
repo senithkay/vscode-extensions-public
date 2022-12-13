@@ -11,12 +11,12 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 
 import { Divider } from "@material-ui/core";
-import { ConfigOverlayFormStatus, createResource, getSource, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, createResource, getSource, STModification, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConfigPanelSection, SelectDropdownWithButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -25,18 +25,24 @@ import { Context } from "../../../../Contexts/Diagram";
 import { useStyles } from "../style";
 
 import { ResourceHeader } from "./ResourceHeader";
+import { removeStatement } from "../../../utils";
 
 export interface ResourceBodyProps {
     model: ResourceAccessorDefinition;
     handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
+    isExpandedAll: boolean;
 }
 
 export function ResourceBody(props: ResourceBodyProps) {
-    const { model, handleDiagramEdit } = props;
+    const { model, handleDiagramEdit, isExpandedAll } = props;
     const classes = useStyles();
     const intl = useIntl();
 
     const [isExpanded, setIsExpanded] = useState(false);
+
+    useEffect(() => {
+        setIsExpanded(isExpandedAll)
+    }, [isExpandedAll]);
 
     const handleIsExpand = () => {
         setIsExpanded(!isExpanded)
@@ -51,6 +57,16 @@ export function ResourceBody(props: ResourceBodyProps) {
             startLine: model.position.startLine - 1
         }
         handleDiagramEdit(model, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false });
+    }
+
+    const handleDeleteBtnClick = (e?: React.MouseEvent) => {
+        e.stopPropagation();
+        const modifications: STModification[] = [];
+        const deleteAction: STModification = removeStatement(
+            model.position
+        );
+        modifications.push(deleteAction);
+        modifyDiagram(modifications);
     }
 
     const {
@@ -90,10 +106,35 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     const responseArgs: any[] = [];
 
-    model.functionSignature.returnTypeDesc.type.source.split("|").forEach((value, i) => {
+    interface ResponseCode {
+        code: number;
+        source: string;
+    }
+
+    const responseCodes: ResponseCode[] = [
+        { code: 200, source: "http:Ok" },
+        { code: 201, source: "http:Created" },
+        { code: 404, source: "http:NotFound" },
+        { code: 500, source: "http:InternalServerError" }
+    ];
+
+
+    function getReturnTypesArray() {
+        const returnTypes = model.functionSignature.returnTypeDesc.type.source.split(/\|(?![^\{]*[\}])/gm);
+        return returnTypes;
+    }
+
+    getReturnTypesArray().forEach((value, i) => {
+        let code = "";
+        responseCodes.forEach(item => {
+            if (value.includes(item.source)) {
+                code = item.code.toString();
+            }
+        });
+
         responseArgs.push(
             <div key={i} className={"signature-param"}>
-                {value}
+                {code} {value}
             </div>
         )
     })
@@ -101,19 +142,24 @@ export function ResourceBody(props: ResourceBodyProps) {
     const body = (
         <div className="service-member">
 
-            <Divider className="resource-divider" />
+            {paramArgs.length > 0 &&
+                <>
+                    <ConfigPanelSection title={"Parameters"}>
+                        {paramArgs}
+                    </ConfigPanelSection>
+                    <Divider className="resource-divider" />
+                </>
+            }
 
-            <ConfigPanelSection title={"Parameters"}>
-                {paramArgs}
-            </ConfigPanelSection>
+            {bodyArgs.length > 0 &&
+                <>
+                    <ConfigPanelSection title={"Body"}>
+                        {bodyArgs}
+                    </ConfigPanelSection>
 
-            <Divider className="resource-divider" />
-
-            <ConfigPanelSection title={"Body"}>
-                {bodyArgs}
-            </ConfigPanelSection>
-
-            <Divider className="resource-divider" />
+                    <Divider className="resource-divider" />
+                </>
+            }
 
             <ConfigPanelSection title={"Responses"}>
                 {responseArgs}
@@ -123,8 +169,8 @@ export function ResourceBody(props: ResourceBodyProps) {
     )
 
     return (
-        <div className={classNames("function-box", model.functionName.value)}>
-            <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} />
+        <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
+            <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
             {isExpanded && body}
         </div>
     );

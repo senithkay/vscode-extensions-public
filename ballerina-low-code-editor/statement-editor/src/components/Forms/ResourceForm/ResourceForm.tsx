@@ -45,6 +45,7 @@ import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 import { AdvancedParamEditor } from "./AdvancedParamEditor";
 import { PayloadEditor } from "./PayloadEditor";
 import { ResourceParamEditor } from "./ResourceParamEditor";
+import { ResourceReturnEditor } from './ResourceReturnEditor';
 import { useStyles } from "./styles";
 import { ResourceDiagnostics } from "./types";
 import {
@@ -222,6 +223,21 @@ export function ResourceForm(props: FunctionProps) {
         );
     };
 
+    const handleReturnEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
+        // if (!avoidValueCommit) {
+        //     setQueryParam(value);
+        // }
+        // setCurrentComponentName("QueryParam");
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            paramString,
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            stModel,
+            currentValue
+        );
+    };
+
     // Return type related functions
     const onReturnFocus = () => {
         setCurrentComponentName("Return");
@@ -362,7 +378,17 @@ export function ResourceForm(props: FunctionProps) {
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <FieldTitle title='Return Type' optional={true} />
+                        <FieldTitle title='Responses' optional={true} />
+
+                        <ResourceReturnEditor
+                            returnSource={model.functionSignature?.returnTypeDesc?.source}
+                            syntaxDiag={currentComponentSyntaxDiag}
+                            onChange={onReturnTypeChange}
+                            completions={completions}
+                            readonly={isEditInProgress} // todo: implement the disable logic
+                            onChangeInProgress={setIsEditInProgress}
+                        />
+
                         <LiteExpressionEditor
                             testId="return-type"
                             diagnostics={(currentComponentName === "Return" && currentComponentSyntaxDiag) ||
