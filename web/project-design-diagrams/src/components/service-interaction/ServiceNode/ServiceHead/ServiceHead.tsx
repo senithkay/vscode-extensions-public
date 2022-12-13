@@ -75,7 +75,8 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     <NodeMenuWidget
                         background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
                         location={node.serviceObject.elementLocation}
-                        linkingEnabled={editingEnabled && currentView === Views.L1_SERVICES}
+                        linkingEnabled={editingEnabled && currentView === Views.L1_SERVICES && node.serviceType === ServiceTypes.HTTP}
+                        service={node}
                     />
                 }
             <ServicePortWidget

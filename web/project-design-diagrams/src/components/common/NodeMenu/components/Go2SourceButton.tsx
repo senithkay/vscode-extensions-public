@@ -38,7 +38,7 @@ export function Go2SourceWidget(props: { location: Location }) {
                 borderRadius: '50%',
                 color: isHovered ? 'whitesmoke' : '#49ad63',
                 cursor: 'pointer',
-                fontSize: '18px',
+                fontSize: '22px',
                 padding: '2px'
             }}
         />

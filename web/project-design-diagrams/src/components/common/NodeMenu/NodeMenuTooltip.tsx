@@ -22,25 +22,33 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import { NodeMenuPanel } from './NodeMenuPanel';
 import { Location } from '../../../resources';
+import { ServiceNodeModel } from '../../service-interaction';
 
 interface NodeMenuProps {
     location: Location;
     background: string;
+    service?: ServiceNodeModel;
     linkingEnabled?: boolean;
 }
 
 export function NodeMenuWidget(props: NodeMenuProps) {
-    const { linkingEnabled, location, background } = props;
+    const { linkingEnabled, location, service, background } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
     return (
         <>
-            {(linkingEnabled || location) &&
+            {(linkingEnabled && service || location) &&
                 <Tooltip
                     open={showTooltip}
                     onClose={() => setTooltipStatus(false)}
-                    title={<NodeMenuPanel location={location} linkingEnabled={linkingEnabled} />}
+                    title={
+                        <NodeMenuPanel
+                            linkingEnabled={linkingEnabled}
+                            location={location}
+                            service={service}
+                        />
+                    }
                     PopperProps={{
                         modifiers: [
                             {

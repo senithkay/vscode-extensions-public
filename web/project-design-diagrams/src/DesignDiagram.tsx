@@ -22,7 +22,7 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { AddComponentDetails, Colors, ComponentModel, Location, Views } from './resources';
+import { AddComponentDetails, Colors, ComponentModel, Location, Service, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { AddButton, EditForm } from './editing';
 
@@ -46,10 +46,11 @@ interface DiagramProps {
     getProjectRoot: () => Promise<string>;
     editingEnabled?: boolean;
     go2source: (location: Location) => void;
+    generateConnectors: (sourceService: Service, targetService: Service) => Promise<boolean>;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { fetchProjectResources, createService, pickDirectory, getProjectRoot, go2source, editingEnabled = true } = props;
+    const { fetchProjectResources, createService, pickDirectory, getProjectRoot, go2source, generateConnectors, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
@@ -84,8 +85,19 @@ export function DesignDiagram(props: DiagramProps) {
         setShowEditForm(true);
     }
 
+    const Ctx = {
+        getTypeComposition,
+        currentView,
+        pickDirectory,
+        getProjectRoot,
+        createService,
+        go2source,
+        editingEnabled,
+        generateConnectors
+    };
+
     return (
-        <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, getProjectRoot, createService, go2source, editingEnabled }}>
+        <DesignDiagramContext {...Ctx}>
             <Container>
                 {currentView && projectPkgs ?
                     <>

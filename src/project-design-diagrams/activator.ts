@@ -23,8 +23,7 @@ import { randomUUID } from "crypto";
 import { existsSync, readFile, writeFile } from "fs";
 import path, { join } from "path";
 import { debounce } from "lodash";
-import { BallerinaExtension } from "../core/extension";
-import { ExtendedLangClient } from "../core/extended-language-client";
+import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
 import { AddComponentDetails, ComponentModel, Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, Service, USER_TIP } from "./resources";
@@ -32,10 +31,17 @@ import { WebViewMethod, WebViewRPCHandler } from "../utils";
 import { createTerminal } from "../project";
 import { addToWorkspace, getCurrenDirectoryPath } from "../utils/project-utils";
 import { runCommand } from "../testing/runner";
+import { addConnector } from "./code-generator";
 
 let context: ExtensionContext;
 let langClient: ExtendedLangClient;
 let designDiagramWebview: WebviewPanel | undefined;
+
+export interface STResponse {
+    syntaxTree: any;
+    parseSuccess: boolean;
+    source: string;
+}
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -195,6 +201,14 @@ function setupWebviewPanel() {
                         return parentCandidate;
                     }
                     return undefined;
+                }
+            },
+            {
+                methodName: "addConnector",
+                handler: async (args: any[]): Promise<boolean> => {
+                    const sourceService: Service = args[0];
+                    const targetService: Service = args[1];
+                    return addConnector(langClient, sourceService, targetService);;
                 }
             }
         ];

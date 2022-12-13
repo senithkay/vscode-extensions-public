@@ -25,13 +25,15 @@ interface StyleProps {
     level?: Level;
     isResource?: boolean;
     isSelected?: boolean;
+    awaitLinking?: boolean;
 }
 
 export const ServiceNode = styled.div`
-    animation: ${(props: StyleProps) => props.isNew ? `fadeIn 5s` : ''};
+    animation: ${(props: StyleProps) => props.isNew ? 'fadeIn 5s' : ''};
     background-color: ${(props: StyleProps) => props.level === Level.ONE ? `#FFFFFF` :
         props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
-    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
+    border: ${(props: StyleProps) => props.awaitLinking ? `2px solid green` : `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED
+        : Colors.PRIMARY}`};
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     border-bottom-left-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};

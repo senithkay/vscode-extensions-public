@@ -17,14 +17,20 @@
  *
  */
 
-import React, { useState } from 'react';
-import RouteIcon from '@mui/icons-material/Route';
+import React, { useContext, useState } from 'react';
+import TurnRightIcon from '@mui/icons-material/TurnRight';
+import { ServiceNodeModel } from '../../../service-interaction';
+import { DiagramContext } from '../../DiagramContext/DiagramContext';
 
-export function LinkingWidget() {
+export function LinkingWidget(props: { service: ServiceNodeModel }) {
+    const { service } = props;
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
+    const { setNewLinkNodes } = useContext(DiagramContext);
+
     return (
-        <RouteIcon
+        <TurnRightIcon
+            onClick={() => { setNewLinkNodes({ source: service, target: undefined }) }}
             onMouseOver={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{
@@ -32,7 +38,7 @@ export function LinkingWidget() {
                 borderRadius: '50%',
                 color: isHovered ? 'whitesmoke' : 'orange',
                 cursor: 'pointer',
-                fontSize: '18px',
+                fontSize: '22px',
                 padding: '2px'
             }}
         />

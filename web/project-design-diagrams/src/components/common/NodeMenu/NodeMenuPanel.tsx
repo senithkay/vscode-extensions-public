@@ -19,20 +19,22 @@
 
 import React from 'react';
 import { Location } from '../../../resources';
+import { ServiceNodeModel } from '../../service-interaction';
 import { Go2SourceWidget, LinkingWidget } from './components';
 
 interface MenuProps {
     location: Location,
-    linkingEnabled: boolean
+    linkingEnabled: boolean,
+    service?: ServiceNodeModel;
 }
 
 export function NodeMenuPanel(props: MenuProps) {
-    const { location, linkingEnabled } = props;
+    const { location, linkingEnabled, service } = props;
 
     return (
         <>
             {location && <Go2SourceWidget location={location} />}
-            {linkingEnabled && <LinkingWidget />}
+            {linkingEnabled && service && <LinkingWidget service={service} />}
         </>
     );
 }

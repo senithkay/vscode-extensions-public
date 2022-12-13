@@ -20,7 +20,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { DesignDiagram } from './DesignDiagram';
-import { AddComponentDetails, Location, ComponentModel } from './resources';
+import { AddComponentDetails, Location, ComponentModel, Service } from './resources';
 
 export function renderDesignDiagrams(
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
@@ -28,6 +28,7 @@ export function renderDesignDiagrams(
     createService: (componentDetails: AddComponentDetails) => Promise<string>,
     pickDirectory: () => Promise<string>,
     getProjectRoot: () => Promise<string>,
+    addConnector: (sourceService: Service, targetService: Service) => Promise<boolean>,
     target: HTMLElement) {
 
     render(
@@ -37,6 +38,7 @@ export function renderDesignDiagrams(
             pickDirectory={pickDirectory}
             getProjectRoot={getProjectRoot}
             go2source={go2Source}
+            generateConnectors={addConnector}
         />,
         target
     );

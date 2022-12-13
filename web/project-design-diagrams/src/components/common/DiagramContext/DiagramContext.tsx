@@ -18,8 +18,8 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { AddComponentDetails, Location, Views } from '../../../resources';
-
+import { AddComponentDetails, Location, Service, Views } from '../../../resources';
+import { ServiceNodeModel } from '../../service-interaction';
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -29,6 +29,7 @@ interface DiagramContextProps {
     createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
+    generateConnectors: (sourceService: Service, targetService: Service) => Promise<boolean>;
     editingEnabled: boolean;
 }
 
@@ -42,6 +43,14 @@ interface IDiagramContext {
     setNewComponentID: (name: string) => void;
     newComponentID: string;
     editingEnabled: boolean;
+    newLinkNodes: LinkedNodes;
+    setNewLinkNodes: (nodes: LinkedNodes) => void;
+    generateConnectors: (sourceService: Service, targetService: Service) => Promise<boolean>;
+}
+
+interface LinkedNodes {
+    source: ServiceNodeModel,
+    target: ServiceNodeModel
 }
 
 const defaultState: any = {};
@@ -49,7 +58,11 @@ export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
-    const { getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, go2source, editingEnabled, children } = props;
+    const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
+
+    const {
+        getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, go2source, generateConnectors, editingEnabled, children
+    } = props;
 
     const Ctx = {
         getTypeComposition,
@@ -60,7 +73,10 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         getProjectRoot,
         setNewComponentID,
         newComponentID,
-        editingEnabled
+        editingEnabled,
+        newLinkNodes,
+        setNewLinkNodes,
+        generateConnectors
     }
 
     return (
