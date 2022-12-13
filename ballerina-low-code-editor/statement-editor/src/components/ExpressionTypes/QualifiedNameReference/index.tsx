@@ -25,9 +25,10 @@ export function QualifiedNameReferenceComponent(props: QualifiedNameReferencePro
     const { model } = props;
 
     return (
-        <ExpressionComponent model={model.modulePrefix}>
+        <>
+            <ExpressionComponent model={model.modulePrefix} />
             <TokenComponent model={model.colon} />
             <ExpressionComponent model={model.identifier} />
-        </ExpressionComponent>
+        </>
     );
 }

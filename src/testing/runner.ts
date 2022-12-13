@@ -98,20 +98,18 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                     for (const status of moduleStatus) {
                         const testResults = status["tests"];
                         for (const testResult of testResults) {
-                            if (test.label !== testResult.name) {
+                            if (testResult.name !== test.label && !testResult.name.startsWith(`${test.label}#`)) {
                                 continue;
                             }
 
                             if (testResult.status === TEST_STATUS.PASSED) {
                                 run.passed(test, timeElapsed);
                                 found = true;
-                                break;
                             } else if (testResult.status === TEST_STATUS.FAILED) {
                                 // test failed
                                 const testMessage: TestMessage = new TestMessage(testResult.failureMessage);
                                 run.failed(test, testMessage, timeElapsed);
                                 found = true;
-                                break;
                             }
                         }
                         if (found) {

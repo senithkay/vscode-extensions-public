@@ -10,8 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { RequiredParam} from "@wso2-enterprise/syntax-tree";
-
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 

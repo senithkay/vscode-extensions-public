@@ -10,22 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { CircularProgress } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
     CaptureBindingPattern,
     LetClause,
     LetVarDecl,
+    NodePosition,
     QueryExpression,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
+
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { useStyles } from "../styles";
-import { ClauseAddButton } from "../ClauseAddButton";
 import { getRenameEdits } from "../../../utils/ls-utils";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
-import { CircularProgress } from "@material-ui/core";
+import { ClauseAddButton } from "../ClauseAddButton";
+import { useStyles } from "../styles";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;
@@ -35,8 +38,14 @@ export function LetClauseItem(props: {
     queryExprNode: QueryExpression;
     itemIndex: number;
 }) {
-    const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } =
-        props;
+    const {
+        onEditClick,
+        onDeleteClick,
+        intermediateNode,
+        context,
+        queryExprNode,
+        itemIndex,
+    } = props;
     const classes = useStyles();
     const [nameEditable, setNameEditable] = useState(false);
     const letVarDeclaration = intermediateNode.letVarDeclarations[0] as LetVarDecl;
@@ -66,7 +75,7 @@ export function LetClauseItem(props: {
                 const workspaceEdit = await getRenameEdits(
                     context.filePath,
                     updatedName,
-                    node.position,
+                    node.position as NodePosition,
                     context.langClientPromise
                 );
                 const modifications: STModification[] = [];
@@ -83,7 +92,7 @@ export function LetClauseItem(props: {
                         });
                     });
                 });
-                
+
                 modifications.sort((a, b) => a.startLine - b.startLine)
                 await context.applyModifications(modifications);
             } finally {
@@ -119,13 +128,14 @@ export function LetClauseItem(props: {
                                     setNameEditable(false);
                                     setUpdatedName(variableName);
                                 }}
+                                data-testid={`let-clause-name-input-${itemIndex}`}
                             />
                         ) : (
-                            <span onClick={() => setNameEditable(true)}>{updatedName}</span>
+                            <span onClick={() => setNameEditable(true)} data-testid={`let-clause-name-${itemIndex}`}>{updatedName}</span>
                         )}
                     </span>
                     <span>{letVarDeclaration.equalsToken.value}</span>
-                    <span className={classes.clauseExpression} onClick={onEditClick}>
+                    <span className={classes.clauseExpression} onClick={onEditClick} data-testid={`let-clause-expression-${itemIndex}`}>
                         {letVarDeclaration.expression.source}
                     </span>
                 </div>
@@ -133,7 +143,7 @@ export function LetClauseItem(props: {
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} />
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`let-clause-delete-${itemIndex}`}/>
                 )}
             </div>
 

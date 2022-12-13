@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "3.3.4",
+    "version": "3.3.5",
     "publisher": "wso2",
     "repository": {
         "type": "git",
@@ -602,7 +602,18 @@
         ]
     },
     "main": "./dist/extension",
+    "workspaces": [
+        "web/bbe",
+        "web/graphql",
+        "web/notebook-renderer",
+        "web/perf-forecast",
+        "web/project-design-diagrams",
+        "web/swagger",
+        "web/variable-view"
+    ],
     "scripts": {
+        "prebuild": "npm run init-submodules && npm i --legacy-peer-deps",
+        "init-submodules": "git submodule update --init --recursive && git submodule foreach git pull origin master",
         "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode none",
         "watch": "webpack --mode none --watch",
@@ -614,7 +625,17 @@
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package --yarn",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
-        "lint": "tslint --fix 'src/**/*{.ts,.tsx}'"
+        "lint": "tslint --fix 'src/**/*{.ts,.tsx}'",
+        "build:bbe": "npm run build --workspace=web/bbe",
+        "build:graphql": "npm run build --workspace=web/graphql",
+        "build:notebook": "npm run build --workspace=web/notebook-renderer",
+        "build:perf": "npm run build --workspace=web/perf-forecast",
+        "build:designDiagram": "npm run build --workspace=web/project-design-diagrams",
+        "build:swagger": "npm run build --workspace=web/swagger",
+        "build:variableView": "npm run build --workspace=web/variable-view",
+        "build:lce": "npm --prefix ballerina-low-code-editor run build",
+        "build": "npm run build:lce && npm run build --workspaces",
+        "postbuild": "npm run package"
     },
     "dependencies": {
         "@types/lodash": "^4.14.189",
@@ -632,8 +653,8 @@
         "vscode-debugprotocol": "^1.44.0",
         "vscode-extension-telemetry": "^0.1.7",
         "vscode-languageclient": "^7.0.0",
-        "vscode-test": "^1.5.1",
-        "vscode-languageserver-protocol": "^3.16.0"
+        "vscode-languageserver-protocol": "^3.16.0",
+        "vscode-test": "^1.5.1"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.18.8",
@@ -645,6 +666,7 @@
         "@types/vscode-notebook-renderer": "^1.60.0",
         "axios": "^0.22.0",
         "chai": "^4.3.4",
+        "copyfiles": "^2.4.1",
         "cross-env": "^7.0.3",
         "decache": "^4.6.0",
         "express": "^4.17.1",

@@ -14,6 +14,7 @@ import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     IdentifierToken,
+    NodePosition,
     SelectClause,
     STKindChecker,
     STNode,
@@ -60,13 +61,14 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         );
     }
 
-    async initPorts() {
+    initPorts(): void {
         const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+        const typeIdentifierPosition = this.typeIdentifier.position as NodePosition;
         this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: this.typeIdentifier.position.startLine,
-            startColumn: this.typeIdentifier.position.startColumn,
-            endLine: this.typeIdentifier.position.startLine,
-            endColumn: this.typeIdentifier.position.startColumn
+            startLine: typeIdentifierPosition.startLine,
+            startColumn: typeIdentifierPosition.startColumn,
+            endLine: typeIdentifierPosition.startLine,
+            endColumn: typeIdentifierPosition.startColumn
         });
 
         if (this.typeDef) {
@@ -91,7 +93,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         }
     }
 
-    async initLinks() {
+    initLinks(): void {
         const mappings = this.genMappings(this.value.expression);
         this.createLinks(mappings);
     }
@@ -110,7 +112,9 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
             const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
-            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
+            const lm = new DataMapperLinkModel(value,
+                                            filterDiagnostics(this.context.diagnostics, value.position as NodePosition),
+                                            true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
@@ -121,7 +125,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                         ? field.valueExpr
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
-                        ? field.fieldName.value
+                        ? field.fieldName.value as string
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field),
                 }));
@@ -159,7 +163,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 ...field.position
             }];
         } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position as NodePosition, this.value.expression);
             traversNode(this.value.expression, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
             modifications = [{

@@ -18,6 +18,8 @@
         "test-se-tools": "npm-run-all --parallel start-servers test-cypress-se-tools",
         "test-cypress-se-tools": "cypress run --browser chrome --spec cypress/e2e/statement-editor-tools && node tools/kill-servers.js",
         "test-cypress-se": "cypress run --browser chrome --spec cypress/e2e/statement-editor && node tools/kill-servers.js",
+        "test-dm": "npm-run-all --parallel start-servers test-cypress-dm",
+        "test-cypress-dm": "cypress run --browser chrome --spec cypress/e2e/data-mapper && node tools/kill-servers.js",
         "start-servers": "npm-run-all --parallel start-ls start-vscode-mock",
         "start-ls": "npx start-ws-lang-server",
         "start-vscode-mock": "node tools/vscode-mock-server.js",

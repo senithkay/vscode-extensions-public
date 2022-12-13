@@ -1,7 +1,9 @@
-import { DefaultLinkFactory } from "@projectstorm/react-diagrams";
 import React from "react";
-import { DataMapperLinkModel, LINK_TYPE_ID } from "./DataMapperLink";
+
+import { DefaultLinkFactory } from "@projectstorm/react-diagrams";
 import { container, injectable, singleton } from "tsyringe";
+
+import { DataMapperLinkModel, LINK_TYPE_ID } from "./DataMapperLink";
 import { DefaultLinkWidget } from "./DefaultLinkWidget";
 
 @injectable()

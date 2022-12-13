@@ -15,18 +15,18 @@ export const OFFSETS = {
     TARGET_NODE_WITHOUT_MAPPING: {
         X: 650,
     },
-    QUERY_MAPPING_HEADER_NODE:{
+    QUERY_MAPPING_HEADER_NODE: {
         X: 25,
         Y: 25,
     },
-    LINK_CONNECTOR_NODE:{
-        X:750
+    LINK_CONNECTOR_NODE: {
+        X: 750
     },
-    LINK_CONNECTOR_NODE_WITH_ERROR:{
-        X:718
+    LINK_CONNECTOR_NODE_WITH_ERROR: {
+        X: 718
     },
-    QUERY_EXPRESSION_NODE:{
-        X:750
+    QUERY_EXPRESSION_NODE: {
+        X: 750
     }
 }
 
