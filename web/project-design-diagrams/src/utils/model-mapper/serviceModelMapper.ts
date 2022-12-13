@@ -75,7 +75,7 @@ function addGWNodes() {
 }
 
 function generateNodes(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>) {
-    addGWNodes();
+    // addGWNodes();
     projectPackages.forEach((shouldRender, packageName) => {
         if (shouldRender && projectComponents.has(packageName)) {
             const services: Map<string, Service> = new Map(Object.entries(projectComponents.get(packageName).services));
@@ -116,7 +116,7 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                 let l1SourceNode: ServiceNodeModel = l1Nodes.get(service.serviceId);
                 let l2SourceNode: ServiceNodeModel = l2Nodes.get(service.serviceId);
 
-                mapGWInteractions(l1SourceNode, l2SourceNode);
+                // mapGWInteractions(l1SourceNode, l2SourceNode);
 
                 if (l1SourceNode && l2SourceNode) {
                     mapInteractions(l1SourceNode, l2SourceNode, service.resources);

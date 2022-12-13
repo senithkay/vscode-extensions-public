@@ -23,9 +23,13 @@ import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
 import { STResponse } from "./activator";
 import { Service } from "./resources";
 
+const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
+let clientName: string;
+
 export async function addConnector(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
     : Promise<boolean> {
     const filePath: string = sourceService.elementLocation.filePath;
+    clientName = transformLabel(targetService.annotation.label) || transformLabel(targetService.annotation.id);
     langClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(filePath).toString()
@@ -152,7 +156,7 @@ function generateClientDecl(targetService: Service): string {
             label: "${targetService.annotation.label}",
             id: "${targetService.annotation.id}"
         }
-        http:Client ${targetService.annotation.label || targetService.annotation.id};
+        http:Client ${clientName};
     `;
 
     return clientDeclaration;
@@ -166,5 +170,10 @@ function generateServiceInit(targetService: Service): string {
 }
 
 function generateClientInit(targetService: Service): string {
-    return `self.${targetService.annotation.label || targetService.annotation.id} = check new ("");`;
+    return `self.${clientName} = check new ("");`;
+}
+
+function transformLabel(label: string): string {
+    return label.split(ClientVarNameRegex).reduce((varName: string, subname: string) =>
+        varName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
 }
