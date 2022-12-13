@@ -124,6 +124,7 @@ export default function StatementQualifiers() {
                         className={statementEditorClasses.qualifierListItem}
                     >
                         <ListItemText
+                            data-testid="qualifier-list-item-label"
                             primary={qualifier}
                         />
                         <Checkbox

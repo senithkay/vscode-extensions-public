@@ -56,4 +56,18 @@ export class Toolbar {
         return this;
     }
 
+    static addQualifier(selectedQualifier: string) {
+        cy.get(`[data-testid="toolbar-qualifier-options"]`)
+            .click()
+        cy.get(`[data-testid="qualifier-list-item"]`)
+            .children(`[data-testid="qualifier-list-item-label"]`)
+            .children()
+            .contains(selectedQualifier)
+            .parent()
+            .parent()
+            .children(`[data-testid="qualifier-check"]`)
+            .click();
+        return this;
+    }
+
 }
