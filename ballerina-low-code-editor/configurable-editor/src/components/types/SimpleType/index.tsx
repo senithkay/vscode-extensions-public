@@ -31,6 +31,7 @@ import StringType, { StringTypeProps } from "../StringType";
  */
 export interface SimpleTypeProps extends ConfigElementProps {
     setSimpleConfig?: (id: string, simpleValue: ConfigElementProps) => void;
+    isInsideArray?: boolean;
 }
 
 const SimpleType = (props: SimpleTypeProps): ReactElement => {
@@ -38,6 +39,7 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
     const type = props.type === ConfigType.NUMBER ? ConfigType.FLOAT : props.type;
 
     const element: ConfigElementProps = {
+        connectionConfig: props.connectionConfig,
         description: props.description,
         id: props.id,
         isRequired: props.isRequired,
@@ -50,8 +52,9 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
         props.setSimpleConfig(props.id, element);
     }, []);
 
-    const setSimpleElememt = (id: string, value: any) => {
+    const setSimpleElememt = (id: string, value: any, valueRef: any) => {
         element.value = value;
+        element.valueRef = valueRef;
         props.setSimpleConfig(id, element);
     };
 

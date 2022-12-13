@@ -48,12 +48,14 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     let propertiesValue: ConfigElementProps[];
     if (elementSchema[SchemaConstants.PROPERTIES] !== undefined) {
-        propertiesValue = getConfigProperties(elementSchema, props.id + "-" + counter).properties;
+        propertiesValue = getConfigProperties(elementSchema,
+            props.connectionConfig, props.id + "-" + counter).properties;
     } else if (elementSchema[SchemaConstants.ANY_OF] !== undefined) {
         propertyType = ConfigType.ANY_OF;
     }
 
     const element: ConfigElementProps = {
+        connectionConfig: props.connectionConfig,
         description: props.description,
         id: props.id,
         isRequired: props.isRequired,
@@ -71,6 +73,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
             let newCounter = counter;
             Object.keys(props.value).forEach((key) => {
                 const configElementProps: ConfigElementProps = {
+                    connectionConfig: props.connectionConfig,
                     description: elementSchema[SchemaConstants.DESCRIPTION],
                     id: props.id + "-" + newCounter,
                     isRequired: false,
@@ -91,6 +94,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     const addMapField = () => {
         const configElementProps: ConfigElementProps = {
+            connectionConfig: props.connectionConfig,
             description: elementSchema[SchemaConstants.DESCRIPTION],
             id: props.id + "-" + counter,
             isRequired: true,
@@ -145,6 +149,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
             const newMapValues = [...mapValues];
             newMapValues.forEach((entry) => {
                 const configProperty: ConfigElementProps = {
+                    connectionConfig: entry.connectionConfig,
                     description: entry.description,
                     id: entry.id,
                     isRequired: entry.isRequired,
@@ -180,6 +185,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                         id={configElement.id}
                                         isRequired={true}
                                         value={configElement.name}
+                                        valueRef={configElement.valueRef}
                                         placeholder="key"
                                         type="string"
                                         setTextFieldValue={handleKeyChange}

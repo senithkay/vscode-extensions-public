@@ -48,7 +48,6 @@ export function FieldLabel(props: FieldLabelProps) {
                     <FormLabel
                         component="div"
                         className={classes.mainLabelText}
-                        required={required}
                     >
                         {fieldLabel}
                     </FormLabel>
@@ -57,7 +56,7 @@ export function FieldLabel(props: FieldLabelProps) {
                     type="success"
                     label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType}
                     tooltipText={type === ConfigType.NUMBER ? ConfigType.FLOAT : type}
-                    shape="square"
+                    shape="none"
                 />
             </Box>
             {getDescription(description, classes)}

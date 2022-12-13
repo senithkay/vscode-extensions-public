@@ -18,10 +18,10 @@
  */
 import React, { ReactElement } from "react";
 
-import { Box, Card, CardContent } from "@material-ui/core";
+import { Box, Card, CardContent, Grid } from "@material-ui/core";
 
 import { FieldLabel, FieldLabelProps } from "./elements/FieldLabel";
-import { ConfigType } from "./model";
+import { ConfigType, ConnectionSchema } from "./model";
 import { useStyles } from "./style";
 import ArrayType, { ArrayTypeProps } from "./types/ArrayType";
 import EnumType, { EnumTypeProps } from "./types/EnumType";
@@ -39,10 +39,15 @@ export interface ConfigElementProps {
     label?: string;
     unionId?: string;
     value?: any;
+    valueRef?: string;
     description?: string;
     placeholder?: string;
     arrayType?: ConfigType;
+    connectionConfig?: ConnectionSchema[];
     setConfigElement?: (id: string, value: any) => void;
+    isLowCode?: boolean;
+    isFeaturePreview?: boolean;
+    isInsideArray?: boolean;
 }
 
 export const ConfigElement = (props: ConfigElementProps): ReactElement => {
@@ -118,10 +123,21 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
 
             returnElement.push(
                 (
-                    <div key={props.id + "ELEMENT"}>
-                        <FieldLabel {...fieldLabelProps} />
-                        <SimpleType {...simpleTypeProp} />
-                    </div>
+                    <Grid
+                        container={true}
+                        spacing={1}
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="center"
+                        className={classes.buttonBorder}
+                    >
+                        <Grid item={true} xs={3}>
+                            <FieldLabel {...fieldLabelProps} />
+                        </Grid>
+                        <Grid item={true} xs={9}>
+                            <SimpleType {...simpleTypeProp} />
+                        </Grid>
+                    </Grid>
                 ),
             );
             break;
@@ -129,9 +145,9 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
 
     if (returnElement.length > 0) {
         return (
-            <Box className={classes.innerBoxCard} key={props.id}>
-                <Card variant="outlined">
-                    <CardContent className={classes.cardContent}>
+            <Box key={props.id}>
+                <Card className={classes.card}>
+                    <CardContent className={classes.cardContent} >
                         {returnElement}
                     </CardContent>
                 </Card>

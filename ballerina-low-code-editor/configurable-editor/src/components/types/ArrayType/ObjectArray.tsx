@@ -46,6 +46,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
 
     const element: ConfigElementProps = {
         arrayType: props.arrayType,
+        connectionConfig: props.connectionConfig,
         description: props.description,
         id: props.id,
         isRequired: props.isRequired,
@@ -60,10 +61,12 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
             let newCounter = counter;
             let configProperties: ConfigElementProps[];
             if (elementSchema[SchemaConstants.PROPERTIES]) {
-                configProperties = getConfigProperties(elementSchema, props.id + "-" + newCounter).properties;
+                configProperties = getConfigProperties(elementSchema,
+                    props.connectionConfig, props.id + "-" + newCounter).properties;
             }
             Object.keys(props.value).forEach((key) => {
                 const objectArrayProps: ObjectArrayProps = {
+                    connectionConfig: props.connectionConfig,
                     description: props.schema[SchemaConstants.DESCRIPTION],
                     id: props.id + "-" + newCounter,
                     isRequired: true,
@@ -84,9 +87,11 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const addArrayElememt = () => {
         let propertiesValue: ConfigElementProps[];
         if (elementSchema[SchemaConstants.PROPERTIES]) {
-            propertiesValue = getConfigProperties(elementSchema, props.id + "-" + counter).properties;
+            propertiesValue = getConfigProperties(elementSchema,
+                props.connectionConfig, props.id + "-" + counter).properties;
         }
         const objectArrayProps: ObjectArrayProps = {
+            connectionConfig: props.connectionConfig,
             description: props.schema[SchemaConstants.DESCRIPTION],
             id: props.id + "-" + counter,
             isRequired: true,
