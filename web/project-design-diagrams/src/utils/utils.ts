@@ -20,6 +20,10 @@
 import createEngine, { DiagramEngine } from '@projectstorm/react-diagrams';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import { ExtServiceNodeFactory, ServiceLinkFactory, ServiceNodeFactory, ServicePortFactory } from '../components/service-interaction';
+import { GatewayNodeFactory } from "../components/gateway/GatewayNode/GatewayNodeFactory";
+import { GatewayPortFactory } from "../components/gateway/GatewayPort/GatewayPortFactory";
+import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLinkFactory";
+import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeModel";
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();
@@ -35,6 +39,9 @@ export function createRenderPackageObject(projectPackages: IterableIterator<stri
 export function createServicesEngine(): DiagramEngine {
     const diagramEngine: DiagramEngine = createEngine({registerDefaultPanAndZoomCanvasAction: true,
         registerDefaultZoomCanvasAction: false});
+    diagramEngine.getNodeFactories().registerFactory(new GatewayNodeFactory());
+    diagramEngine.getPortFactories().registerFactory(new GatewayPortFactory());
+    diagramEngine.getLinkFactories().registerFactory(new GatewayLinkFactory());
     diagramEngine.getLinkFactories().registerFactory(new ServiceLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new ServicePortFactory());
     diagramEngine.getNodeFactories().registerFactory(new ServiceNodeFactory());
@@ -49,4 +56,26 @@ export function createEntitiesEngine(): DiagramEngine {
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntityFactory());
     return diagramEngine;
+}
+
+export function positionGatewayNodes(engine: DiagramEngine) {
+    const model = engine.getModel();
+    const gatewayNodes: GatewayNodeModel[] = <GatewayNodeModel[]>
+        (model.getNodes().filter((node) => node instanceof GatewayNodeModel));
+    const canvas = engine.getCanvas();
+    if (canvas) {
+        const midX = canvas.clientWidth / 2;
+        const midY = canvas.clientHeight / 2;
+        gatewayNodes.forEach((node) => {
+            if (node.type === 'NORTH') {
+                node.setPosition(midX - 600, midY - 210);
+            } else if (node.type === 'SOUTH') {
+                node.setPosition(midX - 600, midY);
+            } else if (node.type === 'EAST') {
+                node.setPosition(canvas.clientWidth - 1200, midY - 275);
+            } else if (node.type === 'WEST') {
+                node.setPosition(midX - 1200, midY - 275);
+            }
+        });
+    }
 }
