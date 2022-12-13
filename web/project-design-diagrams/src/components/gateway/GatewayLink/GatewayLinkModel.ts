@@ -19,13 +19,15 @@
 
 import { SharedLinkModel } from "../../common/shared-link/shared-link";
 import { GATEWAY_LINK_TYPE } from "../types";
-import { Level } from "../../../resources";
+import { Level, Location } from "../../../resources";
 
 export class GatewayLinkModel extends SharedLinkModel {
     readonly level: Level;
+    readonly location: Location;
 
     constructor(level: Level) {
         super(GATEWAY_LINK_TYPE);
         this.level = level;
+        this.location = undefined;
     }
 }
