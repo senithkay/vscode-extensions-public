@@ -36,7 +36,7 @@ interface ServiceNodeWidgetProps {
 export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	const { node, engine } = props;
 	const [selectedLinks, setSelectedLinks] = useState<ServiceLinkModel[]>([]);
-	const { newComponentID, setNewComponentID } = useContext(DiagramContext);
+	const { newComponentID, setNewComponentID, newLinkNodes } = useContext(DiagramContext);
 	const isNewNode = useRef<boolean>(newComponentID === node.getID());
 
 	useEffect(() => {
@@ -63,6 +63,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			isNew={isNewNode.current}
 			isSelected={node.checkSelectedList(selectedLinks, node.getID())}
 			level={node.level}
+			awaitLinking={newLinkNodes.source?.getID() === node.getID() || newLinkNodes.target?.getID() === node.getID()}
 		>
 			<ServiceHeadWidget
 				engine={engine}

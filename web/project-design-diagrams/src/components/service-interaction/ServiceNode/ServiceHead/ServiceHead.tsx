@@ -17,12 +17,13 @@
  *
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
-import { GraphQLIcon, GrpcIcon, HttpServiceIcon, ServiceTypes } from '../../../../resources';
+import { DiagramContext, NodeMenuWidget } from '../../../common';
+import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes, Views } from '../../../../resources';
 import { ServiceHead, ServiceName } from '../styles/styles';
 
 interface ServiceHeadProps {
@@ -33,7 +34,9 @@ interface ServiceHeadProps {
 
 export function ServiceHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
+    const { currentView, editingEnabled } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const displayName: string = node.serviceObject.annotation.label ? node.serviceObject.annotation.label : node.serviceObject.path ?
         node.serviceObject.path : node.serviceObject.serviceId;
@@ -44,6 +47,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     }, [node])
 
     const handleOnHover = (task: string) => {
+        setIsHovered(task === 'SELECT' ? true : false);
         node.handleHover(headPorts.current, task);
     }
 
@@ -58,15 +62,23 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 <GrpcIcon /> :
                 node.serviceType === ServiceTypes.GRAPHQL ?
                     <GraphQLIcon /> :
-                node.serviceType === ServiceTypes.HTTP ?
-                    <HttpServiceIcon /> :
-                    <MiscellaneousServicesIcon fontSize='medium' />
+                    node.serviceType === ServiceTypes.HTTP ?
+                        <HttpServiceIcon /> :
+                        <MiscellaneousServicesIcon fontSize='medium' />
             }
             <ServicePortWidget
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
                 <ServiceName>{displayName}</ServiceName>
+                {isHovered &&
+                    <NodeMenuWidget
+                        background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
+                        location={node.serviceObject.elementLocation}
+                        linkingEnabled={editingEnabled && currentView === Views.L1_SERVICES && node.serviceType === ServiceTypes.HTTP}
+                        service={node}
+                    />
+                }
             <ServicePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

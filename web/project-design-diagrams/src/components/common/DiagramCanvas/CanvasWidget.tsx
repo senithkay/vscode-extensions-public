@@ -17,11 +17,13 @@
  *
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
+import { DiagramContext } from '../DiagramContext/DiagramContext';
+import { DefaultState, ServiceNodeModel } from '../../service-interaction';
 import { Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine } from '../../../utils';
 import { Canvas } from './styles/styles';
@@ -49,18 +51,36 @@ const dagreEngine = new DagreEngine({
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const { model, currentView, type } = props;
+    const { newLinkNodes, setNewLinkNodes, generateConnectors, editingEnabled } = useContext(DiagramContext);
 
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE ||
         type === Views.TYPE_COMPOSITION ? createEntitiesEngine : createServicesEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const diagramRef = useRef<HTMLDivElement>(null);
+    const newLinkSource = useRef<ServiceNodeModel>(undefined);
+
+    useEffect(() => {
+        // Reset new link nodes if clicked outside of the canvas
+        function handleClickOutside(event) {
+            if (diagramRef.current && !diagramRef.current.contains(event.target)) {
+                setNewLinkNodes({ source: undefined, target: undefined });
+            }
+        }
+
+        // Bind the event listener
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            // Unbind the event listener on clean up
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [diagramRef]);
 
     // Reset the model and redistribute if the model changes
     useEffect(() => {
         if (diagramEngine.getModel()) {
             if (currentView === type) {
                 diagramEngine.setModel(model);
-                autoDistribute();
+                handleModelUpdates();
             } else {
                 setDiagramModel(undefined);
             }
@@ -72,9 +92,45 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         if (!diagramModel && currentView === type) {
             diagramEngine.setModel(model);
             setDiagramModel(model);
-            autoDistribute();
+            handleModelUpdates();
         }
     }, [currentView])
+
+    useEffect(() => {
+        newLinkSource.current = newLinkNodes.source;
+    }, [newLinkNodes])
+
+    const handleModelUpdates = () => {
+        if (diagramEngine && diagramEngine.getModel() && currentView === Views.L1_SERVICES && editingEnabled) {
+            diagramEngine.getModel().registerListener({
+                'INIT_LINKING': (event) => { handleLinking(event) },
+                'ABORT_LINKING': () => { abortLinking }
+            });
+            diagramEngine.getStateMachine().pushState(new DefaultState());
+        }
+        autoDistribute();
+    }
+
+    const handleLinking = (event: any) => {
+        if (editingEnabled && currentView === Views.L1_SERVICES && newLinkSource.current) {
+            const target: ServiceNodeModel = event.entity as ServiceNodeModel;
+            if (target) {
+                setNewLinkNodes({ source: newLinkSource.current, target });
+                diagramEngine.repaintCanvas();
+
+                generateConnectors(newLinkSource.current.serviceObject, target.serviceObject).then(() => {
+                    setNewLinkNodes({ source: undefined, target: undefined });
+                });
+            }
+        }
+    }
+
+    const abortLinking = () => {
+        if (editingEnabled && currentView === Views.L1_SERVICES) {
+            setNewLinkNodes({ source: undefined, target: undefined });
+            diagramEngine.repaintCanvas();
+        }
+    }
 
     const autoDistribute = () => {
         setTimeout(() => {

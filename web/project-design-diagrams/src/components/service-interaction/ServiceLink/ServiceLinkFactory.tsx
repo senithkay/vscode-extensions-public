@@ -28,7 +28,7 @@ export class ServiceLinkFactory extends DefaultLinkFactory {
 	}
 
 	generateModel(event: { initialConfig: any }): ServiceLinkModel {
-		return new ServiceLinkModel(event.initialConfig.level);
+		return new ServiceLinkModel(event.initialConfig.level, event.initialConfig.location);
 	}
 
 	generateReactWidget(event: { model: ServiceLinkModel }): JSX.Element {

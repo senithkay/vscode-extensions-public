@@ -31,3 +31,5 @@ export { ServicePortWidget } from './ServicePort/ServicePortWidget';
 export { ExtServiceNodeFactory } from './ExtServiceNode/ExtServiceNodeFactory';
 export { ExtServiceNodeModel } from './ExtServiceNode/ExtServiceNodeModel';
 export { ExtServiceNodeWidget } from './ExtServiceNode/ExtServiceNodeWidget';
+
+export { DefaultState } from './LinkState/DefaultState';

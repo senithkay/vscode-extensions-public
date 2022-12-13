@@ -18,25 +18,39 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { AddComponentDetails, Views } from '../../../resources';
+import { AddComponentDetails, Location, Service, Views } from '../../../resources';
+import { ServiceNodeModel } from '../../service-interaction';
 
 interface DiagramContextProps {
     children?: ReactNode;
     getTypeComposition: (entityID: string) => void;
+    go2source: (location: Location) => void;
     currentView: Views;
     createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
+    generateConnectors: (sourceService: Service, targetService: Service) => Promise<boolean>;
+    editingEnabled: boolean;
 }
 
 interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
+    go2source: (location: Location) => void;
     currentView: Views;
     createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
     setNewComponentID: (name: string) => void;
     newComponentID: string;
+    editingEnabled: boolean;
+    newLinkNodes: LinkedNodes;
+    setNewLinkNodes: (nodes: LinkedNodes) => void;
+    generateConnectors: (sourceService: Service, targetService: Service) => Promise<boolean>;
+}
+
+interface LinkedNodes {
+    source: ServiceNodeModel,
+    target: ServiceNodeModel
 }
 
 const defaultState: any = {};
@@ -44,16 +58,25 @@ export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
-    const { getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, children } = props;
+    const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
+
+    const {
+        getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, go2source, generateConnectors, editingEnabled, children
+    } = props;
 
     const Ctx = {
         getTypeComposition,
+        go2source,
         createService,
         currentView,
         pickDirectory,
         getProjectRoot,
         setNewComponentID,
-        newComponentID
+        newComponentID,
+        editingEnabled,
+        newLinkNodes,
+        setNewLinkNodes,
+        generateConnectors
     }
 
     return (

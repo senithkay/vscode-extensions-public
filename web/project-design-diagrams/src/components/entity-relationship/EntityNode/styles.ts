@@ -23,7 +23,6 @@ import { Colors } from '../../../resources';
 interface StyleProps {
     isSelected: boolean;
     shouldShade?: boolean;
-    isClickable?: boolean;
 }
 
 export const EntityNode = styled.div`
@@ -40,9 +39,9 @@ export const EntityNode = styled.div`
 
 export const EntityHead = styled.div`
     align-items: center;
-    border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
+    border-bottom: ${(props: { isSelected: boolean }) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
     display: flex;
-    font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
+    font-family: ${(props: { isSelected: boolean }) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;
     height: 32px;
     justify-content: center;
@@ -50,10 +49,13 @@ export const EntityHead = styled.div`
     min-width: calc(100% - 16px);
     padding-inline: 8px;
     text-align: center;
+`;
+
+export const EntityName = styled.span`
     &:hover {
-        color: ${(props: StyleProps) => props.isClickable ? `#2c09ed` : ``};
-        cursor: ${(props: StyleProps) => props.isClickable ? `grabbing` : ``};
-        text-decoration: ${(props: StyleProps) => props.isClickable ? `underline` : ``};
+        color: ${(props: { isClickable: boolean }) => props.isClickable ? `#2c09ed` : ``};
+        cursor: ${(props: { isClickable: boolean }) => props.isClickable ? `grabbing` : ``};
+        text-decoration: ${(props: { isClickable: boolean }) => props.isClickable ? `underline` : ``};
     }
 `;
 

@@ -17,25 +17,31 @@
  *
  */
 
-import { commands, ExtensionContext, OpenDialogOptions, ProgressLocation, ViewColumn, WebviewPanel, window, workspace } from "vscode";
+import { commands, ExtensionContext, OpenDialogOptions, ProgressLocation, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
 import { randomUUID } from "crypto";
 import { existsSync, readFile, writeFile } from "fs";
 import path, { join } from "path";
 import { debounce } from "lodash";
-import { BallerinaExtension } from "../core/extension";
-import { ExtendedLangClient } from "../core/extended-language-client";
+import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { AddComponentDetails, ComponentModel, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, Service, USER_TIP } from "./resources";
+import { AddComponentDetails, ComponentModel, Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, Service, USER_TIP } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
 import { createTerminal } from "../project";
 import { addToWorkspace, getCurrenDirectoryPath } from "../utils/project-utils";
 import { runCommand } from "../testing/runner";
+import { addConnector } from "./code-generator";
 
 let context: ExtensionContext;
 let langClient: ExtendedLangClient;
 let designDiagramWebview: WebviewPanel | undefined;
+
+export interface STResponse {
+    syntaxTree: any;
+    parseSuccess: boolean;
+    source: string;
+}
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -123,6 +129,26 @@ function setupWebviewPanel() {
             getCommonWebViewOptions()
         );
 
+        designDiagramWebview.webview.onDidReceiveMessage((message) => {
+            switch (message.command) {
+                case "go2source": {
+                    const location: Location = message.location;
+                    if (location && existsSync(location.filePath)) {
+                        workspace.openTextDocument(location.filePath).then((sourceFile) => {
+                            window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
+                                const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
+                                const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
+                                const range: Range = new Range(startPosition, endPosition);
+                                textEditor.revealRange(range, TextEditorRevealType.InCenter);
+                                textEditor.selection = new Selection(range.start, range.start);
+                            })
+                        })
+                    }
+                    return;
+                }
+            }
+        });
+
         workspace.onDidChangeTextDocument(debounce(() => {
             if (designDiagramWebview) {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
@@ -175,6 +201,14 @@ function setupWebviewPanel() {
                         return parentCandidate;
                     }
                     return undefined;
+                }
+            },
+            {
+                methodName: "addConnector",
+                handler: async (args: any[]): Promise<boolean> => {
+                    const sourceService: Service = args[0];
+                    const targetService: Service = args[1];
+                    return addConnector(langClient, sourceService, targetService);;
                 }
             }
         ];
