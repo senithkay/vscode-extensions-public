@@ -8,5 +8,11 @@
 
     .component-info {
         padding: 15px;
+
+        
+        .component-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
     }
 }
