@@ -20,14 +20,22 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { DesignDiagram } from './DesignDiagram';
-import { ComponentModel } from './resources';
+import { AddComponentDetails, ComponentModel } from './resources';
 
 export function renderDesignDiagrams(
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
+    createService: (componentDetails: AddComponentDetails) => Promise<string>,
+    pickDirectory: () => Promise<string>,
+    getProjectRoot: () => Promise<string>,
     target: HTMLElement) {
 
     render(
-        <DesignDiagram fetchProjectResources={fetchProjectResources} />,
+        <DesignDiagram
+            fetchProjectResources={fetchProjectResources}
+            createService={createService}
+            pickDirectory={pickDirectory}
+            getProjectRoot={getProjectRoot}
+        />,
         target
     );
 }

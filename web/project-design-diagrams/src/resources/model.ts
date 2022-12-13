@@ -38,6 +38,7 @@ export interface Service {
     resources: ResourceFunction[];
     remoteFunctions: RemoteFunction[];
     serviceType: string;
+    deploymentMetadata: DeploymentMetadata;
 }
 
 interface ServiceAnnotation {
@@ -102,16 +103,40 @@ export interface Cardinality {
     associate: string;
 }
 
+export interface DeploymentMetadata {
+    gateways: {
+        internet: {
+            isExposed: boolean;
+        },
+        intranet: {
+            isExposed: boolean;
+        }
+    }
+}
+
 export interface ConnectorProps {
-	point: PointModel;
+    point: PointModel;
     previousPoint: PointModel;
-	cardinality: string;
+    cardinality: string;
     color: string;
 }
 
 export interface ServiceModels {
     levelOne: DiagramModel;
     levelTwo: DiagramModel;
+}
+
+export interface AddComponentDetails {
+    name: string;
+    version: string;
+    org: string;
+    package: string;
+    directory: string;
+}
+
+export enum ComponentType {
+    BALLERINA = 'bal',
+    OTHER = 'other'
 }
 
 export enum Views {
@@ -138,5 +163,6 @@ export enum Colors {
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
     SECONDARY_SELECTED = '#f7f1e9',
-    SHADED_SELECTED = '#f7e4cb'
+    SHADED_SELECTED = '#f7e4cb',
+    GATEWAY = '#3db377',
 }

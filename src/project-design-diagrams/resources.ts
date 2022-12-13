@@ -15,11 +15,31 @@ export interface Service {
     resources: any[];
     remoteFunctions: any[];
     serviceType: string;
+    deploymentMetadata: DeploymentMetadata;
 }
 
 export interface Entity {
     attributes: any[];
     inclusions: string[];
+}
+
+export interface AddComponentDetails {
+    name: string;
+    version: string;
+    org: string;
+    package: string;
+    directory: string;
+}
+
+export interface DeploymentMetadata {
+    gateways: {
+        internet: {
+            isExposed: boolean;
+        },
+        intranet: {
+            isExposed: boolean;
+        }
+    }
 }
 
 export const ERROR_MESSAGE = "Project Design Diagrams: Failed to generate view.";

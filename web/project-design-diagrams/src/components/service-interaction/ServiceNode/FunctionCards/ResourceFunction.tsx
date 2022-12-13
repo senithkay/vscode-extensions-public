@@ -22,7 +22,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ResourceFunction } from '../../../../resources';
-import { ActionColors, ResourceAction, ResourceName } from '../styles';
+import { ActionColors, ResourceAction, ResourceName } from '../styles/styles';
 
 interface ResourceFunctionProps {
     engine: DiagramEngine;

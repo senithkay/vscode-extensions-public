@@ -54,9 +54,45 @@ export function render(webView: Webview) {
                     );
                 })
             }
+            
+            function createService(componentDetails) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'createService',
+                        [componentDetails],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
+            function pickDirectory() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'pickDirectory',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
+            function getProjectRoot() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getProjectRoot',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(fetchProjectResources, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(fetchProjectResources, createService, pickDirectory, getProjectRoot, document.getElementById("diagram-container"));
             }
             renderDiagrams();
         }

@@ -35,5 +35,16 @@ module.exports = {
         type: 'asset/inline'
       }
     ],
+  },
+  ignoreWarnings: [/Failed to parse source map/],
+  devServer: {
+      allowedHosts: 'all',
+      port: 9000,
+      headers: {
+          'Access-Control-Allow-Origin': '*',
+      },
+      devMiddleware: {
+          mimeTypes: { 'text/css': ['css'] },
+      },
   }
 };

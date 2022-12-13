@@ -24,8 +24,9 @@ import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
 import { Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine } from '../../../utils';
-import { Container, Canvas } from './styles/styles';
+import { Canvas } from './styles/styles';
 import './styles/styles.css';
+import { positionGatewayNodes } from "../../../utils/utils";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -42,7 +43,7 @@ const dagreEngine = new DagreEngine({
         nodesep: 60,
         ranker: 'longest-path',
         marginx: 40,
-        marginy: 40
+        marginy: 240
     }
 });
 
@@ -78,6 +79,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
+            positionGatewayNodes(diagramEngine);
             diagramEngine.repaintCanvas();
         }, 30);
     };
@@ -110,7 +112,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     }, [diagramRef.current])
 
     return (
-        <Container>
+        <>
             {diagramEngine && diagramEngine.getModel() &&
                 <Canvas ref={diagramRef}>
                     <CanvasWidget engine={diagramEngine} className={'diagram-container'} />
@@ -122,6 +124,6 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 onZoom={onZoom}
                 onDownload={downloadDiagram}
             />
-        </Container>
+        </>
     );
 }

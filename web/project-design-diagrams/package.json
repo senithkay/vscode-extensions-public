@@ -4,7 +4,7 @@
   "description": "Generates the design diagrams for Ballerina projects.",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --open",
+    "start": "webpack-dev-server --progress --mode=development",
     "build": "webpack",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -46,6 +46,7 @@
     "source-map-loader": "^4.0.0",
     "style-loader": "^3.3.1",
     "webpack": "^5.73.0",
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.11.1"
   }
 }

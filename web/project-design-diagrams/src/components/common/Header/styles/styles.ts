@@ -25,7 +25,7 @@ export const HeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
     font-family: inherit;
-    height: 40px;
+    height: 50px;
     justify-content: space-between;
     min-width: 700px;
     padding-inline: 20px;

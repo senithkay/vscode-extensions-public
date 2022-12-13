@@ -23,7 +23,7 @@ import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { GraphQLIcon, GrpcIcon, HttpServiceIcon, ServiceTypes } from '../../../../resources';
-import { ServiceHead, ServiceName } from '../styles';
+import { ServiceHead, ServiceName } from '../styles/styles';
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -69,6 +69,10 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 <ServiceName>{displayName}</ServiceName>
             <ServicePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
+                engine={engine}
+            />
+            <ServicePortWidget
+                port={node.getPort(`top-${node.getID()}`)}
                 engine={engine}
             />
         </ServiceHead>

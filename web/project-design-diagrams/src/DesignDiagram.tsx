@@ -22,16 +22,15 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { ComponentModel, Views } from './resources';
+import { AddComponentDetails, Colors, ComponentModel, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
-import './resources/assets/font/fonts.css';
+import { AddButton, EditForm } from './editing';
 
-const background = require('./resources/assets/PatternBg.svg') as string;
+import './resources/assets/font/fonts.css';
 
 const Container = styled.div`
     align-items: center;
-    background-image: url('${background}');
-	background-repeat: repeat;
+    position: relative;
     display: flex;
     flex-direction: column;
     font-family: GilmerRegular;
@@ -42,15 +41,21 @@ const Container = styled.div`
 `;
 
 interface DiagramProps {
-    fetchProjectResources: () => Promise<Map<string, ComponentModel>>
+    fetchProjectResources: () => Promise<Map<string, ComponentModel>>;
+    createService: (componentDetails: AddComponentDetails) => Promise<string>;
+    pickDirectory: () => Promise<string>;
+    getProjectRoot: () => Promise<string>;
+    editingEnabled?: boolean;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { fetchProjectResources } = props;
+    const { fetchProjectResources, createService, pickDirectory, getProjectRoot, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
+    const [showEditForm, setShowEditForm] = useState(false);
+    const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
@@ -67,16 +72,26 @@ export function DesignDiagram(props: DiagramProps) {
     const refreshDiagramResources = () => {
         fetchProjectResources().then((response) => {
             const components: Map<string, ComponentModel> = new Map(Object.entries(response));
+            if (components && components.size > 0) {
+                defaultOrg.current = [...components][0][1].packageId.org;
+            }
             setProjectPkgs(createRenderPackageObject(components.keys()));
             setProjectComponents(components);
         })
     }
 
+    const onComponentAddClick = () => {
+        setShowEditForm(true);
+    }
+
     return (
-        <DesignDiagramContext getTypeComposition={getTypeComposition} currentView={currentView}>
+        <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, getProjectRoot, createService }}>
             <Container>
                 {currentView && projectPkgs ?
                     <>
+                        {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
+                        {showEditForm &&
+                            <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
                         <DiagramHeader
                             currentView={currentView}
                             prevView={previousScreen.current}
@@ -94,7 +109,7 @@ export function DesignDiagram(props: DiagramProps) {
                             />
                         }
                     </> :
-                    <CircularProgress />
+                    <CircularProgress sx={{ color: Colors.PRIMARY }} />
                 }
             </Container>
         </DesignDiagramContext>
