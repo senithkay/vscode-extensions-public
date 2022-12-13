@@ -15,7 +15,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:wso2.choreo.sign.in"
+    "onCommand:wso2.choreo.sign.in",
+    "onView:choreo-projects",
+    "onView:choreo-account"
   ],
   "main": "./dist/extension.js",
   "contributes": {

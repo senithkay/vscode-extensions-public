@@ -18,7 +18,7 @@
  */
 import * as os from 'os';
 import * as vscode from 'vscode';
-import { ThemeIcon, Uri, window } from 'vscode';
+import { ThemeIcon, Uri, window, extensions } from 'vscode';
 import { simpleGit } from 'simple-git';
 import { getComponentsByProject } from './api/queries';
 import { activateAuth } from './auth';
@@ -36,6 +36,13 @@ import path = require('path');
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { Repository, WorkspaceConfig } from './api/types';
 
+export function activateBallerinaExtension() {
+    const ext = extensions.getExtension("wso2.ballerina");
+    if (ext && !ext.isActive) {
+        ext.activate();
+    }
+}
+
 export function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = true;
 	ext.context = context;
@@ -45,6 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 	ext.accountTreeView = createAccountTreeView();
 	activateAuth();
 	ext.isPluginStartup = false;
+	activateBallerinaExtension();
 	return ext.api;
 }
 
