@@ -34,7 +34,7 @@ import { ChoreoProjectTreeItem } from './views/project-tree/ProjectTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 import path = require('path');
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { WorkspaceConfig } from './api/types';
+import { Repository, WorkspaceConfig } from './api/types';
 
 export function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = true;
@@ -117,19 +117,26 @@ function createProjectTreeView() {
 
 					const choreoManagedRepos = repos.filter((repo) => !repo.isUserManage);
 					const userManagedRepos = userManagedComponents.map((cmp) => cmp.repository);
+					const userManagedReposWithoutDuplicates: Repository[] = [];
 
-					workspaceFile.folders = userManagedComponents.map((cmp) => ({
-						name: cmp.name,
-						path: cmp.repository.nameApp
+					userManagedRepos.forEach(repo => {
+						if (!userManagedReposWithoutDuplicates.find((tarRepo) => tarRepo.organizationApp === repo.organizationApp && tarRepo.nameApp === repo.nameApp)) {
+							userManagedReposWithoutDuplicates.push(repo);
+						}
+					});
+
+					workspaceFile.folders = userManagedComponents.map(({ name, repository: { appSubPath, nameApp }}) => ({
+						name: name,
+						path: appSubPath ? path.join(nameApp, appSubPath) : nameApp
 					}));
 					const workspaceFileName = `${projectName}.code-workspace`;
 					const workspaceFilePath = path.join(workspacePath, workspaceFileName);
 
 					writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
 
-					while (!cancelled && currentCloneIndex < userManagedRepos.length) {
-						const { organizationApp, nameApp } = userManagedRepos[currentCloneIndex];
-						const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(workspacePath, nameApp));
+					while (!cancelled && currentCloneIndex < userManagedReposWithoutDuplicates.length) {
+						const { organizationApp, nameApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
+						const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(workspacePath, nameApp), ["--recursive"]);
 						currentCloneIndex = currentCloneIndex + 1;
 					}
 
