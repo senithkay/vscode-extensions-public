@@ -150,7 +150,7 @@ export function ToolbarOperators() {
                                     onClick={() => updateModelWithOperator(expression)}
                                     className={statementEditorToolbarClasses.toolbarOperatorsIcons}
                                 >
-                                    <Typography style={{ fontFamily: 'monospace' }}>
+                                    <Typography data-testid="operator-value" style={{ fontFamily: 'monospace' }}>
                                         {expression.symbol}
                                     </Typography>
                                 </IconButton>

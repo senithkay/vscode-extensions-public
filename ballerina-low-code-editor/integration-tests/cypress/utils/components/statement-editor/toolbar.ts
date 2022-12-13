@@ -42,4 +42,18 @@ export class Toolbar {
         return this;
     }
 
+    static clickOperator(selectedOperator: string) {
+        cy.get(`[data-testid="toolbar-operators"]`).within(() => {
+            cy.contains(`[data-testid="operator-value"]`, selectedOperator)
+                .click({ force: true })
+        });
+        return this;
+    }
+
+    static clickMoreExpressions() {
+        cy.get(`[data-testid="toolbar-expressions"]`)
+            .click()
+        return this;
+    }
+
 }
