@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,20 +17,14 @@
  *
  */
 
-.diagram-container {
-    min-height: calc(100vh - 50px);
-    min-width: 100vw;
-    padding: 15px;
-}
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        border: 1px solid #ffaf4d;
+        background-color: #fcead4;
+    }
 
-svg:not(:root) {
-    overflow: visible;
-}
-
-.control-button {
-    background-color: white !important;
-    border: 1px solid #E0E2E9 !important;
-    border-radius: 2px !important;
-    height: 32px !important;
-    width: 32px !important;
+    100% {
+        opacity: 1;
+    }
 }

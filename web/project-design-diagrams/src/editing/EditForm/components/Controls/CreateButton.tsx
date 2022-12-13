@@ -19,29 +19,29 @@
 
 import React from 'react';
 import Button from '@mui/material/Button';
-import { Colors } from '../../../resources';
+import { Colors } from '../../../../resources';
 
-interface ControlButtonProps {
+interface ButtonProps {
     label: string;
     color: string;
     disabled: boolean;
     onClick: () => void;
 }
 
-export function ControlButton(props: ControlButtonProps) {
+export function CreateButton(props: ButtonProps) {
     const { label, color, disabled, onClick } = props;
 
     return (
         <Button
             disabled={disabled}
-            variant='contained'
-            size='medium'
             onClick={onClick}
+            size='medium'
+            variant='contained'
             sx={{
                 backgroundColor: color,
                 color: color === Colors.PRIMARY ? 'white' : Colors.PRIMARY,
                 marginRight: '10px',
-                '&:hover': { 
+                '&:hover': {
                     backgroundColor: color
                 }
             }}

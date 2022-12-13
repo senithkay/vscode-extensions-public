@@ -22,18 +22,14 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { AddComponentDetails, ComponentModel, Views } from './resources';
+import { AddComponentDetails, Colors, ComponentModel, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { AddButton, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 
-const background = require('./resources/assets/PatternBg.svg') as string;
-
 const Container = styled.div`
     align-items: center;
-    background-image: url('${background}');
-	background-repeat: repeat;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -46,7 +42,7 @@ const Container = styled.div`
 
 interface DiagramProps {
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>;
-    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>;
+    createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
     editingEnabled?: boolean;
@@ -88,22 +84,14 @@ export function DesignDiagram(props: DiagramProps) {
         setShowEditForm(true);
     }
 
-    const getDefaultOrg = (): string => {
-        let parentOrg: string = '';
-        if (projectComponents && projectComponents.size > 0) {
-            parentOrg = [...projectComponents][0][1].packageId.org;
-        }
-        return parentOrg;
-    }
-
     return (
         <DesignDiagramContext {...{ getTypeComposition, currentView, pickDirectory, getProjectRoot, createService }}>
             <Container>
-                {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
-                {showEditForm && <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
-
                 {currentView && projectPkgs ?
                     <>
+                        {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
+                        {showEditForm &&
+                            <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
                         <DiagramHeader
                             currentView={currentView}
                             prevView={previousScreen.current}
@@ -121,7 +109,7 @@ export function DesignDiagram(props: DiagramProps) {
                             />
                         }
                     </> :
-                    <CircularProgress />
+                    <CircularProgress sx={{ color: Colors.PRIMARY }} />
                 }
             </Container>
         </DesignDiagramContext>

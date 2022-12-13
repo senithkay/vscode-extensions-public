@@ -17,14 +17,14 @@
  *
  */
 
-import React, { createContext, ReactNode } from 'react';
+import React, { createContext, ReactNode, useState } from 'react';
 import { AddComponentDetails, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
     getTypeComposition: (entityID: string) => void;
     currentView: Views;
-    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>;
+    createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
 }
@@ -32,19 +32,32 @@ interface DiagramContextProps {
 interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
     currentView: Views;
-    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>;
+    createService: (componentDetails: AddComponentDetails) => Promise<string>;
     pickDirectory: () => Promise<string>;
     getProjectRoot: () => Promise<string>;
+    setNewComponentID: (name: string) => void;
+    newComponentID: string;
 }
 
 const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
+    const [newComponentID, setNewComponentID] = useState<string>(undefined);
     const { getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, children } = props;
 
+    const Ctx = {
+        getTypeComposition,
+        createService,
+        currentView,
+        pickDirectory,
+        getProjectRoot,
+        setNewComponentID,
+        newComponentID
+    }
+
     return (
-        <DiagramContext.Provider value={{ getTypeComposition, createService, currentView, pickDirectory, getProjectRoot }}>
+        <DiagramContext.Provider value={{ ...Ctx }}>
             {children}
         </DiagramContext.Provider>
     );

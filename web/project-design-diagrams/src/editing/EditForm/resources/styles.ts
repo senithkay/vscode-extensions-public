@@ -25,6 +25,7 @@ export const PrimaryContainer = styled.div`
     font-family: GilmerRegular;
     font-size: 15px;
     height: 100vh;
+    opacity: ${(props: { isLoading: boolean }) => props.isLoading ? 0.3 : 1};
     width: 370px;
 `;
 
@@ -40,22 +41,17 @@ export const Header = styled.div`
     padding: 12px 12px 12px 20px;
 `;
 
-export const HeaderTitle = styled.span`
-    font-family: GilmerMedium;
-    font-size: 17px;
-    text-align: center;
-`;
-
-export const TypeLabel = styled.span`
-    padding: 20px 10px 0px 10px;
+export const TitleText = styled.span`
+    font-family: GilmerBold;
+    font-size: 14px;
 `;
 
 export const InputComponent = styled.div`
     display: flex;
     flex-direction: column;
     font-family: GilmerRegular;
-    font-size: 15px;
-    padding: 8px 10px;
+    font-size: 13px;
+    padding: 12px 16px 12px 20px
 `;
 
 export const ControlsContainer = styled.div`
@@ -66,36 +62,18 @@ export const ControlsContainer = styled.div`
 `;
 
 export const AdvancedSettings = styled.div`
-    border-bottom: 1px solid #E0E2E9;
-    border-top: 1px solid #E0E2E9;
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
-    padding: 10px 0px;
 `;
 
 export const AdvancedControlsHeader = styled.div`
     align-items: center;
-    align-self: stretch;
     color: #1D2028;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     height: 35px;
-    padding: 0px 10px;
-`;
-
-export const AdvancedHeaderTitle = styled.span`
-    font-family: GilmerMedium;
-    font-size: 15px;
-    text-align: center;
-`;
-
-export const AdvancedControlsContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
+    padding: 12px 12px 0px 20px;
 `;
 
 export const Required = styled.span`

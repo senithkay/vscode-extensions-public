@@ -24,7 +24,7 @@ import { AddComponentDetails, ComponentModel } from './resources';
 
 export function renderDesignDiagrams(
     fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
-    createService: (componentDetails: AddComponentDetails) => Promise<boolean | undefined>,
+    createService: (componentDetails: AddComponentDetails) => Promise<string>,
     pickDirectory: () => Promise<string>,
     getProjectRoot: () => Promise<string>,
     target: HTMLElement) {

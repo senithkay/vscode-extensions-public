@@ -24,7 +24,7 @@ import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
 import { Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine } from '../../../utils';
-import { Container, Canvas } from './styles/styles';
+import { Canvas } from './styles/styles';
 import './styles/styles.css';
 
 interface DiagramCanvasProps {
@@ -110,7 +110,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     }, [diagramRef.current])
 
     return (
-        <Container>
+        <>
             {diagramEngine && diagramEngine.getModel() &&
                 <Canvas ref={diagramRef}>
                     <CanvasWidget engine={diagramEngine} className={'diagram-container'} />
@@ -122,6 +122,6 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 onZoom={onZoom}
                 onDownload={downloadDiagram}
             />
-        </Container>
+        </>
     );
 }

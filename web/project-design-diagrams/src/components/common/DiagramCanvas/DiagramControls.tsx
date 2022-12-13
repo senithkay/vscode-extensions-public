@@ -23,8 +23,7 @@ import AddIcon from '@mui/icons-material/Add';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
-import { Colors } from '../../../resources';
-import { ControlPanel, ExportButton } from './styles/styles';
+import { ControlPanel } from './styles/styles';
 import './styles/styles.css';
 
 
@@ -38,42 +37,38 @@ export function DiagramControls(props: ControlProps) {
     const { onDownload, onZoom, zoomToFit } = props;
 
     return (
-        <>
-            <ControlPanel>
+        <ControlPanel>
+            <IconButton
+                className={'control-button'}
+                size='small'
+                onClick={onDownload}
+            >
+                <DownloadIcon fontSize='medium' />
+            </IconButton>
+            <IconButton
+                className={'control-button'}
+                size='small'
+                onClick={zoomToFit}
+            >
+                <FullscreenIcon fontSize='small' />
+            </IconButton>
+
+            <div>
                 <IconButton
                     className={'control-button'}
                     size='small'
-                    onClick={zoomToFit}
+                    onClick={() => { onZoom(true) }}
                 >
-                    <FullscreenIcon fontSize='small' />
+                    <AddIcon fontSize='small' />
                 </IconButton>
-
-                <div>
-                    <IconButton
-                        className={'control-button'}
-                        size='small'
-                        onClick={() => { onZoom(true) }}
-                    >
-                        <AddIcon fontSize='small' />
-                    </IconButton>
-                    <IconButton
-                        className={'control-button'}
-                        size='small'
-                        onClick={() => { onZoom(false) }}
-                    >
-                        <RemoveIcon fontSize='small' />
-                    </IconButton>
-                </div>
-            </ControlPanel>
-
-            <ExportButton>
-                <IconButton size='small' onClick={onDownload} >
-                    <DownloadIcon
-                        sx={{ color: Colors.PRIMARY }}
-                        fontSize='medium'
-                    />
+                <IconButton
+                    className={'control-button'}
+                    size='small'
+                    onClick={() => { onZoom(false) }}
+                >
+                    <RemoveIcon fontSize='small' />
                 </IconButton>
-            </ExportButton>
-        </>
+            </div>
+        </ControlPanel>
     )
 }
