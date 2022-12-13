@@ -47,7 +47,6 @@
         "monaco-editor": "0.25.2",
         "monaco-editor-core": "0.25.1",
         "monaco-languageclient": "0.13.1-next.9",
-        "puppeteer": "^1.19.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-intl": "^5.10.19",
