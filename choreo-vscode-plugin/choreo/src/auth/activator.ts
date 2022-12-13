@@ -29,20 +29,20 @@ export let choreoAuthConfig: ChoreoAuthConfig;
 export async function activateAuth() {
     choreoAuthConfig = new ChoreoAuthConfig();
     await initFromExistingChoreoSession();
-    vscode.window.registerUriHandler({
-        handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
-            if (uri.path === '/choreo-signin') {
-                ext.api.status = "LoggingIn";
-                const urlParams = new URLSearchParams(uri.query);
-                const authCode = urlParams.get('code');
-                if (authCode) {
-                    exchangeAuthToken(authCode);
-                } else {
-                    vscode.window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
-                }
-            }
-        }
-    });
+    // vscode.window.registerUriHandler({
+    //     handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
+    //         if (uri.path === '/choreo-signin') {
+    //             ext.api.status = "LoggingIn";
+    //             const urlParams = new URLSearchParams(uri.query);
+    //             const authCode = urlParams.get('code');
+    //             if (authCode) {
+    //                 exchangeAuthToken(authCode);
+    //             } else {
+    //                 vscode.window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
+    //             }
+    //         }
+    //     }
+    // });
 
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {

@@ -22,6 +22,12 @@ import { Disposable, EventEmitter } from 'vscode';
 import { ext } from "./extensionVariables";
 
 import { Organization } from "./api/types";
+import { exchangeAuthToken } from "./auth/inbuilt-impl";
+
+export interface IChoreoExtensionAPI {
+    signIn(authCode: string): Promise<void>;
+    waitForLogin(): Promise<boolean>;
+}
 
 export class ChoreoExtensionApi {
     public userName: string | undefined;
@@ -54,6 +60,10 @@ export class ChoreoExtensionApi {
     public set selectedOrg(selectedOrg: Organization | undefined) {
         this._selectedOrg = selectedOrg;
         this._onOrganizationChanged.fire(selectedOrg);
+    }
+
+    public async signIn(authCode: string): Promise<void> {
+        return exchangeAuthToken(authCode);
     }
 
     public async waitForLogin(): Promise<boolean> {
