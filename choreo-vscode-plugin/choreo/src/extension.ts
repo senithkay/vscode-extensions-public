@@ -135,8 +135,8 @@ function createProjectTreeView() {
 					writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
 
 					while (!cancelled && currentCloneIndex < userManagedReposWithoutDuplicates.length) {
-						const { organizationApp, nameApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
-						const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(workspacePath, nameApp), ["--recursive"]);
+						const { organizationApp, nameApp, branchApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
+						const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(workspacePath, nameApp), ["--recursive", "--branch", branchApp]);
 						currentCloneIndex = currentCloneIndex + 1;
 					}
 
