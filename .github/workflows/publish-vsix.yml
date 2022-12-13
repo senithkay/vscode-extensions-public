@@ -17,8 +17,8 @@ on:
         required: true
 
 jobs:
-  comment:
-    name: Add codecov comment
+  publish:
+    name: Publish vsix to marketplaces
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
