@@ -94,12 +94,10 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 
     commands.registerCommand(PALETTE_COMMANDS.PERFORMANCE_FORECAST_ENABLE, async () => {
         await extension.updatePerformanceForecastSetting(true);
-        extension.getChoreoSessionTreeProvider()?.refresh();
     });
 
     commands.registerCommand(PALETTE_COMMANDS.PERFORMANCE_FORECAST_DISABLE, async () => {
         await extension.updatePerformanceForecastSetting(false);
-        extension.getChoreoSessionTreeProvider()?.refresh();
     });
 }
 

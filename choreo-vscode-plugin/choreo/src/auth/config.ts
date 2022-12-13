@@ -17,17 +17,17 @@
  *
  */
 export enum ChoreoSessionConfig {
-    ServiceName = "wso2.ballerina.choreo",
-    AccessToken = "access.token",
-    DisplayName = "display.name",
-    RefreshToken = "refresh.token",
-    LoginTime = "login.time",
-    TokenExpiration = "token.expiration.time"
+    serviceName = "wso2.ballerina.choreo",
+    accessToken = "access.token",
+    displayName = "display.name",
+    refreshToken = "refresh.token",
+    loginTime = "login.time",
+    tokenExpiration = "token.expiration.time"
 }
 
 export enum ChoreoFidp {
-    Google = "google",
-    Anonymous = "choreoanonymous"
+    google = "google",
+    anonymous = "choreoanonymous"
 }
 
 // Choreo V2 environment
@@ -37,15 +37,13 @@ export class ChoreoAuthConfig {
     private redirectUrl: string = "https://console.choreo.dev/vscode-auth";
     private clientId: string = "aVKhTSUMu_QfEwmCtrcuWoLy92oa";
 
-    private apimClientId: string = process.env.VSCODE_CHOREO_APIM_CLIENT_ID ? process.env.VSCODE_CHOREO_APIM_CLIENT_ID
-        : "ciwnWuwZfbcdzBUcnkhKvi_mcBUa";
+    private apimClientId: string = "ciwnWuwZfbcdzBUcnkhKvi_mcBUa";
     private vscodeClientId: string = "GWj5MzWNrOB28jX_wu5ZGu7I1VIa";
-    private apimTokenUrl: string = process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT ?
-        process.env.VSCODE_CHOREO_APIM_TOKEN_ENDPOINT : "https://sts.choreo.dev/oauth2/token";
+    private apimTokenUrl: string = "https://sts.choreo.dev/oauth2/token";
     private userRegistrationUrl: string = "https://app.choreo.dev/register-user";
 
     private scope: string = "openid+email+profile";
-    private fidp: ChoreoFidp = ChoreoFidp.Google;
+    private fidp: ChoreoFidp = ChoreoFidp.google;
 
     constructor() {
     }

@@ -14,44 +14,57 @@ import {
     FieldAccess,
     OptionalFieldAccess,
     QueryExpression,
+    SimpleNameReference,
     STKindChecker,
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-export class FieldAccessFindingVisitor implements Visitor {
-    private fieldAccesseNodes: (FieldAccess | OptionalFieldAccess)[];
+export class InputNodeFindingVisitor implements Visitor {
+    private inputNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[];
     private queryExpressionDepth: number;
-    
+
     constructor() {
-        this.fieldAccesseNodes = []
+        this.inputNodes = []
         this.queryExpressionDepth = 0
     }
 
     public beginVisitFieldAccess(node: FieldAccess, parent?: STNode) {
         if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth == 0){
-            this.fieldAccesseNodes.push(node)
+            && this.queryExpressionDepth == 0) {
+            this.inputNodes.push(node)
         }
     }
 
     public beginVisitOptionalFieldAccess(node: OptionalFieldAccess, parent?: STNode) {
         if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth == 0){
-            this.fieldAccesseNodes.push(node)
+            && this.queryExpressionDepth == 0) {
+            this.inputNodes.push(node)
         }
     }
 
-    public beginVisitQueryExpression(node: QueryExpression, parent?: STNode){
+    public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
+        if (
+            STKindChecker.isIdentifierToken(node.name) &&
+            parent &&
+            !STKindChecker.isFieldAccess(parent) &&
+            !STKindChecker.isOptionalFieldAccess(parent) &&
+            this.queryExpressionDepth == 0
+        ) {
+            this.inputNodes.push(node);
+        }
+    }
+
+    public beginVisitQueryExpression(node: QueryExpression, parent?: STNode) {
         this.queryExpressionDepth += 1;
     }
 
-    public endVisitQueryExpression(node: QueryExpression, parent?: STNode){
+    public endVisitQueryExpression(node: QueryExpression, parent?: STNode) {
         this.queryExpressionDepth -= 1;
     }
 
-    public getFieldAccessNodes(){
-        return this.fieldAccesseNodes
+    public getFieldAccessNodes() {
+        return this.inputNodes
     }
 
 }

@@ -29,8 +29,15 @@ interface CustomPortWidgetProps {
 
 export function ServicePortWidget(props: CustomPortWidgetProps) {
     const { engine, port } = props;
-    const portStyles: CSSProperties = port.getOptions().alignment === PortModelAlignment.LEFT ?
-        { left: 0 } : { right: 0 };
+    let portStyles: CSSProperties = { right: 0 };
+    switch (port.getOptions().alignment) {
+        case PortModelAlignment.LEFT:
+            portStyles = { left: 0 };
+            break;
+        case PortModelAlignment.TOP:
+            portStyles = { top: 0 };
+            break;
+    }
 
     return <PortWidget
         port={port}

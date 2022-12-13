@@ -50,7 +50,6 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     startColumn: 0,
     startLine: 0,
     getFileContent,
-    getPFSession: () => Promise.resolve(undefined),
     getPerfDataFromChoreo: generatePerfData,
     gotoSource: () => Promise.resolve(false),
     lastUpdatedAt: (new Date()).toISOString(),

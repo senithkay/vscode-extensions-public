@@ -29,7 +29,6 @@ export interface EditorAPI {
     getFileContent: (url: string) => Promise<string>;
     updateFileContent: (filePath: string, content: string, skipForceSave?: boolean) => Promise<boolean>;
     gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
-    getPFSession: () => Promise<PFSession>;
     showPerformanceGraph: () => Promise<boolean>;
     getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>;
     showMessage: () => Promise<boolean>;
@@ -57,7 +56,7 @@ export type EditorProps = EditorState & EditorAPI;
 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
-    const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
+    const { getFileContent, updateFileContent, gotoSource, showPerformanceGraph, getPerfDataFromChoreo,
             sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
             runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
@@ -75,7 +74,6 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     getFileContent={getFileContent}
                     updateFileContent={updateFileContent}
                     gotoSource={gotoSource}
-                    getPFSession={getPFSession}
                     showPerformanceGraph={showPerformanceGraph}
                     getPerfDataFromChoreo={getPerfDataFromChoreo}
                     showMessage={showMessage}

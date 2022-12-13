@@ -28,6 +28,7 @@ import { Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine } from '../../../utils';
 import { Canvas } from './styles/styles';
 import './styles/styles.css';
+import { positionGatewayNodes } from "../../../utils/utils";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -44,7 +45,7 @@ const dagreEngine = new DagreEngine({
         nodesep: 60,
         ranker: 'longest-path',
         marginx: 40,
-        marginy: 40
+        marginy: 240
     }
 });
 
@@ -134,6 +135,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
+            positionGatewayNodes(diagramEngine);
             diagramEngine.repaintCanvas();
         }, 30);
     };

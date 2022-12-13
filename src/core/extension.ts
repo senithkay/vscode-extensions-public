@@ -48,9 +48,7 @@ import {
     getMessageObject
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
-import { SessionDataProvider } from "../tree-view/session-tree-data-provider";
 import { gitStatusBarItem } from "../editor-support/git-status";
-import { OAuthTokenHandler } from "../choreo-auth/inbuilt-impl";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -126,8 +124,6 @@ export class BallerinaExtension {
     public context?: ExtensionContext;
     private sdkVersion: StatusBarItem;
     private documentContext: DocumentContext;
-    private choreoSession: ChoreoSession;
-    private choreoSessionTreeProvider: SessionDataProvider | undefined;
     private codeServerContext: CodeServerContext;
     private webviewContext: WebviewContext;
     private perfForecastContext: PerformanceForecastContext;
@@ -159,7 +155,6 @@ export class BallerinaExtension {
         };
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
-        this.choreoSession = { loginStatus: false };
         this.codeServerContext = {
             codeServerEnv: this.isCodeServerEnv(),
             manageChoreoRedirectUri: process.env.VSCODE_CHOREO_DEPLOY_URI,
@@ -615,31 +610,12 @@ export class BallerinaExtension {
     public setChoreoAuthEnabled(value: boolean) {
         commands.executeCommand('setContext', 'isChoreoAuthEnabled', value);
     }
-
-    public setChoreoSession(choreoSession: ChoreoSession) {
-        this.choreoSession = choreoSession;
-    }
-
     public getChoreoSession(): ChoreoSession {
-        if (this.choreoSession.loginStatus && this.choreoSession.choreoLoginTime
-            && this.choreoSession.tokenExpirationTime) {
-            let tokenDuration = (new Date().getTime() - new Date(this.choreoSession.choreoLoginTime).getTime()) / 1000;
-            if (tokenDuration > this.choreoSession.tokenExpirationTime) {
-                debug(`Exchanging refresh token. ${new Date()}`);
-                new OAuthTokenHandler(this).exchangeRefreshToken(this.choreoSession.choreoRefreshToken!);
-            }
-        }
-        return this.choreoSession;
+        return {
+            loginStatus: false
+        };
     }
-
-    public setChoreoSessionTreeProvider(choreoSessionTreeProvider: SessionDataProvider) {
-        this.choreoSessionTreeProvider = choreoSessionTreeProvider;
-    }
-
-    public getChoreoSessionTreeProvider(): SessionDataProvider | undefined {
-        return this.choreoSessionTreeProvider;
-    }
-
+    
     public getCodeServerContext(): CodeServerContext {
         return this.codeServerContext;
     }

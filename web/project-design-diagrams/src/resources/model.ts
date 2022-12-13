@@ -182,5 +182,6 @@ export enum Colors {
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
     SECONDARY_SELECTED = '#fffaf2',
-    SHADED_SELECTED = '#faead2'
+    SHADED_SELECTED = '#faead2',
+    GATEWAY = '#3db377'
 }
