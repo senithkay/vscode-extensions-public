@@ -122,3 +122,11 @@ export interface ComponentDetailed extends Component {
     isMigrationCompleted: boolean;
     apiVersions: ApiVersionDetailed[];
 }
+
+export interface WorkspaceItem {
+    name: string;
+    path: string;
+}
+export interface WorkspaceConfig {
+    folders: WorkspaceItem[];
+}

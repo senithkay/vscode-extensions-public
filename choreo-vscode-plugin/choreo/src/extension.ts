@@ -19,6 +19,7 @@
 import * as os from 'os';
 import * as vscode from 'vscode';
 import { ThemeIcon, Uri, window } from 'vscode';
+import { simpleGit } from 'simple-git';
 import { getComponentsByProject } from './api/queries';
 import { activateAuth } from './auth';
 import { exchangeOrgAccessTokens } from './auth/inbuilt-impl';
@@ -31,6 +32,9 @@ import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
 import { ChoreoComponentTreeItem } from './views/project-tree/ComponentTreeItem';
 import { ChoreoProjectTreeItem } from './views/project-tree/ProjectTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
+import path = require('path');
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { WorkspaceConfig } from './api/types';
 
 export function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = true;
@@ -62,13 +66,9 @@ function createProjectTreeView() {
 
 			const workspaceName = vscode.workspace.name;
 			const workspaceFolders = vscode.workspace.workspaceFolders;
+			const isWorkspaceExist = workspaceName || workspaceFolders;
 
-			if (!workspaceName || !workspaceFolders) {
-				vscode.window.showErrorMessage('A workspace should be already opened to proceed.');
-				return;
-			}
-
-			const { id, name } = treeItem.project;
+			const { id, name: projectName } = treeItem.project;
 			const selectedOrg = ext.api.selectedOrg;
 			
 			if (selectedOrg) {
@@ -77,7 +77,7 @@ function createProjectTreeView() {
 					canSelectFolders: true,
 					canSelectMany: false,
 					defaultUri: Uri.file(os.homedir()),
-					title: "Select a folder to clone component repositories"
+					title: "Select a folder to create the Workspace"
 				});
 
 				if (!parentDirs || parentDirs.length === 0) {
@@ -86,9 +86,22 @@ function createProjectTreeView() {
 				}
 
 				const parentPath = parentDirs[0].fsPath;
+				const workspacePath = path.join(parentPath, projectName);
+				if (existsSync(workspacePath)) {
+					// TODO: Optimize the UX. eg: prompt again to change selected path or generate
+					// a suffix for the project name
+					vscode.window.showErrorMessage('A folder already exists at ' + workspacePath);
+					return;
+				}
+
+				mkdirSync(workspacePath);
+				
+				const workspaceFile: WorkspaceConfig = {
+					folders: []
+				};
 				
 				await window.withProgress({
-					title: `Cloning ${name} components locally.`,
+					title: `Cloning ${projectName} components to workspace.`,
 					location: vscode.ProgressLocation.Notification,
 					cancellable: true
 				}, async (_progress, cancellationToken) => {
@@ -99,20 +112,32 @@ function createProjectTreeView() {
 						cancelled = true;
 					});
 					const components = await getComponentsByProject(selectedOrg.handle, id);
+					const userManagedComponents = components.filter((cmp) => cmp.repository.isUserManage);
 					const repos = components.map((cmp) => cmp.repository);
 
 					const choreoManagedRepos = repos.filter((repo) => !repo.isUserManage);
-					const userManagedRepos = repos.filter((repo) => repo.isUserManage);
+					const userManagedRepos = userManagedComponents.map((cmp) => cmp.repository);
+
+					workspaceFile.folders = userManagedComponents.map((cmp) => ({
+						name: cmp.name,
+						path: cmp.repository.nameApp
+					}));
+					const workspaceFileName = `${projectName}.code-workspace`;
+					const workspaceFilePath = path.join(workspacePath, workspaceFileName);
+
+					writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
 
 					while (!cancelled && currentCloneIndex < userManagedRepos.length) {
 						const { organizationApp, nameApp } = userManagedRepos[currentCloneIndex];
-						await vscode.commands.executeCommand("git.clone", `https://github.com/${organizationApp}/${nameApp}`, parentPath);
-						await vscode.commands.executeCommand("workbench.explorer.fileView.focus");
+						const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(workspacePath, nameApp));
 						currentCloneIndex = currentCloneIndex + 1;
 					}
 
+					await vscode.commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
+					await vscode.commands.executeCommand("workbench.explorer.fileView.focus");
+
 					if (choreoManagedRepos.length > 0) {
-						vscode.window.showWarningMessage(`Could not clone ${choreoManagedRepos.length} Choreo managed repos.\n`);
+						console.log(`Could not clone ${choreoManagedRepos.length} Choreo managed repos.\n`);
 					}
 
 				});

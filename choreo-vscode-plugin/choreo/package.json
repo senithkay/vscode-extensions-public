@@ -40,7 +40,7 @@
       },
       {
         "command": "wso2.choreo.project.clone",
-        "title": "Clone to workspace"
+        "title": "Clone to new Workspace"
       },
       {
         "command": "wso2.choreo.projects.refresh",
@@ -137,6 +137,7 @@
     "graphql-request": "^5.0.0",
     "jwt-decode": "^3.1.2",
     "keytar": "^7.9.0",
-    "pkce-challenge": "^3.0.0"
+    "pkce-challenge": "^3.0.0",
+    "simple-git": "^3.15.1"
   }
 }
