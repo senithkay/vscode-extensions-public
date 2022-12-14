@@ -28,6 +28,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import {
     EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+    LET_EXPRESSION_SOURCE_PORT_PREFIX,
     LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
     OFFSETS
 } from "../../utils/constants";
@@ -35,6 +36,7 @@ import { getFieldNames, getTypeFromStore } from "../../utils/dm-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
+import { LetExpressionNode } from "../LetExpression";
 import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { RequiredParamNode } from "../RequiredParam";
@@ -111,6 +113,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 {
                     this.sourcePort = node.getPort(
                         `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
+                } else if (node instanceof LetExpressionNode && node.varName === paramName.trim()) {
+                    this.sourcePort = node.getPort(
+                        `${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
                 }
                 while (this.sourcePort && this.sourcePort.hidden){
                     this.sourcePort = this.sourcePort.parentModel;

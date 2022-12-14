@@ -131,15 +131,24 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		parent = parent.parentModel;
 	}
 
-	if (targetNode instanceof MappingConstructorNode
-		&& STKindChecker.isMappingConstructor(targetNode.value.expression))
-	{
-		mappingConstruct = targetNode.value.expression;
-	} else if (targetNode instanceof ListConstructorNode
-		&& STKindChecker.isListConstructor(targetNode.value.expression)
-		&& fieldIndexes !== undefined && !!fieldIndexes.length)
-	{
-		mappingConstruct = getNextMappingConstructor(targetNode.value.expression);
+	if (targetNode instanceof MappingConstructorNode) {
+		const targetExpr = targetNode.value.expression;
+		if (STKindChecker.isMappingConstructor(targetExpr)) {
+			mappingConstruct = targetExpr;
+		} else if (STKindChecker.isLetExpression(targetExpr)
+			&& STKindChecker.isMappingConstructor(targetExpr.expression)) {
+			mappingConstruct = targetExpr.expression;
+		}
+	} else if (targetNode instanceof ListConstructorNode) {
+		const targetExpr = targetNode.value.expression;
+		if (STKindChecker.isListConstructor(targetExpr) && fieldIndexes !== undefined && !!fieldIndexes.length) {
+			mappingConstruct = getNextMappingConstructor(targetExpr);
+		} else if (STKindChecker.isLetExpression(targetExpr)
+			&& STKindChecker.isListConstructor(targetExpr.expression)
+			&& fieldIndexes !== undefined
+			&& !!fieldIndexes.length) {
+			mappingConstruct = getNextMappingConstructor(targetExpr.expression);
+		}
 	}
 
 	let targetMappingConstruct = mappingConstruct;
@@ -440,7 +449,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			valueExpr = valueExpr.expression;
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-			let paramNode: RequiredParam | FromClause | LetClause =
+			let paramNode: RequiredParam | FromClause | LetClause | LetVarDecl =
 				dmNode.context.functionST.functionSignature.parameters.find((param) =>
 					STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
@@ -454,8 +463,10 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 						const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 						const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
 						return bindingPattern?.variableName?.value === valueExpr.source;
+					} else if (node instanceof LetExpressionNode) {
+						return node.varName === valueExpr.source;
 					}
-				}) as LetClauseNode)?.value;
+				}) as LetClauseNode | LetExpressionNode)?.value;
 			}
 
 			const selectedST = dmNode.context.selection.selectedST.stNode;
