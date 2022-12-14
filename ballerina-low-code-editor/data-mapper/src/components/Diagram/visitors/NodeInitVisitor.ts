@@ -279,9 +279,17 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitLetExpression(node: LetExpression, parent?: STNode) {
-        const letExprNode = new LetExpressionNode(this.context, node);
-        letExprNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-        this.inputNodes.push(letExprNode);
+        const letVarDeclarations = node.letVarDeclarations;
+        for (const decl of letVarDeclarations) {
+            if (STKindChecker.isLetVarDecl(decl)) {
+                const letExprNode = new LetExpressionNode(
+                    this.context,
+                    decl
+                );
+                letExprNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                this.inputNodes.push(letExprNode);
+            }
+        }
     }
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
