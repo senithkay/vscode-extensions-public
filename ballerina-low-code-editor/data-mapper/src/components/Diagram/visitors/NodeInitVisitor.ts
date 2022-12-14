@@ -16,6 +16,7 @@ import {
     ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
+    LetExpression,
     LetVarDecl,
     ListConstructor,
     MappingConstructor,
@@ -41,6 +42,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
+import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
@@ -276,6 +278,12 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
+    beginVisitLetExpression(node: LetExpression, parent?: STNode) {
+        const letExprNode = new LetExpressionNode(this.context, node);
+        letExprNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+        this.inputNodes.push(letExprNode);
+    }
+
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         const selectedSTNode = this.selection.selectedST.stNode;
         if ((selectedSTNode.position as NodePosition).startLine !== (node.position as NodePosition).startLine
@@ -350,7 +358,8 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitExpressionFunctionBody(node: ExpressionFunctionBody, parent?: STNode): void {
         if (!STKindChecker.isMappingConstructor(node.expression)
-            && !STKindChecker.isListConstructor(node.expression))
+            && !STKindChecker.isListConstructor(node.expression)
+            && !STKindChecker.isLetExpression(node.expression))
         {
             const inputNodes = getInputNodes(node.expression);
             if (inputNodes.length > 1) {
