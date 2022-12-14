@@ -101,7 +101,10 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		|| isMappedToMappingConstructorWithinArray(targetPort)
 		|| isMappedToExprFuncBody(targetPort, targetNode.context.selection.selectedST.stNode))
 	{
-		const valuePosition = targetPort.editableRecordField.value.position as NodePosition;
+		const targetExpr = STKindChecker.isLetExpression(targetPort.editableRecordField.value)
+			? targetPort.editableRecordField.value.expression
+			: targetPort.editableRecordField.value;
+		const valuePosition = targetExpr.position as NodePosition;
 		const isValueEmpty = isEmptyValue(valuePosition);
 		if (!isValueEmpty) {
 			return updateValueExprSource(rhs, valuePosition, applyModifications);

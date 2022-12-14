@@ -14,7 +14,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -52,7 +52,8 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
         fieldId = `${parentId}.${typeName}`;
     }
     const portIn = getPort(`${fieldId}.IN`);
-    const value = field?.value && field.value.source.trim();
+    const body = field?.value && STKindChecker.isLetExpression(field.value) ? field.value.expression : field.value;
+    const value = body && body.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);
 
