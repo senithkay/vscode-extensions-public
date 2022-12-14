@@ -21,6 +21,7 @@ import {
     getAllVariables,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
@@ -33,12 +34,13 @@ import {
 } from "../../../../../utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../../style";
-import { getDefaultParams, getFormFieldReturnType, getReturnTypeImports } from "../util";
+import { getDefaultParams, getFormFieldReturnType, getReturnTypeImports, isParentNodeWithErrorReturn } from "../util";
 
 interface ActionFormProps {
     action: FunctionDefinitionInfo;
     endpointName: string;
     isClassField: boolean;
+    functionNode: STNode;
 }
 
 export function ActionForm(props: FormGeneratorProps) {
@@ -47,16 +49,13 @@ export function ActionForm(props: FormGeneratorProps) {
     const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
-    const { action, endpointName, isClassField } = formArgs as ActionFormProps;
+    const { action, endpointName, isClassField, functionNode } = formArgs as ActionFormProps;
 
     const {
         props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled, ballerinaVersion },
         api: {
             ls: { getExpressionEditorLangClient },
-            code: {
-                modifyDiagram,
-                updateFileContent
-            },
+            code: { modifyDiagram, updateFileContent },
             library,
         },
     } = useContext(Context);
@@ -76,11 +75,12 @@ export function ActionForm(props: FormGeneratorProps) {
         // Adding new endpoint
         const defaultParameters = getDefaultParams(action.parameters);
         const returnType = getFormFieldReturnType(action.returnType);
+        const parentWithError = isParentNodeWithErrorReturn(functionNode);
         imports = getReturnTypeImports(returnType);
 
         initialSource = getInitialSource(
             returnType.hasReturn
-                ? returnType.hasError
+                ? (returnType.hasError && parentWithError) // INFO: New code actions will update parent function and `check` keyword
                     ? createCheckedRemoteServiceCall(
                           returnType.returnType,
                           genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
@@ -99,7 +99,7 @@ export function ActionForm(props: FormGeneratorProps) {
                           targetPosition,
                           isClassField
                       )
-                : returnType.hasError
+                : (returnType.hasError && parentWithError)
                 ? createCheckActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
                 : createActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
         );
@@ -117,7 +117,8 @@ export function ActionForm(props: FormGeneratorProps) {
                     </Box>
                 </FormControl>
             )}
-            {!isLoading && action &&
+            {!isLoading &&
+                action &&
                 StatementEditorWrapper({
                     label: formTitle,
                     initialSource,
@@ -134,7 +135,7 @@ export function ActionForm(props: FormGeneratorProps) {
                     stSymbolInfo,
                     extraModules: imports,
                     experimentalEnabled,
-                    ballerinaVersion
+                    ballerinaVersion,
                 })}
         </>
     );

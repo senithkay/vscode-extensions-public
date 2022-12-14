@@ -167,15 +167,11 @@ describe('Test statement editor toolbar functionality', () => {
             .clickConfigurableButton();
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "conf");
+            .validateNewExpression("CaptureBindingPattern", "conf")
+            .reTriggerDiagnostics("CaptureBindingPattern", "conf");
 
         StatementEditor
             .add();
-
-        EditorPane
-            .validateNewExpression("SimpleNameReference", "conf")
-            .reTriggerDiagnostics("SimpleNameReference", "conf")
-            .validateEmptyDiagnostics();
 
         StatementEditor
             .save();
