@@ -23,7 +23,7 @@ import './style.scss'
 
 interface CategoryViewProps {
     projectComponents: BallerinaProjectComponents;
-    updateSelection: (position: NodePosition, file: string) => void;
+    updateSelection: (info: ComponentViewInfo) => void;
 }
 
 export function CategoryView(props: CategoryViewProps) {
@@ -51,12 +51,13 @@ export function CategoryView(props: CategoryViewProps) {
                             currentComponents[key].push({
                                 ...element,
                                 folderPath: packageInfo.filePath,
-                                moduleName: module.name ? module.name : DEFAULT_MODULE_NAME
+                                moduleName: module.name ? module.name : DEFAULT_MODULE_NAME,
+                                projectName: packageInfo.name
                             })
                         });
                     }
                 })
-            })
+            });
         });
     }
     // tslint:disable-next-line: jsx-key

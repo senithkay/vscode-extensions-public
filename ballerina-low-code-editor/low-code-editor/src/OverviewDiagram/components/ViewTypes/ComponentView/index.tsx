@@ -21,7 +21,7 @@ import './style.scss';
 
 interface ComponentViewProps {
     info: ComponentViewInfo;
-    updateSelection: (position: NodePosition, file: string) => void;
+    updateSelection: (info: ComponentViewInfo) => void;
 }
 
 
@@ -31,10 +31,7 @@ export function ComponentView(props: ComponentViewProps) {
 
 
     const handleComponentClick = () => {
-        const { filePath, moduleName, folderPath, name, ...position } = info;
-        // tslint:disable-next-line: no-console
-        console.log('>>> clicked component', info);
-        updateSelection(position, generateFileLocation(moduleName, folderPath.replace('file://', ''), filePath));
+        updateSelection(info);
     }
 
     return (

@@ -11,12 +11,34 @@
  * associated services.
  */
 
+import React from "react";
+
 import { NodePosition } from "@wso2-enterprise/ballerina-languageclient";
 
-enum Action {
-    UPDATE_STATE,
-    SET_FOCUS_POSITION,
-    SET_SELECTED_FILE
+import { ComponentViewInfo } from "../util";
+
+export interface OverviewDiagramProperties {
+    addToHistoryStack: (info: ComponentViewInfo) => void;
+    navigateBack: () => void;
+    navigateToMain: () => void;
+    isHistoryStackEmpty: () => boolean;
 }
 
+export const Context = React.createContext<OverviewDiagramProperties>({
+    navigateBack: undefined,
+    addToHistoryStack: undefined,
+    navigateToMain: undefined,
+    isHistoryStackEmpty: undefined
+});
 
+export const OverviewDiagramContextProvider: React.FC<OverviewDiagramProperties> = (props) => {
+    const { children, ...restProps } = props;
+
+    return (
+        <Context.Provider value={{ ...restProps }}>
+            {children}
+        </Context.Provider>
+    )
+}
+
+export const useOverviewDiagramContext = () => React.useContext(Context);

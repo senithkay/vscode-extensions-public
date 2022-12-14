@@ -174,7 +174,7 @@ export function RegularFuncComponent(props: FunctionProps) {
             )}
             data-function-name={model?.functionName?.value}
         >
-            {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
+            {/* {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
                 <ResourceHeader
                     isExpanded={diagramExpanded}
                     model={model}
@@ -189,9 +189,45 @@ export function RegularFuncComponent(props: FunctionProps) {
                         onClickRun={model.isRunnable && onClickRun}
                     />
                 </div>
-            ))}
-            {(diagramExpanded || hideHeader) && functionBody}
+            ))} */}
+            {functionBody}
         </div>
     );
 
 }
+
+
+        // <div
+        //     ref={containerRef}
+        //     className={classNames(
+        //         {
+        //             "function-box":
+        //                 STKindChecker.isResourceAccessorDefinition(model) ||
+        //                 STKindChecker.isObjectMethodDefinition(model),
+        //             "module-level-function": STKindChecker.isFunctionDefinition(model),
+        //             expanded: diagramExpanded,
+        //         },
+        //         STKindChecker.isResourceAccessorDefinition(model)
+        //             ? model.functionName.value
+        //             : ""
+        //     )}
+        //     data-function-name={model?.functionName?.value}
+        // >
+        //     {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
+        //         <ResourceHeader
+        //             isExpanded={diagramExpanded}
+        //             model={model}
+        //             onExpandClick={onExpandClick}
+        //         />
+        //     ) : (
+        //         <div >
+        //             <FunctionHeader
+        //                 isExpanded={diagramExpanded}
+        //                 model={model}
+        //                 onExpandClick={onExpandClick}
+        //                 onClickRun={model.isRunnable && onClickRun}
+        //             />
+        //         </div>
+        //     ))}
+        //     {(diagramExpanded || hideHeader) && functionBody}
+        // </div>

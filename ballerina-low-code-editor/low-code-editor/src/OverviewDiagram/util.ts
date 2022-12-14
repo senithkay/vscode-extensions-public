@@ -18,6 +18,7 @@ import { DEFAULT_MODULE_NAME } from ".";
 export interface ComponentViewInfo extends ComponentInfo {
     folderPath: string;
     moduleName: string;
+    projectName: string;
 }
 
 export interface ComponentCollection {

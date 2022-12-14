@@ -11,27 +11,47 @@
  * associated services.
  */
 import React from "react";
+import { DEFAULT_MODULE_NAME } from "../..";
+
+import { useOverviewDiagramContext } from "../../context/overview-diagram";
+import { ComponentViewInfo } from "../../util";
 
 import './style.scss';
 
 interface NavigationBarProps {
+    selectedComponent: ComponentViewInfo;
     diagramHasDepth: boolean;
-    handleBackClick: () => void;
+    handleHomeClick: () => void;
 }
 
 export function NavigationBar(props: NavigationBarProps) {
-    const { diagramHasDepth, handleBackClick } = props;
+    const { diagramHasDepth, handleHomeClick, selectedComponent } = props;
+    const { isHistoryStackEmpty, navigateBack } = useOverviewDiagramContext();
+    console.log('console log >>>', selectedComponent)
+    const homeButton = (
+        <div className="segment">
+            <button onClick={handleHomeClick}>Home</button>
+        </div>
+    );
 
     const backButton = (
         <div className="segment">
-            <button onClick={handleBackClick}>Back</button>
+            <button onClick={navigateBack}>Back</button>
         </div>
     )
 
     return (
         <div className="top-bar">
-            {diagramHasDepth && backButton}
-            <div className="segment">Project Overview</div>
+            {!isHistoryStackEmpty() && backButton}
+            {diagramHasDepth && homeButton}
+            <div className="segment">{selectedComponent ? getPath(selectedComponent) : 'Project Overview'}</div>
         </div>
     )
+}
+
+function getPath(component: ComponentViewInfo): string {
+    const project: string = `${component.projectName}/`;
+    const moduleName: string = component.moduleName === DEFAULT_MODULE_NAME ? '' : `${component.moduleName}/`
+    const fileName: string = component.filePath;
+    return `${project}${moduleName}${fileName}`;
 }

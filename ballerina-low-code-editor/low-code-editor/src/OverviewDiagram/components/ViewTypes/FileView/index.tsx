@@ -24,7 +24,7 @@ import './style.scss';
 
 interface FileViewProps {
     projectComponents: BallerinaProjectComponents;
-    updateSelection: (position: NodePosition, file: string) => void;
+    updateSelection: (info: ComponentViewInfo) => void;
 }
 
 interface FileViewInfo {
@@ -74,7 +74,8 @@ export function FileView(props: FileViewProps) {
                             (fileMap.get(filePath) as FileViewInfo).components[key].push({
                                 ...element,
                                 folderPath: packageInfo.filePath,
-                                moduleName: module.name ? module.name : DEFAULT_MODULE_NAME
+                                moduleName: module.name ? module.name : DEFAULT_MODULE_NAME,
+                                projectName: packageInfo.name
                             });
                         });
                     }

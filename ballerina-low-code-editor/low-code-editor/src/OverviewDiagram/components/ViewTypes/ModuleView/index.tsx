@@ -23,7 +23,7 @@ import './style.scss';
 
 interface ModuleViewProps {
     projectComponents: BallerinaProjectComponents;
-    updateSelection: (position: NodePosition, file: string) => void;
+    updateSelection: (info: ComponentViewInfo) => void;
 }
 
 
@@ -65,7 +65,8 @@ export function ModuleView(props: ModuleViewProps) {
                             (moduleMap.get(moduleName) as ModuleViewInfo).components[key].push({
                                 ...element,
                                 folderPath: packageInfo.filePath,
-                                moduleName: module.name ? module.name : DEFAULT_MODULE_NAME
+                                moduleName: module.name ? module.name : DEFAULT_MODULE_NAME,
+                                projectName: packageInfo.name
                             });
                         });
                     }
