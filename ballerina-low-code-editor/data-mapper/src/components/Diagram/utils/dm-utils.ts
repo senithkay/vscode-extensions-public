@@ -46,6 +46,7 @@ import { MappingConstructorNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
+import { LetExpressionNode} from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
@@ -54,6 +55,7 @@ import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 
 import {
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+	LET_EXPRESSION_SOURCE_PORT_PREFIX,
 	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	PRIMITIVE_TYPE_TARGET_PORT_PREFIX
@@ -389,16 +391,19 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 
 }
 
-export function findNodeByValueNode(value: RequiredParam | FromClause | LetClause, dmNode: DataMapperNodeModel)
-	: RequiredParamNode | FromClauseNode | LetClauseNode {
-	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode;
+export function findNodeByValueNode(value: RequiredParam | FromClause | LetClause | LetVarDecl,
+                                    dmNode: DataMapperNodeModel)
+									: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode {
+	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode;
 	dmNode.getModel().getNodes().find((node) => {
 		if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
 			&& STKindChecker.isRequiredParam(node.value))
 			|| (STKindChecker.isFromClause(value) && node instanceof FromClauseNode
 				&& STKindChecker.isFromClause(node.value))
 			|| (STKindChecker.isLetClause(value) && node instanceof LetClauseNode
-				&& STKindChecker.isLetClause(node.value)))
+				&& STKindChecker.isLetClause(node.value))
+			|| (STKindChecker.isLetVarDecl(value) && node instanceof LetExpressionNode
+				&& STKindChecker.isLetVarDecl(node.value)))
 			&& isPositionsEquals(value.position as NodePosition, node.value.position as NodePosition)) {
 			foundNode = node;
 		}
@@ -414,6 +419,8 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
 				return bindingPattern?.variableName?.value === expr.source.trim();
+			} else if (node instanceof LetExpressionNode) {
+				return node.varName === expr.source.trim();
 			} else if (node instanceof RequiredParamNode) {
 				return expr.name.value === node.value.paramName.value;
 			} else if (node instanceof FromClauseNode) {
@@ -422,7 +429,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 					return expr.name.value === bindingPattern.variableName.value;
 				}
 			}
-		}) as LetClauseNode | RequiredParamNode | FromClauseNode)?.value;
+		}) as LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode)?.value;
 		if (paramNode) {
 			return findNodeByValueNode(paramNode, dmNode);
 		}
@@ -467,12 +474,18 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	}
 }
 
-export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | LetClauseNode, expr: STNode)
-	: RecordFieldPortModel {
+export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode,
+                                     expr: STNode): RecordFieldPortModel {
 	const typeDesc = node.typeDef;
-	let portIdBuffer = node instanceof RequiredParamNode ? node.value.paramName.value
-		: EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
-		+ (node as FromClauseNode).sourceBindingPattern.variableName.value;
+	let portIdBuffer;
+	if (node instanceof RequiredParamNode) {
+		portIdBuffer = node.value.paramName.value
+	} else if (node instanceof LetExpressionNode) {
+		portIdBuffer = LET_EXPRESSION_SOURCE_PORT_PREFIX + "." + node.varName
+	} else {
+		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
+		+ (node as FromClauseNode).sourceBindingPattern.variableName.value
+	}
 	if (typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 			const fieldNames = getFieldNames(expr);
@@ -641,7 +654,7 @@ export function getEnrichedRecordType(type: Type,
 		}
 	} else {
 		valueNode = node;
-		nextNode = node;
+		nextNode = STKindChecker.isLetExpression(node) ? node.expression : node;
 	}
 
 	editableRecordField = new EditableRecordField(type, valueNode, parentType);

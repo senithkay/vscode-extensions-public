@@ -210,6 +210,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
 					}
 				})
+			} else if (STKindChecker.isLetExpression(val)) {
+				foundMappings = [...foundMappings, ...this.genMappings(val.expression, [...currentFields])];
 			} else {
 				foundMappings.push(this.getOtherMappings(val, currentFields));
 			}
