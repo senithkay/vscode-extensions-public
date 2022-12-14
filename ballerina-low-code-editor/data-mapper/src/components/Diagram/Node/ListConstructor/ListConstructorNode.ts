@@ -121,6 +121,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
             if (this.recordField.type.typeName === PrimitiveBalType.Array
                 && this.recordField?.value
                 && !STKindChecker.isListConstructor(this.recordField.value)
+                && !STKindChecker.isLetExpression(this.recordField.value)
             ) {
                 outPort = this.getPort(`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${this.rootName}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;

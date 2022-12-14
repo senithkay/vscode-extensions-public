@@ -106,9 +106,10 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
 
+	const body = field?.value && STKindChecker.isLetExpression(field.value) ? field.value.expression : field.value;
 	const hasValue = field && field?.elements && field.elements.length > 0;
-	const isBodyListConstructor = field?.value && STKindChecker.isListConstructor(field.value);
-	const isBodyQueryExpression = field?.value && STKindChecker.isQueryExpression(field.value);
+	const isBodyListConstructor = body && STKindChecker.isListConstructor(body);
+	const isBodyQueryExpression = body && STKindChecker.isQueryExpression(body);
 	const hasSyntaxDiagnostics = field?.value && field.value.syntaxDiagnostics.length > 0;
 
 	const portIn = getPort(`${id}.IN`);
