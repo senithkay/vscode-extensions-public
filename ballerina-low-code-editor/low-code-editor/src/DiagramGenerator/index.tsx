@@ -15,6 +15,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
+import { FastRewindOutlined } from "@material-ui/icons";
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
     CommandResponse, ConditionConfig,
