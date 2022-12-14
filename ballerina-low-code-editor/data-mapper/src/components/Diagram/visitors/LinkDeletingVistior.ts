@@ -38,7 +38,9 @@ export class LinkDeletingVisitor implements Visitor {
      */
     constructor(fieldPosition: NodePosition, rootMapConstruct: STNode) {
         this.fieldPosition = fieldPosition;
-        this.rootMapConstruct = rootMapConstruct;
+        this.rootMapConstruct = STKindChecker.isLetExpression(rootMapConstruct)
+            ? rootMapConstruct.expression
+            : rootMapConstruct;
         this.deletePosition = null;
     }
 
