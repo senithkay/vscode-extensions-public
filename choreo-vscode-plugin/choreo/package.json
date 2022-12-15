@@ -114,7 +114,11 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
+    "install:all": "npm install && cd webview-ui && npm install",
+    "start:webview": "cd webview-ui && npm run start",
+    "build:webview": "cd webview-ui && npm run build",
+    "test:webview": "cd webview-ui && npm run test",
+    "vscode:prepublish": "npm run build:webview && npm run package",
     "compile": "webpack",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
@@ -142,6 +146,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "@vscode/webview-ui-toolkit": "^1.2.0",
     "axios": "^1.2.0",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.6.0",

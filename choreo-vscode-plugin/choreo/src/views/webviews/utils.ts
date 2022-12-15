@@ -16,15 +16,8 @@
  * under the License.
  *
  */
-import { commands } from "vscode";
-import { createNewProjectCmdId } from "../constants";
-import { ext } from "../extensionVariables";
-import { ProjectCreationWizard } from "../views/webviews/ProjectCreationWizard";
+import { Uri, Webview } from "vscode";
 
-export function activateWizards() {
-    const createProjectCmd = commands.registerCommand(createNewProjectCmdId, () => {
-        ProjectCreationWizard.render(ext.context.extensionUri);
-    });
-  
-    ext.context.subscriptions.push(createProjectCmd);
-  }
+export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
+  return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
+}
