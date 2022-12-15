@@ -137,5 +137,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: theme.spacing(1.4),
             marginBottom: theme.spacing(1),
         },
+        cardMainHead: {
+            paddingBottom: theme.spacing(2),
+            marginBottom: theme.spacing(2),
+            borderBottom: `1px solid ${theme.palette.grey[100]}`,
+        },
     })
 );

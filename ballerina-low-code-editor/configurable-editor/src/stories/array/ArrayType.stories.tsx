@@ -29,6 +29,7 @@ import connnectionSchema from "../connection-schema.json";
 
 import configSchema from "./config-schema.json";
 import existingConfigs from "./existing-configs.json";
+import { Box } from "@material-ui/core";
 
 const onClickDefaultButton = () => {
     // tslint:disable-next-line: no-console
@@ -47,17 +48,19 @@ export default {
 };
 
 export const ArrayTypes: Story = (args) => (
-    <ConfigEditor>
-        <ConfigForm
-            configSchema={configSchema as ConfigSchema}
-            connectionConfig={connnectionSchema}
-            existingConfigs={existingConfigs}
-            defaultButtonText={"Cancel"}
-            primaryButtonText={"Run"}
-            onClickDefaultButton={onClickDefaultButton}
-            onClickPrimaryButton={args.onClickPrimaryButton}
-            isLowCode={false}
-            isFeaturePreview={true}
-        />
-    </ConfigEditor>
+    <Box maxWidth={500} margin="auto">
+        <ConfigEditor>
+            <ConfigForm
+                configSchema={configSchema as ConfigSchema}
+                connectionConfig={connnectionSchema}
+                existingConfigs={existingConfigs}
+                defaultButtonText={"Cancel"}
+                primaryButtonText={"Run"}
+                onClickDefaultButton={onClickDefaultButton}
+                onClickPrimaryButton={args.onClickPrimaryButton}
+                isLowCode={false}
+                isFeaturePreview={true}
+            />
+        </ConfigEditor>
+    </Box>
 );
