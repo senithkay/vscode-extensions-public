@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -154,15 +166,20 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected addPortsForHeaderField(field: Type, name: string, type: "IN" | "OUT",
-									                         portPrefix?: string,
-									                         collapsedFields?: string[],
-									                         isWithinSelectClause?: boolean) : RecordFieldPortModel {
+	protected addPortsForHeaderField(field: Type, name: string,
+                                  type: "IN" | "OUT",
+                                  portPrefix: string,
+                                  collapsedFields?: string[],
+                                  isWithinSelectClause?: boolean,
+                                  editableRecordField?: EditableRecordField) : RecordFieldPortModel {
 		const fieldName = getBalRecFieldName(name);
-		const portName = portPrefix ? `${portPrefix}.${fieldName}` : fieldName;
+		let portName = fieldName;
+		if (portPrefix) {
+			portName = fieldName ? `${portPrefix}.${fieldName}` : portPrefix;
+		}
 		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
-			field, portName, type, undefined, undefined, undefined, fieldName, undefined,
+			field, portName, type, undefined, undefined, editableRecordField, fieldName, undefined,
 			isCollapsed, false, isWithinSelectClause);
 		this.addPort(fieldPort)
 
@@ -175,25 +192,18 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		if (val) {
 			if (STKindChecker.isMappingConstructor(val)) {
 				val.fields.forEach((field) => {
-					if (STKindChecker.isSpecificField(field) && field.valueExpr) {
-						if (STKindChecker.isMappingConstructor(field.valueExpr)) {
-							foundMappings = [...foundMappings, ...this.genMappings(field.valueExpr, [...currentFields, field])];
-						} else if (STKindChecker.isListConstructor(field.valueExpr)) {
-							field.valueExpr.expressions.forEach((expr) => {
-								if (!STKindChecker.isCommaToken(expr)) {
-									foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, field])];
-								}
-							})
-						} else if (STKindChecker.isFieldAccess(field.valueExpr)
-							|| STKindChecker.isSimpleNameReference(field.valueExpr)) {
-							foundMappings.push(new FieldAccessToSpecificFied([...currentFields, field], field.valueExpr));
-						} else {
-							foundMappings.push(this.getOtherMappings(field, currentFields));
-						}
+					if (!STKindChecker.isCommaToken(field)) {
+						foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
 					}
-				})
-			} else if (STKindChecker.isFieldAccess(val) || STKindChecker.isSimpleNameReference(val)) {
-				foundMappings.push(new FieldAccessToSpecificFied([...currentFields, val], val));
+				});
+			} else if (STKindChecker.isSpecificField(val) && val.valueExpr) {
+				const isMappingConstructor = STKindChecker.isMappingConstructor(val.valueExpr);
+				const isListConstructor = STKindChecker.isListConstructor(val.valueExpr);
+				if (isMappingConstructor || isListConstructor) {
+					foundMappings = [...foundMappings, ...this.genMappings(val.valueExpr, [...currentFields, val])];
+				} else {
+					foundMappings.push(this.getOtherMappings(val, currentFields));
+				}
 			} else if (STKindChecker.isListConstructor(val)) {
 				val.expressions.forEach((expr) => {
 					if (!STKindChecker.isCommaToken(expr)) {
@@ -210,7 +220,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	protected getOtherMappings(node: STNode, currentFields: STNode[]) {
 		const valNode = STKindChecker.isSpecificField(node) ? node.valueExpr : node;
 		const inputNodes = getInputNodes(valNode);
-		if (inputNodes.length === 1 && !isComplexExpression(valNode)) {
+		if (inputNodes.length === 1 && !isComplexExpression(valNode) && !STKindChecker.isQueryExpression(valNode)) {
 			return new FieldAccessToSpecificFied([...currentFields, node], inputNodes[0], valNode);
 		}
 		return new FieldAccessToSpecificFied([...currentFields, node], undefined , valNode);

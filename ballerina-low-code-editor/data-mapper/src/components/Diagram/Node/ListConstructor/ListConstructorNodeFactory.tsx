@@ -15,51 +15,50 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { MappingConstructor, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
-import { FUNCTION_BODY_QUERY, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
-import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
+import { FUNCTION_BODY_QUERY, LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
+import { ArrayTypeOutputWidget } from "../commons/DataManipulationWidget/ArrayTypeOutputWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import {
-	MappingConstructorNode,
-	MAPPING_CONSTRUCTOR_NODE_TYPE
-} from './MappingConstructorNode';
+	ListConstructorNode,
+	LIST_CONSTRUCTOR_NODE_TYPE
+} from './ListConstructorNode';
 
 @injectable()
 @singleton()
-export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingConstructorNode, DiagramEngine> implements IDataMapperNodeFactory {
+export class ListConstructorNodeFactory extends AbstractReactFactory<ListConstructorNode, DiagramEngine> implements IDataMapperNodeFactory {
 	constructor() {
-		super(MAPPING_CONSTRUCTOR_NODE_TYPE);
+		super(LIST_CONSTRUCTOR_NODE_TYPE);
 	}
 
-	generateReactWidget(event: { model: MappingConstructorNode; }): JSX.Element {
-		let valueLabel: string;
+	generateReactWidget(event: { model: ListConstructorNode; }): JSX.Element {
+		let valueLabel;
 		if (STKindChecker.isSelectClause(event.model.value)
 			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
 		{
-			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
+			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
 		}
 		return (
-			<EditableMappingConstructorWidget
+			<ArrayTypeOutputWidget
+				id={`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 				engine={this.engine}
-				id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-				editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
-				typeName={event.model.typeName}
-				value={event.model.value.expression as MappingConstructor}
+				field={event.model.recordField}
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 				context={event.model.context}
+				typeName={event.model.typeName}
 				valueLabel={valueLabel}
 				deleteField={(node: STNode) => event.model.deleteField(node)}
 			/>
 		);
 	}
 
-	generateModel(): MappingConstructorNode {
+	generateModel(event: { initialConfig: any }): any {
 		return undefined;
 	}
 }
-container.register("NodeFactory", { useClass: ExpressionFunctionBodyFactory });
+container.register("NodeFactory", { useClass: ListConstructorNodeFactory });
