@@ -23,30 +23,35 @@ import {
     Card,
     CardContent,
     Container,
+    Divider,
     Typography,
 } from "@material-ui/core";
+
+import { useStyles } from "./style";
 
 interface ConfigEditorProps {
     children: JSX.Element;
 }
 
 function ConfigEditor(props: ConfigEditorProps) {
+    const classes = useStyles();
     const { children } = props;
     return (
         <Box sx={{ mt: 5 }}>
-            <Container maxWidth="sm">
+            <Container maxWidth="md">
                 <Card variant="outlined">
                     <CardContent>
-                        <Box m={2} pt={3} style={{ textAlign: "center" }}>
+                        <Box>
                             <Typography
                                 gutterBottom={true}
-                                variant="h5"
+                                variant="h6"
                                 component="div"
                             >
-                                Configurable Editor
+                                Configure & Run
                             </Typography>
                         </Box>
-                        <Box m={3} p={1}>
+                        <Divider className={classes.divider} light={true} />
+                        <Box>
                             {children}
                         </Box>
                     </CardContent>

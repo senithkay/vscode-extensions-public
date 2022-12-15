@@ -27,7 +27,7 @@ interface OutlinedLabelProps {
     label: string;
     tooltipText: string;
     isLink?: boolean;
-    shape?: "square" | "round";
+    shape?: "square" | "round" | "none";
 }
 
 const OutlinedLabel = ({ type, label, tooltipText, isLink, shape }: OutlinedLabelProps) => {
@@ -55,6 +55,7 @@ const OutlinedLabel = ({ type, label, tooltipText, isLink, shape }: OutlinedLabe
     }
 
     const chipStyles = {
+        border: shape === "none" ? "none" : shape,
         borderColor: chipColor,
         borderRadius: shape === "square" ? 3 : 10,
         color: chipColor,

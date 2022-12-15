@@ -17,38 +17,195 @@
  *
  */
 
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
+import {
+    Box,
+    Collapse,
+    Grid,
+    IconButton,
+    List,
+    ListItem,
+    ListItemText,
+    MenuItem,
+    Popover,
+    Typography,
+} from "@material-ui/core";
+import ExpandLess from "@material-ui/icons/ExpandLess";
+import ExpandMore from "@material-ui/icons/ExpandMore";
+
+import { SelectButtonSvg } from "../../../assets";
+import OutlinedLabel from "../../elements/OutlinedLabel";
+import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ToggleButtonInput, ToggleButtonInputProps } from "../../elements/ToggleButtonInput";
+import { ConnectionSchema } from "../../model";
+import { useStyles } from "../../style";
 import { SimpleTypeProps } from "../SimpleType";
 
 /**
  * The leaf level configurable type representing boolean values.
  */
 export interface BooleanTypeProps extends SimpleTypeProps {
+    connectionConfig?: ConnectionSchema[];
     value?: boolean;
-    setBooleanConfig: (id: string, booleanValue: boolean) => void;
+    valueRef?: string;
+    setBooleanConfig: (id: string, booleanValue: boolean, valueRef: any) => void;
+    isInsideArray?: boolean;
+    isLowCode?: boolean;
+    isFeaturePreview?: boolean;
 }
 
 const BooleanType = (props: BooleanTypeProps): ReactElement => {
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const isInsideArray = props.isInsideArray;
+    const isLowCode = props.isLowCode;
+    const isFeaturePreview = props.isFeaturePreview;
+    const connectionConfigs = props.connectionConfig;
+    const classes = useStyles();
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const open = Boolean(anchorEl);
+    const ids = open ? "simple-popover" : undefined;
+
+    const handleClickPopover = () => {
+        setOpenPopover(!openPopover);
+    };
+
+    const handleClicked = () => {
+        setOpenElement(!openElement);
+    };
+
+    const [openElement, setOpenElement] = React.useState(true);
+    const [openPopover, setOpenPopover] = React.useState(true);
+
+    const [selectedValue, setSelectedValue] = useState<boolean | string>(props.value);
+    const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
+    const [openConnection, setOpenConnection] = React.useState(true);
+    const handleClickOpenConnection = () => {
+        setOpenConnection(!openConnection);
+    };
     const returnElement: ReactElement[] = [];
     const { id, isRequired, value, setBooleanConfig } = props;
 
-    const setBooleanValue = (propertyId: string, propertyValue: boolean) => {
-        setBooleanConfig(propertyId, propertyValue !== undefined ? Boolean(propertyValue) : undefined);
+    const setBooleanValue = (propertyId: string, propertyValue: boolean, propertyValueRef: any) => {
+        setBooleanConfig(propertyId, propertyValue !== undefined ? Boolean(propertyValue) : undefined,
+            propertyValueRef !== undefined ? Boolean(propertyValueRef) : "");
     };
 
-    const toggleButtonInputProps: ToggleButtonInputProps = {
-        existingValue: value,
-        id,
-        isRequired,
-        setToggleButtonValue: setBooleanValue,
+    const onSelected = (index: string, mappingName: string, valueReference: string) => () => {
+        setSelectedValue(mappingName);
+        setSelectedValueRef(valueReference);
+        setAnchorEl(null);
     };
+
+    const getConnection = connectionConfigs?.map((connections, index) => {
+        return (
+            <Box key={index}>
+                <ListItem button={true} className={classes.accordian}>
+                    <ListItemText
+                        key={index}
+                        primary={connections.name}
+                        className={classes.heading}
+                        onClick={handleClickOpenConnection}
+                    />
+                    {openConnection ? <ExpandLess /> : <ExpandMore />}
+                </ListItem>
+                    {(connections.configurationData).map((
+                        connectionFields: { configKey: string; valueType: string; valueRef: string },
+                        sIndex: React.Key,
+                        ) => {
+                        return  (
+                            <Collapse key={sIndex} in={openConnection} timeout="auto" unmountOnExit={true}>
+                                    <List component="div" disablePadding={true}>
+                                    <MenuItem
+                                        button={true}
+                                        value={connectionFields.configKey}
+                                        className={classes.menuItemStyle}
+                                        id={"${" + connections.name + "." + connectionFields.configKey + "}"}
+                                        onClick={onSelected(connectionFields.configKey,
+                                            "${" + connections.name + "." + connectionFields.configKey + "}",
+                                            connectionFields.valueRef)}
+                                        title={connectionFields.valueRef}
+                                    >
+                                        <Box className={classes.connectionField}>
+                                        <ListItemText key={sIndex} primary={connectionFields.configKey + ":"} />
+                                        <OutlinedLabel
+                                            type="default"
+                                            label={connectionFields.valueType}
+                                            tooltipText={connectionFields.valueType}
+                                            shape="none"
+                                        />
+                                        </Box>
+                                    </MenuItem>
+                                    </List>
+                            </Collapse>
+                            );
+                        })
+                    }
+            </Box>
+        );
+    });
+
+    const iconButton = (
+        <Grid item={true} xs={1}>
+            <IconButton
+                size={"small"}
+                className={classes.buttonConnections}
+                data-toggle="tooltip"
+                data-placement="top"
+                onClick={handleClick}
+            >
+                <img src={SelectButtonSvg} height={20} width={20}/>
+            </IconButton>
+        </Grid>
+    );
 
     returnElement.push(
         (
             <div key={id + "-FIELD"}>
-                <ToggleButtonInput {...toggleButtonInputProps} />
+                {/* <ToggleButtonInput {...toggleButtonInputProps} /> */}
+                <Grid
+                    container={true}
+                    spacing={1}
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    <Grid item={true} xs={11}>
+                        <TextFieldInput
+                            id={id}
+                            isRequired={isRequired}
+                            placeholder="Select config or Enter a value"
+                            setTextFieldValue={setBooleanValue}
+                            type="text"
+                            value={selectedValue}
+                            valueRef={selectedValueRef}
+                        />
+                    </Grid>
+                    {!isInsideArray && !isLowCode && !isFeaturePreview && iconButton}
+                </Grid>
+                <Box>
+                    <Popover
+                        id={ids}
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                        transformOrigin={{ horizontal: "right", vertical: "top" }}
+                        className={classes.popOver}
+                    >
+                        <Box>
+                            <Typography className={classes.popOver}>
+                                {getConnection}
+                            </Typography>
+                        </Box>
+                    </Popover>
+                </Box>
             </div>
         ),
     );

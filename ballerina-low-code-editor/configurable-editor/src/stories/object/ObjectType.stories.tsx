@@ -25,6 +25,7 @@ import ConfigEditor from "../../components/ConfigEditor";
 import { ConfigElementProps } from "../../components/ConfigElement";
 import ConfigForm from "../../components/ConfigForm";
 import { ConfigSchema } from "../../components/model";
+import connnectionSchema from "../connection-schema.json";
 
 import configSchema from "./config-schema.json";
 import existingConfigs from "./existing-configs.json";
@@ -49,6 +50,7 @@ export const ObjectTypes: Story = (args) => (
     <ConfigEditor>
         <ConfigForm
             configSchema={configSchema as ConfigSchema}
+            connectionConfig={connnectionSchema}
             existingConfigs={existingConfigs}
             defaultButtonText={"Cancel"}
             primaryButtonText={"Run"}

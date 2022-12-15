@@ -44,6 +44,7 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
     const { typeMap, shortenedTypeMap } = getTypeMap(schema, props.id);
 
     const unionValue: ConfigElementProps = {
+        connectionConfig: props.connectionConfig,
         description: props.description,
         id: props.id,
         isRequired: props.isRequired,
@@ -64,9 +65,10 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         const configProperty = property[SchemaConstants.PROPERTIES];
         let configProperties: ConfigElementProps[];
         if (configProperty) {
-            configProperties = getConfigProperties(property, props.id).properties;
+            configProperties = getConfigProperties(property, props.connectionConfig, props.id).properties;
         }
         const configElementProps: ConfigElementProps = {
+            connectionConfig: props.connectionConfig,
             description: element.description,
             id: element.id,
             isRequired: element.isRequired,
