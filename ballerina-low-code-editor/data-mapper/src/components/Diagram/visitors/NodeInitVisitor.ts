@@ -82,37 +82,40 @@ export class NodeInitVisitor implements Visitor {
                             typeDesc
                         );
                     } else if (returnType.typeName === PrimitiveBalType.Array) {
-                        if (STKindChecker.isQueryExpression(node.functionBody.expression)
+                        const bodyExpr = STKindChecker.isLetExpression(node.functionBody.expression)
+                            ? node.functionBody.expression.expression
+                            : node.functionBody.expression;
+                        if (STKindChecker.isQueryExpression(bodyExpr)
                             && this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY)
                         {
                             isFnBodyQueryExpr = true;
-                            const selectClause = node.functionBody.expression.selectClause;
+                            const selectClause = bodyExpr.selectClause;
                             if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Record) {
                                 this.outputNode = new MappingConstructorNode(
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    node.functionBody.expression
+                                    bodyExpr
                                 );
                             } else if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Array) {
                                 this.outputNode = new ListConstructorNode(
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    node.functionBody.expression
+                                    bodyExpr
                                 );
                             } else {
                                 this.outputNode = new PrimitiveTypeNode(
                                     this.context,
                                     selectClause,
                                     typeDesc,
-                                    node.functionBody.expression
+                                    bodyExpr
                                 );
                             }
 
                             const fromClauseNode = new FromClauseNode(
                                 this.context,
-                                node.functionBody.expression.queryPipeline.fromClause
+                                bodyExpr.queryPipeline.fromClause
                             );
                             fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
                             this.inputNodes.push(fromClauseNode);
@@ -279,6 +282,10 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitLetExpression(node: LetExpression, parent?: STNode) {
+        const hasExpanded = this.selection.prevST.length > 0;
+        if (hasExpanded) {
+            return;
+        }
         const letVarDeclarations = node.letVarDeclarations;
         for (const decl of letVarDeclarations) {
             if (STKindChecker.isLetVarDecl(decl)) {

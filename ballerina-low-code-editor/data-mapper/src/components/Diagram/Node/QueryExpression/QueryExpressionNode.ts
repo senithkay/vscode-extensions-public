@@ -163,6 +163,25 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     });
                 }
             });
+        } else if (STKindChecker.isLetExpression(this.parentNode)) {
+            const exprPosition = this.parentNode.expression.position;
+            this.getModel().getNodes().forEach((node) => {
+                if (node instanceof ListConstructorNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof RecordFieldPortModel
+                            && port?.editableRecordField && port.editableRecordField?.value
+                            && STKindChecker.isLetExpression(port.editableRecordField.value)
+                            && isPositionsEquals(port.editableRecordField.value.expression.position, exprPosition)
+                            && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                }
+            });
         }
 
         if (this.targetPort?.hidden){
