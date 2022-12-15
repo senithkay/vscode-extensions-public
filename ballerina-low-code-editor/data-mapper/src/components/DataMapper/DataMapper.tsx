@@ -35,6 +35,7 @@ import { useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
+import { LocalVarConfigPanel } from "../Diagram/Node/LocalVarManager";
 import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
@@ -211,6 +212,7 @@ function DataMapperC(props: DataMapperProps) {
     const [output, setOutput] = useState<DataMapperOutputParam>();
     const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [nodeSetupCounter, setNodeSetupCounter] = useState(0);
+    const [showLocalVarConfigPanel, setShowLocalVarConfigPanel] = useState(false);
     const { setFunctionST, setImports } = useDMStore();
 
     const classes = useStyles();
@@ -272,6 +274,10 @@ function DataMapperC(props: DataMapperProps) {
         setShowDMOverlay(showOverlay);
     }
 
+    const handleLocalVarConfigPanel = (showPanel: boolean) => {
+        setShowLocalVarConfigPanel(showPanel);
+    }
+
     useEffect(() => {
         if (fnST) {
             const defaultSt = { stNode: fnST, fieldPath: fnST.functionName.value };
@@ -315,7 +321,8 @@ function DataMapperC(props: DataMapperProps) {
                         fieldTobeEdited,
                         handleFieldToBeEdited,
                         handleOverlay,
-                        ballerinaVersion
+                        ballerinaVersion,
+                        handleLocalVarConfigPanel
                     );
 
                     const selectedST = selection.selectedST.stNode;
@@ -448,6 +455,11 @@ function DataMapperC(props: DataMapperProps) {
                                 onCancel={cancelStatementEditor}
                                 onClose={closeStatementEditor}
                                 importStatements={importStatements}
+                            />
+                        )}
+                        {showLocalVarConfigPanel && (
+                            <LocalVarConfigPanel
+                                handleLocalVarConfigPanel={handleLocalVarConfigPanel}
                             />
                         )}
                     </div>

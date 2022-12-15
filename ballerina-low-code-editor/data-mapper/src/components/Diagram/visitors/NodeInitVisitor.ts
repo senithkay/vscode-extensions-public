@@ -45,6 +45,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
+import { LocalVarManagerNode } from "../Node/LocalVarManager";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
@@ -179,6 +180,11 @@ export class NodeInitVisitor implements Visitor {
                 }
             }
         }
+        // create node for configuring local variables
+        const localVarManagerNode = new LocalVarManagerNode(this.context);
+        localVarManagerNode.setLocked(true);
+        localVarManagerNode.setPosition(OFFSETS.LOCAL_VAR_MANAGER_NODE.X, OFFSETS.LOCAL_VAR_MANAGER_NODE.Y);
+        this.intermediateNodes.push(localVarManagerNode);
     }
 
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {

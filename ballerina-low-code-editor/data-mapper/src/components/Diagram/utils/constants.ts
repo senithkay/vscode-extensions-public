@@ -30,6 +30,10 @@ export const OFFSETS = {
     },
     QUERY_EXPRESSION_NODE: {
         X: 750
+    },
+    LOCAL_VAR_MANAGER_NODE: {
+        X: 50,
+        Y: 25,
     }
 }
 
