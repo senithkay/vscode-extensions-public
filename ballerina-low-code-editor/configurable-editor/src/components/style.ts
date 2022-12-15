@@ -64,7 +64,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: theme.spacing(1.4),
         },
         divider: {
-            border: "0.1px solid #DEE0E7",
+            border: "1px solid #DEE0E7",
             marginBottom: theme.spacing(1),
         },
         docIcon: {
@@ -130,12 +130,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             "& .MuiInputBase-root": {
                 backgroundColor: "#ffffff",
             },
-            "marginBottom": theme.spacing(0),
+            marginBottom: theme.spacing(0),
         },
         unsupportedLabelText: {
             color: "#FF9494",
             fontSize: theme.spacing(1.4),
             marginBottom: theme.spacing(1),
         },
-    }),
+    })
 );
