@@ -23,7 +23,7 @@ import { ServiceNodeModel } from './ServiceNodeModel';
 import { ServiceLinkModel } from '../ServiceLink/ServiceLinkModel';
 import { ServiceHeadWidget } from './ServiceHead/ServiceHead';
 import { FunctionCard } from './FunctionCards/FunctionCard';
-import { Level } from '../../../resources';
+import { Level, Views } from '../../../resources';
 import { ServiceNode } from './styles/styles';
 import { DiagramContext } from '../../common';
 import './styles/styles.css';
@@ -35,8 +35,15 @@ interface ServiceNodeWidgetProps {
 
 export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	const { node, engine } = props;
+	const {
+		currentView,
+		newComponentID,
+		setNewComponentID,
+		newLinkNodes,
+		setNewLinkNodes,
+		generateConnectors
+	} = useContext(DiagramContext);
 	const [selectedLinks, setSelectedLinks] = useState<ServiceLinkModel[]>([]);
-	const { newComponentID, setNewComponentID, newLinkNodes } = useContext(DiagramContext);
 	const isNewNode = useRef<boolean>(newComponentID === node.getID());
 
 	useEffect(() => {
@@ -57,13 +64,31 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		})
 	}, [node])
 
+	const checkLinkStatus = (): boolean => {
+		if (currentView === Views.L1_SERVICES) {
+			if (newLinkNodes.source?.getID() === node.getID() || newLinkNodes.target?.getID() === node.getID()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	const setLinkStatus = async () => {
+		if (currentView === Views.L1_SERVICES && newLinkNodes.source && newLinkNodes.source.getID() !== node.getID()) {
+			setNewLinkNodes({ ...newLinkNodes, target: node });
+			await generateConnectors(newLinkNodes.source.serviceObject, node.serviceObject);
+			setNewLinkNodes({ source: undefined, target: undefined });
+		}
+	}
+
 	return (
 		<ServiceNode
 			className='fadeIn'
+			onClick={setLinkStatus}
+			awaitLinking={checkLinkStatus()}
 			isNew={isNewNode.current}
 			isSelected={node.checkSelectedList(selectedLinks, node.getID())}
 			level={node.level}
-			awaitLinking={newLinkNodes.source?.getID() === node.getID() || newLinkNodes.target?.getID() === node.getID()}
 		>
 			<ServiceHeadWidget
 				engine={engine}

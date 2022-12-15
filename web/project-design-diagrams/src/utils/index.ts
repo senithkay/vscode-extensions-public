@@ -20,7 +20,8 @@
 export {
     createEntitiesEngine,
     createServicesEngine,
-    createRenderPackageObject
+    createRenderPackageObject,
+    positionGatewayNodes
 } from './utils';
 
 export { entityModeller, generateCompositionModel } from './model-mapper/entityModelMapper';
