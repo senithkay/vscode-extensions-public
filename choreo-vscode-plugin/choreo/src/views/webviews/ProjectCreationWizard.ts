@@ -45,14 +45,6 @@ export class ProjectCreationWizard {
   }
 
   private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
-    // The CSS file from the React build output
-    const stylesUri = getUri(webview, extensionUri, [
-      "webview-ui",
-      "build",
-      "static",
-      "css",
-      "main.css",
-    ]);
     // The JS file from the React build output
     const scriptUri = getUri(webview, extensionUri, [
       "webview-ui",
@@ -69,7 +61,6 @@ export class ProjectCreationWizard {
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
               <meta name="theme-color" content="#000000">
-              <link rel="stylesheet" type="text/css" href="${stylesUri}">
               <title>Choreo Project Wizard</title>
             </head>
             <body>

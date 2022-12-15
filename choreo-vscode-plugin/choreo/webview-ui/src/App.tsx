@@ -1,6 +1,18 @@
 import { vscode } from "./utilities/vscode";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
+import styled from "@emotion/styled";
+
+export const Main = styled.main`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  & > * {
+    margin: 1rem 0;
+  }
+`;
+
 
 function App() {
   function handleHowdyClick() {
@@ -11,10 +23,10 @@ function App() {
   }
 
   return (
-    <main>
+    <Main>
       <h1>Hello World!</h1>
       <VSCodeButton onClick={handleHowdyClick}>Howdy!</VSCodeButton>
-    </main>
+    </Main>
   );
 }
 
