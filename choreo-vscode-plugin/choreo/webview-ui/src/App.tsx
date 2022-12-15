@@ -1,6 +1,5 @@
-import { vscode } from "./utilities/vscode";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
+import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
 
 export const Main = styled.main`
   display: flex;
@@ -13,19 +12,10 @@ export const Main = styled.main`
   }
 `;
 
-
 function App() {
-  function handleHowdyClick() {
-    vscode.postMessage({
-      command: "hello",
-      text: "Hey there partner! 🤠",
-    });
-  }
-
   return (
     <Main>
-      <h1>Hello World!</h1>
-      <VSCodeButton onClick={handleHowdyClick}>Howdy!</VSCodeButton>
+       <ProjectWizard />
     </Main>
   );
 }
