@@ -53,6 +53,7 @@ import { useStyles } from "../../style";
 import SimpleType, { SimpleTypeProps } from "../SimpleType";
 
 import { ArrayTypeProps } from ".";
+import { SelectIcon } from "../../../assets/icons";
 
 /**
  * The leaf level configurable type representing boolean values.
@@ -64,14 +65,17 @@ export interface SimpleArrayProps extends ArrayTypeProps {
 const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const classes = useStyles();
     const returnElement: ReactElement[] = [];
-    const [arrayValues, setArrayValues] = useState<ConfigValue[]>(getInitialValues(props.value, props.id));
+    const [arrayValues, setArrayValues] = useState<ConfigValue[]>(
+        getInitialValues(props.value, props.id)
+    );
     const [counter, setCounter] = useState(arrayValues.length + 1);
     const isLowCode = props.isLowCode;
     const isInsideArray = props.isInsideArray;
     const isFeaturePreview = props.isFeaturePreview;
     const connectionConfigs = props.connectionConfig;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
-    const [connectionAnchorEl, setConnectionAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [connectionAnchorEl, setConnectionAnchorEl] =
+        React.useState<HTMLButtonElement | null>(null);
     const open = Boolean(anchorEl);
     const textId = open ? "simple-popover" : undefined;
     const connectionOpen = Boolean(connectionAnchorEl);
@@ -105,7 +109,9 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         setAnchorEl(null);
     };
 
-    const handleConnectionClick = (connectionEvent: React.MouseEvent<HTMLButtonElement>) => {
+    const handleConnectionClick = (
+        connectionEvent: React.MouseEvent<HTMLButtonElement>
+    ) => {
         setConnectionAnchorEl(connectionEvent.currentTarget);
     };
 
@@ -133,7 +139,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const handleValueChange = (id: string, value: any) => {
         const newArrayValues = [...arrayValues];
         const existingMap = newArrayValues.findIndex(
-            (property) => property.key === id,
+            (property) => property.key === id
         );
         if (existingMap > -1) {
             newArrayValues[existingMap].value = value.value;
@@ -160,33 +166,28 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
             value: arrayElement.value,
         };
         returnElement.push(
-            (
-                <Grid
-                    key={arrayElement.key}
-                    container={true}
-                    spacing={1}
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <Grid item={true} xs={11}>
-                        <Box>
-                            <SimpleType {...simpleTypeProps} />
-                        </Box>
-                    </Grid>
-                    <Grid item={true} xs={1}>
-                        <DeleteButton onDelete={removeArrayElement} id={arrayElement.key}/>
-                    </Grid>
-                </Grid>
-            ),
+            <Box key={arrayElement.key}>
+                <Box>
+                    <Box>
+                        <SimpleType {...simpleTypeProps} />
+                    </Box>
+                </Box>
+                <Box>
+                    <DeleteButton
+                        onDelete={removeArrayElement}
+                        id={arrayElement.key}
+                    />
+                </Box>
+            </Box>
         );
     });
 
-    const onSelected = (index: string, mappingName: string, valueReference: string) => () => {
-        setSelectedValue(mappingName);
-        setSelectedValueRef(valueReference);
-        setConnectionAnchorEl(null);
-    };
+    const onSelected =
+        (index: string, mappingName: string, valueReference: string) => () => {
+            setSelectedValue(mappingName);
+            setSelectedValueRef(valueReference);
+            setConnectionAnchorEl(null);
+        };
 
     const fieldLabelProps: FieldLabelProps = {
         description: props.description,
@@ -208,54 +209,88 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                     />
                     {openConnection ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
-                    {(connections.configurationData).map((
-                        connectionFields: { configKey: string; valueType: string; valueRef: string },
-                        sIndex: React.Key,
-                        ) => {
-                        return  (
-                            <Collapse key={sIndex} in={openConnection} timeout="auto" unmountOnExit={true}>
-                                    <List component="div" disablePadding={true}>
+                {connections.configurationData.map(
+                    (
+                        connectionFields: {
+                            configKey: string;
+                            valueType: string;
+                            valueRef: string;
+                        },
+                        sIndex: React.Key
+                    ) => {
+                        return (
+                            <Collapse
+                                key={sIndex}
+                                in={openConnection}
+                                timeout="auto"
+                                unmountOnExit={true}
+                            >
+                                <List component="div" disablePadding={true}>
                                     <MenuItem
                                         button={true}
                                         value={connectionFields.configKey}
                                         className={classes.menuItemStyle}
-                                        id={"${" + connections.name + "." + connectionFields.configKey + "}"}
-                                        onClick={onSelected(connectionFields.configKey,
-                                            "${" + connections.name + "." + connectionFields.configKey + "}",
-                                            connectionFields.valueRef)}
+                                        id={
+                                            "${" +
+                                            connections.name +
+                                            "." +
+                                            connectionFields.configKey +
+                                            "}"
+                                        }
+                                        onClick={onSelected(
+                                            connectionFields.configKey,
+                                            "${" +
+                                                connections.name +
+                                                "." +
+                                                connectionFields.configKey +
+                                                "}",
+                                            connectionFields.valueRef
+                                        )}
                                         title={connectionFields.valueRef}
                                     >
-                                        <Box className={classes.connectionField}>
-                                        <ListItemText key={sIndex} primary={connectionFields.configKey + ":"} />
-                                        <OutlinedLabel
-                                            type="default"
-                                            label={connectionFields.valueType}
-                                            tooltipText={connectionFields.valueType}
-                                            shape="none"
-                                        />
+                                        <Box
+                                            className={classes.connectionField}
+                                        >
+                                            <ListItemText
+                                                key={sIndex}
+                                                primary={
+                                                    connectionFields.configKey +
+                                                    ":"
+                                                }
+                                            />
+                                            <OutlinedLabel
+                                                type="default"
+                                                label={
+                                                    connectionFields.valueType
+                                                }
+                                                tooltipText={
+                                                    connectionFields.valueType
+                                                }
+                                                shape="none"
+                                            />
                                         </Box>
                                     </MenuItem>
-                                    </List>
+                                </List>
                             </Collapse>
-                            );
-                        })
+                        );
                     }
+                )}
             </Box>
         );
     });
 
     const iconButton = (
-        <Grid item={true} xs={1}>
+        <Box>
             <IconButton
-                size={"small"}
+                size="small"
                 className={classes.buttonConnections}
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleConnectionClick}
             >
-                <img src={SelectButtonSvg} height={20} width={20}/>
+                <SelectIcon />
             </IconButton>
-        </Grid>
+        </Box>
     );
 
     const popOverComponent = (
@@ -270,72 +305,60 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     );
 
     return (
-        <Box>
-            <Card className={classes.card}>
-                <CardContent className={classes.cardContent}>
-                    <Grid
-                        container={true}
-                        spacing={1}
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="center"
-                        className={classes.buttonBorder}
-                    >
-                        <Grid item={true} xs={3}>
-                            <FieldLabel {...fieldLabelProps} />
-                        </Grid>
-                        <Grid item={true} xs={9}>
-                            <Box className={classes.formInputBox}>
-                                <Grid
-                                    container={true}
-                                    spacing={1}
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    className={classes.buttonBorder}
-                                >
-                                    <Grid item={true} xs={11}>
-                                        <TextField
-                                            variant="outlined"
-                                            fullWidth={true}
-                                            margin="none"
-                                            size="small"
-                                            classes={{ root: classes.textInputRoot }}
-                                            placeholder={"Select config or Add values"}
-                                            InputLabelProps={{ shrink: false }}
-                                            data-cyid={name}
-                                            aria-describedby={textId}
-                                            onClick={handleClick}
-                                            value={"[" + selectedValue + "]"}
-                                        />
-                                    </Grid>
-                                    {!isInsideArray && !isLowCode && !isFeaturePreview && iconButton}
-                                </Grid>
-                                <Box>
-                                <Popover
-                                    id={connectionId}
-                                    open={connectionOpen}
-                                    anchorEl={connectionAnchorEl}
-                                    onClose={handleConnectionClose}
-                                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                                    transformOrigin={{ horizontal: "right", vertical: "top" }}
-                                    className={classes.popOver}
-                                >
-                                    <Box>
-                                        <Typography className={classes.popOver}>
-                                            {getConnection}
-                                        </Typography>
-                                    </Box>
-                                </Popover>
-                            </Box>
-                                <Box>
-                                    {popOverComponent}
-                                </Box>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </CardContent>
-            </Card>
+        <Box mb={2}>
+            <Box display="flex" alignItems="center">
+                <Box flex="0 0 150px">
+                    <FieldLabel {...fieldLabelProps} />
+                </Box>
+                <Box
+                    flexGrow={1}
+                    display="flex"
+                    gridGap={4}
+                    alignItems="center"
+                >
+                    <Box flexGrow={1}>
+                        <TextField
+                            variant="outlined"
+                            fullWidth={true}
+                            margin="none"
+                            size="small"
+                            classes={{
+                                root: classes.textInputRoot,
+                            }}
+                            placeholder={"Select config or Add values"}
+                            InputLabelProps={{ shrink: false }}
+                            data-cyid={name}
+                            aria-describedby={textId}
+                            onClick={handleClick}
+                            value={"[" + selectedValue + "]"}
+                        />
+                    </Box>
+                    {!isInsideArray &&
+                        !isLowCode &&
+                        !isFeaturePreview &&
+                        iconButton}
+                </Box>
+            </Box>
+            <>
+                <Popover
+                    id={connectionId}
+                    open={connectionOpen}
+                    anchorEl={connectionAnchorEl}
+                    onClose={handleConnectionClose}
+                    anchorOrigin={{
+                        horizontal: "right",
+                        vertical: "bottom",
+                    }}
+                    transformOrigin={{
+                        horizontal: "right",
+                        vertical: "top",
+                    }}
+                    className={classes.popOver}
+                >
+                    <Box className={classes.popOver}>{getConnection}</Box>
+                </Popover>
+                {popOverComponent}
+            </>
         </Box>
     );
 };

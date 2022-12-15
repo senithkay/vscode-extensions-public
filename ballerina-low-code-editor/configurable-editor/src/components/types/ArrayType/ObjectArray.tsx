@@ -142,25 +142,19 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         };
 
         returnElement.push(
-            (
-                <Grid
-                    key={arrayElement.id}
-                    container={true}
-                    spacing={1}
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <Grid item={true} xs={11}>
-                        <Box key={arrayElement.id + "-ENTRY"}>
-                            <ObjectType {...objectTypeProps} />
-                        </Box>
-                    </Grid>
-                    <Grid item={true} xs={1}>
-                        <DeleteButton onDelete={removeArrayElement} id={arrayElement.id}/>
-                    </Grid>
-                </Grid>
-            ),
+            <Box key={arrayElement.id}>
+                <Box>
+                    <Box key={arrayElement.id + "-ENTRY"}>
+                        <ObjectType {...objectTypeProps} />
+                    </Box>
+                </Box>
+                <Box>
+                    <DeleteButton
+                        onDelete={removeArrayElement}
+                        id={arrayElement.id}
+                    />
+                </Box>
+            </Box>
         );
     });
 

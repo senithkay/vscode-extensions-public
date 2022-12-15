@@ -32,13 +32,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             borderColor: "#FF9494",
         },
         buttonConnections: {
-            backgroundColor: "#f0f0f0",
-            border: "solid",
-            borderColor: "#e8e8e9",
-            borderRadius: theme.spacing(0.3),
-            borderWidth: theme.spacing(0.3),
-            fill: "#5567D5",
-            padding: theme.spacing(0.8),
+            backgroundColor: "#F7F8FB",
+            border: "1px solid #E0E2E9",
+            borderRadius: 5,
+            color: "#5567D5",
+            padding: theme.spacing(1),
         },
         card: {
             boxShadow: "none",
@@ -91,10 +89,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         innerBoxTitle: {
             fontSize: theme.spacing(1.8),
         },
-        labelCont: {
-            marginTop: theme.spacing(0.5),
-            width: "90%",
-        },
+        labelCont: {},
         labelTag: {
             display: "flex",
         },
