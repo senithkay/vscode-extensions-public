@@ -31,12 +31,13 @@ import { ToolbarContextProvider } from './toolbar-context';
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
-        initialSource: '',
+        initialSource: "",
         statementModel: null,
         currentModel: null,
         changeCurrentModel: (model: STNode, stmtPosition?: NodePosition, isShift?: boolean) => {},
         handleChange: (codeSnippet: string, isEditedViaInputEditor?: boolean) => {},
-        updateModel: (codeSnippet: string, position: NodePosition) => {},
+        updateModel: (codeSnippet: string, position: NodePosition, stmtModel?: STNode) => {},
+        updateStatementModel: (updatedStatement: string, updatedSource: string, position: NodePosition) => {},
         undo: () => undefined,
         redo: () => undefined,
         hasUndo: false,
@@ -49,12 +50,13 @@ export const StatementEditorContext = React.createContext({
         hasRestArg: false
     },
     statementCtx: {
-        diagnostics: []
+        diagnostics: [],
+        errorMsg: ""
     },
     suggestionsCtx: {
         lsSuggestions: [],
         lsSecondLevelSuggestions: {
-            selection: '',
+            selection: "",
             secondLevelSuggestions: []
         }
     },
@@ -75,6 +77,7 @@ export const StatementEditorContext = React.createContext({
     },
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => undefined,
+    updateFileContent: (content: string, skipForceSave?: boolean) => (Promise.resolve({} as any)),
     library: {
         getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
         getLibrariesData: () => (Promise.resolve({} as any)),
@@ -84,7 +87,9 @@ export const StatementEditorContext = React.createContext({
         content: "",
         path: "",
         size: 0,
-        originalContent: null
+        originalContent: null,
+        draftSource: "",
+        draftPosition: null,
     },
     documentation: null,
     syntaxTree: null,
@@ -105,15 +110,19 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     currentModel: CurrentModel,
     changeCurrentModel?: (model: STNode) => void,
     handleChange?: (codeSnippet: string, isEditedViaInputEditor?: boolean) => void,
-    updateModel?: (codeSnippet: string, position: NodePosition) => void,
+    updateModel?: (codeSnippet: string, position: NodePosition, stmtModel?: STNode) => void,
+    updateStatementModel?: (updatedStatement: string, updatedSource: string, position: NodePosition) => void,
     handleModules?: (module: string) => void,
     modulesToBeImported?: Set<string>,
     initialSource: string,
+    draftSource?: string,
+    draftPosition?: NodePosition,
     undo?: () => void,
     redo?: () => void,
     hasUndo?: boolean,
     hasRedo?: boolean,
     diagnostics?: StatementSyntaxDiagnostics[],
+    errorMsg?: string,
     lsSuggestions?: LSSuggestions,
     hasSyntaxDiagnostics?: boolean,
     updateSyntaxDiagnostics?: (hasSyntaxIssues: boolean) => void,
@@ -130,7 +139,8 @@ export interface CtxProviderProps extends LowCodeEditorProps {
         activeEditorId?: number,
         editors?: EditorModel[]
     },
-    targetPosition: NodePosition
+    targetPosition: NodePosition,
+    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -141,6 +151,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         changeCurrentModel,
         handleChange,
         updateModel,
+        updateStatementModel,
         handleModules,
         modulesToBeImported,
         undo,
@@ -148,7 +159,10 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         hasRedo,
         hasUndo,
         initialSource,
+        draftSource,
+        draftPosition,
         diagnostics,
+        errorMsg,
         lsSuggestions,
         documentation,
         restArg,
@@ -168,6 +182,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         ballerinaVersion,
         isCodeServerInstance,
         openExternalUrl,
+        updateFileContent,
         ...restProps
     } = props;
 
@@ -181,6 +196,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     changeCurrentModel,
                     handleChange,
                     updateModel,
+                    updateStatementModel,
                     undo,
                     redo,
                     hasRedo,
@@ -193,7 +209,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                     updateEditing
                 },
                 statementCtx: {
-                    diagnostics
+                    diagnostics,
+                    errorMsg
                 },
                 suggestionsCtx: {
                     lsSuggestions: lsSuggestions.directSuggestions,
@@ -220,11 +237,14 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 isExpressionMode,
                 currentFile: {
                     ...currentFile,
-                    originalContent: currentFile.originalContent
+                    originalContent: currentFile.originalContent,
+                    draftSource,
+                    draftPosition
                 },
                 ballerinaVersion,
                 isCodeServerInstance,
                 openExternalUrl,
+                updateFileContent,
                 ...restProps
             }}
         >
