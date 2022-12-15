@@ -58,21 +58,15 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     useEffect(() => {
         if (currentView === Views.L1_SERVICES && editingEnabled) {
-            // Reset new link nodes if clicked outside of the canvas
+            // Reset new link nodes on escape
             function handleEscapePress(event) {
                 if (event.key === 'Escape') {
                     setNewLinkNodes({ source: undefined, target: undefined });
                 }
             }
-
-            // Bind the event listener
             document.addEventListener('keydown', handleEscapePress);
-            return () => {
-                // Unbind the event listener on clean up
-                document.removeEventListener('keydown', handleEscapePress);
-            };
         }
-    }, []);
+    }, [])
 
     // Reset the model and redistribute if the model changes
     useEffect(() => {
