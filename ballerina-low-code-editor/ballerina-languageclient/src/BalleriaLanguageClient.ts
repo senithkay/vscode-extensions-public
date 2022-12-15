@@ -56,8 +56,9 @@ import {
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
     TypesFromExpressionResponse,
+    TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse
-} from './IBallerinaLanguageClient'
+} from './IBallerinaLanguageClient';
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { LSConnection } from "./LSConnection";
 
@@ -286,6 +287,10 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public getTypeFromSymbol(params: TypeFromSymbolRequest): Thenable<TypesFromSymbolResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPE_FROM_SYMBOL, params);
+    }
+
+    public getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Thenable<TypesFromSymbolResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.SYMBOL_GET_TYPES_FROM_FN_DEFINITION, params);
     }
 
     public rename(params: RenameParams): Promise<WorkspaceEdit> {

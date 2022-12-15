@@ -10,17 +10,5 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ListConstructor, STKindChecker, Visitor } from "@wso2-enterprise/syntax-tree";
-
-import { DataMapperViewState } from "../../../utils/data-mapper-view-state";
-
-export class ViewStateSetupVisitor implements Visitor {
-
-    public beginVisitListConstructor(node: ListConstructor) {
-        node.expressions.forEach((expr) => {
-            if (!STKindChecker.isCommaToken(expr) && !expr.dataMapperViewState) {
-                expr.dataMapperViewState = new DataMapperViewState();
-            }
-        });
-    }
-}
+export * from "./ListConstructorNodeFactory";
+export * from "./ListConstructorNode";

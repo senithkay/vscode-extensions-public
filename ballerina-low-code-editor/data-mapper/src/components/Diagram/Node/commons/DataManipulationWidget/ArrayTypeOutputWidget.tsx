@@ -18,14 +18,14 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
-import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
+import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-export interface PrimitiveTypeOutputWidgetProps {
+export interface ArrayTypeOutputWidgetProps {
 	id: string;
 	field: EditableRecordField;
 	engine: DiagramEngine;
@@ -102,9 +102,14 @@ export interface PrimitiveTypeOutputWidgetProps {
 }
 
 
-export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
+export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
+
+	const hasValue = field && field?.elements && field.elements.length > 0;
+	const isBodyListConstructor = field?.value && STKindChecker.isListConstructor(field.value);
+	const isBodyQueryExpression = field?.value && STKindChecker.isQueryExpression(field.value);
+	const hasSyntaxDiagnostics = field?.value && field.value.syntaxDiagnostics.length > 0;
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -113,7 +118,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 		expanded = false;
 	}
 
-	const indentation = (portIn && !expanded) ? 0 : 24;
+	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
 
 	const label = (
 		<span style={{ marginRight: "auto" }}>
@@ -128,7 +133,6 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 					{typeName}
 				</span>
 			)}
-
 		</span>
 	);
 
@@ -137,10 +141,14 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	}
 
 	return (
-		<TreeContainer data-testid={`${id}-node`}>
+		<TreeContainer>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
-					{portIn && !expanded &&
+					{portIn && (isBodyQueryExpression || !hasSyntaxDiagnostics) && (!hasValue
+							|| !expanded
+							|| !isBodyListConstructor
+							|| (STKindChecker.isListConstructor(field.value) && field.value.expressions.length === 0)
+						) &&
 						<DataMapperPortWidget engine={engine} port={portIn} />
 					}
 				</span>
@@ -149,7 +157,6 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 						className={classes.expandIcon}
 						style={{ marginLeft: indentation }}
 						onClick={handleExpand}
-						data-testid={`${id}-expand-icon-primitive-type`}
 					>
 						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
 					</IconButton>
@@ -157,15 +164,17 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 				</span>
 			</TreeHeader>
 			<TreeBody>
-				{expanded && field && (
-					<PrimitiveTypedEditableElementWidget
+				{expanded && field && isBodyListConstructor && (
+					<ArrayTypedEditableRecordFieldWidget
 						key={id}
-						parentId={id}
 						engine={engine}
 						field={field}
 						getPort={getPort}
+						parentId={id}
+						mappingConstruct={undefined}
 						context={context}
 						deleteField={deleteField}
+						isReturnTypeDesc={true}
 					/>
 				)}
 			</TreeBody>

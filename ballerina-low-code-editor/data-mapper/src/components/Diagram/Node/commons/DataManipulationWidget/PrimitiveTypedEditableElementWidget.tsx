@@ -19,12 +19,12 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getDefaultValue, getFieldLabel } from "../../../utils/dm-utils";
+import { getDefaultValue, getFieldLabel, getFieldName } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 
-export interface PrimitiveTypedEditableArrayElementWidgetProps {
+export interface PrimitiveTypedEditableElementWidgetProps {
     parentId: string;
     field: EditableRecordField;
     engine: DiagramEngine;
@@ -32,18 +32,27 @@ export interface PrimitiveTypedEditableArrayElementWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     deleteField?: (node: STNode) => Promise<void>;
-    isParentSelectClause?: boolean;
+    isArrayElement?: boolean;
 }
 
-export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEditableArrayElementWidgetProps) {
-    const { parentId, field, getPort, engine, context, fieldIndex, deleteField, isParentSelectClause } = props;
+export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditableElementWidgetProps) {
+    const { parentId, field, getPort, engine, context, fieldIndex, deleteField, isArrayElement } = props;
     const classes = useStyles();
 
-    const value = field?.value && field.value.source.trim();
-    const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}`
-        : `${parentId}.${value}`;
+    const fieldName = getFieldName(field);
+    const typeName = field.type.typeName;
+    let fieldId = parentId;
+    if (fieldIndex !== undefined) {
+        fieldId = fieldName !== ''
+            ? `${parentId}.${fieldIndex}.${fieldName}`
+            : `${parentId}.${fieldIndex}`;
+    } else if (fieldName) {
+        fieldId = `${parentId}.${typeName}.${fieldName}`;
+    } else {
+        fieldId = `${parentId}.${typeName}`;
+    }
     const portIn = getPort(`${fieldId}.IN`);
+    const value = field?.value && field.value.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);
 
@@ -81,12 +90,12 @@ export function PrimitiveTypedEditableArrayElementWidget(props: PrimitiveTypedEd
                 onClick: handleEditable
             }
         ];
-        if (!isParentSelectClause) {
+        if (isArrayElement) {
             items.push({
                 title: ValueConfigOption.DeleteElement,
                 onClick: handleDelete
             });
-        } else if (isParentSelectClause && value !== getDefaultValue(field.type)) {
+        } else if (value !== getDefaultValue(field.type)) {
             items.push({
                 title: ValueConfigOption.DeleteValue,
                 onClick: handleDelete
