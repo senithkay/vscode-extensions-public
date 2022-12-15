@@ -23,16 +23,16 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
+import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import {
     acceptedCompletionKindForExpressions,
     acceptedCompletionKindForTypes,
     PROPERTY_COMPLETION_KIND
 } from "../constants";
-import { CurrentModel, StatementSyntaxDiagnostics, SuggestionItem } from '../models/definitions';
+import { CurrentModel, SuggestionItem } from '../models/definitions';
 
-import { getFilteredDiagnosticMessages, getSymbolPosition, sortSuggestions } from "./index";
+import { getSymbolPosition, sortSuggestions } from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
@@ -259,6 +259,51 @@ export async function getDiagnostics(
     });
 
     return diagnostics;
+}
+
+export async function getCodeAction(
+    filePath: string,
+    diagnostic: Diagnostic,
+    getLangClient: () => Promise<ExpressionEditorLangClientInterface>
+): Promise<CodeAction[]> {
+    const langClient = await getLangClient();
+    const codeAction = await langClient.codeAction({
+        context: {
+            diagnostics: [
+                {
+                    code: diagnostic.code,
+                    message: diagnostic.message,
+                    range: {
+                        end: {
+                            line: diagnostic.range.end.line,
+                            character: diagnostic.range.end.character,
+                        },
+                        start: {
+                            line: diagnostic.range.start.line,
+                            character: diagnostic.range.start.character,
+                        },
+                    },
+                    severity: 1,
+                },
+            ],
+            only: [ "quickfix" ],
+        },
+        range: {
+            end: {
+                line: diagnostic.range.end.line,
+                character: diagnostic.range.end.character,
+            },
+            start: {
+                line: diagnostic.range.start.line,
+                character: diagnostic.range.start.character,
+            },
+        },
+        textDocument: {
+            uri: filePath,
+        },
+    });
+
+    return codeAction;
 }
 
 export async function getSymbolDocumentation(

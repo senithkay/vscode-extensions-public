@@ -6,4 +6,3 @@ type Individual record {
         int id;
     } address;
 };
-

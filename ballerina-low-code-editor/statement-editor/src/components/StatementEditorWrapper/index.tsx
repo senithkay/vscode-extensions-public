@@ -114,8 +114,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         }
     } = formArgs;
 
-    const fileURI = monaco.Uri.file(currentFile.path).toString();
-
     const [editors, setEditors] = useState<EditorModel[]>([]);
     const [editor, setEditor] = useState<EditorModel>();
     const [activeEditorId, setActiveEditorId] = useState<number>(0);
@@ -125,9 +123,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             let model = null;
             let hasIncorrectSyntax = false;
             if (initialSource) {
-                await sendDidOpen(fileURI, currentFile.originalContent ? currentFile.originalContent
-                    : currentFile.content, getLangClient);
-
                 const partialST =
                     isConfigurableStmt || isModuleVar
                         ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
