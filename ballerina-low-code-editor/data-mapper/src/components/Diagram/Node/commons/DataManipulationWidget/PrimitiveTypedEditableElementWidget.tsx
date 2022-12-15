@@ -19,7 +19,7 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getDefaultValue, getFieldLabel, getFieldName } from "../../../utils/dm-utils";
+import { getDefaultValue, getExprBodyFromLetExpression, getFieldLabel, getFieldName } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
@@ -52,7 +52,9 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
         fieldId = `${parentId}.${typeName}`;
     }
     const portIn = getPort(`${fieldId}.IN`);
-    const body = field?.value && STKindChecker.isLetExpression(field.value) ? field.value.expression : field.value;
+    const body = field?.value && STKindChecker.isLetExpression(field.value)
+        ? getExprBodyFromLetExpression(field.value)
+        : field.value;
     const value = body && body.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);

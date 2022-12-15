@@ -49,6 +49,7 @@ import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
+    getExprBodyFromLetExpression,
     getInputNodes,
     getTypeOfOutput,
     isComplexExpression
@@ -83,7 +84,7 @@ export class NodeInitVisitor implements Visitor {
                         );
                     } else if (returnType.typeName === PrimitiveBalType.Array) {
                         const bodyExpr = STKindChecker.isLetExpression(node.functionBody.expression)
-                            ? node.functionBody.expression.expression
+                            ? getExprBodyFromLetExpression(node.functionBody.expression)
                             : node.functionBody.expression;
                         if (STKindChecker.isQueryExpression(bodyExpr)
                             && this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY)

@@ -32,7 +32,7 @@ import {
     LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
     OFFSETS
 } from "../../utils/constants";
-import { getFieldNames, getTypeFromStore } from "../../utils/dm-utils";
+import { getExprBodyFromLetExpression, getFieldNames, getTypeFromStore } from "../../utils/dm-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
@@ -173,7 +173,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         if (port instanceof RecordFieldPortModel
                             && port?.editableRecordField && port.editableRecordField?.value
                             && STKindChecker.isLetExpression(port.editableRecordField.value)
-                            && isPositionsEquals(port.editableRecordField.value.expression.position, exprPosition)
+                            && isPositionsEquals(getExprBodyFromLetExpression(port.editableRecordField.value).position, exprPosition)
                             && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
                             && port.portType === 'IN'
                         ) {

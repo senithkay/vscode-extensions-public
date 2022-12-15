@@ -22,6 +22,7 @@ import {
 	FromClause,
 	IdentifierToken,
 	LetClause,
+	LetExpression,
 	LetVarDecl,
 	ListConstructor,
 	MappingConstructor,
@@ -102,7 +103,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		|| isMappedToExprFuncBody(targetPort, targetNode.context.selection.selectedST.stNode))
 	{
 		const targetExpr = STKindChecker.isLetExpression(targetPort.editableRecordField.value)
-			? targetPort.editableRecordField.value.expression
+			? getExprBodyFromLetExpression(targetPort.editableRecordField.value)
 			: targetPort.editableRecordField.value;
 		const valuePosition = targetExpr.position as NodePosition;
 		const isValueEmpty = isEmptyValue(valuePosition);
@@ -138,19 +139,23 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		const targetExpr = targetNode.value.expression;
 		if (STKindChecker.isMappingConstructor(targetExpr)) {
 			mappingConstruct = targetExpr;
-		} else if (STKindChecker.isLetExpression(targetExpr)
-			&& STKindChecker.isMappingConstructor(targetExpr.expression)) {
-			mappingConstruct = targetExpr.expression;
+		} else if (STKindChecker.isLetExpression(targetExpr)) {
+			const exprBody = getExprBodyFromLetExpression(targetExpr);
+			if (STKindChecker.isMappingConstructor(exprBody)) {
+				mappingConstruct = exprBody;
+			}
 		}
 	} else if (targetNode instanceof ListConstructorNode) {
 		const targetExpr = targetNode.value.expression;
 		if (STKindChecker.isListConstructor(targetExpr) && fieldIndexes !== undefined && !!fieldIndexes.length) {
 			mappingConstruct = getNextMappingConstructor(targetExpr);
 		} else if (STKindChecker.isLetExpression(targetExpr)
-			&& STKindChecker.isListConstructor(targetExpr.expression)
 			&& fieldIndexes !== undefined
 			&& !!fieldIndexes.length) {
-			mappingConstruct = getNextMappingConstructor(targetExpr.expression);
+			const exprBody = getExprBodyFromLetExpression(targetExpr);
+			if (STKindChecker.isListConstructor(exprBody)) {
+				mappingConstruct = getNextMappingConstructor(exprBody);
+			}
 		}
 	}
 
@@ -668,7 +673,7 @@ export function getEnrichedRecordType(type: Type,
 		}
 	} else {
 		valueNode = node;
-		nextNode = STKindChecker.isLetExpression(node) ? node.expression : node;
+		nextNode = STKindChecker.isLetExpression(node) ? getExprBodyFromLetExpression(node) : node;
 	}
 
 	editableRecordField = new EditableRecordField(type, valueNode, parentType);
@@ -957,6 +962,13 @@ export function getTypeFromStore(position: NodePosition): Type {
 
 export function isEmptyValue(position: NodePosition): boolean {
 	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
+}
+
+export function getExprBodyFromLetExpression(letExpr: LetExpression): STNode {
+	if (STKindChecker.isLetExpression(letExpr.expression)) {
+		return getExprBodyFromLetExpression(letExpr.expression);
+	}
+	return letExpr.expression;
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],

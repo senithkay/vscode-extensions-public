@@ -57,6 +57,7 @@ import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import {
 	getBalRecFieldName,
+	getExprBodyFromLetExpression,
 	getFieldName,
 	getInputNodes,
 	isComplexExpression
@@ -211,7 +212,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 					}
 				})
 			} else if (STKindChecker.isLetExpression(val)) {
-				foundMappings = [...foundMappings, ...this.genMappings(val.expression, [...currentFields])];
+				const expr = getExprBodyFromLetExpression(val);
+				foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields])];
 			} else {
 				foundMappings.push(this.getOtherMappings(val, currentFields));
 			}
