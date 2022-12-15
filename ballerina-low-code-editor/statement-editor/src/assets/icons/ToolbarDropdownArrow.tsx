@@ -10,26 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ListBindingPattern } from "@wso2-enterprise/syntax-tree";
-
-import { ExpressionArrayComponent } from "../../ExpressionArray";
-import { TokenComponent } from "../../Token";
-
-interface ListBindingPatternProps {
-    model: ListBindingPattern;
-}
-
-export function ListBindingPatternComponent(props: ListBindingPatternProps) {
-    const { model } = props;
-
-    return (
-        <>
-            <TokenComponent model={model.openBracket} />
-            <ExpressionArrayComponent expressions={model.bindingPatterns} />
-            <TokenComponent model={model.closeBracket} />
-        </>
+export default function ToolbarDropdownArrow(){
+    return(
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.5 6.5L8 10L11.5 6.5" stroke="#40404B" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
     );
 }

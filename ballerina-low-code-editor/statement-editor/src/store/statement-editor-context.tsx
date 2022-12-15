@@ -27,6 +27,7 @@ import {
 } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
+import { ToolbarContextProvider } from './toolbar-context';
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
@@ -247,9 +248,11 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 ...restProps
             }}
         >
-            <InputEditorContextProvider>
-                {children}
-            </InputEditorContextProvider>
+            <ToolbarContextProvider>
+                <InputEditorContextProvider>
+                    {children}
+                </InputEditorContextProvider>
+            </ToolbarContextProvider>
         </StatementEditorContext.Provider>
     );
 }
