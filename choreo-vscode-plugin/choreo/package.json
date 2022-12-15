@@ -20,7 +20,9 @@
     "onView:choreo-account"
   ],
   "main": "./dist/extension.js",
-  "extensionDependencies": ["wso2.ballerina"],
+  "extensionDependencies": [
+    "wso2.ballerina"
+  ],
   "contributes": {
     "commands": [
       {
@@ -44,6 +46,11 @@
       {
         "command": "wso2.choreo.project.clone",
         "title": "Clone to new Workspace"
+      },
+      {
+        "command": "wso2.choreo.project.create",
+        "title": "Create new Project",
+        "category": "Choreo"
       },
       {
         "command": "wso2.choreo.projects.refresh",
