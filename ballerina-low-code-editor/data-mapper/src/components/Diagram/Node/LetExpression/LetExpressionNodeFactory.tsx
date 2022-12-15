@@ -37,7 +37,7 @@ export class LetExpressionNodeFactory extends AbstractReactFactory<LetExpression
     generateReactWidget(event: { model: LetExpressionNode; }): JSX.Element {
         return (
             <>
-                {event.model.typeDef.typeName === PrimitiveBalType.Record ? (
+                {event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record ? (
                     <RecordTypeTreeWidget
                         engine={this.engine}
                         id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${event.model.varName}`}
