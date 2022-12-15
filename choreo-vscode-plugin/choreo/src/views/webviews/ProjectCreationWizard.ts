@@ -17,6 +17,7 @@
  *
  */
 import * as vscode from "vscode";
+import { WebViewRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
 
 export class ProjectCreationWizard {
@@ -24,12 +25,14 @@ export class ProjectCreationWizard {
   public static currentPanel: ProjectCreationWizard | undefined;
   private readonly _panel: vscode.WebviewPanel;
   private _disposables: vscode.Disposable[] = [];
+  private _rpcHandler: WebViewRpc;
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
     this._panel = panel;
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
     this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
     this._setWebviewMessageListener(this._panel.webview);
+    this._rpcHandler = new WebViewRpc(this._panel);
   }
 
   public static render(extensionUri: vscode.Uri) {

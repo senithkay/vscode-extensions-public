@@ -7,9 +7,6 @@ export const Main = styled.main`
   justify-content: center;
   align-items: flex-start;
   height: 100%;
-  & > * {
-    margin: 1rem 0;
-  }
 `;
 
 function App() {
