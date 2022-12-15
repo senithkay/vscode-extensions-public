@@ -359,6 +359,7 @@ describe('Test helper pane functionality', () => {
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
             .clickLsTypeSuggestion('var2')
+            .waitForLoading()
             .clickLsTypeSuggestion('toString()');
 
         EditorPane
