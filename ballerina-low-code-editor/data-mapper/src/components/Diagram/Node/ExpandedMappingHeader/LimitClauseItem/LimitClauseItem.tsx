@@ -15,7 +15,7 @@ import React, { useState } from "react";
 
 import { CircularProgress } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
-import { LimitClause, QueryExpression } from "@wso2-enterprise/syntax-tree";
+import { LimitClause, NodePosition, QueryExpression } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
@@ -23,7 +23,7 @@ import { useStyles } from "../styles";
 
 export function LimitClauseItem(props: {
     intermediateNode: LimitClause;
-    onEditClick: () => void;
+    onEditClick: (value: string, position: NodePosition, label: string) => void;
     onDeleteClick: () => Promise<void>;
     context: IDataMapperContext;
     queryExprNode: QueryExpression;
@@ -49,7 +49,17 @@ export function LimitClauseItem(props: {
                 <div className={classes.clauseKeyWrap}>{intermediateNode.limitKeyword.value}</div>
 
                 <div className={classes.clauseWrap}>
-                    <span className={classes.clauseExpression} onClick={() => onEditClick()} data-testid={`limit-clause-expression-${itemIndex}`}>
+                    <span
+                        className={classes.clauseExpression}
+                        onClick={() =>
+                            onEditClick(
+                                intermediateNode.expression?.source,
+                                intermediateNode.expression?.position,
+                                "Limit clause"
+                            )
+                        }
+                        data-testid={`limit-clause-expression-${itemIndex}`}
+                    >
                         {intermediateNode.expression.source}
                     </span>
                 </div>

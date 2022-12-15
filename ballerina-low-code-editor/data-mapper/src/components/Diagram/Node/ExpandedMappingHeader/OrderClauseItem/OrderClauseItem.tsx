@@ -24,7 +24,7 @@ import { useStyles } from "../styles";
 
 export function OrderByClauseItem(props: {
     intermediateNode: OrderByClause;
-    onEditClick: (node: STNode) => void;
+    onEditClick: (value: string, position: NodePosition, label: string) => void;
     onDeleteClick: () => Promise<void>;
     context: IDataMapperContext;
     queryExprNode: QueryExpression;
@@ -108,7 +108,17 @@ export function OrderByClauseItem(props: {
                         if (STKindChecker.isOrderKey(item)) {
                             return (
                                 <span className={classes.clauseExpressionLight}>
-                                    <span className={classes.clauseExpression} onClick={() => onEditClick(item)} data-testid={`order-by-clause-expression-${itemIndex}`}>
+                                    <span
+                                        className={classes.clauseExpression}
+                                        onClick={() =>
+                                            onEditClick(
+                                                item.expression?.source,
+                                                item.expression?.position,
+                                                "Limit clause"
+                                            )
+                                        }
+                                        data-testid={`order-by-clause-expression-${itemIndex}`}
+                                    >
                                         {item.expression.source}
                                     </span>
 

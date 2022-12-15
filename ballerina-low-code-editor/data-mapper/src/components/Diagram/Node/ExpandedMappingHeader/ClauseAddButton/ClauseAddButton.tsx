@@ -63,74 +63,37 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         return addPosition;
     };
 
+    const insertStatement = async (statement: string) => {
+        handleClose();
+        setLoading(true);
+        try {
+            const addPosition = getAddFieldPosition();
+            await context.applyModifications([
+                {
+                    type: "INSERT",
+                    config: { STATEMENT: statement },
+                    ...addPosition,
+                },
+            ]);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const onClickAddLetClause = async () => {
-        handleClose();
-        setLoading(true);
-        try {
-            const addPosition = getAddFieldPosition();
-            const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses);
-            await context.applyModifications([
-                {
-                    type: "INSERT",
-                    config: { STATEMENT: ` let var ${variableName} = EXPRESSION` },
-                    ...addPosition,
-                },
-            ]);
-        } finally {
-            setLoading(false);
-        }
+        const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses);
+        await insertStatement(` let var ${variableName} = EXPRESSION`)
     };
 
-    const onClickAddWhereClause = async () => {
-        handleClose();
-        setLoading(true);
-        try {
-            const addPosition = getAddFieldPosition();
-            await context.applyModifications([
-                {
-                    type: "INSERT",
-                    config: { STATEMENT: ` where EXPRESSION` },
-                    ...addPosition,
-                },
-            ]);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const onClickAddWhereClause = async () => insertStatement(` where EXPRESSION`);
 
-    const onClickAddLimitClause = async () => {
-        handleClose();
-        setLoading(true);
-        try {
-            const addPosition = getAddFieldPosition();
-            await context.applyModifications([
-                {
-                    type: "INSERT",
-                    config: { STATEMENT: ` limit EXPRESSION` },
-                    ...addPosition,
-                },
-            ]);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const onClickAddLimitClause = async () => insertStatement(` limit EXPRESSION`);
 
-    const onClickAddOrderByClause = async () => {
-        handleClose();
-        setLoading(true);
-        try {
-            const addPosition = getAddFieldPosition();
-            await context.applyModifications([
-                {
-                    type: "INSERT",
-                    config: { STATEMENT: ` order by EXPRESSION ascending` },
-                    ...addPosition,
-                },
-            ]);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const onClickAddOrderByClause = async () => insertStatement(` order by EXPRESSION ascending`);
+
+    const onClickAddJoinClause = async () => insertStatement(` join var varName in expr on onExpr equals equalsExpr`);
+
+    const onClickAddOuterJoinClause = async () => insertStatement(` outer join var varName in expr on onExpr equals equalsExpr`);
 
     return (
         <>
@@ -153,10 +116,13 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
                 transformOrigin={{ vertical: "top", horizontal: "left" }}
                 className={classes.addMenu}
             >
-                <MenuItem onClick={onClickAddWhereClause}>Add Where Clause</MenuItem>
-                <MenuItem onClick={onClickAddLetClause}>Add Let Clause</MenuItem>
-                <MenuItem onClick={onClickAddLimitClause}>Add Limit Clause</MenuItem>
-                <MenuItem onClick={onClickAddOrderByClause}>Add Order by Clause</MenuItem>
+                <MenuItem onClick={onClickAddWhereClause}>Add where clause</MenuItem>
+                <MenuItem onClick={onClickAddLetClause}>Add let clause</MenuItem>
+                <MenuItem onClick={onClickAddLimitClause}>Add limit clause</MenuItem>
+                <MenuItem onClick={onClickAddOrderByClause}>Add order by clause</MenuItem>
+                <MenuItem onClick={onClickAddJoinClause}>Add join clause</MenuItem>
+                <MenuItem onClick={onClickAddOuterJoinClause}>Add outer join clause</MenuItem>
+
             </Menu>
         </>
     );

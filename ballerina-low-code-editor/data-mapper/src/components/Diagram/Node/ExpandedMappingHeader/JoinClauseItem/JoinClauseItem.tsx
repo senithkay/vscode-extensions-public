@@ -18,10 +18,10 @@ import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
     CaptureBindingPattern,
-    LetClause,
-    LetVarDecl,
+    JoinClause,
     NodePosition,
     QueryExpression,
+    SimpleNameReference,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
@@ -30,29 +30,19 @@ import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { useStyles } from "../styles";
 
-export function LetClauseItem(props: {
-    intermediateNode: LetClause;
+export function JoinClauseItem(props: {
+    intermediateNode: JoinClause;
     onEditClick: (value: string, position: NodePosition, label: string) => void;
     onDeleteClick: () => Promise<void>;
     context: IDataMapperContext;
     queryExprNode: QueryExpression;
     itemIndex: number;
 }) {
-    const {
-        onEditClick,
-        onDeleteClick,
-        intermediateNode,
-        context,
-        queryExprNode,
-        itemIndex,
-    } = props;
+    const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } = props;
     const classes = useStyles();
     const [nameEditable, setNameEditable] = useState(false);
-    const letVarDeclaration = intermediateNode.letVarDeclarations[0] as LetVarDecl;
-    const variableName = (
-        letVarDeclaration.typedBindingPattern.bindingPattern as CaptureBindingPattern
-    )?.variableName?.value;
-    const [updatedName, setUpdatedName] = useState(variableName);
+    const variableName = (intermediateNode?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName;
+    const [updatedName, setUpdatedName] = useState(variableName.value);
     const [isLoading, setLoading] = useState(false);
 
     const onDelete = async () => {
@@ -93,7 +83,7 @@ export function LetClauseItem(props: {
                     });
                 });
 
-                modifications.sort((a, b) => a.startLine - b.startLine)
+                modifications.sort((a, b) => a.startLine - b.startLine);
                 await context.applyModifications(modifications);
             } finally {
                 setLoading(false);
@@ -101,12 +91,19 @@ export function LetClauseItem(props: {
         }
     };
 
+    const expression = (intermediateNode.expression as SimpleNameReference)?.name;
+    const onExpression = intermediateNode.joinOnCondition?.lhsExpression;
+    const equalsExpression = intermediateNode.joinOnCondition?.rhsExpression;
+
     return (
         <>
             <div className={classes.clauseItem}>
-                <div className={classes.clauseKeyWrap}>{intermediateNode.letKeyword.value}</div>
+                <div className={classes.clauseKeyWrap}>{`${
+                    intermediateNode.outerKeyword ? `${intermediateNode?.outerKeyword.value} ` : ""
+                }${intermediateNode.joinKeyword.value}`}</div>
 
                 <div className={classes.clauseWrap}>
+                    <span>{intermediateNode.typedBindingPattern.typeDescriptor.source}</span>
                     <span className={classes.clauseExpression}>
                         {nameEditable ? (
                             <input
@@ -115,45 +112,52 @@ export function LetClauseItem(props: {
                                 autoFocus={true}
                                 value={updatedName}
                                 onChange={(event) => setUpdatedName(event.target.value)}
-                                onKeyUp={(event) =>
-                                    onKeyUp(
-                                        event.key,
-                                        (
-                                            letVarDeclaration.typedBindingPattern
-                                                .bindingPattern as CaptureBindingPattern
-                                        )?.variableName
-                                    )
-                                }
+                                onKeyUp={(event) => onKeyUp(event.key, variableName)}
                                 onBlur={() => {
                                     setNameEditable(false);
-                                    setUpdatedName(variableName);
+                                    setUpdatedName(variableName.value);
                                 }}
                                 data-testid={`let-clause-name-input-${itemIndex}`}
                             />
                         ) : (
-                            <span onClick={() => setNameEditable(true)} data-testid={`let-clause-name-${itemIndex}`}>{updatedName}</span>
+                            <span onClick={() => setNameEditable(true)} data-testid={`let-clause-name-${itemIndex}`}>
+                                {updatedName}
+                            </span>
                         )}
                     </span>
-                    <span>{letVarDeclaration.equalsToken.value}</span>
+                    <span>{intermediateNode.inKeyword.value}</span>
+                    <span
+                        className={classes.clauseExpression}
+                        onClick={() => onEditClick(expression?.value, expression?.position, "Join expression")}
+                    >
+                        {expression?.value}
+                    </span>
+                    <span>{intermediateNode.joinOnCondition?.onKeyword?.value}</span>
+                    <span
+                        className={classes.clauseExpression}
+                        onClick={() => onEditClick(onExpression?.source, onExpression?.position, "Join on expression")}
+                    >
+                        {onExpression?.source?.trim()}
+                    </span>
+                    <span>{intermediateNode.joinOnCondition?.equalsKeyword?.value}</span>
                     <span
                         className={classes.clauseExpression}
                         onClick={() =>
-                            onEditClick(
-                                letVarDeclaration?.expression?.source,
-                                letVarDeclaration?.expression?.position,
-                                "Let clause"
-                            )
+                            onEditClick(equalsExpression?.source, equalsExpression?.position, "Join equals expression")
                         }
-                        data-testid={`let-clause-expression-${itemIndex}`}
                     >
-                        {letVarDeclaration.expression.source}
+                        {equalsExpression?.source}
                     </span>
                 </div>
 
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`let-clause-delete-${itemIndex}`}/>
+                    <DeleteOutline
+                        className={classes.deleteIcon}
+                        onClick={onDelete}
+                        data-testid={`let-clause-delete-${itemIndex}`}
+                    />
                 )}
             </div>
 
