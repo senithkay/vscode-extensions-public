@@ -49,7 +49,7 @@ const dagreEngine = new DagreEngine({
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const { model, currentView, type } = props;
-    const {editingEnabled, setNewLinkNodes} = useContext(DiagramContext);
+    const { editingEnabled, setNewLinkNodes } = useContext(DiagramContext);
 
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE ||
         type === Views.TYPE_COMPOSITION ? createEntitiesEngine : createServicesEngine);
