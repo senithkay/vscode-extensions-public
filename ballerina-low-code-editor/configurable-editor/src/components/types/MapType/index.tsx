@@ -174,31 +174,28 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     const getConfigElements = (configElement: ConfigElementProps) => {
         configElement.setConfigElement = handleValueChange;
-        return(
-            <Box key={configElement.id} className={classes.innerBoxCard}>
-                <Card variant="outlined">
-                    <CardContent className={classes.cardContent}>
-                        <Grid container={true} spacing={1} direction="row" alignItems="center" justifyContent="center">
-                            <Grid item={true} xs={11}>
-                                <Box key={configElement.id + "-ENTRY"}>
-                                    <TextFieldInput
-                                        id={configElement.id}
-                                        isRequired={true}
-                                        value={configElement.name}
-                                        valueRef={configElement.valueRef}
-                                        placeholder="key"
-                                        type="string"
-                                        setTextFieldValue={handleKeyChange}
-                                    />
-                                    <ConfigElement {...configElement}/>
-                                </Box>
-                            </Grid>
-                            <Grid item={true} xs={1}>
-                                <DeleteButton onDelete={removeMapField} id={configElement.id}/>
-                            </Grid>
-                        </Grid>
-                    </CardContent>
-                </Card>
+        return (
+            <Box key={configElement.id}>
+                <Box>
+                    <Box key={configElement.id + "-ENTRY"}>
+                        <TextFieldInput
+                            id={configElement.id}
+                            isRequired={true}
+                            value={configElement.name}
+                            valueRef={configElement.valueRef}
+                            placeholder="key"
+                            type="string"
+                            setTextFieldValue={handleKeyChange}
+                        />
+                        <ConfigElement {...configElement} />
+                    </Box>
+                    <Box>
+                        <DeleteButton
+                            onDelete={removeMapField}
+                            id={configElement.id}
+                        />
+                    </Box>
+                </Box>
             </Box>
         );
     };
@@ -214,17 +211,15 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     return (
         <Box className={classes.innerBoxCard}>
-            <Card variant="outlined">
-                <CardContent className={classes.cardContent}>
-                    <FieldLabel {...fieldLabelProps} />
-                    <Box className={classes.formInputBox}>
-                        {mapValues.map(getConfigElements)}
-                    </Box>
-                    <div key={props.id + "-ADD"}>
-                        <AddInputButton onAdd={addMapField} />
-                    </div>
-                </CardContent>
-            </Card>
+            <Box>
+                <FieldLabel {...fieldLabelProps} />
+                <Box className={classes.formInputBox}>
+                    {mapValues.map(getConfigElements)}
+                </Box>
+                <Box key={props.id + "-ADD"}>
+                    <AddInputButton onAdd={addMapField} />
+                </Box>
+            </Box>
         </Box>
     );
 };

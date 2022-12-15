@@ -171,11 +171,9 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     return (
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
-                <CardContent className={classes.cardContent}>
-                    <FieldLabel {...fieldLabelProps}/>
-                    <Box className={classes.formInputBox}>
-                        {returnElement}
-                    </Box>
+                <CardContent>
+                    <FieldLabel {...fieldLabelProps} />
+                    <Box className={classes.formInputBox}>{returnElement}</Box>
                     <div key={props.id + "-ADD"}>
                         <AddInputButton onAdd={addArrayElememt} />
                     </div>

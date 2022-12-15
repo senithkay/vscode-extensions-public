@@ -85,10 +85,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
 
     const [selectedValue, setSelectedValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
-    const [openConnection, setOpenConnection] = React.useState(true);
-    const handleClickOpenConnection = () => {
-        setOpenConnection(!openConnection);
-    };
+
 
     const element: ConfigElementProps = {
         arrayType: props.arrayType,
@@ -198,38 +195,48 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     };
 
     const getConnection = connectionConfigs?.map((connections, index) => {
+        const [openConnection, setOpenConnection] = React.useState(true);
+        const handleClickOpenConnection = () => {
+            setOpenConnection(!openConnection);
+        };
         return (
-            <Box key={index}>
-                <ListItem button={true} className={classes.accordian}>
-                    <ListItemText
-                        key={index}
-                        primary={connections.name}
-                        className={classes.heading}
-                        onClick={handleClickOpenConnection}
-                    />
-                    {openConnection ? <ExpandLess /> : <ExpandMore />}
+            <Box key={index} className={classes.accordionBox}>
+                <ListItem
+                    button={true}
+                    className={classes.accordion}
+                    onClick={handleClickOpenConnection}
+                    disableGutters
+                >
+                    {openConnection ? (
+                        <ExpandLess fontSize="small" />
+                    ) : (
+                        <ExpandMore fontSize="small" />
+                    )}
+                    <Typography className={classes.heading} key={index}>
+                        {connections.name}
+                    </Typography>
                 </ListItem>
-                {connections.configurationData.map(
-                    (
-                        connectionFields: {
-                            configKey: string;
-                            valueType: string;
-                            valueRef: string;
-                        },
-                        sIndex: React.Key
-                    ) => {
-                        return (
-                            <Collapse
-                                key={sIndex}
-                                in={openConnection}
-                                timeout="auto"
-                                unmountOnExit={true}
-                            >
-                                <List component="div" disablePadding={true}>
+                <Collapse
+                    in={openConnection}
+                    timeout="auto"
+                    unmountOnExit={true}
+                >
+                    <List component="div" disablePadding={true}>
+                        {connections.configurationData.map(
+                            (
+                                connectionFields: {
+                                    configKey: string;
+                                    valueType: string;
+                                    valueRef: string;
+                                },
+                                sIndex: React.Key
+                            ) => {
+                                return (
                                     <MenuItem
+                                        key={sIndex}
                                         button={true}
                                         value={connectionFields.configKey}
-                                        className={classes.menuItemStyle}
+                                        className={classes.menuItem}
                                         id={
                                             "${" +
                                             connections.name +
@@ -251,13 +258,13 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                         <Box
                                             className={classes.connectionField}
                                         >
-                                            <ListItemText
+                                            <Typography
+                                                className={classes.itemText}
                                                 key={sIndex}
-                                                primary={
-                                                    connectionFields.configKey +
-                                                    ":"
-                                                }
-                                            />
+                                            >
+                                                {connectionFields.configKey +
+                                                    ":"}
+                                            </Typography>
                                             <OutlinedLabel
                                                 type="default"
                                                 label={
@@ -270,11 +277,11 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                             />
                                         </Box>
                                     </MenuItem>
-                                </List>
-                            </Collapse>
-                        );
-                    }
-                )}
+                                );
+                            }
+                        )}
+                    </List>
+                </Collapse>
             </Box>
         );
     });
@@ -353,7 +360,6 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                         horizontal: "right",
                         vertical: "top",
                     }}
-                    className={classes.popOver}
                 >
                     <Box className={classes.popOver}>{getConnection}</Box>
                 </Popover>

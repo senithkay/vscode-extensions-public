@@ -21,11 +21,20 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        accordian: {
+        accordionBox: {
+            marginBottom: theme.spacing(1),
+            "&:last-child": {
+                marginBottom: 0,
+            },
+        },
+        accordion: {
             backgroundColor: "#e8e8e9",
-            border: "solid",
-            borderColor: "#d5d5d5",
-            borderWidth: theme.spacing(0.1),
+            border: "1px solid #d5d5d5",
+            padding: theme.spacing(0.5, 1.5, 0.5, 1),
+            borderTopLeftRadius: theme.spacing(0.5),
+            borderTopRightRadius: theme.spacing(0.5),
+            display: "flex",
+            alignItems: "center",
         },
         buttonBorder: {
             border: theme.spacing(1),
@@ -75,8 +84,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "100%",
         },
         heading: {
-            fontSize: theme.typography.pxToRem(15),
-            fontWeight: "bold",
+            fontSize: theme.typography.pxToRem(13),
+            fontWeight: 500,
+            margin: 0,
         },
         innerBoxCard: {
             marginTop: theme.spacing(1),
@@ -110,15 +120,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: theme.spacing(1.6),
             marginTop: theme.spacing(0.4),
         },
-        menuItemStyle: {
-            border: "solid",
-            borderColor: "#d5d5d5",
-            borderWidth: theme.spacing(0.1),
+        menuItem: {
+            border: "1px solid #d5d5d5",
+            borderTop: 0,
             paddingLeft: theme.spacing(2),
+        },
+        itemText: {
+            fontWeight: 500,
+            fontSize: theme.typography.pxToRem(13),
         },
         popOver: {
             overflow: "auto",
-            padding: theme.spacing(3),
+            padding: theme.spacing(2),
             position: "relative",
         },
         textInputRoot: {
