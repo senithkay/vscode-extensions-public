@@ -50,6 +50,7 @@ import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
+import { JoinClauseNode } from './Node/JoinClause';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -201,6 +202,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				}
 				if (node instanceof RequiredParamNode
 					|| node instanceof LetClauseNode
+					|| node instanceof JoinClauseNode
 					|| node instanceof LetExpressionNode
 					|| node instanceof ModuleVariableNode)
 				{

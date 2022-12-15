@@ -12,12 +12,17 @@
  */
 import { ExpressionRange, LinePosition } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    CaptureBindingPattern,
+    FieldAccess,
     FromClause,
     FunctionDefinition,
+    FunctionSignature,
+    JoinClause,
     LetClause,
     LetExpression,
     LetVarDecl,
     NodePosition,
+    SimpleNameReference,
     SpecificField,
     STKindChecker,
     STNode,
@@ -131,6 +136,29 @@ export class RecordTypeFindingVisitor implements Visitor {
                 });
             }
         });
+    }
+    
+    public beginVisitJoinClause(node: JoinClause){
+        const rhsExpression = node.joinOnCondition.rhsExpression
+        let typePosition: NodePosition;
+        if(STKindChecker.isFieldAccess(rhsExpression)){
+            typePosition = (node.joinOnCondition.rhsExpression as FieldAccess)?.expression?.position;
+        } else if(STKindChecker.isSimpleNameReference(rhsExpression)){
+            typePosition = (node.joinOnCondition.rhsExpression as SimpleNameReference)?.position;
+        }
+
+        if(typePosition){
+            this.expressionNodeRanges.push({
+                startLine: {
+                    line: typePosition.startLine,
+                    offset: typePosition.startColumn
+                },
+                endLine: {
+                    line: typePosition.endLine,
+                    offset: typePosition.endColumn
+                }
+            });
+        }
     }
 
     public getExpressionNodesRanges(){

@@ -23,6 +23,8 @@ import {
 	FieldAccess,
 	FromClause,
 	IdentifierToken,
+	FunctionDefinition,
+	JoinClause,
 	LetClause,
 	LetExpression,
 	LetVarDecl,
@@ -48,6 +50,7 @@ import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordFie
 import { MappingConstructorNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from "../Node/FromClause";
+import { JoinClauseNode } from "../Node/JoinClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode} from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
@@ -415,8 +418,8 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 
 export function findNodeByValueNode(value: STNode,
                                     dmNode: DataMapperNodeModel
-									): RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode {
-	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode;
+									): RequiredParamNode | FromClauseNode | LetClauseNode | JoinClauseNode | LetExpressionNode {
+	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode | JoinClauseNode | LetExpressionNode;
 	if (value) {
 		dmNode.getModel().getNodes().find((node) => {
 			if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
@@ -425,6 +428,8 @@ export function findNodeByValueNode(value: STNode,
 					&& STKindChecker.isFromClause(node.value))
 				|| (STKindChecker.isLetClause(value) && node instanceof LetClauseNode
 					&& STKindChecker.isLetClause(node.value))
+				|| (STKindChecker.isJoinClause(value) && node instanceof JoinClauseNode
+					&& STKindChecker.isJoinClause(node.value))
 				|| (STKindChecker.isExpressionFunctionBody(value) && node instanceof LetExpressionNode
 					&& STKindChecker.isExpressionFunctionBody(node.value)))
 				&& isPositionsEquals(value.position as NodePosition, node.value.position as NodePosition)) {
@@ -437,7 +442,7 @@ export function findNodeByValueNode(value: STNode,
 
 export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	const dmNodes = dmNode.getModel().getNodes();
-	let paramNode: RequiredParam | FromClause | LetClause | ExpressionFunctionBody | Map<string, ModuleVariable>;
+	let paramNode: RequiredParam | FromClause | LetClause | JoinClause | ExpressionFunctionBody | Map<string, ModuleVariable>;
 	if (STKindChecker.isSimpleNameReference(expr)) {
 		paramNode = (dmNodes.find((node) => {
 			if (node instanceof LetClauseNode) {
@@ -448,6 +453,9 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				return node.letVarDecls.some(decl => decl.varName === expr.source.trim());
 			} else if (node instanceof ModuleVariableNode) {
 				return node.value.has(expr.source.trim());
+			} else if (node instanceof JoinClauseNode) {
+				const bindingPattern = (node.value as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
+				return bindingPattern?.source?.trim() === expr.source?.trim()
 			} else if (node instanceof RequiredParamNode) {
 				return expr.name.value === node.value.paramName.value;
 			} else if (node instanceof FromClauseNode) {
@@ -490,8 +498,11 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 							}
 							return decl.varName === expr.source.trim()
 						});
+					} else if (node instanceof JoinClauseNode) {
+						const bindingPattern = (node.value as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
+						return bindingPattern?.source?.trim() === valueExpr.source
 					}
-				}) as LetClauseNode | LetExpressionNode | ModuleVariableNode)?.value;
+				}) as LetClauseNode | JoinClauseNode | LetExpressionNode | ModuleVariableNode)?.value;
 			}
 
 			const selectedST = dmNode.context.selection.selectedST.stNode;
@@ -518,6 +529,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 export function getInputPortsForExpr(node: RequiredParamNode
 										 | FromClauseNode
 										 | LetClauseNode
+										 | JoinClauseNode
 										 | LetExpressionNode
 										 | ModuleVariableNode,
                                      expr: STNode): RecordFieldPortModel {
