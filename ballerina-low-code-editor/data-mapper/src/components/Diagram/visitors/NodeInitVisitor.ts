@@ -373,10 +373,10 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitExpressionFunctionBody(node: ExpressionFunctionBody, parent?: STNode): void {
-        if (!STKindChecker.isMappingConstructor(node.expression)
-            && !STKindChecker.isListConstructor(node.expression)
-            && !STKindChecker.isLetExpression(node.expression))
-        {
+        const expr = STKindChecker.isLetExpression(node.expression)
+            ? getExprBodyFromLetExpression(node.expression)
+            : node.expression;
+        if (!STKindChecker.isMappingConstructor(expr) && !STKindChecker.isListConstructor(expr)) {
             const inputNodes = getInputNodes(node.expression);
             if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
