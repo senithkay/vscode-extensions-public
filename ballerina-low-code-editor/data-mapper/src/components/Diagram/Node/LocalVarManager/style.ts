@@ -23,7 +23,9 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         createButtonWrapper: {
             display: "flex",
-            margin: 16,
+            marginTop: 15,
+            marginLeft: 20,
+            marginRight: 10,
             flexDirection: "column",
             "& button": {
                 marginBottom: 16
@@ -34,6 +36,65 @@ export const useStyles = makeStyles((theme: Theme) =>
             justifyContent: 'flex-end',
             marginRight: 20,
             marginTop: 16,
+        },
+        headerWrapper: {
+            background: "white",
+            padding: 10,
+            borderRadius: 5,
+            cursor: "pointer",
+            border: "1px solid #dee0e7",
+            marginTop: 15,
+            marginLeft: 20,
+            marginRight: 10,
+            justifyContent: "space-between",
+            display: "flex",
+            flexDirection: 'row',
+            height: 40,
+            alignItems: 'center'
+        },
+        contentSection: {
+            display: "flex",
+            width: "75%",
+            justifyContent: "flex-start"
+        },
+        iconSection: {
+            display: "flex",
+            flexDirection: "row",
+            width: "25%",
+            justifyContent: "flex-end"
+        },
+        editIconWrapper: {
+            cursor: "pointer",
+            height: 14,
+            width: 14
+        },
+        recordOptions: {
+            padding: 10,
+            display: "inline-flex",
+            alignItems: "center",
+            "& a": {
+                cursor: "pointer",
+                color: "#5567D5"
+            },
+            "& a:hover": {
+                textDecoration: "none",
+            }
+        },
+        marginSpace: {
+            marginLeft: 15,
+            marginRight: 15
+        },
+        deleteRecord: {
+            display: "flex",
+            alignItems: "center",
+            color: "#FE523C",
+            cursor: "pointer",
+            "& svg": {
+                marginRight: 8
+            }
+        },
+        undoButton: {
+            padding: 2
         }
     }),
     { index: 1 }

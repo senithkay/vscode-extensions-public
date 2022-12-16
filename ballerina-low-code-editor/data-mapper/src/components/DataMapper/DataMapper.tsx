@@ -468,6 +468,7 @@ function DataMapperC(props: DataMapperProps) {
                                 library={library}
                                 updateFileContent={updateFileContent}
                                 currentFile={currentFile}
+                                enableStatementEditor={enableStatementEditor}
                                 fnDef={selection.selectedST.stNode}
                             />
                         )}
