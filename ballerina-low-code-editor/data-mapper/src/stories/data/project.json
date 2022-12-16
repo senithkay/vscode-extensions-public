@@ -1,11 +1,4 @@
 {
     "projectPath": "/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/",
-    "balFiles": [
-        "/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob01/transform.bal",
-        "/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob01mapped/transform.bal",
-        "/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob1/transform.bal",
-        "/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob2/transform.bal",
-        "/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob3/transform.bal",
-        "/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob8/transform.bal"
-    ]
+    "balFiles": ["/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob01/transform.bal","/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob01mapped/transform.bal","/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob1/transform.bal","/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob2/transform.bal","/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob3/transform.bal","/home/wso2/wso2/ballerina-plugin-vscode/ballerina-low-code-editor/data-mapper/src/stories/data/balproj/modules/prob8/transform.bal"]
 }
