@@ -38,27 +38,30 @@ export class JoinClauseNodeFactory extends AbstractReactFactory<JoinClauseNode, 
     }
 
     generateReactWidget(event: { model: JoinClauseNode; }): JSX.Element {
-        if (event.model.typeDef.typeName === PrimitiveBalType.Record || event.model.typeDef.typeName === PrimitiveBalType.Array){
+        let id = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`;
+
+        const props = {
+            id,
+            engine: this.engine,
+            typeDesc: event.model.typeDef,
+            getPort: (portId: string) => event.model.getPort(portId) as RecordFieldPortModel,
+            valueLabel: event.model.sourceBindingPattern.variableName.value,
+            nodeHeaderSuffix: event.model.value.outerKeyword ? "Outer join" : "Join"
+        }
+        if ([PrimitiveBalType.Array, PrimitiveBalType.Record, PrimitiveBalType.Union].includes(event.model.typeDef.typeName as PrimitiveBalType)) {
+            if (event.model.isOptional) {
+                props.id = `${id}?`
+            }
             return (
                 <RecordTypeTreeWidget
-                    engine={this.engine}
-                    id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`}
-                    typeDesc={event.model.typeDef}
-                    getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                    {...props}
                     handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-                    valueLabel={event.model.sourceBindingPattern.variableName.value}
                 />
             );
         }
 
         return (
-            <PrimitiveTypeItemWidget
-                engine={this.engine}
-                id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`}
-                typeDesc={event.model.typeDef}
-                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                valueLabel={event.model.sourceBindingPattern.variableName.value}
-            />
+            <PrimitiveTypeItemWidget {...props} />
         )
     }
 
@@ -67,4 +70,4 @@ export class JoinClauseNodeFactory extends AbstractReactFactory<JoinClauseNode, 
     }
 }
 
-container.register("NodeFactory", {useClass: JoinClauseNodeFactory});
+container.register("NodeFactory", { useClass: JoinClauseNodeFactory });

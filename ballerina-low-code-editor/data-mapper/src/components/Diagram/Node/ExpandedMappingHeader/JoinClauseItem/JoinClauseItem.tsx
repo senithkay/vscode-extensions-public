@@ -120,7 +120,7 @@ export function JoinClauseItem(props: {
                                 data-testid={`let-clause-name-input-${itemIndex}`}
                             />
                         ) : (
-                            <span onClick={() => setNameEditable(true)} data-testid={`let-clause-name-${itemIndex}`}>
+                            <span onClick={() => setNameEditable(true)} data-testid={`join-clause-name-${itemIndex}`}>
                                 {updatedName}
                             </span>
                         )}
@@ -129,6 +129,7 @@ export function JoinClauseItem(props: {
                     <span
                         className={classes.clauseExpression}
                         onClick={() => onEditClick(expression?.value, expression?.position, "Join expression")}
+                        data-testid={`join-clause-expression-${itemIndex}`}
                     >
                         {expression?.value}
                     </span>
@@ -136,6 +137,7 @@ export function JoinClauseItem(props: {
                     <span
                         className={classes.clauseExpression}
                         onClick={() => onEditClick(onExpression?.source, onExpression?.position, "Join on expression")}
+                        data-testid={`join-clause-on-expression-${itemIndex}`}
                     >
                         {onExpression?.source?.trim()}
                     </span>
@@ -145,6 +147,7 @@ export function JoinClauseItem(props: {
                         onClick={() =>
                             onEditClick(equalsExpression?.source, equalsExpression?.position, "Join equals expression")
                         }
+                        data-testid={`join-clause-equals-expression-${itemIndex}`}
                     >
                         {equalsExpression?.source}
                     </span>
@@ -156,7 +159,7 @@ export function JoinClauseItem(props: {
                     <DeleteOutline
                         className={classes.deleteIcon}
                         onClick={onDelete}
-                        data-testid={`let-clause-delete-${itemIndex}`}
+                        data-testid={`join-clause-delete-${itemIndex}`}
                     />
                 )}
             </div>

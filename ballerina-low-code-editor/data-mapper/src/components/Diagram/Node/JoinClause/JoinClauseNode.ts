@@ -17,6 +17,7 @@ import {
     FieldAccess,
     JoinClause,
     NodePosition,
+    OptionalFieldAccess,
     RecordTypeDesc,
     SimpleNameReference,
     STKindChecker
@@ -34,6 +35,7 @@ export class JoinClauseNode extends DataMapperNodeModel {
     public sourceTypeDesc: RecordTypeDesc;
     public typeDef: Type;
     public sourceBindingPattern: CaptureBindingPattern;
+    public isOptional: boolean;
     public x: number;
     public numberOfFields:  number;
 
@@ -50,19 +52,22 @@ export class JoinClauseNode extends DataMapperNodeModel {
     initPorts(): void {
         this.getSourceType();
         if (this.sourceBindingPattern) {
-            const name = this.sourceBindingPattern.variableName.value;
+            let name = this.sourceBindingPattern.variableName.value;
+            if(this.isOptional && [PrimitiveBalType.Array, PrimitiveBalType.Record, PrimitiveBalType.Union].includes(this.typeDef.typeName as PrimitiveBalType)){
+                name = `${name}?`
+            }
 
             const parentPort = this.addPortsForHeaderField(this.typeDef, name, "OUT", EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
 
             if (this.typeDef && (this.typeDef.typeName === PrimitiveBalType.Record)) {
                 const fields = this.typeDef.fields;
                 fields.forEach((subField) => {
-                    this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,
+                    this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", name,
                         EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
                          this.context.collapsedFields, parentPort.collapsed);
                 });
             } else {
-                this.numberOfFields += this.addPortsForInputRecordField(this.typeDef, "OUT", this.sourceBindingPattern.variableName.value,
+                this.numberOfFields += this.addPortsForInputRecordField(this.typeDef, "OUT", name,
                         EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
                          this.context.collapsedFields, parentPort.collapsed);
             }
@@ -84,6 +89,9 @@ export class JoinClauseNode extends DataMapperNodeModel {
                 exprPosition = (this.value.joinOnCondition.rhsExpression as FieldAccess)?.expression?.position;
             } else if(STKindChecker.isSimpleNameReference(this.value.joinOnCondition.rhsExpression)){
                 exprPosition = (this.value.joinOnCondition.rhsExpression as SimpleNameReference)?.position;
+            } else if(STKindChecker.isOptionalFieldAccess(this.value.joinOnCondition.rhsExpression)){
+                exprPosition = (this.value.joinOnCondition.rhsExpression as OptionalFieldAccess)?.expression?.position;
+                // exprPosition = (this.value.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.position;
             }
 
             if(exprPosition){
@@ -94,7 +102,16 @@ export class JoinClauseNode extends DataMapperNodeModel {
                     endLine: exprPosition.endLine,
                     endColumn: exprPosition.endColumn
                 });
-                if (type && type.typeName === PrimitiveBalType.Record) {
+                if (type && type.typeName === PrimitiveBalType.Union && type.members.length === 2) {
+                    // handle optional type
+                    this.isOptional = true;
+                    const typeInfo =  type.members.filter(item=>item.typeName !== '()').pop();
+                    this.typeDef = {
+                        ...typeInfo,
+                        members: typeInfo.fields,
+                        optional: true
+                    };
+                } else if (type && type.typeName === PrimitiveBalType.Record) {
                     this.typeDef = type;
                 } else if (type && type.typeName === PrimitiveBalType.Array) {
                     this.typeDef = type.memberType;

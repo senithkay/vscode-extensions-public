@@ -561,6 +561,9 @@ export function getInputPortsForExpr(node: RequiredParamNode
 	}
 	if (typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
+			if (STKindChecker.isOptionalFieldAccess(expr)) {
+				portIdBuffer = `${portIdBuffer}?`
+			}
 			const fieldNames = getFieldNames(expr);
 			let nextTypeNode: Type = typeDesc;
 			for (let i = 1; i < fieldNames.length; i++) {
@@ -883,6 +886,10 @@ export function getTypeName(field: Type): string {
 			// If record is from an imported package
 			return `${field?.typeInfo?.moduleName}:${field.typeInfo.name}`;
 		}
+		if (field?.optional){
+			return `${field?.typeInfo?.name}?`
+		}
+
 		return field?.typeInfo?.name || 'record';
 	} else if (field.typeName === PrimitiveBalType.Array && field?.memberType) {
 		return `${getTypeName(field.memberType)}[]`;

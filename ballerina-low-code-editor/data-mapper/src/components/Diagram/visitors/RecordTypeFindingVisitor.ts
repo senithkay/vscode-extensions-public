@@ -22,6 +22,7 @@ import {
     LetExpression,
     LetVarDecl,
     NodePosition,
+    OptionalFieldAccess,
     SimpleNameReference,
     SpecificField,
     STKindChecker,
@@ -145,6 +146,8 @@ export class RecordTypeFindingVisitor implements Visitor {
             typePosition = (node.joinOnCondition.rhsExpression as FieldAccess)?.expression?.position;
         } else if(STKindChecker.isSimpleNameReference(rhsExpression)){
             typePosition = (node.joinOnCondition.rhsExpression as SimpleNameReference)?.position;
+        } else if(STKindChecker.isOptionalFieldAccess(node.joinOnCondition.rhsExpression)){
+            typePosition = (node.joinOnCondition.rhsExpression as OptionalFieldAccess)?.expression?.position;
         }
 
         if(typePosition){

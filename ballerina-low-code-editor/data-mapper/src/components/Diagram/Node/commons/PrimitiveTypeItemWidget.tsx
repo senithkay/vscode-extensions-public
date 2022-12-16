@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
@@ -23,7 +23,7 @@ import { getTypeName } from "../../utils/dm-utils";
 
 import { TreeContainer, TreeHeader } from './Tree/Tree';
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         typeLabel: {
             marginLeft: "3px",
@@ -62,6 +62,11 @@ const useStyles = makeStyles(() =>
             bottom: 0,
             display: 'flex',
             alignItems: 'center'
+        },
+        nodeType:{
+            float: 'right',
+            marginRight: 5,
+            color: theme.palette.grey[300],
         }
     }),
 );
@@ -72,10 +77,11 @@ export interface RecordTypeTreeWidgetProps {
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     valueLabel?: string;
+    nodeHeaderSuffix?: string;
 }
 
 export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
-    const { engine, typeDesc, id, getPort, valueLabel } = props;
+    const { engine, typeDesc, id, getPort, valueLabel, nodeHeaderSuffix } = props;
     const classes = useStyles();
 
     const typeName = getTypeName(typeDesc);
@@ -120,6 +126,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
                 </span>
                 <span className={classes.label}>
                     {label}
+                    <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
