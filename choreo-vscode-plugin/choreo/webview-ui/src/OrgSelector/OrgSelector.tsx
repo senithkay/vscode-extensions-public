@@ -1,27 +1,17 @@
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-import { useEffect, useState } from "react";
-import { ChoreoLoginStatus, WebViewRpc } from "../utilities/WebViewRpc";
+import { useLoginStatus } from "../hooks/login-status";
+import { useOrgInfo } from "../hooks/org-info";
 
 export function OrgSelector() {
 
-    const [loginStatusPending, setLoginStatusPending] = useState(true);
-    const [loginStatus, setLoginStatus] = useState<ChoreoLoginStatus>("Initializing");
-
-
-    useEffect(() => {
-        const checkLoginStatus = async () => {
-            const loginStatus = await WebViewRpc.getInstance().getLoginStatus();
-            setLoginStatus(loginStatus);
-            setLoginStatusPending(false);
-            console.log("received")
-        }
-        checkLoginStatus();
-    }, []);
+    const  { loginStatusPending, loginStatus } = useLoginStatus();
+    const { selectedOrg, userOrgs } = useOrgInfo();
 
     return (
         <>
             Login pending: {loginStatusPending ? "checking" : "done"}
             Login status : {loginStatus}
+            Selected Org: {selectedOrg?.handle}
             <label htmlFor="org-dropdown" >Select Organization</label>
             <VSCodeDropdown id="org-dropdown">
                 <VSCodeOption>Test</VSCodeOption>

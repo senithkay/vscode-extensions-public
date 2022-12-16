@@ -1,12 +1,20 @@
 import { WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
+import { RequestType, NotificationType, BROADCAST } from 'vscode-messenger-common';
+import { Organization } from "../../../api/types";
+
 import { getUserInfo } from "../../../api/user";
 import { ext } from "../../../extensionVariables";
 
 // request types 
-const getLoginStatus = { method: 'getLoginStatus' };
-const getCurrentOrg = { method: 'getCurrentOrg' };
-const getAllOrgs = { method: 'getAllOrgs' };
+const getLoginStatus: RequestType<string, string> = { method: 'getLoginStatus' };
+const getCurrentOrg: RequestType<string, Organization> = { method: 'getCurrentOrg' };
+const getAllOrgs: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
+
+// notification types
+const onLoginStatusChanged: NotificationType<string> = { method: 'loginStatusChanged' };
+const onSelectedOrgChanged: NotificationType<Organization> = { method: 'selectedOrgChanged' };
+
 
 export class WebViewRpc {
 
@@ -27,6 +35,12 @@ export class WebViewRpc {
                  const userInfo = await getUserInfo();
                  return userInfo.organizations;
             } 
+        });
+        ext.api.onStatusChanged((newStatus) => {
+            this._messenger.sendNotification(onLoginStatusChanged, BROADCAST, newStatus);
+        });
+        ext.api.onOrganizationChanged((newOrg) => {
+            this._messenger.sendNotification(onSelectedOrgChanged, BROADCAST, newOrg);
         });
     }
 }

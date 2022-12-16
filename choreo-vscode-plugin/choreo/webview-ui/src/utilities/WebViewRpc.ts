@@ -1,13 +1,18 @@
 import { Messenger } from "vscode-messenger-webview";
-import { HOST_EXTENSION } from "vscode-messenger-common";
+import { HOST_EXTENSION, RequestType, NotificationType } from "vscode-messenger-common";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
 
 export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
-const getLoginStatus = { method: 'getLoginStatus' };
-const getCurrentOrg = { method: 'getCurrentOrg' };
-const getAllOrgs = { method: 'getAllOrgs' };
+
+const getLoginStatus: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
+const getCurrentOrg: RequestType<string, Organization> = { method: 'getCurrentOrg' };
+const getAllOrgs: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
+
+// notifications
+const onLoginStatusChanged: NotificationType<string> = { method: 'loginStatusChanged' };
+const onSelectedOrgChanged: NotificationType<Organization> = { method: 'selectedOrgChanged' };
 
 export interface Organization {
     id: string;
@@ -30,18 +35,27 @@ export class WebViewRpc {
 
     constructor(vscodeAPI: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscodeAPI);
+        this._messenger.start();
     }
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
-        return this._messenger.sendRequest(getLoginStatus, HOST_EXTENSION, undefined);
+        return this._messenger.sendRequest(getLoginStatus, HOST_EXTENSION, '');
     }
 
     public async getCurrentOrg(): Promise<Organization> {
-        return this._messenger.sendRequest(getCurrentOrg, HOST_EXTENSION, undefined);
+        return this._messenger.sendRequest(getCurrentOrg, HOST_EXTENSION, '');
+    }
+    
+    public async getAllOrgs(): Promise<Organization[]> {
+        return this._messenger.sendRequest(getAllOrgs, HOST_EXTENSION, '');
     }
 
-    public async getAllOrgs(): Promise<Organization[]> {
-        return this._messenger.sendRequest(getAllOrgs, HOST_EXTENSION, undefined);
+    public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
+        this._messenger.onNotification(onLoginStatusChanged, callback);
+    }
+
+    public onSelectedOrgChanged(callback: (newOrg: Organization) => void) {
+        this._messenger.onNotification(onSelectedOrgChanged, callback);
     }
 
     public static getInstance() {
