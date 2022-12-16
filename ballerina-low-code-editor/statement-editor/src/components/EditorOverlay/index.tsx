@@ -46,7 +46,7 @@ export function EditorOverlay(props: EditorOverlayProps) {
                 <div className={overlayClasses.loadingWrapper}>
                     <PullingModuleImg />
                     <p className={classes.title}>Pulling packages</p>
-                    <p className={classes.subtitle}>It takes some tim</p>
+                    <p className={classes.subtitle}>It takes some time</p>
                 </div>
             )}
         </div>
