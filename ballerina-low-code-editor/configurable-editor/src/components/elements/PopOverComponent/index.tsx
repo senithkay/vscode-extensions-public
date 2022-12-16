@@ -51,35 +51,33 @@ export function PopOverComponent(props: PopOverComponentProps) {
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             className={classes.popOver}
         >
-            <Box pr={2}>
-                <Typography className={classes.popOver}>
-                    <Typography variant="h6">
-                        Add Values
-                    </Typography>
-                    {returnElement}
-                    <div key={props.id + "-ADD"}>
-                        <AddInputButton onAdd={addArrayElememt} />
-                    </div>
-                    <ButtonContainer justifyContent="flex-end" marginTop={0}>
-                        <Button
-                            variant="contained"
-                            color="default"
-                            size="small"
-                            onClick={onClose}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            // type="submit"
-                            onClick={onValueAdd}
-                        >
-                            OK
-                        </Button>
-                    </ButtonContainer>
-                </Typography>
+            <Box className={classes.popOver}>
+                <Box my={2}>
+                    <Typography variant="h6">Add Values</Typography>
+                </Box>
+                {returnElement}
+                <div key={props.id + "-ADD"}>
+                    <AddInputButton onAdd={addArrayElememt} />
+                </div>
+                <ButtonContainer justifyContent="flex-end" marginTop={0}>
+                    <Button
+                        variant="outlined"
+                        color="default"
+                        size="small"
+                        onClick={onClose}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        // type="submit"
+                        onClick={onValueAdd}
+                    >
+                        OK
+                    </Button>
+                </ButtonContainer>
             </Box>
         </Popover>
     );
