@@ -48,7 +48,7 @@ const OutlinedLabel = ({ type, label, tooltipText, isLink, shape }: OutlinedLabe
             chipColor = "#0095FF";
             break;
         case "default":
-            chipColor = "#636363";
+            chipColor = "#8D91A3";
             break;
         default:
             chipColor = "#5567D5";

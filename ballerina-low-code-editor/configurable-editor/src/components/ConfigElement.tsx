@@ -122,23 +122,14 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             };
 
             returnElement.push(
-                (
-                    <Grid
-                        container={true}
-                        spacing={1}
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="center"
-                        className={classes.buttonBorder}
-                    >
-                        <Grid item={true} xs={3}>
-                            <FieldLabel {...fieldLabelProps} />
-                        </Grid>
-                        <Grid item={true} xs={9}>
-                            <SimpleType {...simpleTypeProp} />
-                        </Grid>
-                    </Grid>
-                ),
+                <Box>
+                    <Box>
+                        <FieldLabel {...fieldLabelProps} />
+                    </Box>
+                    <Box>
+                        <SimpleType {...simpleTypeProp} />
+                    </Box>
+                </Box>
             );
             break;
     }

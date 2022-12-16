@@ -21,24 +21,31 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        accordian: {
+        accordionBox: {
+            marginBottom: theme.spacing(1),
+            "&:last-child": {
+                marginBottom: 0,
+            },
+        },
+        accordion: {
             backgroundColor: "#e8e8e9",
-            border: "solid",
-            borderColor: "#d5d5d5",
-            borderWidth: theme.spacing(0.1),
+            border: "1px solid #d5d5d5",
+            padding: theme.spacing(0.5, 1.5, 0.5, 1),
+            borderTopLeftRadius: theme.spacing(0.5),
+            borderTopRightRadius: theme.spacing(0.5),
+            display: "flex",
+            alignItems: "center",
         },
         buttonBorder: {
             border: theme.spacing(1),
             borderColor: "#FF9494",
         },
         buttonConnections: {
-            backgroundColor: "#f0f0f0",
-            border: "solid",
-            borderColor: "#e8e8e9",
-            borderRadius: theme.spacing(0.3),
-            borderWidth: theme.spacing(0.3),
-            fill: "#5567D5",
-            padding: theme.spacing(0.8),
+            backgroundColor: "#F7F8FB",
+            border: "1px solid #E0E2E9",
+            borderRadius: 5,
+            color: "#5567D5",
+            padding: theme.spacing(1),
         },
         card: {
             boxShadow: "none",
@@ -64,7 +71,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: theme.spacing(1.4),
         },
         divider: {
-            border: "0.1px solid #DEE0E7",
+            border: "1px solid #DEE0E7",
             marginBottom: theme.spacing(1),
         },
         docIcon: {
@@ -77,8 +84,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "100%",
         },
         heading: {
-            fontSize: theme.typography.pxToRem(15),
-            fontWeight: "bold",
+            fontSize: theme.typography.pxToRem(13),
+            fontWeight: 500,
+            margin: 0,
         },
         innerBoxCard: {
             marginTop: theme.spacing(1),
@@ -86,15 +94,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         innerBoxHead: {
             alignItems: "center",
             display: "flex",
-            marginBottom: theme.spacing(1),
         },
         innerBoxTitle: {
             fontSize: theme.spacing(1.8),
         },
-        labelCont: {
-            marginTop: theme.spacing(0.5),
-            width: "90%",
-        },
+        labelCont: {},
         labelTag: {
             display: "flex",
         },
@@ -113,29 +117,36 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainLabelText: {
             color: "#1D2028",
             fontSize: theme.spacing(1.6),
-            marginTop: theme.spacing(0.4),
         },
-        menuItemStyle: {
-            border: "solid",
-            borderColor: "#d5d5d5",
-            borderWidth: theme.spacing(0.1),
+        menuItem: {
+            border: "1px solid #d5d5d5",
+            borderTop: 0,
             paddingLeft: theme.spacing(2),
+        },
+        itemText: {
+            fontWeight: 500,
+            fontSize: theme.typography.pxToRem(13),
         },
         popOver: {
             overflow: "auto",
-            padding: theme.spacing(3),
+            padding: theme.spacing(2),
             position: "relative",
         },
         textInputRoot: {
             "& .MuiInputBase-root": {
                 backgroundColor: "#ffffff",
             },
-            "marginBottom": theme.spacing(0),
+            marginBottom: theme.spacing(0),
         },
         unsupportedLabelText: {
             color: "#FF9494",
             fontSize: theme.spacing(1.4),
             marginBottom: theme.spacing(1),
         },
-    }),
+        cardMainHead: {
+            paddingBottom: theme.spacing(2),
+            marginBottom: theme.spacing(2),
+            borderBottom: `1px solid ${theme.palette.grey[100]}`,
+        },
+    })
 );

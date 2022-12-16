@@ -44,9 +44,13 @@ import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import OutlinedLabel from "../../elements/OutlinedLabel";
-import PopOverComponent, { PopOverComponentProps } from "../../elements/PopOverComponent";
+import PopOverComponent, {
+    PopOverComponentProps,
+} from "../../elements/PopOverComponent";
 import { TextFieldInput } from "../../elements/TextFieldInput";
-import MapConfigElement, { MapConfigElementProps } from "../../MapConfigElement";
+import MapConfigElement, {
+    MapConfigElementProps,
+} from "../../MapConfigElement";
 import { ConfigType, SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
 import { getConfigProperties } from "../../utils";
@@ -68,7 +72,8 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     const isFeaturePreview = props.isFeaturePreview;
     const connectionConfigs = props.connectionConfig;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
-    const [connectionAnchorEl, setConnectionAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [connectionAnchorEl, setConnectionAnchorEl] =
+        React.useState<HTMLButtonElement | null>(null);
     const open = Boolean(anchorEl);
     const textId = open ? "simple-popover" : undefined;
     const connectionOpen = Boolean(connectionAnchorEl);
@@ -83,13 +88,17 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         setOpenConnection(!openConnection);
     };
 
-    const elementSchema: object[] = props.schema[SchemaConstants.ADDITIONAL_PROPERTIES];
+    const elementSchema: object[] =
+        props.schema[SchemaConstants.ADDITIONAL_PROPERTIES];
     let propertyType = elementSchema[SchemaConstants.TYPE];
 
     let propertiesValue: MapConfigElementProps[];
     if (elementSchema[SchemaConstants.PROPERTIES] !== undefined) {
-        propertiesValue = getConfigProperties(elementSchema,
-            props.connectionConfig, props.id + "-" + counter).properties;
+        propertiesValue = getConfigProperties(
+            elementSchema,
+            props.connectionConfig,
+            props.id + "-" + counter
+        ).properties;
     } else if (elementSchema[SchemaConstants.ANY_OF] !== undefined) {
         propertyType = ConfigType.ANY_OF;
     }
@@ -113,7 +122,9 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         setAnchorEl(null);
     };
 
-    const handleConnectionClick = (connectionEvent: React.MouseEvent<HTMLButtonElement>) => {
+    const handleConnectionClick = (
+        connectionEvent: React.MouseEvent<HTMLButtonElement>
+    ) => {
         setConnectionAnchorEl(connectionEvent.currentTarget);
     };
 
@@ -173,7 +184,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     const handleValueChange = (id: string, value: any) => {
         const newMapValues = [...mapValues];
         const existingMap = newMapValues.findIndex(
-            (property) => property.id === id,
+            (property) => property.id === id
         );
         if (existingMap > -1) {
             if (newMapValues[existingMap].properties !== undefined) {
@@ -190,7 +201,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     const handleKeyChange = (id: string, value: string) => {
         const newMapValues = [...mapValues];
         const existingMap = newMapValues.findIndex(
-            (property) => property.id === id,
+            (property) => property.id === id
         );
         if (existingMap > -1) {
             newMapValues[existingMap].name = value;
@@ -212,7 +223,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                     value: entry.properties ? undefined : entry.value,
                 };
                 const existingMap = element.properties.findIndex(
-                    (property) => property.id === entry.id,
+                    (property) => property.id === entry.id
                 );
                 if (existingMap > -1) {
                     element.properties[existingMap] = configProperty;
@@ -227,12 +238,12 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     const getConfigElements = (configElement: MapConfigElementProps) => {
         configElement.setConfigElement = handleValueChange;
-        return(
+        return (
             <Box key={configElement.id} className={classes.innerBoxCard}>
                 <Card variant="outlined">
                     <CardContent className={classes.cardContent}>
-                        <Grid container={true} spacing={1} direction="row" alignItems="center" justifyContent="center">
-                            <Grid item={true} xs={11}>
+                        <Box>
+                            <Box>
                                 <Box key={configElement.id + "-ENTRY"}>
                                     <TextFieldInput
                                         id={configElement.id}
@@ -243,24 +254,28 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                         type="string"
                                         setTextFieldValue={handleKeyChange}
                                     />
-                                    <MapConfigElement {...configElement}/>
+                                    <MapConfigElement {...configElement} />
                                 </Box>
-                            </Grid>
-                            <Grid item={true} xs={1}>
-                                <DeleteButton onDelete={removeMapField} id={configElement.id}/>
-                            </Grid>
-                        </Grid>
+                            </Box>
+                            <Box>
+                                <DeleteButton
+                                    onDelete={removeMapField}
+                                    id={configElement.id}
+                                />
+                            </Box>
+                        </Box>
                     </CardContent>
                 </Card>
             </Box>
         );
     };
 
-    const onSelected = (index: string, mappingName: string, valueReference: string) => () => {
-        setSelectedValue(mappingName);
-        setSelectedValueRef(valueReference);
-        setConnectionAnchorEl(null);
-    };
+    const onSelected =
+        (index: string, mappingName: string, valueReference: string) => () => {
+            setSelectedValue(mappingName);
+            setSelectedValueRef(valueReference);
+            setConnectionAnchorEl(null);
+        };
 
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
@@ -274,38 +289,72 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                     />
                     {openConnection ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
-                    {(connections.configurationData).map((
-                        connectionFields: { configKey: string; valueType: string; valueRef: string },
-                        sIndex: React.Key,
-                        ) => {
-                        return  (
-                            <Collapse key={sIndex} in={openConnection} timeout="auto" unmountOnExit={true}>
-                                    <List component="div" disablePadding={true}>
+                {connections.configurationData.map(
+                    (
+                        connectionFields: {
+                            configKey: string;
+                            valueType: string;
+                            valueRef: string;
+                        },
+                        sIndex: React.Key
+                    ) => {
+                        return (
+                            <Collapse
+                                key={sIndex}
+                                in={openConnection}
+                                timeout="auto"
+                                unmountOnExit={true}
+                            >
+                                <List component="div" disablePadding={true}>
                                     <MenuItem
                                         button={true}
                                         value={connectionFields.configKey}
                                         className={classes.menuItemStyle}
-                                        id={"${" + connections.name + "." + connectionFields.configKey + "}"}
-                                        onClick={onSelected(connectionFields.configKey,
-                                            "${" + connections.name + "." + connectionFields.configKey + "}",
-                                            connectionFields.valueRef)}
+                                        id={
+                                            "${" +
+                                            connections.name +
+                                            "." +
+                                            connectionFields.configKey +
+                                            "}"
+                                        }
+                                        onClick={onSelected(
+                                            connectionFields.configKey,
+                                            "${" +
+                                                connections.name +
+                                                "." +
+                                                connectionFields.configKey +
+                                                "}",
+                                            connectionFields.valueRef
+                                        )}
                                         title={connectionFields.valueRef}
                                     >
-                                        <Box className={classes.connectionField}>
-                                        <ListItemText key={sIndex} primary={connectionFields.configKey + ":"} />
-                                        <OutlinedLabel
-                                            type="default"
-                                            label={connectionFields.valueType}
-                                            tooltipText={connectionFields.valueType}
-                                            shape="none"
-                                        />
+                                        <Box
+                                            className={classes.connectionField}
+                                        >
+                                            <ListItemText
+                                                key={sIndex}
+                                                primary={
+                                                    connectionFields.configKey +
+                                                    ":"
+                                                }
+                                            />
+                                            <OutlinedLabel
+                                                type="default"
+                                                label={
+                                                    connectionFields.valueType
+                                                }
+                                                tooltipText={
+                                                    connectionFields.valueType
+                                                }
+                                                shape="none"
+                                            />
                                         </Box>
                                     </MenuItem>
-                                    </List>
+                                </List>
                             </Collapse>
-                            );
-                        })
+                        );
                     }
+                )}
             </Box>
         );
     });
@@ -319,7 +368,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                 data-placement="top"
                 onClick={handleConnectionClick}
             >
-                <img src={SelectButtonSvg} height={20} width={20}/>
+                <img src={SelectButtonSvg} height={20} width={20} />
             </IconButton>
         </Grid>
     );
@@ -375,8 +424,12 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                             fullWidth={true}
                                             margin="none"
                                             size="small"
-                                            classes={{ root: classes.textInputRoot }}
-                                            placeholder={"Select config or Add values"}
+                                            classes={{
+                                                root: classes.textInputRoot,
+                                            }}
+                                            placeholder={
+                                                "Select config or Add values"
+                                            }
                                             InputLabelProps={{ shrink: false }}
                                             data-cyid={name}
                                             aria-describedby={textId}
@@ -384,28 +437,37 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                             value={"[" + selectedValue + "]"}
                                         />
                                     </Grid>
-                                    {!isInsideArray && !isLowCode && !isFeaturePreview && iconButton}
+                                    {!isInsideArray &&
+                                        !isLowCode &&
+                                        !isFeaturePreview &&
+                                        iconButton}
                                 </Grid>
                                 <Box>
-                                <Popover
-                                    id={connectionId}
-                                    open={connectionOpen}
-                                    anchorEl={connectionAnchorEl}
-                                    onClose={handleConnectionClose}
-                                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                                    transformOrigin={{ horizontal: "right", vertical: "top" }}
-                                    className={classes.popOver}
-                                >
-                                    <Box>
-                                        <Typography className={classes.popOver}>
-                                            {getConnection}
-                                        </Typography>
-                                    </Box>
-                                </Popover>
-                            </Box>
-                                <Box>
-                                    {popOverComponent}
+                                    <Popover
+                                        id={connectionId}
+                                        open={connectionOpen}
+                                        anchorEl={connectionAnchorEl}
+                                        onClose={handleConnectionClose}
+                                        anchorOrigin={{
+                                            horizontal: "right",
+                                            vertical: "bottom",
+                                        }}
+                                        transformOrigin={{
+                                            horizontal: "right",
+                                            vertical: "top",
+                                        }}
+                                        className={classes.popOver}
+                                    >
+                                        <Box>
+                                            <Typography
+                                                className={classes.popOver}
+                                            >
+                                                {getConnection}
+                                            </Typography>
+                                        </Box>
+                                    </Popover>
                                 </Box>
+                                <Box>{popOverComponent}</Box>
                             </Box>
                         </Grid>
                     </Grid>

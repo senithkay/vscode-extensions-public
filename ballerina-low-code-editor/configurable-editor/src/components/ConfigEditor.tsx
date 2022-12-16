@@ -37,27 +37,17 @@ function ConfigEditor(props: ConfigEditorProps) {
     const classes = useStyles();
     const { children } = props;
     return (
-        <Box sx={{ mt: 5 }}>
-            <Container maxWidth="md">
-                <Card variant="outlined">
-                    <CardContent>
-                        <Box>
-                            <Typography
-                                gutterBottom={true}
-                                variant="h6"
-                                component="div"
-                            >
-                                Configure & Run
-                            </Typography>
-                        </Box>
-                        <Divider className={classes.divider} light={true} />
-                        <Box>
-                            {children}
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Container>
-        </Box>
+        <Card variant="outlined">
+            <CardContent>
+                <Box className={classes.cardMainHead}>
+                    <Typography variant="h6" component="div">
+                        Configure & Run
+                    </Typography>
+                </Box>
+
+                <Box>{children}</Box>
+            </CardContent>
+        </Card>
     );
 }
 
