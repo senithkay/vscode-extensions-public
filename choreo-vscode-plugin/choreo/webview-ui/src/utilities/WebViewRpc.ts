@@ -13,6 +13,7 @@ const getAllOrgs: RequestType<string, Organization[]> = { method: 'getAllOrgs' }
 // notifications
 const onLoginStatusChanged: NotificationType<string> = { method: 'loginStatusChanged' };
 const onSelectedOrgChanged: NotificationType<Organization> = { method: 'selectedOrgChanged' };
+const executeCommand: NotificationType<string[]> = { method: 'executeCommand' };
 
 export interface Organization {
     id: string;
@@ -56,6 +57,10 @@ export class WebViewRpc {
 
     public onSelectedOrgChanged(callback: (newOrg: Organization) => void) {
         this._messenger.onNotification(onSelectedOrgChanged, callback);
+    }
+
+    public triggerSignIn() {
+        this._messenger.sendNotification(executeCommand, HOST_EXTENSION, ["wso2.choreo.sign.in"]);
     }
 
     public static getInstance() {

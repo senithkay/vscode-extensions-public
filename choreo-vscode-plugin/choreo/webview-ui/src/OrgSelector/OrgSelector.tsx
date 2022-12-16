@@ -1,24 +1,19 @@
-import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-import { useLoginStatus } from "../hooks/login-status";
+import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useOrgInfo } from "../hooks/org-info";
 
 export function OrgSelector() {
 
-    const  { loginStatusPending, loginStatus } = useLoginStatus();
-    const { selectedOrg, userOrgs } = useOrgInfo();
+    const { selectedOrg, userOrgs, fetchingOrgInfo } = useOrgInfo();
 
     return (
         <>
-            Login pending: {loginStatusPending ? "checking" : "done"}
-            Login status : {loginStatus}
-            Selected Org: {selectedOrg?.handle}
             <label htmlFor="org-dropdown" >Select Organization</label>
-            <VSCodeDropdown id="org-dropdown">
-                <VSCodeOption>Test</VSCodeOption>
-                <VSCodeOption>Test1</VSCodeOption>
-                <VSCodeOption>Test2</VSCodeOption>
-
-            </VSCodeDropdown>
+            {fetchingOrgInfo && <VSCodeProgressRing />}
+            {!fetchingOrgInfo && (
+                <VSCodeDropdown id="org-dropdown">
+                    {userOrgs?.map((org) => (<VSCodeOption selected={selectedOrg?.id === org.id}>{org.name}</VSCodeOption>))}
+                </VSCodeDropdown>
+            )}
         </>
     )
 }

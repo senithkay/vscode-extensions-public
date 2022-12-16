@@ -1,4 +1,4 @@
-import { WebviewPanel } from "vscode";
+import { commands, WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { RequestType, NotificationType, BROADCAST } from 'vscode-messenger-common';
 import { Organization } from "../../../api/types";
@@ -14,6 +14,7 @@ const getAllOrgs: RequestType<string, Organization[]> = { method: 'getAllOrgs' }
 // notification types
 const onLoginStatusChanged: NotificationType<string> = { method: 'loginStatusChanged' };
 const onSelectedOrgChanged: NotificationType<Organization> = { method: 'selectedOrgChanged' };
+const executeCommand: NotificationType<string[]> = { method: 'executeCommand' };
 
 
 export class WebViewRpc {
@@ -41,6 +42,12 @@ export class WebViewRpc {
         });
         ext.api.onOrganizationChanged((newOrg) => {
             this._messenger.sendNotification(onSelectedOrgChanged, BROADCAST, newOrg);
+        });
+        this._messenger.onNotification(executeCommand, (args: string[]) => {
+            if (args.length >= 1) {
+                const cmdArgs = args.length > 1 ? args.slice(1) : [];
+                commands.executeCommand(args[0], ...cmdArgs);
+            }
         });
     }
 }
