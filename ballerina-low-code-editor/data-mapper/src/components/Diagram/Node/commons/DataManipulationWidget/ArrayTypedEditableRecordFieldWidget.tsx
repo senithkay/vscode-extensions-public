@@ -13,7 +13,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { Button, CircularProgress, IconButton } from "@material-ui/core";
+import {
+    Button,
+    CircularProgress,
+    IconButton
+} from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -39,7 +43,7 @@ import { getModification } from "../../../utils/modifications";
 import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
-import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
+import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 
@@ -53,18 +57,29 @@ export interface ArrayTypedEditableRecordFieldWidgetProps {
     fieldIndex?: number;
     treeDepth?: number;
     deleteField?: (node: STNode) => Promise<void>;
+    isReturnTypeDesc?: boolean;
 }
 
 export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
+    const {
+        parentId,
+        field,
+        getPort,
+        engine,
+        mappingConstruct,
+        context, fieldIndex,
+        treeDepth = 0,
+        deleteField,
+        isReturnTypeDesc
+    } = props;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
 
     const fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
-        : `${parentId}.${fieldName}`;
+        ? `${parentId}.${fieldIndex}${fieldName ? `.${fieldName}` : ''}`
+        : `${parentId}${fieldName ? `.${fieldName}` : ''}`;
     const portIn = getPort(`${fieldId}.IN`);
     const valExpr = field.hasValue()
         && (STKindChecker.isSpecificField(field.value) ? field.value.valueExpr : field.value);
@@ -94,7 +109,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     let isDisabled = portIn.descendantHasValue;
     if (!isDisabled) {
-        if (listConstructor && expanded) {
+        if (listConstructor && expanded && portIn.parentModel) {
             portIn.setDescendantHasValue();
             isDisabled = true;
         }
@@ -182,7 +197,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             } else {
                 return (
                     <TreeBody>
-                        <PrimitiveTypedEditableArrayElementWidget
+                        <PrimitiveTypedEditableElementWidget
                             parentId={fieldId}
                             field={element.member}
                             engine={engine}
@@ -190,6 +205,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             context={context}
                             fieldIndex={index}
                             deleteField={deleteField}
+                            isArrayElement={true}
                         />
                     </TreeBody>
                 );
@@ -249,7 +265,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             className={classnames(classes.treeLabel, classes.treeLabelArray,
                 (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}
         >
-            <div className={classes.ArrayFieldRow}>
+            {!isReturnTypeDesc && (
+                <div className={classes.ArrayFieldRow}>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
                         <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} dataTestId={`array-type-editable-record-field-${portIn.getName()}`}/>
@@ -268,25 +285,26 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     )}
                     {label}
                 </span>
-                {isLoading ? (
-                    <CircularProgress size={18} className={classes.loader} />
-                ) : (
-                    <>
-                        {((hasValue && !connectedViaLink) || !isDisabled) && (
-                            <ValueConfigMenu
-                                menuItems={[
-                                    {
-                                        title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
-                                        onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion,
-                                    },
-                                ]}
-                                isDisabled={!typeName || typeName === "[]"}
-                                portName={portIn?.getName()}
-                            />
-                        )}
-                    </>
-                )}
-            </div>
+                    {isLoading ? (
+                        <CircularProgress size={18} className={classes.loader} />
+                    ) : (
+                        <>
+                            {((hasValue && !connectedViaLink) || !isDisabled) && (
+                                <ValueConfigMenu
+                                    menuItems={[
+                                        {
+                                            title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
+                                            onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion,
+                                        },
+                                    ]}
+                                    isDisabled={!typeName || typeName === "[]"}
+                                    portName={portIn?.getName()}
+                                />
+                            )}
+                        </>
+                    )}
+                </div>
+            )}
             {expanded && hasValue && listConstructor && (
                 <div data-testid={`array-widget-${portIn?.getName()}-values`}>
                     <div className={classes.innerTreeLabel}>

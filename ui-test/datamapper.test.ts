@@ -24,7 +24,7 @@ import { By, VSBrowser, WebView, EditorView, TextEditor } from 'vscode-extension
 import { DIAGRAM_LOADING_TIME } from './constants';
 import { wait } from './util';
 
-describe('VSCode Data mapper Webview UI Tests', () => {
+describe.skip('VSCode Data mapper Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     const FILE_NAME = 'data_mapper.bal';
     let ORIGINAL_CONTENT = '';

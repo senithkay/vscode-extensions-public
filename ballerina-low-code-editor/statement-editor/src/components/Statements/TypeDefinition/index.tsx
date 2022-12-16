@@ -18,6 +18,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
+import { KeywordComponent } from "../../Keyword";
 import { TokenComponent } from "../../Token";
 
 interface TypeDefProps {
@@ -39,7 +40,7 @@ export function TypeDefinitionC(props: TypeDefProps) {
     return (
         <>
             {model?.visibilityQualifier && (
-                <TokenComponent model={model?.visibilityQualifier} className={"keyword"}/>
+                <KeywordComponent model={model?.visibilityQualifier} />
             )}
             <TokenComponent model={model?.typeKeyword} className={"keyword"}/>
             {model?.typeName && (

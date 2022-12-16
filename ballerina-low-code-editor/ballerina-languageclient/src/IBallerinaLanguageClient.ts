@@ -49,7 +49,8 @@ export enum EXTENDED_APIS {
     BALLERINA_TO_OPENAPI = 'openAPILSExtension/generateOpenAPI',
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
     SYMBOL_GET_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
-    SYMBOL_GET_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol'
+    SYMBOL_GET_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
+    SYMBOL_GET_TYPES_FROM_FN_DEFINITION = 'ballerinaSymbol/getTypesFromFnDefinition'
 }
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -788,6 +789,14 @@ export interface TypeFromSymbolRequest {
     positions: LinePosition[];
 }
 
+export interface TypesFromFnDefinitionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    fnPosition: LinePosition;
+    returnTypeDescPosition: LinePosition;
+}
+
 export interface ResolvedTypeForSymbol {
     type: FormField;
     requestedPosition: LinePosition;
@@ -876,6 +885,8 @@ export interface IBallerinaLangClient {
     getTypeFromExpression: (params: TypeFromExpressionRequest) => Thenable<TypesFromExpressionResponse>;
 
     getTypeFromSymbol: (params: TypeFromSymbolRequest) => Thenable<TypesFromSymbolResponse>;
+
+    getTypesFromFnDefinition: (params: TypesFromFnDefinitionRequest) => Thenable<TypesFromSymbolResponse>;
 
     convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
 

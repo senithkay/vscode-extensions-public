@@ -70,7 +70,10 @@ describe("Primitive array field manipulation within mapping constructor", () => 
         SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-with-primitive-array-field.bal");
     });
 
-    it("Delete link between the input node and the second array element", () => DataMapper.deleteLink('input.st1', 'Output.stArr.0'));
+    it("Delete link between the input node and the first array element", () => {
+        DataMapper.deleteLink('input.st1', 'Output.stArr.0');
+        DataMapper.checkPrimitiveArrayFieldElementValue('Output.stArr.0', '""');
+    });
 
     it("Delete first element of the array field", () => DataMapper.targetNodeFieldMenuClick('Output.stArr.0', "Delete Element"));
     

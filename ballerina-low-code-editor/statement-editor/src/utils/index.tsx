@@ -38,7 +38,7 @@ import {
     SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    Minutiae,
+    Minutiae, ModuleVarDecl,
     NodePosition,
     RecordField,
     RecordFieldWithDefaultValue,
@@ -983,6 +983,98 @@ export function isEndsWithoutSemicolon(completeModel: STNode): boolean {
         || STKindChecker.isForkStatement(completeModel)
         || STKindChecker.isLockStatement(completeModel)
         || STKindChecker.isBlockStatement(completeModel)
+}
+
+export function getSupportedQualifiers(statementModel: STNode): string[] {
+    let qualifierList: string[];
+    switch (statementModel.kind.toString()) {
+        case "LocalVarDecl":
+            qualifierList = ["final"];
+            break;
+        case "ModuleVarDecl":
+            qualifierList = ["public", "final", "isolated"];
+            break;
+        case "ConstDeclaration":
+        case "TypeDefinition":
+            qualifierList = ["public"];
+            break;
+    }
+    return qualifierList;
+}
+
+export function isQualifierSupportedStatements(statementMode: STNode): boolean {
+    return STKindChecker.isLocalVarDecl(statementMode)
+        || STKindChecker.isConstDeclaration(statementMode)
+        || STKindChecker.isModuleVarDecl(statementMode)
+        || STKindChecker.isTypeDefinition(statementMode);
+}
+
+export function getQualifierUpdateModelPosition(statement: any, qualifier: string) {
+    let position: NodePosition;
+    if (qualifier === "public" || qualifier === "private") {
+        position = {
+            startLine: statement.position.startLine,
+            startColumn: statement.position.startColumn,
+            endLine: statement.position.startLine,
+            endColumn: statement.position.startColumn,
+        }
+    } else if (qualifier === "final" || qualifier === "isolated") {
+        if (STKindChecker.isModuleVarDecl(statement) && statement?.visibilityQualifier) {
+            position = {
+                startLine: statement.visibilityQualifier.position.endLine,
+                startColumn: statement.visibilityQualifier.position.endColumn,
+                endLine: statement.visibilityQualifier.position.endLine,
+                endColumn: statement.visibilityQualifier.position.endColumn,
+            }
+        } else {
+            position = {
+                startLine: statement.position.startLine,
+                startColumn: statement.position.startColumn,
+                endLine: statement.position.startLine,
+                endColumn: statement.position.startColumn,
+            }
+        }
+    }
+    return position;
+}
+
+export function getQualifierPosition(statement: any, qualifier: string) {
+    let position: NodePosition;
+    if (qualifier === "public" || qualifier === "private") {
+        position = {
+            ...statement?.visibilityQualifier?.position
+        }
+    } else if (STKindChecker.isModuleVarDecl(statement)) {
+        statement.qualifiers.map((keyword: STNode) => {
+            if (keyword.value === qualifier) {
+                position = { ...keyword.position }
+            }
+        });
+    } else if (qualifier === "final" && STKindChecker.isLocalVarDecl(statement)) {
+        position = { ...statement.finalKeyword.position }
+    }
+    return position;
+}
+
+export function getFilteredQualifiers(statement: ModuleVarDecl, qualifierList: string[], checkedList: string[]) {
+    // context based qualifier filtering for configurable
+    statement?.qualifiers.map((node: STNode) => {
+        if (node.value === "configurable") {
+            qualifierList = ["public"]
+        }
+    });
+    // filtering of isolated and public based on the checked keyword and ModuleVarDecl without initialization
+    if (checkedList.includes("public") || !statement?.initializer) {
+        qualifierList = qualifierList.filter((element) => {
+            return element !== 'isolated';
+        });
+    }
+    if (checkedList.includes("isolated")) {
+        qualifierList = qualifierList.filter((element) => {
+            return element !== 'public';
+        });
+    }
+    return qualifierList;
 }
 
 export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
