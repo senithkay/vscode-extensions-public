@@ -21,7 +21,7 @@ export class WebViewRpc {
     private _messenger = new Messenger();
 
     constructor(view: WebviewPanel) {
-        this._messenger.registerWebviewPanel(view);
+        this._messenger.registerWebviewPanel(view, { broadcastMethods: [ 'loginStatusChanged', 'selectedOrgChanged' ] });
 
         this._messenger.onRequest(getLoginStatus, () => {
             return ext.api.status;
