@@ -216,7 +216,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
 
         if (targetPort instanceof RecordFieldPortModel) {
             const field = targetPort.field;
-            if (field.typeName === PrimitiveBalType.Array) {
+            if (field.typeName === PrimitiveBalType.Array && field?.memberType) {
                 applyQueryExpression(link, field.memberType);
             }
         }

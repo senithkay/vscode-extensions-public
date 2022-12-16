@@ -146,7 +146,6 @@ function updateRecordValue(recordObject: ConfigElementProps, id: string, value: 
 function getObjectElement(configObject: ConfigElementProps, recordName: string): ConfigElementProps {
     const nestedProperties: ConfigElementProps[] = getNestedElements(configObject.properties);
     return {
-        connectionConfig: configObject.connectionConfig,
         description: configObject.description,
         id: configObject.id,
         isRequired: configObject.isRequired,
@@ -166,9 +165,9 @@ function getNestedElements(nestedObjects: ConfigElementProps[]): ConfigElementPr
     nestedObjects.forEach((property) => {
         const nestedProperties: ConfigElementProps[] = getNestedElements(property.properties);
         properties.push({
-            connectionConfig: property.connectionConfig,
             description: property.description,
             id: property.id,
+            isInsideArray: true,
             isRequired: property.isRequired,
             name: property.name,
             properties: nestedProperties,

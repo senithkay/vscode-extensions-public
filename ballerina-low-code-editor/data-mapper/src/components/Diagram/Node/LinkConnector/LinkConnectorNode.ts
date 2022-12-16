@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import { PrimitiveBalType, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FieldAccess,
@@ -12,9 +24,13 @@ import md5 from "blueimp-md5";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { isPositionsEquals } from "../../../../utils/st-utils";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
-import { OFFSETS } from "../../utils/constants";
+import {
+    LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
+    OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+} from "../../utils/constants";
 import {
     getDefaultValue,
     getInputNodeExpr,
@@ -24,6 +40,7 @@ import {
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { PrimitiveTypeNode } from "../PrimitiveType";
 
@@ -66,7 +83,6 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
-
         this.inPort = new IntermediatePortModel(
             md5(JSON.stringify(this.valueNode.position) + "IN")
             , "IN"
@@ -87,8 +103,26 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
-                if (node instanceof MappingConstructorNode || node instanceof PrimitiveTypeNode) {
-                    [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
+                if (node instanceof MappingConstructorNode
+                    || node instanceof PrimitiveTypeNode
+                    || node instanceof ListConstructorNode)
+                {
+                    if (STKindChecker.isFunctionDefinition(this.parentNode)
+                        || STKindChecker.isQueryExpression(this.parentNode))
+                    {
+                        if (node instanceof PrimitiveTypeNode) {
+                            this.targetPort = node.getPort(
+                                `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.recordField.type.typeName}.IN`
+                            ) as RecordFieldPortModel;
+                        } else if (node instanceof ListConstructorNode) {
+                            this.targetPort = node.getPort(
+                                `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}.IN`
+                            ) as RecordFieldPortModel;
+                        }
+                        this.targetMappedPort = this.targetPort;
+                    } else {
+                        [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
+                    }
                     if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
                         this.hidden = true;
                     }
@@ -98,9 +132,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
-
         if (!this.hidden) {
-
             this.sourcePorts.forEach((sourcePort) => {
                 const inPort = this.inPort;
 
@@ -201,8 +233,13 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public deleteLink(): void {
         const targetField = this.targetPort.field;
         let modifications: STModification[];
-        if (!targetField?.name && targetField?.typeName !== PrimitiveBalType.Array
+        const selectedST = this.context.selection.selectedST.stNode;
+        const exprFuncBodyPosition: NodePosition = STKindChecker.isFunctionDefinition(selectedST)
+            && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
+            && selectedST.functionBody.expression.position;
+        if ((!targetField?.name && targetField?.typeName !== PrimitiveBalType.Array
             && targetField?.typeName !== PrimitiveBalType.Record)
+            || (isPositionsEquals(exprFuncBodyPosition, this.valueNode.position)))
         {
             // Fallback to the default value if the target is a primitive type element
             modifications = [{

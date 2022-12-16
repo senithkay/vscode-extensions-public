@@ -16,6 +16,7 @@ import React, { useContext } from "react";
 import {
     ConfigurableKeyword,
     FinalKeyword,
+    IsolatedKeyword,
     ModuleVarDecl,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
@@ -48,10 +49,10 @@ export function ModuleVarDeclC(props: ModuleVarDeclProps) {
         }
     }
 
-    const qualifiers = model.qualifiers.map((qualifier: ConfigurableKeyword | FinalKeyword) => {
+    const qualifiers = model.qualifiers.map((qualifier: ConfigurableKeyword | FinalKeyword | IsolatedKeyword) => {
         return (
             <>
-                {STKindChecker.isFinalKeyword(qualifier) ?
+                {STKindChecker.isFinalKeyword(qualifier) || STKindChecker.isIsolatedKeyword(qualifier) ?
                     <KeywordComponent model={qualifier}/> :
                     <TokenComponent model={qualifier} className={"keyword"} />
                 }
@@ -62,6 +63,7 @@ export function ModuleVarDeclC(props: ModuleVarDeclProps) {
     return (
         <>
             {model?.metadata && <TokenComponent model={model.metadata} className={"keyword"} />}
+            {model.visibilityQualifier && <KeywordComponent model={model.visibilityQualifier}/>}
             {qualifiers}
             <ExpressionComponent model={model.typedBindingPattern} />
             {model?.initializer && (

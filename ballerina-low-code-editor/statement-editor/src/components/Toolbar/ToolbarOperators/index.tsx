@@ -1,0 +1,165 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+import React, { useContext, useEffect, useState } from "react";
+
+import {
+    Divider,
+    IconButton,
+    Typography
+} from "@material-ui/core";
+import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+
+import {
+    CONFIGURABLE_VALUE_REQUIRED_TOKEN
+} from "../../../constants";
+import { InputEditorContext } from "../../../store/input-editor-context";
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import {
+    getRecordFieldSource,
+    getRecordSwitchedSource,
+    getRecordUpdatePosition, isRecordFieldName
+} from "../../../utils";
+import {
+    binaryBitwise,
+    checking,
+    equality,
+    Expression,
+    ExpressionGroup,
+    EXPR_PLACEHOLDER,
+    listBindingPattern,
+    logical,
+    memberAccess,
+    operators,
+    optionalRecordField,
+    parenthesis,
+    range,
+    relational,
+    SELECTED_EXPRESSION,
+    trap,
+    typeDesc
+} from "../../../utils/expressions";
+import { useStatementEditorToolbarStyles } from "../../styles";
+
+export function ToolbarOperators() {
+    const statementEditorToolbarClasses = useStatementEditorToolbarStyles();
+    const inputEditorCtx = useContext(InputEditorContext);
+    const [filteredExpressions, setFilteredExpressions] = useState([operators]);
+
+    const {
+        modelCtx: {
+            currentModel,
+            updateModel,
+        },
+        config
+    } = useContext(StatementEditorContext);
+
+    const updateModelWithOperator = (expression: Expression) => {
+        const currentModelSource = STKindChecker.isOrderKey(currentModel.model) ? currentModel.model.expression.source :
+            (currentModel.model.source ? currentModel.model.source.trim() : currentModel.model.value.trim());
+        let text;
+        let updatePosition = currentModel.model.position;
+        if (STKindChecker.isRecordField(currentModel.model)) {
+            text = expression.template.replace(SELECTED_EXPRESSION, getRecordFieldSource(currentModel.model));
+        } else if (STKindChecker.isRecordTypeDesc(currentModel.model) && expression.name ===
+            "Switches Open/Close record to Close/Open") {
+            text = expression.template.replace(SELECTED_EXPRESSION, getRecordSwitchedSource(currentModel.model));
+            updatePosition = getRecordUpdatePosition(currentModel.model)
+        } else {
+            text = currentModelSource !== CONFIGURABLE_VALUE_REQUIRED_TOKEN
+                ? expression.template.replace(SELECTED_EXPRESSION, currentModelSource)
+                : expression.template.replace(SELECTED_EXPRESSION, EXPR_PLACEHOLDER);
+        }
+        updateModel(text, updatePosition)
+        inputEditorCtx.onInputChange('');
+        inputEditorCtx.onSuggestionSelection(text);
+    }
+
+    useEffect(() => {
+        if (currentModel.model) {
+            let filteredGroups: ExpressionGroup[];
+
+            // filter context based toolbar operators on statement
+            switch (config.type) {
+                case "Variable" || "AssignmentStatement":
+                    filteredGroups = [operators, parenthesis];
+                    break;
+                case "If":
+                    filteredGroups = [logical, equality, relational, binaryBitwise];
+                    break;
+                case "While":
+                    filteredGroups = [relational, equality];
+                    break;
+                case "ForEach":
+                    filteredGroups = [range]
+                    break;
+                case "Call" || "Log":
+                    filteredGroups = [checking, trap]
+                    break;
+                case "Return":
+                    filteredGroups = [parenthesis, operators];
+                    break;
+                case "Configurable":
+                    filteredGroups = [optionalRecordField]
+                    break;
+                case "ConstDeclaration":
+                    filteredGroups = [operators];
+                    break;
+                default:
+                    filteredGroups = [operators]
+                    break;
+            }
+
+            // filter context based toolbar operators on expression
+            if (STKindChecker.isSelectClause(currentModel.model) || STKindChecker.isLetClause(currentModel.model)) {
+                filteredGroups = [operators, parenthesis];
+            } else if (STKindChecker.isWhereClause(currentModel.model) || (STKindChecker.isIdentifierToken(currentModel.model) &&
+                currentModel.model?.parent?.parent && STKindChecker.isWhereClause(currentModel.model.parent.parent))) {
+                filteredGroups = [operators, equality];
+            } else if (isRecordFieldName(currentModel.model)) {
+                filteredGroups = [optionalRecordField]
+            } else if (currentModel?.model?.parent?.parent && STKindChecker.isTypedBindingPattern(currentModel.model.parent.parent)) {
+                filteredGroups = [typeDesc]
+            } else if (config.type === "AssignmentStatement" && STKindChecker.isIdentifierToken(currentModel.model)) {
+                filteredGroups = [listBindingPattern, memberAccess]
+            }
+
+            setFilteredExpressions(filteredGroups);
+        }
+    }, [currentModel.model]);
+
+    return (
+        <div className={statementEditorToolbarClasses.toolbarOperators} data-testid="toolbar-operators">
+            {filteredExpressions.map((group, groupIndex) => (
+                <div className={statementEditorToolbarClasses.toolbarOperators} key={groupIndex}>
+                    {
+                        group.expressions.map((expression, index) => (
+                            <StatementEditorHint content={expression.name} key={index}>
+                                <IconButton
+                                    onClick={() => updateModelWithOperator(expression)}
+                                    className={statementEditorToolbarClasses.toolbarOperatorsIcons}
+                                >
+                                    <Typography data-testid="operator-value" style={{ fontFamily: 'monospace' }}>
+                                        {expression.symbol}
+                                    </Typography>
+                                </IconButton>
+                            </StatementEditorHint>
+                        ))
+                    }
+                    <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorToolbarClasses.toolbarDivider} />
+                </div>
+            ))}
+        </div>
+    );
+}
