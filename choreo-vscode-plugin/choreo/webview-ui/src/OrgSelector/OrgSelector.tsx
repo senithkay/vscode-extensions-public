@@ -1,9 +1,10 @@
 import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { useOrgInfo } from "../hooks/org-info";
+import { useContext } from "react";
+import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 export function OrgSelector() {
 
-    const { selectedOrg, userOrgs, fetchingOrgInfo } = useOrgInfo();
+    const { selectedOrg, userOrgs, fetchingOrgInfo } = useContext(ChoreoWebViewContext);
 
     return (
         <>
