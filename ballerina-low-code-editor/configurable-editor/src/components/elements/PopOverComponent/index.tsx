@@ -30,14 +30,16 @@ export interface PopOverComponentProps {
     open: boolean;
     anchorEl: HTMLDivElement;
     onClose: () => void;
+    onValueAdd?: () => void;
     // handleValueChange: (id: string, value: any) => void;
     returnElement: ReactElement[];
-    addArrayElememt: () => void;
+    addArrayElememt?: () => void;
+    // addMapField?: () =>void;
 }
 
 export function PopOverComponent(props: PopOverComponentProps) {
     const classes = useStyles();
-    const { id, open, anchorEl, onClose, returnElement, addArrayElememt } = props;
+    const { id, open, anchorEl, onClose, onValueAdd, returnElement, addArrayElememt } = props;
 
     return (
         <Popover
@@ -71,7 +73,8 @@ export function PopOverComponent(props: PopOverComponentProps) {
                             variant="contained"
                             color="primary"
                             size="small"
-                            type="submit"
+                            // type="submit"
+                            onClick={onValueAdd}
                         >
                             OK
                         </Button>

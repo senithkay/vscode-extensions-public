@@ -36,7 +36,6 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
     const [inputValue, setInputValue] = useState(String(props.value ? props.value : ""));
 
     const element: ConfigElementProps = {
-        connectionConfig: props.connectionConfig,
         description: props.description,
         id: props.id,
         isRequired: props.isRequired,

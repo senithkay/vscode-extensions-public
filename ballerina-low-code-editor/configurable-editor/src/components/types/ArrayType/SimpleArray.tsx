@@ -80,6 +80,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const [openPopover, setOpenPopover] = React.useState(true);
 
     const [selectedValue, setSelectedValue] = useState(props.value);
+    const [arrayValue, setArrayValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
     const [openConnection, setOpenConnection] = React.useState(true);
     const handleClickOpenConnection = () => {
@@ -102,6 +103,11 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     };
 
     const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleValueAdd = () => {
+        setSelectedValue(arrayValue);
         setAnchorEl(null);
     };
 
@@ -142,13 +148,38 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     };
 
     useEffect(() => {
+        let fullValue = "[ ";
+        for (const key in arrayValue) {
+            if (arrayValue.hasOwnProperty(key)) {
+                key === "0" ? fullValue = fullValue + arrayValue[key] :
+                fullValue = fullValue + ", " + arrayValue[key];
+            }
+        }
+        fullValue = fullValue + " ]";
+        setSelectedValue(fullValue);
+    }, [selectedValue]);
+
+    useEffect(() => {
         const values: any[] = [];
         arrayValues.forEach((entry) => {
             values.push(entry.value);
         });
         element.value = values;
+        setArrayValue(values);
         props.setArrayElement(props.id, element);
     }, [arrayValues]);
+
+    useEffect(() => {
+        let fullValue = "[ ";
+        for (const key in arrayValue) {
+            if (arrayValue.hasOwnProperty(key)) {
+                key === "0" ? fullValue = fullValue + arrayValue[key] :
+                fullValue = fullValue + ", " + arrayValue[key];
+            }
+        }
+        fullValue = fullValue + " ]";
+        setSelectedValue(fullValue);
+    }, [props.value]);
 
     arrayValues.forEach((arrayElement) => {
         const simpleTypeProps: SimpleTypeProps = {
@@ -264,6 +295,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
             open={open}
             anchorEl={anchorEl}
             onClose={handleClose}
+            onValueAdd={handleValueAdd}
             returnElement={returnElement}
             addArrayElememt={addArrayElememt}
         />
@@ -306,7 +338,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                             data-cyid={name}
                                             aria-describedby={textId}
                                             onClick={handleClick}
-                                            value={"[" + selectedValue + "]"}
+                                            value={selectedValue}
                                         />
                                     </Grid>
                                     {!isInsideArray && !isLowCode && !isFeaturePreview && iconButton}
