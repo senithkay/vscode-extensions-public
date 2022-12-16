@@ -107,18 +107,14 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         setAnchorEl(null);
     };
 
-<<<<<<< HEAD
-    const handleConnectionClick = (
-        connectionEvent: React.MouseEvent<HTMLButtonElement>
-    ) => {
-=======
     const handleValueAdd = () => {
         setSelectedValue(arrayValue);
         setAnchorEl(null);
     };
 
-    const handleConnectionClick = (connectionEvent: React.MouseEvent<HTMLButtonElement>) => {
->>>>>>> de90d1b1695c5be0e070ae6763b463caa1a97377
+    const handleConnectionClick = (
+        connectionEvent: React.MouseEvent<HTMLButtonElement>
+    ) => {
         setConnectionAnchorEl(connectionEvent.currentTarget);
     };
 
