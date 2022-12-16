@@ -200,11 +200,15 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
             value: arrayElement.value,
         };
         returnElement.push(
-            <Box key={arrayElement.key}>
-                <Box>
-                    <Box>
-                        <SimpleType {...simpleTypeProps} />
-                    </Box>
+            <Box
+                key={arrayElement.key}
+                display="flex"
+                alignItems="center"
+                mb={2}
+                gridGap={8}
+            >
+                <Box flexGrow={1}>
+                    <SimpleType {...simpleTypeProps} />
                 </Box>
                 <Box>
                     <DeleteButton
