@@ -152,7 +152,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
     });
 
     const iconButton = (
-        <Grid item={true} xs={1}>
+        <Box>
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
@@ -160,9 +160,9 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                 data-placement="top"
                 onClick={handleClick}
             >
-                <img src={SelectButtonSvg} height={20} width={20}/>
+                <img src={SelectButtonSvg} height={20} width={20} />
             </IconButton>
-        </Grid>
+        </Box>
     );
 
     returnElement.push(

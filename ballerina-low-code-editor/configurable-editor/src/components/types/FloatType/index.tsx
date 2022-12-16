@@ -40,6 +40,7 @@ import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInp
 import { ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
 import { SimpleTypeProps } from "../SimpleType";
+import { SelectIcon } from "../../../assets/icons";
 
 /**
  * The leaf level configurable type representing float values.
@@ -55,7 +56,9 @@ export interface FloatTypeProps extends SimpleTypeProps {
 }
 
 const FloatType = (props: FloatTypeProps): ReactElement => {
-    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+        null
+    );
     const isInsideArray = props.isInsideArray;
     const isLowCode = props.isLowCode;
     const isFeaturePreview = props.isFeaturePreview;
@@ -75,7 +78,9 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
     const classes = useStyles();
 
     const [openConnection, setOpenConnection] = React.useState(true);
-    const [selectedValue, setSelectedValue] = useState<string | number>(props.value);
+    const [selectedValue, setSelectedValue] = useState<string | number>(
+        props.value
+    );
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
 
     const handleClickOpenConnection = () => {
@@ -86,7 +91,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
 
     const textFieldInputProps: TextFieldInputProps = {
         id,
-        inputProps: { inputMode: "numeric", pattern: "[\-\+]?[0-9]*[\.]([0-9]+)" },
+        inputProps: { inputMode: "numeric", pattern: "[-+]?[0-9]*[.]([0-9]+)" },
         isRequired,
         placeholder,
         setTextFieldValue: setFloatConfig,
@@ -94,12 +99,13 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
         value,
     };
 
-    const onSelected = (index: string, mappingName: string, valueReference: string) => () => {
-        setConnectionClick(true);
-        setSelectedValue(mappingName);
-        setSelectedValueRef(valueReference);
-        setAnchorEl(null);
-    };
+    const onSelected =
+        (index: string, mappingName: string, valueReference: string) => () => {
+            setConnectionClick(true);
+            setSelectedValue(mappingName);
+            setSelectedValueRef(valueReference);
+            setAnchorEl(null);
+        };
 
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
@@ -113,44 +119,78 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                     />
                     {openConnection ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
-                    {(connections.configurationData).map((
-                        connectionFields: { configKey: string; valueType: string; valueRef: string },
-                        sIndex: React.Key,
-                        ) => {
-                        return  (
-                            <Collapse key={sIndex} in={openConnection} timeout="auto" unmountOnExit={true}>
-                                    <List component="div" disablePadding={true}>
+                {connections.configurationData.map(
+                    (
+                        connectionFields: {
+                            configKey: string;
+                            valueType: string;
+                            valueRef: string;
+                        },
+                        sIndex: React.Key
+                    ) => {
+                        return (
+                            <Collapse
+                                key={sIndex}
+                                in={openConnection}
+                                timeout="auto"
+                                unmountOnExit={true}
+                            >
+                                <List component="div" disablePadding={true}>
                                     <MenuItem
                                         button={true}
                                         value={connectionFields.configKey}
                                         className={classes.menuItemStyle}
-                                        id={"${" + connections.name + "." + connectionFields.configKey + "}"}
-                                        onClick={onSelected(connectionFields.configKey,
-                                            "${" + connections.name + "." + connectionFields.configKey + "}",
-                                            connectionFields.valueRef)}
+                                        id={
+                                            "${" +
+                                            connections.name +
+                                            "." +
+                                            connectionFields.configKey +
+                                            "}"
+                                        }
+                                        onClick={onSelected(
+                                            connectionFields.configKey,
+                                            "${" +
+                                                connections.name +
+                                                "." +
+                                                connectionFields.configKey +
+                                                "}",
+                                            connectionFields.valueRef
+                                        )}
                                         title={connectionFields.valueRef}
                                     >
-                                        <Box className={classes.connectionField}>
-                                        <ListItemText key={sIndex} primary={connectionFields.configKey + ":"} />
-                                        <OutlinedLabel
-                                            type="default"
-                                            label={connectionFields.valueType}
-                                            tooltipText={connectionFields.valueType}
-                                            shape="none"
-                                        />
+                                        <Box
+                                            className={classes.connectionField}
+                                        >
+                                            <ListItemText
+                                                key={sIndex}
+                                                primary={
+                                                    connectionFields.configKey +
+                                                    ":"
+                                                }
+                                            />
+                                            <OutlinedLabel
+                                                type="default"
+                                                label={
+                                                    connectionFields.valueType
+                                                }
+                                                tooltipText={
+                                                    connectionFields.valueType
+                                                }
+                                                shape="none"
+                                            />
                                         </Box>
                                     </MenuItem>
-                                    </List>
+                                </List>
                             </Collapse>
-                            );
-                        })
+                        );
                     }
+                )}
             </Box>
         );
     });
 
     const iconButton = (
-        <Grid item={true} xs={1}>
+        <Box>
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
@@ -158,54 +198,56 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                 data-placement="top"
                 onClick={handleClick}
             >
-                <img src={SelectButtonSvg} height={20} width={20}/>
+                <SelectIcon />
             </IconButton>
-        </Grid>
+        </Box>
     );
 
     returnElement.push(
-        (
-            <div key={id + "-FIELD"}>
-                <Grid
-                    container={true}
-                    spacing={1}
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <Grid item={true} xs={11}>
-                        <TextFieldInput
-                            id={id}
-                            isRequired={isRequired}
-                            inputProps={connectionClick ? {inputMode: "text"} : {inputMode: "numeric", pattern: "[\-\+]?[0-9]*[\.]([0-9]+)"}}
-                            placeholder="Select config or Enter a value"
-                            setTextFieldValue={setFloatConfig}
-                            type={connectionClick ? "text" : "number"}
-                            value={selectedValue}
-                            valueRef={selectedValueRef}
-                        />
-                    </Grid>
-                    {!isInsideArray && !isLowCode && !isFeaturePreview && iconButton}
-                </Grid>
-                <Box>
-                    <Popover
-                        id={ids}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClose}
-                        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                        transformOrigin={{ horizontal: "right", vertical: "top" }}
-                        className={classes.popOver}
-                    >
-                        <Box>
-                            <Typography className={classes.popOver}>
-                                {getConnection}
-                            </Typography>
-                        </Box>
-                    </Popover>
+        <div key={id + "-FIELD"}>
+            <Box display="flex" alignItems="center">
+                <Box flexGrow={1}>
+                    <TextFieldInput
+                        id={id}
+                        isRequired={isRequired}
+                        inputProps={
+                            connectionClick
+                                ? { inputMode: "text" }
+                                : {
+                                      inputMode: "numeric",
+                                      pattern: "[-+]?[0-9]*[.]([0-9]+)",
+                                  }
+                        }
+                        placeholder="Select config or Enter a value"
+                        setTextFieldValue={setFloatConfig}
+                        type={connectionClick ? "text" : "number"}
+                        value={selectedValue}
+                        valueRef={selectedValueRef}
+                    />
                 </Box>
-            </div>
-        ),
+                {!isInsideArray &&
+                    !isLowCode &&
+                    !isFeaturePreview &&
+                    iconButton}
+            </Box>
+            <Box>
+                <Popover
+                    id={ids}
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                    transformOrigin={{ horizontal: "right", vertical: "top" }}
+                    className={classes.popOver}
+                >
+                    <Box>
+                        <Typography className={classes.popOver}>
+                            {getConnection}
+                        </Typography>
+                    </Box>
+                </Popover>
+            </Box>
+        </div>
     );
 
     return <>{returnElement}</>;

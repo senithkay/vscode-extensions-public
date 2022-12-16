@@ -142,12 +142,11 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         };
 
         returnElement.push(
-            <Box key={arrayElement.id}>
-                <Box>
-                    <Box key={arrayElement.id + "-ENTRY"}>
-                        <ObjectType {...objectTypeProps} />
-                    </Box>
+            <Box key={arrayElement.id} mt={2} display="flex">
+                <Box key={arrayElement.id + "-ENTRY"} flexGrow={1}>
+                    <ObjectType {...objectTypeProps} />
                 </Box>
+
                 <Box>
                     <DeleteButton
                         onDelete={removeArrayElement}

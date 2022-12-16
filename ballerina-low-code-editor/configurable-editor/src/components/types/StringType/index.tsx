@@ -40,6 +40,7 @@ import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInp
 import { ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
 import { SimpleTypeProps } from "../SimpleType";
+import { SelectIcon } from "../../../assets/icons";
 
 /**
  * The leaf level configurable type representing string values.
@@ -48,14 +49,20 @@ export interface StringTypeProps extends SimpleTypeProps {
     connectionConfig?: ConnectionSchema[];
     value?: string;
     valueRef?: string;
-    setStringType: (id: string, stringValue: string, valueReference: string) => void;
+    setStringType: (
+        id: string,
+        stringValue: string,
+        valueReference: string
+    ) => void;
     isInsideArray?: boolean;
     isLowCode?: boolean;
     isFeaturePreview?: boolean;
 }
 
 const StringType = (props: StringTypeProps): ReactElement => {
-    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+        null
+    );
     const isInsideArray = props.isInsideArray;
     const isLowCode = props.isLowCode;
     const isFeaturePreview = props.isFeaturePreview;
@@ -78,19 +85,20 @@ const StringType = (props: StringTypeProps): ReactElement => {
         setOpenConnection(!openConnection);
     };
 
-    const onSelected = (index: string, mappingName: string, valueReference: string) => () => {
-        setSelectedValue(mappingName);
-        setSelectedValueRef(valueReference);
-        // tslint:disable-next-line: no-console
-        console.log("mappingName");
-        // tslint:disable-next-line: no-console
-        console.log(mappingName);
-        // tslint:disable-next-line: no-console
-        console.log("valueReference");
-        // tslint:disable-next-line: no-console
-        console.log(valueReference);
-        setAnchorEl(null);
-    };
+    const onSelected =
+        (index: string, mappingName: string, valueReference: string) => () => {
+            setSelectedValue(mappingName);
+            setSelectedValueRef(valueReference);
+            // tslint:disable-next-line: no-console
+            console.log("mappingName");
+            // tslint:disable-next-line: no-console
+            console.log(mappingName);
+            // tslint:disable-next-line: no-console
+            console.log("valueReference");
+            // tslint:disable-next-line: no-console
+            console.log(valueReference);
+            setAnchorEl(null);
+        };
 
     const returnElement: ReactElement[] = [];
     const { id, isRequired, value, setStringType, placeholder, name } = props;
@@ -117,44 +125,78 @@ const StringType = (props: StringTypeProps): ReactElement => {
                     />
                     {openConnection ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
-                    {(connections.configurationData).map((
-                        connectionFields: { configKey: string; valueType: string; valueRef: string },
-                        sIndex: React.Key,
-                        ) => {
-                        return  (
-                            <Collapse key={sIndex} in={openConnection} timeout="auto" unmountOnExit={true}>
-                                    <List component="div" disablePadding={true}>
+                {connections.configurationData.map(
+                    (
+                        connectionFields: {
+                            configKey: string;
+                            valueType: string;
+                            valueRef: string;
+                        },
+                        sIndex: React.Key
+                    ) => {
+                        return (
+                            <Collapse
+                                key={sIndex}
+                                in={openConnection}
+                                timeout="auto"
+                                unmountOnExit={true}
+                            >
+                                <List component="div" disablePadding={true}>
                                     <MenuItem
                                         button={true}
                                         value={connectionFields.configKey}
                                         className={classes.menuItemStyle}
-                                        id={"${" + connections.name + "." + connectionFields.configKey + "}"}
-                                        onClick={onSelected(connectionFields.configKey,
-                                            "${" + connections.name + "." + connectionFields.configKey + "}",
-                                            connectionFields.valueRef)}
+                                        id={
+                                            "${" +
+                                            connections.name +
+                                            "." +
+                                            connectionFields.configKey +
+                                            "}"
+                                        }
+                                        onClick={onSelected(
+                                            connectionFields.configKey,
+                                            "${" +
+                                                connections.name +
+                                                "." +
+                                                connectionFields.configKey +
+                                                "}",
+                                            connectionFields.valueRef
+                                        )}
                                         title={connectionFields.valueRef}
                                     >
-                                        <Box className={classes.connectionField}>
-                                        <ListItemText key={sIndex} primary={connectionFields.configKey + ":"} />
-                                        <OutlinedLabel
-                                            type="default"
-                                            label={connectionFields.valueType}
-                                            tooltipText={connectionFields.valueType}
-                                            shape="none"
-                                        />
+                                        <Box
+                                            className={classes.connectionField}
+                                        >
+                                            <ListItemText
+                                                key={sIndex}
+                                                primary={
+                                                    connectionFields.configKey +
+                                                    ":"
+                                                }
+                                            />
+                                            <OutlinedLabel
+                                                type="default"
+                                                label={
+                                                    connectionFields.valueType
+                                                }
+                                                tooltipText={
+                                                    connectionFields.valueType
+                                                }
+                                                shape="none"
+                                            />
                                         </Box>
                                     </MenuItem>
-                                    </List>
+                                </List>
                             </Collapse>
-                            );
-                        })
+                        );
                     }
+                )}
             </Box>
         );
     });
 
     const iconButton = (
-        <Grid item={true} xs={1}>
+        <Box>
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
@@ -162,57 +204,52 @@ const StringType = (props: StringTypeProps): ReactElement => {
                 data-placement="top"
                 onClick={handleClick}
             >
-                <img src={SelectButtonSvg} height={20} width={20}/>
+                <SelectIcon />
             </IconButton>
-        </Grid>
+        </Box>
     );
 
     returnElement.push(
-        (
-            // <div key={id + "-FIELD"}>
-            //     <TextFieldInput {...textFieldInputProps} />
-            // </div>
-            <div key={id + "-FIELD"}>
-                <Grid
-                    container={true}
-                    spacing={1}
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <Grid item={true} xs={11}>
-                        <TextFieldInput
-                            id={id}
-                            isRequired={isRequired}
-                            name={name}
-                            placeholder="Select config or Enter a value"
-                            setTextFieldValue={setStringType}
-                            type="text"
-                            value={selectedValue}
-                            valueRef={selectedValueRef}
-                        />
-                    </Grid>
-                    {!isInsideArray && !isLowCode && !isFeaturePreview && iconButton}
-                </Grid>
-                <Box>
-                    <Popover
-                        id={ids}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClose}
-                        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                        transformOrigin={{ horizontal: "right", vertical: "top" }}
-                        className={classes.popOver}
-                    >
-                        <Box>
-                            <Typography className={classes.popOver}>
-                                {getConnection}
-                            </Typography>
-                        </Box>
-                    </Popover>
+        // <div key={id + "-FIELD"}>
+        //     <TextFieldInput {...textFieldInputProps} />
+        // </div>
+        <div key={id + "-FIELD"}>
+            <Box display="flex" alignItems="center">
+                <Box flexGrow={1}>
+                    <TextFieldInput
+                        id={id}
+                        isRequired={isRequired}
+                        name={name}
+                        placeholder="Select config or Enter a value"
+                        setTextFieldValue={setStringType}
+                        type="text"
+                        value={selectedValue}
+                        valueRef={selectedValueRef}
+                    />
                 </Box>
-            </div>
-        ),
+                {!isInsideArray &&
+                    !isLowCode &&
+                    !isFeaturePreview &&
+                    iconButton}
+            </Box>
+            <Box>
+                <Popover
+                    id={ids}
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                    transformOrigin={{ horizontal: "right", vertical: "top" }}
+                    className={classes.popOver}
+                >
+                    <Box>
+                        <Typography className={classes.popOver}>
+                            {getConnection}
+                        </Typography>
+                    </Box>
+                </Popover>
+            </Box>
+        </div>
     );
 
     return <>{returnElement}</>;
