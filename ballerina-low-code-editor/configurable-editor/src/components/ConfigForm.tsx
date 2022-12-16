@@ -156,10 +156,10 @@ export const ConfigForm = (props: ConfigFormProps) => {
 
     if (defaultableElements.length > 0) {
         defaultableFields.push(
-            (
-                <Box key="defaultable fields" className={classes.innerBoxCard}>
-                    <Card variant="outlined">
-                        <CardContent className={classes.cardContent}>
+            <Box key="defaultable fields" className={classes.innerBoxCard}>
+                <Card variant="outlined">
+                    <Box>
+                        <Box py={1} pl={2} pr={1}>
                             <Box className={classes.innerBoxHead}>
                                 <FormLabel
                                     component="div"
@@ -172,13 +172,20 @@ export const ConfigForm = (props: ConfigFormProps) => {
                                     onClick={handleExpandClick}
                                 />
                             </Box>
-                            <Collapse in={expanded} timeout="auto" unmountOnExit={false}>
+                        </Box>
+
+                        <Collapse
+                            in={expanded}
+                            timeout="auto"
+                            unmountOnExit={false}
+                        >
+                            <Box px={2} pt={2} borderTop="1px solid #E0E2E9">
                                 {defaultableElements.map(ConfigElement)}
-                            </Collapse>
-                        </CardContent>
-                    </Card>
-                </Box>
-            ),
+                            </Box>
+                        </Collapse>
+                    </Box>
+                </Card>
+            </Box>
         );
     }
 
@@ -190,7 +197,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
                 <CardActions>
                     <ButtonContainer justifyContent="flex-end">
                         <Button
-                            variant="contained"
+                            variant="outlined"
                             color="default"
                             size="small"
                             onClick={handleDefaultButtonClick}

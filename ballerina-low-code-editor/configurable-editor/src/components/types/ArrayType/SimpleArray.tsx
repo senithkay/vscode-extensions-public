@@ -46,8 +46,13 @@ import ButtonContainer from "../../elements/ButtonContainer";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import OutlinedLabel from "../../elements/OutlinedLabel";
-import PopOverComponent, { PopOverComponentProps } from "../../elements/PopOverComponent";
-import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
+import PopOverComponent, {
+    PopOverComponentProps,
+} from "../../elements/PopOverComponent";
+import {
+    TextFieldInput,
+    TextFieldInputProps,
+} from "../../elements/TextFieldInput";
 import { ConfigValue, ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
 import SimpleType, { SimpleTypeProps } from "../SimpleType";
@@ -86,7 +91,6 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const [selectedValue, setSelectedValue] = useState(props.value);
     const [arrayValue, setArrayValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
-
 
     const element: ConfigElementProps = {
         arrayType: props.arrayType,
@@ -154,8 +158,9 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         let fullValue = "[ ";
         for (const key in arrayValue) {
             if (arrayValue.hasOwnProperty(key)) {
-                key === "0" ? fullValue = fullValue + arrayValue[key] :
-                fullValue = fullValue + ", " + arrayValue[key];
+                key === "0"
+                    ? (fullValue = fullValue + arrayValue[key])
+                    : (fullValue = fullValue + ", " + arrayValue[key]);
             }
         }
         fullValue = fullValue + " ]";
@@ -176,8 +181,9 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         let fullValue = "[ ";
         for (const key in arrayValue) {
             if (arrayValue.hasOwnProperty(key)) {
-                key === "0" ? fullValue = fullValue + arrayValue[key] :
-                fullValue = fullValue + ", " + arrayValue[key];
+                key === "0"
+                    ? (fullValue = fullValue + arrayValue[key])
+                    : (fullValue = fullValue + ", " + arrayValue[key]);
             }
         }
         fullValue = fullValue + " ]";
@@ -344,72 +350,62 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     );
 
     return (
-        <Box>
-            <Card className={classes.card}>
-                <CardContent className={classes.cardContent}>
-                    <Grid
-                        container={true}
-                        spacing={1}
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="center"
-                        className={classes.buttonBorder}
-                    >
-                        <Grid item={true} xs={3}>
-                            <FieldLabel {...fieldLabelProps} />
-                        </Grid>
-                        <Grid item={true} xs={9}>
-                            <Box className={classes.formInputBox}>
-                                <Grid
-                                    container={true}
-                                    spacing={1}
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    className={classes.buttonBorder}
-                                >
-                                    <Grid item={true} xs={11}>
-                                        <TextField
-                                            variant="outlined"
-                                            fullWidth={true}
-                                            margin="none"
-                                            size="small"
-                                            classes={{ root: classes.textInputRoot }}
-                                            placeholder={"Select config or Add values"}
-                                            InputLabelProps={{ shrink: false }}
-                                            data-cyid={name}
-                                            aria-describedby={textId}
-                                            onClick={handleClick}
-                                            value={selectedValue}
-                                        />
-                                    </Grid>
-                                    {!isInsideArray && !isLowCode && !isFeaturePreview && iconButton}
-                                </Grid>
-                                <Box>
-                                <Popover
-                                    id={connectionId}
-                                    open={connectionOpen}
-                                    anchorEl={connectionAnchorEl}
-                                    onClose={handleConnectionClose}
-                                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                                    transformOrigin={{ horizontal: "right", vertical: "top" }}
-                                    className={classes.popOver}
-                                >
-                                    <Box>
-                                        <Typography className={classes.popOver}>
-                                            {getConnection}
-                                        </Typography>
-                                    </Box>
-                                </Popover>
-                            </Box>
-                                <Box>
-                                    {popOverComponent}
-                                </Box>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </CardContent>
-            </Card>
+        <Box mb={2}>
+            <Box display="flex" alignItems="center">
+                <Box flex="0 0 150px">
+                    <FieldLabel {...fieldLabelProps} />
+                </Box>
+                <Box
+                    flexGrow={1}
+                    display="flex"
+                    gridGap={4}
+                    alignItems="center"
+                >
+                    <Box flexGrow={1}>
+                        <TextField
+                            variant="outlined"
+                            fullWidth={true}
+                            margin="none"
+                            size="small"
+                            classes={{ root: classes.textInputRoot }}
+                            placeholder={"Select config or Add values"}
+                            InputLabelProps={{ shrink: false }}
+                            data-cyid={name}
+                            aria-describedby={textId}
+                            onClick={handleClick}
+                            value={selectedValue}
+                        />
+                    </Box>
+                    {!isInsideArray &&
+                        !isLowCode &&
+                        !isFeaturePreview &&
+                        iconButton}
+                </Box>
+            </Box>
+            <Box>
+                <Popover
+                    id={connectionId}
+                    open={connectionOpen}
+                    anchorEl={connectionAnchorEl}
+                    onClose={handleConnectionClose}
+                    anchorOrigin={{
+                        horizontal: "right",
+                        vertical: "bottom",
+                    }}
+                    transformOrigin={{
+                        horizontal: "right",
+                        vertical: "top",
+                    }}
+                    className={classes.popOver}
+                >
+                    <Box>
+                        <Typography className={classes.popOver}>
+                            {getConnection}
+                        </Typography>
+                    </Box>
+                </Popover>
+                {popOverComponent}
+            </Box>
         </Box>
     );
 };

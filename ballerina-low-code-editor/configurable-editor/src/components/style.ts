@@ -94,7 +94,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         innerBoxHead: {
             alignItems: "center",
             display: "flex",
-            marginBottom: theme.spacing(1),
         },
         innerBoxTitle: {
             fontSize: theme.spacing(1.8),
@@ -118,7 +117,6 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainLabelText: {
             color: "#1D2028",
             fontSize: theme.spacing(1.6),
-            marginTop: theme.spacing(0.4),
         },
         menuItem: {
             border: "1px solid #d5d5d5",
