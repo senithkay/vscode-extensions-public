@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme: Theme) =>
             display: 'flex',
             alignItems: 'center'
         },
-        nodeType:{
+        nodeType: {
             float: 'right',
             marginRight: 5,
             color: theme.palette.grey[300],

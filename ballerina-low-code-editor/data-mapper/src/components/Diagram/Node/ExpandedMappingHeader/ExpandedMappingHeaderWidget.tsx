@@ -24,12 +24,12 @@ import {
 
 import { ClauseAddButton } from "./ClauseAddButton";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
+import { JoinClauseItem } from "./JoinClauseItem";
 import { LetClauseItem } from "./LetClauseItem";
 import { LimitClauseItem } from "./LimitClauseItem";
 import { OrderByClauseItem } from "./OrderClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
-import { JoinClauseItem } from "./JoinClauseItem";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;

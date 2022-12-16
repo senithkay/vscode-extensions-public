@@ -53,7 +53,7 @@ export class JoinClauseNode extends DataMapperNodeModel {
         this.getSourceType();
         if (this.sourceBindingPattern) {
             let name = this.sourceBindingPattern.variableName.value;
-            if(this.isOptional && [PrimitiveBalType.Array, PrimitiveBalType.Record, PrimitiveBalType.Union].includes(this.typeDef.typeName as PrimitiveBalType)){
+            if (this.isOptional && [PrimitiveBalType.Array, PrimitiveBalType.Record, PrimitiveBalType.Union].includes(this.typeDef.typeName as PrimitiveBalType)){
                 name = `${name}?`
             }
 
@@ -85,16 +85,16 @@ export class JoinClauseNode extends DataMapperNodeModel {
             this.sourceBindingPattern = bindingPattern;
 
             let exprPosition: NodePosition;
-            if(STKindChecker.isFieldAccess(this.value.joinOnCondition.rhsExpression)){
+            if (STKindChecker.isFieldAccess(this.value.joinOnCondition.rhsExpression)){
                 exprPosition = (this.value.joinOnCondition.rhsExpression as FieldAccess)?.expression?.position;
-            } else if(STKindChecker.isSimpleNameReference(this.value.joinOnCondition.rhsExpression)){
+            } else if (STKindChecker.isSimpleNameReference(this.value.joinOnCondition.rhsExpression)){
                 exprPosition = (this.value.joinOnCondition.rhsExpression as SimpleNameReference)?.position;
-            } else if(STKindChecker.isOptionalFieldAccess(this.value.joinOnCondition.rhsExpression)){
+            } else if (STKindChecker.isOptionalFieldAccess(this.value.joinOnCondition.rhsExpression)){
                 exprPosition = (this.value.joinOnCondition.rhsExpression as OptionalFieldAccess)?.expression?.position;
                 // exprPosition = (this.value.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.position;
             }
 
-            if(exprPosition){
+            if (exprPosition){
                 const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
                 const type = recordTypeDescriptors.getTypeDescriptor({
                     startLine: exprPosition.startLine,
@@ -105,7 +105,7 @@ export class JoinClauseNode extends DataMapperNodeModel {
                 if (type && type.typeName === PrimitiveBalType.Union && type.members.length === 2) {
                     // handle optional type
                     this.isOptional = true;
-                    const typeInfo =  type.members.filter(item=>item.typeName !== '()').pop();
+                    const typeInfo =  type.members.filter(item => item.typeName !== '()').pop();
                     this.typeDef = {
                         ...typeInfo,
                         members: typeInfo.fields,
@@ -123,7 +123,7 @@ export class JoinClauseNode extends DataMapperNodeModel {
                 }
             }
 
-            
+
         }
     }
 

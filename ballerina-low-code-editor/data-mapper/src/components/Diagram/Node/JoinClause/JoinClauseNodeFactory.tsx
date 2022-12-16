@@ -38,7 +38,7 @@ export class JoinClauseNodeFactory extends AbstractReactFactory<JoinClauseNode, 
     }
 
     generateReactWidget(event: { model: JoinClauseNode; }): JSX.Element {
-        let id = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`;
+        const id = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`;
 
         const props = {
             id,

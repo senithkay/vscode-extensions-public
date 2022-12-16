@@ -287,11 +287,11 @@ export class NodeInitVisitor implements Visitor {
                 );
 
                 for (const [, item] of letClauses.entries()) {
-                    if(STKindChecker.isLetClause(item)){
+                    if (STKindChecker.isLetClause(item)){
                         const paramNode = new LetClauseNode(this.context, item as LetClause);
                         paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
                         this.inputNodes.push(paramNode);
-    
+
                         const letClauseValueLabel = (
                             ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
                                 ?.bindingPattern as CaptureBindingPattern
@@ -299,16 +299,16 @@ export class NodeInitVisitor implements Visitor {
                         const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
                         expandedHeaderPorts.push(letClausePort);
                         paramNode.addPort(letClausePort);
-                    } else if(STKindChecker.isJoinClause(item)) {
+                    } else if (STKindChecker.isJoinClause(item)) {
                         const paramNode = new JoinClauseNode(this.context, item as JoinClause);
                         paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
                         this.inputNodes.push(paramNode);
-    
+
                         const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
                         const joinClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
                         expandedHeaderPorts.push(joinClausePort);
                         paramNode.addPort(joinClausePort);
-                    }                    
+                    }
                 }
 
                 const queryNode = new ExpandedMappingHeaderNode(this.context, node);
