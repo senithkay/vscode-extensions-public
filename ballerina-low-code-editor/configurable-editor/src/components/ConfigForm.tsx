@@ -160,27 +160,24 @@ export const ConfigForm = (props: ConfigFormProps) => {
                 <Box key="defaultable fields" className={classes.innerBoxCard}>
                     <Card variant="outlined">
                         <Box>
-                            <Box py={1} pl={2} pr={1}>
-                                <Box className={classes.innerBoxHead}>
-                                    <FormLabel
-                                        component="div"
-                                        className={classes.mainLabelText}
-                                    >
-                                        Defaultable Configurables
-                                    </FormLabel>
-                                    <ExpandMore
-                                        expand={expanded}
-                                        onClick={handleExpandClick}
-                                    />
-                                </Box>
+                            <Box className={classes.innerBoxHead}>
+                                <FormLabel
+                                    component="div"
+                                    className={classes.mainLabelText}
+                                >
+                                    Defaultable Configurables
+                                </FormLabel>
+                                <ExpandMore
+                                    expand={expanded}
+                                    onClick={handleExpandClick}
+                                />
                             </Box>
-
                             <Collapse
                                 in={expanded}
                                 timeout="auto"
                                 unmountOnExit={false}
                             >
-                                <Box px={2} pt={2} borderTop="1px solid #E0E2E9">
+                                <Box p={2} borderTop="1px solid #E0E2E9">
                                     {defaultableElements.map(ConfigElement)}
                                 </Box>
                             </Collapse>

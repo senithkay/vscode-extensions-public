@@ -106,7 +106,7 @@ export const RecordType = (props: RecordTypeProps) => {
     return (
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
-                <CardContent className={classes.cardContent}>
+                <Box>
                     <Box className={classes.innerBoxHead}>
                         <FieldLabel {...fieldLabelProps} />
                         {docLink && triggerDocIconButton}
@@ -116,9 +116,11 @@ export const RecordType = (props: RecordTypeProps) => {
                         />
                     </Box>
                     <Collapse in={expanded} timeout="auto" unmountOnExit={false}>
-                        {returnElement}
+                        <Box p={2} borderTop="1px solid #E0E2E9">
+                            {returnElement}
+                        </Box>
                     </Collapse>
-                </CardContent>
+                </Box>
             </Card>
         </Box>
     );

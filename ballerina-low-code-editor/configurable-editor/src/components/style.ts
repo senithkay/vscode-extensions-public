@@ -99,6 +99,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         innerBoxHead: {
             alignItems: "center",
             display: "flex",
+            padding: theme.spacing(1, 1, 1, 2),
         },
         innerBoxTitle: {
             fontSize: theme.spacing(1.8),
@@ -112,6 +113,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
         },
         mainLabel: {
+            alignItems: "center",
             display: "flex",
             flexWrap: "wrap",
             marginBottom: theme.spacing(0.5),

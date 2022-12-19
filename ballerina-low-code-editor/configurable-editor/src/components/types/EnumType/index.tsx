@@ -18,6 +18,8 @@
  */
 import React, { ReactElement, useEffect, useState } from "react";
 
+import Box from "@material-ui/core/Box";
+
 import { ConfigElementProps } from "../../ConfigElement";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import { SelectInput, SelectInputProps } from "../../elements/SelectInput";
@@ -78,8 +80,16 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
 
             return(
                 <div key={props.id + "-FIELD"}>
-                    <FieldLabel {...fieldLabelProps} />
-                    <SelectInput {...selectInputProps}/>
+                    <Box display="flex" alignItems="center">
+                        <Box flex="0 0 150px">
+                            <FieldLabel {...fieldLabelProps} />
+                        </Box>
+                        <Box
+                            flexGrow={1}
+                        >
+                            <SelectInput {...selectInputProps}/>
+                        </Box>
+                    </Box>
                 </div>
             );
         }
