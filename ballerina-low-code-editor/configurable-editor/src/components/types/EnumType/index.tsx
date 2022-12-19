@@ -105,8 +105,14 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
 
         return(
             <div key={props.id + "-FIELD"}>
-                <FieldLabel {...fieldLabelProps} />
-                <TextFieldInput {...textFieldInputProps}/>
+                 <Box display="flex" alignItems="center">
+                    <Box flex="0 0 150px">
+                        <FieldLabel {...fieldLabelProps} />
+                    </Box>
+                    <Box flexGrow={1}>
+                        <TextFieldInput {...textFieldInputProps}/>
+                    </Box>
+                </Box>
             </div>
         );
     }
