@@ -113,13 +113,13 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion}>
+                    {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
                         primary={connections.name}
                         className={classes.heading}
                         onClick={handleClickOpenConnection}
                     />
-                    {openConnection ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
                 {connections.configurationData.map(
                     (

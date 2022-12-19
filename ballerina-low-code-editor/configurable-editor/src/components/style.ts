@@ -23,11 +23,12 @@ export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         accordion: {
             alignItems: "center",
-            backgroundColor: "#e8e8e9",
+            backgroundColor: "#F7F8FB",
             border: "1px solid #d5d5d5",
             borderTopLeftRadius: theme.spacing(0.5),
             borderTopRightRadius: theme.spacing(0.5),
             display: "flex",
+            gap: theme.spacing(1),
             padding: theme.spacing(0.8, 1.5, 0.8, 1),
         },
         accordionBox: {
