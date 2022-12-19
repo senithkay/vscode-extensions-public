@@ -87,6 +87,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const [openElement, setOpenElement] = React.useState(true);
     const [openPopover, setOpenPopover] = React.useState(true);
 
+    const [selectedIndex, setSelectedIndex] = React.useState("");
     const [selectedValue, setSelectedValue] = useState(props.value);
     const [selectedValue2, setSelectedValue2] = useState(props.value);
     const [arrayValue, setArrayValue] = useState(props.value);
@@ -232,9 +233,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
 
     const onSelected =
         (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
-            console.log(valueType);
-            console.log(props.type);
-            // setSelectedIndex(index);
+            setSelectedIndex(index);
             setSelectedValue2(mappingName);
             setSelectedValueRef(valueReference);
             setConnectionAnchorEl(null);
@@ -304,7 +303,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                             connectionFields.valueRef,
                                             connectionFields.valueType,
                                         )}
-                                        title={connectionFields.valueRef}
+                                        selected={connectionFields.configKey === selectedIndex}
                                     >
                                         <Box
                                             className={classes.connectionField}
