@@ -16,8 +16,8 @@ export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         defaultMainIcon: {
             fill: "currentColor",
-            height: theme.spacing(2),
-            width: theme.spacing(2),
+            height: "1em",
+            width: "1em",
         },
     }),
 );
