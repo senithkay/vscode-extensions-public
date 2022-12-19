@@ -86,6 +86,8 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
     const [selectedValue, setSelectedValue] = useState<boolean | string>(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
     const [openConnection, setOpenConnection] = React.useState(true);
+    const [selectedIndex, setSelectedIndex] = React.useState("");
+
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
     };
@@ -102,6 +104,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
             if (valueType === "boolean") {
                 setSelectedValue(mappingName);
                 setSelectedValueRef(valueReference);
+                setSelectedIndex(index);
                 setAnchorEl(null);
             } else {
                 setAnchorEl(null);
@@ -135,7 +138,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                                         onClick={onSelected(connectionFields.configKey,
                                             "${" + connections.name + "." + connectionFields.configKey + "}",
                                             connectionFields.valueRef, connectionFields.valueType)}
-                                        title={connectionFields.valueRef}
+                                        selected={connectionFields.configKey === selectedIndex}
                                     >
                                         <Box className={classes.connectionField}>
                                         <ListItemText

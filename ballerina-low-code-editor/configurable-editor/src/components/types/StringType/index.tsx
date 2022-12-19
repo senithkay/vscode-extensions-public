@@ -75,9 +75,11 @@ const StringType = (props: StringTypeProps): ReactElement => {
     const open = Boolean(anchorEl);
     const ids = open ? "simple-popover" : undefined;
 
+    const [selectedIndex, setSelectedIndex] = React.useState("");
     const [selectedValue, setSelectedValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
     const [openConnection, setOpenConnection] = React.useState(true);
+    
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
     };
@@ -87,6 +89,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
             if (typeof props.value === valueType) {
                 setSelectedValue(mappingName);
                 setSelectedValueRef(valueReference);
+                setSelectedIndex(index);
                 setAnchorEl(null);
             } else {
                 setAnchorEl(null);
@@ -156,7 +159,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                             connectionFields.valueRef,
                                             connectionFields.valueType,
                                         )}
-                                        title={connectionFields.valueRef}
+                                        selected={connectionFields.configKey === selectedIndex}
                                     >
                                         <Box
                                             className={classes.connectionField}
@@ -205,9 +208,6 @@ const StringType = (props: StringTypeProps): ReactElement => {
 
     returnElement.push(
         (
-        // <div key={id + "-FIELD"}>
-        //     <TextFieldInput {...textFieldInputProps} />
-        // </div>
             <div key={id + "-FIELD"}>
                 <Box
                     flexGrow={1}

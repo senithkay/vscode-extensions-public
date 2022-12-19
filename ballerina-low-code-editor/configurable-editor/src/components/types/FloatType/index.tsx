@@ -77,6 +77,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
     const [openConnection, setOpenConnection] = React.useState(true);
     const [selectedValue, setSelectedValue] = useState<string | number>(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
+    const [selectedIndex, setSelectedIndex] = React.useState("");
 
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
@@ -100,6 +101,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                 setConnectionClick(true);
                 setSelectedValue(mappingName);
                 setSelectedValueRef(valueReference);
+                setSelectedIndex(index);
                 setAnchorEl(null);
             } else {
                 setAnchorEl(null);
@@ -156,7 +158,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                             connectionFields.valueRef,
                                             connectionFields.valueType,
                                         )}
-                                        title={connectionFields.valueRef}
+                                        selected={connectionFields.configKey === selectedIndex}
                                     >
                                         <Box
                                             className={classes.connectionField}

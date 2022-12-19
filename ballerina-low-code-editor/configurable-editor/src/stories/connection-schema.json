@@ -19,9 +19,9 @@
         "valueRef": "/azure-kv/username"
       },
       {
-        "configKey": "password",
-        "valueType": "string",
-        "valueRef": "/azure-kv/password"
+        "configKey": "isAvailable",
+        "valueType": "boolean",
+        "valueRef": "/azure-kv/isAvailable"
       }
     ]
   },

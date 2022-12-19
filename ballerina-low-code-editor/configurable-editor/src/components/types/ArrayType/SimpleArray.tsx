@@ -232,6 +232,9 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
 
     const onSelected =
         (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
+            console.log(valueType);
+            console.log(props.type);
+            // setSelectedIndex(index);
             setSelectedValue2(mappingName);
             setSelectedValueRef(valueReference);
             setConnectionAnchorEl(null);
