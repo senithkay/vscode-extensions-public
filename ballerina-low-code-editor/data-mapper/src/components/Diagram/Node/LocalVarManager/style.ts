@@ -131,6 +131,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             '&:focus': { outline: 0 },
             background: 'transparent'
         },
+        plusButton: {
+            marginLeft: '10px',
+            marginBottom: '-15px'
+        }
     }),
     { index: 1 }
 );

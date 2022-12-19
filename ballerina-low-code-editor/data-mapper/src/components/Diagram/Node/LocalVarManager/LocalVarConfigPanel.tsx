@@ -16,16 +16,14 @@ import { useIntl } from "react-intl";
 
 import { IconButton, Link } from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl/FormControl";
-import { default as AddIcon } from "@material-ui/icons/Add";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DeleteButton,
-    STModification,
+    STModification, TopLevelPlusIcon,
     UndoIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FormHeaderSection,
-    LinePrimaryButton,
     Panel,
     PrimaryButton,
     useStyles as useFormStyles
@@ -68,6 +66,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
 
     const letExpression = getLetExpression(fnDef);
     const [letVarDecls, setLetVarDecls] = useState<LetVarDeclModel[]>([]);
+    const [isPlusClicked, setPlusClicked] = useState(false);
     const hasSelectedLetVarDecl = letVarDecls.some(decl => decl.checked);
 
     useEffect(() => {
@@ -88,6 +87,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     };
 
     const onAddNewVar = async () => {
+        setPlusClicked(true);
         const addPosition = getLetExprAddPosition();
         const varName = genLetExpressionVariableName([letExpression]);
         const expr = letExpression ? `, var ${varName} = EXPRESSION` : `let var ${varName} = EXPRESSION in `;
@@ -98,6 +98,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                 ...addPosition,
             },
         ]);
+        setPlusClicked(false);
     };
 
     const handleOnCheck = () => {
@@ -232,15 +233,24 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                 {
                     letVarDecls && letVarDecls.map(decl => {
                         return (
-                            <LetVarDeclItem
-                                key={decl.letVarDecl.source}
-                                letVarDeclModel={decl}
-                                handleOnCheck={handleOnCheck}
-                                onEditClick={onEditClick}
-                                applyModifications={applyModifications}
-                                langClientPromise={langClientPromise}
-                                filePath={filePath}
-                            />
+                            <>
+                                <LetVarDeclItem
+                                    key={decl.letVarDecl.source}
+                                    letVarDeclModel={decl}
+                                    handleOnCheck={handleOnCheck}
+                                    onEditClick={onEditClick}
+                                    applyModifications={applyModifications}
+                                    langClientPromise={langClientPromise}
+                                    filePath={filePath}
+                                />
+                                <div className={overlayClasses.plusButton}>
+                                        <IconButton
+                                            onClick={onAddNewVar}
+                                        >
+                                            <TopLevelPlusIcon selected={isPlusClicked}/>
+                                        </IconButton>
+                                </div>
+                            </>
                         );
                     })
                 }
@@ -262,15 +272,15 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                 />
                 <div className={overlayClasses.recordFormWrapper}>
                     {letVarList}
-                    <div className={overlayClasses.createButtonWrapper}>
-                        <LinePrimaryButton
-                            text={"Add New"}
-                            fullWidth={true}
-                            onClick={onAddNewVar}
-                            dataTestId="create-new-btn"
-                            startIcon={<AddIcon />}
-                        />
-                    </div>
+                    {/*<div className={overlayClasses.createButtonWrapper}>*/}
+                    {/*    <LinePrimaryButton*/}
+                    {/*        text={"Add New"}*/}
+                    {/*        fullWidth={true}*/}
+                    {/*        onClick={onAddNewVar}*/}
+                    {/*        dataTestId="create-new-btn"*/}
+                    {/*        startIcon={<AddIcon />}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
                     <div className={overlayClasses.recordOptions}>
                         <Link
                             key={'select-all'}
