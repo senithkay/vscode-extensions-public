@@ -39,12 +39,13 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
-import { SelectIcon } from "../../../assets/icons";
+import { SelectIcon, TickIcon } from "../../../assets/icons";
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import ButtonContainer from "../../elements/ButtonContainer";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
+import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
 import OutlinedLabel from "../../elements/OutlinedLabel";
 import PopOverComponent, {
     PopOverComponentProps,
@@ -305,26 +306,31 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                         )}
                                         selected={connectionFields.configKey === selectedIndex}
                                     >
-                                        <Box
-                                            className={classes.connectionField}
-                                        >
-                                            <Typography
-                                                className={classes.itemText}
-                                                key={sIndex}
+                                        <Box display="flex" width={1}>
+                                            <Box
+                                                className={classes.connectionField}
                                             >
-                                                {connectionFields.configKey.split(".").pop() +
-                                                    ":"}
-                                            </Typography>
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
+                                                <Typography
+                                                    className={classes.itemText}
+                                                    key={sIndex}
+                                                >
+                                                    {connectionFields.configKey.split(".").pop() +
+                                                        ":"}
+                                                </Typography>
+                                                <OutlinedLabel
+                                                    type="default"
+                                                    label={
+                                                        connectionFields.valueType
+                                                    }
+                                                    tooltipText={
+                                                        connectionFields.valueType
+                                                    }
+                                                    shape="none"
+                                                />
+                                            </Box>
+                                            {
+                                                connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
+                                            }
                                         </Box>
                                     </MenuItem>
                                 );

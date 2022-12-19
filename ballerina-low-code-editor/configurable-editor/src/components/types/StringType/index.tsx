@@ -35,6 +35,7 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
 import OutlinedLabel from "../../elements/OutlinedLabel";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ConnectionSchema } from "../../model";
@@ -79,7 +80,6 @@ const StringType = (props: StringTypeProps): ReactElement => {
     const [selectedValue, setSelectedValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
     const [openConnection, setOpenConnection] = React.useState(true);
-    
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
     };
@@ -113,13 +113,13 @@ const StringType = (props: StringTypeProps): ReactElement => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion}>
+                    {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
                         primary={connections.name}
                         className={classes.heading}
                         onClick={handleClickOpenConnection}
                     />
-                    {openConnection ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
                 {connections.configurationData.map(
                     (
@@ -161,16 +161,16 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                         )}
                                         selected={connectionFields.configKey === selectedIndex}
                                     >
+                                    <Box display="flex" width={1}>
                                         <Box
                                             className={classes.connectionField}
                                         >
-                                            <ListItemText
+                                            <Typography
+                                                className={classes.itemText}
                                                 key={sIndex}
-                                                primary={
-                                                    connectionFields.configKey.split(".").pop() +
-                                                    ":"
-                                                }
-                                            />
+                                            >
+                                                {connectionFields.configKey.split(".").pop() + ":"}
+                                            </Typography>
                                             <OutlinedLabel
                                                 type="default"
                                                 label={
@@ -181,6 +181,10 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                                 }
                                                 shape="none"
                                             />
+                                        </Box>
+                                        {
+                                                connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
+                                            }
                                         </Box>
                                     </MenuItem>
                                 </List>
