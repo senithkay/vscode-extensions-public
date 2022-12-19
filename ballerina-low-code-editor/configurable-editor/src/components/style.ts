@@ -45,7 +45,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             border: "1px solid #E0E2E9",
             borderRadius: 5,
             color: "#5567D5",
-            padding: theme.spacing(1),
+            padding: theme.spacing(1.2),
         },
         card: {
             boxShadow: "none",
@@ -68,12 +68,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         descriptionLabel: {
             display: "flex",
-            marginBottom: theme.spacing(0.5),
-            marginTop: theme.spacing(0.5),
-        },
-        descriptionLabelText: {
-            color: "#3f51b5",
-            fontSize: theme.spacing(1.4),
+            marginRight: theme.spacing(0.5),
         },
         divider: {
             border: "1px solid #DEE0E7",
@@ -94,7 +89,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             margin: 0,
         },
         innerBoxCard: {
-            marginTop: theme.spacing(1),
+            marginBottom: theme.spacing(2),
         },
         innerBoxHead: {
             alignItems: "center",
@@ -128,6 +123,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainLabelText: {
             color: "#1D2028",
             fontSize: theme.spacing(1.6),
+            marginRight: theme.spacing(0.5),
         },
         menuItem: {
             border: "1px solid #d5d5d5",

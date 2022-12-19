@@ -268,7 +268,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
 
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
-            <Box key={index}>
+            <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion}>
                     <ListItemText
                         key={index}

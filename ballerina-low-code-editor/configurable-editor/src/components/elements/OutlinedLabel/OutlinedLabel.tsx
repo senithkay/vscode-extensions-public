@@ -60,7 +60,6 @@ const OutlinedLabel = ({ type, label, tooltipText, isLink, shape }: OutlinedLabe
         borderRadius: shape === "square" ? 3 : 10,
         color: chipColor,
         cursor,
-        marginLeft: 5,
     };
 
     return (
