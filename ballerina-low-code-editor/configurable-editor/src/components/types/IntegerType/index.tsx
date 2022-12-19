@@ -115,7 +115,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
 
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
-            <Box key={index}>
+            <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion}>
                     <ListItemText
                         key={index}
@@ -214,7 +214,12 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
         (
             <div key={id + "-FIELD"}>
                 {/* <TextFieldInput {...textFieldInputProps} /> */}
-                <Box display="flex" alignItems="center">
+                <Box
+                    flexGrow={1}
+                    display="flex"
+                    gridGap={4}
+                    alignItems="center"
+                >
                     <Box flexGrow={1}>
                         <TextFieldInput
                             id={id}

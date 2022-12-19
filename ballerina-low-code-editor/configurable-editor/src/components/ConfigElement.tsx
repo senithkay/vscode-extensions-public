@@ -123,11 +123,11 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
 
             returnElement.push(
                 (
-                    <Box>
-                        <Box>
+                    <Box display="flex" alignItems="center">
+                        <Box flex="0 0 150px">
                             <FieldLabel {...fieldLabelProps} />
                         </Box>
-                        <Box>
+                        <Box flexGrow={1}>
                             <SimpleType {...simpleTypeProp} />
                         </Box>
                     </Box>
@@ -138,12 +138,8 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
 
     if (returnElement.length > 0) {
         return (
-            <Box key={props.id}>
-                <Card className={classes.card}>
-                    <CardContent className={classes.cardContent} >
-                        {returnElement}
-                    </CardContent>
-                </Card>
+            <Box key={props.id} mb={2}>
+                {returnElement}
             </Box>
         );
     }
