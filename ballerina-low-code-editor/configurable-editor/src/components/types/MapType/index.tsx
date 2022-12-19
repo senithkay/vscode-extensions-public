@@ -39,7 +39,7 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
-import { SelectButtonSvg } from "../../../assets";
+import { SelectIcon } from "../../../assets/icons";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
@@ -289,7 +289,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
-            <Box key={index}>
+            <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion}>
                     <ListItemText
                         key={index}
@@ -370,7 +370,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     });
 
     const iconButton = (
-        <Grid item={true} xs={1}>
+        <Box>
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
@@ -378,9 +378,9 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                 data-placement="top"
                 onClick={handleConnectionClick}
             >
-                <img src={SelectButtonSvg} height={20} width={20} />
+               <SelectIcon />
             </IconButton>
-        </Grid>
+        </Box>
     );
 
     const popOverComponent = (
@@ -404,85 +404,63 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     };
 
     return (
-        <Box>
-            <Card className={classes.card}>
-                <CardContent className={classes.cardContent}>
-                    <Grid
-                        container={true}
-                        spacing={1}
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="center"
-                        className={classes.buttonBorder}
+        <Box mb={2}>
+            <Box display="flex" alignItems="center">
+                <Box flex="0 0 150px">
+                    <FieldLabel {...fieldLabelProps} />
+                </Box>
+                <Box flexGrow={1} display="flex" alignItems="center" gridGap={4}>
+                    <Box flexGrow={1}>
+                        <TextField
+                            variant="outlined"
+                            fullWidth={true}
+                            margin="none"
+                            size="small"
+                            classes={{
+                                root: classes.textInputRoot,
+                            }}
+                            placeholder={
+                                "Select config or Add values"
+                            }
+                            InputLabelProps={{ shrink: false }}
+                            data-cyid={name}
+                            aria-describedby={textId}
+                            onClick={handleClick}
+                            value={selectedValue}
+                        />
+                    </Box>
+                    {!isInsideArray &&
+                        !isLowCode &&
+                        !isFeaturePreview &&
+                        iconButton}
+                </Box>
+                <Box>
+                    <Popover
+                        id={connectionId}
+                        open={connectionOpen}
+                        anchorEl={connectionAnchorEl}
+                        onClose={handleConnectionClose}
+                        anchorOrigin={{
+                            horizontal: "right",
+                            vertical: "bottom",
+                        }}
+                        transformOrigin={{
+                            horizontal: "right",
+                            vertical: "top",
+                        }}
+                        className={classes.popOver}
                     >
-                        <Grid item={true} xs={3}>
-                            <FieldLabel {...fieldLabelProps} />
-                        </Grid>
-                        <Grid item={true} xs={9}>
-                            <Box className={classes.formInputBox}>
-                                <Grid
-                                    container={true}
-                                    spacing={1}
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    className={classes.buttonBorder}
-                                >
-                                    <Grid item={true} xs={11}>
-                                        <TextField
-                                            variant="outlined"
-                                            fullWidth={true}
-                                            margin="none"
-                                            size="small"
-                                            classes={{
-                                                root: classes.textInputRoot,
-                                            }}
-                                            placeholder={
-                                                "Select config or Add values"
-                                            }
-                                            InputLabelProps={{ shrink: false }}
-                                            data-cyid={name}
-                                            aria-describedby={textId}
-                                            onClick={handleClick}
-                                            value={selectedValue}
-                                        />
-                                    </Grid>
-                                    {!isInsideArray &&
-                                        !isLowCode &&
-                                        !isFeaturePreview &&
-                                        iconButton}
-                                </Grid>
-                                <Box>
-                                    <Popover
-                                        id={connectionId}
-                                        open={connectionOpen}
-                                        anchorEl={connectionAnchorEl}
-                                        onClose={handleConnectionClose}
-                                        anchorOrigin={{
-                                            horizontal: "right",
-                                            vertical: "bottom",
-                                        }}
-                                        transformOrigin={{
-                                            horizontal: "right",
-                                            vertical: "top",
-                                        }}
-                                        className={classes.popOver}
-                                    >
-                                        <Box>
-                                            <Typography
-                                                className={classes.popOver}
-                                            >
-                                                {getConnection}
-                                            </Typography>
-                                        </Box>
-                                    </Popover>
-                                </Box>
-                                <Box>{popOverComponent}</Box>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </CardContent>
-            </Card>
+                        <Box>
+                            <Typography
+                                className={classes.popOver}
+                            >
+                                {getConnection}
+                            </Typography>
+                        </Box>
+                    </Popover>
+                </Box>
+                <Box>{popOverComponent}</Box>
+            </Box>
         </Box>
     );
 };

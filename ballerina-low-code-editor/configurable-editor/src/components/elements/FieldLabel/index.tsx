@@ -19,7 +19,8 @@
 
 import React from "react";
 
-import { Box, FormLabel, ThemeProvider, Typography } from "@material-ui/core";
+import { Box, FormLabel, ThemeProvider, Tooltip, Typography } from "@material-ui/core";
+import InfoIcon from "@material-ui/icons/Info";
 
 import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
@@ -44,14 +45,13 @@ export function FieldLabel(props: FieldLabelProps) {
     return (
         <Box className={classes.labelCont}>
             <Box className={classes.mainLabel}>
-                <ThemeProvider theme={theme}>
-                    <FormLabel
-                        component="div"
-                        className={classes.mainLabelText}
-                    >
-                        {fieldLabel}
-                    </FormLabel>
-                </ThemeProvider>
+                <FormLabel
+                    component="div"
+                    className={classes.mainLabelText}
+                >
+                    {fieldLabel}
+                </FormLabel>
+                {getDescription(description, classes)}
                 <OutlinedLabel
                     type="success"
                     label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType}
@@ -59,7 +59,6 @@ export function FieldLabel(props: FieldLabelProps) {
                     shape="none"
                 />
             </Box>
-            {getDescription(description, classes)}
         </Box>
     );
 }
@@ -67,14 +66,11 @@ export function FieldLabel(props: FieldLabelProps) {
 export const getDescription = (description: string, classes: ReturnType<typeof useStyles>) => {
     if (description) {
         return (
-            <Box className={classes.descriptionLabel}>
-                <Typography
-                    component="div"
-                    className={classes.descriptionLabelText}
-                >
-                    {description}
-                </Typography>
-            </Box>
+            <Tooltip title={description} placement="right-start">
+                <Box className={classes.descriptionLabel}>
+                    <InfoIcon fontSize="inherit" color="primary" />
+                </Box>
+            </Tooltip>
         );
     }
 };
