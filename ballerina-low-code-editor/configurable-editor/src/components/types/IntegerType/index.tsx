@@ -35,6 +35,7 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
 import OutlinedLabel from "../../elements/OutlinedLabel";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ConnectionSchema } from "../../model";
@@ -167,26 +168,31 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                                         )}
                                         selected={connectionFields.configKey === selectedIndex}
                                     >
-                                        <Box
-                                            className={classes.connectionField}
-                                        >
-                                            <ListItemText
-                                                key={sIndex}
-                                                primary={
-                                                    connectionFields.configKey.split(".").pop() +
-                                                    ":"
-                                                }
-                                            />
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
+                                        <Box display="flex" width={1}>
+                                            <Box
+                                                className={classes.connectionField}
+                                            >
+                                                <Typography
+                                                    className={classes.itemText}
+                                                    key={sIndex}
+                                                >
+                                                    { connectionFields.configKey.split(".").pop() +
+                                                    ":"}
+                                                </Typography>
+                                                <OutlinedLabel
+                                                    type="default"
+                                                    label={
+                                                        connectionFields.valueType
+                                                    }
+                                                    tooltipText={
+                                                        connectionFields.valueType
+                                                    }
+                                                    shape="none"
+                                                />
+                                            </Box>
+                                            {
+                                            connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
+                                            }
                                         </Box>
                                     </MenuItem>
                                 </List>
