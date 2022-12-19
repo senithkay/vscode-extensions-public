@@ -39,7 +39,7 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
-import { SelectButtonSvg } from "../../../assets";
+import { SelectIcon } from "../../../assets/icons";
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
@@ -54,7 +54,6 @@ import { getConfigProperties, getRecordName } from "../../utils";
 import ObjectType, { ObjectTypeProps } from "../ObjectType";
 
 import { ArrayTypeProps } from ".";
-import { SelectIcon } from "../../../assets/icons";
 export interface ObjectArrayProps extends ArrayTypeProps {
     values?: any[];
     setArrayElement?: (id: string, objectArrayValue: any) => void;
@@ -102,7 +101,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     };
 
     const handleConnectionClick = (
-        connectionEvent: React.MouseEvent<HTMLButtonElement>
+        connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
         setConnectionAnchorEl(connectionEvent.currentTarget);
     };
@@ -133,7 +132,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                 configProperties = getConfigProperties(
                     elementSchema,
                     props.connectionConfig,
-                    props.id + "-" + newCounter
+                    props.id + "-" + newCounter,
                 ).properties;
             }
             Object.keys(props.value).forEach((key) => {
@@ -162,7 +161,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
             propertiesValue = getConfigProperties(
                 elementSchema,
                 props.connectionConfig,
-                props.id + "-" + counter
+                props.id + "-" + counter,
             ).properties;
         }
         const objectArrayProps: ObjectArrayProps = {
@@ -189,7 +188,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const handleValueChange = (id: string, value: any) => {
         const newArrayValues = [...arrayValues];
         const existingMap = newArrayValues.findIndex(
-            (property) => property.id === id
+            (property) => property.id === id,
         );
         if (existingMap > -1) {
             newArrayValues[existingMap] = value;
@@ -243,18 +242,20 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         };
 
         returnElement.push(
-            <Box key={arrayElement.id} mt={2} display="flex">
-                <Box key={arrayElement.id + "-ENTRY"} flexGrow={1}>
-                    <ObjectType {...objectTypeProps} />
-                </Box>
+            (
+                <Box key={arrayElement.id} mt={2} display="flex">
+                    <Box key={arrayElement.id + "-ENTRY"} flexGrow={1}>
+                        <ObjectType {...objectTypeProps} />
+                    </Box>
 
-                <Box>
-                    <DeleteButton
-                        onDelete={removeArrayElement}
-                        id={arrayElement.id}
-                    />
+                    <Box>
+                        <DeleteButton
+                            onDelete={removeArrayElement}
+                            id={arrayElement.id}
+                        />
+                    </Box>
                 </Box>
-            </Box>
+            ),
         );
     });
 
@@ -268,7 +269,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index}>
-                <ListItem button={true} className={classes.accordian}>
+                <ListItem button={true} className={classes.accordion}>
                     <ListItemText
                         key={index}
                         primary={connections.name}
@@ -284,7 +285,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                             valueType: string;
                             valueRef: string;
                         },
-                        sIndex: React.Key
+                        sIndex: React.Key,
                     ) => {
                         return (
                             <Collapse
@@ -297,7 +298,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                                     <MenuItem
                                         button={true}
                                         value={connectionFields.configKey}
-                                        className={classes.menuItemStyle}
+                                        className={classes.menuItem}
                                         id={
                                             "${" +
                                             connections.name +
@@ -312,7 +313,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                                                 "." +
                                                 connectionFields.configKey +
                                                 "}",
-                                            connectionFields.valueRef
+                                            connectionFields.valueRef,
                                         )}
                                         title={connectionFields.valueRef}
                                     >
@@ -322,7 +323,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                                             <ListItemText
                                                 key={sIndex}
                                                 primary={
-                                                    connectionFields.configKey +
+                                                    connectionFields.configKey.split(".").pop() +
                                                     ":"
                                                 }
                                             />
@@ -341,7 +342,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                                 </List>
                             </Collapse>
                         );
-                    }
+                    },
                 )}
             </Box>
         );

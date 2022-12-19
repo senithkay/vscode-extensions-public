@@ -19,6 +19,7 @@
 
 import React from "react";
 
+import { Box } from "@material-ui/core";
 import { Story } from "@storybook/react";
 
 import ConfigEditor from "../../components/ConfigEditor";
@@ -29,7 +30,6 @@ import connnectionSchema from "../connection-schema.json";
 
 import configSchema from "./config-schema.json";
 import existingConfigs from "./existing-configs.json";
-import { Box } from "@material-ui/core";
 
 const onClickDefaultButton = () => {
     // tslint:disable-next-line: no-console

@@ -11,6 +11,7 @@
  * associated services.
  */
 import React from "react";
+
 import { useStyles } from "./style";
 
 export default function SelectIcon() {

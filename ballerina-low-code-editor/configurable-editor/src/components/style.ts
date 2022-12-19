@@ -21,20 +21,20 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        accordionBox: {
-            marginBottom: theme.spacing(1),
-            "&:last-child": {
-                marginBottom: 0,
-            },
-        },
         accordion: {
+            alignItems: "center",
             backgroundColor: "#e8e8e9",
             border: "1px solid #d5d5d5",
-            padding: theme.spacing(0.5, 1.5, 0.5, 1),
             borderTopLeftRadius: theme.spacing(0.5),
             borderTopRightRadius: theme.spacing(0.5),
             display: "flex",
-            alignItems: "center",
+            padding: theme.spacing(0.5, 1.5, 0.5, 1),
+        },
+        accordionBox: {
+            "&:last-child": {
+                marginBottom: 0,
+            },
+            "marginBottom": theme.spacing(1),
         },
         buttonBorder: {
             border: theme.spacing(1),
@@ -56,6 +56,11 @@ export const useStyles = makeStyles((theme: Theme) =>
                 paddingBottom: theme.spacing(0.6),
                 paddingTop: theme.spacing(0.1),
             },
+        },
+        cardMainHead: {
+            borderBottom: `1px solid ${theme.palette.grey[100]}`,
+            marginBottom: theme.spacing(2),
+            paddingBottom: theme.spacing(2),
         },
         connectionField: {
             display: "flex",
@@ -98,6 +103,10 @@ export const useStyles = makeStyles((theme: Theme) =>
         innerBoxTitle: {
             fontSize: theme.spacing(1.8),
         },
+        itemText: {
+            fontSize: theme.typography.pxToRem(13),
+            fontWeight: 500,
+        },
         labelCont: {},
         labelTag: {
             display: "flex",
@@ -123,10 +132,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             borderTop: 0,
             paddingLeft: theme.spacing(2),
         },
-        itemText: {
-            fontWeight: 500,
-            fontSize: theme.typography.pxToRem(13),
-        },
         popOver: {
             overflow: "auto",
             padding: theme.spacing(2),
@@ -136,17 +141,12 @@ export const useStyles = makeStyles((theme: Theme) =>
             "& .MuiInputBase-root": {
                 backgroundColor: "#ffffff",
             },
-            marginBottom: theme.spacing(0),
+            "marginBottom": theme.spacing(0),
         },
         unsupportedLabelText: {
             color: "#FF9494",
             fontSize: theme.spacing(1.4),
             marginBottom: theme.spacing(1),
         },
-        cardMainHead: {
-            paddingBottom: theme.spacing(2),
-            marginBottom: theme.spacing(2),
-            borderBottom: `1px solid ${theme.palette.grey[100]}`,
-        },
-    })
+    }),
 );

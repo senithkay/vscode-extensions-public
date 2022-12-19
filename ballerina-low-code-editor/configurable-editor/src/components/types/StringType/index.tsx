@@ -34,13 +34,12 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
-import { SelectButtonSvg } from "../../../assets";
+import { SelectIcon } from "../../../assets/icons";
 import OutlinedLabel from "../../elements/OutlinedLabel";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
 import { SimpleTypeProps } from "../SimpleType";
-import { SelectIcon } from "../../../assets/icons";
 
 /**
  * The leaf level configurable type representing string values.
@@ -52,7 +51,7 @@ export interface StringTypeProps extends SimpleTypeProps {
     setStringType: (
         id: string,
         stringValue: string,
-        valueReference: string
+        valueReference: string,
     ) => void;
     isInsideArray?: boolean;
     isLowCode?: boolean;
@@ -60,9 +59,7 @@ export interface StringTypeProps extends SimpleTypeProps {
 }
 
 const StringType = (props: StringTypeProps): ReactElement => {
-    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
-        null
-    );
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const isInsideArray = props.isInsideArray;
     const isLowCode = props.isLowCode;
     const isFeaturePreview = props.isFeaturePreview;
@@ -86,18 +83,14 @@ const StringType = (props: StringTypeProps): ReactElement => {
     };
 
     const onSelected =
-        (index: string, mappingName: string, valueReference: string) => () => {
-            setSelectedValue(mappingName);
-            setSelectedValueRef(valueReference);
-            // tslint:disable-next-line: no-console
-            console.log("mappingName");
-            // tslint:disable-next-line: no-console
-            console.log(mappingName);
-            // tslint:disable-next-line: no-console
-            console.log("valueReference");
-            // tslint:disable-next-line: no-console
-            console.log(valueReference);
-            setAnchorEl(null);
+        (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
+            if (typeof props.value === valueType) {
+                setSelectedValue(mappingName);
+                setSelectedValueRef(valueReference);
+                setAnchorEl(null);
+            } else {
+                setAnchorEl(null);
+            }
         };
 
     const returnElement: ReactElement[] = [];
@@ -116,7 +109,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index}>
-                <ListItem button={true} className={classes.accordian}>
+                <ListItem button={true} className={classes.accordion}>
                     <ListItemText
                         key={index}
                         primary={connections.name}
@@ -132,7 +125,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                             valueType: string;
                             valueRef: string;
                         },
-                        sIndex: React.Key
+                        sIndex: React.Key,
                     ) => {
                         return (
                             <Collapse
@@ -145,7 +138,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                     <MenuItem
                                         button={true}
                                         value={connectionFields.configKey}
-                                        className={classes.menuItemStyle}
+                                        className={classes.menuItem}
                                         id={
                                             "${" +
                                             connections.name +
@@ -160,7 +153,8 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                                 "." +
                                                 connectionFields.configKey +
                                                 "}",
-                                            connectionFields.valueRef
+                                            connectionFields.valueRef,
+                                            connectionFields.valueType,
                                         )}
                                         title={connectionFields.valueRef}
                                     >
@@ -170,7 +164,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                             <ListItemText
                                                 key={sIndex}
                                                 primary={
-                                                    connectionFields.configKey +
+                                                    connectionFields.configKey.split(".").pop() +
                                                     ":"
                                                 }
                                             />
@@ -189,7 +183,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                 </List>
                             </Collapse>
                         );
-                    }
+                    },
                 )}
             </Box>
         );
@@ -210,46 +204,48 @@ const StringType = (props: StringTypeProps): ReactElement => {
     );
 
     returnElement.push(
+        (
         // <div key={id + "-FIELD"}>
         //     <TextFieldInput {...textFieldInputProps} />
         // </div>
-        <div key={id + "-FIELD"}>
-            <Box display="flex" alignItems="center">
-                <Box flexGrow={1}>
-                    <TextFieldInput
-                        id={id}
-                        isRequired={isRequired}
-                        name={name}
-                        placeholder="Select config or Enter a value"
-                        setTextFieldValue={setStringType}
-                        type="text"
-                        value={selectedValue}
-                        valueRef={selectedValueRef}
-                    />
-                </Box>
-                {!isInsideArray &&
-                    !isLowCode &&
-                    !isFeaturePreview &&
-                    iconButton}
-            </Box>
-            <Box>
-                <Popover
-                    id={ids}
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                    transformOrigin={{ horizontal: "right", vertical: "top" }}
-                    className={classes.popOver}
-                >
-                    <Box>
-                        <Typography className={classes.popOver}>
-                            {getConnection}
-                        </Typography>
+            <div key={id + "-FIELD"}>
+                <Box display="flex" alignItems="center">
+                    <Box flexGrow={1}>
+                        <TextFieldInput
+                            id={id}
+                            isRequired={isRequired}
+                            name={name}
+                            placeholder="Select config or Enter a value"
+                            setTextFieldValue={setStringType}
+                            type="text"
+                            value={selectedValue}
+                            valueRef={selectedValueRef}
+                        />
                     </Box>
-                </Popover>
-            </Box>
-        </div>
+                    {!isInsideArray &&
+                        !isLowCode &&
+                        !isFeaturePreview &&
+                        iconButton}
+                </Box>
+                <Box>
+                    <Popover
+                        id={ids}
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                        transformOrigin={{ horizontal: "right", vertical: "top" }}
+                        className={classes.popOver}
+                    >
+                        <Box>
+                            <Typography className={classes.popOver}>
+                                {getConnection}
+                            </Typography>
+                        </Box>
+                    </Popover>
+                </Box>
+            </div>
+        ),
     );
 
     return <>{returnElement}</>;

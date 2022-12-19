@@ -148,6 +148,7 @@ function getObjectElement(configObject: ConfigElementProps, recordName: string):
     return {
         description: configObject.description,
         id: configObject.id,
+        isInsideArray: false,
         isRequired: configObject.isRequired,
         name: configObject.name,
         properties: nestedProperties,
@@ -167,7 +168,7 @@ function getNestedElements(nestedObjects: ConfigElementProps[]): ConfigElementPr
         properties.push({
             description: property.description,
             id: property.id,
-            isInsideArray: true,
+            isInsideArray: false,
             isRequired: property.isRequired,
             name: property.name,
             properties: nestedProperties,

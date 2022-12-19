@@ -15,9 +15,9 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         defaultMainIcon: {
-            width: theme.spacing(2),
-            height: theme.spacing(2),
             fill: "currentColor",
+            height: theme.spacing(2),
+            width: theme.spacing(2),
         },
-    })
+    }),
 );

@@ -122,14 +122,16 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             };
 
             returnElement.push(
-                <Box>
+                (
                     <Box>
-                        <FieldLabel {...fieldLabelProps} />
+                        <Box>
+                            <FieldLabel {...fieldLabelProps} />
+                        </Box>
+                        <Box>
+                            <SimpleType {...simpleTypeProp} />
+                        </Box>
                     </Box>
-                    <Box>
-                        <SimpleType {...simpleTypeProp} />
-                    </Box>
-                </Box>
+                ),
             );
             break;
     }

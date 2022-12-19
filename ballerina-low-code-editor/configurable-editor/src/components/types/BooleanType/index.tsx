@@ -34,7 +34,7 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
-import { SelectButtonSvg } from "../../../assets";
+import { SelectIcon } from "../../../assets/icons";
 import OutlinedLabel from "../../elements/OutlinedLabel";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ToggleButtonInput, ToggleButtonInputProps } from "../../elements/ToggleButtonInput";
@@ -97,16 +97,21 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
             propertyValueRef !== undefined ? Boolean(propertyValueRef) : "");
     };
 
-    const onSelected = (index: string, mappingName: string, valueReference: string) => () => {
-        setSelectedValue(mappingName);
-        setSelectedValueRef(valueReference);
-        setAnchorEl(null);
-    };
+    const onSelected =
+        (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
+            if (valueType === "boolean") {
+                setSelectedValue(mappingName);
+                setSelectedValueRef(valueReference);
+                setAnchorEl(null);
+            } else {
+                setAnchorEl(null);
+            }
+        };
 
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index}>
-                <ListItem button={true} className={classes.accordian}>
+                <ListItem button={true} className={classes.accordion}>
                     <ListItemText
                         key={index}
                         primary={connections.name}
@@ -125,15 +130,18 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                                     <MenuItem
                                         button={true}
                                         value={connectionFields.configKey}
-                                        className={classes.menuItemStyle}
+                                        className={classes.menuItem}
                                         id={"${" + connections.name + "." + connectionFields.configKey + "}"}
                                         onClick={onSelected(connectionFields.configKey,
                                             "${" + connections.name + "." + connectionFields.configKey + "}",
-                                            connectionFields.valueRef)}
+                                            connectionFields.valueRef, connectionFields.valueType)}
                                         title={connectionFields.valueRef}
                                     >
                                         <Box className={classes.connectionField}>
-                                        <ListItemText key={sIndex} primary={connectionFields.configKey + ":"} />
+                                        <ListItemText
+                                            key={sIndex}
+                                            primary={connectionFields.configKey.split(".").pop() + ":"}
+                                        />
                                         <OutlinedLabel
                                             type="default"
                                             label={connectionFields.valueType}
@@ -160,7 +168,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                 data-placement="top"
                 onClick={handleClick}
             >
-                <img src={SelectButtonSvg} height={20} width={20} />
+                <SelectIcon />
             </IconButton>
         </Box>
     );
@@ -168,15 +176,8 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
     returnElement.push(
         (
             <div key={id + "-FIELD"}>
-                {/* <ToggleButtonInput {...toggleButtonInputProps} /> */}
-                <Grid
-                    container={true}
-                    spacing={1}
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <Grid item={true} xs={11}>
+                <Box display="flex" alignItems="center">
+                    <Box flexGrow={1}>
                         <TextFieldInput
                             id={id}
                             isRequired={isRequired}
@@ -186,9 +187,12 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                             value={selectedValue}
                             valueRef={selectedValueRef}
                         />
-                    </Grid>
-                    {!isInsideArray && !isLowCode && !isFeaturePreview && iconButton}
-                </Grid>
+                    </Box>
+                    {!isInsideArray &&
+                        !isLowCode &&
+                        !isFeaturePreview &&
+                        iconButton}
+                </Box>
                 <Box>
                     <Popover
                         id={ids}

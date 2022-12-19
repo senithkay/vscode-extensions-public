@@ -4,12 +4,12 @@
     "uuid": "ad85c990-6552-44a0-81c0-033b380dab7a",
     "configurationData": [
       {
-        "configKey": "host",
+        "configKey": "config.host",
         "valueType": "string",
         "valueRef": "/azure-kv/host"
       },
       {
-        "configKey": "port",
+        "configKey": "config.port",
         "valueType": "int",
         "valueRef": "/azure-kv/port"
       },

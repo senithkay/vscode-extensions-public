@@ -39,7 +39,7 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
-import { SelectButtonSvg } from "../../../assets";
+import { SelectIcon } from "../../../assets/icons";
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import ButtonContainer from "../../elements/ButtonContainer";
@@ -58,7 +58,6 @@ import { useStyles } from "../../style";
 import SimpleType, { SimpleTypeProps } from "../SimpleType";
 
 import { ArrayTypeProps } from ".";
-import { SelectIcon } from "../../../assets/icons";
 
 /**
  * The leaf level configurable type representing boolean values.
@@ -71,7 +70,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const classes = useStyles();
     const returnElement: ReactElement[] = [];
     const [arrayValues, setArrayValues] = useState<ConfigValue[]>(
-        getInitialValues(props.value, props.id)
+        getInitialValues(props.value, props.id),
     );
     const [counter, setCounter] = useState(arrayValues.length + 1);
     const isLowCode = props.isLowCode;
@@ -89,8 +88,13 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const [openPopover, setOpenPopover] = React.useState(true);
 
     const [selectedValue, setSelectedValue] = useState(props.value);
+    const [selectedValue2, setSelectedValue2] = useState(props.value);
     const [arrayValue, setArrayValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
+    const [openConnection, setOpenConnection] = React.useState(true);
+    const handleClickOpenConnection = () => {
+        setOpenConnection(!openConnection);
+    };
 
     const element: ConfigElementProps = {
         arrayType: props.arrayType,
@@ -117,7 +121,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     };
 
     const handleConnectionClick = (
-        connectionEvent: React.MouseEvent<HTMLButtonElement>
+        connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
         setConnectionAnchorEl(connectionEvent.currentTarget);
     };
@@ -146,13 +150,17 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const handleValueChange = (id: string, value: any) => {
         const newArrayValues = [...arrayValues];
         const existingMap = newArrayValues.findIndex(
-            (property) => property.key === id
+            (property) => property.key === id,
         );
         if (existingMap > -1) {
             newArrayValues[existingMap].value = value.value;
         }
         setArrayValues(newArrayValues);
     };
+
+    useEffect(() => {
+        setSelectedValue2(selectedValue2);
+    }, [selectedValue2]);
 
     useEffect(() => {
         let fullValue = "[ ";
@@ -164,7 +172,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
             }
         }
         fullValue = fullValue + " ]";
-        setSelectedValue(fullValue);
+        setSelectedValue2(fullValue);
     }, [selectedValue]);
 
     useEffect(() => {
@@ -200,29 +208,31 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
             value: arrayElement.value,
         };
         returnElement.push(
-            <Box
-                key={arrayElement.key}
-                display="flex"
-                alignItems="center"
-                mb={2}
-                gridGap={8}
-            >
-                <Box flexGrow={1}>
-                    <SimpleType {...simpleTypeProps} />
+            (
+                <Box
+                    key={arrayElement.key}
+                    display="flex"
+                    alignItems="center"
+                    mb={2}
+                    gridGap={8}
+                >
+                    <Box flexGrow={1}>
+                        <SimpleType {...simpleTypeProps} />
+                    </Box>
+                    <Box>
+                        <DeleteButton
+                            onDelete={removeArrayElement}
+                            id={arrayElement.key}
+                        />
+                    </Box>
                 </Box>
-                <Box>
-                    <DeleteButton
-                        onDelete={removeArrayElement}
-                        id={arrayElement.key}
-                    />
-                </Box>
-            </Box>
+            ),
         );
     });
 
     const onSelected =
-        (index: string, mappingName: string, valueReference: string) => () => {
-            setSelectedValue(mappingName);
+        (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
+            setSelectedValue2(mappingName);
             setSelectedValueRef(valueReference);
             setConnectionAnchorEl(null);
         };
@@ -236,17 +246,13 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     };
 
     const getConnection = connectionConfigs?.map((connections, index) => {
-        const [openConnection, setOpenConnection] = React.useState(true);
-        const handleClickOpenConnection = () => {
-            setOpenConnection(!openConnection);
-        };
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem
                     button={true}
                     className={classes.accordion}
                     onClick={handleClickOpenConnection}
-                    disableGutters
+                    disableGutters={true}
                 >
                     {openConnection ? (
                         <ExpandLess fontSize="small" />
@@ -270,7 +276,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                     valueType: string;
                                     valueRef: string;
                                 },
-                                sIndex: React.Key
+                                sIndex: React.Key,
                             ) => {
                                 return (
                                     <MenuItem
@@ -292,7 +298,8 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                                 "." +
                                                 connectionFields.configKey +
                                                 "}",
-                                            connectionFields.valueRef
+                                            connectionFields.valueRef,
+                                            connectionFields.valueType,
                                         )}
                                         title={connectionFields.valueRef}
                                     >
@@ -303,7 +310,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                                 className={classes.itemText}
                                                 key={sIndex}
                                             >
-                                                {connectionFields.configKey +
+                                                {connectionFields.configKey.split(".").pop() +
                                                     ":"}
                                             </Typography>
                                             <OutlinedLabel
@@ -319,7 +326,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                         </Box>
                                     </MenuItem>
                                 );
-                            }
+                            },
                         )}
                     </List>
                 </Collapse>
@@ -377,7 +384,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}
-                            value={selectedValue}
+                            value={selectedValue2}
                         />
                     </Box>
                     {!isInsideArray &&

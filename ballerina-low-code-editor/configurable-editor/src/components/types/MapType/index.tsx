@@ -97,7 +97,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         propertiesValue = getConfigProperties(
             elementSchema,
             props.connectionConfig,
-            props.id + "-" + counter
+            props.id + "-" + counter,
         ).properties;
     } else if (elementSchema[SchemaConstants.ANY_OF] !== undefined) {
         propertyType = ConfigType.ANY_OF;
@@ -122,9 +122,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         setAnchorEl(null);
     };
 
-    const handleConnectionClick = (
-        connectionEvent: React.MouseEvent<HTMLButtonElement>
-    ) => {
+    const handleConnectionClick = (connectionEvent: React.MouseEvent<HTMLButtonElement>) => {
         setConnectionAnchorEl(connectionEvent.currentTarget);
     };
 
@@ -158,6 +156,18 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         }
     }, []);
 
+    useEffect(() => {
+        let fullValue = "";
+        for (const key in mapValues) {
+            if (mapValues.hasOwnProperty(key)) {
+                key === "0" ? fullValue = fullValue + "{" + mapValues[key].name + " : " + mapValues[key].value + "}" :
+                fullValue = fullValue + ", " + "{" + mapValues[key].name + " : " + mapValues[key].value + "}";
+            }
+        }
+        fullValue = fullValue + "";
+        setSelectedValue(fullValue);
+    }, [selectedValue]);
+
     const addMapField = () => {
         const configElementProps: MapConfigElementProps = {
             description: elementSchema[SchemaConstants.DESCRIPTION],
@@ -184,7 +194,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     const handleValueChange = (id: string, value: any) => {
         const newMapValues = [...mapValues];
         const existingMap = newMapValues.findIndex(
-            (property) => property.id === id
+            (property) => property.id === id,
         );
         if (existingMap > -1) {
             if (newMapValues[existingMap].properties !== undefined) {
@@ -201,7 +211,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     const handleKeyChange = (id: string, value: string) => {
         const newMapValues = [...mapValues];
         const existingMap = newMapValues.findIndex(
-            (property) => property.id === id
+            (property) => property.id === id,
         );
         if (existingMap > -1) {
             newMapValues[existingMap].name = value;
@@ -223,7 +233,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                     value: entry.properties ? undefined : entry.value,
                 };
                 const existingMap = element.properties.findIndex(
-                    (property) => property.id === entry.id
+                    (property) => property.id === entry.id,
                 );
                 if (existingMap > -1) {
                     element.properties[existingMap] = configProperty;
@@ -280,7 +290,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index}>
-                <ListItem button={true} className={classes.accordian}>
+                <ListItem button={true} className={classes.accordion}>
                     <ListItemText
                         key={index}
                         primary={connections.name}
@@ -296,7 +306,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                             valueType: string;
                             valueRef: string;
                         },
-                        sIndex: React.Key
+                        sIndex: React.Key,
                     ) => {
                         return (
                             <Collapse
@@ -309,7 +319,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                     <MenuItem
                                         button={true}
                                         value={connectionFields.configKey}
-                                        className={classes.menuItemStyle}
+                                        className={classes.menuItem}
                                         id={
                                             "${" +
                                             connections.name +
@@ -324,7 +334,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                                 "." +
                                                 connectionFields.configKey +
                                                 "}",
-                                            connectionFields.valueRef
+                                            connectionFields.valueRef,
                                         )}
                                         title={connectionFields.valueRef}
                                     >
@@ -334,7 +344,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                             <ListItemText
                                                 key={sIndex}
                                                 primary={
-                                                    connectionFields.configKey +
+                                                    connectionFields.configKey.split(".").pop() +
                                                     ":"
                                                 }
                                             />
@@ -353,7 +363,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                 </List>
                             </Collapse>
                         );
-                    }
+                    },
                 )}
             </Box>
         );
@@ -434,7 +444,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                             data-cyid={name}
                                             aria-describedby={textId}
                                             onClick={handleClick}
-                                            value={"[" + selectedValue + "]"}
+                                            value={selectedValue}
                                         />
                                     </Grid>
                                     {!isInsideArray &&
