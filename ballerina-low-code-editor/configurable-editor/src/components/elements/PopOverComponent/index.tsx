@@ -52,8 +52,8 @@ export function PopOverComponent(props: PopOverComponentProps) {
             className={classes.popOver}
         >
             <Box className={classes.popOver}>
-                <Box my={2}>
-                    <Typography variant="h6">Add Values</Typography>
+                <Box mb={2} mt={1}>
+                    <Typography variant="h4">Add Values</Typography>
                 </Box>
                 {returnElement}
                 <div key={props.id + "-ADD"}>

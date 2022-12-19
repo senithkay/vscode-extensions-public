@@ -251,27 +251,27 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         return (
             <Box key={configElement.id} className={classes.innerBoxCard}>
                 <Card variant="outlined">
-                    <CardContent className={classes.cardContent}>
+                    <CardContent>
                         <Box>
-                            <Box>
-                                <Box key={configElement.id + "-ENTRY"}>
-                                    <TextFieldInput
-                                        id={configElement.id}
-                                        isRequired={true}
-                                        value={configElement.name}
-                                        valueRef={configElement.valueRef}
-                                        placeholder="key"
-                                        type="string"
-                                        setTextFieldValue={handleKeyChange}
-                                    />
-                                    <MapConfigElement {...configElement} />
-                                </Box>
-                            </Box>
-                            <Box>
+                            <Box display="flex" justifyContent="flex-end">
                                 <DeleteButton
                                     onDelete={removeMapField}
                                     id={configElement.id}
                                 />
+                            </Box>
+                            <Box key={configElement.id + "-ENTRY"}>
+                                <TextFieldInput
+                                    id={configElement.id}
+                                    isRequired={true}
+                                    value={configElement.name}
+                                    valueRef={configElement.valueRef}
+                                    placeholder="key"
+                                    type="string"
+                                    setTextFieldValue={handleKeyChange}
+                                />
+                                <Box mt={2}>
+                                    <MapConfigElement {...configElement} />
+                                </Box>
                             </Box>
                         </Box>
                     </CardContent>
@@ -406,7 +406,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     return (
         <Box mb={2}>
             <Box display="flex" alignItems="center">
-                <Box flex="0 0 150px">
+                <Box flex="0 0 100px">
                     <FieldLabel {...fieldLabelProps} />
                 </Box>
                 <Box flexGrow={1} display="flex" alignItems="center" gridGap={4}>

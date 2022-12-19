@@ -115,7 +115,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: "center",
             display: "flex",
             flexWrap: "wrap",
-            marginBottom: theme.spacing(0.5),
         },
         mainLabelBorder: {
             border: "solid",
@@ -156,6 +155,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#FF9494",
             fontSize: theme.spacing(1.4),
             marginBottom: theme.spacing(1),
+        },
+        valueInnerBoxHead: {
+            alignItems: "center",
+            display: "flex",
+            padding: theme.spacing(0.4, 1, 0.4, 2),
         },
     }),
 );
