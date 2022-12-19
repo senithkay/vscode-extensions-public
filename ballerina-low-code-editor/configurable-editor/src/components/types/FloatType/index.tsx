@@ -108,7 +108,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
 
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
-            <Box key={index}>
+            <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion}>
                     <ListItemText
                         key={index}
@@ -206,7 +206,12 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
     returnElement.push(
         (
             <div key={id + "-FIELD"}>
-                <Box display="flex" alignItems="center">
+                <Box
+                    flexGrow={1}
+                    display="flex"
+                    gridGap={4}
+                    alignItems="center"
+                >
                     <Box flexGrow={1}>
                         <TextFieldInput
                             id={id}
