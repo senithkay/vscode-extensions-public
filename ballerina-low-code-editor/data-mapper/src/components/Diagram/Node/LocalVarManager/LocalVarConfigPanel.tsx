@@ -20,9 +20,6 @@ import { default as AddIcon } from "@material-ui/icons/Add";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DeleteButton,
-    LibraryDataResponse,
-    LibraryDocResponse,
-    LibrarySearchResponse,
     STModification,
     UndoIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -53,6 +50,8 @@ export interface LocalVarConfigPanelProps {
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     fnDef: STNode;
+    langClientPromise: Promise<IBallerinaLangClient>;
+    filePath: string;
 }
 
 export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
@@ -60,7 +59,9 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         handleLocalVarConfigPanel,
         applyModifications,
         fnDef,
-        enableStatementEditor
+        enableStatementEditor,
+        langClientPromise,
+        filePath
     } = props;
 
     const intl = useIntl();
@@ -235,6 +236,9 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                 letVarDeclModel={decl}
                                 handleOnCheck={handleOnCheck}
                                 onEditClick={onEditClick}
+                                applyModifications={applyModifications}
+                                langClientPromise={langClientPromise}
+                                filePath={filePath}
                             />
                         );
                     })

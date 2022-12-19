@@ -463,6 +463,8 @@ function DataMapperC(props: DataMapperProps) {
                                 applyModifications={applyModifications}
                                 enableStatementEditor={enableStatementEditor}
                                 fnDef={selection.selectedST.stNode}
+                                langClientPromise={langClientPromise}
+                                filePath={filePath}
                             />
                         )}
                     </div>

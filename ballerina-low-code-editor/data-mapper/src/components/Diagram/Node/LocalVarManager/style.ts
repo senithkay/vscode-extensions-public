@@ -95,7 +95,38 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         undoButton: {
             padding: 2
-        }
+        },
+        clauseWrap: {
+            alignItems: 'center',
+            display: 'inline-block',
+            maxWidth: '500px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            padding: '5px',
+            verticalAlign: 'middle'
+        },
+        clauseExpression: {
+            background: theme.palette.grey[100],
+            borderRadius: 5,
+            cursor: 'pointer',
+            padding: 5,
+            marginLeft: 5,
+            marginRight: 5,
+            transition: 'border 0.2s',
+            border: `1px solid transparent`,
+            '&:hover': {
+                border: `1px solid ${theme.palette.grey[300]}`
+            }
+        },
+        input: {
+            maxWidth: '120px',
+            padding: "5px",
+            border: 0,
+            '&:hover': { outline: 0 },
+            '&:focus': { outline: 0 },
+            background: 'transparent'
+        },
     }),
     { index: 1 }
 );
