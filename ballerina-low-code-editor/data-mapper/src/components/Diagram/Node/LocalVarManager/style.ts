@@ -84,14 +84,18 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginLeft: 15,
             marginRight: 15
         },
-        deleteRecord: {
+        deleteLetVarDecl: {
             display: "flex",
             alignItems: "center",
-            color: "#FE523C",
+            color: "#d2897f",
             cursor: "pointer",
             "& svg": {
                 marginRight: 8
             }
+        },
+        deleteLetVarDeclEnabled: {
+            color: "#fa4c36",
+            fontWeight: 500
         },
         undoButton: {
             padding: 2

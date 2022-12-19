@@ -68,6 +68,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
 
     const letExpression = getLetExpression(fnDef);
     const [letVarDecls, setLetVarDecls] = useState<LetVarDeclModel[]>([]);
+    const hasSelectedLetVarDecl = letVarDecls.some(decl => decl.checked);
 
     useEffect(() => {
         const letVarDeclarations = letExpression ? getLetVarDeclarations(letExpression) : [];
@@ -280,8 +281,12 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                         </Link>
 
                         <div
-                            className={classNames(overlayClasses.deleteRecord, overlayClasses.marginSpace)}
-                            onClick={onDeleteSelected}
+                            className={classNames(
+                                overlayClasses.deleteLetVarDecl,
+                                overlayClasses.marginSpace,
+                                hasSelectedLetVarDecl && overlayClasses.deleteLetVarDeclEnabled
+                            )}
+                            onClick={hasSelectedLetVarDecl ? onDeleteSelected : undefined}
                         >
                             <DeleteButton /> {deleteSelected}
                         </div>
