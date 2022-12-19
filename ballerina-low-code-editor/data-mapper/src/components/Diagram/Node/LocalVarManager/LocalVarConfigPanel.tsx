@@ -49,22 +49,7 @@ export interface LetVarDeclModel {
 }
 
 export interface LocalVarConfigPanelProps {
-    langClientPromise: Promise<IBallerinaLangClient>;
     applyModifications: (modifications: STModification[]) => Promise<void>;
-    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
-    currentFile?: {
-        content: string,
-        path: string,
-        size: number
-    };
-    library: {
-        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
-        getLibrariesData: () => Promise<LibrarySearchResponse>;
-        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
-    };
-    importStatements: string[];
-    cancelStatementEditor: () => void;
-    closeStatementEditor: () => void;
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     fnDef: STNode;
@@ -119,9 +104,9 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
 
     const onEditClick = (letVarDecl: LetVarDecl) => {
         enableStatementEditor({
-            label: "Let Expression",
-            value: letVarDecl.source,
-            valuePosition: letVarDecl.position
+            label: "Let Variable Expression",
+            value: letVarDecl.expression.source,
+            valuePosition: letVarDecl.expression.position
         });
     };
 

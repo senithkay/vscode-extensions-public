@@ -461,13 +461,6 @@ function DataMapperC(props: DataMapperProps) {
                             <LocalVarConfigPanel
                                 handleLocalVarConfigPanel={handleLocalVarConfigPanel}
                                 applyModifications={applyModifications}
-                                cancelStatementEditor={cancelStatementEditor}
-                                closeStatementEditor={closeStatementEditor}
-                                importStatements={importStatements}
-                                langClientPromise={langClientPromise}
-                                library={library}
-                                updateFileContent={updateFileContent}
-                                currentFile={currentFile}
                                 enableStatementEditor={enableStatementEditor}
                                 fnDef={selection.selectedST.stNode}
                             />
