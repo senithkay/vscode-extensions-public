@@ -36,7 +36,7 @@ import {
 import { LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { isPositionsEquals } from "../../../../utils/st-utils";
+import { genLetExpressionVariableName, isPositionsEquals } from "../../../../utils/st-utils";
 import { ExpressionInfo } from "../../../DataMapper/DataMapper";
 import { getLetExpression, getLetVarDeclarations } from "../../utils/dm-utils";
 
@@ -102,10 +102,12 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
 
     const onAddNewVar = async () => {
         const addPosition = getLetExprAddPosition();
+        const varName = genLetExpressionVariableName([letExpression]);
+        const expr = letExpression ? `, var ${varName} = EXPRESSION` : `let var ${varName} = EXPRESSION in `;
         await applyModifications([
             {
                 type: "INSERT",
-                config: {STATEMENT: ` let var variable1 = EXPRESSION in`},
+                config: {STATEMENT: expr},
                 ...addPosition,
             },
         ]);
@@ -205,23 +207,25 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     };
 
     const getLetExprAddPosition = (): NodePosition => {
+        const fnBody = STKindChecker.isFunctionDefinition(fnDef)
+            && STKindChecker.isExpressionFunctionBody(fnDef.functionBody)
+            && fnDef.functionBody;
         let addPosition: NodePosition;
-        if (STKindChecker.isFunctionDefinition(fnDef) && STKindChecker.isExpressionFunctionBody(fnDef.functionBody)) {
-            if (STKindChecker.isLetExpression(fnDef.functionBody.expression)) {
-                addPosition = {
-                    ...fnDef.functionBody.expression,
-                    endLine: fnDef.functionBody.expression.position.startLine,
-                    endColumn: fnDef.functionBody.expression.position.startColumn
-                }
-            } else {
-                addPosition = {
-                    ...fnDef.functionBody.expression.position,
-                    endLine: fnDef.functionBody.expression.position.startLine,
-                    endColumn: fnDef.functionBody.expression.position.startColumn
-                }
+
+        if (!letExpression) {
+            addPosition = {
+                ...fnBody.expression.position,
+                endLine: fnBody.expression.position.startLine,
+                endColumn: fnBody.expression.position.startColumn
+            }
+        } else {
+            const lastLetDeclPosition = letVarDecls[letVarDecls.length - 1].letVarDecl.position;
+            addPosition = {
+                ...lastLetDeclPosition,
+                startLine: lastLetDeclPosition.endLine,
+                startColumn: lastLetDeclPosition.endColumn
             }
         }
-
         return addPosition;
     };
 
