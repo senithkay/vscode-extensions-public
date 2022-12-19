@@ -81,11 +81,11 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     const intl = useIntl();
 
     const letExpression = getLetExpression(fnDef);
-    const [letVarDecls, setLetVarDecls] = useState<LetVarDeclModel[]>();
+    const [letVarDecls, setLetVarDecls] = useState<LetVarDeclModel[]>([]);
 
     useEffect(() => {
-        const letVarDeclarations1 = getLetVarDeclarations(letExpression);
-        setLetVarDecls(letVarDeclarations1.map(decl => {
+        const letVarDeclarations = letExpression ? getLetVarDeclarations(letExpression) : [];
+        setLetVarDecls(letVarDeclarations.map(decl => {
             return {
                 letVarDecl: decl,
                 checked: false
@@ -144,8 +144,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                     letVarDeclsClone.splice(index, 1);
                 }
             }
-        })
-        setLetVarDecls(letVarDeclsClone);
+        });
 
         const allLetVarDecls = letExpression.letVarDeclarations;
         const deleteIndices = allLetVarDecls.map((decl, index) => {
@@ -154,44 +153,51 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
             ) ? index : -1;
         }).filter(v => v !== -1);
 
-        const modifications: STModification[] = deleteIndices.map(index => {
-            const selected = allLetVarDecls[index];
-            const previous = allLetVarDecls[index - 1];
-            const next = allLetVarDecls[index + 1];
-            const isLastElement = index + 1 === allLetVarDecls.length;
+        let modifications: STModification[] = [];
+        if (selectedLetVarDecls.length === letVarDecls.length) {
+            // Should delete the 'let' and 'in' keywords too
+            modifications.push({
+                type: "DELETE",
+                startLine: letExpression.letKeyword.position.startLine,
+                startColumn: letExpression.letKeyword.position.startColumn,
+                endLine: letExpression.inKeyword.position.endLine,
+                endColumn: letExpression.inKeyword.position.endColumn
+            });
+        } else {
+            modifications = deleteIndices.map(index => {
+                const selected = allLetVarDecls[index];
+                const previous = allLetVarDecls[index - 1];
+                const next = allLetVarDecls[index + 1];
+                const isLastElement = index + 1 === allLetVarDecls.length;
 
-            let deletePosition = selected.position;
-            if (previous && STKindChecker.isCommaToken(previous) && isLastElement) {
-                // if its the last element, need to delete previous comma as well
-                const hasAlreadyCapturedComma = deleteIndices.includes(index - 2);
-                if (!hasAlreadyCapturedComma) {
+                let deletePosition = selected.position;
+
+                if (previous && STKindChecker.isCommaToken(previous) && isLastElement) {
+                    // if its the last element, need to delete previous comma as well
+                    const hasAlreadyCapturedComma = deleteIndices.includes(index - 2);
+                    if (!hasAlreadyCapturedComma) {
+                        deletePosition = {
+                            ...selected.position,
+                            startLine: (previous.position as NodePosition)?.startLine,
+                            startColumn: (previous.position as NodePosition)?.startColumn,
+                        };
+                    }
+                } else if (next && STKindChecker.isCommaToken(next)) {
+                    // if its not the last element, need to delete the following comma as well
                     deletePosition = {
                         ...selected.position,
-                        startLine: (previous.position as NodePosition)?.startLine,
-                        startColumn: (previous.position as NodePosition)?.startColumn,
+                        endLine: (next.position as NodePosition)?.endLine,
+                        endColumn: (next.position as NodePosition)?.endColumn,
                     };
                 }
-            } else if (next && STKindChecker.isCommaToken(next)) {
-                // if its not the last element, need to delete the following comma as well
-                deletePosition = {
-                    ...selected.position,
-                    endLine: (next.position as NodePosition)?.endLine,
-                    endColumn: (next.position as NodePosition)?.endColumn,
-                };
-            }
+                return {
+                    type: "DELETE",
+                    ...deletePosition
+                }
+            });
+        }
 
-            return {
-                type: "DELETE",
-                ...deletePosition
-            }
-        });
-
-        // const modifications: STModification[] = selectedLetVarDecls.map(decl => {
-        //     return {
-        //         type: "DELETE",
-        //         ...decl.position
-        //     }
-        // });
+        setLetVarDecls(letVarDeclsClone);
         await applyModifications(modifications);
         if (letVarDeclsClone.length === 0) {
             onCancel();
