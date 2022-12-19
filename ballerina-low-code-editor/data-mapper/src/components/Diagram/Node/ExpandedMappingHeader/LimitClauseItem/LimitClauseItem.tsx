@@ -20,6 +20,7 @@ import { LimitClause, NodePosition, QueryExpression } from "@wso2-enterprise/syn
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { useStyles } from "../styles";
+import { ClickableExpression } from "../Common";
 
 export function LimitClauseItem(props: {
     intermediateNode: LimitClause;
@@ -49,25 +50,23 @@ export function LimitClauseItem(props: {
                 <div className={classes.clauseKeyWrap}>{intermediateNode.limitKeyword.value}</div>
 
                 <div className={classes.clauseWrap}>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={() =>
+                    <ClickableExpression
+                        node={intermediateNode.expression}
+                        onEditClick={() =>
                             onEditClick(
                                 intermediateNode.expression?.source,
                                 intermediateNode.expression?.position,
                                 "Limit clause"
                             )
                         }
-                        data-testid={`limit-clause-expression-${itemIndex}`}
-                    >
-                        {intermediateNode.expression.source}
-                    </span>
+                        index={itemIndex}
+                    />
                 </div>
 
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`limit-clause-delete-${itemIndex}`}/>
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`limit-clause-delete-${itemIndex}`} />
                 )}
             </div>
 

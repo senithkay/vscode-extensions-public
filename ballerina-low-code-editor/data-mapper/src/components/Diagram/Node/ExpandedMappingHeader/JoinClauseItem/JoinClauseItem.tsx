@@ -29,6 +29,7 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { useStyles } from "../styles";
+import { ClickableExpression } from "../Common";
 
 export function JoinClauseItem(props: {
     intermediateNode: JoinClause;
@@ -91,7 +92,7 @@ export function JoinClauseItem(props: {
         }
     };
 
-    const expression = (intermediateNode.expression as SimpleNameReference)?.name;
+    const expression = intermediateNode.expression;
     const onExpression = intermediateNode.joinOnCondition?.lhsExpression;
     const equalsExpression = intermediateNode.joinOnCondition?.rhsExpression;
 
@@ -126,31 +127,27 @@ export function JoinClauseItem(props: {
                         )}
                     </span>
                     <span>{intermediateNode.inKeyword.value}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={() => onEditClick(expression?.value, expression?.position, "Join expression")}
-                        data-testid={`join-clause-expression-${itemIndex}`}
-                    >
-                        {expression?.value}
-                    </span>
+                    <ClickableExpression
+                        node={expression}
+                        onEditClick={() => onEditClick(expression?.source, expression?.position, "Join expression")}
+                        index={itemIndex}
+                    />
                     <span>{intermediateNode.joinOnCondition?.onKeyword?.value}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={() => onEditClick(onExpression?.source, onExpression?.position, "Join on expression")}
-                        data-testid={`join-clause-on-expression-${itemIndex}`}
-                    >
-                        {onExpression?.source?.trim()}
-                    </span>
+                    <ClickableExpression
+                        node={onExpression}
+                        onEditClick={() => onEditClick(onExpression?.source, onExpression?.position, "Join on expression")}
+                        index={itemIndex}
+                        testIdPrefix='join-clause-on-expression'
+                        expressionPlaceholder='<add-on-expression>'
+                    />
                     <span>{intermediateNode.joinOnCondition?.equalsKeyword?.value}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={() =>
-                            onEditClick(equalsExpression?.source, equalsExpression?.position, "Join equals expression")
-                        }
-                        data-testid={`join-clause-equals-expression-${itemIndex}`}
-                    >
-                        {equalsExpression?.source}
-                    </span>
+                    <ClickableExpression
+                        node={equalsExpression}
+                        onEditClick={() => onEditClick(equalsExpression?.source, equalsExpression?.position, "Join equals expression")}
+                        index={itemIndex}
+                        testIdPrefix='join-clause-equals-on-expression'
+                        expressionPlaceholder='<add-equals-expression>'
+                    />
                 </div>
 
                 {isLoading ? (

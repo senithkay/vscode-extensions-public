@@ -21,6 +21,7 @@ import { CommaToken, NodePosition, OrderByClause, OrderKey, QueryExpression, STK
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { useStyles } from "../styles";
+import { ClickableExpression } from "../Common";
 
 export function OrderByClauseItem(props: {
     intermediateNode: OrderByClause;
@@ -108,20 +109,17 @@ export function OrderByClauseItem(props: {
                         if (STKindChecker.isOrderKey(item)) {
                             return (
                                 <span className={classes.clauseExpressionLight}>
-                                    <span
-                                        className={classes.clauseExpression}
-                                        onClick={() =>
+                                    <ClickableExpression
+                                        node={item.expression}
+                                        onEditClick={() =>
                                             onEditClick(
                                                 item.expression?.source,
                                                 item.expression?.position,
-                                                "Limit clause"
+                                                "Order by clause"
                                             )
                                         }
-                                        data-testid={`order-by-clause-expression-${itemIndex}`}
-                                    >
-                                        {item.expression.source}
-                                    </span>
-
+                                        index={itemIndex}
+                                    />
                                     <Select
                                         value={item.orderDirection?.value}
                                         onChange={(event) => onOrderDirectionChange(event.target.value as string, item)}

@@ -20,6 +20,8 @@ import { NodePosition, QueryExpression, WhereClause } from "@wso2-enterprise/syn
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { useStyles } from "../styles";
+import clsx from "clsx";
+import { ClickableExpression } from "../Common";
 
 export function WhereClauseItem(props: {
     intermediateNode: WhereClause;
@@ -49,25 +51,23 @@ export function WhereClauseItem(props: {
                 <div className={classes.clauseKeyWrap}>{intermediateNode.whereKeyword.value}</div>
 
                 <div className={classes.clauseWrap}>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={() =>
+                    <ClickableExpression
+                        node={intermediateNode.expression}
+                        onEditClick={() =>
                             onEditClick(
                                 intermediateNode.expression?.source,
                                 intermediateNode.expression?.position,
                                 "Where clause"
                             )
                         }
-                        data-testid={`where-clause-expression-${itemIndex}`}
-                    >
-                        {intermediateNode.expression.source}
-                    </span>
+                        index={itemIndex}
+                    />
                 </div>
 
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`where-clause-delete-${itemIndex}`}/>
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`where-clause-delete-${itemIndex}`} />
                 )}
             </div>
 

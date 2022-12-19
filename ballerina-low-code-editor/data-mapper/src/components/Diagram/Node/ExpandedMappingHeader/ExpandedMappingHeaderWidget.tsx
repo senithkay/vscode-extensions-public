@@ -30,6 +30,7 @@ import { LimitClauseItem } from "./LimitClauseItem";
 import { OrderByClauseItem } from "./OrderClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
+import clsx from "clsx";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;
@@ -58,7 +59,7 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
         <>
             <div>
                 <div className={classes.clauseItem}>
-                    <div className={classes.clauseKeyWrap}>{fromClause.fromKeyword.value}</div>
+                    <div className={clsx(classes.clauseKeyWrap, classes.fromClauseKeyWrap)}>{fromClause.fromKeyword.value}</div>
                     <div className={classes.clauseWrap}>
                         <span
                             className={classes.clauseItemKey}

@@ -29,6 +29,7 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { useStyles } from "../styles";
+import { ClickableExpression } from "../Common";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;
@@ -135,25 +136,23 @@ export function LetClauseItem(props: {
                         )}
                     </span>
                     <span>{letVarDeclaration.equalsToken.value}</span>
-                    <span
-                        className={classes.clauseExpression}
-                        onClick={() =>
+                    <ClickableExpression
+                        node={letVarDeclaration.expression}
+                        onEditClick={() =>
                             onEditClick(
                                 letVarDeclaration?.expression?.source,
                                 letVarDeclaration?.expression?.position,
                                 "Let clause"
                             )
                         }
-                        data-testid={`let-clause-expression-${itemIndex}`}
-                    >
-                        {letVarDeclaration.expression.source}
-                    </span>
+                        index={itemIndex}
+                    />
                 </div>
 
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`let-clause-delete-${itemIndex}`}/>
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`let-clause-delete-${itemIndex}`} />
                 )}
             </div>
 

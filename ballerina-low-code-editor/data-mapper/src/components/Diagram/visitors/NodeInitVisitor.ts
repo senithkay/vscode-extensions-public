@@ -277,17 +277,15 @@ export class NodeInitVisitor implements Visitor {
                 expandedHeaderPorts.push(fromClausePort);
                 fromClauseNode.addPort(fromClausePort);
 
-                const letClauses = node.queryPipeline.intermediateClauses?.filter(
-                    (item) => {
-
-                        return ((STKindChecker.isLetClause(item) &&
-                            ((item.letVarDeclarations[0] as LetVarDecl)?.expression as SimpleNameReference)?.name?.value !==
-                            "EXPRESSION") || STKindChecker.isJoinClause(item))
-                    }
-                );
+                const letClauses = node.queryPipeline.intermediateClauses?.filter((item) => {
+                    return (
+                        (STKindChecker.isLetClause(item) && item.typeData?.diagnostics?.length === 0) ||
+                        (STKindChecker.isJoinClause(item) && item.typeData?.diagnostics?.length === 0)
+                    );
+                });
 
                 for (const [, item] of letClauses.entries()) {
-                    if (STKindChecker.isLetClause(item)){
+                    if (STKindChecker.isLetClause(item)) {
                         const paramNode = new LetClauseNode(this.context, item as LetClause);
                         paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
                         this.inputNodes.push(paramNode);

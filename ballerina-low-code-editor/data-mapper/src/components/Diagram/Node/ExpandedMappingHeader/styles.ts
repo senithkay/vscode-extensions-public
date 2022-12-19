@@ -42,6 +42,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             textAlign: 'center',
             fontWeight: 'bold'
         },
+        fromClauseKeyWrap:{
+            border: '1px solid #9296a7',
+        },
         clauseWrap: {
             background: 'white',
             borderRadius: '8px',
@@ -91,8 +94,27 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: 5,
             transition: 'border 0.2s',
             border: `1px solid transparent`,
+            width: 'max-content',
             '&:hover': {
                 border: `1px solid ${theme.palette.grey[300]}`
+            }
+        },
+        clauseDiagnostics:{
+            background: theme.palette.error.light,
+            '&:hover': {
+                border: `1px solid ${theme.palette.error.main}`
+            }
+        },
+        errorIconWrapper: {
+            height: "22px",
+            width: "22px",
+            marginLeft: '5px',
+            verticalAlign: 'middle',
+        },
+        clausePlaceholder:{
+            background: '#fff3e0',
+            '&:hover': {
+                border: `1px solid #ffb74d`
             }
         },
         addIcon: {

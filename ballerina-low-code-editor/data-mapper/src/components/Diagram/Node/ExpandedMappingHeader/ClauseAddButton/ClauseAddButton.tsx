@@ -91,9 +91,15 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
 
     const onClickAddOrderByClause = async () => insertStatement(` order by EXPRESSION ascending`);
 
-    const onClickAddJoinClause = async () => insertStatement(` join var varName in expr on onExpr equals equalsExpr`);
+    const onClickAddJoinClause = async () => {
+        const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses);
+        await insertStatement(` join var ${variableName} in EXPRESSION on EXPRESSION equals EXPRESSION`)
+    };
 
-    const onClickAddOuterJoinClause = async () => insertStatement(` outer join var varName in expr on onExpr equals equalsExpr`);
+    const onClickAddOuterJoinClause = async () => {
+        const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses);
+        await insertStatement(` outer join var ${variableName} in EXPRESSION on EXPRESSION equals EXPRESSION`)
+    };
 
     return (
         <>
