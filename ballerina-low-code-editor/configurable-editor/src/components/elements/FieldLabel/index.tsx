@@ -20,13 +20,14 @@
 import React from "react";
 
 import { Box, FormLabel, ThemeProvider, Tooltip, Typography } from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/Info";
 
+import { InfoIcon } from "../../../assets/icons";
 import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
 import OutlinedLabel from "../OutlinedLabel";
 
 import { theme } from "./style";
+
 export interface FieldLabelProps {
     name: string;
     type: string;
@@ -68,7 +69,7 @@ export const getDescription = (description: string, classes: ReturnType<typeof u
         return (
             <Tooltip title={description} placement="right-start">
                 <Box className={classes.descriptionLabel}>
-                    <InfoIcon fontSize="inherit" color="primary" />
+                    <InfoIcon />
                 </Box>
             </Tooltip>
         );

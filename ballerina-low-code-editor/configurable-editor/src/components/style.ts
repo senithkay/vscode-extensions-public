@@ -67,7 +67,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             flexWrap: "wrap",
         },
         descriptionLabel: {
+            color: theme.palette.primary.main,
             display: "flex",
+            fontSize: theme.spacing(1.5),
             marginRight: theme.spacing(0.5),
         },
         divider: {
