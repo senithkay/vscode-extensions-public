@@ -128,18 +128,9 @@ export const MapConfigElement = (props: MapConfigElementProps): ReactElement => 
 
             returnElement.push(
                 (
-                    <Grid
-                        container={true}
-                        spacing={1}
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="center"
-                        className={classes.buttonBorder}
-                    >
-                        <Grid item={true} xs={12}>
-                            <SimpleType {...simpleTypeProp} />
-                        </Grid>
-                    </Grid>
+                    <Box>
+                        <SimpleType {...simpleTypeProp} />
+                    </Box>
                 ),
             );
             break;
@@ -148,11 +139,7 @@ export const MapConfigElement = (props: MapConfigElementProps): ReactElement => 
     if (returnElement.length > 0) {
         return (
             <Box key={props.id}>
-                <Card className={classes.card}>
-                    <CardContent className={classes.cardContent} >
-                        {returnElement}
-                    </CardContent>
-                </Card>
+                {returnElement}
             </Box>
         );
     }
