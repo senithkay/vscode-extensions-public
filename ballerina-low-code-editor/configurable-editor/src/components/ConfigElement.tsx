@@ -71,6 +71,7 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             const arrayTypeProps: ArrayTypeProps = {
                 ...props,
                 setArrayType: props.setConfigElement,
+                value: props.value !== undefined ? props.value : "",
             };
 
             return (
@@ -119,6 +120,7 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             const simpleTypeProp: SimpleTypeProps = {
                 ...props,
                 setSimpleConfig: props.setConfigElement,
+                value: props.value !== undefined ? props.value : "",
             };
 
             returnElement.push(

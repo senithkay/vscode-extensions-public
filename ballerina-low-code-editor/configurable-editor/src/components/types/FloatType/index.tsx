@@ -96,13 +96,13 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
         value,
     };
 
-    const onSelected =
-        (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
+    const onSelected = (index: string, mappingName: string, valueReference: string,
+                        valueType: string, connectionName: string) => () => {
             if (valueType === "float") {
                 setConnectionClick(true);
                 setSelectedValue(mappingName);
                 setSelectedValueRef(valueReference);
-                setSelectedIndex(index);
+                setSelectedIndex(connectionName.concat(index));
                 setAnchorEl(null);
             } else {
                 setAnchorEl(null);
@@ -158,8 +158,9 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                                 "}",
                                             connectionFields.valueRef,
                                             connectionFields.valueType,
+                                            connections.name,
                                         )}
-                                        selected={connectionFields.configKey === selectedIndex}
+                                        selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
                                     >
                                     <Box display="flex" width={1}>
                                         <Box
@@ -183,7 +184,8 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                             />
                                         </Box>
                                         {
-                                                connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
+                                                connections.name.concat(connectionFields.configKey) === selectedIndex
+                                                &&   <MenuSelectedIcon />
                                             }
                                         </Box>
                                     </MenuItem>

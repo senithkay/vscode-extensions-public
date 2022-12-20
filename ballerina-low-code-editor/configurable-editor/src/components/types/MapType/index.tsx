@@ -248,6 +248,11 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         }
     }, [mapValues]);
 
+    const handleValueAdd = () => {
+        setSelectedValue(mapValues);
+        setAnchorEl(null);
+    };
+
     const getConfigElements = (configElement: MapConfigElementProps) => {
         configElement.setConfigElement = handleValueChange;
         return (
@@ -393,6 +398,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
             onClose={handleClose}
             returnElement={mapValues.map(getConfigElements)}
             addArrayElememt={addMapField}
+            onValueAdd={handleValueAdd}
         />
     );
 

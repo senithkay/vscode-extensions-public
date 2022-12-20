@@ -232,9 +232,9 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         );
     });
 
-    const onSelected =
-        (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
-            setSelectedIndex(index);
+    const onSelected = (index: string, mappingName: string, valueReference: string,
+                        valueType: string, connectionName: string) => () => {
+            setSelectedIndex(connectionName.concat(index));
             setSelectedValue2(mappingName);
             setSelectedValueRef(valueReference);
             setConnectionAnchorEl(null);
@@ -303,8 +303,9 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                                 "}",
                                             connectionFields.valueRef,
                                             connectionFields.valueType,
+                                            connections.name,
                                         )}
-                                        selected={connectionFields.configKey === selectedIndex}
+                                        selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
                                     >
                                         <Box display="flex" width={1}>
                                             <Box
@@ -329,7 +330,8 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                                 />
                                             </Box>
                                             {
-                                                connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
+                                                connections.name.concat(connectionFields.configKey) === selectedIndex
+                                                &&   <MenuSelectedIcon />
                                             }
                                         </Box>
                                     </MenuItem>

@@ -100,12 +100,12 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
             propertyValueRef !== undefined ? Boolean(propertyValueRef) : "");
     };
 
-    const onSelected =
-        (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
+    const onSelected = (index: string, mappingName: string, valueReference: string,
+                        valueType: string, connectionName: string) => () => {
             if (valueType === "boolean") {
                 setSelectedValue(mappingName);
                 setSelectedValueRef(valueReference);
-                setSelectedIndex(index);
+                setSelectedIndex(connectionName.concat(index));
                 setAnchorEl(null);
             } else {
                 setAnchorEl(null);
@@ -138,8 +138,8 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                                         id={"${" + connections.name + "." + connectionFields.configKey + "}"}
                                         onClick={onSelected(connectionFields.configKey,
                                             "${" + connections.name + "." + connectionFields.configKey + "}",
-                                            connectionFields.valueRef, connectionFields.valueType)}
-                                        selected={connectionFields.configKey === selectedIndex}
+                                            connectionFields.valueRef, connectionFields.valueType, connections.name)}
+                                        selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
                                     >
                                         <Box display="flex" width={1}>
                                             <Box className={classes.connectionField}>
@@ -153,8 +153,9 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                                                     shape="none"
                                                 />
                                             </Box>
-                                        {
-                                                connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
+                                            {
+                                                connections.name.concat(connectionFields.configKey) === selectedIndex
+                                                &&   <MenuSelectedIcon />
                                             }
                                               </Box>
                                     </MenuItem>

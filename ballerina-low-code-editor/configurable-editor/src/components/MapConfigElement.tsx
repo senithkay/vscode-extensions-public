@@ -61,6 +61,7 @@ export const MapConfigElement = (props: MapConfigElementProps): ReactElement => 
                 ...props,
                 isInsideArray: true,
                 setObjectConfig: props.setConfigElement,
+                value: props.value !== undefined ? props.value : "",
             };
 
             return (
@@ -73,6 +74,7 @@ export const MapConfigElement = (props: MapConfigElementProps): ReactElement => 
                 ...props,
                 isInsideArray: true,
                 setArrayType: props.setConfigElement,
+                value: props.value !== undefined ? props.value : "",
             };
 
             return (
@@ -85,6 +87,7 @@ export const MapConfigElement = (props: MapConfigElementProps): ReactElement => 
                 ...props,
                 isInsideArray: true,
                 setUnionType: props.setConfigElement,
+                value: props.value !== undefined ? props.value : "",
             };
 
             returnElement.push(
@@ -100,6 +103,7 @@ export const MapConfigElement = (props: MapConfigElementProps): ReactElement => 
                 ...props,
                 isInsideArray: true,
                 setEnumType: props.setConfigElement,
+                value: props.value !== undefined ? props.value : "",
             };
 
             returnElement.push(
@@ -124,6 +128,7 @@ export const MapConfigElement = (props: MapConfigElementProps): ReactElement => 
                 ...props,
                 isInsideArray: true,
                 setSimpleConfig: props.setConfigElement,
+                value: props.value !== undefined ? props.value : "",
             };
 
             returnElement.push(

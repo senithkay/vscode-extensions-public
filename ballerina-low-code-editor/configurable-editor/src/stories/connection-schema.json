@@ -38,6 +38,11 @@
         "configKey": "clientSecret",
         "valueType": "string",
         "valueRef": "/azure-kv/clientSecret"
+      },
+      {
+        "configKey": "username",
+        "valueType": "string",
+        "valueRef": "/azure-kv/username"
       }
     ]
   }

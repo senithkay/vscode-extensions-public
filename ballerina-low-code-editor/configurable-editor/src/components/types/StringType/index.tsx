@@ -85,12 +85,12 @@ const StringType = (props: StringTypeProps): ReactElement => {
         setOpenConnection(!openConnection);
     };
 
-    const onSelected =
-        (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
+    const onSelected = (index: string, mappingName: string, valueReference: string,
+                        valueType: string, connectionName: string) => () => {
             if (typeof props.value === valueType) {
                 setSelectedValue(mappingName);
                 setSelectedValueRef(valueReference);
-                setSelectedIndex(index);
+                setSelectedIndex(connectionName.concat(index));
                 setAnchorEl(null);
             } else {
                 setAnchorEl(null);
@@ -159,8 +159,9 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                                 "}",
                                             connectionFields.valueRef,
                                             connectionFields.valueType,
+                                            connections.name,
                                         )}
-                                        selected={connectionFields.configKey === selectedIndex}
+                                        selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
                                     >
                                     <Box display="flex" width={1}>
                                         <Box
@@ -184,7 +185,8 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                             />
                                         </Box>
                                         {
-                                                connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
+                                                connections.name.concat(connectionFields.configKey) === selectedIndex
+                                                &&   <MenuSelectedIcon />
                                             }
                                         </Box>
                                     </MenuItem>
