@@ -30,19 +30,19 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Install node modules
-        run: |
-          cd ballerina-low-code-editor  
-          npm install
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
-
       - name: Setup NodeJS
         uses: actions/setup-node@v2
         with:
           always-auth: true
           node-version: "16.x"
           registry-url: "https://npm.pkg.github.com"
+
+      - name: Install node modules
+        run: |
+          cd ballerina-low-code-editor  
+          npm install
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
       - name: Publish low code diagram
         run: |
