@@ -18,6 +18,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	CaptureBindingPattern,
+	CommaToken,
 	FieldAccess,
 	FromClause,
 	IdentifierToken,
@@ -969,18 +970,6 @@ export function getExprBodyFromLetExpression(letExpr: LetExpression): STNode {
 		return getExprBodyFromLetExpression(letExpr.expression);
 	}
 	return letExpr.expression;
-}
-
-export function getLetVarDeclarations(letExpr: LetExpression): LetVarDecl[] {
-	return letExpr.letVarDeclarations.filter(decl => STKindChecker.isLetVarDecl(decl)) as LetVarDecl[];
-}
-
-export function getLetExpression(fnDef: STNode): LetExpression {
-	if (STKindChecker.isFunctionDefinition(fnDef) && STKindChecker.isExpressionFunctionBody(fnDef.functionBody)) {
-		if (STKindChecker.isLetExpression(fnDef.functionBody.expression)) {
-			return fnDef.functionBody.expression;
-		}
-	}
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],

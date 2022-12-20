@@ -11,6 +11,15 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
+export function isPositionsWithinRange(position: NodePosition,
+                                       expectedStartPosition: NodePosition,
+                                       expectedEndPosition: NodePosition): boolean {
+    return position.startLine >= expectedStartPosition.startLine
+        && position.endLine <= expectedEndPosition.endLine
+        && position.startColumn >= expectedStartPosition.startColumn
+        && position.endColumn <= expectedEndPosition.endColumn;
+}
+
 export function genLetClauseVariableName(intermediateClauses: (STNode)[]): string {
     const baseName = 'variable';
     let varName = baseName;

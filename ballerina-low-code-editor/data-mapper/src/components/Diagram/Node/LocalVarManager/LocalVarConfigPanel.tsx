@@ -33,11 +33,16 @@ import {
 import { LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { genLetExpressionVariableName, isPositionsEquals } from "../../../../utils/st-utils";
+import { genLetExpressionVariableName } from "../../../../utils/st-utils";
 import { ExpressionInfo } from "../../../DataMapper/DataMapper";
-import { getLetExpression, getLetVarDeclarations } from "../../utils/dm-utils";
 
 import { LetVarDeclItem } from "./LetVarDeclItem";
+import {
+    getLetExprDeleteModifications,
+    getLetExpression,
+    getLetExpressions,
+    getLetVarDeclarations
+} from "./local-var-mgt-utils";
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
 
@@ -72,7 +77,9 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     const hasSelectedLetVarDecl = letVarDecls.some(decl => decl.checked);
 
     useEffect(() => {
-        const letVarDeclarations = letExpression ? getLetVarDeclarations(letExpression) : [];
+        const letVarDeclarations = letExpression
+            ? getLetVarDeclarations(letExpression).filter(decl => STKindChecker.isLetVarDecl(decl)) as LetVarDecl[]
+            : [];
         setLetVarDecls(letVarDeclarations.map(decl => {
             return {
                 letVarDecl: decl,
@@ -123,76 +130,14 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     }
 
     const onDeleteSelected = async () => {
-        const selectedLetVarDecls: LetVarDecl[] = [];
-        const letVarDeclsClone = [...letVarDecls];
-        letVarDecls.forEach(decl => {
-            if (decl.checked) {
-                selectedLetVarDecls.push(decl.letVarDecl);
-                const index = letVarDeclsClone
-                    .findIndex(item => isPositionsEquals(item.letVarDecl.position, decl.letVarDecl.position));
-                if (index !== -1) {
-                    letVarDeclsClone.splice(index, 1);
-                }
-            }
+        const letExpressions = getLetExpressions(letExpression);
+        const modifications: STModification[] = [];
+        letExpressions.forEach(expr => {
+            modifications.push(...getLetExprDeleteModifications(expr, letVarDecls));
         });
-
-        const allLetVarDecls = letExpression.letVarDeclarations;
-        const deleteIndices = allLetVarDecls.map((decl, index) => {
-            return selectedLetVarDecls.some(selectedDecl =>
-                isPositionsEquals(selectedDecl.position, decl.position)
-            ) ? index : -1;
-        }).filter(v => v !== -1);
-
-        let modifications: STModification[] = [];
-        if (selectedLetVarDecls.length === letVarDecls.length) {
-            // Should delete the 'let' and 'in' keywords too
-            modifications.push({
-                type: "DELETE",
-                startLine: letExpression.letKeyword.position.startLine,
-                startColumn: letExpression.letKeyword.position.startColumn,
-                endLine: letExpression.inKeyword.position.endLine,
-                endColumn: letExpression.inKeyword.position.endColumn
-            });
-        } else {
-            modifications = deleteIndices.reverse().map(index => {
-                const previous = allLetVarDecls[index - 1];
-                const next = allLetVarDecls[index + 1];
-                const isLastElement = index + 1 === allLetVarDecls.length;
-                const selected = allLetVarDecls[index];
-
-                let deletePosition = selected.position;
-
-                if (previous && STKindChecker.isCommaToken(previous) && isLastElement) {
-                    // if its the last element, need to delete previous comma as well
-                    deletePosition = {
-                        ...selected.position,
-                        startLine: (previous.position as NodePosition)?.startLine,
-                        startColumn: (previous.position as NodePosition)?.startColumn,
-                    };
-                    allLetVarDecls.splice(index - 1);
-                } else if (next && STKindChecker.isCommaToken(next)) {
-                    // if its not the last element, need to delete the following comma as well
-                    deletePosition = {
-                        ...selected.position,
-                        endLine: (next.position as NodePosition)?.endLine,
-                        endColumn: (next.position as NodePosition)?.endColumn,
-                    };
-                    allLetVarDecls.splice(index, 2);
-                } else {
-                    allLetVarDecls.splice(index, 1);
-                }
-                return {
-                    type: "DELETE",
-                    ...deletePosition
-                }
-            });
-        }
-
-        setLetVarDecls(letVarDeclsClone);
-        await applyModifications(modifications.reverse());
-        if (letVarDeclsClone.length === 0) {
-            onCancel();
-        }
+        const updatedVarList = letVarDecls.filter(decl => !decl.checked);
+        setLetVarDecls(updatedVarList);
+        await applyModifications(modifications);
     };
 
     const getLetExprAddPosition = (): NodePosition => {
