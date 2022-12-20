@@ -18,14 +18,13 @@
  */
 
 import React from 'react';
-import { Location } from '../../../resources';
-import { ServiceNodeModel } from '../../service-interaction';
+import { Location, Service } from '../../../resources';
 import { Go2SourceWidget, LinkingWidget } from './components';
 
 interface MenuProps {
     location: Location,
     linkingEnabled: boolean,
-    service?: ServiceNodeModel;
+    service?: Service;
 }
 
 export function NodeMenuPanel(props: MenuProps) {
@@ -33,7 +32,7 @@ export function NodeMenuPanel(props: MenuProps) {
 
     return (
         <>
-            {location && <Go2SourceWidget location={location} />}
+            <Go2SourceWidget location={location} />
             {linkingEnabled && service && <LinkingWidget service={service} />}
         </>
     );

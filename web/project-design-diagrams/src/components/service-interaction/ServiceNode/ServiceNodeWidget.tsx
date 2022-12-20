@@ -66,7 +66,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 
 	const checkLinkStatus = (): boolean => {
 		if (currentView === Views.L1_SERVICES) {
-			if (newLinkNodes.source?.getID() === node.getID() || newLinkNodes.target?.getID() === node.getID()) {
+			if (newLinkNodes.source?.serviceId === node.getID() || newLinkNodes.target?.serviceId === node.getID()) {
 				return true;
 			}
 		}
@@ -74,9 +74,9 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	}
 
 	const setLinkStatus = async () => {
-		if (currentView === Views.L1_SERVICES && newLinkNodes.source && newLinkNodes.source.getID() !== node.getID()) {
-			setNewLinkNodes({ ...newLinkNodes, target: node });
-			await generateConnectors(newLinkNodes.source.serviceObject, node.serviceObject);
+		if (currentView === Views.L1_SERVICES && newLinkNodes.source && newLinkNodes.source.serviceId !== node.getID()) {
+			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
+			await generateConnectors(newLinkNodes.source, node.serviceObject);
 			setNewLinkNodes({ source: undefined, target: undefined });
 		}
 	}

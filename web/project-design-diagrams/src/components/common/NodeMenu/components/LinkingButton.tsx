@@ -19,10 +19,10 @@
 
 import React, { useContext, useState } from 'react';
 import TurnRightIcon from '@mui/icons-material/TurnRight';
-import { ServiceNodeModel } from '../../../service-interaction';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
+import { Service } from '../../../../resources';
 
-export function LinkingWidget(props: { service: ServiceNodeModel }) {
+export function LinkingWidget(props: { service: Service }) {
     const { service } = props;
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
