@@ -38,7 +38,7 @@ jobs:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
       - name: Publish low code diagram
-        run: 
+        run: |
           cd ballerina-low-code-editor  
           npm publish --tag latest --workspaces
         env:
