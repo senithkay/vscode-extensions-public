@@ -15,9 +15,9 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        recordFormWrapper: {
+        localVarFormWrapper: {
             width: '100%',
-            maxHeight: 540,
+            maxHeight: 800,
             overflowY: 'scroll',
             flexDirection: "row",
         },

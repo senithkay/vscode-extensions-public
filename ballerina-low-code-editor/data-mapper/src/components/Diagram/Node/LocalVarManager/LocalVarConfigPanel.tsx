@@ -16,14 +16,16 @@ import { useIntl } from "react-intl";
 
 import { IconButton, Link } from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl/FormControl";
+import AddIcon from "@material-ui/icons/Add";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DeleteButton,
-    STModification, TopLevelPlusIcon,
+    STModification,
     UndoIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FormHeaderSection,
+    LinePrimaryButton,
     Panel,
     PrimaryButton,
     useStyles as useFormStyles
@@ -36,6 +38,7 @@ import { ExpressionInfo } from "../../../DataMapper/DataMapper";
 import { getLetExpression, getLetVarDeclarations } from "../../utils/dm-utils";
 
 import { LetVarDeclItem } from "./LetVarDeclItem";
+import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
 
 export interface LetVarDeclModel {
@@ -66,7 +69,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
 
     const letExpression = getLetExpression(fnDef);
     const [letVarDecls, setLetVarDecls] = useState<LetVarDeclModel[]>([]);
-    const [isPlusClicked, setPlusClicked] = useState(false);
     const hasSelectedLetVarDecl = letVarDecls.some(decl => decl.checked);
 
     useEffect(() => {
@@ -87,7 +89,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     };
 
     const onAddNewVar = async () => {
-        setPlusClicked(true);
         const addPosition = getLetExprAddPosition();
         const varName = genLetExpressionVariableName([letExpression]);
         const expr = letExpression ? `, var ${varName} = EXPRESSION` : `let var ${varName} = EXPRESSION in `;
@@ -98,7 +99,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                 ...addPosition,
             },
         ]);
-        setPlusClicked(false);
     };
 
     const handleOnCheck = () => {
@@ -154,24 +154,22 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                 endColumn: letExpression.inKeyword.position.endColumn
             });
         } else {
-            modifications = deleteIndices.map(index => {
-                const selected = allLetVarDecls[index];
+            modifications = deleteIndices.reverse().map(index => {
                 const previous = allLetVarDecls[index - 1];
                 const next = allLetVarDecls[index + 1];
                 const isLastElement = index + 1 === allLetVarDecls.length;
+                const selected = allLetVarDecls[index];
 
                 let deletePosition = selected.position;
 
                 if (previous && STKindChecker.isCommaToken(previous) && isLastElement) {
                     // if its the last element, need to delete previous comma as well
-                    const hasAlreadyCapturedComma = deleteIndices.includes(index - 2);
-                    if (!hasAlreadyCapturedComma) {
-                        deletePosition = {
-                            ...selected.position,
-                            startLine: (previous.position as NodePosition)?.startLine,
-                            startColumn: (previous.position as NodePosition)?.startColumn,
-                        };
-                    }
+                    deletePosition = {
+                        ...selected.position,
+                        startLine: (previous.position as NodePosition)?.startLine,
+                        startColumn: (previous.position as NodePosition)?.startColumn,
+                    };
+                    allLetVarDecls.splice(index - 1);
                 } else if (next && STKindChecker.isCommaToken(next)) {
                     // if its not the last element, need to delete the following comma as well
                     deletePosition = {
@@ -179,6 +177,9 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                         endLine: (next.position as NodePosition)?.endLine,
                         endColumn: (next.position as NodePosition)?.endColumn,
                     };
+                    allLetVarDecls.splice(index, 2);
+                } else {
+                    allLetVarDecls.splice(index, 1);
                 }
                 return {
                     type: "DELETE",
@@ -188,7 +189,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         }
 
         setLetVarDecls(letVarDeclsClone);
-        await applyModifications(modifications);
+        await applyModifications(modifications.reverse());
         if (letVarDeclsClone.length === 0) {
             onCancel();
         }
@@ -234,6 +235,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                     letVarDecls && letVarDecls.map(decl => {
                         return (
                             <>
+                                <NewLetVarDeclPlusButton onAddNewVar={onAddNewVar}/>
                                 <LetVarDeclItem
                                     key={decl.letVarDecl.source}
                                     letVarDeclModel={decl}
@@ -243,13 +245,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                     langClientPromise={langClientPromise}
                                     filePath={filePath}
                                 />
-                                <div className={overlayClasses.plusButton}>
-                                        <IconButton
-                                            onClick={onAddNewVar}
-                                        >
-                                            <TopLevelPlusIcon selected={isPlusClicked}/>
-                                        </IconButton>
-                                </div>
                             </>
                         );
                     })
@@ -270,17 +265,17 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                     formTitle={"lowcode.develop.configForms.DataMapper.localVarConfigTitle"}
                     defaultMessage={"Data Mapper"}
                 />
-                <div className={overlayClasses.recordFormWrapper}>
+                <div className={overlayClasses.localVarFormWrapper}>
                     {letVarList}
-                    {/*<div className={overlayClasses.createButtonWrapper}>*/}
-                    {/*    <LinePrimaryButton*/}
-                    {/*        text={"Add New"}*/}
-                    {/*        fullWidth={true}*/}
-                    {/*        onClick={onAddNewVar}*/}
-                    {/*        dataTestId="create-new-btn"*/}
-                    {/*        startIcon={<AddIcon />}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
+                    <div className={overlayClasses.createButtonWrapper}>
+                        <LinePrimaryButton
+                            text={"Add New"}
+                            fullWidth={true}
+                            onClick={onAddNewVar}
+                            dataTestId="create-new-btn"
+                            startIcon={<AddIcon />}
+                        />
+                    </div>
                     <div className={overlayClasses.recordOptions}>
                         <Link
                             key={'select-all'}
