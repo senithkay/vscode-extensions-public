@@ -60,7 +60,7 @@ jobs:
         run: |
           createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"v${{ steps.vsix.outputs.version }}", \
-          "draft":false, "name": "Release v${{ steps.vsix.outputs.version }", "prerelease":true}' \
+          "draft":false, "name": "Release v${{ steps.vsix.outputs.version }}", "prerelease":true}' \
           https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases` \
            && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
            uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
@@ -79,10 +79,10 @@ jobs:
                       {
                         "keyValue": {
                           "topLabel": "New Release",
-                          "content": "v${{ steps.vsix.outputs.version }",
+                          "content": "v${{ steps.vsix.outputs.version }}",
                           "onClick": {
                             "openLink": {
-                              "url": "https://github.com/wso2/ballerina-plugin-vscode/releases/tag/v${{ steps.vsix.outputs.version }"
+                              "url": "https://github.com/wso2/ballerina-plugin-vscode/releases/tag/v${{ steps.vsix.outputs.version }}"
                             }
                           },
                           "iconUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/512px-Visual_Studio_Code_1.35_icon.svg.png",
