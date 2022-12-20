@@ -248,12 +248,11 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
 
         returnElement.push(
             (
-                <Box key={arrayElement.id} mt={2} display="flex">
+                <Box key={arrayElement.id} display="flex">
                     <Box key={arrayElement.id + "-ENTRY"} flexGrow={1}>
                         <ObjectType {...objectTypeProps} />
                     </Box>
-
-                    <Box>
+                    <Box pt={1}>
                         <DeleteButton
                             onDelete={removeArrayElement}
                             id={arrayElement.id}

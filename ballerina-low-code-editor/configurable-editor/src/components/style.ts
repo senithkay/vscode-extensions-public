@@ -23,12 +23,13 @@ export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         accordion: {
             alignItems: "center",
-            backgroundColor: "#e8e8e9",
+            backgroundColor: "#F7F8FB",
             border: "1px solid #d5d5d5",
             borderTopLeftRadius: theme.spacing(0.5),
             borderTopRightRadius: theme.spacing(0.5),
             display: "flex",
-            padding: theme.spacing(0.5, 1.5, 0.5, 1),
+            gap: theme.spacing(1),
+            padding: theme.spacing(0.8, 1.5, 0.8, 1),
         },
         accordionBox: {
             "&:last-child": {
@@ -64,6 +65,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         connectionField: {
             display: "flex",
+            flexGrow: 1,
             flexWrap: "wrap",
         },
         descriptionLabel: {
@@ -113,7 +115,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: "center",
             display: "flex",
             flexWrap: "wrap",
-            marginBottom: theme.spacing(0.5),
         },
         mainLabelBorder: {
             border: "solid",
@@ -128,9 +129,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: theme.spacing(0.5),
         },
         menuItem: {
-            border: "1px solid #d5d5d5",
-            borderTop: 0,
-            paddingLeft: theme.spacing(2),
+            "&.Mui-selected": {
+                backgroundColor: "#F0F1FB",
+            },
+            "&:hover": {
+                backgroundColor: "#F0F1FB",
+            },
+            "border": "1px solid #d5d5d5",
+            "borderTop": 0,
+            "paddingLeft": theme.spacing(1),
+            "paddingRight": theme.spacing(1),
         },
         popOver: {
             overflow: "auto",
@@ -147,6 +155,11 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#FF9494",
             fontSize: theme.spacing(1.4),
             marginBottom: theme.spacing(1),
+        },
+        valueInnerBoxHead: {
+            alignItems: "center",
+            display: "flex",
+            padding: theme.spacing(0.4, 1, 0.4, 2),
         },
     }),
 );

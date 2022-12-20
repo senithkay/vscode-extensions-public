@@ -109,7 +109,7 @@ export const RecordType = (props: RecordTypeProps) => {
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
                 <Box>
-                    <Box className={classes.innerBoxHead}>
+                    <Box className={classes.valueInnerBoxHead}>
                         <FieldLabel {...fieldLabelProps} />
                         {docLink && triggerDocIconButton}
                         <ExpandMore
