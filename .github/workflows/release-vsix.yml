@@ -91,7 +91,7 @@ jobs:
                               "text": "Download VSIX",
                               "onClick": {
                                 "openLink": {
-                                  "url": "https://github.com/wso2/ballerina-plugin-vscode/releases/download/v${{ steps.vsix.outputs.version }/${{ steps.vsix.outputs.vsixName }}"
+                                  "url": "https://github.com/wso2/ballerina-plugin-vscode/releases/download/v${{ steps.vsix.outputs.version }}/${{ steps.vsix.outputs.vsixName }}"
                                 }
                               }
                             }
