@@ -116,6 +116,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         arrayType: props.arrayType,
         description: props.description,
         id: props.id,
+        isFeaturePreview: props.isFeaturePreview,
         isInsideArray: true,
         isRequired: props.isRequired,
         name: props.name,
@@ -132,6 +133,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                 configProperties = getConfigProperties(
                     elementSchema,
                     props.connectionConfig,
+                    props.isFeaturePreview,
                     props.id + "-" + newCounter,
                 ).properties;
             }
@@ -139,6 +141,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                 const objectArrayProps: ObjectArrayProps = {
                     description: props.schema[SchemaConstants.DESCRIPTION],
                     id: props.id + "-" + newCounter,
+                    isFeaturePreview: props.isFeaturePreview,
                     isInsideArray: true,
                     isRequired: true,
                     name: "",
@@ -161,12 +164,14 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
             propertiesValue = getConfigProperties(
                 elementSchema,
                 props.connectionConfig,
+                props.isFeaturePreview,
                 props.id + "-" + counter,
             ).properties;
         }
         const objectArrayProps: ObjectArrayProps = {
             description: props.schema[SchemaConstants.DESCRIPTION],
             id: props.id + "-" + counter,
+            isFeaturePreview: props.isFeaturePreview,
             isRequired: true,
             name: "",
             properties: propertiesValue,

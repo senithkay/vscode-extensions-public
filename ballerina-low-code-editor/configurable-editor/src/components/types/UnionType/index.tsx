@@ -47,6 +47,7 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         connectionConfig: props.connectionConfig,
         description: props.description,
         id: props.id,
+        isFeaturePreview: props.isFeaturePreview,
         isRequired: props.isRequired,
         name: props.name,
         schema: props.schema,
@@ -65,12 +66,14 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         const configProperty = property[SchemaConstants.PROPERTIES];
         let configProperties: ConfigElementProps[];
         if (configProperty) {
-            configProperties = getConfigProperties(property, props.connectionConfig, props.id).properties;
+            configProperties = getConfigProperties(property, props.connectionConfig,
+                                                   props.isFeaturePreview, props.id).properties;
         }
         const configElementProps: ConfigElementProps = {
-            // connectionConfig: props.connectionConfig,
+            connectionConfig: props.connectionConfig,
             description: element.description,
             id: element.id,
+            isFeaturePreview: element.isFeaturePreview,
             isRequired: element.isRequired,
             name: element.name,
             properties: configProperties,

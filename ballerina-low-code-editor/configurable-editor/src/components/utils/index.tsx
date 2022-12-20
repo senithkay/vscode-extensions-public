@@ -42,8 +42,8 @@ export function getType(type: string): ConfigType {
  * @param name      Name of the config property object, the first one is set to 'root'.
  * @returns         A populated config `ConfigObjectProps` object.
  */
-export function getConfigProperties(configObj: object, connectionConfig: ConnectionSchema[], id: string = "1",
-                                    name: string = "root", requiredItem = true): ConfigElementProps {
+export function getConfigProperties(configObj: object, connectionConfig: ConnectionSchema[], isFeaturePreview: boolean,
+                                    id: string = "1", name: string = "root", requiredItem = true): ConfigElementProps {
     const propertiesObj: object = configObj[SchemaConstants.PROPERTIES];
     const addPropertiesObj: object = configObj[SchemaConstants.ADDITIONAL_PROPERTIES];
     const requiredProperties: string[] = configObj[SchemaConstants.REQUIRED];
@@ -54,6 +54,7 @@ export function getConfigProperties(configObj: object, connectionConfig: Connect
         connectionConfig,
         description: propertyDesc,
         id: String(id),
+        isFeaturePreview,
         isRequired: requiredItem,
         name,
         properties: [],
@@ -81,6 +82,7 @@ export function getConfigProperties(configObj: object, connectionConfig: Connect
             connectionConfig,
             description: configPropertyDesc,
             id: configProperty.id + "-" + (index + 1),
+            isFeaturePreview,
             isRequired: required,
             name: key,
             schema: configPropertyValues,
@@ -90,7 +92,7 @@ export function getConfigProperties(configObj: object, connectionConfig: Connect
         if (configPropertyType === ConfigType.OBJECT && properties !== undefined) {
             const elementName: string = configPropertyValues[SchemaConstants.NAME];
             const childProperty: ConfigElementProps = getConfigProperties(configPropertyValues, connectionConfig,
-                id + "-" + (index + 1), key, required);
+                isFeaturePreview, id + "-" + (index + 1), key, required);
             childProperty.type = ConfigType.OBJECT;
             childProperty.description = configPropertyDesc;
             childProperty.schema = configPropertyValues;

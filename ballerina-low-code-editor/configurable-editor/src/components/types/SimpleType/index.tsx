@@ -42,6 +42,7 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
         connectionConfig: props.connectionConfig,
         description: props.description,
         id: props.id,
+        isFeaturePreview: props.isFeaturePreview,
         isRequired: props.isRequired,
         name: props.name,
         type: props.type,

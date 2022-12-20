@@ -59,7 +59,6 @@ export const SimpleTypes: Story = (args) => (
                 onClickDefaultButton={onClickDefaultButton}
                 onClickPrimaryButton={args.onClickPrimaryButton}
                 isLowCode={false}
-                isFeaturePreview={true}
             />
         </ConfigEditor>
     </Box>

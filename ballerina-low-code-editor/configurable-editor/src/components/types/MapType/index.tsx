@@ -97,6 +97,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         propertiesValue = getConfigProperties(
             elementSchema,
             props.connectionConfig,
+            props.isFeaturePreview,
             props.id + "-" + counter,
         ).properties;
     } else if (elementSchema[SchemaConstants.ANY_OF] !== undefined) {
@@ -226,6 +227,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                 const configProperty: MapConfigElementProps = {
                     description: entry.description,
                     id: entry.id,
+                    isFeaturePreview: props.isFeaturePreview,
                     isRequired: entry.isRequired,
                     name: entry.name,
                     properties: entry.properties,

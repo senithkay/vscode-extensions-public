@@ -63,6 +63,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
     const isInsideArray = props.isInsideArray;
     const isLowCode = props.isLowCode;
     const isFeaturePreview = props.isFeaturePreview;
+
     const connectionConfigs = props.connectionConfig;
     const classes = useStyles();
 
@@ -79,7 +80,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
     const [selectedValue, setSelectedValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
     const [openConnection, setOpenConnection] = React.useState(true);
-    
+
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
     };
