@@ -53,8 +53,8 @@ import {
     trap,
     typeDesc
 } from "../../../utils/expressions";
-import { useStatementEditorToolbarStyles } from "../../styles";
 import { ModelType } from "../../../utils/statement-editor-viewstate";
+import { useStatementEditorToolbarStyles } from "../../styles";
 
 export function ToolbarOperators() {
     const statementEditorToolbarClasses = useStatementEditorToolbarStyles();
@@ -137,11 +137,11 @@ export function ToolbarOperators() {
                 filteredGroups = [typeDesc]
             } else if (config.type === "AssignmentStatement" && STKindChecker.isIdentifierToken(currentModel.model)) {
                 filteredGroups = [listBindingPattern, memberAccess]
-            } 
+            }
             else if (currentModel?.model?.viewState?.modelType && (currentModel.model.viewState.modelType === ModelType.OPERATOR)) {
                 filteredGroups = [operatorsEdits]
                 if (STKindChecker.isPlusToken(currentModel.model) && STKindChecker.isBinaryExpression(currentModel.model.parent)
-                    && STKindChecker.isStringLiteral(currentModel.model.parent.lhsExpr) 
+                    && STKindChecker.isStringLiteral(currentModel.model.parent.lhsExpr)
                     && STKindChecker.isStringLiteral(currentModel.model.parent.rhsExpr)) {
                         filteredGroups = [plusOperator]
                 }
