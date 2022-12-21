@@ -21,6 +21,7 @@ import {
     STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
+import clsx from "clsx";
 
 import { ClauseAddButton } from "./ClauseAddButton";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
@@ -30,7 +31,6 @@ import { LimitClauseItem } from "./LimitClauseItem";
 import { OrderByClauseItem } from "./OrderClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
-import clsx from "clsx";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;

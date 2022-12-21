@@ -28,8 +28,8 @@ import {
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
-import { useStyles } from "../styles";
 import { ClickableExpression } from "../Common";
+import { useStyles } from "../styles";
 
 export function JoinClauseItem(props: {
     intermediateNode: JoinClause;

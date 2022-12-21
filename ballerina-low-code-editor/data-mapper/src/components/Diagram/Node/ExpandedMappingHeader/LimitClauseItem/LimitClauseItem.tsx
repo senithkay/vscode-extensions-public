@@ -19,8 +19,8 @@ import { LimitClause, NodePosition, QueryExpression } from "@wso2-enterprise/syn
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
-import { useStyles } from "../styles";
 import { ClickableExpression } from "../Common";
+import { useStyles } from "../styles";
 
 export function LimitClauseItem(props: {
     intermediateNode: LimitClause;

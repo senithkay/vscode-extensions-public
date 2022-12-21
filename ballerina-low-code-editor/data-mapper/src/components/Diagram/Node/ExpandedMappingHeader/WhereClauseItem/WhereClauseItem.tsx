@@ -16,12 +16,12 @@ import React, { useState } from "react";
 import { CircularProgress } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import { NodePosition, QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
+import clsx from "clsx";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
-import { useStyles } from "../styles";
-import clsx from "clsx";
 import { ClickableExpression } from "../Common";
+import { useStyles } from "../styles";
 
 export function WhereClauseItem(props: {
     intermediateNode: WhereClause;

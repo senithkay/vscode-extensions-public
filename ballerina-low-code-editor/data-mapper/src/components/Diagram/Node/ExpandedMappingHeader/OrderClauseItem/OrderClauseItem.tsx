@@ -20,8 +20,8 @@ import { CommaToken, NodePosition, OrderByClause, OrderKey, QueryExpression, STK
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
-import { useStyles } from "../styles";
 import { ClickableExpression } from "../Common";
+import { useStyles } from "../styles";
 
 export function OrderByClauseItem(props: {
     intermediateNode: OrderByClause;

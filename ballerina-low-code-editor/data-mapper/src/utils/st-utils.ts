@@ -23,15 +23,15 @@ export function genLetClauseVariableName(intermediateClauses: (STNode)[]): strin
                     allVariableNames.push(item.typedBindingPattern.bindingPattern.source.trim())
                 }
             }
-        }else if(STKindChecker.isJoinClause(clause)){
+        }else if (STKindChecker.isJoinClause(clause)){
             allVariableNames.push((clause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value)
         }
     }
-    while(allVariableNames.includes(`${baseName}${index?index:""}`)){
+    while (allVariableNames.includes(`${baseName}${index ? index : ""}`)){
         index++;
     }
 
-    return `${baseName}${index?index:""}`;
+    return `${baseName}${index ? index : ""}`;
 }
 
 export function genLetExpressionVariableName(letExpressions: LetExpression[]): string {

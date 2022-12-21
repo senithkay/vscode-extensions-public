@@ -21,7 +21,6 @@ type Output record {
         string Id;
         boolean Confirmed;
     }[] Items;
-    InnerOutput[] innerOutput;
     string[] stArr;
 };
 
@@ -32,15 +31,4 @@ type User record {|
 
 User[] users = [{id: "1234", name: "Keith"}];
 
-function transform(Input input, SecondInput secondInput) returns Output => {
-    Items: from var ItemsItem in input.Items
-        where true
-        let var updatedName = "strValue"
-        limit 10
-        order by ItemsItem.Id ascending
-        join var variable in users on ItemsItem.Id equals variable.id
-        select {
-            Id: ItemsItem.Id + updatedName + variable.id,
-            Confirmed:
-        }
-};
+function transform(Input input, SecondInput secondInput) returns Output => {};
