@@ -35,6 +35,7 @@ import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 import path = require('path');
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { Repository, WorkspaceConfig } from './api/types';
+import { activateWizards } from './wizards/activate';
 
 export function activateBallerinaExtension() {
     const ext = extensions.getExtension("wso2.ballerina");
@@ -53,8 +54,10 @@ export function activate(context: vscode.ExtensionContext) {
 	activateAuth();
 	ext.isPluginStartup = false;
 	activateBallerinaExtension();
+	activateWizards();
 	return ext.api;
 }
+
 
 export function getGitExtensionAPI() {
 	const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')!.exports;

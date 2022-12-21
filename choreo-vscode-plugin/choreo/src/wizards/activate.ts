@@ -16,17 +16,15 @@
  * under the License.
  *
  */
-export const choreoSignInCmdId = 'wso2.choreo.sign.in';
-export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
-export const setSelectedOrgCmdId = 'wso2.choreo.org.setAsSelected';
-export const refreshProjectsListCmdId = 'wso2.choreo.projects.refresh';
-export const cloneComponentCmdId = 'wso2.choreo.component.clone';
-export const cloneAllComponentsCmdId = 'wso2.choreo.project.clone';
-export const createNewProjectCmdId = 'wso2.choreo.project.create';
+import { commands } from "vscode";
+import { createNewProjectCmdId } from "../constants";
+import { ext } from "../extensionVariables";
+import { ProjectCreationWizard } from "../views/webviews/ProjectCreationWizard";
 
-export const choreoSignedInCtxKey = 'isSignedInToChoreo';
- 
-// views
-export const choreoProjectsTreeId = 'choreo-projects';
-export const choreoAccountTreeId = 'choreo-account';
-
+export function activateWizards() {
+    const createProjectCmd = commands.registerCommand(createNewProjectCmdId, () => {
+        ProjectCreationWizard.render(ext.context.extensionUri);
+    });
+  
+    ext.context.subscriptions.push(createProjectCmd);
+  }
