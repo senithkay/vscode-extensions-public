@@ -23,8 +23,7 @@ import {
 
 import {
     genLetExpressionVariableName,
-    isPositionsEquals,
-    isPositionsWithinRange
+    isPositionsEquals
 } from "../../../../utils/st-utils";
 
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
@@ -46,7 +45,7 @@ export function getLetExpressions(letExpression: LetExpression): LetExpression[]
 }
 
 export function getLetVarDeclarations(letExpr: LetExpression): (LetVarDecl | CommaToken)[] {
-    const letVarDeclarations = letExpr.letVarDeclarations;
+    const letVarDeclarations = [...letExpr.letVarDeclarations];
     if (STKindChecker.isLetExpression(letExpr.expression)) {
         letVarDeclarations.push(...getLetVarDeclarations(letExpr.expression));
     }
@@ -103,12 +102,10 @@ export function getLetExprDeleteModifications(letExpression: LetExpression,
         .filter(decl => STKindChecker.isLetVarDecl(decl)) as LetVarDecl[])
         .some(decl => !selectedLetVarDecls.includes(decl));
 
-    const allLetVarDecls = letExpression.letVarDeclarations;
+    const allLetVarDecls = [...letExpression.letVarDeclarations];
     const deleteIndices = allLetVarDecls.map((decl, index) => {
         return selectedLetVarDecls.some(selectedDecl =>
             isPositionsEquals(selectedDecl.position, decl.position)
-            && isPositionsWithinRange(selectedDecl.position,
-                letExpression.letKeyword.position, letExpression.inKeyword.position)
         ) ? index : -1;
     }).filter(v => v !== -1);
 
