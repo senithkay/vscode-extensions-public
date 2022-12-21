@@ -140,7 +140,8 @@ jobs:
             -d "$body"
 
   Notify:
-    if: ${{ failure() }}
+    needs: [Build, Release]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
     runs-on: ubuntu-latest
     steps:
       - name: "Release Notification"
