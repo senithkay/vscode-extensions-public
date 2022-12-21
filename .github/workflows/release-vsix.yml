@@ -53,9 +53,12 @@ jobs:
 
       - name: Get version
         id: vsix
-        run: | 
-          echo ::set-output name=vsixName::$(ls *.vsix)
-          echo ::set-output name=version::$(echo ${$(echo ${$(ls *.vsix)%.*})#*-})
+        run: |
+          file=$(ls *.vsix)
+          fileName=${file#*-}
+          version=${fileName%.*}
+          echo "vsixName=$file" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Upload VSIX
         uses: actions/upload-artifact@v3
