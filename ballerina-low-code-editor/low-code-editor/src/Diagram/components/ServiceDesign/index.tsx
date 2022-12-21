@@ -16,6 +16,7 @@ import { useIntl } from "react-intl";
 
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ConfigOverlayFormStatus, getSource, TopLevelPlusIcon, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ComponentExpandButton, LinePrimaryButton, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     NodePosition,
     ResourceAccessorDefinition,
@@ -23,12 +24,12 @@ import {
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
+import { AddIcon } from "../../../assets/icons";
+
 import { ResourceBody } from "./Resource";
 import { ServiceHeader } from "./ServiceHeader";
 import { useStyles } from "./style";
 import "./style.scss";
-import { ComponentExpandButton, LinePrimaryButton, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { AddIcon } from "../../../assets/icons";
 
 export interface ServiceDesignProps {
     fnST: STNode;

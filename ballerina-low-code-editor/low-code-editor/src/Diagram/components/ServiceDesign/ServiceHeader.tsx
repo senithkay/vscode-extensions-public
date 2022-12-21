@@ -15,9 +15,9 @@ import React from "react";
 
 import CloseIcon from '@material-ui/icons/Close';
 import HomeIcon from '@material-ui/icons/Home';
+import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { useStyles } from "./style";
-import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export interface ServiceHeaderProps {
     model: ServiceDeclaration;
@@ -37,9 +37,8 @@ export function ServiceHeader(props: ServiceHeaderProps) {
 
 
 
-    let serviceType = "";
     let listeningOnText = "";
-    let isUnsupportedType;
+    let serviceType = "";
 
     if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
         if (

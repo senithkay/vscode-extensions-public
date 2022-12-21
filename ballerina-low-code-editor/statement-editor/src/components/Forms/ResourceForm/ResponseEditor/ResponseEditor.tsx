@@ -79,7 +79,7 @@ export function ResponseEditor(props: ParamProps) {
 
     const optionsListString = optionList.map(item => `${item.code}-${item.source}`);
 
-    //record {|*http:Created; PersonAccount body;|}
+    // record {|*http:Created; PersonAccount body;|}
     const withType = model.includes("body;") ? model.split(";")[1] : "";
     const withTypeModel = model.includes("body;") ? model.split(";")[0] : "";
 

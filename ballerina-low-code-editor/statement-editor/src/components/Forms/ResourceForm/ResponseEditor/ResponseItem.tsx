@@ -15,8 +15,8 @@ import React from "react";
 
 import { DeleteButton, ParamEditButton, QueryIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { useStyles } from './style';
 import { responseCodes } from "./ResponseEditor";
+import { useStyles } from './style';
 
 export interface ParameterConfig {
     id: number;

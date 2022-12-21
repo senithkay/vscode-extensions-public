@@ -23,9 +23,8 @@ import {
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 
-import { Param, ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
-import { ParameterConfig, ParamItem } from './ParamEditor/ParamItem';
-import { genParamName, getParameterNameFromModel, getParameterTypeFromModel, getParamString } from './util';
+import { Param} from './ParamEditor/ParamEditor';
+import { ParameterConfig } from './ParamEditor/ParamItem';
 import { responseCodes, ResponseEditor } from './ResponseEditor/ResponseEditor';
 import { ResponseItem } from './ResponseEditor/ResponseItem';
 
@@ -51,7 +50,6 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
     const [isNew, setIsNew] = useState<boolean>(false);
 
     const responses = getReturnTypesArray();
-    let lastSegmentId = responses.length === 0 ? 0 : responses.length;
 
     const onEdit = (param: Param) => {
         setEditingSegmentId(param.id);
@@ -73,7 +71,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
 
     const onParamChange = (segmentId: number, responseCode: string, withType: string) => {
         const splitResponse = responseCode.split("-");
-        let newReturn = withType ? withType : (splitResponse.length > 0 ? splitResponse[1] : "");
+        const newReturn = withType ? withType : (splitResponse.length > 0 ? splitResponse[1] : "");
         if (segmentId === -1) {
             responses.push(newReturn);
         } else {
@@ -99,8 +97,6 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         onChangeInProgress(false);
     };
 
-
-    let isEditing: boolean = false;
     const paramNames: string[] = [];
 
 

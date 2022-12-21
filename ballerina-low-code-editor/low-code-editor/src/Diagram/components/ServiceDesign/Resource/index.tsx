@@ -10,24 +10,23 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js, jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 
 import { Divider } from "@material-ui/core";
+import { BallerinaRecordResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { BallerinaRecordRequest, ConfigOverlayFormStatus, createResource, DiagramEditorLangClientInterface, getSource, STModification, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConfigPanelSection, SelectDropdownWithButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, RecordTypeDesc, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../../Contexts/Diagram";
+import { removeStatement } from "../../../utils";
 import { useStyles } from "../style";
 
 import { ResourceHeader } from "./ResourceHeader";
-import { removeStatement } from "../../../utils";
-import { RecordEditor } from "../../FormComponents/ConfigForms";
-import { BallerinaRecordResponse } from "@wso2-enterprise/ballerina-languageclient";
 
 export interface ResourceBodyProps {
     model: ResourceAccessorDefinition;
@@ -184,26 +183,30 @@ export function ResourceBody(props: ResourceBodyProps) {
         // />
 
     }
+
+    const args = (
+        <>
+            <ConfigPanelSection title={"Parameters"}>
+                {paramArgs}
+            </ConfigPanelSection>
+            <Divider className="resource-divider" />
+        </>
+    );
+
+    const bodyAr = (
+        <>
+            <ConfigPanelSection title={"Body"}>
+                {bodyArgs}
+            </ConfigPanelSection>
+
+            <Divider className="resource-divider" />
+        </>
+    )
     const body = (
         <div className="service-member">
-            {paramArgs.length > 0 &&
-                <>
-                    <ConfigPanelSection title={"Parameters"}>
-                        {paramArgs}
-                    </ConfigPanelSection>
-                    <Divider className="resource-divider" />
-                </>
-            }
+            {paramArgs.length > 0 && args}
 
-            {bodyArgs.length > 0 &&
-                <>
-                    <ConfigPanelSection title={"Body"}>
-                        {bodyArgs}
-                    </ConfigPanelSection>
-
-                    <Divider className="resource-divider" />
-                </>
-            }
+            {bodyArgs.length > 0 && bodyAr}
 
             <ConfigPanelSection title={"Responses"}>
                 {responseArgs}
