@@ -19,6 +19,7 @@ import {
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Uri }  from "monaco-editor"
 import { CodeAction, CompletionItemKind, Diagnostic, WorkspaceEdit } from "vscode-languageserver-protocol";
+
 import { CompletionResponseWithModule } from "../../DataMapper/ConfigPanel/TypeBrowser";
 import { EXPR_SCHEME, FILE_SCHEME } from "../../DataMapper/ConfigPanel/utils";
 
@@ -43,8 +44,8 @@ export const handleDiagnostics = async (fileURI: string,
     return diag;
 }
 
-export const filterDiagnostics = (diagnostics: Diagnostic[], nodePosition:NodePosition) : Diagnostic[] => {
-	return diagnostics.filter( (diagnostic) => {
+export const filterDiagnostics = (diagnostics: Diagnostic[], nodePosition: NodePosition) : Diagnostic[] => {
+	return diagnostics.filter((diagnostic) => {
 		const diagPosition: NodePosition = {
 			startLine: diagnostic.range.start.line,
 			startColumn: diagnostic.range.start.character,
@@ -103,40 +104,37 @@ export async function getCodeAction(filePath: string, diagnostic: Diagnostic, la
 
 export async function getRenameEdits(fileURI: string, newName: string, position: NodePosition, langClientPromise: Promise<IBallerinaLangClient>): Promise<WorkspaceEdit> {
 	const langClient = await langClientPromise;
-    const renameEdits = await langClient.rename({
-		textDocument: { uri: Uri.file(fileURI).toString() },
-		position: {
-			line: position.startLine,
-			character: position?.startColumn
-		},
-		newName
-	});
-
-    return renameEdits;
+ const renameEdits = await langClient.rename({
+                            textDocument: { uri: Uri.file(fileURI).toString() },
+                            position: {
+                                line: position.startLine,
+                                character: position?.startColumn
+                            },
+                            newName
+                        });
+ return renameEdits;
 }
 
 export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic[],
-	langClientPromise: Promise<IBallerinaLangClient>):
-	Promise<CodeAction[]> => {
-
+                                        langClientPromise: Promise<IBallerinaLangClient>):
+                                        Promise<CodeAction[]> => {
 	const langClient = await langClientPromise;
-	let codeActions: any[] = []
+	let codeActions: CodeAction[] = []
 
 	for (const diagnostic of diagnostics) {
 		const codeAction = await getCodeAction(Uri.file(fileURI).toString(), diagnostic, langClient)
 		codeActions = [...codeActions, ...codeAction]
 	}
-
 	return codeActions;
 }
 
 export async function getRecordCompletions(
     currentFileContent: string,
     langClientPromise: Promise<IBallerinaLangClient>,
-	importStatements: string[],
-	fnSTPosition: NodePosition,
-	path: string): Promise<CompletionResponseWithModule[]> {
-    
+	   importStatements: string[],
+	   fnSTPosition: NodePosition,
+	   path: string): Promise<CompletionResponseWithModule[]> {
+
     const langClient = await langClientPromise;
     const typeLabelsToIgnore = ["StrandData"];
     const completionMap = new Map<string, CompletionResponseWithModule>();
@@ -163,7 +161,7 @@ export async function getRecordCompletions(
         });
 
         for (const importStr of importStatements) {
-            const moduleName = importStr.split("/").pop().replace(";", "");
+            const moduleName = importStr.split("/").pop().split(".").pop().replace(";", "");
             const updatedContent = addToTargetPosition(
                 currentFileContent,
                 {
@@ -180,15 +178,15 @@ export async function getRecordCompletions(
                 contentChanges: [{ text: updatedContent }],
             });
 
-            const completions = await langClient.getCompletion({
+            const importCompletions = await langClient.getCompletion({
                 textDocument: { uri: exprFileUrl },
                 position: { character: fnSTPosition.endColumn + moduleName.length + 1, line: fnSTPosition.endLine },
                 context: { triggerKind: 22 },
             });
 
-            const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
+            const importRecCompletions = importCompletions.filter((item) => item.kind === CompletionItemKind.Struct);
 
-            recCompletions.forEach((item) => {
+            importRecCompletions.forEach((item) => {
                 if (!completionMap.has(item.insertText)) {
                     completionMap.set(item.insertText, { ...item, module: moduleName });
                 }

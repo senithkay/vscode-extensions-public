@@ -25,7 +25,7 @@ import { Uri } from "monaco-editor";
 
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
-import { RecordTypeFindingVisitor } from "../visitors/RecordTypeFindingVisitor";
+import { FnDefPositions, RecordTypeFindingVisitor } from "../visitors/RecordTypeFindingVisitor";
 
 export class RecordTypeDescriptorStore {
 
@@ -43,18 +43,20 @@ export class RecordTypeDescriptorStore {
         return this.instance;
     }
 
-    public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext){
+    public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext, isArraysSupported: boolean){
         this.recordTypeDescriptors.clear();
         const langClient = await context.langClientPromise;
         const fileUri = Uri.file(context.currentFile.path).toString();
-        const visitor = new RecordTypeFindingVisitor();
+        const visitor = new RecordTypeFindingVisitor(isArraysSupported);
         traversNode(stNode, visitor);
 
         const expressionNodesRanges = visitor.getExpressionNodesRanges();
         const symbolNodesPositions = visitor.getSymbolNodesPositions();
+        const fnDefPositions = visitor.getFnDefPositions();
 
         await this.setTypesForSymbol(langClient, fileUri, symbolNodesPositions);
         await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges);
+        await this.setTypesForFnParamsAndReturnType(langClient, fileUri, fnDefPositions);
     }
 
     async setTypesForExpressions(langClient: IBallerinaLangClient,
@@ -68,7 +70,7 @@ export class RecordTypeDescriptorStore {
         });
 
         for (const {type, requestedRange} of typesFromExpression.types) {
-            await this.setTypeDescriptors(type, requestedRange.startLine, requestedRange.endLine);
+            this.setTypeDescriptors(type, requestedRange.startLine, requestedRange.endLine);
         }
     }
 
@@ -83,12 +85,32 @@ export class RecordTypeDescriptorStore {
         });
 
         for (const {type, requestedPosition} of typesFromSymbol.types) {
-            await this.setTypeDescriptors(type, requestedPosition);
+            this.setTypeDescriptors(type, requestedPosition);
         }
     }
 
-    async setTypeDescriptors(type: Type, startPosition: LinePosition, endPosition?: LinePosition) {
-        if (type) {
+    async setTypesForFnParamsAndReturnType(langClient: IBallerinaLangClient,
+                                           fileUri: string,
+                                           fnDefPositions: FnDefPositions) {
+
+        if (fnDefPositions.fnNamePosition === undefined || fnDefPositions.returnTypeDescPosition === undefined) {
+            return;
+        }
+        const FnParamsAndReturnType = await langClient.getTypesFromFnDefinition({
+            documentIdentifier: {
+                uri: fileUri
+            },
+            fnPosition: fnDefPositions.fnNamePosition,
+            returnTypeDescPosition: fnDefPositions.returnTypeDescPosition
+        });
+
+        for (const {type, requestedPosition} of FnParamsAndReturnType.types) {
+            this.setTypeDescriptors(type, requestedPosition);
+        }
+    }
+
+    setTypeDescriptors(type: Type, startPosition: LinePosition, endPosition?: LinePosition) {
+        if (type && startPosition) {
             const position: NodePosition = {
                 startLine: startPosition.line,
                 startColumn: startPosition.offset,

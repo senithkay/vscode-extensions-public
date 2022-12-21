@@ -927,7 +927,6 @@ suite("Language Server Tests", function () {
             const response = res as BallerinaConnectorsResponse;
             expect(response).not.contains.keys("error");
             assert.strictEqual(response.central.length, 2, "Invalid triggers");
-            assert.strictEqual(response.central[0].name, "Client", "Invalid triggers");
             done();
         }, error => {
             done(error);

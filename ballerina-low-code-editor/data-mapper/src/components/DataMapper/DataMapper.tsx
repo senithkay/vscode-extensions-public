@@ -31,6 +31,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
+import { useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -42,13 +43,13 @@ import { ViewStateSetupVisitor } from "../Diagram/visitors/ViewStateSetupVisitor
 import { StatementEditorComponent } from "../StatementEditorComponent/StatementEditorComponent"
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
-import { getInputsFromST, isValidOutput } from "./ConfigPanel/utils";
+import { DataMapperInputParam, DataMapperOutputParam } from "./ConfigPanel/InputParamsPanel/types";
+import { getFnNameFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
-import { isDMSupported } from "./utils";
-import { useDMStore } from "../../store/store";
+import { isArraysSupported, isDMSupported } from "./utils";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -132,7 +133,7 @@ export interface SelectionState {
 
 export interface ExpressionInfo {
     value: string;
-    valuePosition: any;
+    valuePosition: NodePosition;
     label?: string;
 }
 
@@ -149,21 +150,27 @@ enum DMState {
 
 const selectionReducer = (state: SelectionState, action: { type: ViewOption, payload?: SelectionState, index?: number }) => {
     switch (action.type) {
-        case ViewOption.EXPAND:
-            const previousST = !!state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
+        case ViewOption.EXPAND: {
+            const previousST = state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
             return { ...state, selectedST: action.payload.selectedST, prevST: previousST };
-        case ViewOption.COLLAPSE:
+        }
+        case ViewOption.COLLAPSE: {
             const prevSelection = state.prevST.pop();
             return { ...state, selectedST: prevSelection, prevST: [...state.prevST] };
-        case ViewOption.NAVIGATE:
+        }
+        case ViewOption.NAVIGATE: {
             const targetST = state.prevST[action.index];
             return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
-        case ViewOption.RESET:
+        }
+        case ViewOption.RESET:  {
             return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED };
-        case ViewOption.INITIALIZE:
+        }
+        case ViewOption.INITIALIZE: {
             return { selectedST: action.payload.selectedST, prevST: action.payload.prevST, state: DMState.INITIALIZED };
-        default:
+        }
+        default: {
             return state;
+        }
     }
 };
 
@@ -172,6 +179,7 @@ function DataMapperC(props: DataMapperProps) {
 
     const {
         fnST,
+        targetPosition,
         ballerinaVersion,
         langClientPromise,
         filePath,
@@ -198,8 +206,12 @@ function DataMapperC(props: DataMapperProps) {
         prevST: [],
         state: DMState.NOT_INITIALIZED
     });
-    const [collapsedFields, setCollapsedFields] = React.useState<string[]>([])
-	const {setFunctionST, setImports} = useDMStore();
+    const [collapsedFields, setCollapsedFields] = React.useState<string[]>([]);
+    const [inputs, setInputs] = useState<DataMapperInputParam[]>();
+    const [output, setOutput] = useState<DataMapperOutputParam>();
+    const [fnName, setFnName] = useState(getFnNameFromST(fnST));
+    const [nodeSetupCounter, setNodeSetupCounter] = useState(0);
+    const { setFunctionST, setImports } = useDMStore();
 
     const classes = useStyles();
 
@@ -219,9 +231,11 @@ function DataMapperC(props: DataMapperProps) {
         }
     }
 
-    const onConfigSave = (fnName: string) => {
+    const onConfigSave = (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => {
         setConfigPanelOpen(false);
-        onSave(fnName);
+        setInputs(inputParams);
+        setOutput(outputType);
+        onSave(funcName);
     }
 
     const enableStatementEditor = (expressionInfo: ExpressionInfo) => {
@@ -279,52 +293,86 @@ function DataMapperC(props: DataMapperProps) {
     }, [fnST]);
 
     useEffect(() => {
-        (async () => {
-            if (selection.selectedST.stNode) {
-                const diagnostics = await handleDiagnostics(filePath, langClientPromise)
+        void (async () => {
+            try {
+                if (selection.selectedST.stNode) {
+                    const diagnostics = await handleDiagnostics(filePath, langClientPromise)
 
-                const context = new DataMapperContext(
-                    filePath,
-                    fnST,
-                    selection,
-                    langClientPromise,
-                    currentFile,
-                    stSymbolInfo,
-                    handleSelectedST,
-                    applyModifications,
-                    diagnostics,
-                    enableStatementEditor,
-                    collapsedFields,
-                    handleCollapse,
-                    isStmtEditorCanceled,
-                    fieldTobeEdited,
-                    handleFieldToBeEdited,
-                    handleOverlay
-                );
+                    const context = new DataMapperContext(
+                        filePath,
+                        fnST,
+                        selection,
+                        langClientPromise,
+                        currentFile,
+                        stSymbolInfo,
+                        handleSelectedST,
+                        applyModifications,
+                        diagnostics,
+                        enableStatementEditor,
+                        collapsedFields,
+                        handleCollapse,
+                        isStmtEditorCanceled,
+                        fieldTobeEdited,
+                        handleFieldToBeEdited,
+                        handleOverlay,
+                        ballerinaVersion
+                    );
 
-                const selectedST = selection.selectedST.stNode;
-                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                await recordTypeDescriptors.storeTypeDescriptors(selectedST, context);
+                    const selectedST = selection.selectedST.stNode;
+                    const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                    await recordTypeDescriptors.storeTypeDescriptors(selectedST, context, isArraysSupported(ballerinaVersion));
 
-                const nodeInitVisitor = new NodeInitVisitor(context, selection);
-                traversNode(selectedST, nodeInitVisitor);
-                setNodes(nodeInitVisitor.getNodes());
+                    const nodeInitVisitor = new NodeInitVisitor(context, selection);
+                    traversNode(selectedST, nodeInitVisitor);
+                    setNodes(nodeInitVisitor.getNodes());
+                }
+            } finally {
+                setNodeSetupCounter(prevState => prevState + 1);
             }
         })();
     }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, fieldTobeEdited])
-
-    const cPanelProps = {
-        ...props,
-        onClose: onConfigClose,
-        onSave: onConfigSave,
-        recordPanel,
-        syntaxTree
-    }
 
     const dMSupported = isDMSupported(ballerinaVersion);
     const dmUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
         "(swan lake)", "").trim()
         } does not support the Data Mapper feature. Please update your Ballerina versions to 2201.1.2, 2201.2.1, or higher version.`;
+
+    useEffect(() => {
+        if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
+            if (fnST) {
+                const hasSwitchFunction = fnName !== getFnNameFromST(fnST);
+                if (hasSwitchFunction) {
+                    if (nodes.length > 0) {
+                        // When open the DM of an existing function using code lens
+                        const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
+                            || [];
+                        setInputs(inputParams);
+                        const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
+                            || { type: undefined, isUnsupported: true };
+                        setOutput(outputType);
+                        setFnName(getFnNameFromST(fnST));
+                    } else {
+                        // When open the DM of an existing incomplete function using code lens
+                        const hasNoParameter = fnST.functionSignature.parameters.length === 0;
+                        const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
+                        if (hasNoParameter) {
+                            setInputs([]);
+                        }
+                        if (hasNoReturnType) {
+                            setOutput({ type: undefined, isUnsupported: true });
+                        }
+                        if (hasNoParameter || hasNoReturnType) {
+                            setFnName(getFnNameFromST(fnST));
+                        }
+                    }
+                }
+            } else {
+                // When open the DM using the main menu
+                setInputs([]);
+                setOutput({ type: undefined, isUnsupported: true });
+            }
+        }
+    }, [nodeSetupCounter])
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {
@@ -333,21 +381,31 @@ function DataMapperC(props: DataMapperProps) {
     }, [selection.state])
 
     const showConfigPanel = useMemo(() => {
-        if (!fnST) {
-            return true
+        if (inputs && output) {
+            const hasInvalidInputs = !inputs.length || inputs.some(input => input.isUnsupported);
+            const isInvalidOutput = output.isUnsupported;
+            return hasInvalidInputs || isInvalidOutput;
         }
-        const inputParams = getInputsFromST(fnST);
-        const hasInvalidInputs = inputParams.some(input => input.inInvalid);
-        const validOutput = isValidOutput(fnST)
-
-        if (hasInvalidInputs || !validOutput) {
-            return true
-        }
-    }, [fnST])
+    }, [inputs, output])
 
     useEffect(() => {
         handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen || showConfigPanel);
     }, [currentEditableField, selection.selectedST, isConfigPanelOpen, showConfigPanel])
+
+    const cPanelProps = {
+        fnST,
+        targetPosition,
+        importStatements,
+        syntaxTree,
+        filePath,
+        inputs,
+        output,
+        currentFile,
+        onSave: onConfigSave,
+        onClose: onConfigClose,
+        applyModifications,
+        recordPanel
+    }
 
     return (
         <LSClientContext.Provider value={langClientPromise}>

@@ -1,6 +1,9 @@
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js no-unused-expression
 import * as React from 'react';
+
 import styled from '@emotion/styled';
-import { CanvasEngine, TransformLayerWidget, SmartLayerWidget } from '@projectstorm/react-canvas-core'
+import { CanvasEngine, CanvasEngineListener, ListenerHandle, SmartLayerWidget, TransformLayerWidget } from '@projectstorm/react-canvas-core'
+
 import { OverlayLayerModel } from '../OverlayLayer/OverlayLayerModel';
 
 export interface DiagramProps {
@@ -8,24 +11,22 @@ export interface DiagramProps {
 	className?: string;
 }
 
-namespace S {
-	export const Canvas = styled.div`
-		position: relative;
-		cursor: move;
-		overflow: hidden;
-		& > svg {
-			overflow: visible;
-		}
-	`;
-}
+export const Canvas = styled.div`
+	position: relative;
+	cursor: move;
+	overflow: hidden;
+	& > svg {
+		overflow: visible;
+	}
+`;
 
 export const DMCanvasContainerID = "data-mapper-canvas-container";
 
 export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 	ref: React.RefObject<HTMLDivElement>;
-	keyUp: any;
-	keyDown: any;
-	canvasListener: any;
+	keyUp: (this: Document, event: KeyboardEvent) => void;
+	keyDown: (this: Document, event: KeyboardEvent) => void;
+	canvasListener: CanvasEngineListener | ListenerHandle;
 
 	constructor(props: DiagramProps) {
 		super(props);
@@ -63,11 +64,11 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 			}
 		});
 
-		this.keyDown = (event: any) => {
-			this.props.engine.getActionEventBus().fireAction({ event });
+		this.keyDown = (event: KeyboardEvent) => {
+			this.props.engine.getActionEventBus().fireAction({ event: event as any });
 		};
-		this.keyUp = (event: any) => {
-			this.props.engine.getActionEventBus().fireAction({ event });
+		this.keyUp = (event: KeyboardEvent) => {
+			this.props.engine.getActionEventBus().fireAction({ event: event as any });
 		};
 
 		document.addEventListener('keyup', this.keyUp);
@@ -78,14 +79,14 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 	render() {
 		const engine = this.props.engine;
 		const model = engine.getModel();
-        const layers = model.getLayers();
-        const svgLayers = layers.filter((layer) => layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
-        const nonSVGLayers = layers.filter((layer) => !layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
+  const layers = model.getLayers();
+  const svgLayers = layers.filter((layer) => layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
+  const nonSVGLayers = layers.filter((layer) => !layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
 		const overlayLayers = layers.filter(layer => layer instanceof OverlayLayerModel);
-        const reArrangedLayers = [...nonSVGLayers, ...svgLayers, ...overlayLayers];
+  const reArrangedLayers = [...nonSVGLayers, ...svgLayers, ...overlayLayers];
 
 		return (
-			<S.Canvas
+			<Canvas
 				id={DMCanvasContainerID}
 				className={this.props.className}
 				ref={this.ref}
@@ -118,7 +119,7 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 						</TransformLayerWidget>
 					);
 				})}
-			</S.Canvas>
+			</Canvas>
 		);
 	}
 }

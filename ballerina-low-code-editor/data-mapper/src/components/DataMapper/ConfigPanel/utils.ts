@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     addToTargetPosition,
@@ -5,62 +17,151 @@ import {
     createFunctionSignature,
     getSelectedDiagnostics,
     getSource,
+    PrimitiveBalType,
     STModification,
+    Type,
     updateFunctionSignature
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, NodePosition, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import {
+    FunctionDefinition,
+
+    NodePosition,
+    RequiredParam,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 import { CompletionItemKind, Diagnostic } from "vscode-languageserver-protocol";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
+import { getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-utils";
+import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupported } from "../utils";
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
-import { DataMapperInputParam } from "./InputParamsPanel/types";
+import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./InputParamsPanel/types";
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
+
+/* tslint:disable-next-line */
+export const PROVIDED_TYPE = "${PROVIDED_TYPE}";
+/* tslint:disable-next-line */
+export const IO_KIND = "${IO_KIND}";
+export const DM_TYPES_UNSUPPORTED_MSG = `${PROVIDED_TYPE} is not supported as data mapper ${IO_KIND}`;
+export const DM_TYPES_NOT_FOUND_MSG = `Unrecognized type`;
+export const DM_TYPES_YET_TO_SUPPORT_MSG = `${PROVIDED_TYPE} is currently not supported as data mapper ${IO_KIND}`;
+export const DM_TYPES_SUPPORTED_IN_LATEST_MSG = `Type ${PROVIDED_TYPE} is not supported by the data mapper for your Ballerina version.
+ Please upgrade Ballerina to the latest version to use this type`;
+export const DM_TYPES_INVALID_MSG = `${PROVIDED_TYPE} is not a valid type descriptor`;
+
+function isSupportedType(node: STNode,
+                         type: Type,
+                         kind: 'input' | 'output',
+                         balVersion: string): [boolean, TypeNature?] {
+    if (!node) {
+        return [false, TypeNature.NOT_FOUND];
+    }
+
+    const isUnionType = STKindChecker.isUnionTypeDesc(node);
+    const isArrayType = STKindChecker.isArrayTypeDesc(node);
+    const isMapType = STKindChecker.isMapTypeDesc(node);
+    const isRecordType = STKindChecker.isRecordTypeDesc(node);
+    const isOptionalType = STKindChecker.isOptionalTypeDesc(node);
+
+    if (!type && isRecordType) {
+        return [false, TypeNature.WHITELISTED];
+    } else if (!type) {
+        return [false, TypeNature.NOT_FOUND];
+    }
+    const isInvalid = type && type.typeName === "$CompilationError$";
+
+    let isAlreadySupportedType: boolean;
+    if (kind === 'input') {
+        isAlreadySupportedType = DM_INHERENTLY_SUPPORTED_INPUT_TYPES.some(t => {
+            return t === type.typeName && !isUnionType && !isArrayType;
+        });
+    } else {
+        isAlreadySupportedType = type.typeName === PrimitiveBalType.Record && !isArrayType;
+    }
+
+    const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
+
+    if (isUnionType || isMapType || isOptionalType) {
+        return [false, TypeNature.YET_TO_SUPPORT];
+    } else if (isInvalid) {
+        return [false, TypeNature.INVALID];
+    } else if (isAlreadySupportedType || (!isUnsupportedType && isArraysSupported(balVersion))) {
+        return [true];
+    } else if (!isUnsupportedType) {
+        return [false, TypeNature.WHITELISTED];
+    } else {
+        return [false, TypeNature.BLACKLISTED];
+    }
+}
 
 export function getFnNameFromST(fnST: FunctionDefinition) {
     return fnST && fnST.functionName.value;
 }
 
-export const isValidInput = (param: RequiredParam): boolean => {
-    return (
-        param?.typeName &&
-        (STKindChecker.isSimpleNameReference(param?.typeName) ||
-            STKindChecker.isQualifiedNameReference(param?.typeName))
-    );
-};
-
-export const isValidOutput = (fnST: FunctionDefinition): boolean => {
-    return (
-        fnST?.functionSignature?.returnTypeDesc?.type &&
-        (STKindChecker.isSimpleNameReference(fnST?.functionSignature?.returnTypeDesc?.type) ||
-            STKindChecker.isQualifiedNameReference(fnST?.functionSignature?.returnTypeDesc?.type))
-    );
-};
-
-export function getInputsFromST(fnST: FunctionDefinition): DataMapperInputParam[] {
+export function getInputsFromST(fnST: FunctionDefinition, balVersion: string): DataMapperInputParam[] {
     let params: DataMapperInputParam[] = [];
     if (fnST) {
         // TODO: Check other Param Types
         const reqParams = fnST.functionSignature.parameters.filter((val) => STKindChecker.isRequiredParam(val)) as RequiredParam[];
-        params = reqParams.map((param) => ({
-            name: param.paramName.value,
-            type: getTypeFromTypeDesc(param.typeName),
-            inInvalid: !isValidInput(param)
-        }));
+        params = reqParams.map((param) => {
+            const typeName = getTypeFromTypeDesc(param.typeName);
+            const typeInfo = getTypeOfInputParam(param, balVersion);
+            const [isSupported, nature] = isSupportedType(param.typeName, typeInfo, 'input', balVersion);
+            return {
+                name: param.paramName.value,
+                type: typeName,
+                isUnsupported: typeInfo ? !isSupported : true,
+                typeNature: nature
+            }
+        });
     }
     return params;
 }
 
-export function getOutputTypeFromST(fnST: FunctionDefinition) {
-    return getTypeFromTypeDesc(fnST.functionSignature?.returnTypeDesc?.type)
+export function getOutputTypeFromST(fnST: FunctionDefinition, balVersion: string): DataMapperOutputParam {
+    const typeDesc = fnST.functionSignature?.returnTypeDesc && fnST.functionSignature.returnTypeDesc.type;
+    if (typeDesc) {
+        const typeName = getTypeFromTypeDesc(typeDesc);
+        const typeInfo = getTypeOfOutput(typeDesc, balVersion);
+        const [isSupported, nature] = isSupportedType(typeDesc, typeInfo, 'output', balVersion);
+        return {
+            type: typeName,
+            isUnsupported: typeInfo ? !isSupported : true,
+            typeNature: nature
+        }
+    }
+}
+
+export function getTypeIncompatibilityMsg(nature: TypeNature,
+                                          typeName: string,
+                                          kind?: 'input' | 'output'): string {
+    switch (nature) {
+        case TypeNature.WHITELISTED: {
+            return DM_TYPES_SUPPORTED_IN_LATEST_MSG.replace(PROVIDED_TYPE, typeName);
+        }
+        case TypeNature.BLACKLISTED: {
+            return DM_TYPES_UNSUPPORTED_MSG.replace(PROVIDED_TYPE, typeName).replace(IO_KIND, kind);
+        }
+        case TypeNature.YET_TO_SUPPORT: {
+            return DM_TYPES_YET_TO_SUPPORT_MSG.replace(PROVIDED_TYPE, typeName).replace(IO_KIND, kind);
+        }
+        case TypeNature.INVALID: {
+            return DM_TYPES_INVALID_MSG.replace(PROVIDED_TYPE, typeName);
+        }
+        case TypeNature.NOT_FOUND: {
+            return DM_TYPES_NOT_FOUND_MSG;
+        }
+    }
 }
 
 export function getTypeFromTypeDesc(typeDesc: TypeDescriptor) {
     if (typeDesc && STKindChecker.isSimpleNameReference(typeDesc)) {
-        return typeDesc.name.value;
+        return !typeDesc.name.isMissing ? typeDesc.name.value : typeDesc?.source?.trim();
     } else if (typeDesc && STKindChecker.isQualifiedNameReference(typeDesc)) {
         return typeDesc.source?.trim();
     }
@@ -72,13 +173,13 @@ export function getModifiedTargetPosition(currentRecords: string[], currentTarge
         return currentTargetPosition;
     } else {
         if (STKindChecker.isModulePart(syntaxTree)) {
-            const modulePart = syntaxTree as ModulePart;
+            const modulePart = syntaxTree ;
             const memberPositions: NodePosition[] = [];
             modulePart.members.forEach((member: STNode) => {
                 if (STKindChecker.isTypeDefinition(member)) {
                     const name = member.typeName.value;
                     if (currentRecords.includes(name)) {
-                        memberPositions.push(member.position);
+                        memberPositions.push(member.position as NodePosition);
                     }
                 }
             });
@@ -121,15 +222,15 @@ export async function getDiagnosticsForFnName(name: string,
     let diagTargetPosition: NodePosition;
     if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
         fnConfigPosition = {
-            ...fnST?.functionSignature?.position,
-            startLine: fnST.functionName.position?.startLine,
-            startColumn: fnST.functionName.position?.startColumn
+            ...fnST?.functionSignature?.position as NodePosition,
+            startLine: (fnST.functionName.position as NodePosition)?.startLine,
+            startColumn: (fnST.functionName.position as NodePosition)?.startColumn
         }
         diagTargetPosition = {
-            startLine: fnST.functionName.position.startLine,
-            startColumn: fnST.functionName.position.startColumn,
-            endLine: fnST.functionName.position.endLine,
-            endColumn: fnST.functionName.position.startColumn + name.length
+            startLine: (fnST.functionName.position as NodePosition).startLine,
+            startColumn: (fnST.functionName.position as NodePosition).startColumn,
+            endLine: (fnST.functionName.position as NodePosition).endLine,
+            endColumn: (fnST.functionName.position as NodePosition).startColumn + name.length
         };
         stModification = updateFunctionSignature(name, parametersStr, returnTypeStr, fnConfigPosition);
     } else {

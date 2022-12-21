@@ -14,7 +14,6 @@ import {
     FunctionDefinition,
     SpecificField,
     STKindChecker,
-    STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -22,8 +21,6 @@ import { DataMapperViewState } from "../../../utils/data-mapper-view-state";
 import { DMNode } from "../../DataMapper/DataMapper";
 
 export class SelectedSTFindingVisitor implements Visitor {
-
-    private node: SpecificField | FunctionDefinition;
 
     private updatedPrevST: DMNode[];
 
@@ -36,44 +33,84 @@ export class SelectedSTFindingVisitor implements Visitor {
         this.pathSegmentIndex = 1; // Field path always starts with the record root name
     }
 
-    beginVisitSTNode(node: FunctionDefinition | SpecificField, parent?: STNode) {
+    beginVisitSTNode(node: FunctionDefinition | SpecificField) {
         const item = this.prevST[0];
 
         if (item && item.stNode && STKindChecker.isSpecificField(item.stNode)) {
-           const pathSegments = item.fieldPath.split('.');
-           if (STKindChecker.isSpecificField(node) && node.fieldName.value === pathSegments[this.pathSegmentIndex]) {
-               this.pathSegmentIndex++;
-           } else if (STKindChecker.isListConstructor(node) && !isNaN(+pathSegments[this.pathSegmentIndex])) {
+            const pathSegments = item.fieldPath.split('.');
+            if (STKindChecker.isSpecificField(node) && node.fieldName.value === pathSegments[this.pathSegmentIndex]) {
+                this.pathSegmentIndex++;
+            } else if (STKindChecker.isListConstructor(node)
+                && !isNaN(+pathSegments[this.pathSegmentIndex])
+                && !node.dataMapperViewState) {
                 node.expressions.forEach((exprNode, index) => {
                     if (!STKindChecker.isCommaToken(exprNode)) {
                         (exprNode.dataMapperViewState as DataMapperViewState).elementIndex = index / 2;
                     }
                 });
-           } else if (node.dataMapperViewState) {
-               const elementIndex = (node.dataMapperViewState as DataMapperViewState).elementIndex;
-               if (elementIndex === +pathSegments[this.pathSegmentIndex]) {
-                   this.pathSegmentIndex++;
-               }
-           } else {
-               return;
-           }
+            } else if (node.dataMapperViewState) {
+                const elementIndex = (node.dataMapperViewState as DataMapperViewState).elementIndex;
+                if (elementIndex === +pathSegments[this.pathSegmentIndex]) {
+                    if (STKindChecker.isMappingConstructor(node)) {
+                        this.pathSegmentIndex++;
+                        const hasNextFieldName = node.fields.some(field =>
+                            STKindChecker.isSpecificField(field)
+                            && field.fieldName.value === pathSegments[this.pathSegmentIndex]
+                        );
+                        if (!hasNextFieldName) {
+                            this.pathSegmentIndex++; // Skipping the record name segment
+                        }
+                    } else if (STKindChecker.isListConstructor(node) && !isNaN(+pathSegments[this.pathSegmentIndex++])) {
+                        // Add element indexes for list constructors followed by another list constructor
+                        node.expressions.forEach((exprNode, index) => {
+                            if (!STKindChecker.isCommaToken(exprNode)) {
+                                (exprNode.dataMapperViewState as DataMapperViewState).elementIndex = index / 2;
+                            }
+                        });
+                    } else {
+                        this.pathSegmentIndex++;
+                    }
+                }
+            } else {
+                return;
+            }
         }
 
-        if (item?.stNode && node && (STKindChecker.isFunctionDefinition(node) || STKindChecker.isSpecificField(node))) {
-            if (
-                STKindChecker.isSpecificField(node) &&
-                STKindChecker.isSpecificField(item.stNode) &&
-                node.fieldName.value === item.stNode.fieldName?.value
-            ) {
-                this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }]
-                this.pathSegmentIndex = 1;
-            } else if (
-                STKindChecker.isFunctionDefinition(node) &&
-                STKindChecker.isFunctionDefinition(item.stNode) &&
-                node.functionName.value === item.stNode.functionName?.value
-            ) {
-                this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }]
+        if (item?.stNode && STKindChecker.isSpecificField(item.stNode)
+            && node && STKindChecker.isSpecificField(node)
+            && node.fieldName.value === item.stNode.fieldName?.value)
+        {
+            this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }];
+            this.pathSegmentIndex = 1;
+            const nextItem = STKindChecker.isMappingConstructor(node.valueExpr)
+                ? node.valueExpr
+                : STKindChecker.isQueryExpression(node.valueExpr)
+                    && STKindChecker.isMappingConstructor(node.valueExpr.selectClause.expression)
+                    ? node.valueExpr.selectClause.expression
+                    : undefined;
+            if (nextItem && this.prevST) {
+                const nexFieldPath = this.prevST[this.prevST.length - 1]?.fieldPath;
+                const nextPathSegment = nexFieldPath && nexFieldPath.split('.')[0];
+                const hasNextFieldName = nextItem.fields.some(field =>
+                    STKindChecker.isSpecificField(field)
+                    && field.fieldName.value === nextPathSegment
+                );
+                if (hasNextFieldName) {
+                    this.pathSegmentIndex = 0;
+                }
             }
+        } else if (node && STKindChecker.isFunctionDefinition(node)) {
+            // Function definitions are repeated when the expr function body is query expression
+            const functionDefs = this.prevST.filter(prevST =>
+                prevST.stNode && STKindChecker.isFunctionDefinition(prevST.stNode)
+            );
+            functionDefs.forEach(fnDef => {
+                if (STKindChecker.isFunctionDefinition(fnDef.stNode)
+                    && node.functionName.value === fnDef.stNode.functionName?.value)
+                {
+                    this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }];
+                }
+            });
         }
     }
 

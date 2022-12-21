@@ -12,6 +12,7 @@ import {
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
     TypesFromExpressionResponse,
+    TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
 } from ".";
 
@@ -120,6 +121,10 @@ export class BallerinaLangClient implements IBallerinaLangClient {
 
     public getTypeFromSymbol(params: TypeFromSymbolRequest): Thenable<TypesFromSymbolResponse> {
         return this.lsConnection.sendRequest("ballerinaSymbol/getTypeFromSymbol", params)
+    }
+
+    public getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Thenable<TypesFromSymbolResponse> {
+        return this.lsConnection.sendRequest("ballerinaSymbol/getTypesFromFnDefinition", params)
     }
 }
 

@@ -8,6 +8,7 @@ import {
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
     TypesFromExpressionResponse,
+    TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse
 } from ".";
 
@@ -104,6 +105,10 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
     }
 
     public getTypeFromSymbol(params: TypeFromSymbolRequest): Thenable<TypesFromSymbolResponse> {
+        return Promise.reject();
+    }
+
+    public getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Thenable<TypesFromSymbolResponse> {
         return Promise.reject();
     }
 }

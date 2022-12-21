@@ -105,9 +105,8 @@ export class CreateLinkState extends State<DiagramEngine> {
 		this.registerAction(
 			new Action({
 				type: InputType.MOUSE_MOVE,
-				fire: (actionEvent: ActionEvent<React.MouseEvent>) => {
+				fire: () => {
 					if (!this.link) return;
-					const { event } = actionEvent;
 					this.engine.repaintCanvas();
 				}
 			})
