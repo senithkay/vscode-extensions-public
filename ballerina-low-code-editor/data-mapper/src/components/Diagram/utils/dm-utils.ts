@@ -48,7 +48,7 @@ import { MappingConstructorNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
-import { LetExpressionNodeNew} from "../Node/LetExpression";
+import { LetExpressionNode} from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
@@ -411,8 +411,8 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 
 export function findNodeByValueNode(value: STNode,
                                     dmNode: DataMapperNodeModel
-									): RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNodeNew {
-	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNodeNew;
+									): RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode {
+	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode;
 	dmNode.getModel().getNodes().find((node) => {
 		if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
 			&& STKindChecker.isRequiredParam(node.value))
@@ -420,7 +420,7 @@ export function findNodeByValueNode(value: STNode,
 				&& STKindChecker.isFromClause(node.value))
 			|| (STKindChecker.isLetClause(value) && node instanceof LetClauseNode
 				&& STKindChecker.isLetClause(node.value))
-			|| (STKindChecker.isExpressionFunctionBody(value) && node instanceof LetExpressionNodeNew
+			|| (STKindChecker.isExpressionFunctionBody(value) && node instanceof LetExpressionNode
 				&& STKindChecker.isExpressionFunctionBody(node.value)))
 			&& isPositionsEquals(value.position as NodePosition, node.value.position as NodePosition)) {
 			foundNode = node;
@@ -437,7 +437,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
 				return bindingPattern?.variableName?.value === expr.source.trim();
-			} else if (node instanceof LetExpressionNodeNew) {
+			} else if (node instanceof LetExpressionNode) {
 				return node.letVarDecls.some(decl => decl.varName === expr.source.trim());
 			} else if (node instanceof RequiredParamNode) {
 				return expr.name.value === node.value.paramName.value;
@@ -447,7 +447,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 					return expr.name.value === bindingPattern.variableName.value;
 				}
 			}
-		}) as LetClauseNode | LetExpressionNodeNew | RequiredParamNode | FromClauseNode)?.value;
+		}) as LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode)?.value;
 		if (paramNode) {
 			return findNodeByValueNode(paramNode, dmNode);
 		}
@@ -472,7 +472,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 						const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 						const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
 						return bindingPattern?.variableName?.value === valueExpr.source;
-					} else if (node instanceof LetExpressionNodeNew) {
+					} else if (node instanceof LetExpressionNode) {
 						return node.letVarDecls.some(decl => {
 							if (decl.type.typeName === PrimitiveBalType.Record) {
 								return decl.varName === expr.source.trim().split(".")[0]
@@ -499,13 +499,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	}
 }
 
-export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNodeNew,
+export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode,
                                      expr: STNode): RecordFieldPortModel {
-	let typeDesc = !(node instanceof LetExpressionNodeNew) && node.typeDef;
+	let typeDesc = !(node instanceof LetExpressionNode) && node.typeDef;
 	let portIdBuffer;
 	if (node instanceof RequiredParamNode) {
 		portIdBuffer = node.value.paramName.value
-	} else if (node instanceof LetExpressionNodeNew) {
+	} else if (node instanceof LetExpressionNode) {
 		const varDecl = node.letVarDecls.find(decl => {
 			if (decl.type.typeName === PrimitiveBalType.Record) {
 				return decl.varName === expr.source.trim().split(".")[0];

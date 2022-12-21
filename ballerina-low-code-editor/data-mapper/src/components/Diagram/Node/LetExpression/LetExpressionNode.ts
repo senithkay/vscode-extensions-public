@@ -12,64 +12,83 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LetVarDecl, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+    ExpressionFunctionBody,
+    LetExpression,
+    NodePosition,
+    STKindChecker
+} from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { LET_EXPRESSION_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { getTypeFromStore } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { getLetExpressions } from "../LocalVarManager/local-var-mgt-utils";
 
 export const LET_EXPR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-let-expression";
 
+export interface DMLetVarDecl {
+    varName: string;
+    type: Type;
+}
+
 export class LetExpressionNode extends DataMapperNodeModel {
-    public typeDef: Type;
-    public varName: string;
+    public letExpr: LetExpression;
+    public letVarDecls: DMLetVarDecl[];
     public x: number;
     public numberOfFields:  number;
 
     constructor(
         public context: IDataMapperContext,
-        public value: LetVarDecl) {
+        public value: ExpressionFunctionBody) {
         super(
             context,
             LET_EXPR_SOURCE_NODE_TYPE
         );
         this.numberOfFields = 1;
+        this.letVarDecls = [];
     }
 
     async initPorts() {
-        const bindingPattern = this.value.typedBindingPattern.bindingPattern;
-
-        if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-            this.varName = bindingPattern.variableName.value;
-            const exprPosition = this.value.expression.position as NodePosition;
-
-            const typeDescriptors = RecordTypeDescriptorStore.getInstance();
-            this.typeDef = typeDescriptors.getTypeDescriptor({
-                startLine: exprPosition.startLine,
-                startColumn: exprPosition.startColumn,
-                endLine: exprPosition.endLine,
-                endColumn: exprPosition.endColumn
-            });
-
-            if (this.typeDef) {
-                const parentPort = this.addPortsForHeaderField(this.typeDef, this.varName, "OUT",
-                    LET_EXPRESSION_SOURCE_PORT_PREFIX, this.context.collapsedFields);
-
-                if (this.typeDef.typeName === PrimitiveBalType.Record) {
-                    const fields = this.typeDef.fields;
-                    fields.forEach((subField) => {
-                        this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT",
-                            this.varName, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
-                            this.context.collapsedFields, parentPort.collapsed);
-                    });
-                } else {
-                    this.addPortsForInputRecordField(this.typeDef, "OUT",
-                        this.varName, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
-                        this.context.collapsedFields, parentPort.collapsed);
-                }
-            }
+        if (!STKindChecker.isLetExpression(this.value.expression)) {
+            return;
         }
+        this.letExpr = this.value.expression;
+        const letExpressions = getLetExpressions(this.letExpr);
+
+        letExpressions.forEach(expr => {
+            const letVarDecls = expr.letVarDeclarations;
+            letVarDecls.forEach(decl => {
+                if (STKindChecker.isLetVarDecl(decl)) {
+                    const bindingPattern = decl.typedBindingPattern.bindingPattern;
+
+                    if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+                        const varName = bindingPattern.variableName.value;
+                        const exprPosition = decl.expression.position as NodePosition;
+
+                        const type = getTypeFromStore(exprPosition);
+
+                        const parentPort = this.addPortsForHeaderField(type, varName, "OUT",
+                            LET_EXPRESSION_SOURCE_PORT_PREFIX, this.context.collapsedFields);
+
+                        if (type && (type.typeName === PrimitiveBalType.Record)) {
+                            const fields = type.fields;
+                            fields.forEach((subField) => {
+                                this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT",
+                                    varName, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
+                                    this.context.collapsedFields, parentPort.collapsed);
+                            });
+                        } else {
+                            this.addPortsForInputRecordField(type, "OUT",
+                                varName, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
+                                this.context.collapsedFields, parentPort.collapsed);
+                        }
+
+                        this.letVarDecls.push({varName, type});
+                    }
+                }
+            });
+        });
     }
 
     async initLinks() {

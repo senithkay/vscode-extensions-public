@@ -37,7 +37,7 @@ import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { FromClauseNode } from './Node/FromClause';
 import { LetClauseNode } from './Node/LetClause';
-import { LetExpressionNodeNew } from "./Node/LetExpression";
+import { LetExpressionNode } from "./Node/LetExpression";
 import { LinkConnectorNode } from './Node/LinkConnector';
 import { MappingConstructorNode } from './Node/MappingConstructor';
 import { QueryExpressionNode } from './Node/QueryExpression';
@@ -193,7 +193,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
 					node.updatePosition();
 				}
-				if (node instanceof RequiredParamNode || node instanceof LetClauseNode || node instanceof LetExpressionNodeNew) {
+				if (node instanceof RequiredParamNode || node instanceof LetClauseNode || node instanceof LetExpressionNode) {
 					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
 					requiredParamFields = requiredParamFields + node.numberOfFields;
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;

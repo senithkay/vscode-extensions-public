@@ -15,15 +15,14 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
 import { LET_EXPRESSION_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
-import { PrimitiveTypeItemWidget } from '../commons/PrimitiveTypeItemWidget';
-import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
+import { LetExpressionTreeWidget } from "../commons/LetExpressionTreeWidget";
+import { TreeContainer } from "../commons/Tree/Tree";
 
 import { LetExpressionNode, LET_EXPR_SOURCE_NODE_TYPE } from "./LetExpressionNode";
 
@@ -36,26 +35,22 @@ export class LetExpressionNodeFactory extends AbstractReactFactory<LetExpression
 
     generateReactWidget(event: { model: LetExpressionNode; }): JSX.Element {
         return (
-            <>
-                {event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record ? (
-                    <RecordTypeTreeWidget
-                        engine={this.engine}
-                        id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${event.model.varName}`}
-                        typeDesc={event.model.typeDef}
-                        getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                        handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-                        valueLabel={event.model.varName}
-                    />
-                ) : (
-                    <PrimitiveTypeItemWidget
-                        engine={this.engine}
-                        id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${event.model.varName}`}
-                        typeDesc={event.model.typeDef}
-                        getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                        valueLabel={event.model.varName}
-                    />
-                )}
-            </>
+            <TreeContainer>
+                {event.model.letVarDecls && event.model.letVarDecls.map(decl => {
+                    return (
+                        <>
+                            <LetExpressionTreeWidget
+                                engine={this.engine}
+                                id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
+                                typeDesc={decl.type}
+                                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                                handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                                valueLabel={decl.varName}
+                            />
+                        </>
+                    );
+                })}
+            </TreeContainer>
         );
     }
 

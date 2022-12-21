@@ -42,7 +42,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
-import { LetExpressionNodeNew } from "../Node/LetExpression";
+import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
@@ -181,7 +181,7 @@ export class NodeInitVisitor implements Visitor {
         // create node for configuring local variables
         const hasExpanded = this.selection.prevST.length > 0;
         if (!hasExpanded) {
-            const letExprNode = new LetExpressionNodeNew(
+            const letExprNode = new LetExpressionNode(
                 this.context,
                 exprFuncBody
             );

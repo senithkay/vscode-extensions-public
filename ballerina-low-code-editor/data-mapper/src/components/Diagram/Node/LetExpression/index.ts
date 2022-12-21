@@ -11,6 +11,4 @@
  * associated services.
  */
 export * from "./LetExpressionNode";
-export * from "./LetExpressionNodeNew";
 export * from "./LetExpressionNodeFactory";
-export * from "./LetExpressionNodeFactoryNew";
