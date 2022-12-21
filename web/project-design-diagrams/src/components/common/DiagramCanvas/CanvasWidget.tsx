@@ -59,7 +59,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     useEffect(() => {
         if (currentView === Views.L1_SERVICES && editingEnabled) {
             // Reset new link nodes on escape
-            function handleEscapePress(event) {
+            function handleEscapePress(event: KeyboardEvent) {
                 if (event.key === 'Escape') {
                     setNewLinkNodes({ source: undefined, target: undefined });
                 }
