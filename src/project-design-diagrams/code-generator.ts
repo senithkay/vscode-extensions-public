@@ -23,17 +23,22 @@ import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
 import { STResponse } from "./activator";
 import { Service } from "./resources";
 
+const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
+let clientName: string;
+
 export async function addConnector(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
     : Promise<boolean> {
     const filePath: string = sourceService.elementLocation.filePath;
+    clientName = transformLabel(targetService.annotation.label) || transformLabel(targetService.annotation.id);
+
     langClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(filePath).toString()
         }
     }).then((response: any) => {
-        const stResponseObj = response as STResponse;
-        if (stResponseObj && stResponseObj.parseSuccess) {
-            const members: any[] = stResponseObj.syntaxTree.members;
+        const stResponse = response as STResponse;
+        if (stResponse && stResponse.parseSuccess) {
+            const members: any[] = stResponse.syntaxTree.members;
             const serviceDecl = members.find((member) => (
                 member.kind === "ServiceDeclaration" &&
                 sourceService.elementLocation.startPosition.line === member.position.startLine &&
@@ -45,37 +50,42 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
             const initMember = getInitFunction(serviceDecl);
 
             if (initMember) {
-                executeCodeModifier(langClient, filePath, serviceDecl, generateClientDecl(targetService))
-                    .then(() => {
-                        // TO:DO Check ways to populate the template with the exiting initMember object
-                        langClient.getSyntaxTree({
-                            documentIdentifier: {
-                                uri: Uri.file(filePath).toString()
-                            }
-                        }).then((response: any) => {
-                            const updatedSTResponse = response as STResponse;
-                            if (updatedSTResponse && updatedSTResponse.parseSuccess) {
-                                const members: any[] = updatedSTResponse.syntaxTree.members;
+                updateSyntaxTree(langClient, filePath, serviceDecl, generateClientDecl(targetService))
+                    .then((response) => {
+                        let modifiedST = response as STResponse;
+                        if (modifiedST && modifiedST.parseSuccess) {
+                            updateSourceFile(langClient, filePath, modifiedST.source).then(() => {
+                                const members: any[] = modifiedST.syntaxTree.members;
                                 const serviceDecl = members.find((member) => (
                                     member.kind === "ServiceDeclaration" &&
                                     sourceService.elementLocation.startPosition.line === member.position.startLine &&
                                     sourceService.elementLocation.startPosition.offset === member.position.startColumn
                                 ));
 
-                                const initMember = getInitFunction(serviceDecl);
-                                if (initMember) {
-                                    return executeCodeModifier(langClient, filePath, initMember.functionBody,
-                                        generateClientInit(targetService));
+                                const updatedInitMember = getInitFunction(serviceDecl);
+                                if (updatedInitMember) {
+                                    updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody,
+                                        generateClientInit(targetService)).then((response) => {
+                                            modifiedST = response as STResponse;
+                                            if (modifiedST && modifiedST.parseSuccess) {
+                                                return updateSourceFile(langClient, filePath, modifiedST.source);
+                                            }
+                                        })
                                 }
-                            }
-                        });
+                            })
+                        }
                     })
             } else {
                 let genCode = `
                         ${generateClientDecl(targetService)}
                         ${generateServiceInit(targetService)}
                     `;
-                return executeCodeModifier(langClient, filePath, serviceDecl, genCode);
+                updateSyntaxTree(langClient, filePath, serviceDecl, genCode).then((response) => {
+                    const modifiedST = response as STResponse;
+                    if (modifiedST && modifiedST.parseSuccess) {
+                        return updateSourceFile(langClient, filePath, modifiedST.source);
+                    }
+                })
             }
         }
     });
@@ -92,8 +102,8 @@ function getInitFunction(serviceDeclaration: any): any {
     return initMember;
 }
 
-async function executeCodeModifier(langClient: ExtendedLangClient, filePath: string, stObject: any, generatedCode: string)
-    : Promise<boolean> {
+async function updateSyntaxTree(langClient: ExtendedLangClient, filePath: string, stObject: any, generatedCode: string)
+    : Promise<STResponse | {}> {
     let stModification = {
         startLine: stObject.openBraceToken.position.endLine,
         startColumn: stObject.openBraceToken.position.endColumn,
@@ -105,22 +115,15 @@ async function executeCodeModifier(langClient: ExtendedLangClient, filePath: str
         }
     };
 
-    langClient.stModify({
+    return langClient.stModify({
         astModifications: [stModification],
         documentIdentifier: {
             uri: Uri.file(filePath).toString()
         }
-    }).then((response) => {
-        const updatedST = response as STResponse;
-        if (updatedST && updatedST.parseSuccess) {
-            return updateSourceContent(langClient, filePath, updatedST.source);
-        }
     });
-
-    return false;
 }
 
-async function updateSourceContent(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
+async function updateSourceFile(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
     const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
     if (doc) {
         const edit = new WorkspaceEdit();
@@ -152,7 +155,7 @@ function generateClientDecl(targetService: Service): string {
             label: "${targetService.annotation.label}",
             id: "${targetService.annotation.id}"
         }
-        http:Client ${targetService.annotation.label || targetService.annotation.id};
+        http:Client ${clientName};
     `;
 
     return clientDeclaration;
@@ -166,5 +169,10 @@ function generateServiceInit(targetService: Service): string {
 }
 
 function generateClientInit(targetService: Service): string {
-    return `self.${targetService.annotation.label || targetService.annotation.id} = check new ("");`;
+    return `self.${clientName} = check new ("");`;
+}
+
+function transformLabel(label: string): string {
+    return label.split(ClientVarNameRegex).reduce((varName: string, subname: string) =>
+        varName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
 }

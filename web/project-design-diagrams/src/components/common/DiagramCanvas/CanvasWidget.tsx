@@ -23,12 +23,10 @@ import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { DefaultState, ServiceNodeModel } from '../../service-interaction';
 import { Views } from '../../../resources';
-import { createEntitiesEngine, createServicesEngine } from '../../../utils';
+import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from '../../../utils';
 import { Canvas } from './styles/styles';
 import './styles/styles.css';
-import { positionGatewayNodes } from "../../../utils/utils";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -45,42 +43,37 @@ const dagreEngine = new DagreEngine({
         nodesep: 60,
         ranker: 'longest-path',
         marginx: 40,
-        marginy: 240
+        marginy: 40
     }
 });
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const { model, currentView, type } = props;
-    const { newLinkNodes, setNewLinkNodes, generateConnectors, editingEnabled } = useContext(DiagramContext);
+    const { editingEnabled, setNewLinkNodes } = useContext(DiagramContext);
 
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE ||
         type === Views.TYPE_COMPOSITION ? createEntitiesEngine : createServicesEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const diagramRef = useRef<HTMLDivElement>(null);
-    const newLinkSource = useRef<ServiceNodeModel>(undefined);
 
     useEffect(() => {
-        // Reset new link nodes if clicked outside of the canvas
-        function handleClickOutside(event) {
-            if (diagramRef.current && !diagramRef.current.contains(event.target)) {
-                setNewLinkNodes({ source: undefined, target: undefined });
+        if (currentView === Views.L1_SERVICES && editingEnabled) {
+            // Reset new link nodes on escape
+            function handleEscapePress(event: KeyboardEvent) {
+                if (event.key === 'Escape') {
+                    setNewLinkNodes({ source: undefined, target: undefined });
+                }
             }
+            document.addEventListener('keydown', handleEscapePress);
         }
-
-        // Bind the event listener
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            // Unbind the event listener on clean up
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [diagramRef]);
+    }, [])
 
     // Reset the model and redistribute if the model changes
     useEffect(() => {
         if (diagramEngine.getModel()) {
             if (currentView === type) {
                 diagramEngine.setModel(model);
-                handleModelUpdates();
+                autoDistribute();
             } else {
                 setDiagramModel(undefined);
             }
@@ -92,45 +85,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         if (!diagramModel && currentView === type) {
             diagramEngine.setModel(model);
             setDiagramModel(model);
-            handleModelUpdates();
+            autoDistribute();
         }
     }, [currentView])
-
-    useEffect(() => {
-        newLinkSource.current = newLinkNodes.source;
-    }, [newLinkNodes])
-
-    const handleModelUpdates = () => {
-        if (diagramEngine && diagramEngine.getModel() && currentView === Views.L1_SERVICES && editingEnabled) {
-            diagramEngine.getModel().registerListener({
-                'INIT_LINKING': (event) => { handleLinking(event) },
-                'ABORT_LINKING': () => { abortLinking }
-            });
-            diagramEngine.getStateMachine().pushState(new DefaultState());
-        }
-        autoDistribute();
-    }
-
-    const handleLinking = (event: any) => {
-        if (editingEnabled && currentView === Views.L1_SERVICES && newLinkSource.current) {
-            const target: ServiceNodeModel = event.entity as ServiceNodeModel;
-            if (target) {
-                setNewLinkNodes({ source: newLinkSource.current, target });
-                diagramEngine.repaintCanvas();
-
-                generateConnectors(newLinkSource.current.serviceObject, target.serviceObject).then(() => {
-                    setNewLinkNodes({ source: undefined, target: undefined });
-                });
-            }
-        }
-    }
-
-    const abortLinking = () => {
-        if (editingEnabled && currentView === Views.L1_SERVICES) {
-            setNewLinkNodes({ source: undefined, target: undefined });
-            diagramEngine.repaintCanvas();
-        }
-    }
 
     const autoDistribute = () => {
         setTimeout(() => {
@@ -146,9 +103,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         diagramEngine.repaintCanvas();
     }
 
-    const zoomToFit = () => {
-        diagramEngine.zoomToFitNodes({});
-    }
+    const zoomToFit = () => { diagramEngine.zoomToFitNodes({}) }
 
     const downloadDiagram = useCallback(() => {
         if (diagramRef.current === null) {

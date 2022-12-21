@@ -21,13 +21,12 @@ import React, { useState } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import { NodeMenuPanel } from './NodeMenuPanel';
-import { Location } from '../../../resources';
-import { ServiceNodeModel } from '../../service-interaction';
+import { Location, Service } from '../../../resources';
 
 interface NodeMenuProps {
     location: Location;
     background: string;
-    service?: ServiceNodeModel;
+    service?: Service;
     linkingEnabled?: boolean;
 }
 
@@ -38,7 +37,7 @@ export function NodeMenuWidget(props: NodeMenuProps) {
 
     return (
         <>
-            {(linkingEnabled && service || location) &&
+            {location &&
                 <Tooltip
                     open={showTooltip}
                     onClose={() => setTooltipStatus(false)}

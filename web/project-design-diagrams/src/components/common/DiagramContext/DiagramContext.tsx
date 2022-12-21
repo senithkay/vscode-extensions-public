@@ -19,7 +19,6 @@
 
 import React, { createContext, ReactNode, useState } from 'react';
 import { AddComponentDetails, Location, Service, Views } from '../../../resources';
-import { ServiceNodeModel } from '../../service-interaction';
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -49,8 +48,8 @@ interface IDiagramContext {
 }
 
 interface LinkedNodes {
-    source: ServiceNodeModel,
-    target: ServiceNodeModel
+    source: Service,
+    target: Service
 }
 
 const defaultState: any = {};
