@@ -157,7 +157,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
 
     return (!node.hidden && (
         <>
-            {!!node.sourcePort && (
+            {(!!node.sourcePort && !!node.inPort && !!node.outPort) && (
                 <div className={classes.root} >
                     <div className={classes.header}>
                         <DataMapperPortWidget engine={engine} port={node.inPort} />
@@ -166,7 +166,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                                 <QueryIcon  />
                             </span>
                         </TooltipComponent>
-                        <div className={classes.element} onClick={onClickOnExpand}>
+                        <div className={classes.element} onClick={onClickOnExpand} data-testid={`expand-query-${node?.targetFieldFQN}`}>
                             <div className={classes.iconWrapper}>
                                 <ExitToApp className={clsx(classes.editIcon)}/>
                             </div>
@@ -176,7 +176,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                                 {loadingScreen}
                             </div>
                         ) : (
-                            <div className={classes.element} onClick={deleteQueryLink}>
+                            <div className={classes.element} onClick={deleteQueryLink} data-testid={`delete-query-${node?.targetFieldFQN}`}>
                                 <div className={classes.iconWrapper}>
                                     <DeleteIcon className={clsx(classes.deleteIcon)}/>
                                 </div>

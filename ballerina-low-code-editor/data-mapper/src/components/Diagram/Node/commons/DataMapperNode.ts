@@ -1,3 +1,4 @@
+// tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -43,10 +44,10 @@ import { ArrayElement, EditableRecordField } from "../../Mappings/EditableRecord
 import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificFied';
 import { RecordFieldPortModel } from "../../Port";
 import {
-	getInputNodes,
 	getBalRecFieldName,
 	getFieldName,
-	isComplexExpression 
+	getInputNodes,
+	isComplexExpression
 } from "../../utils/dm-utils";
 
 export interface DataMapperNodeModelGenerics {
@@ -59,7 +60,6 @@ export type TypeDescriptor = AnyTypeDesc | AnydataTypeDesc | ArrayTypeDesc | Boo
 	| ParenthesisedTypeDesc | QualifiedNameReference | ReadonlyTypeDesc | RecordTypeDesc | SimpleNameReference
 	| SingletonTypeDesc | StreamTypeDesc | StringTypeDesc | TableTypeDesc | TupleTypeDesc | TypedescTypeDesc | UnionTypeDesc
 	| XmlTypeDesc;
-
 
 export interface IDataMapperNodeFactory {
 
@@ -116,13 +116,13 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
-										                              parentId: string, elementIndex?: number,
-										                              portPrefix?: string,
-										                              parent?: RecordFieldPortModel,
-										                              collapsedFields?: string[],
-										                              hidden?: boolean,
-										                              isWithinSelectClause?: boolean
-																	 ) {
+											                             parentId: string, elementIndex?: number,
+											                             portPrefix?: string,
+											                             parent?: RecordFieldPortModel,
+											                             collapsedFields?: string[],
+											                             hidden?: boolean,
+											                             isWithinSelectClause?: boolean
+											) {
 		const fieldName = getFieldName(field);
 		if (elementIndex !== undefined) {
 			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();

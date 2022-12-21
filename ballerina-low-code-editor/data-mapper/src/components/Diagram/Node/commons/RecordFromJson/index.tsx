@@ -16,14 +16,13 @@ import React, { useEffect, useReducer } from 'react';
 import { FormControl, FormHelperText, TextareaAutosize } from "@material-ui/core";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import {
     FormHeaderSection,
     PrimaryButton,
     SecondaryButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
-import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 
 interface JsonToRecordState {
     isLoading?: boolean;
@@ -102,14 +101,14 @@ const useStyles = makeStyles(() =>
     })
 );
 
-const reducer = (state: JsonToRecordState, action: {type: string, payload: any }) => {
+const reducer = (state: JsonToRecordState, action: {type: string, payload: boolean | string }): JsonToRecordState => {
     switch (action.type) {
         case 'jsonConversionStart':
-            return {...state, isLoading: action.payload};
+            return {...state, isLoading: action.payload as boolean};
         case 'setJsonValidity':
-            return {...state, isValidRecord: action.payload};
+            return {...state, isValidRecord: action.payload as boolean};
         case 'setJsonValue':
-            return {...state, jsonValue: action.payload};
+            return {...state, jsonValue: action.payload as string};
         case 'jsonConversionSuccess':
             return {jsonValue: "", isLoading: false, isValidRecord: true};
         case 'jsonConversionFailure':
@@ -133,7 +132,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         dispatchFromState({type: 'jsonConversionStart', payload: true});
     };
 
-    const onJsonChange = (event: any) => {
+    const onJsonChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         dispatchFromState({type: 'setJsonValue', payload: event.target.value});
         try {
             JSON.parse(event.target.value);
@@ -145,7 +144,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
 
     useEffect(() => {
         if (formState.isLoading) {
-            (async () => {
+            void (async () => {
                 const recordName = "TempName";
                 const langClient = await langClientPromise;
                 const recordResponse = await langClient.convert(

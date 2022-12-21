@@ -10,17 +10,24 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React from "react";
 
-import { LetVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
+import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
+import {
+    LetVarDecl,
+    NodePosition,
+    STKindChecker,
+    STNode,
+} from "@wso2-enterprise/syntax-tree";
+
 import { ClauseAddButton } from "./ClauseAddButton";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
 import { LetClauseItem } from "./LetClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
-import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;
@@ -38,19 +45,19 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
         if (STKindChecker.isWhereClause(editNode)) {
             node.context.enableStatementEditor({
                 value: editNode.expression?.source,
-                valuePosition: editNode.expression?.position,
+                valuePosition: editNode.expression?.position as NodePosition,
                 label: "Where clause",
             });
         } else if (STKindChecker.isLetClause(editNode) && editNode.letVarDeclarations[0]) {
             node.context.enableStatementEditor({
                 value: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.source,
-                valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.position,
+                valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.position as NodePosition,
                 label: "Let clause",
             });
         } else if (STKindChecker.isFromClause(editNode)) {
             node.context.enableStatementEditor({
                 value: editNode.expression.source,
-                valuePosition: editNode.expression.position,
+                valuePosition: editNode.expression.position as NodePosition,
                 label: "From clause",
             });
         }
@@ -71,7 +78,9 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
                     <div className={classes.clauseWrap}>
                         <span
                             className={classes.clauseItemKey}
-                        >{` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}</span>
+                        >
+                            {` ${fromClause.typedBindingPattern.source} ${fromClause.inKeyword.value}`}
+                        </span>
                         <span
                             className={classes.clauseExpression}
                             onClick={() => onClickEdit(fromClause)}

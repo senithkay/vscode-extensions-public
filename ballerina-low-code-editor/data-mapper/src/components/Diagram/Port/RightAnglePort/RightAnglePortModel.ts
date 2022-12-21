@@ -11,12 +11,12 @@
  * associated services.
  */
 
-import { DefaultPortModel, LinkModel } from "@projectstorm/react-diagrams";
-import { AbstractModelFactory } from '@projectstorm/react-canvas-core';
+import { DefaultPortModel } from "@projectstorm/react-diagrams";
+
 import { RightAngleLinkModel } from "../../Link";
 
 export class RightAnglePortModel extends DefaultPortModel {
-	createLinkModel(factory?: AbstractModelFactory<LinkModel>) {
+	createLinkModel() {
 		return new RightAngleLinkModel();
 	}
 }

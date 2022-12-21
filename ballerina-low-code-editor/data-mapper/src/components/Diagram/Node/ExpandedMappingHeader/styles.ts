@@ -1,4 +1,4 @@
-import { makeStyles, Theme, createStyles } from "@material-ui/core";
+import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -14,7 +14,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 }
             },
         },
-        lineWrap:{
+        lineWrap: {
             width: 80,
             height: 25,
             display: 'flex',
@@ -23,7 +23,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             position: 'relative',
             flexDirection: 'column'
         },
-        line:{
+        line: {
             height: 6,
             width: 2,
             background: '#CBCEDB'

@@ -15,9 +15,12 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:wso2.choreo.sign.in"
+    "onCommand:wso2.choreo.sign.in",
+    "onView:choreo-projects",
+    "onView:choreo-account"
   ],
   "main": "./dist/extension.js",
+  "extensionDependencies": ["wso2.ballerina"],
   "contributes": {
     "commands": [
       {
@@ -134,6 +137,7 @@
   "dependencies": {
     "axios": "^1.2.0",
     "gql-query-builder": "^3.8.0",
+    "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
     "jwt-decode": "^3.1.2",
     "keytar": "^7.9.0",

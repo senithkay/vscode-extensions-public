@@ -6,6 +6,7 @@ src/
 target/
 docs/
 extractedDistribution/
+choreo-vscode-plugin/
 resources/composer
 .gitignore
 tsconfig.json

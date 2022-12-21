@@ -12,11 +12,12 @@
  */
 
 import * as React from 'react';
-import { RightAngleLinkWidget } from './RightAngleLinkWidget';
-import { RightAngleLinkModel } from './RightAngleLinkModel';
-import { container, injectable, singleton } from "tsyringe";
-import { DefaultLinkFactory } from '@projectstorm/react-diagrams';
 
+import { DefaultLinkFactory } from '@projectstorm/react-diagrams';
+import { container, injectable, singleton } from "tsyringe";
+
+import { RightAngleLinkModel } from './RightAngleLinkModel';
+import { RightAngleLinkWidget } from './RightAngleLinkWidget';
 
 @injectable()
 @singleton()
@@ -31,7 +32,7 @@ export class RightAngleLinkFactory extends DefaultLinkFactory<RightAngleLinkMode
 		return new RightAngleLinkModel();
 	}
 
-	generateReactWidget(event: any): JSX.Element {
+	generateReactWidget(event: { model: RightAngleLinkModel }): JSX.Element {
 		return <RightAngleLinkWidget diagramEngine={this.engine} link={event.model} factory={this} />;
 	}
 }

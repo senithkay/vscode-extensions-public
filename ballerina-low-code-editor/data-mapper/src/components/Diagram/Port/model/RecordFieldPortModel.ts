@@ -15,7 +15,7 @@ import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
-import { createSourceForMapping, getBalRecFieldName, modifySpecificFieldSource } from "../../utils/dm-utils";
+import { createSourceForMapping, modifySpecificFieldSource } from "../../utils/dm-utils";
 import { IntermediatePortModel } from "../IntermediatePort";
 
 export interface RecordFieldNodeModelGenerics {
@@ -52,16 +52,16 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
-			sourcePortChanged: (evt) => {
+			sourcePortChanged: () => {
 				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
 			},
-			targetPortChanged: async (evt) => {
+			targetPortChanged: (async () => {
 				if (Object.keys(lm.getTargetPort().links).length === 1){
 					lm.addLabel(await createSourceForMapping(lm));
 				} else {
-					await modifySpecificFieldSource(lm);
+					modifySpecificFieldSource(lm);
 				}
-			}
+			})
 		});
 		return lm;
 	}
@@ -90,7 +90,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 
 	canLinkToPort(port: RecordFieldPortModel): boolean {
 		let isLinkExists = false;
-		if (port.portType == "IN") {
+		if (port.portType === "IN") {
 			isLinkExists = this.linkedPorts.some((linkedPort) => {
 				return port.getID() === linkedPort.getID()
 			})

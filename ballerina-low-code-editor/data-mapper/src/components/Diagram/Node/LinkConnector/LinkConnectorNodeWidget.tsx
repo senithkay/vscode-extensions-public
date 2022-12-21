@@ -20,7 +20,7 @@ import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
@@ -52,8 +52,8 @@ const styles = makeStyles((theme: Theme) => createStyles({
         color: theme.palette.grey[400],
         boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
         borderRadius: "10px",
-		alignItems: "center",
-		overflow: "hidden",
+		      alignItems: "center",
+		      overflow: "hidden",
     },
     element: {
         backgroundColor: theme.palette.common.white,
@@ -148,14 +148,14 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         const valueNode = props.node.valueNode;
         if (STKindChecker.isSpecificField(valueNode)) {
             props.node.context.enableStatementEditor({
-                valuePosition: valueNode.valueExpr.position,
+                valuePosition: valueNode.valueExpr.position as NodePosition,
                 value: valueNode.valueExpr.source,
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
                     : props.node.editorLabel)
             });
-        } else if(STKindChecker.isBinaryExpression(valueNode)) {
+        } else if (STKindChecker.isBinaryExpression(valueNode)) {
             props.node.context.enableStatementEditor({
-                valuePosition: valueNode.position,
+                valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.portName)
                     : props.node.editorLabel)
@@ -180,15 +180,15 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     );
 
     return (!node.hidden && (
-        <div className={classes.root}>
+        <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
             <div className={classes.header}>
-                <DataMapperPortWidget engine={engine} port={node.inPort} />
+                <DataMapperPortWidget engine={engine} port={node.inPort} dataTestId={`link-connector-node-${node?.value}-input`}/>
                 <TooltipComponent interactive={false} arrow={true} title={"Multi-Input Expression"}>
                     <span className={classes.editIcon} >
                         <ExpressionIcon  />
                     </span>
                 </TooltipComponent>
-                <div className={classes.element} onClick={onClickEdit}>
+                <div className={classes.element} onClick={onClickEdit} data-testid={`link-connector-edit-${node?.value}`}>
                     <div className={classes.iconWrapper}>
                         <CodeOutlinedIcon className={clsx(classes.icons, classes.editIcon)}/>
                     </div>
@@ -198,7 +198,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         {loadingScreen}
                     </div>
                 ) : (
-                    <div className={classes.element} onClick={onClickDelete}>
+                    <div className={classes.element} onClick={onClickDelete} data-testid={`link-connector-delete-${node?.value}`}>
                         <div className={classes.iconWrapper}>
                             <DeleteIcon className={clsx(classes.deleteIcon)}/>
                         </div>
@@ -213,7 +213,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         />
                     </div>
                 )}
-                <DataMapperPortWidget engine={engine} port={node.outPort} />
+                <DataMapperPortWidget engine={engine} port={node.outPort} dataTestId={`link-connector-node-${node?.value}-output`}/>
             </div>
         </div>
         )
