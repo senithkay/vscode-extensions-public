@@ -55,6 +55,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
+    public mappings: FieldAccessToSpecificFied[];
     public x: number;
     public y: number;
 
@@ -81,12 +82,12 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             {
                 this.rootName = this.typeDef.memberType?.name;
             }
-            const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
-                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
-
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = getTypeName(valueEnrichedType.type);
+            const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
+                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
+                STKindChecker.isSelectClause(this.value), valueEnrichedType);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordField = valueEnrichedType;
                 if (this.recordField.childrenTypes.length) {
@@ -108,15 +109,13 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                             this.context.collapsedFields, parentPort.collapsed, true);
                     });
                 }
-            } else {
-                // TODO: Add support for other return type descriptors
             }
         }
     }
 
     initLinks(): void {
-        const mappings = this.genMappings(this.value.expression as MappingConstructor);
-        this.createLinks(mappings);
+        this.mappings = this.genMappings(this.value.expression as MappingConstructor);
+        this.createLinks(this.mappings);
     }
 
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
@@ -138,9 +137,11 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                                             true);
             if (inPort && mappedOutPort) {
                 const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
-                const keepDefault = mappedField && !mappedField?.name
+                const keepDefault = ((mappedField && !mappedField?.name
                     && mappedField.typeName !== PrimitiveBalType.Array
-                    && mappedField.typeName !== PrimitiveBalType.Record;
+                    && mappedField.typeName !== PrimitiveBalType.Record)
+                        || !STKindChecker.isMappingConstructor(this.value.expression)
+                );
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,
