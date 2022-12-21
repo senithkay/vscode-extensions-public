@@ -16,17 +16,13 @@
  * under the License.
  *
  */
-export const choreoSignInCmdId = 'wso2.choreo.sign.in';
-export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
-export const setSelectedOrgCmdId = 'wso2.choreo.org.setAsSelected';
-export const refreshProjectsListCmdId = 'wso2.choreo.projects.refresh';
-export const cloneComponentCmdId = 'wso2.choreo.component.clone';
-export const cloneAllComponentsCmdId = 'wso2.choreo.project.clone';
-export const createNewProjectCmdId = 'wso2.choreo.project.create';
+import { Uri, Webview } from "vscode";
 
-export const choreoSignedInCtxKey = 'isSignedInToChoreo';
- 
-// views
-export const choreoProjectsTreeId = 'choreo-projects';
-export const choreoAccountTreeId = 'choreo-account';
+export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
 
+  if (process.env.WEB_VIEW_DEV_MODE === "true" && process.env.WEB_VIEW_DEV_HOST !== undefined) {
+        return `${process.env.WEB_VIEW_DEV_HOST}`;
+  }
+
+  return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
+}
