@@ -20,6 +20,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "50%"
         },
         paramDataTypeWrapper: {
+            marginTop: -7,
             width: '40%'
         },
         paramNameWrapper: {

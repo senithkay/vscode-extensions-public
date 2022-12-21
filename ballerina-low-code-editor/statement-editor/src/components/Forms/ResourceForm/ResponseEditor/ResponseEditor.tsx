@@ -188,7 +188,7 @@ export function ResponseEditor(props: ParamProps) {
                         defaultValue={typeValue}
                         onChange={handleTypeChange}
                         disabled={false}
-                        completions={currentComponentName === ParamEditorInputTypes.TYPE && completions}
+                        completions={completions}
                     />
                 </div>
 

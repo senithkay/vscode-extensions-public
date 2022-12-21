@@ -43,6 +43,13 @@
     overflow-y: scroll;
     max-height: 85%;
 
+    .signature-param {
+        padding: 8px;
+        font-weight: 500;
+        background: white;
+        border-radius: 5px;
+    }
+
     &.expanded {
         border: 1px solid #c1e4fc;
     }

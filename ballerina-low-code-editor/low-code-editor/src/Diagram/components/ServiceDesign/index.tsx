@@ -86,9 +86,9 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
     const handlePlusClick = () => {
         const lastMemberPosition: NodePosition = {
             endColumn: fnSTZ.closeBraceToken.position.endColumn,
-            endLine: fnSTZ.closeBraceToken.position.endLine - 1,
+            endLine: fnSTZ.closeBraceToken.position.endLine,
             startColumn: fnSTZ.closeBraceToken.position.startColumn,
-            startLine: fnSTZ.closeBraceToken.position.startLine - 1
+            startLine: fnSTZ.closeBraceToken.position.startLine
         }
         handleDiagramEdit(undefined, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false });
     };

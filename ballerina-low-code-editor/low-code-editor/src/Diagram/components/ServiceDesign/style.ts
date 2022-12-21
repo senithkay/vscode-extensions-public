@@ -104,7 +104,7 @@ export const useStyles = makeStyles(() =>
         },
         serviceList: {
             overflowY: "scroll",
-            maxHeight: "84%"
+            maxHeight: "80%"
         },
         expandAll: {
             textAlign: "right"
@@ -117,6 +117,12 @@ export const useStyles = makeStyles(() =>
             marginTop: 5,
             marginRight: 20,
             cursor: "pointer"
+        },
+        signature: {
+            padding: 8,
+            fontWeight: 500,
+            background: "white",
+            borderRadius: 5
         }
     }),
 );

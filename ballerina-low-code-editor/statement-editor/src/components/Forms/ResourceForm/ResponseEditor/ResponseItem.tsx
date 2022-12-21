@@ -50,6 +50,7 @@ export function ResponseItem(props: ParamItemProps) {
     const icon = (<QueryIcon />);
 
     const responseCode = responseCodes.find(item => item.source === param.name.trim());
+    const staticCode = param.name.trim().includes("error") ? 500 : 200;
 
     return (
         <div className={classes.headerWrapper} data-testid={`${label}-item`}>
@@ -61,7 +62,7 @@ export function ResponseItem(props: ParamItemProps) {
                         </div>
                     )}
                     <div className={classes.iconTextWrapper}>
-                        {responseCode ? responseCode.code : "Response".toUpperCase()}
+                        {responseCode ? responseCode.code : staticCode}
                     </div>
                 </div>
                 <div className={classes.contentSection}>

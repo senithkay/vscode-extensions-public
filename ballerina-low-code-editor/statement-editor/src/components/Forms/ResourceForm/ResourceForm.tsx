@@ -389,16 +389,6 @@ export function ResourceForm(props: FunctionProps) {
                             onChangeInProgress={setIsEditInProgress}
                         />
 
-                        <LiteExpressionEditor
-                            testId="return-type"
-                            diagnostics={(currentComponentName === "Return" && currentComponentSyntaxDiag) ||
-                                model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange}
-                            defaultValue={model?.functionSignature?.returnTypeDesc?.type?.source.trim()}
-                            onChange={onReturnTypeChange}
-                            onFocus={onReturnFocus}
-                            disabled={currentComponentName !== "Return" && isEditInProgress}
-                            completions={completions}
-                        />
                         <div className={classes.serviceFooterWrapper}>
                             <SecondaryButton
                                 text="Cancel"

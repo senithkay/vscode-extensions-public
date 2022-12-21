@@ -16,9 +16,9 @@ import { useIntl } from "react-intl";
 
 
 import { Divider } from "@material-ui/core";
-import { ConfigOverlayFormStatus, createResource, getSource, STModification, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaRecordRequest, ConfigOverlayFormStatus, createResource, DiagramEditorLangClientInterface, getSource, STModification, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConfigPanelSection, SelectDropdownWithButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, RecordTypeDesc, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../../Contexts/Diagram";
@@ -26,6 +26,8 @@ import { useStyles } from "../style";
 
 import { ResourceHeader } from "./ResourceHeader";
 import { removeStatement } from "../../../utils";
+import { RecordEditor } from "../../FormComponents/ConfigForms";
+import { BallerinaRecordResponse } from "@wso2-enterprise/ballerina-languageclient";
 
 export interface ResourceBodyProps {
     model: ResourceAccessorDefinition;
@@ -84,7 +86,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     model.functionSignature.parameters.forEach((param, i) => {
         if (STKindChecker.isRequiredParam(param) && param.source.includes("Payload")) {
             bodyArgs.push(
-                <div key={i} className={"signature-param"}>
+                <div key={i} className={classes.signature}>
                     {param.source}
                 </div>
             )
@@ -97,7 +99,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     model.functionSignature.parameters.forEach((param, i) => {
         if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
             paramArgs.push(
-                <div key={i} className={"signature-param"}>
+                <div key={i} className={classes.signature}>
                     {param.source}
                 </div>
             )
@@ -124,6 +126,21 @@ export function ResourceBody(props: ResourceBodyProps) {
         return returnTypes;
     }
 
+    const getRecord = async (
+        recordName: any,
+        langClient: DiagramEditorLangClientInterface,
+    ): Promise<BallerinaRecordResponse> => {
+        const request: BallerinaRecordRequest = {
+            module: "Test",
+            name: recordName,
+            org: "anjanash",
+            version: "0.1.0"
+        };
+        return langClient.getRecord(request);
+    };
+
+
+
     getReturnTypesArray().forEach((value, i) => {
         let code = "";
         responseCodes.forEach(item => {
@@ -132,16 +149,43 @@ export function ResourceBody(props: ResourceBodyProps) {
             }
         });
 
-        responseArgs.push(
-            <div key={i} className={"signature-param"}>
-                {code} {value}
-            </div>
-        )
+        // value = record {|*http:Ok; Foo body;|}
+        if (value.includes("body")) {
+            const recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
+            responseArgs.push(
+                <div key={i} className={classes.signature}>
+                    <div onClick={() => recordEditor(recordName)}>
+                        {code} {value}
+                    </div>
+                </div>
+            )
+        } else {
+            responseArgs.push(
+                <div key={i} className={classes.signature}>
+                    {code} {value}
+                </div>
+            )
+        }
     })
 
+    const recordEditor = async (record: any) => {
+
+        const langClient = await getDiagramEditorLangClient();
+        const recordInfo = await getRecord(record, langClient);
+
+        // <RecordEditor
+        //     name={recordInfo.typeName.value}
+        //     targetPosition={recordInfo.position}
+        //     onSave={null}
+        //     model={recordInfo}
+        //     isTypeDefinition={true}
+        //     formType={""}
+        //     onCancel={null}
+        // />
+
+    }
     const body = (
         <div className="service-member">
-
             {paramArgs.length > 0 &&
                 <>
                     <ConfigPanelSection title={"Parameters"}>
