@@ -21,7 +21,11 @@ import {
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
-import { isPositionsEquals, isPositionsWithinRange } from "../../../../utils/st-utils";
+import {
+    genLetExpressionVariableName,
+    isPositionsEquals,
+    isPositionsWithinRange
+} from "../../../../utils/st-utils";
 
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 
@@ -47,6 +51,48 @@ export function getLetVarDeclarations(letExpr: LetExpression): (LetVarDecl | Com
         letVarDeclarations.push(...getLetVarDeclarations(letExpr.expression));
     }
     return letVarDeclarations;
+}
+
+export function getLetExprAddModification(index: number,
+                                          fnDef: STNode,
+                                          letExpression: LetExpression,
+                                          letVarDecls: LetVarDeclModel[]): STModification {
+    const varName = genLetExpressionVariableName([letExpression]);
+    let expr = `var ${varName} = EXPRESSION`;
+    let addPosition: NodePosition;
+
+    if (!letExpression) {
+        const fnBody = STKindChecker.isFunctionDefinition(fnDef)
+            && STKindChecker.isExpressionFunctionBody(fnDef.functionBody)
+            && fnDef.functionBody;
+        addPosition = {
+            ...fnBody.expression.position,
+            endLine: fnBody.expression.position.startLine,
+            endColumn: fnBody.expression.position.startColumn
+        };
+        expr = `let ${expr} in `;
+    } else if (isNaN(index)) {
+        const lastLetDeclPosition = letVarDecls[letVarDecls.length - 1].letVarDecl.position;
+        addPosition = {
+            ...lastLetDeclPosition,
+            startLine: lastLetDeclPosition.endLine,
+            startColumn: lastLetDeclPosition.endColumn
+        };
+        expr = `, ${expr}`;
+    } else {
+        const lastLetDeclPosition = letVarDecls[index].letVarDecl.position;
+        addPosition = {
+            ...lastLetDeclPosition,
+            endLine: lastLetDeclPosition.startLine,
+            endColumn: lastLetDeclPosition.startColumn
+        }
+        expr = `${expr} ,`;
+    }
+    return {
+        type: "INSERT",
+        config: {STATEMENT: expr},
+        ...addPosition
+    };
 }
 
 export function getLetExprDeleteModifications(letExpression: LetExpression,

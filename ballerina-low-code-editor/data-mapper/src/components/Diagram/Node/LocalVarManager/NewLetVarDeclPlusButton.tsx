@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
 import React  from "react";
 
 import { IconButton } from "@material-ui/core";
@@ -23,13 +22,19 @@ import { tooltipStyles } from "../../../DataMapper/Header/DataMapperHeader";
 import { useStyles } from "./style";
 
 export interface NewLetVarDeclPlusButtonProps {
-    onAddNewVar: () => void;
+    index: number;
+    onAddNewVar: (index: number) => void;
 }
 
 export function NewLetVarDeclPlusButton(props: NewLetVarDeclPlusButtonProps) {
-    const { onAddNewVar } = props;
+    const { index, onAddNewVar } = props;
     const overlayClasses = useStyles();
     const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
+
+    const handleOnClick = () => {
+        onAddNewVar(index);
+    };
+
     return (
         <div className={overlayClasses.plusButton}>
             <TooltipComponent
@@ -37,7 +42,7 @@ export function NewLetVarDeclPlusButton(props: NewLetVarDeclPlusButtonProps) {
                 arrow={true}
                 title={"Add new let variable here"}
             >
-                <IconButton onClick={onAddNewVar}>
+                <IconButton onClick={handleOnClick}>
                     <TopLevelPlusIcon selected={undefined}/>
                 </IconButton>
             </TooltipComponent>

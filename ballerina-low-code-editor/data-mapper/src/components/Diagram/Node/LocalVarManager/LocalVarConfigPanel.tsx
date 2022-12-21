@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {ReactNode, useEffect, useMemo, useState} from "react";
+import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { IconButton, Link } from "@material-ui/core";
@@ -30,14 +30,14 @@ import {
     PrimaryButton,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { LetVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { genLetExpressionVariableName } from "../../../../utils/st-utils";
 import { ExpressionInfo } from "../../../DataMapper/DataMapper";
 
 import { LetVarDeclItem } from "./LetVarDeclItem";
 import {
+    getLetExprAddModification,
     getLetExprDeleteModifications,
     getLetExpression,
     getLetExpressions,
@@ -95,17 +95,9 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         handleLocalVarConfigPanel(false);
     };
 
-    const onAddNewVar = async () => {
-        const addPosition = getLetExprAddPosition();
-        const varName = genLetExpressionVariableName([letExpression]);
-        const expr = letExpression ? `, var ${varName} = EXPRESSION` : `let var ${varName} = EXPRESSION in `;
-        await applyModifications([
-            {
-                type: "INSERT",
-                config: {STATEMENT: expr},
-                ...addPosition,
-            },
-        ]);
+    const onAddNewVar = async (index?: number) => {
+        const addModification = getLetExprAddModification(index, fnDef, letExpression, letVarDecls);
+        await applyModifications([addModification]);
     };
 
     const handleOnCheck = () => {
@@ -140,29 +132,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         await applyModifications(modifications);
     };
 
-    const getLetExprAddPosition = (): NodePosition => {
-        const fnBody = STKindChecker.isFunctionDefinition(fnDef)
-            && STKindChecker.isExpressionFunctionBody(fnDef.functionBody)
-            && fnDef.functionBody;
-        let addPosition: NodePosition;
-
-        if (!letExpression) {
-            addPosition = {
-                ...fnBody.expression.position,
-                endLine: fnBody.expression.position.startLine,
-                endColumn: fnBody.expression.position.startColumn
-            }
-        } else {
-            const lastLetDeclPosition = letVarDecls[letVarDecls.length - 1].letVarDecl.position;
-            addPosition = {
-                ...lastLetDeclPosition,
-                startLine: lastLetDeclPosition.endLine,
-                startColumn: lastLetDeclPosition.endColumn
-            }
-        }
-        return addPosition;
-    };
-
     const overviewSelectAll = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.overview.overviewSelectAll",
         defaultMessage: "Select All"
@@ -177,10 +146,10 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         return (
             <>
                 {
-                    letVarDecls && letVarDecls.map(decl => {
+                    letVarDecls && letVarDecls.map((decl, index) => {
                         return (
                             <>
-                                <NewLetVarDeclPlusButton onAddNewVar={onAddNewVar}/>
+                                <NewLetVarDeclPlusButton index={index} onAddNewVar={onAddNewVar}/>
                                 <LetVarDeclItem
                                     key={decl.letVarDecl.source}
                                     letVarDeclModel={decl}
