@@ -22,7 +22,7 @@ import {
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { getTypeFromStore } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
@@ -70,22 +70,13 @@ export class FromClauseNode extends DataMapperNodeModel {
     }
 
     private getSourceType() {
-        const expr = this.value.expression;
         const bindingPattern = this.value.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
-            const exprPosition = expr.position as NodePosition
-
-            const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-            const type = recordTypeDescriptors.getTypeDescriptor({
-                startLine: exprPosition.startLine,
-                startColumn: exprPosition.startColumn,
-                endLine: exprPosition.endLine,
-                endColumn: exprPosition.endColumn
-            });
-            if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
-                this.typeDef = type.memberType;
-            }
+        }
+        const type = getTypeFromStore(this.value.expression.position as NodePosition);
+        if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
+            this.typeDef = type.memberType;
         }
     }
 

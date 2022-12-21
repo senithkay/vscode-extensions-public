@@ -25,7 +25,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
-import { PrimitiveTypedEditableArrayElementWidget } from "./PrimitiveTypedEditableArrayElementWidget";
+import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -99,15 +99,12 @@ export interface PrimitiveTypeOutputWidgetProps {
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: STNode) => Promise<void>;
-	isParentSelectClause?: boolean;
 }
 
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, isParentSelectClause } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
-
-	const hasValue = field && field?.elements && field.elements.length > 0;
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -116,7 +113,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 		expanded = false;
 	}
 
-	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
+	const indentation = (portIn && !expanded) ? 0 : 24;
 
 	const label = (
 		<span style={{ marginRight: "auto" }}>
@@ -143,7 +140,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
-					{portIn && (!hasValue || !expanded) &&
+					{portIn && !expanded &&
 						<DataMapperPortWidget engine={engine} port={portIn} />
 					}
 				</span>
@@ -160,23 +157,17 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 				</span>
 			</TreeHeader>
 			<TreeBody>
-				{expanded && field &&
-					field.elements.map((item, index) => {
-						return (
-							<PrimitiveTypedEditableArrayElementWidget
-								key={id}
-								parentId={id}
-								engine={engine}
-								field={item.member}
-								getPort={getPort}
-								context={context}
-								fieldIndex={index}
-								deleteField={deleteField}
-								isParentSelectClause={isParentSelectClause}
-							/>
-						);
-					})
-				}
+				{expanded && field && (
+					<PrimitiveTypedEditableElementWidget
+						key={id}
+						parentId={id}
+						engine={engine}
+						field={field}
+						getPort={getPort}
+						context={context}
+						deleteField={deleteField}
+					/>
+				)}
 			</TreeBody>
 		</TreeContainer>
 	);

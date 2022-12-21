@@ -97,7 +97,7 @@ export class DataMapper {
 
     static getQueryExprNode = (name: string) => cy.get(`[data-testid="expandedQueryExpr.${name}-node"]`)
 
-    static getTargetNode = (name: string) => cy.get(`[data-testid="mappingConstructor.${name}-node"]`)
+    static getTargetNode = (name?: string) => cy.get(`[data-testid="mappingConstructor${name ? `.${name}` : ''}-node"]`)
 
     static getMappingPort = (targetPort: string) => cy.get(`[data-name='mappingConstructor.${targetPort}.IN']`)
 

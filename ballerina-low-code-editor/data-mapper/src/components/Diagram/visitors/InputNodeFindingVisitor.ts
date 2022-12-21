@@ -45,9 +45,11 @@ export class InputNodeFindingVisitor implements Visitor {
     public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
         if (
             STKindChecker.isIdentifierToken(node.name) &&
-            parent &&
-            !STKindChecker.isFieldAccess(parent) &&
-            !STKindChecker.isOptionalFieldAccess(parent) &&
+            (!parent ||
+                (parent &&
+                    !STKindChecker.isFieldAccess(parent) &&
+                    !STKindChecker.isOptionalFieldAccess(parent)
+                )) &&
             this.queryExpressionDepth === 0
         ) {
             this.inputNodes.push(node);

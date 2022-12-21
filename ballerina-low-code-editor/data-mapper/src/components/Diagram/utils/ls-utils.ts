@@ -161,7 +161,7 @@ export async function getRecordCompletions(
         });
 
         for (const importStr of importStatements) {
-            const moduleName = importStr.split("/").pop().replace(";", "");
+            const moduleName = importStr.split("/").pop().split(".").pop().replace(";", "");
             const updatedContent = addToTargetPosition(
                 currentFileContent,
                 {

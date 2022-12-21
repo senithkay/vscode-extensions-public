@@ -1,0 +1,171 @@
+name: Release VSIX
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"  
+
+jobs:
+  Build:
+    uses: ./.github/workflows/build.yml
+    with:
+      isRelease: true
+    secrets: inherit  
+
+  Release:
+    name: Release VSIX
+    needs: [Build]
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
+        with:
+          always-auth: true
+          node-version: "16.x"
+          registry-url: "https://npm.pkg.github.com"
+
+      - name: Install node modules
+        run: |
+          cd ballerina-low-code-editor  
+          npm install
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+
+      - name: Publish low code diagram
+        run: |
+          cd ballerina-low-code-editor  
+          npm publish --tag latest --workspaces
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+
+      - name: Get version
+        id: vsix
+        run: | 
+          echo ::set-output name=vsixName::$(ls *.vsix)
+          echo ::set-output name=version::$(echo ${$(echo ${$(ls *.vsix)%.*})#*-})
+
+      - name: Upload VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{ steps.vsix.outputs.vsixName }}
+          name: VSIX
+
+      - name: Create a release in wso2/ballerina-plugin-vscode repo
+        run: |
+          createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"v${{ steps.vsix.outputs.version }}", \
+          "draft":false, "name": "Release v${{ steps.vsix.outputs.version }}", "prerelease":true}' \
+          https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases` \
+           && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
+           uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
+            --data-binary @${{ steps.vsix.outputs.vsixName }} \
+            https://uploads.github.com/repos/wso2/ballerina-plugin-vscode/releases/$id/assets?name=${{ steps.vsix.outputs.vsixName }}`         
+
+      - name: "Release Notification"
+        run: |
+          body=$(cat << EOF
+          {
+            "cards": [
+              {
+                "sections": [
+                  {
+                    "widgets": [
+                      {
+                        "keyValue": {
+                          "topLabel": "New Release",
+                          "content": "v${{ steps.vsix.outputs.version }}",
+                          "onClick": {
+                            "openLink": {
+                              "url": "https://github.com/wso2/ballerina-plugin-vscode/releases/tag/v${{ steps.vsix.outputs.version }}"
+                            }
+                          },
+                          "iconUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/512px-Visual_Studio_Code_1.35_icon.svg.png",
+                          "button": {
+                            "textButton": {
+                              "text": "Download VSIX",
+                              "onClick": {
+                                "openLink": {
+                                  "url": "https://github.com/wso2/ballerina-plugin-vscode/releases/download/v${{ steps.vsix.outputs.version }}/${{ steps.vsix.outputs.vsixName }}"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+          curl \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D" \
+            -d "$body"
+
+  Notify:
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Release Notification"
+        run: |
+          body=$(cat << EOF
+          {
+            "cards": [
+              {
+                "header": {
+                    "title": "Release Failed"
+                },
+                "sections": [
+                  {
+                    "widgets": [
+                      {
+                        "textParagraph": {
+                            "text": "<b>&#x274C; Repository: <font color=\"#ff0000\">wso2-enterprise/ballerina-plugin-vscode</font></b>"
+                        }
+                      },
+                      {
+                        "keyValue": {
+                          "topLabel": "Workflow run ID",
+                          "content": "${{ github.run_id }}",
+                          "button": {
+                            "textButton": {
+                              "text": "View Workflow",
+                              "onClick": {
+                                "openLink": {
+                                  "url": "https://github.com/wso2-enterprise/ballerina-plugin-vscode/actions/runs/${{ github.run_id }}"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+          curl \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D" \
+            -d "$body"

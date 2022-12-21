@@ -63,9 +63,7 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('int');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int")
-            .reTriggerDiagnostics("TypedBindingPattern", "int")
-            .validateEmptyDiagnostics();
+        .reTriggerDiagnostics("CaptureBindingPattern", "variable");
 
         StatementEditor
             .save();
@@ -192,8 +190,7 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('float');
 
         EditorPane
-            .reTriggerDiagnostics("SimpleNameReference", "var1")
-            .validateEmptyDiagnostics();
+            .reTriggerDiagnostics("CaptureBindingPattern", "variable");
 
         StatementEditor
             .save();
@@ -331,9 +328,7 @@ describe('Test helper pane functionality', () => {
             .clickLsTypeSuggestion('int');
 
         EditorPane
-            .validateNewExpression("TypedBindingPattern", "int")
-            .reTriggerDiagnostics("TypedBindingPattern", "int")
-            .validateEmptyDiagnostics();
+            .reTriggerDiagnostics("CaptureBindingPattern", "variable");
 
         StatementEditor
             .save();
@@ -364,6 +359,7 @@ describe('Test helper pane functionality', () => {
         SuggestionsPane
             .clickSuggestionsTab("Suggestions")
             .clickLsTypeSuggestion('var2')
+            .waitForLoading()
             .clickLsTypeSuggestion('toString()');
 
         EditorPane

@@ -26,10 +26,12 @@ import { DataMapperOverlay } from "./components/DataMapperOverlay";
 import { ConnectorWizard } from "./components/FormComponents/ConfigForms/ConnectorWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
+import { ServiceDesignOverlay } from "./components/ServiceDesignOverlay";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
 import { visitor as STFindingVisitor } from "./visitors/st-finder-visitor";
+
 
 export function Diagram() {
     const {
@@ -79,6 +81,8 @@ export function Diagram() {
     const [activeDialog, setActiveDialog] = useState(undefined);
 
     let isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
+
+    const isServiceDesignOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "ServiceDesign";
 
     // React.useEffect(() => {
     //     setIsErrorStateDialogOpen(diagramErrors);
@@ -187,7 +191,7 @@ export function Diagram() {
         const modifications: STModification[] = [];
 
         // delete action
-        if (STKindChecker.isIfElseStatement(model) && !model.viewState.isMainIfBody){
+        if (STKindChecker.isIfElseStatement(model) && !model.viewState.isMainIfBody) {
             const ifElseRemovePosition = model.position;
             ifElseRemovePosition.endLine = model.elseBody.elseBody.position.startLine;
             ifElseRemovePosition.endColumn = model.elseBody.elseBody.position.startColumn;
@@ -249,8 +253,8 @@ export function Diagram() {
             isLoading: false,
             formType: dialogType,
             formArgs: {
-               ...plusWidgetProps,
-               viewState: plusViewState
+                ...plusWidgetProps,
+                viewState: plusViewState
             }
         };
         setFormConfig({
@@ -322,7 +326,7 @@ export function Diagram() {
     // AST node passed in to this is can be a top level node or a compilation unit.
     // const child = getSTComponent(syntaxTree); // TODO: Handle datamapper switching logic
 
-    const dataMapperArgs = {ballerinaVersion, ...formConfig};
+    const dataMapperArgs = { ballerinaVersion, ...formConfig };
 
     // let hasConfigurable = false;
     // if (originalSyntaxTree) {
@@ -370,12 +374,17 @@ export function Diagram() {
                             }
                         }}
                     />
-                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && (
+                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && !isServiceDesignOpen && (
                         <FormGenerator {...formConfig} />
                     )}
                     {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
                         <DataMapperOverlay
                             {...dataMapperArgs}
+                        />
+                    )}
+                    {isFormOpen && isServiceDesignOpen && !isConnectorConfigWizardOpen && (
+                        <ServiceDesignOverlay
+                            {...formConfig}
                         />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (
