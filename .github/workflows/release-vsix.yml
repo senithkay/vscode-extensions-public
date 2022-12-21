@@ -2,9 +2,17 @@ name: Release VSIX
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v*"  
+    inputs:
+      version:
+        type: choice
+        description: 'Enter the version type'
+        required: true
+        default: 'prerelease'
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
+          - 'prerelease'     
 
 jobs:
   Build:
@@ -46,7 +54,8 @@ jobs:
 
       - name: Publish low code diagram
         run: |
-          cd ballerina-low-code-editor  
+          cd ballerina-low-code-editor
+          npm version ${{ github.event.inputs.version }} --preid beta --no-git-tag-version
           npm publish --tag latest --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
@@ -76,6 +85,14 @@ jobs:
            uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
             --data-binary @${{ steps.vsix.outputs.vsixName }} \
             https://uploads.github.com/repos/wso2/ballerina-plugin-vscode/releases/$id/assets?name=${{ steps.vsix.outputs.vsixName }}`         
+      
+      - name: Commit version
+        run: |
+          npm version ${{ github.event.inputs.version }} --preid beta --no-git-tag-version
+          git config --global user.name 'GithubAction'
+          git config --global user.email 'action@github.com'
+          git commit -am "Update version"
+          git push
 
       - name: "Release Notification"
         run: |
