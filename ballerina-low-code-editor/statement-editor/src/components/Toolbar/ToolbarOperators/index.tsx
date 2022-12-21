@@ -126,7 +126,14 @@ export function ToolbarOperators() {
             }
 
             // filter context based toolbar operators on expression
-            if (STKindChecker.isSelectClause(currentModel.model) || STKindChecker.isLetClause(currentModel.model)) {
+            if (currentModel?.model?.viewState?.modelType && (currentModel.model.viewState.modelType === ModelType.OPERATOR)) {
+                filteredGroups = [operatorsEdits]
+                if (STKindChecker.isPlusToken(currentModel.model) && STKindChecker.isBinaryExpression(currentModel.model.parent)
+                    && STKindChecker.isStringLiteral(currentModel.model.parent.lhsExpr)
+                    && STKindChecker.isStringLiteral(currentModel.model.parent.rhsExpr)) {
+                        filteredGroups = [plusOperator]
+                }
+            } else if (STKindChecker.isSelectClause(currentModel.model) || STKindChecker.isLetClause(currentModel.model)) {
                 filteredGroups = [operators, parenthesis];
             } else if (STKindChecker.isWhereClause(currentModel.model) || (STKindChecker.isIdentifierToken(currentModel.model) &&
                 currentModel.model?.parent?.parent && STKindChecker.isWhereClause(currentModel.model.parent.parent))) {
@@ -137,14 +144,6 @@ export function ToolbarOperators() {
                 filteredGroups = [typeDesc]
             } else if (config.type === "AssignmentStatement" && STKindChecker.isIdentifierToken(currentModel.model)) {
                 filteredGroups = [listBindingPattern, memberAccess]
-            }
-            else if (currentModel?.model?.viewState?.modelType && (currentModel.model.viewState.modelType === ModelType.OPERATOR)) {
-                filteredGroups = [operatorsEdits]
-                if (STKindChecker.isPlusToken(currentModel.model) && STKindChecker.isBinaryExpression(currentModel.model.parent)
-                    && STKindChecker.isStringLiteral(currentModel.model.parent.lhsExpr)
-                    && STKindChecker.isStringLiteral(currentModel.model.parent.rhsExpr)) {
-                        filteredGroups = [plusOperator]
-                }
             }
 
             setFilteredExpressions(filteredGroups);
