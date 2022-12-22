@@ -24,7 +24,7 @@ import {
 import {
     genLetExpressionVariableName,
     isPositionsEquals
-} from "../../../../utils/st-utils";
+} from "../../../utils/st-utils";
 
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 

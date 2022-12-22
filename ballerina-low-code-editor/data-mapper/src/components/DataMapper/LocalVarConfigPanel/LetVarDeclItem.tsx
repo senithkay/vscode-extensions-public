@@ -17,7 +17,7 @@ import { IBallerinaLangClient, STModification } from "@wso2-enterprise/ballerina
 import { CheckBoxGroup } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CaptureBindingPattern, LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { getRenameEdits } from "../../utils/ls-utils";
+import { getRenameEdits } from "../../Diagram/utils/ls-utils";
 
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";

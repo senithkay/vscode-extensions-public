@@ -33,7 +33,7 @@ import {
 import { LetVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { ExpressionInfo } from "../../../DataMapper/DataMapper";
+import { ExpressionInfo } from "../DataMapper";
 
 import { LetVarDeclItem } from "./LetVarDeclItem";
 import {

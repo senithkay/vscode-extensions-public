@@ -17,7 +17,7 @@ import { withStyles } from "@material-ui/core/styles";
 import TooltipBase from "@material-ui/core/Tooltip";
 import { TopLevelPlusIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { tooltipStyles } from "../../../DataMapper/Header/DataMapperHeader";
+import { tooltipStyles } from "../Header/DataMapperHeader";
 
 import { useStyles } from "./style";
 

@@ -35,7 +35,6 @@ import { useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
-import { LocalVarConfigPanel } from "../Diagram/Node/LocalVarManager";
 import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
@@ -50,6 +49,7 @@ import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
+import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
 
 const useStyles = makeStyles((theme: Theme) =>

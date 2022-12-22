@@ -20,10 +20,10 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { getLetExpressions } from "../../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { LET_EXPRESSION_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { getTypeFromStore } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { getLetExpressions } from "../LocalVarManager/local-var-mgt-utils";
 
 export const LET_EXPR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-let-expression";
 
