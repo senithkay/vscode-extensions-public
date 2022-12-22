@@ -84,7 +84,7 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                         aria-label="add"
                         className={classes.addIcon}
                         onClick={onClick}
-                        startIcon={<AddIcon />} // Add loader
+                        startIcon={<AddIcon />}
                     >
                         Add Local Variable
                     </Button>

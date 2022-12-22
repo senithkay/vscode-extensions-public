@@ -101,8 +101,8 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
 
     const expression: ReactNode = (
         <>
-            <div className={overlayClasses.clauseWrap}>
-                <span className={overlayClasses.clauseExpression}>
+            <div className={overlayClasses.declWrap}>
+                <span className={overlayClasses.declExpression}>
                     {nameEditable ? (
                         <input
                             spellCheck={false}
@@ -129,8 +129,8 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
                 <span>
                     <span
                         className={classNames(
-                            overlayClasses.clauseExpression,
-                            isExprPlaceholder && overlayClasses.clausePlaceholder
+                            overlayClasses.declExpression,
+                            isExprPlaceholder && overlayClasses.exprPlaceholder
                         )}
                         onClick={(event) => handleEdit(event)}
                     >

@@ -183,7 +183,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                 />
                 <div className={overlayClasses.localVarFormWrapper}>
                     {letVarList}
-                    <div className={overlayClasses.createButtonWrapper}>
+                    <div className={overlayClasses.addNewButtonWrapper}>
                         <LinePrimaryButton
                             text={"Add New"}
                             fullWidth={true}
@@ -192,7 +192,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                             startIcon={<AddIcon />}
                         />
                     </div>
-                    <div className={overlayClasses.recordOptions}>
+                    <div className={overlayClasses.varMgtToolbar}>
                         <Link
                             key={'select-all'}
                             onClick={onSelectAll}

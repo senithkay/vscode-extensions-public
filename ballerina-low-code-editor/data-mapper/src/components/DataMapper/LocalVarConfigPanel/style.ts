@@ -21,7 +21,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             overflowY: 'scroll',
             flexDirection: "row",
         },
-        createButtonWrapper: {
+        addNewButtonWrapper: {
             display: "flex",
             marginTop: 15,
             marginLeft: 20,
@@ -57,18 +57,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "75%",
             justifyContent: "flex-start"
         },
-        iconSection: {
-            display: "flex",
-            flexDirection: "row",
-            width: "25%",
-            justifyContent: "flex-end"
-        },
-        editIconWrapper: {
-            cursor: "pointer",
-            height: 14,
-            width: 14
-        },
-        recordOptions: {
+        varMgtToolbar: {
             padding: 10,
             display: "inline-flex",
             alignItems: "center",
@@ -97,10 +86,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#fa4c36",
             fontWeight: 500
         },
-        undoButton: {
-            padding: 2
-        },
-        clauseWrap: {
+        declWrap: {
             alignItems: 'center',
             display: 'inline-block',
             maxWidth: '500px',
@@ -110,7 +96,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             padding: '5px',
             verticalAlign: 'middle'
         },
-        clauseExpression: {
+        declExpression: {
             background: theme.palette.grey[100],
             borderRadius: 5,
             cursor: 'pointer',
@@ -123,7 +109,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 border: `1px solid ${theme.palette.grey[300]}`
             }
         },
-        clausePlaceholder: {
+        exprPlaceholder: {
             background: '#fff3e0',
             '&:hover': {
                 border: `1px solid #ffb74d`
