@@ -36,6 +36,7 @@ import { getExprBodyFromLetExpression, getFieldNames, getTypeFromStore } from ".
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
+import { LetExpressionNode } from "../LetExpression";
 import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { RequiredParamNode } from "../RequiredParam";
@@ -112,6 +113,12 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 {
                     this.sourcePort = node.getPort(
                         `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
+                } else if (node instanceof LetExpressionNode) {
+                    const letDecl = node.letVarDecls.some(decl => decl.varName === paramName);
+                    if (letDecl) {
+                        this.sourcePort = node.getPort(
+                            `${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
+                    }
                 }
                 while (this.sourcePort && this.sourcePort.hidden){
                     this.sourcePort = this.sourcePort.parentModel;

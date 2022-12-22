@@ -36,7 +36,7 @@ export class LetExpressionNodeFactory extends AbstractReactFactory<LetExpression
     generateReactWidget(event: { model: LetExpressionNode; }): JSX.Element {
         return (
             <TreeContainer>
-                {event.model.letVarDecls && event.model.letVarDecls.map(decl => {
+                {event.model.letVarDecls.map(decl => {
                     return (
                         <>
                             <LetExpressionTreeWidget
