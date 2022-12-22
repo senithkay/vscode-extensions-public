@@ -11,6 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda
 import React from "react";
 
 import styled from "@emotion/styled";
@@ -18,6 +19,7 @@ import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import { ButtonWithIcon, WarningBanner } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { Title } from "../DataMapperConfigPanel";
+import { InputParamEditor } from "../InputParamsPanel/InputParamEditor";
 import { DataMapperOutputParam } from "../InputParamsPanel/types";
 import { RecordButtonGroup } from "../RecordButtonGroup";
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
@@ -29,7 +31,8 @@ export interface OutputConfigWidgetProps {
     completions: CompletionResponseWithModule[]
     showOutputType: boolean;
     handleShowOutputType: () => void;
-    handleOutputTypeChange: (type: string) => void;
+    handleHideOutputType: () => void;
+    handleOutputTypeChange: (type: string, isArray: boolean) => void;
     handleShowRecordEditor: () => void;
     handleOutputDeleteClick: () => void;
 }
@@ -41,6 +44,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
         completions,
         showOutputType,
         handleShowOutputType,
+        handleHideOutputType,
         handleOutputTypeChange,
         handleShowRecordEditor,
         handleOutputDeleteClick
@@ -61,11 +65,12 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
             {!outputType.type ? (
                 <>
                     {showOutputType && (
-                        <TypeBrowser
-                            type={outputType.type}
-                            onChange={handleOutputTypeChange}
-                            isLoading={fetchingCompletions}
-                            recordCompletions={completions}
+                        <InputParamEditor
+                            onCancel={handleHideOutputType}
+                            onUpdate={(_, param) => handleOutputTypeChange(param.type, param.isArray)}
+                            loadingCompletions={fetchingCompletions}
+                            completions={completions}
+                            hideName={true}
                         />
                     )}
                     <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
@@ -73,7 +78,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
             ) : (
                 <>
                     <OutputTypeContainer isInvalid={outputType.isUnsupported}>
-                        <TypeName>{outputType.type}</TypeName>
+                        <TypeName>{outputType?.isArray ? `${outputType.type}[]` : outputType.type}</TypeName>
                         <DeleteButton
                             onClick={handleOutputDeleteClick}
                             icon={<DeleteOutLineIcon fontSize="small" />}

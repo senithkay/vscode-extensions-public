@@ -160,10 +160,10 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
 
     const onSaveForm = () => {
         const parametersStr = inputParams
-            .map((item) => `${item.type} ${item.name}`)
+            .map((item) => `${item.type}${item.isArray ? '[]' : ''} ${item.name}`)
             .join(",");
 
-        const returnTypeStr = `returns ${outputType.type}`;
+        const returnTypeStr = `returns ${outputType.type}${outputType.isArray ? '[]' : ''}`;
 
         const modifications: STModification[] = [];
         if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
@@ -255,10 +255,11 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                     name: camelCase(newRecordType),
                     type: newRecordType,
                     isUnsupported: false,
+                    isArray: false
                 }])
             }
             if (newRecordBy === "output") {
-                setOutputType({ type: newRecordType, isUnsupported: false });
+                setOutputType({ type: newRecordType, isUnsupported: false, isArray: false });
             }
             setNewRecords([...newRecords, newRecordType]);
         }
@@ -269,6 +270,10 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         setShowOutputType(true);
     };
 
+    const handleHideOutputType = () => {
+        setShowOutputType(false);
+    }
+
     // For Output Value
     const handleShowRecordEditor = () => {
         enableAddNewRecord();
@@ -277,12 +282,12 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     };
 
     const handleOutputDeleteClick = () => {
-        setOutputType({ type: undefined, isUnsupported: true});
+        setOutputType({ type: undefined, isUnsupported: true, isArray: false });
         setShowOutputType(false);
     };
 
-    const handleOutputTypeChange = (type: string) => {
-        setOutputType({ type, isUnsupported: false })
+    const handleOutputTypeChange = (type: string, isArray: boolean) => {
+        setOutputType({ type, isUnsupported: false, isArray })
     }
 
     const breadCrumb = (
@@ -350,9 +355,8 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                 enableAddNewRecord={enableAddNewRecord}
                                 setAddExistType={setAddExistType}
                                 isAddExistType={isAddExistType}
-                                currentFileContent={currentFile?.content}
-                                fnSTPosition={(fnST?.position as NodePosition) || targetPosition}
-                                imports={importStatements}
+                                loadingCompletions={fetchingCompletions}
+                                completions={recordCompletions}
                             />
                             <FormDivider />
                             <OutputTypePanel
@@ -361,6 +365,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                 completions={recordCompletions}
                                 showOutputType={showOutputType}
                                 handleShowOutputType={handleShowOutputType}
+                                handleHideOutputType={handleHideOutputType}
                                 handleOutputTypeChange={handleOutputTypeChange}
                                 handleShowRecordEditor={handleShowRecordEditor}
                                 handleOutputDeleteClick={handleOutputDeleteClick}

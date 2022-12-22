@@ -110,13 +110,15 @@ export function getInputsFromST(fnST: FunctionDefinition, balVersion: string): D
         const reqParams = fnST.functionSignature.parameters.filter((val) => STKindChecker.isRequiredParam(val)) as RequiredParam[];
         params = reqParams.map((param) => {
             const typeName = getTypeFromTypeDesc(param.typeName);
+            const isArray = STKindChecker.isArrayTypeDesc(param.typeName);
             const typeInfo = getTypeOfInputParam(param, balVersion);
             const [isSupported, nature] = isSupportedType(param.typeName, typeInfo, 'input', balVersion);
             return {
                 name: param.paramName.value,
                 type: typeName,
                 isUnsupported: typeInfo ? !isSupported : true,
-                typeNature: nature
+                typeNature: nature,
+                isArray
             }
         });
     }
@@ -127,12 +129,14 @@ export function getOutputTypeFromST(fnST: FunctionDefinition, balVersion: string
     const typeDesc = fnST.functionSignature?.returnTypeDesc && fnST.functionSignature.returnTypeDesc.type;
     if (typeDesc) {
         const typeName = getTypeFromTypeDesc(typeDesc);
+        const isArray = STKindChecker.isArrayTypeDesc(typeDesc);
         const typeInfo = getTypeOfOutput(typeDesc, balVersion);
         const [isSupported, nature] = isSupportedType(typeDesc, typeInfo, 'output', balVersion);
         return {
             type: typeName,
             isUnsupported: typeInfo ? !isSupported : true,
-            typeNature: nature
+            typeNature: nature,
+            isArray
         }
     }
 }
@@ -164,6 +168,8 @@ export function getTypeFromTypeDesc(typeDesc: TypeDescriptor) {
         return !typeDesc.name.isMissing ? typeDesc.name.value : typeDesc?.source?.trim();
     } else if (typeDesc && STKindChecker.isQualifiedNameReference(typeDesc)) {
         return typeDesc.source?.trim();
+    } else if (typeDesc && STKindChecker.isArrayTypeDesc(typeDesc)) {
+        return typeDesc.memberTypeDesc.source;
     }
     return typeDesc?.source?.trim() || "";
 }
