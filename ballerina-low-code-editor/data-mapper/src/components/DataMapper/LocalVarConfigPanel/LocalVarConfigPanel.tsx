@@ -49,6 +49,7 @@ import { useStyles } from "./style";
 export interface LetVarDeclModel {
     letVarDecl: LetVarDecl;
     checked: boolean;
+    hasDiagnostics: boolean;
 }
 
 export interface LocalVarConfigPanelProps {
@@ -83,7 +84,8 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         setLetVarDecls(letVarDeclarations.map(decl => {
             return {
                 letVarDecl: decl,
-                checked: false
+                checked: false,
+                hasDiagnostics: !!decl?.typeData?.diagnostics?.length
             };
         }))
     }, [fnDef]);
@@ -209,14 +211,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                         >
                             <DeleteButton /> {deleteSelected}
                         </div>
-                        <IconButton
-                            onClick={undefined}
-                            className={classNames(overlayClasses.undoButton, overlayClasses.marginSpace)}
-                            data-testid="overview-undo"
-                        >
-                            <UndoIcon />
-                        </IconButton>
-
                     </div>
                 </div>
                 <div className={overlayClasses.doneButtonWrapper}>
@@ -224,6 +218,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                         dataTestId="done-btn"
                         text={"Done"}
                         fullWidth={false}
+                        disabled={letVarDecls.some(decl => decl.hasDiagnostics)}
                         onClick={onCancel}
                     />
                 </div>

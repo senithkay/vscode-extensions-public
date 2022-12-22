@@ -58,16 +58,23 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                         </IconButton>
                     </LocalVarsHeader>
                     {letVarDecls.map(decl => {
+                        const isExprPlaceholder = decl.declaration.expression.source.trim() === "EXPRESSION";
                         return (
-                            <LetVarDeclItemWidget
-                                key={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
-                                id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
-                                engine={engine}
-                                typeDesc={decl.type}
-                                getPort={(portId: string) => getPort(portId) as RecordFieldPortModel}
-                                handleCollapse={handleCollapse}
-                                valueLabel={decl.varName}
-                            />
+                            <>
+                                {!isExprPlaceholder && (
+                                    <>
+                                        <LetVarDeclItemWidget
+                                            key={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
+                                            id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
+                                            engine={engine}
+                                            typeDesc={decl.type}
+                                            getPort={(portId: string) => getPort(portId) as RecordFieldPortModel}
+                                            handleCollapse={handleCollapse}
+                                            valueLabel={decl.varName}
+                                        />
+                                    </>
+                                )}
+                            </>
                         );
                     })}
                 </TreeContainer>
@@ -104,6 +111,7 @@ const LocalVarsHeader = styled.div`
 
 const HeaderText = styled.span`
     margin-left: 10px;
+    min-width: 280px;
     font-size: 13px;
     font-weight: 600;
     font-family: "Gilmer",sans-serif;

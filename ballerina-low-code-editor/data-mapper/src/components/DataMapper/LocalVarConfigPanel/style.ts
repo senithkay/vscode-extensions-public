@@ -123,6 +123,12 @@ export const useStyles = makeStyles((theme: Theme) =>
                 border: `1px solid ${theme.palette.grey[300]}`
             }
         },
+        clausePlaceholder: {
+            background: '#fff3e0',
+            '&:hover': {
+                border: `1px solid #ffb74d`
+            }
+        },
         input: {
             maxWidth: '120px',
             padding: "5px",

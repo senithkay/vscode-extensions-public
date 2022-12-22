@@ -16,6 +16,7 @@ import React, { ReactNode, useMemo, useState } from "react";
 import { IBallerinaLangClient, STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { CheckBoxGroup } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CaptureBindingPattern, LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { getRenameEdits } from "../../Diagram/utils/ls-utils";
 
@@ -36,6 +37,8 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
     const overlayClasses = useStyles();
     const varNameNode = (letVarDeclModel.letVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern)
         .variableName;
+    const exprSource = letVarDeclModel.letVarDecl.expression.source.trim();
+    const isExprPlaceholder = exprSource === "EXPRESSION";
 
     const [type, varName] = useMemo(() => {
         const pattern = letVarDeclModel.letVarDecl.typedBindingPattern;
@@ -125,10 +128,13 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
                 <span>{letVarDeclModel.letVarDecl.equalsToken.value}</span>
                 <span>
                     <span
-                        className={overlayClasses.clauseExpression}
+                        className={classNames(
+                            overlayClasses.clauseExpression,
+                            isExprPlaceholder && overlayClasses.clausePlaceholder
+                        )}
                         onClick={(event) => handleEdit(event)}
                     >
-                        {letVarDeclModel.letVarDecl.expression.source}
+                        {isExprPlaceholder ? `<add-expression>` : exprSource}
                     </span>
                 </span>
             </div>

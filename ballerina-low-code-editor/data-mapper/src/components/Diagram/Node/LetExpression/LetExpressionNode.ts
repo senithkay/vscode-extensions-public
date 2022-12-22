@@ -15,6 +15,7 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 import {
     ExpressionFunctionBody,
     LetExpression,
+    LetVarDecl,
     NodePosition,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
@@ -30,6 +31,7 @@ export const LET_EXPR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-let-expressi
 export interface DMLetVarDecl {
     varName: string;
     type: Type;
+    declaration: LetVarDecl;
 }
 
 export class LetExpressionNode extends DataMapperNodeModel {
@@ -84,7 +86,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
                                 this.context.collapsedFields, parentPort.collapsed);
                         }
 
-                        this.letVarDecls.push({varName, type});
+                        this.letVarDecls.push({varName, type, declaration: decl});
                     }
                 }
             });
