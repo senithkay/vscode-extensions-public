@@ -21,6 +21,7 @@ type Output record {
         string Id;
         boolean Confirmed;
     }[] Items;
+    InnerOutput[] innerOutput;
     string[] stArr;
 };
 
@@ -30,5 +31,10 @@ type User record {|
 |};
 
 User[] users = [{id: "1234", name: "Keith"}];
+
+type InnerOutput record {
+    string st1;
+    int i1;
+};
 
 function transform(Input input, SecondInput secondInput) returns Output => {};

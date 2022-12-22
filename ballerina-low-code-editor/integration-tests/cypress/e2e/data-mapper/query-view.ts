@@ -65,12 +65,12 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExpression("ItemsItem.Id", "Items.Id");
+        DataMapper.createMappingFromQueryExpression("ItemsItem.Id", "Id");
         cy.wait(4000);
-        DataMapper.createMappingFromQueryExpression("variable", "Items.Id");
+        DataMapper.createMappingFromQueryExpression("variable", "Id");
         DataMapper.checkIntermediateLinks(
             ["expandedQueryExpr.source.ItemsItem.Id", "expandedQueryExpr.source.variable"],
-            "Items.Id"
+            "Id"
         );
     });
 
@@ -132,7 +132,7 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Create links between join clause node and target node", () => {
-        DataMapper.createMappingFromQueryExpression("variable.id", "Items.Id");
+        DataMapper.createMappingFromQueryExpression("variable.id", "Id");
         cy.wait(4000);
         DataMapper.checkIntermediateLinks(
             [
@@ -140,7 +140,7 @@ describe("Expanded query view for inline record within mapping constructor", () 
                 "expandedQueryExpr.source.updatedName",
                 "expandedQueryExpr.source.variable.id",
             ],
-            "Items.Id"
+            "Id"
         );
     });
 
@@ -156,5 +156,74 @@ describe("Expanded query view for inline record within mapping constructor", () 
 
     it("Navigate out of expanded query view", () => DataMapper.clickHeaderBreadcrumb(0));
 
-    it("Delete query link", () => DataMapper.deleteQueryLink("input.Items", "Output.Items"));
-});
+    it("Delete query link", () => DataMapper.deleteQueryLink('input.Items', 'Output.Items'));
+})
+
+describe("Expanded query view for defined record within mapping constructor", () => {
+    before(() => {
+        cy.visit(getIntegrationTestPageURL(INITIAL_BAL_FILE))
+        Canvas.getDataMapper("transform").clickEdit();
+    });
+
+    it("Create mapping between two record array element", () => {
+        DataMapper.createMapping('input.Items', 'Output.innerOutput');
+        DataMapper.linkExists('input.Items', 'Output.innerOutput');
+    });
+
+    it("Convert link into query using code action", () => {
+        DataMapper.clickLinkCodeAction('input.Items', 'Output.innerOutput');
+    });
+
+    it("Navigate into expanded query view", () => {
+        DataMapper.clickExpandQueryView('Output.innerOutput');
+        DataMapper.getQueryExprNode("source.ItemsItem");
+        DataMapper.getTargetNode("InnerOutput");
+    });
+
+    it("Add an intermediary where clause", () => {
+        DataMapper.addIntermediaryClause(-1, 'Add where clause');
+        DataMapper.clickIntermediateExpression(0);
+        StatementEditor.shouldBeVisible().getEditorPane();
+        EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
+        InputEditor.typeInput(`true`);
+        EditorPane.reTriggerDiagnostics("TrueKeyword", `true`)
+        StatementEditor.save();
+    });
+
+    it("Add an intermediary let clause with a string value", () => {
+        DataMapper.addIntermediaryClause(0, 'Add let clause');
+        DataMapper.clickIntermediateExpression(1);
+        StatementEditor.shouldBeVisible().getEditorPane();
+        EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
+        InputEditor.typeInput(`"strValue"`);
+        EditorPane.reTriggerDiagnostics("StringLiteralToken", `"strValue"`)
+        StatementEditor.save();
+        DataMapper.getQueryExprNode("source.variable");
+    });
+
+    it("Create links between source nodes and target node", () => {
+        DataMapper.createMappingFromQueryExpression('ItemsItem.Id', 'InnerOutput.st1');
+        cy.wait(4000);
+        DataMapper.createMappingFromQueryExpression('variable', 'InnerOutput.st1');
+        DataMapper.checkIntermediateLinks(['expandedQueryExpr.source.ItemsItem.Id', 'expandedQueryExpr.source.variable'], 'InnerOutput.st1')
+    });
+
+    it("Rename let clause variable name", () => {
+        DataMapper.updateLetVariableName(1, 'updatedName');
+        DataMapper.getQueryExprNode("source.updatedName");
+    });
+
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-with-expanded-query-view-for-defined-record.bal");
+    });
+
+    it("Delete intermediate clauses", () => {
+        DataMapper.deleteIntermediateWhereClause(0);
+        DataMapper.deleteIntermediateLetClause(0);
+        DataMapper.getQueryExprNode("source.updatedName").should('not.exist');
+    });
+
+    it("Navigate out of expanded query view", () =>  DataMapper.clickHeaderBreadcrumb(0));
+
+    it("Delete query link", () => DataMapper.deleteQueryLink('input.Items', 'Output.innerOutput'));
+})

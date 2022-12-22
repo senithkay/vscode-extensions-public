@@ -32,6 +32,11 @@ type User record {|
 
 User[] users = [{id: "1234", name: "Keith"}];
 
+type InnerOutput record {
+    string st1;
+    int i1;
+};
+
 function transform(Input input, SecondInput secondInput) returns Output => {
     Items: from var ItemsItem in input.Items
         where true
