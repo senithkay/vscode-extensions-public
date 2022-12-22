@@ -66,7 +66,10 @@ describe("Create new data mapper with existing record types", () => {
 
     it("Add new input record from imported http package", () => DataMapper.addExitingInputRecord("CredentialsConfig"));
 
-    it("Add new output record from existing records", () => DataMapper.addExitingOutputRecord("Output"));
+    it("Add new output record from existing records", () => {
+        DataMapper.addExitingOutputRecord("Output");
+        DataMapper.clickConfigUpdateBtn();
+    });
 
     it("Save data mapper config", () => DataMapper.saveConfig());
 
@@ -108,6 +111,7 @@ describe("Edit existing data mapper record types", () => {
     it("Delete output record and select new output record", () => {
         DataMapper.deleteOutputRecord()
         DataMapper.addExitingOutputRecord("UpdatedOutput");
+        DataMapper.clickConfigUpdateBtn();
     });
 
     it("Save data mapper config", () => DataMapper.saveConfig());
