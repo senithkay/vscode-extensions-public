@@ -30,6 +30,7 @@ export interface OutputConfigWidgetProps {
     fetchingCompletions: boolean;
     completions: CompletionResponseWithModule[]
     showOutputType: boolean;
+    isArraySupported: boolean;
     handleShowOutputType: () => void;
     handleHideOutputType: () => void;
     handleOutputTypeChange: (type: string, isArray: boolean) => void;
@@ -43,6 +44,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
         fetchingCompletions,
         completions,
         showOutputType,
+        isArraySupported,
         handleShowOutputType,
         handleHideOutputType,
         handleOutputTypeChange,
@@ -71,6 +73,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
                             loadingCompletions={fetchingCompletions}
                             completions={completions}
                             hideName={true}
+                            isArraySupported={isArraySupported}
                         />
                     )}
                     <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />

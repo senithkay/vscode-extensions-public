@@ -401,6 +401,7 @@ function DataMapperC(props: DataMapperProps) {
         inputs,
         output,
         currentFile,
+        ballerinaVersion,
         onSave: onConfigSave,
         onClose: onConfigClose,
         applyModifications,

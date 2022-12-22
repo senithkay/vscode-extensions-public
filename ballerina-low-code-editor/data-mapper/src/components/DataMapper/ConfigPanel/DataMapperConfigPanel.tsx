@@ -51,6 +51,7 @@ import {
     getFnNameFromST,
     getModifiedTargetPosition
 } from "./utils";
+import { isArraysSupported } from "../utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
 export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
@@ -68,6 +69,7 @@ export interface DataMapperConfigPanelProps {
         path: string,
         size: number
     };
+    ballerinaVersion: string;
     onSave: (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => void;
     onClose: () => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
@@ -85,6 +87,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         inputs,
         output,
         currentFile,
+        ballerinaVersion,
         onSave,
         onClose,
         applyModifications,
@@ -323,6 +326,8 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         setDmFuncDiagnostic("");
     };
 
+    const isArraySupported = useMemo(()=>isArraysSupported(ballerinaVersion),[ballerinaVersion])
+
     return (
         <Panel onClose={onClose}>
             <FormControl
@@ -357,6 +362,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                 isAddExistType={isAddExistType}
                                 loadingCompletions={fetchingCompletions}
                                 completions={recordCompletions}
+                                isArraySupported={isArraySupported}
                             />
                             <FormDivider />
                             <OutputTypePanel
@@ -369,6 +375,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                 handleOutputTypeChange={handleOutputTypeChange}
                                 handleShowRecordEditor={handleShowRecordEditor}
                                 handleOutputDeleteClick={handleOutputDeleteClick}
+                                isArraySupported={isArraySupported}
                             />
                         </FormBody>
                         <FormActionButtons

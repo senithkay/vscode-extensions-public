@@ -86,6 +86,10 @@ export class DataMapper {
         cy.get(`[data-testid="data-mapper-config-delete-output"]`).click({ timeout: 10000 });
     }
 
+    static clickConfigUpdateBtn = () => {
+        this.getForm().contains("button","Update").should('not.be.disabled').click({force: true});
+    }
+
     static saveConfig = () => {
         this.containsValidFnName();
         this.getForm().contains("Save").should('not.be.disabled').click({force: true});

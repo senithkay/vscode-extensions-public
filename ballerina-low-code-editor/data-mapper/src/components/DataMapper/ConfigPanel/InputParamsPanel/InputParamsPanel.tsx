@@ -33,6 +33,7 @@ export interface InputConfigWidgetProps {
     setAddExistType: (value: boolean) => void;
     completions: CompletionResponseWithModule[];
     loadingCompletions: boolean;
+    isArraySupported: boolean;
 }
 
 export function InputParamsPanel(props: InputConfigWidgetProps) {
@@ -43,7 +44,8 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
         enableAddNewRecord,
         setAddExistType,
         completions,
-        loadingCompletions
+        loadingCompletions,
+        isArraySupported
     } = props;
 
     const [editingIndex, setEditingIndex] = useState(-1);
@@ -99,6 +101,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
                             onCancel={onUpdateCancel}
                             completions={completions}
                             loadingCompletions={loadingCompletions}
+                            isArraySupported={isArraySupported}
                         />
                         {param.isUnsupported && (
                             <Warning
@@ -131,6 +134,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
                     onCancel={disableAddNew}
                     completions={completions}
                     loadingCompletions={loadingCompletions}
+                    isArraySupported={isArraySupported}
                 />
             )}
             {!isAddExistType && editingIndex === -1 && (

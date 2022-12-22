@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-no-lambda
-import React, {  useState } from "react";
+import React, { useState } from "react";
 
 import styled from "@emotion/styled";
 import { Box, Checkbox, FormControlLabel, Grid } from "@material-ui/core";
@@ -30,6 +30,7 @@ interface InputParamEditorProps {
     onUpdate?: (index: number, param: DataMapperInputParam) => void;
     onCancel?: () => void;
     validateParamName?: (paramName: string) => { isValid: boolean, message: string };
+    isArraySupported: boolean;
     completions: CompletionResponseWithModule[];
     loadingCompletions: boolean;
     hideName?: boolean;
@@ -37,7 +38,7 @@ interface InputParamEditorProps {
 
 export function InputParamEditor(props: InputParamEditorProps) {
 
-    const { param, onSave, onUpdate, index, onCancel, validateParamName, completions, loadingCompletions, hideName } = props;
+    const { param, onSave, onUpdate, index, onCancel, validateParamName, isArraySupported, completions, loadingCompletions, hideName } = props;
 
     const initValue: DataMapperInputParam = param ? { ...param } : {
         name: "",
@@ -113,10 +114,10 @@ export function InputParamEditor(props: InputParamEditorProps) {
                 )}
 
             </Grid>
-            <Box mt={1}/>
+            <Box mt={1} />
             <Grid container={true} item={true} spacing={2}>
                 <Grid item={true} xs={6}>
-                    <FormControlLabel
+                    {isArraySupported && <FormControlLabel
                         control={(
                             <Checkbox
                                 checked={isArray}
@@ -125,7 +126,8 @@ export function InputParamEditor(props: InputParamEditorProps) {
                             />
                         )}
                         label="Is Array"
-                    />
+                    />}
+
                 </Grid>
                 <Grid item={true} xs={6}>
                     <ButtonContainer>
