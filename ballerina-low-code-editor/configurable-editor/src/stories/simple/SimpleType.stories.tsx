@@ -19,12 +19,14 @@
 
 import React from "react";
 
+import { Box } from "@material-ui/core";
 import { Story } from "@storybook/react";
 
 import ConfigEditor from "../../components/ConfigEditor";
 import { ConfigElementProps } from "../../components/ConfigElement";
 import ConfigForm from "../../components/ConfigForm";
 import { ConfigSchema } from "../../components/model";
+import connnectionSchema from "../connection-schema.json";
 
 import configSchema from "./config-schema.json";
 import existingConfigs from "./existing-configs.json";
@@ -46,14 +48,18 @@ export default {
 };
 
 export const SimpleTypes: Story = (args) => (
-    <ConfigEditor>
-        <ConfigForm
-            configSchema={configSchema as ConfigSchema}
-            existingConfigs={existingConfigs}
-            defaultButtonText={"Cancel"}
-            primaryButtonText={"Run"}
-            onClickDefaultButton={onClickDefaultButton}
-            onClickPrimaryButton={args.onClickPrimaryButton}
-        />
-    </ConfigEditor>
+    <Box maxWidth={500} margin="auto">
+        <ConfigEditor>
+            <ConfigForm
+                configSchema={configSchema as ConfigSchema}
+                connectionConfig={connnectionSchema}
+                existingConfigs={existingConfigs}
+                defaultButtonText={"Cancel"}
+                primaryButtonText={"Run"}
+                onClickDefaultButton={onClickDefaultButton}
+                onClickPrimaryButton={args.onClickPrimaryButton}
+                isLowCode={false}
+            />
+        </ConfigEditor>
+    </Box>
 );

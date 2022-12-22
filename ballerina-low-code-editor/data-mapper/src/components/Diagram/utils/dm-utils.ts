@@ -95,6 +95,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	if (isMappedToPrimitiveTypePort(targetPort)
 		|| isMappedToRootListConstructor(targetPort)
+		|| isMappedToRootMappingConstructor(targetPort)
 		|| isMappedToMappingConstructorWithinArray(targetPort)
 		|| isMappedToExprFuncBody(targetPort, targetNode.context.selection.selectedST.stNode))
 	{
@@ -103,7 +104,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		if (!isValueEmpty) {
 			return updateValueExprSource(rhs, valuePosition, applyModifications);
 		}
-	} else if (isMappedToSelectClauseExprListConstructor(targetPort)) {
+	} else if (isMappedToSelectClauseExprConstructor(targetPort)) {
 		const exprPosition = (targetPort.editableRecordField.value as QueryExpression)
 			.selectClause.expression.position as NodePosition;
 		return updateValueExprSource(rhs, exprPosition, applyModifications);
@@ -927,6 +928,10 @@ export function getTypeFromStore(position: NodePosition): Type {
 	return recordTypeDescriptors.getTypeDescriptor(position);
 }
 
+export function isEmptyValue(position: NodePosition): boolean {
+	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
+}
+
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
 									                            fieldIndex: number,
 									                            targetPosition: NodePosition,
@@ -974,10 +979,6 @@ function getSpecificField(mappingConstruct: MappingConstructor, targetFieldName:
 	) as SpecificField;
 }
 
-function isEmptyValue(position: NodePosition): boolean {
-	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
-}
-
 export function isComplexExpression (node: STNode): boolean {
 	return (STKindChecker.isConditionalExpression(node)
 			|| (STKindChecker.isBinaryExpression(node) && STKindChecker.isElvisToken(node.operator)))
@@ -997,6 +998,13 @@ function isMappedToRootListConstructor(targetPort: RecordFieldPortModel): boolea
 		&& STKindChecker.isListConstructor(targetPort.editableRecordField.value);
 }
 
+function isMappedToRootMappingConstructor(targetPort: RecordFieldPortModel): boolean {
+	return !targetPort.parentModel
+		&& targetPort.field.typeName === PrimitiveBalType.Record
+		&& targetPort?.editableRecordField?.value
+		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value);
+}
+
 function isMappedToExprFuncBody(targetPort: RecordFieldPortModel, selectedSTNode: STNode): boolean {
 	const exprPosition: NodePosition = STKindChecker.isFunctionDefinition(selectedSTNode)
 		&& STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody)
@@ -1014,10 +1022,12 @@ function isMappedToMappingConstructorWithinArray(targetPort: RecordFieldPortMode
 		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value);
 }
 
-function isMappedToSelectClauseExprListConstructor(targetPort: RecordFieldPortModel): boolean {
+function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel): boolean {
 	return !targetPort.parentModel
 		&& targetPort.field.typeName === PrimitiveBalType.Array
 		&& targetPort?.editableRecordField?.value
 		&& STKindChecker.isQueryExpression(targetPort.editableRecordField.value)
-		&& STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression);
+		&& (STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression)
+			|| STKindChecker.isMappingConstructor(targetPort.editableRecordField.value.selectClause.expression)
+		);
 }

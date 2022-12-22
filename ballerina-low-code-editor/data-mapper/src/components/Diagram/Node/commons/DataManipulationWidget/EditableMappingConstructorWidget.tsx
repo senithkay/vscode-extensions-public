@@ -18,11 +18,13 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { MappingConstructor, STNode } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
+import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
+import { isEmptyValue } from "../../../utils/dm-utils";
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
@@ -94,26 +96,45 @@ export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	editableRecordFields: EditableRecordField[];
 	typeName: string;
-	value: MappingConstructor;
+	value: STNode;
 	engine: DiagramEngine;
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
 	valueLabel?: string;
+	mappings?: FieldAccessToSpecificFied[];
 	deleteField?: (node: STNode) => Promise<void>;
 }
 
 
 export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
-	const { id, editableRecordFields, typeName, value, engine, getPort, context, valueLabel, deleteField } = props;
+	const {
+        id,
+        editableRecordFields,
+        typeName,
+        value,
+        engine,
+        getPort,
+        context,
+        mappings,
+        valueLabel,
+        deleteField
+    } = props;
 	const classes = useStyles();
 
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
+	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
+	const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
+	const hasEmptyFields = mappings.length === 0 || !mappings.some(mapping => {
+        if (mapping.value) {
+            return !isEmptyValue(mapping.value.position);
+        }
+        return true;
+    });
 
 	const portIn = getPort(`${id}.IN`);
-	const portOut = getPort(`${id}.OUT`);
 
 	let expanded = true;
-	if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
+	if ((portIn && portIn.collapsed)) {
 		expanded = false;
 	}
 
@@ -138,13 +159,17 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const handleExpand = () => {
 		context.handleCollapse(id, !expanded);
 	}
-	// TODO: Handle root level arrays
+
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader>
 				<span className={classes.treeLabelInPort}>
-					{portIn && (!hasValue || !expanded) &&
-						<DataMapperPortWidget engine={engine} port={portIn} />
+					{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
+                            || !expanded
+                            || !isBodyMappingConstructor
+                            || hasEmptyFields
+                        ) &&
+                        <DataMapperPortWidget engine={engine} port={portIn}/>
 					}
 				</span>
 				<span className={classes.label}>
@@ -158,11 +183,6 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					</IconButton>
 					{label}
 				</span>
-				<span className={classes.treeLabelOutPort}>
-					{portOut &&
-						<DataMapperPortWidget engine={engine} port={portOut} />
-					}
-				</span>
 			</TreeHeader>
 			<TreeBody>
 				{expanded && editableRecordFields &&
@@ -174,7 +194,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 								field={item}
 								getPort={getPort}
 								parentId={id}
-								mappingConstruct={value}
+								parentMappingConstruct={value}
 								context={context}
 								treeDepth={0}
 								deleteField={deleteField}

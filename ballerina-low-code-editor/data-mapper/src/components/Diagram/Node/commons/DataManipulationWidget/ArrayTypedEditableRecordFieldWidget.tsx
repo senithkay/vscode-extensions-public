@@ -52,7 +52,7 @@ export interface ArrayTypedEditableRecordFieldWidgetProps {
     field: EditableRecordField;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
-    mappingConstruct: MappingConstructor;
+    parentMappingConstruct: MappingConstructor;
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
@@ -66,7 +66,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         field,
         getPort,
         engine,
-        mappingConstruct,
+        parentMappingConstruct,
         context, fieldIndex,
         treeDepth = 0,
         deleteField,
@@ -169,7 +169,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                 field={element.member}
                                 getPort={getPort}
                                 parentId={fieldId}
-                                mappingConstruct={element.elementNode as MappingConstructor}
+                                parentMappingConstruct={element.elementNode as MappingConstructor}
                                 context={context}
                                 fieldIndex={index}
                                 treeDepth={treeDepth + 1}
@@ -187,7 +187,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         field={element.member}
                         getPort={getPort}
                         parentId={fieldId}
-                        mappingConstruct={mappingConstruct}
+                        parentMappingConstruct={parentMappingConstruct}
                         context={context}
                         fieldIndex={index}
                         treeDepth={treeDepth + 1}
@@ -220,7 +220,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const handleArrayInitialization = async () => {
         setLoading(true);
         try {
-            await createSourceForUserInput(field, mappingConstruct, '[]', context.applyModifications);
+            await createSourceForUserInput(field, parentMappingConstruct, '[]', context.applyModifications);
         } finally {
             setLoading(false);
         }
