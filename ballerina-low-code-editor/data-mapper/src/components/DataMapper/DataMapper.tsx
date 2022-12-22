@@ -420,7 +420,7 @@ function DataMapperC(props: DataMapperProps) {
             <CurrentFileContext.Provider value={currentFile}>
                 {selection.state === DMState.INITIALIZED && (
                     <div className={classes.root}>
-                        {!!showDMOverlay &&
+                        {(!!showDMOverlay || showLocalVarConfigPanel) &&
                             <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
                         }
                         {fnST && (
