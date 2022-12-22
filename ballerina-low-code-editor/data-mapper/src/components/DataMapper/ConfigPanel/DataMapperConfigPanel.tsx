@@ -182,7 +182,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                 // if function returns (), replace it with {}
                 modifications.push({
                     type: "INSERT",
-                    config: { "STATEMENT": "{}" },
+                    config: { "STATEMENT": outputType.isArray ? '[]' : '{}' },
                     ...functionExpression.position
                 })
             }
@@ -197,7 +197,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                     targetPosition,
                     false,
                     true,
-                    `{}`
+                    outputType.isArray ? '[]' : '{}'
                 )
             );
         }
