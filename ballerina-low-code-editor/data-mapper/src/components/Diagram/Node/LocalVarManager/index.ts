@@ -12,6 +12,4 @@
  */
 
 export * from "./LocalVarConfigPanel";
-export * from "./LocalVarManagerNode";
-export * from "./LocalVarManagerNodeFactory";
-export * from "./LocalVarManagerNodeWidget";
+

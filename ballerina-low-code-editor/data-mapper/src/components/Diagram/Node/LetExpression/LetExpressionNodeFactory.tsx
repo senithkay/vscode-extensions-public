@@ -19,12 +19,10 @@ import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
-import { LET_EXPRESSION_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
-import { LetExpressionTreeWidget } from "../commons/LetExpressionTreeWidget";
-import { TreeContainer } from "../commons/Tree/Tree";
 
 import { LetExpressionNode, LET_EXPR_SOURCE_NODE_TYPE } from "./LetExpressionNode";
+import { LetExpressionTreeWidget } from "./LetExpressionTreeWidget";
 
 @injectable()
 @singleton()
@@ -35,22 +33,13 @@ export class LetExpressionNodeFactory extends AbstractReactFactory<LetExpression
 
     generateReactWidget(event: { model: LetExpressionNode; }): JSX.Element {
         return (
-            <TreeContainer>
-                {event.model.letVarDecls.map(decl => {
-                    return (
-                        <>
-                            <LetExpressionTreeWidget
-                                engine={this.engine}
-                                id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
-                                typeDesc={decl.type}
-                                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                                handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-                                valueLabel={decl.varName}
-                            />
-                        </>
-                    );
-                })}
-            </TreeContainer>
+            <LetExpressionTreeWidget
+                engine={this.engine}
+                letVarDecls={event.model.letVarDecls}
+                context={event.model.context}
+                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+            />
         );
     }
 
