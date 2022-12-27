@@ -36,7 +36,6 @@ jobs:
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
           IS_RELEASE: ${{ inputs.isRelease }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Compress build
         run: |

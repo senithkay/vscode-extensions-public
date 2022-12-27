@@ -40,8 +40,11 @@ jobs:
       - name: Get version
         id: vsix
         run: | 
-          echo ::set-output name=vsixName::$(ls *.vsix)
-          echo ::set-output name=version::$(echo ${$(echo ${$(ls *.vsix)%.*})#*-})
+          file=$(ls *.vsix)
+          fileName=${file#*-}
+          version=${fileName%.*}
+          echo "vsixName=$file" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         run: |
