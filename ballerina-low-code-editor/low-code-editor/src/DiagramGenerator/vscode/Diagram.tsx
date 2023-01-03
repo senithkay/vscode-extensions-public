@@ -18,16 +18,19 @@ export interface WorkspaceFolder {
     readonly index: number;
 }
 
+export interface DiagramFocus {
+    filePath: string;
+    position: NodePosition;
+}
+
 export interface EditorState {
-    filePath?: string;
-    projectPaths?: WorkspaceFolder[],
-    focusPosition?: NodePosition,
+    projectPaths: WorkspaceFolder[],
     langClientPromise: Promise<DiagramEditorLangClientInterface>;
-    startColumn: number;
-    startLine: number;
+    startColumn: number; // TODO: remove
+    startLine: number; // TODO: remove
     lastUpdatedAt: string;
-    openInDiagram?: NodePosition;
     experimentalEnabled?: boolean;
+    diagramFocus: DiagramFocus;
 }
 
 export interface PFSession {
@@ -42,6 +45,7 @@ export interface EditorAPI {
     gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
     getPFSession: () => Promise<PFSession>;
     showPerformanceGraph: () => Promise<boolean>;
+    // TODO: move to a seperate interface
     getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>;
     showMessage: () => Promise<boolean>;
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<GetSyntaxTreeResponse>;
@@ -77,9 +81,9 @@ export const WorkspaceOverview: React.FC<EditorProps> = (props: EditorProps) => 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
-            sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
-            showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
+        sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
+        showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
+        runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {

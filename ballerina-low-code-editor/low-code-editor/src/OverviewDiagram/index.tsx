@@ -139,6 +139,7 @@ export function OverviewDiagram(props: EditorProps) {
 
     return (
         <OverviewDiagramContextProvider
+            currentComponent={selectedComponent}
             addToHistoryStack={addToHistoryStack}
             navigateBack={navigateBack}
             navigateToMain={resetToOverviewDiagram}

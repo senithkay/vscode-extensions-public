@@ -29,7 +29,6 @@ export class STFindingVisitor implements Visitor {
                 node.position?.endLine === this.position?.endLine &&
                 node.position?.endColumn === this.position?.endColumn
             if (isPositionsEquals) {
-                console.log('matched >>>', node, this.position);
                 this.stNode = node;
             }
         }

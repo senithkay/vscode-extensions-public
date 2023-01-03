@@ -90,6 +90,7 @@ export function FileView(props: FileViewProps) {
 
         Object.keys(info.components).filter(key => info.components[key].length).forEach(key => {
             const components = info.components[key].map((comp: ComponentViewInfo) => (
+                // tslint:disable-next-line: jsx-key
                 <ComponentView info={comp} updateSelection={updateSelection} />
             ))
             categories.push(

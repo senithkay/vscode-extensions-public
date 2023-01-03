@@ -39,7 +39,7 @@ export interface ServiceDesignProps {
         path: string,
         size: number
     };
-    onClose: () => void;
+    onClose?: () => void;
     handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
 }
 
@@ -119,7 +119,6 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
                             text={"Add Resource"}
                             onClick={handlePlusClick}
                             dataTestId="add-new-btn"
-                            startIcon={<AddIcon />}
                         />
                     </div>
                 </>

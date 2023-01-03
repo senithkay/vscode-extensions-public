@@ -11,8 +11,8 @@
  * associated services.
  */
 import React from "react";
-import { DEFAULT_MODULE_NAME } from "../..";
 
+import { DEFAULT_MODULE_NAME } from "../..";
 import { useOverviewDiagramContext } from "../../context/overview-diagram";
 import { ComponentViewInfo } from "../../util";
 
@@ -27,7 +27,6 @@ interface NavigationBarProps {
 export function NavigationBar(props: NavigationBarProps) {
     const { diagramHasDepth, handleHomeClick, selectedComponent } = props;
     const { isHistoryStackEmpty, navigateBack } = useOverviewDiagramContext();
-    console.log('console log >>>', selectedComponent)
     const homeButton = (
         <div className="segment">
             <button onClick={handleHomeClick}>Home</button>

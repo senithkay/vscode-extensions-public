@@ -13,7 +13,6 @@
 import React from "react";
 
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_MODULE_NAME } from "../../..";
 import { ComponentCollection, ComponentViewInfo } from "../../../util";
@@ -75,6 +74,7 @@ export function CategoryView(props: CategoryViewProps) {
 
     Object.keys(currentComponents).filter(key => currentComponents[key].length).forEach(key => {
         const components = currentComponents[key].map((comp: ComponentViewInfo) => (
+            // tslint:disable-next-line: jsx-key
             <ComponentView info={comp} updateSelection={updateSelection} />
         ))
         categories.push(

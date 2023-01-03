@@ -15,17 +15,12 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core/styles";
-import { FastRewindOutlined } from "@material-ui/icons";
-import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
-    CommandResponse, ConditionConfig,
-    Connector,
+    CommandResponse,
     DiagramDiagnostic,
-    DiagramEditorLangClientInterface,
     DIAGRAM_MODIFIED,
     FunctionDef,
     getImportStatements,
-    KeyboardNavigationManager,
     LibraryDataResponse,
     LibraryDocResponse,
     LibraryKind,
@@ -34,8 +29,6 @@ import {
     LowcodeEvent,
     SentryConfig,
     STModification,
-    STSymbolInfo,
-    WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import cloneDeep from "lodash.clonedeep";
@@ -129,6 +122,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
 
 
     React.useEffect(() => {
+        // TODO: move this to view manager
         (async () => {
             let showDiagramError = false;
             try {
@@ -136,7 +130,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
                 const content = await props.getFileContent(filePath);
 
-                console.log('componenet test >>>', filePath, focusPosition);
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
@@ -146,7 +139,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 }
 
                 if (focusPosition) {
-                    console.log('focus position >>>', focusPosition)
                     const stFindingVisitor = new STFindingVisitor();
                     stFindingVisitor.setPosition(focusPosition);
                     traversNode(vistedSyntaxTree, stFindingVisitor);
@@ -198,7 +190,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
                 const content = await props.getFileContent(filePath);
 
-                console.log('componenet test >>>', filePath, focusPosition);
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
@@ -208,7 +199,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 }
 
                 if (focusPosition) {
-                    console.log('focus position >>>', focusPosition)
                     const stFindingVisitor = new STFindingVisitor();
                     stFindingVisitor.setPosition(focusPosition);
                     traversNode(vistedSyntaxTree, stFindingVisitor);
@@ -316,34 +306,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
         }
     }
 
-    const redo = async () => {
-        const path = undoRedo.getFilePath();
-        const uri = monaco.Uri.file(path).toString();
-        const lastUndoSource = undoRedo.redo();
-        const langClient = await langClientPromise;
-        if (lastUndoSource) {
-            langClient.didChange({
-                contentChanges: [
-                    {
-                        text: lastUndoSource
-                    }
-                ],
-                textDocument: {
-                    uri,
-                    version: 1
-                }
-            });
-            const genSyntaxTree = await getSyntaxTree(path, langClient);
-            const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, path, langClient, experimentalEnabled, showMessage);
-            setSyntaxTree(vistedSyntaxTree);
-            setFileContent(lastUndoSource);
-            props.updateFileContent(path, lastUndoSource);
-
-            await addPerfData(vistedSyntaxTree);
-
-        }
-    }
-
     if (!syntaxTree && !isDiagramError) {
         return (<div className={classes.loaderContainer}><CirclePreloader position="relative" /></div>);
     }
@@ -358,7 +320,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
     // FIXME: Doing this to make main branch build pass so others can continue merging changes
     // on top of typed context
     const missingProps: any = {};
-    console.log('>>> selected ST', syntaxTree);
 
     const diagramComponent = (
         <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt} >
@@ -385,13 +346,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 openInDiagram={openInDiagram}
                 // tslint:disable-next-line: jsx-no-multiline-js
                 api={{
-                    helpPanel: {
-                        openConnectorHelp: (connector?: Partial<Connector>, method?: string) => undefined,
-                    },
-                    notifications: {
-                        triggerErrorNotification: (msg: Error | string) => undefined,
-                        triggerSuccessNotification: (msg: Error | string) => undefined,
-                    },
                     ls: {
                         getDiagramEditorLangClient: () => {
                             return langClientPromise;
@@ -406,7 +360,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                         }
                     },
                     code: {
-                        modifyDiagram: async (mutations: STModification[], options?: any) => {
+                        modifyDiagram: async (mutations: STModification[]) => {
                             const langClient = await langClientPromise;
                             const uri = monaco.Uri.file(filePath).toString();
                             setMutationInProgress(true);
@@ -443,8 +397,15 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                                                     }
                                                 ],
                                             })
-                                            const { syntaxTree: stWithoutDiagnostics } = await langClient.getSyntaxTree({ documentIdentifier: { uri } })
-                                            vistedSyntaxTree = await getLowcodeST(stWithoutDiagnostics, filePath, langClient, experimentalEnabled, showMessage);
+					    const { 
+						syntaxTree: stWithoutDiagnostics 
+					    } = await langClient.getSyntaxTree({ documentIdentifier: { uri } });
+					    vistedSyntaxTree = await getLowcodeST(
+							    stWithoutDiagnostics, 
+							    filePath, 
+							    langClient, 
+							    experimentalEnabled, 
+							    showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
                                         }
                                         setModulePullInProgress(false);
@@ -474,8 +435,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                             }
                             await addPerfData(vistedSyntaxTree);
                         },
-                        onMutate: (type: string, options: any) => undefined,
-                        setCodeLocationToHighlight: (position: NodePosition) => undefined,
                         gotoSource: (position: { startLine: number, startColumn: number }) => {
                             props.gotoSource(filePath, position);
                         },
@@ -507,12 +466,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                         fitToScreen,
                         zoomIn,
                         zoomOut
-                    },
-                    configPanel: {
-                        dispactchConfigOverlayForm: (type: string, targetPosition: NodePosition, wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig, symbolInfo?: STSymbolInfo, model?: STNode) => undefined,
-                        closeConfigOverlayForm: () => undefined,
-                        configOverlayFormPrepareStart: () => undefined,
-                        closeConfigPanel: () => undefined,
                     },
                     webView: {
                         showTryitView,

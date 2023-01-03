@@ -22,13 +22,15 @@ export interface OverviewDiagramProperties {
     navigateBack: () => void;
     navigateToMain: () => void;
     isHistoryStackEmpty: () => boolean;
+    currentComponent: ComponentViewInfo;
 }
 
 export const Context = React.createContext<OverviewDiagramProperties>({
     navigateBack: undefined,
     addToHistoryStack: undefined,
     navigateToMain: undefined,
-    isHistoryStackEmpty: undefined
+    isHistoryStackEmpty: undefined,
+    currentComponent: undefined
 });
 
 export const OverviewDiagramContextProvider: React.FC<OverviewDiagramProperties> = (props) => {

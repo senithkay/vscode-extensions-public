@@ -57,10 +57,10 @@ export interface LowCodeEditorActions {
 }
 
 export interface LowCodeEditorAPI {
-    helpPanel: {
+    helpPanel?: {
         openConnectorHelp: (connector?: Partial<Connector>, method?: string) => void;
     }
-    notifications: {
+    notifications?: {
         triggerErrorNotification?: (msg: Error | string) => void;
         triggerSuccessNotification?: (msg: Error | string) => void;
     }
@@ -74,9 +74,9 @@ export interface LowCodeEditorAPI {
     }
     code: {
         modifyDiagram: (mutations: STModification[], options?: any) => Promise<void>;
-        onMutate: (type: string, options: any) => void;
+        onMutate?: (type: string, options: any) => void;
         // Reuse go-to-def from LangServer?
-        setCodeLocationToHighlight: (position: NodePosition) => void;
+        setCodeLocationToHighlight?: (position: NodePosition) => void;
         gotoSource: (position: { startLine: number, startColumn: number }) => void;
         getFunctionDef: (lineRange: Range, defFilePath: string) => Promise<FunctionDef>;
         updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
@@ -94,7 +94,7 @@ export interface LowCodeEditorAPI {
         zoomIn: () => void;
         zoomOut: () => void;
     };
-    configPanel: {
+    configPanel?: {
         dispactchConfigOverlayForm: (
             type: string, targetPosition: NodePosition,
             wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
