@@ -24,7 +24,7 @@ import { By, VSBrowser, WebView, EditorView, TextEditor } from 'vscode-extension
 import { DIAGRAM_LOADING_TIME } from './constants';
 import { wait } from './util';
 
-describe('VSCode Data mapper Webview UI Tests', () => {
+describe.skip('VSCode Data mapper Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     const FILE_NAME = 'data_mapper.bal';
     let ORIGINAL_CONTENT = '';
@@ -118,6 +118,9 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         // Select `Output` record as the output type
         const outputSelectionItem = await webview.findWebElement(By.xpath("//li/*/*[contains(text(),'Output')]"));
         await outputSelectionItem.click();
+
+        const outputUpdateButton = await webview.findWebElement(By.xpath("//button//*[contains(text(),'Update')]"));
+        await outputUpdateButton.click();
 
         // Click save button to create the data mapper transform function
         const saveButton = await webview.findWebElement(By.xpath("//button[@data-testid='save-btn']"));

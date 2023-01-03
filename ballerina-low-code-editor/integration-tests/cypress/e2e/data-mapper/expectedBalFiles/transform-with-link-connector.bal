@@ -25,11 +25,17 @@ type Output record {
         string Id;
         boolean Confirmed;
     }[] Items;
+    InnerOutput[] innerOutput;
     string[] stArr;
 };
 
 type UpdatedOutput record {
     string st1;
+};
+
+type InnerOutput record {
+    string st1;
+    int i1;
 };
 
 function unsupportedTransform(Input[]|error? input) returns Output? => {};

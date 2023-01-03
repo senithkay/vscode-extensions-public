@@ -33,7 +33,7 @@ export function InputParamItem(props: InputParamItemProps) {
 
     const label = (
         <>
-            <TypeName isInvalid={inputParam.inInvalid}>{inputParam.type}</TypeName>
+            <TypeName isInvalid={inputParam.isUnsupported}>{inputParam.isArray ? `${inputParam.type}[]` : inputParam.type}</TypeName>
             <span>{" " + inputParam.name}</span>
         </>
     );
@@ -46,11 +46,11 @@ export function InputParamItem(props: InputParamItemProps) {
     };
     return (
         <InputParamContainer >
-            <ClickToEditContainer isInvalid={inputParam.inInvalid} onClick={!inputParam.inInvalid && handleEdit}>
+            <ClickToEditContainer isInvalid={inputParam.isUnsupported} onClick={!inputParam.isUnsupported && handleEdit}>
                 {label}
             </ClickToEditContainer>
             <Box component="span" display="flex">
-                {!inputParam.inInvalid && (
+                {!inputParam.isUnsupported && (
                     <EditButton
                         onClick={handleEdit}
                         icon={<EditIcon fontSize="small" />}

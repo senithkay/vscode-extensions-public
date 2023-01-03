@@ -26,6 +26,7 @@ import ExpandMore from "./elements/ExpandMore";
 import {
     ConfigSchema,
     ConfigType,
+    ConnectionSchema,
     SchemaConstants,
 } from "./model";
 import { useStyles } from "./style";
@@ -38,12 +39,14 @@ import {
 
 export interface ConfigFormProps {
     configSchema: ConfigSchema;
+    connectionConfig?: ConnectionSchema[];
     existingConfigs: object;
     defaultButtonText: string;
     primaryButtonText: string;
     onClickDefaultButton: () => void;
     onClickPrimaryButton: (configProperties: ConfigElementProps) => void;
     isLowCode?: boolean;
+    isFeaturePreview?: boolean;
     env?: string;
 }
 
@@ -85,16 +88,18 @@ export const ConfigForm = (props: ConfigFormProps) => {
 
     const {
         configSchema,
+        connectionConfig,
         existingConfigs,
         env,
         defaultButtonText,
         primaryButtonText,
         onClickDefaultButton,
         onClickPrimaryButton,
+        isFeaturePreview,
     } = props;
     // The config property object retrieved from the config schema.
     const configElements: ConfigElementProps = getConfigProperties(
-        getPackageConfig(configSchema),
+        getPackageConfig(configSchema), connectionConfig, isFeaturePreview,
     );
     generateDocURL(env, configSchema);
     // Set the existing config values to the config property obtained.
@@ -154,7 +159,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
             (
                 <Box key="defaultable fields" className={classes.innerBoxCard}>
                     <Card variant="outlined">
-                        <CardContent className={classes.cardContent}>
+                        <Box>
                             <Box className={classes.innerBoxHead}>
                                 <FormLabel
                                     component="div"
@@ -167,10 +172,16 @@ export const ConfigForm = (props: ConfigFormProps) => {
                                     onClick={handleExpandClick}
                                 />
                             </Box>
-                            <Collapse in={expanded} timeout="auto" unmountOnExit={false}>
-                                {defaultableElements.map(ConfigElement)}
+                            <Collapse
+                                in={expanded}
+                                timeout="auto"
+                                unmountOnExit={false}
+                            >
+                                <Box p={2} borderTop="1px solid #E0E2E9">
+                                    {defaultableElements.map(ConfigElement)}
+                                </Box>
                             </Collapse>
-                        </CardContent>
+                        </Box>
                     </Card>
                 </Box>
             ),
@@ -185,7 +196,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
                 <CardActions>
                     <ButtonContainer justifyContent="flex-end">
                         <Button
-                            variant="contained"
+                            variant="outlined"
                             color="default"
                             size="small"
                             onClick={handleDefaultButtonClick}

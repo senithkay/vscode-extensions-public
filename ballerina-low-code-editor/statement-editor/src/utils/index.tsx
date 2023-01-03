@@ -30,6 +30,7 @@ import {
     CompletionResponse,
     getDiagnosticMessage,
     getFilteredDiagnostics,
+    getSelectedDiagnostics,
     LinePosition,
     ParameterInfo,
     STModification,
@@ -37,7 +38,7 @@ import {
     SymbolDocumentation
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    Minutiae,
+    Minutiae, ModuleVarDecl,
     NodePosition,
     RecordField,
     RecordFieldWithDefaultValue,
@@ -47,7 +48,7 @@ import {
     traversNode,
     TypeReference
 } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
+import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
 import * as formComponents from '../components/Forms/Form';
@@ -301,14 +302,15 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
                 && diagTargetPosition.startColumn <= diagnosticStartCol));
     })
 
-    getDiagnosticMessage(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).split('. ').map(message => {
+    getSelectedDiagnostics(diagInPosition, diagTargetPosition, 0, statement.length, 0, 0).map(diagnostic => {
+        const message = diagnostic.message;
         let isPlaceHolderDiag = false;
         if (PLACEHOLDER_DIAGNOSTICS.some(msg => message.includes(msg))
             || (/const.+=.*EXPRESSION.*;/.test(statement) && IGNORABLE_DIAGNOSTICS.includes(message))) {
             isPlaceHolderDiag = true;
         }
         if (!!message) {
-            stmtDiagnostics.push({ message, isPlaceHolderDiag });
+            stmtDiagnostics.push({ message, isPlaceHolderDiag, diagnostic });
         }
     });
 
@@ -319,12 +321,20 @@ export function isPlaceHolderExists(statement: string): boolean {
     return PLACEHOLDER_DIAGNOSTICS.some(placeHolder => (statement ? statement : "").includes(placeHolder))
 }
 
-export function getUpdatedSource(statement: string, currentFileContent: string,
-                                 targetPosition: NodePosition, moduleList?: Set<string>,
-                                 skipSemiColon?: boolean): string {
-
-    const updatedStatement = skipSemiColon ? statement : (statement.trim().endsWith(';') ? statement : statement + ';');
-    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement);
+export function getUpdatedSource(
+    statement: string,
+    currentFileContent: string,
+    targetPosition: NodePosition,
+    moduleList?: Set<string>,
+    skipSemiColon?: boolean,
+    trimStatement = true
+): string {
+    let stmt = statement;
+    if (trimStatement) {
+        stmt = statement.trim();
+    }
+    const updatedStatement = skipSemiColon ? stmt : (stmt.endsWith(';') ? stmt : stmt + ';');
+    let updatedContent: string = addToTargetPosition(currentFileContent, targetPosition, updatedStatement, trimStatement);
     if (moduleList?.size > 0) {
         updatedContent = addImportStatements(updatedContent, Array.from(moduleList) as string[]);
     }
@@ -337,14 +347,22 @@ export function isModuleMember(model: STNode): boolean {
         STKindChecker.isTypeDefinition(model));
 }
 
-export function addToTargetPosition(currentContent: string, position: NodePosition, codeSnippet: string): string {
-
+export function addToTargetPosition(
+    currentContent: string,
+    position: NodePosition,
+    codeSnippet: string,
+    trimSnippet = true
+): string {
+    if (trimSnippet) {
+        codeSnippet.trimEnd();
+    }
     const splitContent: string[] = currentContent.split(/\n/g) || [];
-    const splitCodeSnippet: string[] = codeSnippet.trimEnd().split(/\n/g) || [];
+    const splitCodeSnippet: string[] = codeSnippet.split(/\n/g) || [];
     const noOfLines: number = position.endLine - position.startLine + 1;
     const startLine = splitContent[position.startLine].slice(0, position.startColumn);
-    const endLine = isFinite(position?.endLine) ?
-        splitContent[position.endLine].slice(position.endColumn || position.startColumn) : '';
+    const endLine = isFinite(position?.endLine)
+        ? splitContent[position.endLine].slice(position.endColumn || position.startColumn)
+        : "";
 
     const replacements = splitCodeSnippet.map((line, index) => {
         let modifiedLine = line;
@@ -362,7 +380,19 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
 
     splitContent.splice(position.startLine, noOfLines, ...replacements);
 
-    return splitContent.join('\n');
+    return splitContent.join("\n");
+}
+
+export function getPositionFromSource(source: string): NodePosition {
+    const splitSource: string[] = source.trim().split(/\n/g) || [];
+    const lines = splitSource.length;
+    const position: NodePosition = {
+        endColumn: lines > 0 ? splitSource[lines - 1].length - 1 : 0,
+        endLine: lines > 0 ? lines - 1 : 0,
+        startColumn: 0,
+        startLine: 0,
+    };
+    return position;
 }
 
 export function addImportStatements(
@@ -371,7 +401,7 @@ export function addImportStatements(
     let moduleList: string = "";
     modulesToBeImported.forEach(module => {
         if (!currentFileContent.includes(module)){
-            moduleList += "import " + module + ";"; // INFO: Adding new line fix comes with code action PR
+            moduleList += "import " + module + ";\n";
         }
     });
     return moduleList + currentFileContent;
@@ -955,6 +985,98 @@ export function isEndsWithoutSemicolon(completeModel: STNode): boolean {
         || STKindChecker.isBlockStatement(completeModel)
 }
 
+export function getSupportedQualifiers(statementModel: STNode): string[] {
+    let qualifierList: string[];
+    switch (statementModel.kind.toString()) {
+        case "LocalVarDecl":
+            qualifierList = ["final"];
+            break;
+        case "ModuleVarDecl":
+            qualifierList = ["public", "final", "isolated"];
+            break;
+        case "ConstDeclaration":
+        case "TypeDefinition":
+            qualifierList = ["public"];
+            break;
+    }
+    return qualifierList;
+}
+
+export function isQualifierSupportedStatements(statementMode: STNode): boolean {
+    return STKindChecker.isLocalVarDecl(statementMode)
+        || STKindChecker.isConstDeclaration(statementMode)
+        || STKindChecker.isModuleVarDecl(statementMode)
+        || STKindChecker.isTypeDefinition(statementMode);
+}
+
+export function getQualifierUpdateModelPosition(statement: any, qualifier: string) {
+    let position: NodePosition;
+    if (qualifier === "public" || qualifier === "private") {
+        position = {
+            startLine: statement.position.startLine,
+            startColumn: statement.position.startColumn,
+            endLine: statement.position.startLine,
+            endColumn: statement.position.startColumn,
+        }
+    } else if (qualifier === "final" || qualifier === "isolated") {
+        if (STKindChecker.isModuleVarDecl(statement) && statement?.visibilityQualifier) {
+            position = {
+                startLine: statement.visibilityQualifier.position.endLine,
+                startColumn: statement.visibilityQualifier.position.endColumn,
+                endLine: statement.visibilityQualifier.position.endLine,
+                endColumn: statement.visibilityQualifier.position.endColumn,
+            }
+        } else {
+            position = {
+                startLine: statement.position.startLine,
+                startColumn: statement.position.startColumn,
+                endLine: statement.position.startLine,
+                endColumn: statement.position.startColumn,
+            }
+        }
+    }
+    return position;
+}
+
+export function getQualifierPosition(statement: any, qualifier: string) {
+    let position: NodePosition;
+    if (qualifier === "public" || qualifier === "private") {
+        position = {
+            ...statement?.visibilityQualifier?.position
+        }
+    } else if (STKindChecker.isModuleVarDecl(statement)) {
+        statement.qualifiers.map((keyword: STNode) => {
+            if (keyword.value === qualifier) {
+                position = { ...keyword.position }
+            }
+        });
+    } else if (qualifier === "final" && STKindChecker.isLocalVarDecl(statement)) {
+        position = { ...statement.finalKeyword.position }
+    }
+    return position;
+}
+
+export function getFilteredQualifiers(statement: ModuleVarDecl, qualifierList: string[], checkedList: string[]) {
+    // context based qualifier filtering for configurable
+    statement?.qualifiers.map((node: STNode) => {
+        if (node.value === "configurable") {
+            qualifierList = ["public"]
+        }
+    });
+    // filtering of isolated and public based on the checked keyword and ModuleVarDecl without initialization
+    if (checkedList.includes("public") || !statement?.initializer) {
+        qualifierList = qualifierList.filter((element) => {
+            return element !== 'isolated';
+        });
+    }
+    if (checkedList.includes("isolated")) {
+        qualifierList = qualifierList.filter((element) => {
+            return element !== 'public';
+        });
+    }
+    return qualifierList;
+}
+
 export function getParamHighlight(currentModel: STNode, param: ParameterInfo) {
     return (
         currentModel && param ?
@@ -1023,4 +1145,49 @@ export function isBalVersionUpdateOne(version: string): boolean{
     const splittedVersions = versionStr[0]?.split(".");
     return parseInt(splittedVersions[0], 10) === 2201 && parseInt(splittedVersions[1], 10) === 1
         && parseInt(splittedVersions[2], 10) === 1 ;
+}
+
+export function getContentFromSource(source: string, position: NodePosition) {
+    const splitSource: string[] = source.split("\n");
+    let sliceContent = "";
+    if (splitSource?.length) {
+        for (let line = position.startLine; line <= (position.endLine || position.startLine); line++) {
+            sliceContent += splitSource[line];
+        }
+    }
+    return sliceContent;
+}
+
+export function getStatementPosition(source: string, statement: string, targetPosition: NodePosition): NodePosition {
+    const newStartLine = getStatementLine(source, statement);
+    if (newStartLine !== targetPosition.startLine) {
+        const position = { ...targetPosition };
+        position.startLine = newStartLine;
+        if (targetPosition.endLine) {
+            position.endLine =
+                targetPosition.endLine === targetPosition.startLine
+                    ? newStartLine
+                    : targetPosition.endLine + (newStartLine - targetPosition.startLine);
+        }
+        return position;
+    }
+    return targetPosition;
+}
+
+export function getStatementLine(source: string, statement: string): number {
+    const stmtFirstLine = statement.split('\n')[0];
+    const sourceLines = source.split('\n');
+    let stmtNewFirstLine = 0;
+    sourceLines.forEach((sourceLine, line) => {
+        if (sourceLine.includes(stmtFirstLine)){
+            stmtNewFirstLine = line;
+            return;
+        }
+    });
+    return stmtNewFirstLine;
+}
+
+export function filterCodeActions(codeActions: CodeAction[]): CodeAction[] {
+    const filteredCodeActions = codeActions?.filter((action) => action.kind === "quickfix");
+    return filteredCodeActions || codeActions;
 }

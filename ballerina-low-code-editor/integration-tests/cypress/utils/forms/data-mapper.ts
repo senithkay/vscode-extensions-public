@@ -86,6 +86,10 @@ export class DataMapper {
         cy.get(`[data-testid="data-mapper-config-delete-output"]`).click({ timeout: 10000 });
     }
 
+    static clickConfigUpdateBtn = () => {
+        this.getForm().contains("button","Update").should('not.be.disabled').click({force: true});
+    }
+
     static saveConfig = () => {
         this.containsValidFnName();
         this.getForm().contains("Save").should('not.be.disabled').click({force: true});
@@ -97,7 +101,7 @@ export class DataMapper {
 
     static getQueryExprNode = (name: string) => cy.get(`[data-testid="expandedQueryExpr.${name}-node"]`)
 
-    static getTargetNode = (name: string) => cy.get(`[data-testid="mappingConstructor.${name}-node"]`)
+    static getTargetNode = (name?: string) => cy.get(`[data-testid="mappingConstructor${name ? `.${name}` : ''}-node"]`)
 
     static getMappingPort = (targetPort: string) => cy.get(`[data-name='mappingConstructor.${targetPort}.IN']`)
 

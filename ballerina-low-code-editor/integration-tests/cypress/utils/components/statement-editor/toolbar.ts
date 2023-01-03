@@ -42,4 +42,32 @@ export class Toolbar {
         return this;
     }
 
+    static clickOperator(selectedOperator: string) {
+        cy.get(`[data-testid="toolbar-operators"]`).within(() => {
+            cy.contains(`[data-testid="operator-value"]`, selectedOperator)
+                .click({ force: true })
+        });
+        return this;
+    }
+
+    static clickMoreExpressions() {
+        cy.get(`[data-testid="toolbar-expressions"]`)
+            .click()
+        return this;
+    }
+
+    static addQualifier(selectedQualifier: string) {
+        cy.get(`[data-testid="toolbar-qualifier-options"]`)
+            .click()
+        cy.get(`[data-testid="qualifier-list-item"]`)
+            .children(`[data-testid="qualifier-list-item-label"]`)
+            .children()
+            .contains(selectedQualifier)
+            .parent()
+            .parent()
+            .children(`[data-testid="qualifier-check"]`)
+            .click();
+        return this;
+    }
+
 }

@@ -46,6 +46,7 @@ import {
     TupleTypeDesc,
     TypeCastExpression,
     TypedBindingPattern,
+    TypeDefinition,
     TypeParameter,
     TypeTestExpression,
     UnaryExpression,
@@ -260,11 +261,15 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitModuleVarDecl(node: ModuleVarDecl) {
         if (!this.isNodeFound) {
-            node.qualifiers.map((qualifier: STNode) => {
-                if (isPositionsEquals(this.deletePosition, qualifier.position)) {
-                    this.setProperties("", qualifier.position);
-                }
-            });
+            if (node.visibilityQualifier && isPositionsEquals(this.deletePosition, node.visibilityQualifier.position)) {
+                this.setProperties("", node.visibilityQualifier.position);
+            } else if (node.qualifiers) {
+                node.qualifiers.map((qualifier: STNode) => {
+                    if (isPositionsEquals(this.deletePosition, qualifier.position)) {
+                        this.setProperties("", qualifier.position);
+                    }
+                });
+            }
         }
     }
 
@@ -582,8 +587,18 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitConstDeclaration(node: ConstDeclaration) {
-        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node?.typeDescriptor?.position)){
-            this.setProperties('', node?.typeDescriptor?.position);
+        if (!this.isNodeFound) {
+            if (isPositionsEquals(this.deletePosition, node?.typeDescriptor?.position)){
+                this.setProperties('', node?.typeDescriptor?.position);
+            } else if (isPositionsEquals(this.deletePosition, node.visibilityQualifier?.position)) {
+                this.setProperties('', node.visibilityQualifier.position);
+            }
+        }
+    }
+
+    public beginVisitTypeDefinition(node: TypeDefinition) {
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.visibilityQualifier?.position)) {
+            this.setProperties('', node.visibilityQualifier.position);
         }
     }
 

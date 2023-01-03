@@ -10,17 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useContext, useEffect, useState } from "react";
+// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda
+import React, { useState } from "react";
 
 import styled from "@emotion/styled";
-import { Grid } from "@material-ui/core";
+import { Box, Checkbox, FormControlLabel, Grid } from "@material-ui/core";
 import { FormTextInput, PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import camelCase from 'lodash.camelcase';
 
-import { getRecordCompletions } from "../../../Diagram/utils/ls-utils";
-import { CurrentFileContext } from "../../Context/current-file-context";
-import { LSClientContext } from "../../Context/ls-client-context";
 import { CompletionResponseWithModule, TypeBrowser } from "../TypeBrowser";
 
 import { DataMapperInputParam } from "./types";
@@ -32,24 +30,27 @@ interface InputParamEditorProps {
     onUpdate?: (index: number, param: DataMapperInputParam) => void;
     onCancel?: () => void;
     validateParamName?: (paramName: string) => { isValid: boolean, message: string };
-    imports: string[];
-    fnSTPosition: NodePosition;
-    currentFileContent: string;
+    isArraySupported: boolean;
+    completions: CompletionResponseWithModule[];
+    loadingCompletions: boolean;
+    hideName?: boolean;
 }
 
 export function InputParamEditor(props: InputParamEditorProps) {
 
-    const { param, onSave, onUpdate, index, onCancel, validateParamName, currentFileContent, fnSTPosition, imports } = props;
+    const { param, onSave, onUpdate, index, onCancel, validateParamName, isArraySupported, completions, loadingCompletions, hideName } = props;
 
     const initValue: DataMapperInputParam = param ? { ...param } : {
         name: "",
         type: "",
+        isArray: false,
     };
 
     const [paramType, setParamType] = useState<string>(param?.type || "");
     const [paramName, setParamName] = useState<string>(param?.name || "");
     const [pramError, setParamError] = useState<string>("");
     const [isValidParam, setIsValidParam] = useState(true);
+    const [isArray, setIsArray] = useState<boolean>(param?.isArray);
 
     const validateNameValue = (value: string) => {
         if (value && validateParamName) {
@@ -62,29 +63,13 @@ export function InputParamEditor(props: InputParamEditorProps) {
         setParamError("");
         return true;
     };
-    const [fetchingCompletions, setFetchingCompletions] = useState(false);
-    const langClientPromise = useContext(LSClientContext);
-
-
-    const { path, content } = useContext(CurrentFileContext);
-
-    const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
-
-    useEffect(() => {
-        void (async () => {
-            setFetchingCompletions(true);
-            const allCompletions = await getRecordCompletions(currentFileContent, langClientPromise, imports,
-                                            fnSTPosition , path)
-            setRecordCompletions(allCompletions);
-            setFetchingCompletions(false);
-        })();
-    }, [content]);
 
     const handleOnSave = () => {
         onSave({
             ...initValue,
             name: paramName,
             type: paramType,
+            isArray
         });
     };
 
@@ -93,6 +78,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
             ...initValue,
             name: paramName,
             type: paramType,
+            isArray
         });
     };
 
@@ -105,29 +91,19 @@ export function InputParamEditor(props: InputParamEditorProps) {
 
     return (
         <ParamEditorContainer>
-            <div>
-                <Grid container={true} spacing={1}>
-                    <Grid item={true} xs={8}>
-                        <IputLabel>
-                            Type
-                        </IputLabel>
-                    </Grid>
-                    <Grid item={true} xs={4}>
-                        <IputLabel>
-                            Name
-                        </IputLabel>
-                    </Grid>
+            <Grid container={true} spacing={1}>
+                <Grid item={true} xs={hideName ? 12 : 8}>
+                    <IputLabel>Type</IputLabel>
+                    <TypeBrowser
+                        type={paramType}
+                        onChange={handleParamTypeChange}
+                        isLoading={loadingCompletions}
+                        recordCompletions={completions}
+                    />
                 </Grid>
-                <Grid container={true} item={true} spacing={2}>
-                    <Grid item={true} xs={8}>
-                        <TypeBrowser
-                            type={paramType}
-                            onChange={handleParamTypeChange}
-                            isLoading={fetchingCompletions}
-                            recordCompletions={recordCompletions}
-                        />
-                    </Grid>
+                {!hideName && (
                     <Grid item={true} xs={4}>
+                        <IputLabel>Name</IputLabel>
                         <FormTextInput
                             defaultValue={paramName}
                             customProps={{ validate: validateNameValue }}
@@ -135,26 +111,40 @@ export function InputParamEditor(props: InputParamEditorProps) {
                             errorMessage={pramError}
                         />
                     </Grid>
+                )}
+
+            </Grid>
+            <Box mt={1} />
+            <Grid container={true} item={true} spacing={2}>
+                <Grid item={true} xs={6}>
+                    {isArraySupported && <FormControlLabel
+                        control={(
+                            <Checkbox
+                                checked={isArray}
+                                onChange={(event) => setIsArray(event.target.checked)}
+                                color="primary"
+                            />
+                        )}
+                        label="Is Array"
+                    />}
 
                 </Grid>
-                <Grid container={true} item={true} spacing={2}>
-                    <Grid item={true} xs={12}>
-                        <ButtonContainer>
-                            <SecondaryButton
-                                text="Cancel"
-                                fullWidth={false}
-                                onClick={onCancel}
-                            />
-                            <PrimaryButton
-                                text={onUpdate ? "Update" : " Add"}
-                                disabled={!paramName || !paramType || pramError !== "" || !isValidParam}
-                                fullWidth={false}
-                                onClick={onUpdate ? handleOnUpdate : handleOnSave}
-                            />
-                        </ButtonContainer>
-                    </Grid>
+                <Grid item={true} xs={6}>
+                    <ButtonContainer>
+                        <SecondaryButton
+                            text="Cancel"
+                            fullWidth={false}
+                            onClick={onCancel}
+                        />
+                        <PrimaryButton
+                            text={onUpdate ? "Update" : " Add"}
+                            disabled={!paramName || !paramType || pramError !== "" || !isValidParam}
+                            fullWidth={false}
+                            onClick={onUpdate ? handleOnUpdate : handleOnSave}
+                        />
+                    </ButtonContainer>
                 </Grid>
-            </div>
+            </Grid>
         </ParamEditorContainer>
     );
 }
@@ -167,8 +157,8 @@ const ParamEditorContainer = styled.div(() => ({
     border: "1px solid #EEEEEE",
     borderRadius: "5px",
     backgroundColor: "#F7F8FB",
-    padding: "10px",
-    margin: "5px"
+    padding: "15px 10px",
+    margin: "5px",
 }));
 
 const IputLabel = styled.div(() => ({
