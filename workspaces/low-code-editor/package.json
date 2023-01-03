@@ -31,7 +31,7 @@
     "build": "npm run build --workspaces",
     "storybook": "npm run storybook --workspace=low-code-editor",
     "test": "npm run test --workspace integration-tests && npm run test --workspace configurable-editor",
-    "postbuild": "copyfiles -f distribution/build/BLCEditor.js ../resources/jslibs"
+    "postbuild": "copyfiles -f distribution/build/BLCEditor.js ../../resources/jslibs"
   },
   "dependencies": {
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "file:low-code-editor-commons"
