@@ -622,7 +622,9 @@
         "workspaces/perf-forecast",
         "workspaces/project-design-diagrams",
         "workspaces/swagger",
-        "workspaces/variable-view"
+        "workspaces/variable-view",
+        "workspaces/choreo-webviews",
+        "workspaces/choreo-extension"
     ],
     "scripts": {
         "prebuild": "npm run init-submodules && npm i --legacy-peer-deps",

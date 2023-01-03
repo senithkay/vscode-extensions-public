@@ -114,20 +114,21 @@
     }
   },
   "scripts": {
-    "install:all": "npm install && cd webview-ui && npm install",
-    "start:webview": "cd webview-ui && npm run start",
-    "build:webview": "cd webview-ui && npm run build",
-    "test:webview": "cd webview-ui && npm run test",
-    "vscode:prepublish": "npm run build:webview && npm run package",
     "compile": "webpack",
     "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
+    "package": "npm run compile && npx copy-files-from-to && npx vsce package",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
+  "copyFiles": [
+      {
+          "from": "node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js",
+          "to": "resources/jslibs/choreo-vscode-webviews.js"
+      }
+  ],
   "devDependencies": {
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
@@ -136,6 +137,7 @@
     "@typescript-eslint/eslint-plugin": "^5.42.0",
     "@typescript-eslint/parser": "^5.42.0",
     "@vscode/test-electron": "^2.2.0",
+    "copy-files-from-to": "^3.6.0",
     "eslint": "^8.26.0",
     "glob": "^8.0.3",
     "mocha": "^10.1.0",
@@ -146,6 +148,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "@wso2-enterprise/choreo-vscode-webviews": "1.0.0",
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "axios": "^1.2.0",
     "gql-query-builder": "^3.8.0",

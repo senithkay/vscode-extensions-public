@@ -50,11 +50,9 @@ export class ProjectCreationWizard {
   private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
     // The JS file from the React build output
     const scriptUri = getUri(webview, extensionUri, [
-      "webview-ui",
-      "build",
-      "static",
-      "js",
-      "main.js",
+      "resources",
+      "jslibs",
+      "choreo-vscode-webviews.js"
     ]);
 
     return /*html*/ `

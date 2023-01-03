@@ -1,6 +1,6 @@
 {
-  "name": "hello-world",
-  "version": "0.0.1",
+  "name": "@wso2-enterprise/choreo-vscode-webviews",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "EXTEND_ESLINT=true react-scripts start",
