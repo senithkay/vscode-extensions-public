@@ -734,7 +734,7 @@ export const operatorsEdits : ExpressionGroup = {
 }
 
 export const plusOperator : ExpressionGroup = {
-    name: "Type Descriptors",
+    name: "Plus Operator",
     expressions: [
         {
             name: "Plus",
