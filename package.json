@@ -347,15 +347,6 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.show.diagram.alt",
-                "title": "Show Diagram Alt",
-                "icon": {
-                    "dark": "./resources/images/icons/design-view-inverse.svg",
-                    "light": "./resources/images/icons/design-view.svg"
-                },
-                "category": "Ballerina"
-            },
-            {
                 "command": "ballerina.project.run",
                 "title": "Run",
                 "icon": {
