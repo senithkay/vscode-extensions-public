@@ -69,7 +69,6 @@ export default function Toolbar(props: ToolbarProps) {
         activeEditorId
     } = editorCtx;
     const toolbarCtx = useContext(ToolbarContext);
-    const { inlineDocumentHandler } = props;
 
     React.useEffect(() => {
         const client = KeyboardNavigationManager.getClient();
