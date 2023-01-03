@@ -45,11 +45,7 @@ import { useStatementEditorToolbarStyles } from "../styles";
 import StatementQualifiers from "./StatementQualifiers";
 import { ToolbarOperators } from "./ToolbarOperators";
 
-interface ToolbarProps {
-    inlineDocumentHandler: (docBtnEnabled: boolean) => void
-}
-
-export default function Toolbar(props: ToolbarProps) {
+export default function Toolbar() {
     const statementEditorClasses = useStatementEditorToolbarStyles();
     const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo, config } = useContext(StatementEditorContext);
     const {
