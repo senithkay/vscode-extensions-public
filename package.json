@@ -627,6 +627,7 @@
     },
     "main": "./dist/extension",
     "workspaces": [
+        "workspaces/low-code-editor",
         "workspaces/bbe",
         "workspaces/graphql",
         "workspaces/notebook-renderer",
@@ -657,16 +658,13 @@
         "build:designDiagram": "npm run build --workspace=workspaces/project-design-diagrams",
         "build:swagger": "npm run build --workspace=workspaces/swagger",
         "build:variableView": "npm run build --workspace=workspaces/variable-view",
-        "build:lce": "npm --prefix ballerina-low-code-editor run build",
-        "build": "npm run build:lce && npm run build --workspaces",
+        "build:lce": "npm run build --workspace=workspaces/low-code-editor",
+        "build": "npm run build --workspaces",
         "postbuild": "npm run package"
     },
     "dependencies": {
         "@types/lodash": "^4.14.189",
         "@types/vscode": "^1.67.0",
-        "@wso2-enterprise/ballerina-configurable-editor": "next",
-        "@wso2-enterprise/ballerina-low-code-editor-distribution": "next",
-        "@wso2-enterprise/ballerina-low-code-edtior-commons": "next",
         "cors-anywhere": "^0.4.4",
         "file-uri-to-path": "^2.0.0",
         "glob": "^7.1.7",
