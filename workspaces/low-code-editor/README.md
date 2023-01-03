@@ -1,62 +1,52 @@
-# Overview
+# @wso2-enterprise/low-code-editor
 
-This is a mono repo containing several npm modules used for Ballerina Low Code Editor, Choreo Console and VSCode Plugin.
+## Getting Started 
 
-## Modules List
+### Developer Guide
 
-- **lang-service** : Contains utils to start/connect to Ballerina Lang Server with NodeJs
-- **syntax-tree**  : Contains utils and typescript interfaces related to Ballerina Syntax Tree which can be used to process a syntax tree JSON in a javascript/typescript project.
-- **low-code-editor-commons** : Contains type definitions and shared components between all modules related to Ballerina Low Code Editor
-- **statement-editor** : Contains components related to Ballerina Statement Editor which is a part of Low Code Editor
-- **configurable-editor** : Contains components related to Ballerina Configurable Editor which is a part of Low Code Editor in VSCode/Choreo Console
-- **low-code-editor** : Contains components related to Ballerina Low Code Editor and bundles all the modules needed to run Low Code Editor in VSCode/Choreo Console
+> Avoid working directly on `wso2-enterprise/ballerina-low-code-editor`, fork this repositoty to your account first.
 
-## Developer Guide
+```
+git clone https://github.com/<your-username>/ballerina-low-code-editor.git
+cd ballerina-low-code-editor/low-code-editor
+npm install
+```
 
-### Requirements
+#### For local development
 
-- NodeJs : 16.x
-- Setup [VSCode Ext Development Enviornment](https://github.com/wso2-enterprise/ballerina-plugin-vscode) : (For testing Ballerina Low Code Editor with VSCode)
+You need to run `npm link` inside `low-code-editor/` directory to test `low-code-editor` library with `choreo-console` in local environment.
 
+```
+npm link
+npm run watch
+```
 
-### Local Development
+```
+cd <project-directory>
+npm link @wso2-enterprise/ballerina-low-code-editor
+```
 
-First, you need to build the all the modules using ```npm run build``` command at repo root.
-This will download all the dependencies and wireup inter dependencies using symlinks.
+> You can use `npm unlink` command inside the same directory to force switch back to remote referance of the package. You might want to run `npm install` on parent repository also.
 
-Depending on the module you want to develop, you can choose to open any individual module folder in your IDE or open the whole repository if you are planning to make changes across multiple modules.
+Currently you can't test `low-code-editor` locally without support of `choreo-console`.
 
-You can run any command inside a single module by passing the ```--workspace``` argument to ```npm run <cmd>```. Or to run a command for all the modules, you can use ```--workspaces``` argument
+#### Publishing guide for `low-code-editor`
 
-some examples 
-- To build statement editor ```npm run build --workspace=statement-editor```
-- To run tests in all modules ```npm run test --workspaces```
+- [Generate a personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token)  in github if you dont have one already.
+- Create new file named `.npmrc` inside `low-code-editor` directory.
+- Add the follwing lines to the file.
 
-Please check <package.json> - we have added some common cmds as scripts there to help you.
-
-#### Changing and testing dependant modules
-
-For example, statement-editor module is being used by low-code-editor module. Lets say, you want to change statement-editor and test low-code-editor with those changes included. You can follow below steps in this case.
-
-- Make necessary changes in statement-editor and run ```npm run build:se```
-- Then build low-code-editor by running ```npm run build:lce```
-
-If you want keep changing while doing the changes
-
-- Run ```npm run watch --workspace=statement-editor```
-- Run ```npm run watch --workspace=low-code-editor```
-
-#### IMPORTANT! Installing dependencies to workspaces
-
-Always run the ```npm i``` command from repo root with relavant workspace args added at the end to indicate to which these should be installed.
-
-eg: ```  npm i -D source-map-loader --workspace low-code-editor ```
-
-If you do a npm i from workspace directory, it will create a new package-lock there and can create inconsistencies. 
-
-## Links
-
-- [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
-
-### Note
-The VSCode icons used within the low-code-editor's statement-editor is by [react-icons](https://react-icons.github.io/react-icons/icons?name=vsc) which is licensed under CC By 4.0
+```bash
+@wso2-enterprise:registry = https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken = [PERSONAL_ACCESS_TOKEN]
+always-auth = true
+```
+- Run below command to state package version you want to publish. It'll update the package.json.
+```bash
+npm version <major|minor|patch>
+```
+- Run the following command inside `low-code-editor` directory.
+```bash
+npm publish --tag latest
+```
+- This will publish the package to `@wso2-enterprise` github package registry. You can check the published package from the [packages page](https://github.com/wso2-enterprise/ballerina-low-code-editor/packages).
