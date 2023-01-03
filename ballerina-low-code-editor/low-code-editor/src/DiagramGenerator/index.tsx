@@ -79,7 +79,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
         resolveMissingDependency,
         openInDiagram,
         experimentalEnabled,
-        focusPosition
     } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
@@ -138,14 +137,14 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
 
-                if (focusPosition) {
-                    const stFindingVisitor = new STFindingVisitor();
-                    stFindingVisitor.setPosition(focusPosition);
-                    traversNode(vistedSyntaxTree, stFindingVisitor);
-                    setSyntaxTree(stFindingVisitor.getSTNode());
-                } else {
-                    setSyntaxTree(vistedSyntaxTree);
-                }
+                // if (focusPosition) {
+                //     const stFindingVisitor = new STFindingVisitor();
+                //     stFindingVisitor.setPosition(focusPosition);
+                //     traversNode(vistedSyntaxTree, stFindingVisitor);
+                //     setSyntaxTree(stFindingVisitor.getSTNode());
+                // } else {
+                //     setSyntaxTree(vistedSyntaxTree);
+                // }
 
                 setFullSyntaxTree(vistedSyntaxTree);
 
@@ -198,14 +197,14 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
 
-                if (focusPosition) {
-                    const stFindingVisitor = new STFindingVisitor();
-                    stFindingVisitor.setPosition(focusPosition);
-                    traversNode(vistedSyntaxTree, stFindingVisitor);
-                    setSyntaxTree(stFindingVisitor.getSTNode());
-                } else {
-                    setSyntaxTree(vistedSyntaxTree);
-                }
+                // if (focusPosition) {
+                //     const stFindingVisitor = new STFindingVisitor();
+                //     stFindingVisitor.setPosition(focusPosition);
+                //     traversNode(vistedSyntaxTree, stFindingVisitor);
+                //     setSyntaxTree(stFindingVisitor.getSTNode());
+                // } else {
+                //     setSyntaxTree(vistedSyntaxTree);
+                // }
 
                 setFullSyntaxTree(vistedSyntaxTree);
 
@@ -397,15 +396,15 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                                                     }
                                                 ],
                                             })
-					    const { 
-						syntaxTree: stWithoutDiagnostics 
-					    } = await langClient.getSyntaxTree({ documentIdentifier: { uri } });
-					    vistedSyntaxTree = await getLowcodeST(
-							    stWithoutDiagnostics, 
-							    filePath, 
-							    langClient, 
-							    experimentalEnabled, 
-							    showMessage);
+                                            const {
+                                                syntaxTree: stWithoutDiagnostics
+                                            } = await langClient.getSyntaxTree({ documentIdentifier: { uri } });
+                                            vistedSyntaxTree = await getLowcodeST(
+                                                stWithoutDiagnostics,
+                                                filePath,
+                                                langClient,
+                                                experimentalEnabled,
+                                                showMessage);
                                             setSyntaxTree(vistedSyntaxTree);
                                         }
                                         setModulePullInProgress(false);

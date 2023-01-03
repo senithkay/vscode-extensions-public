@@ -24,13 +24,14 @@ export interface DiagramFocus {
 }
 
 export interface EditorState {
+    filePath: string;
     projectPaths: WorkspaceFolder[],
     langClientPromise: Promise<DiagramEditorLangClientInterface>;
     startColumn: number; // TODO: remove
     startLine: number; // TODO: remove
     lastUpdatedAt: string;
     experimentalEnabled?: boolean;
-    diagramFocus: DiagramFocus;
+    openInDiagram: NodePosition;
 }
 
 export interface PFSession {
@@ -81,9 +82,9 @@ export const WorkspaceOverview: React.FC<EditorProps> = (props: EditorProps) => 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, getPFSession, showPerformanceGraph, getPerfDataFromChoreo,
-        sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
-        showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-        runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
+            sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
+            showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
+            runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {

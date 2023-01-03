@@ -152,7 +152,7 @@ export function OverviewDiagram(props: EditorProps) {
             />
             {!diagramRenderCondition && viewSelector}
             {!diagramRenderCondition && renderView()}
-            {diagramRenderCondition && <Diagram {...props} filePath={selectedFile} focusPosition={focusPosition} />}
+            {/* {diagramRenderCondition && <Diagram {...props} filePath={selectedFile} focusPosition={focusPosition} />} */}
         </OverviewDiagramContextProvider>
     )
 }
