@@ -10,25 +10,25 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
-import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams-core';
+import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from "../../Port";
+import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from '../../utils/constants';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
+import { PrimitiveTypeItemWidget } from '../commons/PrimitiveTypeItemWidget';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 
 import {
     LetClauseNode,
     QUERY_EXPR_SOURCE_NODE_TYPE
 } from './LetClauseNode';
-import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from '../../utils/constants';
-import { PrimitiveTypeItemWidget } from '../commons/PrimitiveTypeItemWidget';
-import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 @injectable()
 @singleton()
@@ -38,7 +38,7 @@ export class LetClauseNodeFactory extends AbstractReactFactory<LetClauseNode, Di
     }
 
     generateReactWidget(event: { model: LetClauseNode; }): JSX.Element {
-        if(event.model.typeDef.typeName === PrimitiveBalType.Record || event.model.typeDef.typeName === PrimitiveBalType.Array ){
+        if (event.model.typeDef.typeName === PrimitiveBalType.Record || event.model.typeDef.typeName === PrimitiveBalType.Array){
             return (
                 <RecordTypeTreeWidget
                     engine={this.engine}
@@ -50,7 +50,7 @@ export class LetClauseNodeFactory extends AbstractReactFactory<LetClauseNode, Di
                 />
             );
         }
-        
+
         return (
             <PrimitiveTypeItemWidget
                 engine={this.engine}
@@ -62,7 +62,7 @@ export class LetClauseNodeFactory extends AbstractReactFactory<LetClauseNode, Di
         )
     }
 
-    generateModel(event: { initialConfig: any }): any {
+    generateModel(): LetClauseNode {
         return undefined;
     }
 }

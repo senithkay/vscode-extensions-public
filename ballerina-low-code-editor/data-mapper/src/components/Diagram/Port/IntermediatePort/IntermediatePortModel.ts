@@ -20,13 +20,6 @@ export class IntermediatePortModel extends PortModel<PortModelGenerics & Interme
 
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
-		lm.registerListener({
-			sourcePortChanged: (evt) => {
-			},
-			targetPortChanged: async (evt) => {
-				
-			}
-		});
 		return lm;
 	}
 

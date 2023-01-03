@@ -188,4 +188,20 @@ export class EditorPane {
             .should("be.visible");
         return this;
     }
+
+    static clickCodeActionButton(index = 0) {
+        cy.wait(1000);
+        cy.get(`[data-testid="code-action-btn"][data-index="${index}"] [data-testid="code-action-icon"]`)
+            .click({ force: true });
+        cy.wait(1000);
+        return this;
+    }
+
+    static clickCodeActionMenuItem(index = 0) {
+        cy.wait(1000);
+        cy.get(`[data-testid="code-action-menu-item"][data-index="${index}"]`)
+            .click();
+        cy.wait(1000);
+        return this;
+    }
 }

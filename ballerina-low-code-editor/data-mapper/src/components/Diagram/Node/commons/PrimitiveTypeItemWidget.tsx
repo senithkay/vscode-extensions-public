@@ -13,16 +13,17 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
+import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
 import { getTypeName } from "../../utils/dm-utils";
 
-import { TreeContainer, TreeHeader, TreeBody } from './Tree/Tree';
+import { TreeContainer, TreeHeader } from './Tree/Tree';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
     createStyles({
         typeLabel: {
             marginLeft: "3px",
@@ -53,6 +54,14 @@ const useStyles = makeStyles((theme: Theme) =>
             "&:hover": {
                 overflow: "visible"
             }
+        },
+        queryPortWrap: {
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center'
         }
     }),
 );
@@ -94,9 +103,15 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
         </span>
     );
 
+    /** Invisible port to which the right angle link from the query header/clauses are connected to */
+    const invisiblePort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
     return (
-        <TreeContainer>
+        <TreeContainer data-testid={`${id}-node`}>
+            <div className={classes.queryPortWrap}>
+                {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
+            </div>
+
             <TreeHeader>
                 <span className={classes.treeLabelInPort}>
                     {portIn &&

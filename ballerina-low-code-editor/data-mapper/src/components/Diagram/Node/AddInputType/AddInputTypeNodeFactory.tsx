@@ -17,7 +17,6 @@ import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
-import { AddIOTypeNodeWidget } from "../commons/AddIOTypeNodeWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import { AddInputTypeNode, ADD_INPUT_TYPE_NODE_TYPE } from './AddInputTypeNode';
@@ -29,14 +28,14 @@ export class AddInputTypeNodeFactory extends AbstractReactFactory<AddInputTypeNo
 		super(ADD_INPUT_TYPE_NODE_TYPE);
 	}
 
-	generateReactWidget(event: { model: AddInputTypeNode; }): JSX.Element {
+	generateReactWidget(): JSX.Element {
 		return (
 			<></>
 		);
 	}
 
 
-	generateModel(event: { initialConfig: any }): any {
+	generateModel(): AddInputTypeNode {
 		return undefined;
 	}
 }

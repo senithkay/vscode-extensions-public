@@ -52,13 +52,13 @@ export function SelectInput(props: SelectInputProps) {
 
     return (
         <FormControl variant="standard" size="small" fullWidth={true}>
-            <InputLabel id="demo-simple-select-standard-label">value</InputLabel>
             <Select
                 id={id}
                 value={inputValue}
                 required={isRequired}
                 onChange={handleChange}
                 style={{fontSize: 14}}
+                variant="outlined"
             >
                 {reactElements}
             </Select>

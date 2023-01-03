@@ -85,6 +85,7 @@ export function KeywordComponent(props: KeywordComponentProps) {
 
     return (
         <span
+            data-testid="Keyword"
             onMouseOver={onMouseOver}
             onMouseOut={onMouseOut}
             className={styleClassNames}

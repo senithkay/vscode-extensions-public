@@ -86,6 +86,7 @@ enum EXTENDED_APIS {
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
     SYMBOL_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
     SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
+    SYMBOL_TYPES_FROM_FN_SIGNATURE = 'ballerinaSymbol/getTypesFromFnDefinition',
     COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
     DOCUMENT_ST_FUNCTION = 'ballerinaDocument/syntaxTreeByName'
 }
@@ -437,6 +438,14 @@ export interface TypeFromSymbolRequest {
     positions: LinePosition[];
 }
 
+export interface TypesFromFnDefinitionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    fnPosition: LinePosition;
+    returnTypeDescPosition: LinePosition;
+}
+
 export interface ResolvedTypeForSymbol {
     type: FormField;
     requestedPosition: LinePosition;
@@ -610,6 +619,13 @@ export class ExtendedLangClient extends LanguageClient {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL);
         return isSupported
             ? this.sendRequest<TypesFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL, params)
+            : Promise.resolve(null);
+    }
+
+    async getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Promise<TypesFromSymbolResponse | null> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPES_FROM_FN_SIGNATURE);
+        return isSupported
+            ? this.sendRequest<TypesFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPES_FROM_FN_SIGNATURE, params)
             : Promise.resolve(null);
     }
 
@@ -804,7 +820,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true },
                 {
                     name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true,
-                    getTypeFromExpression: true, getTypeFromSymbol: true
+                    getTypeFromExpression: true, getTypeFromSymbol: true, getTypesFromFnDefinition: true
                 },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true

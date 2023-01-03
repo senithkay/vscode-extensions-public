@@ -18,6 +18,7 @@ import { ConstDeclaration } from "@wso2-enterprise/syntax-tree";
 import { CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
+import { KeywordComponent } from "../../Keyword";
 import { TokenComponent } from "../../Token";
 
 interface ConstantDeclProps {
@@ -44,8 +45,7 @@ export function ConstantDeclC(props: ConstantDeclProps) {
 
     return (
         <>
-            {/*TODO: Use keyword component once it is available instead of the token component*/}
-            {model.visibilityQualifier && <TokenComponent model={model.visibilityQualifier} className={"keyword"}/>}
+            {model.visibilityQualifier && <KeywordComponent model={model.visibilityQualifier} />}
             <TokenComponent model={model.constKeyword} className={"keyword"} />
             {model.typeDescriptor && <ExpressionComponent model={model.typeDescriptor}/>}
             <ExpressionComponent model={model.variableName}/>

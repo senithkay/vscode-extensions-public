@@ -35,7 +35,8 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
     const headPorts = useRef<PortModel[]>([]);
 
-    const displayName: string = node.serviceObject.annotation.label ? node.serviceObject.annotation.label : node.serviceObject.path ?
+    const displayName: string = node.serviceObject.annotation && node.serviceObject.annotation.label ?
+        node.serviceObject.annotation.label : node.serviceObject.path ?
         node.serviceObject.path : node.serviceObject.serviceId;
 
     useEffect(() => {

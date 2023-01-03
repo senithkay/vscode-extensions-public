@@ -49,7 +49,7 @@ export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension,
             }
         }
 
-        if (!currentProject || currentProject === {}) {
+        if (!currentProject) {
             return;
         }
 

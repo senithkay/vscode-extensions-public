@@ -103,7 +103,9 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
         toolbar: {
             display: 'flex',
             width: '100%',
-            justifyContent: 'flex-end'
+            justifyContent: 'flex-start',
+            borderBottom: '1px solid #e6e7ec',
+            paddingLeft: '17px'
         },
         toolbarSet: {
             border: '1px solid #e6e7ec',
@@ -111,15 +113,91 @@ export const useStatementEditorToolbarStyles = makeStyles(() =>
             display: 'flex',
             marginLeft: '16px'
         },
+        toolbarOperators: {
+            display: 'flex',
+            flexDirection: 'row',
+            padding: 0,
+            color: '#40404B'
+        },
         toolbarIcons: {
             padding: '8px',
+            borderRadius: '5px',
+            margin: '5px 0',
             ...hoverColor1
+        },
+        toolbarOperatorsIcons: {
+            color: '#40404B',
+            padding: '0px 8px',
+            borderRadius: '5px',
+            margin: '5px 0px',
+            ...hoverColor1
+        },
+        toolbarMoreExpIcon: {
+            color: '#5567D5',
+            fontWeight: 1000,
+            fontFamily: 'monospace',
+            fontSize: '9px',
         },
         undoRedoSeparator: {
             width: '1px',
             borderRadius: '5px',
             boxShadow: 'inset 0 0 0 1px #E6E7EC'
-          }
+        },
+        qualifierListItem: {
+            "& .MuiListItem-root": {
+                padding: '0px',
+                display: "inline-block"
+            },
+            "& .MuiListItemText-root": {
+                minWidth: 'auto',
+                margin: '0 0 0 12px'
+            },
+            ...removePadding
+        },
+        QualifierCheckbox: {
+            float: 'right',
+            marginRight: 0,
+            color: '#40404B',
+            padding: '3px 9px 0 0',
+            "& .MuiCheckbox-colorSecondary.Mui-checked": {
+                color: "#2FA86C"
+            },
+            "&$checked": {
+                color: "#2FA86C",
+                paddingLeft: '0px',
+                "&:hover": {
+                    background: "transparent",
+                },
+                "& .MuiIconButton-label": {
+                    position: "relative"
+                },
+                "& .MuiIconButton-label::after": {
+                    content: '""',
+                    left: 1,
+                    top: 1,
+                    width: 19,
+                    height: 19,
+                    position: "absolute",
+                    backgroundColor: "#fff",
+                    zIndex: -1,
+                    borderRadius: 3,
+                }
+            },
+        },
+        checked: {},
+        QualifierDropdownBase: {
+            '& .MuiMenu-list': {
+                width: "110px",
+                border: "1px solid #DEE0E7",
+                borderRadius: '5px'
+            },
+        },
+        toolbarDivider: {
+            height: "70%",
+            alignSelf: "center",
+            marginRight: '7px',
+            marginLeft: '7px'
+        }
     }),
 );
 
@@ -896,7 +974,7 @@ export const useStatementEditorStyles = makeStyles(() =>
             backgroundColor: '#f9fafc',
             display: 'flex',
             flexDirection: 'column',
-            padding: "11px 0px 8px 0px",
+            padding: "0px 0px 8px 0px",
             borderBottom: '1px solid #e6e7ec'
         },
         statementExpressionTitle: {

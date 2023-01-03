@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-lambda
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
@@ -19,7 +20,7 @@ import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
-import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { FUNCTION_BODY_QUERY, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
@@ -36,11 +37,11 @@ export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveType
 	}
 
 	generateReactWidget(event: { model: PrimitiveTypeNode; }): JSX.Element {
-		let valueLabel;
-		let isParentSelectClause;
-		if (STKindChecker.isSelectClause(event.model.value)){
-			valueLabel = event.model.typeIdentifier.value || event.model.typeIdentifier.source;
-			isParentSelectClause = true;
+		let valueLabel: string;
+		if (STKindChecker.isSelectClause(event.model.value)
+			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
+		{
+			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
 		return (
 			<PrimitiveTypeOutputWidget
@@ -52,12 +53,11 @@ export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveType
 				typeName={event.model.typeName}
 				valueLabel={valueLabel}
 				deleteField={(node: STNode) => event.model.deleteField(node)}
-				isParentSelectClause={isParentSelectClause}
 			/>
 		);
 	}
 
-	generateModel(event: { initialConfig: any }): any {
+	generateModel(): PrimitiveTypeNode {
 		return undefined;
 	}
 }

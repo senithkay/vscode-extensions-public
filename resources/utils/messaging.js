@@ -472,6 +472,15 @@ function getLangClient() {
                 });
             });
         },
+        getTypesFromFnDefinition: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getTypesFromFnDefinition', [params], (resp) => {
+                    consoleLog(start, 'getTypesFromFnDefinition');
+                    resolve(resp);
+                });
+            });
+        },
         rename: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();

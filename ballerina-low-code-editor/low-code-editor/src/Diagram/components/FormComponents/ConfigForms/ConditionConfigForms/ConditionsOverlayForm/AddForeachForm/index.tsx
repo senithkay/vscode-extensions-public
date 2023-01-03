@@ -285,7 +285,8 @@ export function AddForeachForm(props: ForeachProps) {
                         experimentalEnabled,
                         ballerinaVersion,
                         isCodeServerInstance,
-                        openExternalUrl
+                        openExternalUrl,
+                        skipSemicolon: true
                     }
                 )
             ) : (

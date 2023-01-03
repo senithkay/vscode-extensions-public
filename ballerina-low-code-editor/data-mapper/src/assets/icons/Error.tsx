@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ErrorIcon(props: any) {
+export default function ErrorIcon() {
     return (
         <svg width="16px" height="15px" viewBox="0 0 16 15" >
         <g id="Test" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
