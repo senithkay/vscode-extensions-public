@@ -73,7 +73,7 @@ export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension,
             uri: Uri.file(filePath).toString()
         }
     }).then(response => {
-        const data = response as PackageConfigSchemaResponse
+        const data = response as PackageConfigSchemaResponse;
         if (data.configSchema === undefined || data.configSchema === null) {
             window.showErrorMessage('Unable to render the configurable editor: Error while '
                 + 'retrieving the configurable schema.');

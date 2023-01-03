@@ -1,0 +1,75 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "user": {
+            "type": "object",
+            "properties": {
+                "test": {
+                    "type": "object",
+                    "properties": {
+                        "age1": {
+                            "type": "number",
+                            "description": ""
+                        },
+                        "port1": {
+                            "type": "integer",
+                            "description": ""
+                        },
+                        "name1": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "height1": {
+                            "type": "number",
+                            "description": ""
+                        },
+                        "salary1": {
+                            "type": "number",
+                            "description": ""
+                        },
+                        "isAdmin1": {
+                            "type": "boolean",
+                            "description": ""
+                        },
+                        "age2": {
+                            "type": "number",
+                            "description": ""
+                        },
+                        "port2": {
+                            "type": "integer",
+                            "description": ""
+                        },
+                        "name2": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "height2": {
+                            "type": "number",
+                            "description": ""
+                        },
+                        "salary2": {
+                            "type": "number",
+                            "description": ""
+                        },
+                        "isAdmin2": {
+                            "type": "boolean",
+                            "description": ""
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "age1",
+                        "port1",
+                        "name1",
+                        "height1",
+                        "salary1",
+                        "isAdmin1"
+                    ]
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

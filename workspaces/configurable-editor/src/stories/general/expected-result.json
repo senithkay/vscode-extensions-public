@@ -1,0 +1,733 @@
+{
+    "id": "1",
+    "isRequired": true,
+    "name": "root",
+    "properties": [
+        {
+            "description": "Sample description of the discount configurable.",
+            "id": "1-2",
+            "isRequired": true,
+            "name": "discount",
+            "type": "float",
+            "value": "500.0"
+        },
+        {
+            "description": "Sample description of the testMode configurable.",
+            "id": "1-4",
+            "isRequired": true,
+            "name": "testMode",
+            "type": "boolean",
+            "value": true
+        },
+        {
+            "description": "",
+            "id": "1-5",
+            "isRequired": true,
+            "name": "country",
+            "type": "enum",
+            "value": "Sri Lanka"
+        },
+        {
+            "id": "1-6",
+            "isRequired": true,
+            "name": "mod1",
+            "properties": [
+                {
+                    "description": "",
+                    "id": "1-6-1",
+                    "isRequired": true,
+                    "name": "company",
+                    "properties": [
+                        {
+                            "id": "1-6-1-1",
+                            "isRequired": true,
+                            "name": "companyName",
+                            "type": "string",
+                            "value": "wso2"
+                        }
+                    ],
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "companyName": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "companyName"
+                        ],
+                        "name": "user/test4.mod1:0.1.0:Company",
+                        "description": ""
+                    },
+                    "type": "object"
+                },
+                {
+                    "description": "",
+                    "id": "1-6-2",
+                    "isRequired": false,
+                    "name": "id",
+                    "type": "integer",
+                    "value": null
+                }
+            ],
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "company": {
+                        "type": "object",
+                        "properties": {
+                            "companyName": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "companyName"
+                        ],
+                        "name": "user/test4.mod1:0.1.0:Company",
+                        "description": ""
+                    },
+                    "id": {
+                        "type": "integer",
+                        "description": ""
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "company"
+                ]
+            },
+            "type": "object"
+        },
+        {
+            "description": "Sample description of the person configurable.",
+            "id": "1-7",
+            "isRequired": true,
+            "name": "person",
+            "properties": [
+                {
+                    "id": "1-7-1",
+                    "isRequired": true,
+                    "name": "name",
+                    "type": "string",
+                    "value": "irushi"
+                },
+                {
+                    "id": "1-7-2",
+                    "isRequired": true,
+                    "name": "age",
+                    "type": "integer",
+                    "value": 20
+                },
+                {
+                    "id": "1-7-3",
+                    "isRequired": true,
+                    "name": "category",
+                    "properties": [
+                        {
+                            "id": "1-7-3-1",
+                            "isRequired": true,
+                            "name": "fullTime",
+                            "type": "boolean",
+                            "value": true
+                        }
+                    ],
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "fullTime": {
+                                "type": "boolean"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "fullTime"
+                        ],
+                        "name": "user/arrayTypes:0.1.0:Category"
+                    },
+                    "type": "object"
+                }
+            ],
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "integer"
+                    },
+                    "category": {
+                        "type": "object",
+                        "properties": {
+                            "fullTime": {
+                                "type": "boolean"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "fullTime"
+                        ],
+                        "name": "user/arrayTypes:0.1.0:Category"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "name",
+                    "age",
+                    "category"
+                ],
+                "name": "user/arrayTypes:0.1.0:Person",
+                "description": "Sample description of the person configurable."
+            },
+            "type": "object"
+        },
+        {
+            "arrayType": "integer",
+            "description": "Sample description of the prices configurable.",
+            "id": "1-8",
+            "isRequired": true,
+            "name": "prices",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                },
+                "description": "Sample description of the prices configurable."
+            },
+            "type": "array",
+            "value": [
+                12,
+                2
+            ]
+        },
+        {
+            "description": "Sample description of the mapValueInteger configurable.",
+            "id": "1-10",
+            "isRequired": true,
+            "name": "mapValueInteger",
+            "properties": [
+                {
+                    "id": "1-10-1",
+                    "isRequired": false,
+                    "name": "age",
+                    "type": "integer",
+                    "value": 22
+                },
+                {
+                    "id": "1-10-2",
+                    "isRequired": false,
+                    "name": "value",
+                    "type": "integer",
+                    "value": 31
+                }
+            ],
+            "schema": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
+                },
+                "description": "Sample description of the mapValueInteger configurable."
+            },
+            "type": "object"
+        },
+        {
+            "description": "Sample description of the mapValueRecord configurable.",
+            "id": "1-12",
+            "isRequired": true,
+            "name": "mapValueRecord",
+            "properties": [
+                {
+                    "id": "1-12-1",
+                    "isRequired": false,
+                    "name": "value1",
+                    "properties": [
+                        {
+                            "id": "1-12-1-1",
+                            "isRequired": false,
+                            "name": "age",
+                            "schema": {
+                                "type": "integer"
+                            },
+                            "type": "integer",
+                            "value": 31
+                        },
+                        {
+                            "id": "1-12-1-2",
+                            "isRequired": true,
+                            "name": "name",
+                            "schema": {
+                                "type": "string"
+                            },
+                            "type": "string",
+                            "value": "anne"
+                        }
+                    ],
+                    "type": "object"
+                },
+                {
+                    "id": "1-12-2",
+                    "isRequired": false,
+                    "name": "value2",
+                    "properties": [
+                        {
+                            "id": "1-12-1-1",
+                            "isRequired": false,
+                            "name": "age",
+                            "type": "integer",
+                            "value": 31
+                        },
+                        {
+                            "id": "1-12-1-2",
+                            "isRequired": true,
+                            "name": "name",
+                            "type": "string",
+                            "value": "anne"
+                        }
+                    ],
+                    "type": "object"
+                }
+            ],
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "age": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "name": "user/arrayTypes:0.1.0:Person",
+                "additionalProperties": false,
+                "required": [
+                    "name"
+                ]
+            },
+            "type": "object"
+        },
+        {
+            "description": "",
+            "id": "1-20",
+            "isRequired": true,
+            "name": "unionType",
+            "schema": {
+                "anyOf": [
+                    {
+                        "type": "integer"
+                    },
+                    {
+                        "type": "string"
+                    }
+                ],
+                "description": ""
+            },
+            "type": "anyOf",
+            "value": {
+                "description": "",
+                "id": "1-20",
+                "isRequired": true,
+                "name": "unionType",
+                "type": "integer",
+                "value": 14
+            }
+        },
+        {
+            "description": "",
+            "id": "1-21",
+            "isRequired": true,
+            "name": "code",
+            "schema": {
+                "anyOf": [
+                    {
+                        "type": "integer"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "age": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "name",
+                            "age"
+                        ],
+                        "name": "user/arrayTypes:0.1.0:Person"
+                    }
+                ],
+                "description": ""
+            },
+            "type": "anyOf",
+            "value": {
+                "description": "",
+                "id": "1-21",
+                "isRequired": true,
+                "name": "code",
+                "type": "integer",
+                "value": 1
+            }
+        },
+        {
+            "arrayType": "object",
+            "description": "",
+            "id": "1-22",
+            "isRequired": true,
+            "name": "users",
+            "type": "array",
+            "value": [
+                {
+                    "description": "",
+                    "id": "1-22-1",
+                    "isRequired": true,
+                    "name": "",
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object",
+                    "value": {
+                        "age": 22,
+                        "name": "sam"
+                    }
+                },
+                {
+                    "description": "",
+                    "id": "1-22-2",
+                    "isRequired": true,
+                    "name": "",
+                    "properties": [
+                        {
+                            "id": "1-22-2-1",
+                            "isRequired": false,
+                            "name": "age",
+                            "type": "string",
+                            "value": "19"
+                        }
+                    ],
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "id": "1-1",
+            "isRequired": false,
+            "name": "itemCode",
+            "type": "string",
+            "value": "A1234"
+        },
+        {
+            "description": "Sample description of the discount configurable.",
+            "id": "1-3",
+            "isRequired": false,
+            "name": "age",
+            "type": "integer",
+            "value": null
+        },
+        {
+            "description": "Sample description of the mapValueString configurable.",
+            "id": "1-9",
+            "isRequired": false,
+            "name": "mapValueString",
+            "properties": [],
+            "schema": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                },
+                "description": "Sample description of the mapValueString configurable."
+            },
+            "type": "object"
+        },
+        {
+            "description": "Sample description of the mapValueIntBoolean configurable.",
+            "id": "1-11",
+            "isRequired": false,
+            "name": "mapValueBoolean",
+            "properties": [],
+            "schema": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "boolean"
+                },
+                "description": "Sample description of the mapValueIntBoolean configurable."
+            },
+            "type": "object"
+        },
+        {
+            "description": "Sample description of the mapValueUnion configurable.",
+            "id": "1-13",
+            "isRequired": false,
+            "name": "mapValueUnion",
+            "properties": [],
+            "schema": {
+                "type": "object",
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "age": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            },
+                            "name": "user/arrayTypes:0.1.0:Person",
+                            "additionalProperties": false,
+                            "required": [
+                                "age",
+                                "name"
+                            ]
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "description": "Sample description of the mapValueUnion configurable."
+            },
+            "type": "object"
+        },
+        {
+            "arrayType": "integer",
+            "description": "",
+            "id": "1-14",
+            "isRequired": false,
+            "name": "intArray",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": []
+        },
+        {
+            "arrayType": "string",
+            "description": "",
+            "id": "1-15",
+            "isRequired": false,
+            "name": "stringArray",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": []
+        },
+        {
+            "arrayType": "float",
+            "description": "",
+            "id": "1-16",
+            "isRequired": false,
+            "name": "decimalArray",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": []
+        },
+        {
+            "arrayType": "float",
+            "description": "",
+            "id": "1-17",
+            "isRequired": false,
+            "name": "floatArray",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": []
+        },
+        {
+            "arrayType": "boolean",
+            "description": "",
+            "id": "1-18",
+            "isRequired": false,
+            "name": "booleanArray",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "boolean"
+                },
+                "description": ""
+            },
+            "type": "array",
+            "value": []
+        },
+        {
+            "arrayType": "object",
+            "description": "",
+            "id": "1-19",
+            "isRequired": false,
+            "name": "recordArray",
+            "type": "array",
+            "value": [
+                {
+                    "description": "",
+                    "id": "1-19-1",
+                    "isRequired": true,
+                    "name": "",
+                    "properties": [
+                        {
+                            "id": "1-19-1-1",
+                            "isRequired": true,
+                            "name": "name",
+                            "schema": {
+                                "type": "string"
+                            },
+                            "type": "string",
+                            "value": "kate"
+                        },
+                        {
+                            "id": "1-19-1-2",
+                            "isRequired": true,
+                            "name": "id",
+                            "schema": {
+                                "type": "integer"
+                            },
+                            "type": "integer",
+                            "value": 3122
+                        },
+                        {
+                            "id": "1-19-1-3",
+                            "isRequired": true,
+                            "name": "weight",
+                            "schema": {
+                                "type": "number"
+                            },
+                            "type": "float",
+                            "value": 32.6
+                        },
+                        {
+                            "id": "1-19-1-4",
+                            "isRequired": false,
+                            "name": "employeed",
+                            "schema": {
+                                "type": "boolean"
+                            },
+                            "type": "boolean",
+                            "value": true
+                        }
+                    ],
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "integer"
+                            },
+                            "weight": {
+                                "type": "number"
+                            },
+                            "employeed": {
+                                "type": "boolean"
+                            }
+                        },
+                        "name": "user/arrayTypes:0.1.0:Employee",
+                        "additionalProperties": false,
+                        "required": [
+                            "name",
+                            "id",
+                            "weight"
+                        ]
+                    },
+                    "type": "object"
+                },
+                {
+                    "description": "",
+                    "id": "1-19-2",
+                    "isRequired": true,
+                    "name": "",
+                    "properties": [
+                        {
+                            "id": "1-19-1-1",
+                            "isRequired": true,
+                            "name": "name",
+                            "type": "string",
+                            "value": "kate"
+                        },
+                        {
+                            "id": "1-19-1-2",
+                            "isRequired": true,
+                            "name": "id",
+                            "type": "integer",
+                            "value": 3122
+                        },
+                        {
+                            "id": "1-19-1-3",
+                            "isRequired": true,
+                            "name": "weight",
+                            "type": "float",
+                            "value": "32.6"
+                        },
+                        {
+                            "id": "1-19-1-4",
+                            "isRequired": false,
+                            "name": "employeed",
+                            "type": "boolean",
+                            "value": true
+                        }
+                    ],
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "integer"
+                            },
+                            "weight": {
+                                "type": "number"
+                            },
+                            "employeed": {
+                                "type": "boolean"
+                            }
+                        },
+                        "name": "user/arrayTypes:0.1.0:Employee",
+                        "additionalProperties": false,
+                        "required": [
+                            "name",
+                            "id",
+                            "weight"
+                        ]
+                    },
+                    "type": "object"
+                }
+            ]
+        }
+    ],
+    "type": "object"
+}

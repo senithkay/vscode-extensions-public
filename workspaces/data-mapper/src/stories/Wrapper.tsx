@@ -1,0 +1,176 @@
+// tslint:disable: jsx-no-lambda no-empty jsx-no-multiline-js
+import React, { useEffect } from 'react';
+
+import Grid from '@material-ui/core/Grid';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { Uri } from 'monaco-editor';
+
+import { DataMapper } from '../components/DataMapper/DataMapper';
+
+import { CodeEditor } from './CodeEditor/CodeEditor';
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      flexGrow: 1,
+      height: "100%"
+    },
+    gridContainer: {
+      height: "100%"
+    },
+    paper: {
+      padding: theme.spacing(2),
+      textAlign: 'center',
+      color: theme.palette.text.secondary,
+    },
+  }),
+);
+
+
+export interface DataMapperWrapperProps {
+    getFileContent: (url: string) => Promise<string>;
+    updateFileContent: (filePath: string, content: string) => Promise<boolean>;
+    filePath: string;
+    langClientPromise: Promise<IBallerinaLangClient>;
+    lastUpdatedAt: string;
+}
+
+export function DataMapperWrapper(props: DataMapperWrapperProps) {
+    const { langClientPromise, getFileContent, updateFileContent, filePath, lastUpdatedAt } = props;
+    const [didOpen, setDidOpen] = React.useState(false);
+    const [fileContent, setFileContent] = React.useState("");
+    const [, setLastUpdated] = React.useState(lastUpdatedAt);
+    const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
+
+    const classes = useStyles();
+
+    const updateFileContentOverride = (fPath: string, newContent: string) => {
+        setFileContent(newContent);
+        return Promise.resolve(true);
+        // return updateFileContent(fPath, newContent);
+    }
+
+    const updateActiveFileContent = (content: string) => {
+        return updateFileContent(filePath, content);
+    }
+
+    const applyModifications = async (modifications: STModification[]) => {
+        const langClient = await langClientPromise;
+        const stModifyResp = await langClient.stModify({
+            documentIdentifier: {
+                uri: Uri.file(filePath).toString()
+            },
+            astModifications: modifications
+        });
+        await updateFileContentOverride(filePath, stModifyResp.source);
+    }
+
+    useEffect(() => {
+        async function getSyntaxTree() {
+            if (didOpen) {
+                const langClient = await langClientPromise;
+                const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
+                    documentIdentifier: {
+                        uri: Uri.file(filePath).toString()
+                    }
+                });
+                if (parseSuccess) {
+                    const modPart = syntaxTree as ModulePart;
+                    const fns = modPart.members.filter((mem) => STKindChecker.isFunctionDefinition(mem)) as FunctionDefinition[];
+                    setFunctionST(fns.find((mem) => mem.functionName.value === "transform"));
+                    return;
+                }
+            }
+            setFunctionST(undefined);
+        }
+        void getSyntaxTree();
+    }, [didOpen, fileContent])
+
+    useEffect(() => {
+        async function openFileInLS() {
+            const text = await getFileContent(filePath);
+            const langClient = await langClientPromise;
+            langClient.didOpen({
+                textDocument: {
+                    languageId: "ballerina",
+                    text,
+                    uri: Uri.file(filePath).toString(),
+                    version: 1
+                }
+            });
+            setDidOpen(true);
+            setFileContent(text)
+        }
+
+        async function closeFileInLS() {
+            const langClient = await langClientPromise;
+            langClient.didClose({
+                textDocument: {
+                    uri:  Uri.file(filePath).toString(),
+                }
+            });
+            setDidOpen(true);
+        }
+        void openFileInLS();
+        return () => {
+            void closeFileInLS();
+        }
+    }, []);
+
+    return !didOpen || !functionST ? <>Opening the document...</>
+        :
+        (
+            <div className={classes.root}>
+                <Grid container={true} spacing={3} className={classes.gridContainer} >
+                    <Grid item={true} xs={8}>
+                        <DataMapper
+                            fnST={functionST}
+                            langClientPromise={langClientPromise}
+                            filePath={filePath}
+                            applyModifications={applyModifications}
+                            updateFileContent={updateActiveFileContent}
+                            onClose={() => { }}
+                            onSave={() => { }}
+                            library={{
+                                getLibrariesList: () => Promise.resolve(undefined),
+                                getLibrariesData: () => Promise.resolve(undefined),
+                                getLibraryData: () => Promise.resolve(undefined)
+                            }}
+                            importStatements={[]}
+                        />
+                    </Grid>
+                    <Grid item={true} xs={4}>
+                        <CodeEditor
+                            content={fileContent}
+                            filePath={filePath}
+                            onChange={
+                                (fPath, newContent) => {
+                                    void updateFileContentOverride(fPath, newContent);
+                                    void langClientPromise.then((langClient) => {
+                                        langClient.didChange({
+                                            textDocument: {
+                                                uri: Uri.file(filePath).toString(),
+                                                version: 1
+                                            },
+                                            contentChanges: [
+                                                {
+                                                    text: newContent
+                                                }
+                                            ]
+                                        });
+                                        setLastUpdated((new Date()).toISOString());
+                                    })
+                                }
+                            }
+                        />
+                    </Grid>
+                </Grid>
+                <code id='file-content-holder' style={{ display: "none" }}>
+                    {fileContent}
+                </code>
+            </div>
+        );
+}

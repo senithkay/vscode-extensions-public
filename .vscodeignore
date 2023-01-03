@@ -53,7 +53,7 @@ scripts/
 resources/jslibs/index.d.ts
 resources/jslibs/themes/ballerina-default.css
 resources/jslibs/themes/ballerina-default.css.map
-web/
+workspaces/
 test-resources
 ui-test
 .azure

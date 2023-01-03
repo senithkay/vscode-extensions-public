@@ -69,8 +69,8 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
   // update test tree when file deleted.
   workspace.onDidDeleteFiles(e => {
     e.files.forEach(file => {
-      deleteFileNode(testController.items, file)
-    })
+      deleteFileNode(testController.items, file);
+    });
   });
 
   if (!langClient) {
@@ -291,7 +291,7 @@ function deleteFileNode(items: TestItemCollection, uri: Uri) {
       break;
     }
   }
-  if (!found) return;
+  if (!found) { return; }
 
   let relativePath = path.relative(projectRoot!, uri.fsPath).toString().split(path.sep);
   let id = `${projectRoot}`;
@@ -299,7 +299,7 @@ function deleteFileNode(items: TestItemCollection, uri: Uri) {
   // iterate through the test tree and delete.
   for (let i = 0; i < relativePath.length; i++) {
     const path = relativePath[i];
-    id = `${id}/${path}`
+    id = `${id}/${path}`;
 
     if (i === relativePath.length - 1) {
       items.delete(id);

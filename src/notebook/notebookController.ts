@@ -197,7 +197,7 @@ export class BallerinaNotebookController {
                     `Notebook Code execution not supported in ballerina version ${this.ballerinaExtension.ballerinaVersion}\n
                     Use Ballerina 2201.2.0 (Swan Lake Update 2) or newer`
                 );
-                appendTextToOutput("Incompatible ballerina version.")
+                appendTextToOutput("Incompatible ballerina version.");
                 execution.end(false, Date.now());
                 return false;
             }
@@ -310,7 +310,7 @@ export class BallerinaNotebookController {
     }
 
     private getFailedToDeleteErrorMsg(failedVars: string[]) {
-        return `'${failedVars.join("', '")}' delaration(s) is/are not removed from memory since it/they have referred in other cells.`
+        return `'${failedVars.join("', '")}' delaration(s) is/are not removed from memory since it/they have referred in other cells.`;
     }
 
     dispose(): void {
@@ -422,7 +422,7 @@ class MetaInfoHandler {
                 cell: cell,
                 definedVars: metaInfo.definedVars,
                 moduleDclns: metaInfo.moduleDclns,
-            })
+            });
         }
         // update varToCellMap
         [...metaInfo.definedVars, ...metaInfo.moduleDclns].forEach((key: string) => {
