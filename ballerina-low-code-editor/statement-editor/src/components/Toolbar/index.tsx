@@ -46,6 +46,7 @@ import StatementQualifiers from "./StatementQualifiers";
 import { ToolbarOperators } from "./ToolbarOperators";
 
 interface ToolbarProps {
+    inlineDocumentHandler: (docBtnEnabled: boolean) => void
 }
 
 export default function Toolbar(props: ToolbarProps) {
@@ -68,6 +69,7 @@ export default function Toolbar(props: ToolbarProps) {
         activeEditorId
     } = editorCtx;
     const toolbarCtx = useContext(ToolbarContext);
+    const { inlineDocumentHandler } = props;
 
     React.useEffect(() => {
         const client = KeyboardNavigationManager.getClient();
