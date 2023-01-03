@@ -116,7 +116,7 @@
   "scripts": {
     "compile": "webpack",
     "watch": "webpack --watch",
-    "package": "npm run compile && npx copy-files-from-to && npx vsce package",
+    "build": "npm run compile && npx copy-files-from-to && npx vsce package --yarn",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
@@ -125,7 +125,7 @@
   },
   "copyFiles": [
       {
-          "from": "node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js",
+          "from": "../../node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js",
           "to": "resources/jslibs/choreo-vscode-webviews.js"
       }
   ],
