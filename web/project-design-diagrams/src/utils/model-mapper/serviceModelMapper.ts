@@ -18,6 +18,7 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
+import { uniqueId } from 'lodash';
 import {
     ComponentModel, Interaction, Level, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes
 } from '../../resources';
@@ -62,15 +63,16 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
         if (shouldRender && projectComponents.has(packageName)) {
             const services: Map<string, Service> = new Map(Object.entries(projectComponents.get(packageName).services));
             services.forEach((service) => {
-                if (service.serviceId !== '') {
-                    // create the L1 service nodes
-                    const l1Node = new ServiceNodeModel(service, Level.ONE);
-                    l1Nodes.set(service.serviceId, l1Node);
-
-                    // create the L2 service nodes
-                    const l2Node = new ServiceNodeModel(service, Level.TWO);
-                    l2Nodes.set(service.serviceId, l2Node);
+                if (service.serviceId === '') {
+                    service.serviceId = uniqueId(`${packageName}/${service.path}`);
                 }
+                // create the L1 service nodes
+                const l1Node = new ServiceNodeModel(service, Level.ONE);
+                l1Nodes.set(service.serviceId, l1Node);
+
+                // create the L2 service nodes
+                const l2Node = new ServiceNodeModel(service, Level.TWO);
+                l2Nodes.set(service.serviceId, l2Node);
             });
         }
     });
