@@ -10,25 +10,21 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import * as os from 'os';
+
 import * as vscode from 'vscode';
-import { ThemeIcon, Uri, window, extensions } from 'vscode';
-import { simpleGit } from 'simple-git';
-import { getComponentsByProject } from './api/queries';
+import { ThemeIcon, window, extensions } from 'vscode';
+
 import { activateAuth } from './auth';
 import { exchangeOrgAccessTokens } from './auth/inbuilt-impl';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
+import { cloneAllComponentsCmd, cloneComponentCmd } from './cmds/clone';
 import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
-import { ChoreoComponentTreeItem } from './views/project-tree/ComponentTreeItem';
-import { ChoreoProjectTreeItem } from './views/project-tree/ProjectTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
-import path = require('path');
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { Repository, WorkspaceConfig } from './api/types';
+
 import { activateWizards } from './wizards/activate';
 
 export function activateBallerinaExtension() {
@@ -66,124 +62,9 @@ function createProjectTreeView() {
 		choreoResourcesProvider.refresh();
 	});
 
-	vscode.commands.registerCommand(cloneAllComponentsCmdId, async (treeItem) => {
-		if (treeItem instanceof ChoreoProjectTreeItem) {
+	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneAllComponentsCmd);
 
-			const workspaceName = vscode.workspace.name;
-			const workspaceFolders = vscode.workspace.workspaceFolders;
-			const isWorkspaceExist = workspaceName || workspaceFolders;
-
-			const { id, name: projectName } = treeItem.project;
-			const selectedOrg = ext.api.selectedOrg;
-			
-			if (selectedOrg) {
-				const parentDirs = await window.showOpenDialog({
-					canSelectFiles: false,
-					canSelectFolders: true,
-					canSelectMany: false,
-					defaultUri: Uri.file(os.homedir()),
-					title: "Select a folder to create the Workspace"
-				});
-
-				if (!parentDirs || parentDirs.length === 0) {
-					vscode.window.showErrorMessage('A folder must be selected to start cloning');
-					return;
-				}
-
-				const parentPath = parentDirs[0].fsPath;
-				const workspacePath = path.join(parentPath, projectName);
-				if (existsSync(workspacePath)) {
-					// TODO: Optimize the UX. eg: prompt again to change selected path or generate
-					// a suffix for the project name
-					vscode.window.showErrorMessage('A folder already exists at ' + workspacePath);
-					return;
-				}
-
-				mkdirSync(workspacePath);
-				
-				const workspaceFile: WorkspaceConfig = {
-					folders: []
-				};
-				
-				await window.withProgress({
-					title: `Cloning ${projectName} components to workspace.`,
-					location: vscode.ProgressLocation.Notification,
-					cancellable: true
-				}, async (_progress, cancellationToken) => {
-					let cancelled: boolean = false;
-					let currentCloneIndex = 0;
-
-					cancellationToken.onCancellationRequested(async () => {
-						cancelled = true;
-					});
-					const components = await getComponentsByProject(selectedOrg.handle, id);
-					const userManagedComponents = components.filter((cmp) => cmp.repository.isUserManage);
-					const repos = components.map((cmp) => cmp.repository);
-
-					const choreoManagedRepos = repos.filter((repo) => !repo.isUserManage);
-					const userManagedRepos = userManagedComponents.map((cmp) => cmp.repository);
-					const userManagedReposWithoutDuplicates: Repository[] = [];
-
-					userManagedRepos.forEach(repo => {
-						if (!userManagedReposWithoutDuplicates.find((tarRepo) => tarRepo.organizationApp === repo.organizationApp && tarRepo.nameApp === repo.nameApp)) {
-							userManagedReposWithoutDuplicates.push(repo);
-						}
-					});
-
-					workspaceFile.folders = userManagedComponents.map(({ name, repository: { appSubPath, nameApp }}) => ({
-						name: name,
-						path: appSubPath ? path.join(nameApp, appSubPath) : nameApp
-					}));
-					const workspaceFileName = `${projectName}.code-workspace`;
-					const workspaceFilePath = path.join(workspacePath, workspaceFileName);
-
-					writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
-
-					while (!cancelled && currentCloneIndex < userManagedReposWithoutDuplicates.length) {
-						const { organizationApp, nameApp, branchApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
-						const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(workspacePath, nameApp), ["--recursive", "--branch", branchApp]);
-						currentCloneIndex = currentCloneIndex + 1;
-					}
-
-					await vscode.commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
-					await vscode.commands.executeCommand("workbench.explorer.fileView.focus");
-
-					if (choreoManagedRepos.length > 0) {
-						console.log(`Could not clone ${choreoManagedRepos.length} Choreo managed repos.\n`);
-					}
-
-				});
-
-			}
-		}
-	});
-
-	vscode.commands.registerCommand(cloneComponentCmdId, async (treeItem) => {
-		if (treeItem instanceof ChoreoComponentTreeItem) {
-
-			const { repository } = treeItem.component;
-			const { isUserManage, organizationApp, nameApp } = repository;
-
-			if (isUserManage) {
-
-				await window.withProgress({
-					title: `Cloning ${organizationApp}/${nameApp} repo locally.`,
-					location: vscode.ProgressLocation.Notification,
-					cancellable: true
-				}, async (_progress, cancellationToken) => {
-
-					cancellationToken.onCancellationRequested(async () => {
-						// TODO: Cancel
-					});
-
-					await vscode.commands.executeCommand("git.clone", `https://github.com/${organizationApp}/${nameApp}`);
-				});
-
-			} else {
-				vscode.window.showErrorMessage(`Cannot clone Choreo managed repository.`);
-			}
-		}
-	});
+	vscode.commands.registerCommand(cloneComponentCmdId, cloneComponentCmd);
 
 	const treeView = window.createTreeView(choreoProjectsTreeId, {
 		treeDataProvider: choreoResourcesProvider, showCollapseAll: true
