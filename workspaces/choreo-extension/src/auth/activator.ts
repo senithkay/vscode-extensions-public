@@ -12,9 +12,8 @@
  */
 import * as vscode from 'vscode';
 import { commands, window } from "vscode";
-import { ChoreoToken, exchangeAuthToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./inbuilt-impl";
+import { ChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./inbuilt-impl";
 import { ChoreoAuthConfig, ChoreoFidp } from "./config";
-import { URLSearchParams } from 'url';
 import { ext } from '../extensionVariables';
 import { choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
 import { getChoreoToken } from './storage';
@@ -23,20 +22,6 @@ export let choreoAuthConfig: ChoreoAuthConfig;
 export async function activateAuth() {
     choreoAuthConfig = new ChoreoAuthConfig();
     await initFromExistingChoreoSession();
-    // vscode.window.registerUriHandler({
-    //     handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
-    //         if (uri.path === '/choreo-signin') {
-    //             ext.api.status = "LoggingIn";
-    //             const urlParams = new URLSearchParams(uri.query);
-    //             const authCode = urlParams.get('code');
-    //             if (authCode) {
-    //                 exchangeAuthToken(authCode);
-    //             } else {
-    //                 vscode.window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
-    //             }
-    //         }
-    //     }
-    // });
 
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {
