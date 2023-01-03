@@ -41,10 +41,6 @@ export function EditorPane() {
         setDocExpand((docExpandClicked) => !docExpandClicked);
     }
 
-    const inlineDocumentHandler = (docBtnEnabled: boolean) => {
-        setDocEnabled(docBtnEnabled);
-    }
-
     const paramTabHandler = (isEnabled: boolean) => {
         setParameterTabEnabled(isEnabled);
     }
@@ -52,7 +48,6 @@ export function EditorPane() {
     return (
         <>
             <div className={statementEditorClasses.stmtEditorContentWrapper} data-testid="statement-contentWrapper">
-                <Toolbar inlineDocumentHandler={inlineDocumentHandler}/>
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                     <div className={statementEditorClasses.statementExpressionContent}  data-testid="statement-renderer">
                         <StatementRenderer
