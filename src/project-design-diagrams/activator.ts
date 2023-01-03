@@ -79,7 +79,7 @@ async function getProjectResources(): Promise<Map<string, ComponentModel>> {
             workspaceFolders.forEach(folder => {
                 const isBalProject = existsSync(join(folder.uri.fsPath, "Ballerina.toml"));
                 if (isBalProject) {
-                    ballerinaFiles.push(join(folder.uri.fsPath, "Ballerina.toml"))
+                    ballerinaFiles.push(join(folder.uri.fsPath, "Ballerina.toml"));
                 }
             });
         } else {
@@ -114,7 +114,7 @@ function setupWebviewPanel() {
             if (designDiagramWebview) {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
             }
-        }, 500))
+        }, 500));
 
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;

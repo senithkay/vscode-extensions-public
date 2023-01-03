@@ -117,16 +117,18 @@ export function InputParamEditor(props: InputParamEditorProps) {
             <Box mt={1} />
             <Grid container={true} item={true} spacing={2}>
                 <Grid item={true} xs={6}>
-                    {isArraySupported && <FormControlLabel
-                        control={(
-                            <Checkbox
-                                checked={isArray}
-                                onChange={(event) => setIsArray(event.target.checked)}
-                                color="primary"
-                            />
-                        )}
-                        label="Is Array"
-                    />}
+                    {isArraySupported && (
+                        <FormControlLabel
+                            control={(
+                                <Checkbox
+                                    checked={isArray}
+                                    onChange={(event) => setIsArray(event.target.checked)}
+                                    color="primary"
+                                />
+                            )}
+                            label="Is Array"
+                        />
+                    )}
 
                 </Grid>
                 <Grid item={true} xs={6}>

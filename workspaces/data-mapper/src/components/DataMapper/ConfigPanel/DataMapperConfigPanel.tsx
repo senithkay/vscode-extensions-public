@@ -39,6 +39,7 @@ import camelCase from "lodash.camelcase";
 import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
 import { CurrentFileContext } from "../Context/current-file-context";
 import { LSClientContext } from "../Context/ls-client-context";
+import { isArraysSupported } from "../utils";
 
 import { FunctionNameEditor } from "./FunctionNameEditor";
 import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
@@ -51,7 +52,6 @@ import {
     getFnNameFromST,
     getModifiedTargetPosition
 } from "./utils";
-import { isArraysSupported } from "../utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
 export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
@@ -326,7 +326,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         setDmFuncDiagnostic("");
     };
 
-    const isArraySupported = useMemo(()=>isArraysSupported(ballerinaVersion),[ballerinaVersion])
+    const isArraySupported = useMemo(() => isArraysSupported(ballerinaVersion), [ballerinaVersion])
 
     return (
         <Panel onClose={onClose}>
@@ -396,9 +396,9 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
 
 const FormBody = styled.div`
     width: 100%;
-    flexdirection: row;
+    flex-direction: row;
     padding: 15px 20px;
-    fontfamily: Gilmer;
+    font-family: Gilmer;
 `;
 
 const FormDivider = styled(Divider)`

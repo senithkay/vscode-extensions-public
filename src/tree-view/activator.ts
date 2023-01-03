@@ -79,7 +79,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     const callback = (error) => {
                         error !== null ? ballerinaExtInstance.showMsgAndRestart(
                             "The workspace doesn't seem to be synced with the file system.") : null;
-                    }
+                    };
                     item.getKind() == 'folder' ? rmdir(item.getUri().fsPath, { recursive: true }, callback) :
                         rm(item.getUri().fsPath, callback);
                 }

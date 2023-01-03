@@ -74,7 +74,7 @@ module.exports.setupTestBalProject = function setupTestBalProject() {
     if (existsSync(testProjectFolder)) {
         console.log("Integration Test project found at " + testProjectFolder)
     } else {
-        console.error("Cannot find integration test project at " + devProjectFolder)
+        console.error("Cannot find integration test project at " + testProjectFolder)
         return
     }
 

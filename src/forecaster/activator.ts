@@ -305,7 +305,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
         delete data.message;
         delete data.resourcePos;
         delete data.name;
-        data = JSON.stringify(data)
+        data = JSON.stringify(data);
 
         if (cachedResponses.has(data)) {
             return resolve(cachedResponses.get(data));
@@ -324,11 +324,11 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
                 'Content-Length': data.length,
                 'Authorization': `Bearer ${choreoToken}`
             }
-        }
+        };
 
         debug(`Calling perf API - ${url.toString()} - ${choreoToken} ${new Date()}`);
         const req = https.request(options, res => {
-            var str = ''
+            var str = '';
             res.on('data', function (chunk) {
                 str += chunk;
             });
@@ -374,13 +374,13 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
                 } catch (e: any) {
                     debug(`Perf Error - Response json parsing failed. Retry counted. ${new Date()}`);
                     debug(str);
-                    debug(e.toString())
+                    debug(e.toString());
                     sendTelemetryException(extension, e, CMP_PERF_ANALYZER);
                     handleRetries();
                     reject();
                 }
-            })
-        })
+            });
+        });
 
         req.on('error', error => {
             debug(`Perf Error - Connection Error. Retry counted. ${new Date()}`);
@@ -388,7 +388,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
             sendTelemetryException(extension, error, CMP_PERF_ANALYZER);
             handleRetries();
             reject();
-        })
+        });
 
         req.write(data);
         req.end();
@@ -419,7 +419,7 @@ function checkErrors(response: PerformanceAnalyzerRealtimeResponse | Performance
 function handleRetries() {
     retryAttempts++;
     if (retryAttempts >= maxRetries) {
-        debug(`Perf analyzer disabled. Max retry count reached. ${new Date()}`)
+        debug(`Perf analyzer disabled. Max retry count reached. ${new Date()}`);
         extension.getPerformanceForecastContext().temporaryDisabled = true;
     }
 }

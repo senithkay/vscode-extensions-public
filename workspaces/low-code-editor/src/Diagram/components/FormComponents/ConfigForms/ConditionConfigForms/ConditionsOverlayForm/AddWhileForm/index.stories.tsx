@@ -41,7 +41,7 @@ const api = {
     helpPanel: { openConnectorHelp: dummyFunction },
     notifications: {},
     ls: {},
-    insights: { trackTriggerSelection: dummyFunction },
+    insights: { onEvent: dummyFunction },
     code: {
         modifyDiagram: dummyFunction,
         onMutate: dummyFunction,
