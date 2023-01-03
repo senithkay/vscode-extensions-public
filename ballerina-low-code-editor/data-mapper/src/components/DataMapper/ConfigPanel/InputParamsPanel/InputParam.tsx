@@ -33,7 +33,7 @@ export function InputParamItem(props: InputParamItemProps) {
 
     const label = (
         <>
-            <TypeName isInvalid={inputParam.isUnsupported}>{inputParam.type}</TypeName>
+            <TypeName isInvalid={inputParam.isUnsupported}>{inputParam.isArray ? `${inputParam.type}[]` : inputParam.type}</TypeName>
             <span>{" " + inputParam.name}</span>
         </>
     );
