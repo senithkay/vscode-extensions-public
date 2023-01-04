@@ -8,7 +8,7 @@ export interface ComponentModel {
     };
     services: Map<string, Service>;
     entities: Map<string, Entity>;
-    hasDiagnosticErrors: boolean;
+    hasCompilationErrors: boolean;
 }
 
 export interface Service {
