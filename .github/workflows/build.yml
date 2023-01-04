@@ -33,6 +33,7 @@ jobs:
 
       - name: Build plugin repo
         run: npm run build
+        env:
           IS_RELEASE: ${{ inputs.isRelease }}
 
       - name: Compress build
