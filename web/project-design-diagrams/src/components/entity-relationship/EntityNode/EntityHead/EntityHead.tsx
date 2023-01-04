@@ -67,6 +67,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
             />
                 <EntityName
                     isClickable={isClickable}
+                    isAnonymous={node.entityObject.isAnonymous}
                     onClick={isClickable ? () => { getTypeComposition(node.getID()) } : () => { }}
                 >
                     {displayName}

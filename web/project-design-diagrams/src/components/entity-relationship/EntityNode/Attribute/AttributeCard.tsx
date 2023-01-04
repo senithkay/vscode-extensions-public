@@ -62,7 +62,12 @@ export function AttributeWidget(props: AttributeProps) {
                 engine={engine}
             />
                 <AttributeName>{attribute.name}</AttributeName>
-                <AttributeType isSelected={isSelected || isHovered}>{attributeType}</AttributeType>
+                <AttributeType
+                    isAnonymous={node.entityObject.isAnonymous}
+                    isSelected={isSelected || isHovered}
+                >
+                    {attributeType}
+                </AttributeType>
                 {isHovered && attribute.elementLocation &&
                     <NodeMenuWidget
                         background={Colors.SECONDARY}
