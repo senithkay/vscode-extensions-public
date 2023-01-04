@@ -17,12 +17,12 @@
  *
  */
 
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { DiagramContext } from '../../../common';
+import { DiagramContext, NodeMenuWidget } from '../../../common';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { EntityModel } from '../EntityModel';
-import { EntityHead } from '../styles';
+import { EntityHead, EntityName } from '../styles';
 import { Views } from '../../../../resources';
 
 interface ServiceHeadProps {
@@ -35,9 +35,9 @@ const ANON_RECORD_DISPLAY: string = 'record';
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
-
     const { getTypeComposition, currentView } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const displayName: string = node.getID().slice(node.getID().lastIndexOf(':') + 1);
 
@@ -47,15 +47,17 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     }, [node])
 
     const handleOnHover = (task: string) => {
+        setIsHovered(task === 'SELECT' ? true : false);
         node.handleHover(headPorts.current, task);
     }
+
+    const isClickable = currentView === Views.TYPE;
 
     return (
         <EntityHead
             isAnonymous={node.entityObject.isAnonymous}
             isClickable={currentView !== Views.TYPE_COMPOSITION}
             isSelected={isSelected}
-            onClick={() => { getTypeComposition(node.getID()) }}
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}
         >
@@ -63,6 +65,19 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
+                <EntityName
+                    isClickable={isClickable}
+                    isAnonymous={node.entityObject.isAnonymous}
+                    onClick={isClickable ? () => { getTypeComposition(node.getID()) } : () => { }}
+                >
+                    {displayName}
+                </EntityName>
+                {isHovered && node.entityObject.elementLocation &&
+                    <NodeMenuWidget
+                        background={'white'}
+                        location={node.entityObject.elementLocation}
+                    />
+                }
                 {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
             <EntityPortWidget
                 port={node.getPort(`right-${node.getID()}`)}
