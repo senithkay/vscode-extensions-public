@@ -68,7 +68,7 @@ module.exports.setupDevBalProject = function setupDevBalProject() {
 
 
 module.exports.setupTestBalProject = function setupTestBalProject() {
-    const testProjectFolder = path.join(__dirname, "..", "..", "integration-tests", "bal-project");
+    const testProjectFolder = path.join(__dirname, "..", "..", "low-code-integration-tests", "bal-project");
     const storyDataDir = path.join(__dirname, "..", "src", "stories", "data");
 
     if (existsSync(testProjectFolder)) {
@@ -116,7 +116,7 @@ module.exports.startLS = function startLS() {
 
 
 module.exports.startVSCodeMockServer = function startVSCodeMockServer() {
-    const vs = spawn('node', ['../integration-tests/tools/vscode-mock-server.js']);
+    const vs = spawn('node', ['../low-code-integration-tests/tools/vscode-mock-server.js']);
 
     vs.stdout.on('data', (data) => {
         console.log(`vs-mock-server:stdout: ${data}`);
