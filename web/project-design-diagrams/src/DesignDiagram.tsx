@@ -22,7 +22,7 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { ComponentModel, DagreLayout, Views } from './resources';
+import { ComponentModel, DagreLayout, Location, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import './resources/assets/font/fonts.css';
 
@@ -38,15 +38,15 @@ const Container = styled.div`
     justify-content: center;
     min-height: 100vh;
     min-width: 100vw;
-    overflow-x: auto;
 `;
 
 interface DiagramProps {
-    fetchProjectResources: () => Promise<Map<string, ComponentModel>>
+    fetchProjectResources: () => Promise<Map<string, ComponentModel>>,
+    go2source: (location: Location) => void;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { fetchProjectResources } = props;
+    const { fetchProjectResources, go2source } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.GRAPH);
@@ -78,7 +78,7 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     return (
-        <DesignDiagramContext {...{getTypeComposition, currentView}}>
+        <DesignDiagramContext {...{getTypeComposition, currentView, go2source}}>
             <Container>
                 {currentView && projectPkgs ?
                     <>

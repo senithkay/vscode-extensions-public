@@ -4,6 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     watch: false,
+    mode: "production",
     entry: {
         BBEViewer: path.resolve(__dirname, 'src', 'index.ts'),
     },

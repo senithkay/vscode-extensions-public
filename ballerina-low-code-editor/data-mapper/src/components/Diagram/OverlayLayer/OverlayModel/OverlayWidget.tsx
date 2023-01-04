@@ -1,30 +1,31 @@
+// tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
-import * as _ from 'lodash';
-import { OverlayModel } from './OverlayModel';
-import { BaseEntityEvent, BaseModel, ListenerHandle, PeformanceWidget } from '@projectstorm/react-canvas-core';
+
 import styled from '@emotion/styled';
-import ResizeObserver from 'resize-observer-polyfill';
+import { ListenerHandle, PeformanceWidget } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import ResizeObserver from 'resize-observer-polyfill';
+
+import { OverlayModel } from './OverlayModel';
 
 export interface OverlayProps {
 	node: OverlayModel;
-	children?: any;
+	children?: React.ReactElement | React.ReactElement[];
 	diagramEngine: DiagramEngine;
 }
 
-namespace S {
-	export const Overlay = styled.div`
-		position: absolute;
-		-webkit-touch-callout: none; /* iOS Safari */
-		-webkit-user-select: none; /* Chrome/Safari/Opera */
-		user-select: none;
-		cursor: move;
-		pointer-events: all;
-	`;
-}
+export const Overlay = styled.div`
+	position: absolute;
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Chrome/Safari/Opera */
+	user-select: none;
+	cursor: move;
+	pointer-events: all;
+`;
+
 
 export class OverlayWidget extends React.Component<OverlayProps> {
-	ob: any;
+	ob: ResizeObserver;
 	ref: React.RefObject<HTMLDivElement>;
 	listener: ListenerHandle;
 
@@ -41,7 +42,7 @@ export class OverlayWidget extends React.Component<OverlayProps> {
 		this.listener = null;
 	}
 
-	componentDidUpdate(prevProps: Readonly<OverlayProps>, prevState: Readonly<any>, snapshot?: any): void {
+	componentDidUpdate(prevProps: Readonly<OverlayProps>): void {
 		if (this.listener && this.props.node !== prevProps.node) {
 			this.listener.deregister();
 			this.installSelectionListener();
@@ -50,7 +51,7 @@ export class OverlayWidget extends React.Component<OverlayProps> {
 
 	installSelectionListener() {
 		this.listener = this.props.node.registerListener({
-			selectionChanged: (event: BaseEntityEvent<BaseModel> & { isSelected: boolean }) => {
+			selectionChanged: () => {
 				this.forceUpdate();
 			}
 		});
@@ -61,7 +62,6 @@ export class OverlayWidget extends React.Component<OverlayProps> {
 	}
 
 	componentDidMount(): void {
-		// @ts-ignore
 		this.ob = new ResizeObserver((entities) => {
 			const bounds = entities[0].contentRect;
 			this.updateSize(bounds.width, bounds.height);
@@ -78,7 +78,7 @@ export class OverlayWidget extends React.Component<OverlayProps> {
 			<PeformanceWidget model={this.props.node} serialized={this.props.node.serialize()}>
 				{() => {
 					return (
-						<S.Overlay
+						<Overlay
 							className="node"
 							ref={this.ref}
 							data-nodeid={this.props.node.getID()}
@@ -88,7 +88,7 @@ export class OverlayWidget extends React.Component<OverlayProps> {
 							}}
 						>
 							{/* TODO: Generate From Factory */}
-						</S.Overlay>
+						</Overlay>
 					);
 				}}
 			</PeformanceWidget>

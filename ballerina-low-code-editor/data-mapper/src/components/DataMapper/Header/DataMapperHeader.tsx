@@ -50,7 +50,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 
     return (
         <HeaderContainer>
-            <HomeButton onClick={onClose} />
+            <HomeButton onClick={onClose} data-testid='dm-header-home-button'/>
             <BreadCrumb>
                 <Title> Data Mapper: </Title>
                 <HeaderBreadcrumb

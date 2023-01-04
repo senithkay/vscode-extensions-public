@@ -1,111 +1,179 @@
-import React, { useContext, useEffect, useState } from "react";
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-multiline-js
+import React, { FocusEvent, useContext, useEffect, useMemo, useState } from "react";
 
 import styled from "@emotion/styled";
 import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
-import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
 import {
     createFunctionSignature,
     STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    ButtonWithIcon,
     FormActionButtons,
     FormHeaderSection,
     Panel,
-    useStyles as useFormStyles,
-    WarningBanner,
+    useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ExpressionFunctionBody, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+    ExpressionFunctionBody,
+    FunctionDefinition,
+    NodePosition,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
+import camelCase from "lodash.camelcase";
 
+import { getRecordCompletions } from "../../Diagram/utils/ls-utils";
+import { CurrentFileContext } from "../Context/current-file-context";
 import { LSClientContext } from "../Context/ls-client-context";
-import { DataMapperProps } from "../DataMapper";
+import { isArraysSupported } from "../utils";
 
 import { FunctionNameEditor } from "./FunctionNameEditor";
 import { InputParamsPanel } from "./InputParamsPanel/InputParamsPanel";
 import { DataMapperInputParam, DataMapperOutputParam } from "./InputParamsPanel/types";
-import { RecordButtonGroup } from "./RecordButtonGroup";
-import { TypeBrowser } from "./TypeBrowser";
+import { OutputTypePanel } from "./OutputTypePanel/OutputTypePanel";
+import { CompletionResponseWithModule } from "./TypeBrowser";
 import {
-    isValidOutput,
     getDefaultFnName,
     getDiagnosticsForFnName,
     getFnNameFromST,
-    getInputsFromST,
-    getModifiedTargetPosition,
-    getOutputTypeFromST
+    getModifiedTargetPosition
 } from "./utils";
 
 export const DM_DEFAULT_FUNCTION_NAME = "transform";
 export const REDECLARED_SYMBOL_ERROR_CODE = "BCE2008";
 
-export function DataMapperConfigPanel(props: DataMapperProps) {
+export interface DataMapperConfigPanelProps {
+    fnST: FunctionDefinition;
+    targetPosition?: NodePosition;
+    importStatements: string[];
+    syntaxTree?: STNode;
+    filePath: string;
+    inputs: DataMapperInputParam[];
+    output: DataMapperOutputParam;
+    currentFile?: {
+        content: string,
+        path: string,
+        size: number
+    };
+    ballerinaVersion: string;
+    onSave: (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => void;
+    onClose: () => void;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
+    recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element;
+}
+
+
+export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const {
-        onClose,
         fnST,
-        applyModifications,
         targetPosition,
-        onSave,
-        recordPanel,
-        currentFile,
         importStatements,
         syntaxTree,
-        filePath
+        filePath,
+        inputs,
+        output,
+        currentFile,
+        ballerinaVersion,
+        onSave,
+        onClose,
+        applyModifications,
+        recordPanel
     } = props;
     const formClasses = useFormStyles();
 
     const langClientPromise = useContext(LSClientContext);
 
     const [fnNameFromST, setFnNameFromST] = useState(getFnNameFromST(fnST));
-    const [inputParams, setInputParams] = useState<DataMapperInputParam[]>([]);
+    const [inputParams, setInputParams] = useState<DataMapperInputParam[]>(inputs);
     const [fnName, setFnName] = useState(fnNameFromST === undefined ? DM_DEFAULT_FUNCTION_NAME : fnNameFromST);
-    const [outputType, setOutputType] = useState<DataMapperOutputParam>({ type: '', inInvalid: false });
+    const [outputType, setOutputType] = useState<DataMapperOutputParam>(output);
     const [isNewRecord, setIsNewRecord] = useState(false);
     const [isAddExistType, setAddExistType] = useState(false);
     const [dmFuncDiagnostic, setDmFuncDiagnostic] = useState("");
-
     const [showOutputType, setShowOutputType] = useState(false);
     const [newRecordBy, setNewRecordBy] = useState<"input" | "output">(undefined);
-
     const [newRecords, setNewRecords] = useState<string[]>([]);
     const [initiated, setInitiated] = useState(false);
+    const [isValidationInProgress, setValidationInProgress] = useState(false);
 
-    const hasInvalidInputs = inputParams.some(input => input.inInvalid);
-    const isValidConfig = fnName && inputParams.length > 0 && !hasInvalidInputs && outputType.type !== "" && !outputType.inInvalid && dmFuncDiagnostic === "";
+    const isValidConfig = useMemo(() => {
+        const hasInvalidInputs = inputParams.some(input => input.isUnsupported);
+        return fnName
+            && inputParams.length > 0
+            && !hasInvalidInputs
+            && outputType.type !== ""
+            && !outputType.isUnsupported
+            && dmFuncDiagnostic === "";
+    }, [fnName, inputParams, outputType, dmFuncDiagnostic])
 
     useEffect(() => {
-        (async () => {
-            const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType.type,
-                fnST, targetPosition, currentFile.content, filePath, langClientPromise);
-            if (diagnostics.length > 0) {
-                const redeclaredSymbol = diagnostics.some((diagnostic) => {
-                    return diagnostic.code === REDECLARED_SYMBOL_ERROR_CODE
-                });
-                if (fnNameFromST === undefined && redeclaredSymbol) {
-                    const defaultFnName = await getDefaultFnName(filePath, targetPosition, langClientPromise);
-                    setFnName(defaultFnName);
-                } else {
-                    setDmFuncDiagnostic(diagnostics[0]?.message);
+        void (async () => {
+            setValidationInProgress(true);
+            try {
+                const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType.type,
+                    fnST, targetPosition, currentFile.content, filePath, langClientPromise);
+                if (diagnostics.length > 0) {
+                    const redeclaredSymbol = diagnostics.some((diagnostic) => {
+                        return diagnostic.code === REDECLARED_SYMBOL_ERROR_CODE
+                    });
+                    if (fnNameFromST === undefined && redeclaredSymbol) {
+                        const defaultFnName = await getDefaultFnName(filePath, targetPosition, langClientPromise);
+                        setFnName(defaultFnName);
+                    } else {
+                        setDmFuncDiagnostic(diagnostics[0]?.message);
+                    }
                 }
+            } finally {
+                setValidationInProgress(false);
             }
             setInitiated(true);
         })();
     }, []);
+    const [fetchingCompletions, setFetchingCompletions] = useState(false);
+
+    const { path, content } = useContext(CurrentFileContext);
+
+    const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
+
+    useEffect(() => {
+        void (async () => {
+            if (initiated){
+                setFetchingCompletions(true);
+                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise,
+                                            importStatements, fnST?.position as NodePosition || targetPosition , path);
+                setRecordCompletions(allCompletions);
+                setFetchingCompletions(false);
+            }
+        })();
+    }, [content, initiated]);
 
     const onSaveForm = () => {
         const parametersStr = inputParams
-            .map((item) => `${item.type} ${item.name}`)
+            .map((item) => `${item.type}${item.isArray ? '[]' : ''} ${item.name}`)
             .join(",");
 
-        const returnTypeStr = `returns ${outputType.type}`;
+        const returnTypeStr = `returns ${outputType.type}${outputType.isArray ? '[]' : ''}`;
 
         const modifications: STModification[] = [];
         if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
             modifications.push(
                 updateFunctionSignature(fnName, parametersStr, returnTypeStr, {
-                    ...fnST?.functionSignature?.position,
-                    startColumn: fnST?.functionName?.position?.startColumn,
+                    ...fnST?.functionSignature?.position as NodePosition,
+                    startColumn: (fnST?.functionName?.position as NodePosition)?.startColumn,
                 })
             );
 
@@ -114,7 +182,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                 // if function returns (), replace it with {}
                 modifications.push({
                     type: "INSERT",
-                    config: { "STATEMENT": "{}" },
+                    config: { "STATEMENT": outputType.isArray ? '[]' : '{}' },
                     ...functionExpression.position
                 })
             }
@@ -129,34 +197,27 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                     targetPosition,
                     false,
                     true,
-                    `{}`
+                    outputType.isArray ? '[]' : '{}'
                 )
             );
         }
-        onSave(fnName);
-        applyModifications(modifications);
+        onSave(fnName, inputParams, outputType);
+        void applyModifications(modifications);
     };
 
     useEffect(() => {
-        if (fnST && initiated) {
+        setInputParams(inputs);
+        setOutputType(output);
+        setFnNameFromST(getFnNameFromST(fnST));
+    }, [inputs, output]);
+
+    useEffect(() => {
+        if (fnST) {
             if (fnNameFromST === undefined) {
                 setFnNameFromST(getFnNameFromST(fnST));
             }
-            const inputs = getInputsFromST(fnST);
-            if (inputs && inputs.length > 0 && inputParams.length === 0) {
-                setInputParams(getInputsFromST(fnST));
-            }
-            const output = getOutputTypeFromST(fnST);
-            if (output) {
-                setOutputType({
-                    type: getOutputTypeFromST(fnST),
-                    inInvalid: !isValidOutput(fnST)
-                });
-            } else {
-                setOutputType({ type: '', inInvalid: true });
-            }
         }
-    }, [fnST, initiated]);
+    }, [fnST]);
 
     useEffect(() => {
         if (outputType.type) {
@@ -165,14 +226,19 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     }, [outputType]);
 
     useEffect(() => {
-        (async () => {
-            if (fnNameFromST) {
-                const diagnostics = await getDiagnosticsForFnName(fnNameFromST, inputParams, outputType.type, fnST,
-                    targetPosition, currentFile.content, filePath, langClientPromise);
-                if (diagnostics.length > 0) {
-                    setDmFuncDiagnostic(diagnostics[0]?.message);
+        void (async () => {
+            setValidationInProgress(true);
+            try {
+                if (fnNameFromST) {
+                    const diagnostics = await getDiagnosticsForFnName(fnNameFromST, inputParams, outputType.type, fnST,
+                        targetPosition, currentFile.content, filePath, langClientPromise);
+                    if (diagnostics.length > 0) {
+                        setDmFuncDiagnostic(diagnostics[0]?.message);
+                    }
+                    setFnName(fnNameFromST);
                 }
-                setFnName(fnNameFromST);
+            } finally {
+                setValidationInProgress(false);
             }
         })();
     }, [fnNameFromST]);
@@ -189,13 +255,14 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
             const newRecordType = createdNewRecord.split(" ")[1];
             if (newRecordBy === "input") {
                 setInputParams([...inputParams, {
-                    name: newRecordType,
+                    name: camelCase(newRecordType),
                     type: newRecordType,
-                    inInvalid: false,
+                    isUnsupported: false,
+                    isArray: false
                 }])
             }
             if (newRecordBy === "output") {
-                setOutputType({ type: newRecordType, inInvalid: false });
+                setOutputType({ type: newRecordType, isUnsupported: false, isArray: false });
             }
             setNewRecords([...newRecords, newRecordType]);
         }
@@ -206,6 +273,10 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         setShowOutputType(true);
     };
 
+    const handleHideOutputType = () => {
+        setShowOutputType(false);
+    }
+
     // For Output Value
     const handleShowRecordEditor = () => {
         enableAddNewRecord();
@@ -214,12 +285,12 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
     };
 
     const handleOutputDeleteClick = () => {
-        setOutputType({ type: '', inInvalid: true });
+        setOutputType({ type: undefined, isUnsupported: true, isArray: false });
         setShowOutputType(false);
     };
 
-    const handleOutputTypeChange = (type: string) => {
-        setOutputType({ type, inInvalid: false })
+    const handleOutputTypeChange = (type: string, isArray: boolean) => {
+        setOutputType({ type, isUnsupported: false, isArray })
     }
 
     const breadCrumb = (
@@ -232,23 +303,30 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
         />
     );
 
-    const onNameOutFocus = async (event: any) => {
+    const onNameOutFocus = async (event: FocusEvent<HTMLInputElement>) => {
         const name = event.target.value;
         if (name === "") {
             setDmFuncDiagnostic("missing function name");
-        } else {
-            const diagnostics = await getDiagnosticsForFnName(event.target.value, inputParams, outputType.type, fnST,
-                targetPosition, currentFile.content, filePath, langClientPromise);
-            if (diagnostics.length > 0) {
-                setDmFuncDiagnostic(diagnostics[0]?.message);
+        } else if (name !== fnNameFromST) {
+            setValidationInProgress(true);
+            try {
+                const diagnostics = await getDiagnosticsForFnName(event.target.value, inputParams, outputType.type, fnST,
+                    targetPosition, currentFile.content, filePath, langClientPromise);
+                if (diagnostics.length > 0) {
+                    setDmFuncDiagnostic(diagnostics[0]?.message);
+                }
+            } finally {
+                setValidationInProgress(false);
             }
         }
     };
 
-    const onNameChange = async (name: string) => {
+    const onNameChange = (name: string) => {
         setFnName(name);
         setDmFuncDiagnostic("");
     };
+
+    const isArraySupported = useMemo(() => isArraysSupported(ballerinaVersion), [ballerinaVersion]);
 
     return (
         <Panel onClose={onClose}>
@@ -272,6 +350,7 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 value={fnName}
                                 onBlur={onNameOutFocus}
                                 onChange={onNameChange}
+                                isValidating={!initiated || isValidationInProgress}
                                 errorMessage={dmFuncDiagnostic}
                             />
                             <FormDivider />
@@ -281,37 +360,23 @@ export function DataMapperConfigPanel(props: DataMapperProps) {
                                 enableAddNewRecord={enableAddNewRecord}
                                 setAddExistType={setAddExistType}
                                 isAddExistType={isAddExistType}
-                                currentFileContent={currentFile?.content}
-                                fnSTPosition={fnST?.position || targetPosition}
-                                imports={importStatements}
-                                banner={fnST && hasInvalidInputs && <Warning message='Only records are currently supported as data mapper inputs' />}
+                                loadingCompletions={fetchingCompletions}
+                                completions={recordCompletions}
+                                isArraySupported={isArraySupported}
                             />
                             <FormDivider />
-                            <OutputTypeConfigPanel>
-                                <Title>Output Type</Title>
-                                {!outputType.type ? (
-                                    <>
-                                        {showOutputType && (
-                                            <TypeBrowser
-                                                type={outputType.type}
-                                                onChange={handleOutputTypeChange}
-                                                fnSTPosition={fnST?.position || targetPosition}
-                                                currentFileContent={currentFile?.content}
-                                                imports={importStatements}
-                                            />
-                                        )}
-                                        <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
-                                    </>
-                                ) : (
-                                    <>
-                                        {outputType.type && outputType.inInvalid && <Warning message='Only record type is currently supported as data mapper output' />}
-                                        <OutputTypeContainer isInvalid={outputType.inInvalid}>
-                                            <TypeName>{outputType.type}</TypeName>
-                                            <DeleteButton onClick={handleOutputDeleteClick} icon={<DeleteOutLineIcon fontSize="small" />} />
-                                        </OutputTypeContainer>
-                                    </>
-                                )}
-                            </OutputTypeConfigPanel>
+                            <OutputTypePanel
+                                outputType={outputType}
+                                fetchingCompletions={fetchingCompletions}
+                                completions={recordCompletions}
+                                showOutputType={showOutputType}
+                                handleShowOutputType={handleShowOutputType}
+                                handleHideOutputType={handleHideOutputType}
+                                handleOutputTypeChange={handleOutputTypeChange}
+                                handleShowRecordEditor={handleShowRecordEditor}
+                                handleOutputDeleteClick={handleOutputDeleteClick}
+                                isArraySupported={isArraySupported}
+                            />
                         </FormBody>
                         <FormActionButtons
                             isMutationInProgress={false}
@@ -340,10 +405,6 @@ const FormDivider = styled(Divider)`
     margin: 1.5rem 0;
 `;
 
-const OutputTypeConfigPanel = styled.div`
-    width: 100%;
-`;
-
 export const Title = styled.div(() => ({
     fontSize: "13px",
     letterSpacing: "normal",
@@ -354,31 +415,3 @@ export const Title = styled.div(() => ({
     paddingBottom: "0.6rem",
     fontWeight: 500,
 }));
-
-const OutputTypeContainer = styled.div(({ isInvalid }: { isInvalid?: boolean }) => ({
-    background: "white",
-    padding: 10,
-    borderRadius: 5,
-    border: "1px solid #dee0e7",
-    color: `${isInvalid ? '#fe523c' : 'inherit'}`,
-    margin: "1rem 0 0.25rem",
-    justifyContent: "space-between",
-    display: "flex",
-    width: "100%",
-    alignItems: "center",
-}));
-
-const DeleteButton = styled(ButtonWithIcon)`
-    padding: 0;
-    color: #fe523c;
-`;
-
-const TypeName = styled.span`
-    font-weight: 500;
-`;
-
-const Warning = styled(WarningBanner)`
-    border-width: 1px !important;
-    width: unset;
-    margin: 5px 0;
-`

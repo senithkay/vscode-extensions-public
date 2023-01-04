@@ -101,7 +101,6 @@ export const GraphqlView = (props: any) => {
                 ref={ref => (_graphiql = ref!)}
                 fetcher={_fetcher}
                 headers={headers}
-                schema={schema}
                 query={query}
                 onEditQuery={_handleEditQuery}
                 onEditHeaders={_handleEditHeaders}

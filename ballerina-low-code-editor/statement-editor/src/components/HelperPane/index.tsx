@@ -23,6 +23,7 @@ import {
     STD_LIBS_IDENTIFIER
 } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { ToolbarContext } from "../../store/toolbar-context";
 import {
     isConfigurableEditor,
     isFunctionOrMethodCall,
@@ -68,6 +69,8 @@ export function HelperPane(props: HelperPaneProps) {
         config
     } = useContext(StatementEditorContext);
 
+    const toolbarCtx = useContext(ToolbarContext);
+
     const onTabElementSelection = async (value: TabElements) => {
         setSelectedTab(value);
     };
@@ -75,6 +78,13 @@ export function HelperPane(props: HelperPaneProps) {
     const onLibTypeSelection = (value: string) => {
         setLibraryType(value);
     };
+
+    useEffect(() => {
+        if (toolbarCtx.toolbarMoreExp === true) {
+            setSelectedTab(TabElements.expressions);
+            toolbarCtx.onClickMoreExp(false)
+        }
+    }, [toolbarCtx.toolbarMoreExp]);
 
     React.useEffect(() => {
 

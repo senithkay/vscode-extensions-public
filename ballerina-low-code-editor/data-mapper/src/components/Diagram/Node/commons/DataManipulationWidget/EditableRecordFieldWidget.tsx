@@ -18,8 +18,9 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { MappingConstructor, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -43,7 +44,7 @@ export interface EditableRecordFieldWidgetProps {
     field: EditableRecordField;
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
-    mappingConstruct: MappingConstructor;
+    parentMappingConstruct: STNode;
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
@@ -51,7 +52,7 @@ export interface EditableRecordFieldWidgetProps {
 }
 
 export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, mappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
+    const { parentId, field, getPort, engine, parentMappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -61,6 +62,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
     const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
+    const mappingConstruct = STKindChecker.isMappingConstructor(parentMappingConstruct) && parentMappingConstruct;
     const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
@@ -74,7 +76,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             if (!context.isStmtEditorCanceled) {
                 handleEditValue();
             } else {
-                handleDeleteValue();
+                void handleDeleteValue();
                 context.handleFieldToBeEdited(undefined);
             }
         }
@@ -105,8 +107,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         if (field.value && STKindChecker.isSpecificField(field.value)) {
             props.context.enableStatementEditor({
                 value: field.value.valueExpr.source,
-                valuePosition: field.value.valueExpr.position,
-                label: field.value.fieldName.value
+                valuePosition: field.value.valueExpr.position as NodePosition,
+                label: field.value.fieldName.value as string
             });
         }
     };
@@ -138,7 +140,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
     }
 
-    
     if (portIn && portIn.collapsed) {
         expanded = false;
     }
@@ -151,22 +152,24 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         fieldName = field.parentType.type?.name ? `${field.parentType.type?.name}Item` : 'item';
     }
 
-    const diagnostic = specificField.valueExpr?.typeData?.diagnostics[0]
+    const diagnostic = (specificField.valueExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
-                style={{ marginLeft: !!fields ? 0 : indentation + 24 }}
+                style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
                 {fieldName}
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {typeName && ":"}
             </span>
             {typeName && (
-                <span className={classnames(classes.typeLabel,
-                    (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}>
+                <span
+                    className={classnames(classes.typeLabel,
+                        (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}
+                >
                     {typeName}
                 </span>
             )}
@@ -179,7 +182,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             value={value}
                             onClick={handleEditValue}
                         >
-                            <span className={classes.valueWithError}>
+                            <span className={classes.valueWithError} data-testid={`record-widget-field-${portIn?.getName()}`}>
                                 {value}
                                 <span className={classes.errorIconWrapper}>
                                     <ErrorIcon />
@@ -187,7 +190,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             </span>
                         </DiagnosticTooltip>
                     ) : (
-                        <span className={classes.value} onClick={handleEditValue}>{value}</span>
+                        <span
+                            className={classes.value}
+                            onClick={handleEditValue}
+                            data-testid={`record-widget-field-${portIn?.getName()}`}
+                        >
+                            {value}
+                        </span>
                     )}
                 </>
             )}
@@ -211,30 +220,35 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     return (
         <>
             {!isArray && (
-                <div className={classnames(classes.treeLabel,
-                    (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}>
+                <div
+                    className={classnames(classes.treeLabel,
+                        (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}
+                >
                     <span className={classes.treeLabelInPort}>
                         {portIn &&
                             <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
                         }
                     </span>
                     <span className={classes.label}>
-                        {fields && <IconButton
-                            className={classes.expandIcon}
-                            style={{ marginLeft: indentation }}
-                            onClick={handleExpand}
-                        >
-                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                        </IconButton>}
+                        {fields && (
+                            <IconButton
+                                className={classes.expandIcon}
+                                style={{ marginLeft: indentation }}
+                                onClick={handleExpand}
+                                data-testid={`${portIn.getName()}-expand-icon-element`}
+                            >
+                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                            </IconButton>
+                        )}
                         {label}
                     </span>
 
-                    {!isDisabled && (
+                    {(!isDisabled || hasValue) && (
                         <>
                             {(isLoading || fieldId === props.context.fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />
                             ) : (
-                                <ValueConfigMenu menuItems={valConfigMenuItems} />
+                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()}/>
                             )}
                         </>
                     )}
@@ -248,7 +262,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         field={field}
                         getPort={getPort}
                         parentId={parentId}
-                        mappingConstruct={mappingConstruct}
+                        parentMappingConstruct={mappingConstruct}
                         context={context}
                         fieldIndex={fieldIndex}
                         treeDepth={treeDepth}
@@ -266,7 +280,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 field={subField}
                                 getPort={getPort}
                                 parentId={fieldId}
-                                mappingConstruct={mappingConstruct}
+                                parentMappingConstruct={mappingConstruct}
                                 context={context}
                                 treeDepth={treeDepth + 1}
                                 deleteField={deleteField}

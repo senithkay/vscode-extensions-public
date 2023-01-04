@@ -11,46 +11,65 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
 
-import { List, ListItemText, Typography } from "@material-ui/core";
+import React, { useContext, useState } from "react";
+
+import { Box, List, ListItemText, Typography } from "@material-ui/core";
 
 import DiagnosticsErrorIcon from "../../assets/icons/DiagnosticsErrorIcon";
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
+import { filterCodeActions } from "../../utils";
+import { CodeActionButton } from "../CodeActionButton";
 import { useStatementEditorDiagnosticStyles } from "../styles";
 
 export function Diagnostics() {
     const statementEditorDiagnosticClasses = useStatementEditorDiagnosticStyles();
     const stmtCtx = useContext(StatementEditorContext);
     const {
-        statementCtx: {
-            diagnostics
-        }
+        statementCtx: { diagnostics, errorMsg },
     } = stmtCtx;
+    let hasCodeAction = false;
+
+    function actionButton(diag: StatementSyntaxDiagnostics, key?: number) {
+        if (filterCodeActions(diag.codeActions).length > 0) {
+            hasCodeAction = true;
+            return <CodeActionButton syntaxDiagnostic={diag} index={key}/>;
+        } else if (hasCodeAction) {
+            return <Box style={{ width: "30px", marginRight: "6px" }} />;
+        }
+    }
 
     return (
         <div className={statementEditorDiagnosticClasses.diagnosticsPane} data-testid="diagnostics-pane">
             <List>
-                {
-                    diagnostics && diagnostics.map((diag: StatementSyntaxDiagnostics, index: number) => (
-                        !diag.isPlaceHolderDiag && (
-                            <ListItemText
-                                data-testid="diagnostic-message"
-                                key={index}
-                                primary={(
-                                    <Typography style={{ display: 'flex', flexDirection: 'row' }}>
-                                        <div className={statementEditorDiagnosticClasses.diagnosticsErrorIcon}>
-                                            <DiagnosticsErrorIcon />
-                                        </div>
-                                        {diag.message}
-                                    </Typography>
-                                )}
-                            />
-                        )
-                    ))
-                }
+                {diagnostics &&
+                    diagnostics.map(
+                        (diag: StatementSyntaxDiagnostics, index: number) =>
+                            !diag.isPlaceHolderDiag && (
+                                <ListItemText
+                                    data-testid="diagnostic-message"
+                                    key={index}
+                                    primary={(
+                                        <Typography style={{ display: "flex", flexDirection: "row" }}>
+                                            {actionButton(diag, index)}
+                                            <div className={statementEditorDiagnosticClasses.diagnosticsErrorIcon}>
+                                                <DiagnosticsErrorIcon />
+                                            </div>
+                                            {diag.message}
+                                        </Typography>
+                                    )}
+                                />
+                            )
+                    )}
+                {errorMsg && errorMsg.length > 0 && (
+                    <ListItemText
+                        data-testid="error-message"
+                        key="error"
+                        primary={<Typography style={{ display: "flex", flexDirection: "row" }}>{errorMsg}</Typography>}
+                    />
+                )}
             </List>
         </div>
-    )
+    );
 }

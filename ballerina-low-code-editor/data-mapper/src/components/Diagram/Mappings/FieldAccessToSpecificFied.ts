@@ -4,10 +4,6 @@ export class FieldAccessToSpecificFied {
 	constructor(
 		public fields: STNode[],
 		public value: FieldAccess | OptionalFieldAccess | SimpleNameReference,
-		public otherVal: STNode = undefined
+		public otherVal?: STNode
 	){}
-
-	public createLink() {
-
-	}
 }

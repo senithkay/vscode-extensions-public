@@ -10,19 +10,20 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
     FromClause,
+    NodePosition,
     RecordTypeDesc,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
-import { Point } from "@projectstorm/geometry";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
-import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
+import { getTypeFromStore } from "../../utils/dm-utils";
+import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
 
@@ -46,8 +47,8 @@ export class FromClauseNode extends DataMapperNodeModel {
         this.initialYPosition = 0;
     }
 
-    async initPorts() {
-        await this.getSourceType();
+    initPorts(): void {
+        this.getSourceType();
         if (this.sourceBindingPattern) {
             const name = this.sourceBindingPattern.variableName.value;
 
@@ -68,33 +69,25 @@ export class FromClauseNode extends DataMapperNodeModel {
         // Currently, we create links from "IN" ports and back tracing the inputs.
     }
 
-    private async getSourceType() {
-        const expr = this.value.expression;
+    private getSourceType() {
         const bindingPattern = this.value.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
-
-            const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-            const type = recordTypeDescriptors.getTypeDescriptor({
-                startLine: expr.position.startLine,
-                startColumn: expr.position.startColumn,
-                endLine: expr.position.endLine,
-                endColumn: expr.position.endColumn
-            });
-            if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
-                this.typeDef = type.memberType;
-            }
+        }
+        const type = getTypeFromStore(this.value.expression.position as NodePosition);
+        if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
+            this.typeDef = type.memberType;
         }
     }
 
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
-        if ( typeof x === 'number' && typeof y === 'number'){
+        if (typeof x === 'number' && typeof y === 'number'){
             if (!this.x){
                 this.x = x;
             }
-            super.setPosition(this.x,y);
+            super.setPosition(this.x, y);
         }
     }
 }

@@ -1,18 +1,18 @@
-# Test build without tests
 name: Test PR
 
-on:
-    pull_request:
-        branches: [master]
+on: 
+  pull_request:
+
+env:
+  ballerina_version: 2201.2.3
+  ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.2.3/ballerina-2201.2.3-swan-lake.zip
+  ballerina_deb_url: https://dist.ballerina.io/downloads/2201.2.3/ballerina-2201.2.3-swan-lake-linux-x64.deb
+  vscVersion: 1.68.0
 
 jobs:
-    test_build:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v1
-              with:
-                  node-version: 16
-            - run: ./gradlew clean build -x test
-              env:
-                  NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+  Build:
+    uses: ./.github/workflows/build.yml
+    with:
+      isRelease: false
+    secrets: inherit  
+    

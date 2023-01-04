@@ -22,6 +22,7 @@ import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../
 import { EditBtn } from "../../../../Components/DiagramActions/EditBtn";
 import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../../Components/DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../../Context/diagram";
+import { useFunctionContext } from "../../../../Context/Function";
 import { defaultOrgs } from "../../../../Types/constants";
 import { getDiagnosticInfo, getMatchingConnector } from "../../../../Utils";
 import { BlockViewState, StatementViewState, ViewState } from "../../../../ViewState";
@@ -42,6 +43,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const diagramCleanDraw = diagramContext?.actions?.diagramCleanDraw;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const renderConnectorWizard = diagramContext?.api?.edit?.renderConnectorWizard;
+
+    const { functionNode } = useFunctionContext();
 
     const { syntaxTree, stSymbolInfo, isReadOnly } = diagramContext.props;
     const { model, blockViewState, specialConnectorName } = props;
@@ -142,7 +145,8 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
                 model,
                 onClose: onWizardClose,
                 onSave: onWizardClose,
-                wizardType: ConnectorWizardType.ENDPOINT
+                wizardType: ConnectorWizardType.ENDPOINT,
+                functionNode
             });
         }
     }, [model, connector, isEditConnector]);

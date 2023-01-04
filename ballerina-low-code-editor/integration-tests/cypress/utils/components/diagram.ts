@@ -2,14 +2,14 @@ import { BlockLevelPlusWidget } from "./block-level-plus-widget";
 
 export class FunctionDiagram {
 
-    public constructor(private container: Cypress.Chainable<JQuery<HTMLElement>>) { }
+    public constructor (private container: Cypress.Chainable<JQuery<HTMLElement>>) { }
 
     public shouldBeRenderedProperly() {
         this.container.within(() => {
             cy.get('.diagram-canvas .start-wrapper .start-button .start-text')
                 .should("be.visible")
                 .should("have.text", "STARTSTART");
-        })
+        });
         return this;
     }
 
@@ -20,7 +20,7 @@ export class FunctionDiagram {
                 .not('.worker-body')
                 .find(`.main-plus-wrapper[data-plus-index="${index}"]`)
                 .click();
-        })
+        });
         return this;
     }
 
@@ -34,14 +34,14 @@ export class FunctionDiagram {
     public clickExistingReturnStatement() {
         this.container.within(() => {
             cy.get(`.diagram-canvas .return-contect-wrapper [data-testid="editBtn"]`).click({ force: true });
-        })
+        });
         return this;
     }
 
     public deleteExistingReturnStatement() {
         this.container.within(() => {
             cy.get(`.diagram-canvas .return-contect-wrapper [data-testid="deleteBtn"]`).click({ force: true });
-        })
+        });
         return this;
     }
 
@@ -51,8 +51,8 @@ export class FunctionDiagram {
             cy.get(`.diagram-canvas .if-else .if-body-pluses`).within(() => {
                 cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
                     .click();
-            })
-        })
+            });
+        });
         return this;
     }
 
@@ -60,7 +60,7 @@ export class FunctionDiagram {
         this.container.within(() => {
             cy.get(`.diagram-canvas .else-line .main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
                 .click();
-        })
+        });
         return this;
     }
 
@@ -70,8 +70,8 @@ export class FunctionDiagram {
                 cy.get(`.main-plus-wrapper[data-plus-index="${index}"] svg.plus-holder #SmallPlus`)
                     .click();
 
-            })
-        })
+            });
+        });
         return this;
     }
 
@@ -82,8 +82,8 @@ export class FunctionDiagram {
                     .not('.else-line')
                     .click();
 
-            })
-        })
+            });
+        });
         return this;
     }
 
@@ -100,7 +100,7 @@ export class FunctionDiagram {
     public deleteExistingLogStatement() {
         this.container.within(() => {
             cy.get(`.diagram-canvas .main-process-wrapper .process-options-wrapper [data-testid="deleteBtn"]`).click({ force: true });
-        })
+        });
         return this;
     }
 
@@ -114,7 +114,7 @@ export class FunctionDiagram {
         this.container.within(() => {
             cy.get(`.diagram-canvas .main-process-wrapper[target-line="${targetLine}"] .process-options-wrapper [data-testid="deleteBtn"]`)
                 .click({ force: true });
-        })
+        });
         return this;
     }
 
@@ -122,14 +122,14 @@ export class FunctionDiagram {
         this.container.within(() => {
             cy.get('.performance-bar .rectangle')
                 .should("be.visible");
-        })
+        });
         return this;
     }
 
     public getAdvancedPerfData() {
         this.container.within(() => {
             cy.get('.performance-bar .more').click();
-        })
+        });
         return this;
     }
 
@@ -138,8 +138,8 @@ export class FunctionDiagram {
             return cy.get('.performance-bar').find('p').first().should(
                 "have.text",
                 text
-            )
-        })
+            );
+        });
     }
 
     public assertPerfLabel(index: number, text: string) {
@@ -147,20 +147,20 @@ export class FunctionDiagram {
             return cy.get('.performance').eq(index).find('tspan').should(
                 "have.text",
                 text
-            )
-        })
+            );
+        });
     }
 
     public assertPerfButton(text: string) {
         this.container.within(() => {
-            cy.get('.performance-bar .more').as("perfBtn")
+            cy.get('.performance-bar .more').as("perfBtn");
         });
         cy.get('@perfBtn').realClick().invoke('attr', 'aria-describedby').as("perfToolTipId")
             .then(($perfToolTipId) => {
                 return cy.get('#' + $perfToolTipId).first().should(
                     "have.text",
                     text
-                )
+                );
             });
     }
 
@@ -168,18 +168,17 @@ export class FunctionDiagram {
         this.container.within(() => {
             cy.get(`.diagram-canvas .main-process-wrapper[target-line="${targetLine}"] .process-options-wrapper [data-testid="editBtn"]`)
                 .click({ force: true });
-        })
+        });
         return this;
     }
-
 
     public assertControlFlowLineCount(count: number) {
         this.container.within(() => {
             return cy.get('.control-flow-line').should(
                 "have.length",
                 count
-            )
-        })
+            );
+        });
     }
 
     public clickEditOnExistingEndpointStatement(targetLine: number) {

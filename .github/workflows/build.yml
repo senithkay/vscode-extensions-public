@@ -1,0 +1,285 @@
+name: Build and run Tests
+
+on: 
+  workflow_call:
+    inputs:
+      isRelease:
+        required: true
+        type: boolean
+
+env:
+  ballerina_version: 2201.2.3
+  ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.2.3/ballerina-2201.2.3-swan-lake.zip
+  ballerina_deb_url: https://dist.ballerina.io/downloads/2201.2.3/ballerina-2201.2.3-swan-lake-linux-x64.deb
+  vscVersion: 1.68.0
+
+jobs:
+  Build_Stage:
+    name: Build repo
+    timeout-minutes: 45
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Install Ballerina
+        run: |
+          wget ${{ env.ballerina_deb_url }}
+          sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+
+      - name: Build plugin repo
+        run: npm run build
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+          IS_RELEASE: ${{ inputs.isRelease }}
+
+      - name: Compress build
+        run: |
+          find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
+          zip -r build.zip ./
+
+      - name: Save build
+        uses: actions/upload-artifact@v3
+        with:
+          path: build.zip
+          name: PluginBuild
+
+  PluginTest_Stage:
+    name: Run Plugin test
+    needs: Build_Stage
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Install node modules
+        run: npm install --legacy-peer-deps
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+
+      - name: Set up Ballerina
+        run: |
+          mkdir extractedDistribution
+          wget ${{ env.ballerina_zip_url }}
+          unzip -qq ./ballerina-${{ env.ballerina_version }}-swan-lake.zip -d ./extractedDistribution
+          rm ballerina-${{ env.ballerina_version }}-swan-lake.zip
+          balVersion=$(ls ./extractedDistribution)
+          balHome=./extractedDistribution/$balVersion
+
+          echo "$balHome/bin" >> $GITHUB_PATH
+
+      - name: Run Test
+        run: xvfb-run --auto-servernum npm run test
+        env:
+          balVersion: ${{ steps.set-version.outputs.balVersion }}
+          balHome: ${{ steps.set-version.outputs.balHome }}
+
+      - name: Convert lcov to cobertura
+        run: python lcov_cobertura.py coverage/lcov.info -b src/ -o coverage/coverage.xml
+
+      - name: Publish coverage reports
+        uses: actions/upload-artifact@v3
+        with:
+          path: coverage
+          name: vscode-extension-coverage-${{ github.run_attempt }}
+        if: always()
+    
+      - name: Rename code coverage file
+        run: mv coverage/coverage.xml coverage/plugin-coverage.xml
+    
+      - name: Publish partial code coverage
+        uses: actions/upload-artifact@v3
+        with:
+          path: coverage/plugin-coverage.xml
+          name: CodeCoverages
+
+  UiTest_Stage:
+    name: Run UI tests
+    needs: Build_Stage
+    timeout-minutes: 45
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Install node modules
+        run: npm install --legacy-peer-deps
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+
+      - name: Install Ballerina
+        run: |
+          wget ${{ env.ballerina_deb_url }}
+          sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+
+      - name: UI Test
+        run: |
+          sudo apt-get install xvfb
+          npx extest get-vscode -c ${{ env.vscVersion }} && npx extest get-chromedriver -c ${{ env.vscVersion }} && npx extest install-vsix -f $(ls *.vsix)
+          export DISPLAY=:98.0
+          Xvfb -ac :98 -screen 0 1920x1080x16 & 
+          npm run ui-test
+
+      - name: Publish UI Test Screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./test-resources/screenshots/
+          name: Ui-test-screenshots-${{ github.run_attempt }}
+        if: failure()
+
+  LowCode_Test_Stage:
+    name: Run low code tests
+    needs: Build_Stage
+    strategy:
+      fail-fast: false
+      matrix:
+        testStage: [test-connectors, test-block-level, test-module-level, test-entry-points, test-se, test-se-tools, test-dm]
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Install node modules
+        run: |
+          cd ballerina-low-code-editor  
+          npm install
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+
+      - name: Install Cypress Dependencies
+        run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+
+      - name: Install Ballerina
+        run: |
+          wget ${{ env.ballerina_deb_url }}
+          sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+
+      - name: Install Chrome Stable Version
+        run: |
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome-stable_current_amd64.deb
+
+      - name: Run Integration Tests
+        run: |
+          cd ballerina-low-code-editor/integration-tests  
+          npm run ${{ matrix.testStage  }}
+
+      - name: Publish test fail screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          path: ballerina-low-code-editor/integration-tests/cypress/screenshots
+          name: low-code-cypress-screenshots-${{ matrix.testStage  }}-${{ github.run_attempt }}
+        if: failure()
+      
+      - name: Rename code coverage file
+        run: mv ballerina-low-code-editor/integration-tests/.nyc_output/out.json ballerina-low-code-editor/integration-tests/.nyc_output/${{ matrix.testStage  }}.json
+      
+      - name: Publish partial code coverage
+        uses: actions/upload-artifact@v3
+        with:
+          path: ballerina-low-code-editor/integration-tests/.nyc_output/${{ matrix.testStage  }}.json
+          name: CodeCoverages
+
+      - name: Publish test videos
+        uses: actions/upload-artifact@v3
+        with:
+          path: ballerina-low-code-editor/integration-tests/cypress/videos
+          name: low-code-cypress-recordings-${{ matrix.testStage  }}-${{ github.run_attempt }}
+        if: failure()
+    
+      - name: Publish test failure console logs
+        uses: actions/upload-artifact@v3
+        with:
+          path: ballerina-low-code-editor/integration-tests/logs
+          name: low-code-cypress-failure-test-logs-${{ matrix.testStage  }}-${{ github.run_attempt }}
+        if: failure()
+
+  Publish_Coverage_Resuls_Stage:
+    name: Publish code coverage results
+    needs: [Build_Stage, PluginTest_Stage, UiTest_Stage, LowCode_Test_Stage]
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Install node modules
+        run: |
+          cd ballerina-low-code-editor  
+          npm install
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+
+      - name: Download partial code coverages
+        uses: actions/download-artifact@v3
+        with:
+          name: CodeCoverages
+          path: ./coverageData
+
+      - name: "Publish total code coverage"
+        run: |
+          cd ballerina-low-code-editor
+          npx nyc merge ../coverageData
+          mkdir integration-tests/.nyc_output
+          mv coverage.json integration-tests/.nyc_output/out.json
+          npx nyc report --reporter html --reporter cobertura -t integration-tests/.nyc_output --report-dir integration-tests/coverage
+        if: always()
+
+      - run: |
+          mkdir totalCoverage
+          echo ${{ github.event.number }} | tee ./totalCoverage/number
+          mv ballerina-low-code-editor/integration-tests/coverage/cobertura-coverage.xml totalCoverage/lowcode-coverage.xml 
+
+      - name: Publish code coverage
+        uses: actions/upload-artifact@v3
+        with:
+          path: totalCoverage
+          name: CodeCoverages    
