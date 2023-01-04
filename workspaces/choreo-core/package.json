@@ -1,0 +1,19 @@
+{
+  "name": "@wso2-enterprise/choreo-core",
+  "version": "1.0.0",
+  "description": "Contains models related to Choreo APIs",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "npm run lint && tsc --pretty",
+    "watch": "tsc --pretty --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WSO2",
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "vscode-messenger-common": "^0.4.3"
+  }
+}

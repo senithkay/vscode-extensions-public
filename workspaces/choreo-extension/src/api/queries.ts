@@ -12,7 +12,7 @@
  */
 import { gql } from 'graphql-request';
 import { getProjectsApiClient } from '.';
-import { Component, ComponentDetailed, Project } from './types';
+import { Component, ComponentDetailed, Project } from '@wso2-enterprise/choreo-core';
 
 export async function getProjectsByOrg(orgId: string): Promise<Project[]> {
     const query = gql`

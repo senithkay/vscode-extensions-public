@@ -12,22 +12,13 @@
  */
 import { commands, WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
-import { RequestType, NotificationType, BROADCAST } from 'vscode-messenger-common';
-import { Organization } from "../../../api/types";
+import { BROADCAST } from 'vscode-messenger-common';
+import { GetAllOrgsRequest, GetCurrentOrgRequest,
+    GetLoginStatusRequest, ExecuteCommandNotification,
+    LoginStatusChangedNotification, SelectedOrgChangedNotification  } from "@wso2-enterprise/choreo-core";
 
 import { getUserInfo } from "../../../api/user";
 import { ext } from "../../../extensionVariables";
-
-// request types 
-const getLoginStatus: RequestType<string, string> = { method: 'getLoginStatus' };
-const getCurrentOrg: RequestType<string, Organization> = { method: 'getCurrentOrg' };
-const getAllOrgs: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
-
-// notification types
-const onLoginStatusChanged: NotificationType<string> = { method: 'loginStatusChanged' };
-const onSelectedOrgChanged: NotificationType<Organization> = { method: 'selectedOrgChanged' };
-const executeCommand: NotificationType<string[]> = { method: 'executeCommand' };
-
 
 export class WebViewRpc {
 
@@ -36,13 +27,13 @@ export class WebViewRpc {
     constructor(view: WebviewPanel) {
         this._messenger.registerWebviewPanel(view, { broadcastMethods: [ 'loginStatusChanged', 'selectedOrgChanged' ] });
 
-        this._messenger.onRequest(getLoginStatus, () => {
+        this._messenger.onRequest(GetLoginStatusRequest, () => {
             return ext.api.status;
         });
-        this._messenger.onRequest(getCurrentOrg, () => {
+        this._messenger.onRequest(GetCurrentOrgRequest, () => {
             return ext.api.selectedOrg;
         });
-        this._messenger.onRequest(getAllOrgs, async () => {
+        this._messenger.onRequest(GetAllOrgsRequest, async () => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
                  const userInfo = await getUserInfo();
@@ -50,12 +41,12 @@ export class WebViewRpc {
             } 
         });
         ext.api.onStatusChanged((newStatus) => {
-            this._messenger.sendNotification(onLoginStatusChanged, BROADCAST, newStatus);
+            this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
         });
         ext.api.onOrganizationChanged((newOrg) => {
-            this._messenger.sendNotification(onSelectedOrgChanged, BROADCAST, newOrg);
+            this._messenger.sendNotification(SelectedOrgChangedNotification, BROADCAST, newOrg);
         });
-        this._messenger.onNotification(executeCommand, (args: string[]) => {
+        this._messenger.onNotification(ExecuteCommandNotification, (args: string[]) => {
             if (args.length >= 1) {
                 const cmdArgs = args.length > 1 ? args.slice(1) : [];
                 commands.executeCommand(args[0], ...cmdArgs);

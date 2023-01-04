@@ -12,7 +12,7 @@
  */
 import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
 import { getComponentsByProject, getProjectsByOrg } from "../../api/queries";
-import { Project } from "../../api/types";
+import { Project } from "@wso2-enterprise/choreo-core";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
 import { ChoreoComponentTreeItem } from "./ComponentTreeItem";

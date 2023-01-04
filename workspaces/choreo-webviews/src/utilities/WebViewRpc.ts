@@ -11,36 +11,16 @@
  *  associated services.
  */
 import { Messenger } from "vscode-messenger-webview";
-import { HOST_EXTENSION, RequestType, NotificationType } from "vscode-messenger-common";
+import { HOST_EXTENSION } from "vscode-messenger-common";
+
+import { GetAllOrgsRequest, GetCurrentOrgRequest,
+    GetLoginStatusRequest, ExecuteCommandNotification,
+    LoginStatusChangedNotification, SelectedOrgChangedNotification,
+    ChoreoLoginStatus,  
+    Organization} from "@wso2-enterprise/choreo-core";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
-
-export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
-
-const getLoginStatus: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
-const getCurrentOrg: RequestType<string, Organization> = { method: 'getCurrentOrg' };
-const getAllOrgs: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
-
-// notifications
-const onLoginStatusChanged: NotificationType<string> = { method: 'loginStatusChanged' };
-const onSelectedOrgChanged: NotificationType<Organization> = { method: 'selectedOrgChanged' };
-const executeCommand: NotificationType<string[]> = { method: 'executeCommand' };
-
-export interface Organization {
-    id: string;
-    uuid: string;
-    handle: string;
-    name: string;
-    owner: Owner;
-}
-
-export interface Owner {
-    id: string;
-    idpId: string;
-    createdAt: Date;
-}
-
 export class WebViewRpc {
 
     private readonly _messenger ;
@@ -52,27 +32,27 @@ export class WebViewRpc {
     }
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
-        return this._messenger.sendRequest(getLoginStatus, HOST_EXTENSION, '');
+        return this._messenger.sendRequest(GetLoginStatusRequest, HOST_EXTENSION, '');
     }
 
     public async getCurrentOrg(): Promise<Organization> {
-        return this._messenger.sendRequest(getCurrentOrg, HOST_EXTENSION, '');
+        return this._messenger.sendRequest(GetCurrentOrgRequest, HOST_EXTENSION, '');
     }
     
     public async getAllOrgs(): Promise<Organization[]> {
-        return this._messenger.sendRequest(getAllOrgs, HOST_EXTENSION, '');
+        return this._messenger.sendRequest(GetAllOrgsRequest, HOST_EXTENSION, '');
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
-        this._messenger.onNotification(onLoginStatusChanged, callback);
+        this._messenger.onNotification(LoginStatusChangedNotification, callback);
     }
 
     public onSelectedOrgChanged(callback: (newOrg: Organization) => void) {
-        this._messenger.onNotification(onSelectedOrgChanged, callback);
+        this._messenger.onNotification(SelectedOrgChangedNotification, callback);
     }
 
     public triggerSignIn() {
-        this._messenger.sendNotification(executeCommand, HOST_EXTENSION, ["wso2.choreo.sign.in"]);
+        this._messenger.sendNotification(ExecuteCommandNotification, HOST_EXTENSION, ["wso2.choreo.sign.in"]);
     }
 
     public static getInstance() {

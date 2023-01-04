@@ -16,7 +16,7 @@ import { ChoreoLoginStatus } from "./auth/events";
 import { Disposable, EventEmitter } from 'vscode';
 import { ext } from "./extensionVariables";
 
-import { Organization } from "./api/types";
+import { Organization } from "@wso2-enterprise/choreo-core";
 import { exchangeAuthToken } from "./auth/inbuilt-impl";
 
 export interface IChoreoExtensionAPI {
