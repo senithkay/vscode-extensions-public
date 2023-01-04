@@ -23,7 +23,7 @@ export interface ComponentModel {
     packageId: PackageID;
     services: Map<string, Service>;
     entities: Map<string, Entity>;
-    hasDiagnosticErrors: boolean;
+    hasCompilationErrors: boolean;
 }
 
 interface PackageID {

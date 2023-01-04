@@ -95,7 +95,7 @@ async function getProjectResources(): Promise<Map<string, ComponentModel>> {
         }).then((response) => {
             const packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
             for (let [_key, packageModel] of packageModels) {
-                if (packageModel.hasDiagnosticErrors) {
+                if (packageModel.hasCompilationErrors) {
                     window.showInformationMessage(DIAGNOSTICS_WARNING);
                     break;
                 }
