@@ -6,6 +6,8 @@
 - GraphQL Tryit - Facilitates  trying out the GraphQL services with the integrated client
 - Project Design View (Experimental) - Allows you to visualize service interactions in your project
 
+For more information, see the [release note](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md).
+
     ### **3.3.5**
     #### **Fixed**
     - Broken links in readme [335] (https://github.com/wso2/ballerina-plugin-vscode/issues/335)
