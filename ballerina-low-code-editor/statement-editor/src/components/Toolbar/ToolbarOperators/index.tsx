@@ -140,7 +140,7 @@ export function ToolbarOperators() {
                 filteredGroups = [operators, equality];
             } else if (isRecordFieldName(currentModel.model)) {
                 filteredGroups = [optionalRecordField]
-            } else if (currentModel?.model?.parent?.parent && STKindChecker.isTypedBindingPattern(currentModel.model.parent.parent)) {
+            } else if (currentModel?.model?.viewState.modelType === ModelType.TYPE_DESCRIPTOR) {
                 filteredGroups = [typeDesc]
             } else if (config.type === "AssignmentStatement" && STKindChecker.isIdentifierToken(currentModel.model)) {
                 filteredGroups = [listBindingPattern, memberAccess]
