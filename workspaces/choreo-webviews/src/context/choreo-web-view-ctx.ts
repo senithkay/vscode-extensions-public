@@ -11,7 +11,7 @@
  *  associated services.
  */
 import React from "react";
-import { ChoreoLoginStatus, Organization } from "../utilities/WebViewRpc";
+import { ChoreoLoginStatus, Organization } from "@wso2-enterprise/choreo-core";
 
 export interface IChoreoWebViewContext {
     loginStatus: ChoreoLoginStatus;
