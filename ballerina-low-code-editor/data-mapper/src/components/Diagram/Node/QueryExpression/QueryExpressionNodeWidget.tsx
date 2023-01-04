@@ -20,10 +20,12 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExitToApp from "@material-ui/icons/ExitToApp";
 import QueryIcon from '@material-ui/icons/StorageOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
+import { FUNCTION_BODY_QUERY } from "../../utils/constants";
 
 import {
     QueryExpressionNode,
@@ -130,19 +132,20 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickOnExpand = () => {
+        const isExprBodyQuery = STKindChecker.isExpressionFunctionBody(node.parentNode);
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,
                 selectedST: {
-                    stNode: node.parentNode,
-                    fieldPath: node.targetFieldFQN
+                    stNode: isExprBodyQuery ? node.context.selection.selectedST.stNode : node.parentNode,
+                    fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : node.targetFieldFQN
                 }
             })
     }
 
-    const deleteQueryLink = () => {
+    const deleteQueryLink = async () => {
         setDeleteInProgress(true);
-        node.deleteLink();
+        await node.deleteLink();
     }
 
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
@@ -157,7 +160,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
 
     return (!node.hidden && (
         <>
-            {!!node.sourcePort && (
+            {(!!node.sourcePort && !!node.inPort && !!node.outPort) && (
                 <div className={classes.root} >
                     <div className={classes.header}>
                         <DataMapperPortWidget engine={engine} port={node.inPort} />
@@ -166,7 +169,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                                 <QueryIcon  />
                             </span>
                         </TooltipComponent>
-                        <div className={classes.element} onClick={onClickOnExpand}>
+                        <div className={classes.element} onClick={onClickOnExpand} data-testid={`expand-query-${node?.targetFieldFQN}`}>
                             <div className={classes.iconWrapper}>
                                 <ExitToApp className={clsx(classes.editIcon)}/>
                             </div>
@@ -176,7 +179,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                                 {loadingScreen}
                             </div>
                         ) : (
-                            <div className={classes.element} onClick={deleteQueryLink}>
+                            <div className={classes.element} onClick={deleteQueryLink} data-testid={`delete-query-${node?.targetFieldFQN}`}>
                                 <div className={classes.iconWrapper}>
                                     <DeleteIcon className={clsx(classes.deleteIcon)}/>
                                 </div>

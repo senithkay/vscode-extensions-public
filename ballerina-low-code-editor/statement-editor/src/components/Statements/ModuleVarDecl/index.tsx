@@ -16,6 +16,7 @@ import React, { useContext } from "react";
 import {
     ConfigurableKeyword,
     FinalKeyword,
+    IsolatedKeyword,
     ModuleVarDecl,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
@@ -48,10 +49,10 @@ export function ModuleVarDeclC(props: ModuleVarDeclProps) {
         }
     }
 
-    const qualifiers = model.qualifiers.map((qualifier: ConfigurableKeyword | FinalKeyword) => {
+    const qualifiers = model.qualifiers.map((qualifier: ConfigurableKeyword | FinalKeyword | IsolatedKeyword) => {
         return (
             <>
-                {STKindChecker.isFinalKeyword(qualifier) ?
+                {STKindChecker.isFinalKeyword(qualifier) || STKindChecker.isIsolatedKeyword(qualifier) ?
                     <KeywordComponent model={qualifier}/> :
                     <TokenComponent model={qualifier} className={"keyword"} />
                 }
@@ -62,10 +63,15 @@ export function ModuleVarDeclC(props: ModuleVarDeclProps) {
     return (
         <>
             {model?.metadata && <TokenComponent model={model.metadata} className={"keyword"} />}
+            {model.visibilityQualifier && <KeywordComponent model={model.visibilityQualifier}/>}
             {qualifiers}
             <ExpressionComponent model={model.typedBindingPattern} />
-            <TokenComponent model={model.equalsToken} className={"operator"} />
-            <ExpressionComponent model={model.initializer}/>
+            {model?.initializer && (
+                <>
+                    <TokenComponent model={model.equalsToken} className={"operator"} />
+                    <ExpressionComponent model={model.initializer}/>
+                </>
+            )}
             {/* TODO: use model.semicolonToken.isMissing when the ST interface is supporting */}
             {model.semicolonToken.position.startColumn !== model.semicolonToken.position.endColumn &&
                 <TokenComponent model={model.semicolonToken} />}

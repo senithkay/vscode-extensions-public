@@ -13,11 +13,13 @@
 import { Point } from "@projectstorm/geometry";
 import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    ExpressionFunctionBody,
     IdentifierToken,
+    NodePosition,
+    QueryExpression,
     SelectClause,
     STKindChecker,
-    STNode,
-    traversNode
+    STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -33,11 +35,11 @@ import {
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
-    getTypeName
+    getTypeName,
+    getTypeOfOutput,
+    isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
-import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
@@ -52,8 +54,9 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: SelectClause,
-        public typeIdentifier: TypeDescriptor | IdentifierToken) {
+        public value: SelectClause | ExpressionFunctionBody,
+        public typeIdentifier: TypeDescriptor | IdentifierToken,
+        public queryExpr?: QueryExpression) {
         super(
             context,
             PRIMITIVE_TYPE_NODE_TYPE
@@ -61,37 +64,28 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-        this.typeDef = recordTypeDescriptors.getTypeDescriptor({
-            startLine: this.typeIdentifier.position.startLine,
-            startColumn: this.typeIdentifier.position.startColumn,
-            endLine: this.typeIdentifier.position.startLine,
-            endColumn: this.typeIdentifier.position.startColumn
-        });
+        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
 
         if (this.typeDef) {
-            const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
-                PRIMITIVE_TYPE_TARGET_PORT_PREFIX, this.context.collapsedFields, STKindChecker.isSelectClause(this.value));
-
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                this.value.expression, this.context.selection.selectedST.stNode);
-            this.recordField = valueEnrichedType;
+                this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = getTypeName(valueEnrichedType.type);
+            this.recordField = valueEnrichedType;
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
                 && STKindChecker.isSelectClause(this.value)
             ) {
-                if (this.recordField?.elements) {
-                    this.recordField.elements.forEach((field, index) => {
-                        this.addPortsForOutputRecordField(field.member, "IN", '', index,
-                            PRIMITIVE_TYPE_TARGET_PORT_PREFIX, parentPort,
-                            this.context.collapsedFields, parentPort.collapsed, true);
-                    });
-                }
+                this.recordField = valueEnrichedType.elements[0].member;
             }
+            const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
+                PRIMITIVE_TYPE_TARGET_PORT_PREFIX, this.context.collapsedFields,
+                STKindChecker.isSelectClause(this.value), this.recordField);
+            this.addPortsForOutputRecordField(this.recordField, "IN", this.recordField.type.typeName,
+                undefined, PRIMITIVE_TYPE_TARGET_PORT_PREFIX, parentPort,
+                this.context.collapsedFields, parentPort.collapsed, STKindChecker.isSelectClause(this.value));
         }
     }
 
-    async initLinks() {
+    initLinks(): void {
         const mappings = this.genMappings(this.value.expression);
         this.createLinks(mappings);
     }
@@ -109,8 +103,18 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
-            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
+            let outPort: RecordFieldPortModel;
+            let mappedOutPort: RecordFieldPortModel;
+            if (!isArrayOrRecord(this.recordField.type)) {
+                outPort = this.getPort(`${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${
+                    this.recordField.type.typeName}.IN`) as RecordFieldPortModel;
+                mappedOutPort = outPort;
+            } else {
+                [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+            }
+            const lm = new DataMapperLinkModel(value,
+                                            filterDiagnostics(this.context.diagnostics, value.position as NodePosition),
+                                            true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
@@ -121,12 +125,13 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                         ? field.valueExpr
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
-                        ? field.fieldName.value
+                        ? field.fieldName.value as string
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field),
                 }));
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
+                inPort.addLinkedPort(mappedOutPort);
                 lm.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {
@@ -144,32 +149,19 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     async deleteField(field: STNode) {
-        let modifications: STModification[];
-        if (this.typeDef?.typeName === PrimitiveBalType.Array && this.typeDef.memberType
-            && this.typeDef.memberType.typeName !== PrimitiveBalType.Array
-            && this.typeDef.memberType.typeName !== PrimitiveBalType.Record)
-        {
-            // Fallback to the default value if the target is a primitive type element
-            modifications = [{
+        const typeOfValue = STKindChecker.isSelectClause(this.value) && this.typeDef?.memberType
+            ? this.typeDef.memberType
+            : this.typeDef;
+        const modifications: STModification[] = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(this.typeDef.memberType)
+                    "STATEMENT": getDefaultValue(typeOfValue)
                 },
                 ...field.position
             }];
-        } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);
-            traversNode(this.value.expression, linkDeleteVisitor);
-            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
-            modifications = [{
-                type: "DELETE",
-                ...nodePositionsToDelete
-            }]
-        }
 
         await this.context.applyModifications(modifications);
     }
-
 
     public updatePosition() {
         this.setPosition(this.position.x, this.position.y);

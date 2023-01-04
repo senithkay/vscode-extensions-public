@@ -16,18 +16,17 @@ import { useIntl } from "react-intl";
 
 import {
     PrimaryButton,
-    SecondaryButton,
-    StatementEditorButton
-} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+    SecondaryButton} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModuleVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Uri } from 'monaco-editor';
 
 import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getModifications } from "../../utils";
-import { sendDidChange, sendDidClose } from "../../utils/ls-utils";
+import { CONF_NAME_PLACEHOLDER } from '../../utils/expressions';
+import { sendDidChange } from "../../utils/ls-utils";
 import Breadcrumb from "../Breadcrumb";
 import { CloseButton } from "../Button/CloseButton";
+import { EditorOverlay, OverlayType } from '../EditorOverlay';
 import { EditorPane } from '../EditorPane';
 import { Help } from "../Help";
 import { useStatementEditorStyles } from "../styles";
@@ -52,19 +51,13 @@ export function ViewContainer(props: ViewContainerProps) {
     const overlayClasses = useStatementEditorStyles();
     const {
         currentFile,
-        config,
         applyModifications,
         getLangClient,
         onCancel,
-        onWizardClose
-    } = useContext(StatementEditorContext);
-    const {
+        onWizardClose,
         modelCtx: {
             statementModel,
             editing
-        },
-        modules: {
-            modulesToBeImported
         },
         editorCtx: {
             editors,
@@ -72,13 +65,12 @@ export function ViewContainer(props: ViewContainerProps) {
             updateEditor,
             activeEditorId
         },
-        targetPosition,
         syntaxTree,
-        isExpressionMode,
         isCodeServerInstance
     } = useContext(StatementEditorContext);
-    const exprSchemeURI = Uri.file(currentFile.path).toString().replace("file", "expr");
     const fileSchemeURI = Uri.file(currentFile.path).toString();
+    const hasConfPlaceholder = isConfigurableStmt &&
+                               statementModel?.typedBindingPattern?.bindingPattern?.variableName?.value === CONF_NAME_PLACEHOLDER;
 
     const saveButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.statementEditor.saveButton.text",
@@ -106,7 +98,7 @@ export function ViewContainer(props: ViewContainerProps) {
     };
 
     const onAddConfigurableClick = async () => {
-        await handleModifications(false);
+        await handleModifications();
 
         const model = statementModel as ModuleVarDecl;
 
@@ -135,19 +127,29 @@ export function ViewContainer(props: ViewContainerProps) {
         onCancel();
     };
 
-    const handleModifications = async (addImports = true) => {
-        await sendDidClose(exprSchemeURI, getLangClient);
-        await sendDidChange(fileSchemeURI, currentFile.content, getLangClient);
-        const imports = addImports ? Array.from(modulesToBeImported) as string[] : [];
+    const handleModifications = async () => {
         if (statementModel) {
-            const modifications = getModifications(statementModel, config.type, targetPosition, imports, isExpressionMode);
-            applyModifications(modifications);
+            await sendDidChange(fileSchemeURI, currentFile.draftSource, getLangClient);
+            // HACK: trigger apply modification with space to re draw diagram and code formatting
+            applyModifications([
+                {
+                    "startLine": 0,
+                    "startColumn": 0,
+                    "endLine": 0,
+                    "endColumn": 0,
+                    "type": "INSERT",
+                    "isImport": false,
+                    "config": {
+                        "STATEMENT": "  "
+                    }
+                }
+
+            ]);
         }
     };
 
     const handleClose = async () => {
-        await sendDidChange(exprSchemeURI, currentFile.originalContent ? currentFile.originalContent : currentFile.content, getLangClient);
-        await sendDidClose(exprSchemeURI, getLangClient);
+        onWizardClose();
     };
 
     return (
@@ -164,14 +166,10 @@ export function ViewContainer(props: ViewContainerProps) {
                 )
                 }
                 {isDisableEditor && (
-                    <div className={overlayClasses.mainStatementWrapper} data-testid="disable-overlay">
-                        <div className={overlayClasses.loadingWrapper}>The source code has changed. Please retry editing the statement.</div>
-                    </div>
+                    <EditorOverlay type={OverlayType.Disabled}/>
                 )}
                 {isPullingModule && !isDisableEditor && (
-                    <div className={overlayClasses.mainStatementWrapper} data-testid="package-pulling-loader">
-                        <div className={overlayClasses.loadingWrapper}>Pulling package...</div>
-                    </div>
+                    <EditorOverlay type={OverlayType.ModulePulling}/>
                 )}
                 {!isPullingModule && !isDisableEditor && (
                     <>
@@ -197,7 +195,7 @@ export function ViewContainer(props: ViewContainerProps) {
                                             ? addConfigurableButtonText
                                             : saveButtonText
                                     }
-                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1 || editing}
+                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1 || hasConfPlaceholder || editing}
                                     fullWidth={false}
                                     onClick={
                                         activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick

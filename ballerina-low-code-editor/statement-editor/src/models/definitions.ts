@@ -16,6 +16,7 @@ import { IconType } from "react-icons";
 
 import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import { StmtEditorUndoRedoManager } from "../utils/undo-redo";
 
@@ -65,6 +66,8 @@ export interface RemainingContent {
 export interface StatementSyntaxDiagnostics {
     message: string;
     isPlaceHolderDiag?: boolean;
+    diagnostic?: Diagnostic;
+    codeActions?: CodeAction[];
 }
 
 export interface StmtOffset {
@@ -88,6 +91,7 @@ export interface EditorModel {
     isExistingStmt?: boolean;
     selectedNodePosition?: NodePosition;
     newConfigurableName?: string;
+    hasIncorrectSyntax?: boolean;
 }
 
 export interface SymbolIcon {

@@ -1,13 +1,13 @@
+// tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
+
+import { Typography } from '@material-ui/core';
+import { createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
-import { List, Typography } from '@material-ui/core';
-
-import { createStyles, withStyles, WithStyles, Theme } from "@material-ui/core/styles";
-import { RecordTypeDesc, STKindChecker } from '@wso2-enterprise/syntax-tree';
 import { BinaryExpressionNode } from './BinaryExpressionNode';
 
-const styles = (theme: Theme) => createStyles({
+const styles = () => createStyles({
 	root: {
 		width: '100%',
 		maxWidth: 500,
@@ -23,10 +23,6 @@ export interface BinaryExpressionNodeWidgetProps extends WithStyles<typeof style
 
 class BinaryExpressionNodeWidgetC extends React.Component<BinaryExpressionNodeWidgetProps> {
 	render() {
-		const node = this.props.node;
-		const classes = this.props.classes;
-		const engine = this.props.engine;
-
 		return (
 			<div
 				className={'datamapper-node'}

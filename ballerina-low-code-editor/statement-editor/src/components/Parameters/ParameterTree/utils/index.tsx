@@ -612,10 +612,13 @@ export function mapActionToFormField(model: STNode, formFields: FormField[]) {
 }
 
 export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificField[], formFields: FormField[]) {
+    let findAllFormFields = true;
     specificFields?.forEach((specificField) => {
         if (specificField.kind !== "CommaToken") {
+            let findFormField = false;
             formFields.forEach((formField) => {
                 if (getFieldName(formField.name) === specificField.fieldName.value) {
+                    findFormField = true;
                     formField.value =
                         STKindChecker.isStringLiteral(specificField.valueExpr) ||
                         STKindChecker.isNumericLiteral(specificField.valueExpr) ||
@@ -631,7 +634,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                 if (subFormField.typeName === "record" && subFormField.fields) {
                                     const subFields = subFormField.fields;
                                     if (subFields) {
-                                        mapRecordLiteralToRecordTypeFormField(
+                                        const fullyMatched = mapRecordLiteralToRecordTypeFormField(
                                             mappingField.fields as SpecificField[],
                                             subFields
                                         );
@@ -645,7 +648,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                                                 allFieldsFilled = false;
                                             }
                                         });
-                                        if (allFieldsFilled) {
+                                        if (allFieldsFilled && fullyMatched) {
                                             formField.selectedDataType = getUnionFormFieldName(subFormField);
                                             formField.selected = true;
                                         }
@@ -669,8 +672,13 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
             });
+            if (!findFormField){
+                findAllFormFields = false;
+                return;
+            }
         }
     });
+    return findAllFormFields;
 }
 
 export function getRestParamFieldValue(remoteMethodCallArguments: PositionalArg[], currentFieldIndex: number) {

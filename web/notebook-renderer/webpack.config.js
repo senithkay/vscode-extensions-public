@@ -2,6 +2,7 @@ const path = require("path");
 const webpack = require("webpack");
 module.exports = {
     entry: "./src/components/index.tsx",
+    mode: "production",
     output: {
         path: path.resolve(__dirname, "build"),
         filename: "NotebookRenderer.js",
@@ -24,7 +25,7 @@ module.exports = {
                 exclude: /node_modules/,
                 use: [
                     {
-                        loader: "awesome-typescript-loader",
+                        loader: "ts-loader",
                     },
                 ],
             },

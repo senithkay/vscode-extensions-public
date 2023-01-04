@@ -24,24 +24,38 @@ import { TextField } from "@material-ui/core";
 import { useStyles } from "../../style";
 
 export interface TextFieldInputProps {
-    id: string;
-    isRequired: boolean;
+    id?: string;
+    isRequired?: boolean;
     name?: string;
     value: any;
+    valueRef?: string;
     type: string;
     inputProps?: object;
     placeholder?: string;
-    setTextFieldValue: (id: string, value: any) => void;
+    setTextFieldValue?: (id: string, value: any, valuRef: any) => void;
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, value, type, inputProps, placeholder, setTextFieldValue, name } = props;
+    const { id, isRequired, value, valueRef, type, inputProps, placeholder, setTextFieldValue, name } = props;
     const [inputValue, setInputValue] = useState(value ? String(value) : undefined);
+    const [inputValueRef, setInputValueRef] = useState(valueRef ? String(valueRef) : undefined);
 
     useEffect(() => {
-        setTextFieldValue(id, inputValue);
+        setTextFieldValue(id, inputValue, inputValueRef);
     }, [inputValue]);
+
+    useEffect(() => {
+        setInputValueRef(valueRef);
+    }, [valueRef]);
+
+    useEffect(() => {
+        setInputValue(value);
+    }, [value]);
+
+    // useEffect(() => {
+    //     setInputValueRef(valueRef);
+    // }, [valueRef]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = e.target.value;
@@ -61,7 +75,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
             variant="outlined"
             placeholder={placeholder}
             fullWidth={true}
-            defaultValue={inputValue}
+            value={inputValue}
             type={type}
             margin="none"
             onChange={handleChange}

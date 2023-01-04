@@ -24,7 +24,7 @@ export class RecordFieldPortFactory extends AbstractModelFactory<PortModel, Diag
 		super(FORM_FIELD_PORT);
 	}
 
-	generateModel(event: { initialConfig: any }): any {
+	generateModel(): PortModel {
 		return undefined;
 	}
 }

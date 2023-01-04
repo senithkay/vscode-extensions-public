@@ -52,10 +52,8 @@ export function EditorPane() {
     return (
         <>
             <div className={statementEditorClasses.stmtEditorContentWrapper} data-testid="statement-contentWrapper">
+                <Toolbar inlineDocumentHandler={inlineDocumentHandler}/>
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                    <div className={statementEditorClasses.statementExpressionTitle} data-testid="editor-toolbar">
-                        <Toolbar inlineDocumentHandler={inlineDocumentHandler}/>
-                    </div>
                     <div className={statementEditorClasses.statementExpressionContent}  data-testid="statement-renderer">
                         <StatementRenderer
                             model={statementModel}

@@ -29,11 +29,13 @@ import {
     QualifiedNameReference,
     STKindChecker,
     STNode,
+    traversNode,
     VisibleEndpoint,
     WhileStatement,
 } from "@wso2-enterprise/syntax-tree";
 
 import { isEndpointNode } from "../../../../../utils";
+import { visitor as ReturnTypeVisitor } from "../../../../../visitors/return-type-visitor";
 import { getFieldName, getFormattedModuleName } from "../../../../Portals/utils";
 import { isAllDefaultableFields, isAnyFieldSelected, isDependOnDriver } from "../../../Utils";
 
@@ -226,7 +228,7 @@ export function getSelectedUnionMember(unionFields: FormField): FormField {
             (member) => member.typeName === unionFields.value?.replace(/['"]+/g, "")
         );
     }
-    if (!selectedMember) {
+    if (!selectedMember && unionFields.members && unionFields.members.length > 0) {
         selectedMember = unionFields.members[ 0 ];
     }
     return selectedMember;
@@ -556,4 +558,12 @@ export function getReturnTypeImports(returnType: FormFieldReturnType) {
         });
     }
     return imports;
+}
+
+export function isParentNodeWithErrorReturn(blockNode: STNode) {
+    if (blockNode && (STKindChecker.isFunctionDefinition(blockNode) || STKindChecker.isResourceAccessorDefinition(blockNode))) {
+        traversNode(blockNode.functionSignature, ReturnTypeVisitor);
+        return ReturnTypeVisitor.hasError();
+    }
+    return false;
 }

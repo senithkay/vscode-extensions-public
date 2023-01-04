@@ -15,9 +15,8 @@ import React from "react";
 
 import { ListBindingPattern } from "@wso2-enterprise/syntax-tree";
 
-import { getMinutiaeJSX } from "../../../utils";
-import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
-import { InputEditor } from "../../InputEditor";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
+import { TokenComponent } from "../../Token";
 
 interface ListBindingPatternProps {
     model: ListBindingPattern;
@@ -26,17 +25,11 @@ interface ListBindingPatternProps {
 export function ListBindingPatternComponent(props: ListBindingPatternProps) {
     const { model } = props;
 
-    const inputEditorProps = {
-        model
-    };
-
-    const { leadingMinutiaeJSX, trailingMinutiaeJSX } = getMinutiaeJSX(model);
-
     return (
         <>
-            {leadingMinutiaeJSX}
-            <InputEditor {...inputEditorProps} />
-            {trailingMinutiaeJSX}
+            <TokenComponent model={model.openBracket} />
+            <ExpressionArrayComponent expressions={model.bindingPatterns} />
+            <TokenComponent model={model.closeBracket} />
         </>
     );
 }

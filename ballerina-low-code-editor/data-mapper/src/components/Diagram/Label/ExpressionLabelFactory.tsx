@@ -1,11 +1,11 @@
 import * as React from 'react';
+
 import { AbstractReactFactory, GenerateWidgetEvent } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { container, injectable, singleton } from 'tsyringe';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { EditableLabelWidget } from './ExpressionLabelWidget';
-
-import { container, injectable, singleton } from 'tsyringe';
 
 @injectable()
 @singleton()

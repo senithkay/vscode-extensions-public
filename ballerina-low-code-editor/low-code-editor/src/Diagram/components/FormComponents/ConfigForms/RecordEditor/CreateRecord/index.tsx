@@ -21,6 +21,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Context } from "../../../../../../Contexts/Diagram";
 import { getInitialSource, mutateTypeDefinition } from "../../../../../utils";
 import { genVariableName } from "../../../../Portals/utils";
+import { UndoRedoManager } from "../../../UndoRedoManager";
 import { wizardStyles } from "../../style";
 import { RecordConfigTypeSelector } from "../RecordConfigTypeSelector";
 import { RecordFromJson } from "../RecordFromJson";
@@ -35,12 +36,13 @@ enum ConfigState {
 export interface CreateRecordProps {
     targetPosition?: NodePosition;
     isDataMapper?: boolean;
+    undoRedoManager?: UndoRedoManager;
     onCancel: (createdNewRecord?: string) => void;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
 }
 
 export function CreateRecord(props: CreateRecordProps) {
-    const { targetPosition, isDataMapper, onSave, onCancel } = props;
+    const { targetPosition, isDataMapper, undoRedoManager, onSave, onCancel } = props;
 
     const {
         props: {
@@ -124,6 +126,7 @@ export function CreateRecord(props: CreateRecordProps) {
                 )}
                 {(editorState === ConfigState.IMPORT_FROM_JSON) && (
                     <RecordFromJson
+                        undoRedoManager={undoRedoManager}
                         targetPosition={targetPosition}
                         onCancel={onCancel}
                         onSave={handleImportJsonSave}

@@ -20,7 +20,7 @@ import React from "react";
 
 import { IconButton } from "@material-ui/core";
 
-import { DeleteButtonSvg } from "../../../assets";
+import { DeleteIcon } from "../../../assets/icons";
 
 interface DeleteButtonProps {
     id: string;
@@ -37,7 +37,7 @@ const DeleteButton = ({ id, onDelete }: DeleteButtonProps) => {
             onClick={handleDelete}
             size={"small"}
         >
-            <img src={DeleteButtonSvg} height={20} width={20}/>
+          <DeleteIcon />
         </IconButton>
     );
 };

@@ -23,6 +23,7 @@ export interface ComponentModel {
     packageId: PackageID;
     services: Map<string, Service>;
     entities: Map<string, Entity>;
+    hasCompilationErrors: boolean;
 }
 
 interface PackageID {
@@ -86,6 +87,7 @@ export interface Entity {
     attributes: Attribute[];
     inclusions: string[];
     elementLocation: Location;
+    isAnonymous: boolean;
 }
 
 export interface Attribute {

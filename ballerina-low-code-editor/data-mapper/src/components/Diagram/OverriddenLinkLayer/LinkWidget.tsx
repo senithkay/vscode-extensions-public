@@ -1,7 +1,10 @@
+// tslint:disable: no-implicit-dependencies jsx-no-multiline-js
 import * as React from 'react';
-import * as _ from 'lodash';
+
 import { PeformanceWidget } from '@projectstorm/react-canvas-core';
 import { LinkProps, LinkWidget } from '@projectstorm/react-diagrams';
+import * as _ from 'lodash';
+
 import { OveriddenLabelWidget } from './LabelWidget';
 
 
@@ -23,7 +26,7 @@ export class OveriddenLinkWidget extends LinkWidget {
 			return null;
 		}
 
-		//generate links
+		// generate links
 		return (
 			<PeformanceWidget model={this.props.link} serialized={this.props.link.serialize()}>
 				{() => {

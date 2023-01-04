@@ -315,7 +315,8 @@ export function AddIfForm(props: IfProps) {
                         experimentalEnabled,
                         ballerinaVersion,
                         isCodeServerInstance,
-                        openExternalUrl
+                        openExternalUrl,
+                        skipSemicolon: true
                     }
                 )
             ) : (

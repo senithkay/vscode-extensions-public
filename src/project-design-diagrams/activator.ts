@@ -21,25 +21,27 @@ import { commands, ExtensionContext, Position, Range, Selection, TextEditorRevea
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { join } from "path";
-import _ from "lodash";
+import { debounce } from "lodash";
 import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { ComponentModel, Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
+import { BallerinaVersion, ComponentModel, DIAGNOSTICS_WARNING, Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
 
-let context: ExtensionContext;
+let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
 let designDiagramWebview: WebviewPanel | undefined;
+let balVersion: BallerinaVersion;
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    context = <ExtensionContext>ballerinaExtInstance.context;
+    extInstance = ballerinaExtInstance;
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    let context: ExtensionContext = <ExtensionContext>ballerinaExtInstance.context;
     const designDiagramRenderer = commands.registerCommand("ballerina.view.ProjectDesigns", () => {
         ballerinaExtInstance.onReady()
             .then(() => {
-                if (isCompatible(ballerinaExtInstance)) {
+                if (isCompatible(2201.2, 2)) {
                     viewProjectDesignDiagrams();
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
@@ -91,6 +93,13 @@ async function getProjectResources(): Promise<Map<string, ComponentModel>> {
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
         }).then((response) => {
+            const packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
+            for (let [_key, packageModel] of packageModels) {
+                if (packageModel.hasCompilationErrors) {
+                    window.showInformationMessage(DIAGNOSTICS_WARNING);
+                    break;
+                }
+            }
             resolve(response.componentModels);
         }).catch((error) => {
             reject(error);
@@ -110,7 +119,7 @@ function setupWebviewPanel() {
             getCommonWebViewOptions()
         );
 
-        workspace.onDidChangeTextDocument(_.debounce(() => {
+        workspace.onDidChangeTextDocument(debounce(() => {
             if (designDiagramWebview) {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
             }
@@ -160,14 +169,24 @@ function terminateActivation(message: string) {
     }
 }
 
-function isCompatible(ballerinaExtInstance: BallerinaExtension): boolean {
-    const balVersion: string = ballerinaExtInstance.ballerinaVersion;
-    const majorVersion: decimal = parseFloat(balVersion);
-    const patchVersion: number = parseInt(balVersion.substring(balVersion.lastIndexOf(".") + 1));
+function isCompatible(majorVersion: decimal, patchVersion: number): boolean {
+    if (!balVersion) {
+        getVersion();
+    }
 
-    if (majorVersion > 2201.2 || (majorVersion === 2201.2 && patchVersion >= 2)) {
+    if (balVersion.majorVersion > majorVersion ||
+        (balVersion.majorVersion === majorVersion && balVersion.patchVersion >= patchVersion)) {
         return true;
     } else {
         return false;
+    }
+}
+
+function getVersion() {
+    const version: string = extInstance.ballerinaVersion;
+
+    balVersion = {
+        majorVersion: parseFloat(version),
+        patchVersion: parseInt(version.substring(version.lastIndexOf(".") + 1))
     }
 }

@@ -15,7 +15,7 @@ import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
-import { createSourceForMapping, getBalRecFieldName, modifySpecificFieldSource } from "../../utils/dm-utils";
+import { createSourceForMapping, modifySpecificFieldSource } from "../../utils/dm-utils";
 import { IntermediatePortModel } from "../IntermediatePort";
 
 export interface RecordFieldNodeModelGenerics {
@@ -25,6 +25,8 @@ export interface RecordFieldNodeModelGenerics {
 export const FORM_FIELD_PORT = "form-field-port";
 
 export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFieldNodeModelGenerics> {
+
+	public linkedPorts: PortModel[];
 
 	constructor(
 		public field: Type,
@@ -44,21 +46,22 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 			type: FORM_FIELD_PORT,
 			name: `${portName}.${portType}`
 		});
+		this.linkedPorts = [];
 	}
 
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
-			sourcePortChanged: (evt) => {
+			sourcePortChanged: () => {
 				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
 			},
-			targetPortChanged: async (evt) => {
+			targetPortChanged: (async () => {
 				if (Object.keys(lm.getTargetPort().links).length === 1){
 					lm.addLabel(await createSourceForMapping(lm));
 				} else {
-					await modifySpecificFieldSource(lm);
+					modifySpecificFieldSource(lm);
 				}
-			}
+			})
 		});
 		return lm;
 	}
@@ -68,6 +71,10 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 			this.parentModel?.setDescendantHasValue();
 		}
 		super.addLink(link);
+	}
+
+	addLinkedPort(port: PortModel): void{
+		this.linkedPorts.push(port);
 	}
 
 	setDescendantHasValue(): void {
@@ -82,6 +89,13 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	}
 
 	canLinkToPort(port: RecordFieldPortModel): boolean {
-		return this.portType !== port.portType && ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
+		let isLinkExists = false;
+		if (port.portType === "IN") {
+			isLinkExists = this.linkedPorts.some((linkedPort) => {
+				return port.getID() === linkedPort.getID()
+			})
+		}
+		return this.portType !== port.portType && !isLinkExists
+				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
 	}
 }

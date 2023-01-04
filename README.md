@@ -16,7 +16,7 @@ Before getting started, make sure you have installed the [Visual Studio Code edi
 
 Follow the steps below to install the Ballerina extension.
 
-1. Download and install [Ballerina](https://ballerina.io/learn/installing-ballerina/setting-up-ballerina/).
+1. Download and install [Ballerina](https://ballerina.io/learn/install-ballerina/set-up-ballerina/).
 2. Install the Ballerina VS Code Extension. 
 
   >**Tip:** Alternatively, click `Ctrl + P` or (`Cmd + P` in macOS) to launch the VS Code **Quick Open** screen, and enter `ext install WSO2.ballerina` to install the Ballerina VS Code Extension.
@@ -114,7 +114,7 @@ Below are some of the key debugging features provided by the Ballerina language 
 - Local and Global Variable View
 - Expression Evaluation
 
-For detailed documentation on initializing debug sessions, and using the debugging features and advanced configuration options, see [Ballerina Debugging](https://ballerina.io/learn/visual-studio-code-extension/debugging/).
+For detailed documentation on initializing debug sessions, and using the debugging features and advanced configuration options, see [Ballerina Debugging](https://ballerina.io/learn/debug-ballerina-programs/).
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/start-quick-main-debug-session.gif?raw=true" width="100%" />
 
@@ -216,7 +216,7 @@ Run and debug code lenses are shown for the entry points of the Ballerina projec
 - **Test**: It runs all the tests in your Ballerina project using the `bal test` CLI command.
 - **Build Documentation**: It is a quick guide to generate documentation for your Ballerina project. Once executed, the documentation is generated using the `bal doc` CLI command. The generated documentation can be found inside the `apidocs` directory in the `target` project.
 - **Show Diagram**: It is a palette reference to access the **Diagrams**. On execution, the diagram editor of the first diagram component listed under the **Diagrams** view is rendered.
-- **Add Module**: It adds a [Ballerina module](https://ballerina.io/learn/organizing-ballerina-code/modules/) for the given module name using the `bal add` CLI command.  
+- **Add Module**: It adds a [Ballerina module](https://ballerina.io/learn/organize-ballerina-code/#non-default-modules) for the given module name using the `bal add` CLI command.  
 - **Create 'Cloud.toml'**: It generates a `Cloud.toml` file for your Ballerina project according to the default [cloud specifications](https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md).
 - **Paste JSON as Record**: This command converts a JSON string (that is copied to the clipboard) to a Ballerina record(s) and pastes it in your code.
 
@@ -297,7 +297,7 @@ It is required to enable notebook debug mode to debug the notebook.
 
 For troubleshooting, see the Ballerina output. To view the Ballerina output tab, click **View**, click **Output,** and select **Ballerina** from the output list. It provides additional information if the plugin fails to detect a Ballerina distribution.  
 
-You can also enable [debug logs](https://ballerina.io/learn/tooling-guide/visual-studio-code-extension/configurations/#debug-log) from the Ballerina extension settings to view any issues arising from the extension features.
+You can also enable debug logs from the Ballerina extension settings to view any issues arising from the extension features.
 
 ---
 ## Ask for Help
