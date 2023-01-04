@@ -53,7 +53,7 @@ export class NotebookDebuggerController {
             for (const addedBP of breakpointChangeEvent.added) {
                 if (addedBP instanceof SourceBreakpoint && !breakpointList.includes(addedBP)) {
                     breakpointList.push(addedBP);
-                };
+                }
             }
             for (const removedBP of breakpointChangeEvent.removed) {
                 breakpointList = breakpointList.filter(bp => bp.id !== removedBP.id);
@@ -227,7 +227,7 @@ export class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerF
                 breakpointList = [];
                 debugCellInfoHandler = undefined;
             }
-        }
+        };
     }
 
     private visitSources(msg: DebugProtocol.ProtocolMessage): void {

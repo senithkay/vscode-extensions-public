@@ -31,7 +31,7 @@ import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import { CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM } from '../telemetry';
-import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse, PFSession } from '../forecaster';
+import { getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { sep } from "path";
 import { CommandResponse, DiagramOptions, Member, SyntaxTree } from './model';
@@ -73,7 +73,6 @@ let currentDocumentURI: Uri;
 let experimentalEnabled: boolean;
 let openNodeInDiagram: NodePosition;
 
-
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
 	isCommand: boolean = false, openInDiagram?): Promise<void> {
 
@@ -98,7 +97,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			fileUri: editor!.document.uri,
 			startLine: editor!.selection.active.line,
 			startColumn: editor!.selection.active.character,
-			isDiagram: true,
+			isDiagram: true
 		};
 	} else {
 		diagramElement = {
@@ -197,7 +196,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				startColumn: 0,
 				openInDiagram: position,
 			}];
-			console.log('update diagram in registerCommand >>>', args)
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 		}
 	});
@@ -417,13 +415,6 @@ class DiagramPanel {
 				}
 			},
 			{
-				methodName: "getPFSession",
-				handler: async (): Promise<PFSession> => {
-					const choreoToken = ballerinaExtension.getChoreoSession().choreoAccessToken;
-					return { choreoAPI: CHOREO_API_PF, choreoToken: choreoToken, choreoCookie: "" };
-				}
-			},
-			{
 				methodName: "showPerformanceGraph",
 				handler: async (args: any[]): Promise<boolean> => {
 					return openPerformanceDiagram(args[0]);
@@ -621,7 +612,6 @@ export function callUpdateDiagramMethod() {
 		startLine: diagramElement!.startLine,
 		startColumn: diagramElement!.startColumn
 	}];
-	console.log('>>> updatediagram args', args);
 	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 }
 

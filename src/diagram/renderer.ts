@@ -128,17 +128,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     );
                 })
             }
-            function getPFSession() {
-                return new Promise((resolve, _reject) => {
-                    webViewRPCHandler.invokeRemoteMethod(
-                        'getPFSession',
-                        [],
-                        (response) => {
-                            resolve(response);
-                        }
-                    );
-                })
-            }
             function showPerformanceGraph(file, data) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -270,7 +259,6 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             getFileContent,
                             updateFileContent,
                             gotoSource,
-                            getPFSession,
                             showPerformanceGraph,
                             getPerfDataFromChoreo,
                             showMessage,

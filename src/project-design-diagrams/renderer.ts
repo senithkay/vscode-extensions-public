@@ -54,9 +54,64 @@ export function render(webView: Webview) {
                     );
                 })
             }
+            
+            function createService(componentDetails) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'createService',
+                        [componentDetails],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
+            function pickDirectory() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'pickDirectory',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
+            function getProjectRoot() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getProjectRoot',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
+            function addConnector(sourceService, targetService) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'addConnector',
+                        [sourceService, targetService],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
+            function go2source(location) {
+                vscode.postMessage({
+                    command: 'go2source',
+                    location: location
+                })
+            }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(fetchProjectResources, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(fetchProjectResources, go2source, createService, pickDirectory, getProjectRoot, addConnector, document.getElementById("diagram-container"));
             }
             renderDiagrams();
         }
