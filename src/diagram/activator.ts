@@ -57,7 +57,7 @@ import {
 	LibrarySearchResponse
 } from "../library-browser/model";
 import { getSentryConfig, SentryConfig } from './sentry';
-import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-editor-distribution';
+import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-languageclient';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from '../project';
 
@@ -212,6 +212,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
 			});
 	});
+
 
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
