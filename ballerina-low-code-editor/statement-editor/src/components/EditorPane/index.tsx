@@ -23,9 +23,7 @@ import Toolbar from "../Toolbar";
 
 export function EditorPane() {
     const statementEditorClasses = useStatementEditorStyles();
-    const [docEnabled, setDocEnabled] = React.useState(false);
     const [docExpandClicked, setDocExpand] = React.useState(false);
-    const [isParameterTabEnabled, setParameterTabEnabled] = React.useState(false);
 
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -34,10 +32,6 @@ export function EditorPane() {
             statementModel
         },
     } = stmtCtx;
-
-    const paramTabHandler = (isEnabled: boolean) => {
-        setParameterTabEnabled(isEnabled);
-    }
 
     return (
         <>
@@ -53,7 +47,7 @@ export function EditorPane() {
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsSection} data-testid="suggestions-section">
-                <HelperPane docExpandClicked={docExpandClicked} paramTabHandler={paramTabHandler}/>
+                <HelperPane />
             </div>
         </>
     );
