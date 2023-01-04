@@ -350,7 +350,8 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitExpressionFunctionBody(node: ExpressionFunctionBody, parent?: STNode): void {
         if (!STKindChecker.isMappingConstructor(node.expression)
-            && !STKindChecker.isListConstructor(node.expression))
+            && !STKindChecker.isListConstructor(node.expression)
+            && !STKindChecker.isExplicitAnonymousFunctionExpression(parent))
         {
             const inputNodes = getInputNodes(node.expression);
             if (inputNodes.length > 1) {
