@@ -17,10 +17,12 @@
  *
  */
  import { commands, Uri, workspace, WorkspaceEdit, QuickPickItem, window } from "vscode";
+ 
+ const ACTION_EXTRACT_COMMAND = "ballerina.action.extract";
 
  function activateExtractCommand() {
      // register ballerina extract command
-     commands.registerCommand("ballerina.action.extract", async (command: string, url: string, textEditMap: any) => {
+     commands.registerCommand(ACTION_EXTRACT_COMMAND, async (command: string, url: string, textEditMap: any) => {
          try {
              const expression = await getExpression(command, textEditMap);
              if (!expression) {
