@@ -392,17 +392,19 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 export function findNodeByValueNode(value: RequiredParam | FromClause | LetClause, dmNode: DataMapperNodeModel)
 	: RequiredParamNode | FromClauseNode | LetClauseNode {
 	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode;
-	dmNode.getModel().getNodes().find((node) => {
-		if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
-			&& STKindChecker.isRequiredParam(node.value))
-			|| (STKindChecker.isFromClause(value) && node instanceof FromClauseNode
-				&& STKindChecker.isFromClause(node.value))
-			|| (STKindChecker.isLetClause(value) && node instanceof LetClauseNode
-				&& STKindChecker.isLetClause(node.value)))
-			&& isPositionsEquals(value.position as NodePosition, node.value.position as NodePosition)) {
-			foundNode = node;
-		}
-	});
+	if (value) {
+		dmNode.getModel().getNodes().find((node) => {
+			if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
+				&& STKindChecker.isRequiredParam(node.value))
+				|| (STKindChecker.isFromClause(value) && node instanceof FromClauseNode
+					&& STKindChecker.isFromClause(node.value))
+				|| (STKindChecker.isLetClause(value) && node instanceof LetClauseNode
+					&& STKindChecker.isLetClause(node.value)))
+				&& isPositionsEquals(value.position as NodePosition, node.value.position as NodePosition)) {
+				foundNode = node;
+			}
+		});
+	}
 	return foundNode;
 }
 
