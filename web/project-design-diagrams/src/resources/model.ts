@@ -82,6 +82,7 @@ export interface ResourceId {
 export interface Entity {
     attributes: Attribute[];
     inclusions: string[];
+    isAnonymous: boolean;
 }
 
 export interface Attribute {

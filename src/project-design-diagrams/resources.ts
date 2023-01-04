@@ -23,6 +23,7 @@ export interface Service {
 export interface Entity {
     attributes: any[];
     inclusions: string[];
+    isAnonymous: boolean;
 }
 
 export interface BallerinaVersion {

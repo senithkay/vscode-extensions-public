@@ -42,7 +42,12 @@ export function AttributeWidget(props: AttributeProps) {
                 engine={engine}
             />
                 <AttributeName>{attribute.name}</AttributeName>
-                <AttributeType isSelected={isSelected || isHovered}>{attributeType}</AttributeType>
+                <AttributeType
+                    isAnonymous={node.entityObject.isAnonymous}
+                    isSelected={isSelected || isHovered}
+                >
+                    {attributeType}
+                </AttributeType>
             <EntityPortWidget
                 port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
                 engine={engine}
