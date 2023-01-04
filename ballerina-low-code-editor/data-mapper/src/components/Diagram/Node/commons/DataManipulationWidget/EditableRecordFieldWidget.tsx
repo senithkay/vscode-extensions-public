@@ -52,7 +52,26 @@ export interface EditableRecordFieldWidgetProps {
 }
 
 export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
-    const { parentId, field, getPort, engine, parentMappingConstruct, context, fieldIndex, treeDepth = 0, deleteField } = props;
+    const {
+        parentId,
+        field,
+        getPort,
+        engine,
+        parentMappingConstruct,
+        context,
+        fieldIndex,
+        treeDepth = 0,
+        deleteField
+    } = props;
+    const {
+        stSymbolInfo,
+        fieldToBeEdited,
+        isStmtEditorCanceled,
+        handleFieldToBeEdited,
+        enableStatementEditor,
+        handleCollapse,
+        applyModifications
+    } = context;
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -72,19 +91,19 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     let indentation = treeDepth * 16;
 
     useEffect(() => {
-        if (context.fieldToBeEdited === fieldId) {
-            if (!context.isStmtEditorCanceled) {
+        if (fieldToBeEdited === fieldId) {
+            if (!isStmtEditorCanceled) {
                 handleEditValue();
             } else {
                 void handleDeleteValue();
-                context.handleFieldToBeEdited(undefined);
+                handleFieldToBeEdited(undefined);
             }
         }
-    }, [context.fieldToBeEdited, context.isStmtEditorCanceled]);
+    }, [fieldToBeEdited, isStmtEditorCanceled]);
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(specificField.valueExpr);
+            return isConnectedViaLink(specificField.valueExpr, stSymbolInfo.moduleVariables);
         }
         return false;
     }, [field]);
@@ -95,9 +114,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            await createSourceForUserInput(field, mappingConstruct, 'EXPRESSION', context.applyModifications);
+            await createSourceForUserInput(field, mappingConstruct, 'EXPRESSION', applyModifications);
             // Adding field to the context to identify this newly initialized field in the next rendering
-            context.handleFieldToBeEdited(fieldId);
+            handleFieldToBeEdited(fieldId);
         } finally {
             setIsLoading(false);
         }
@@ -105,7 +124,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const handleEditValue = () => {
         if (field.value && STKindChecker.isSpecificField(field.value)) {
-            props.context.enableStatementEditor({
+            enableStatementEditor({
                 value: field.value.valueExpr.source,
                 valuePosition: field.value.valueExpr.position as NodePosition,
                 label: field.value.fieldName.value as string
@@ -123,7 +142,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     };
 
     const handleExpand = () => {
-        context.handleCollapse(fieldId, !expanded);
+        handleCollapse(fieldId, !expanded);
     };
 
     let isDisabled = portIn.descendantHasValue || (value && !connectedViaLink);
@@ -245,7 +264,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
                     {(!isDisabled || hasValue) && (
                         <>
-                            {(isLoading || fieldId === props.context.fieldToBeEdited) ? (
+                            {(isLoading || fieldId === fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />
                             ) : (
                                 <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()}/>

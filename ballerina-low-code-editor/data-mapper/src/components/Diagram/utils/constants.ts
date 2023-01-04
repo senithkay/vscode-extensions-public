@@ -5,6 +5,7 @@ export const LET_EXPRESSION_SOURCE_PORT_PREFIX = "letExpression";
 export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
 export const EXPANDED_QUERY_INPUT_NODE_PREFIX = "expandedQueryExpr.input";
 export const FUNCTION_BODY_QUERY = "FunctionBody.query";
+export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 
 export const OFFSETS = {
     SOURCE_NODE: {

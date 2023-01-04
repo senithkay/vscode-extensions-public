@@ -60,7 +60,8 @@ import {
 	LET_EXPRESSION_SOURCE_PORT_PREFIX,
 	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-	PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+	PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
+	SYMBOL_KIND_CONSTANT
 } from "./constants";
 import { getModification } from "./modifications";
 import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
@@ -820,16 +821,25 @@ export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 	return fieldIndexes;
 }
 
-export function isConnectedViaLink(field: STNode) {
+export function isConnectedViaLink(field: STNode, moduleVariables: Map<string, STNode>) {
 	const inputNodes = getInputNodes(field);
 
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field);
 	const isListConstruct = STKindChecker.isListConstructor(field);
-	const isQueryExpression = STKindChecker.isQueryExpression(field)
-	const isSimpleNameRef = STKindChecker.isSimpleNameReference(field)
+	const isQueryExpression = STKindChecker.isQueryExpression(field);
+	const isSimpleNameRef = STKindChecker.isSimpleNameReference(field);
+	const isConstant = field.typeData?.symbol?.kind === SYMBOL_KIND_CONSTANT;
+	let isModuleVariable = false;
+	if (isSimpleNameRef) {
+		moduleVariables.forEach((node, key) => {
+			if (key === field.name.value) {
+				isModuleVariable = true;
+			}
+		})
+	}
 
 	return (!!inputNodes.length || isQueryExpression || isSimpleNameRef)
-		&& !isMappingConstruct && !isListConstruct;
+		&& !isMappingConstruct && !isListConstruct && !isConstant && !isModuleVariable;
 }
 
 export function getTypeName(field: Type): string {
