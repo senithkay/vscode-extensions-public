@@ -40,9 +40,9 @@ export async function resolveMissingDependencies(filePath: string, langClient: D
 }
 
 export async function getLowcodeST(payload: any, filePath: string, langClient: DiagramEditorLangClientInterface,
-                                   experimentalEnabled?: boolean,
-                                   showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean,
-                                                  filePath?: string, fileContent?: string, bypassChecks?: boolean) => void) {
+    experimentalEnabled?: boolean,
+    showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean,
+        filePath?: string, fileContent?: string, bypassChecks?: boolean) => void) {
 
     const st = sizingAndPositioningST(payload, experimentalEnabled, showMessage);
     cleanLocalSymbols();
@@ -129,7 +129,7 @@ export function isNodeSelected(selectedPosition: SelectedPosition, node: any): b
 }
 
 export function sizingAndPositioningST(st: STNode, experimentalEnabled?: boolean,
-                                       showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => void): STNode {
+    showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => void): STNode {
     traversNode(st, initVisitor);
     const sizingVisitor = new SizingVisitor(experimentalEnabled);
     traversNode(st, sizingVisitor);
