@@ -10,7 +10,13 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export * from "./types";
-export * from "./rpc";
-export * from "./manager";
+import { IProjectManager, Project } from "@wso2-enterprise/choreo-core"
 
+export class ChoreoProjectManager implements IProjectManager{
+    createComponent(): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+    getProjectDetails(): Promise<Project> {
+        throw new Error("Method not implemented.");
+    }
+}

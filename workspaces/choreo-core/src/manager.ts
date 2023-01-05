@@ -10,7 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export * from "./types";
-export * from "./rpc";
-export * from "./manager";
+import { Project } from "./types";
 
+export interface IProjectManager {
+    // TODO Summayya: Add remaining methods
+    createComponent(): Promise<void>;
+    getProjectDetails(): Promise<Project>;
+}

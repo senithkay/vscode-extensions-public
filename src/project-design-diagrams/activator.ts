@@ -23,6 +23,7 @@ import { randomUUID } from "crypto";
 import { existsSync, readFile, writeFile } from "fs";
 import path, { join } from "path";
 import { debounce } from "lodash";
+import { IProjectManager } from "@wso2-enterprise/choreo-core"
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
@@ -210,7 +211,16 @@ function setupWebviewPanel() {
                     const targetService: Service = args[1];
                     return addConnector(langClient, sourceService, targetService);;
                 }
-            }
+            },
+            {
+                methodName: "getProjectManager", 
+                handler: async (args: any[]): Promise<IProjectManager | undefined> => {
+                    // TODO Summayya
+                    // TODO: Get rid of all the above remote methods and use project manager
+                    // Return one of two implementations: one for choreo, one for Ballerina
+                    return Promise.resolve(undefined);
+                }
+            },
         ];
 
         WebViewRPCHandler.create(designDiagramWebview, langClient, remoteMethods);

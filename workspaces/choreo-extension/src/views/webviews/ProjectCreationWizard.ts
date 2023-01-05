@@ -61,6 +61,9 @@ export class ProjectCreationWizard {
               <noscript>You need to enable JavaScript to run this app.</noscript>
               <div id="root"></div>
               <script src="${scriptUri}"></script>
+              <script>
+                  // TODO user window.renderChoreoWebViews({ type: "ProjectCreateForm"}) to render on window.ready
+              </script>
             </body>
           </html>
         `;

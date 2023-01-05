@@ -15,21 +15,21 @@ import { ComponentMutationParams, IChoreoClient, LinkRepoMutationParams, Project
 
 export class ChoreoClient implements IChoreoClient {
     getOrganizations(): Promise<Error | Organization[]> {
-        throw new Error("Method not implemented.");
+        throw new Error("Method not implemented."); // TODO: Kavith
     }
     getProjects(org: Organization): Promise<Error | Project[]> {
-        throw new Error("Method not implemented.");
+        throw new Error("Method not implemented."); // TODO: Kavith
     }
     getComponents(proj: Project): Promise<Error | Component[]> {
-        throw new Error("Method not implemented.");
+        throw new Error("Method not implemented."); // TODO: Joe
     }
     createProject(params: ProjectMutationParams): Promise<Error | Project[]> {
-        throw new Error("Method not implemented.");
+        throw new Error("Method not implemented."); // TODO: Kavith
     }
     createComponent(params: ComponentMutationParams): Promise<Error | Component> {
-        throw new Error("Method not implemented.");
+        throw new Error("Method not implemented."); // TODO: Summaya
     }
     linkRepo(params: LinkRepoMutationParams): Promise<Error | Repository> {
-        throw new Error("Method not implemented.");
+        throw new Error("Method not implemented."); // TODO: Kavith
     }
 }
