@@ -46,7 +46,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public variables: Map<string, ModuleVariable>) {
+        public value: Map<string, ModuleVariable>) {
         super(
             context,
             MODULE_VAR_SOURCE_NODE_TYPE
@@ -56,7 +56,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        const exprRanges: ExpressionRange[] = [...this.variables].map(([, item]) => {
+        const exprRanges: ExpressionRange[] = [...this.value].map(([, item]) => {
             const exprPosition: NodePosition = item.node.position as NodePosition;
             return {
                 startLine: {
@@ -70,7 +70,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
             };
         });
         const types = await getTypesForExpressions(this.context.filePath, this.context.langClientPromise, exprRanges);
-        this.moduleVarDecls = [...this.variables].map(([varName, item]) => {
+        this.moduleVarDecls = [...this.value].map(([varName, item]) => {
             return {
                 varName,
                 kind: item.kind,

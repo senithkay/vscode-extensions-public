@@ -52,6 +52,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode} from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
+import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
@@ -62,8 +63,8 @@ import {
 	LET_EXPRESSION_SOURCE_PORT_PREFIX,
 	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+	MODULE_VARIABLE_SOURCE_PORT_PREFIX,
 	PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
-	SYMBOL_KIND_CONSTANT
 } from "./constants";
 import { getModification } from "./modifications";
 import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
@@ -442,6 +443,8 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				return bindingPattern?.variableName?.value === expr.source.trim();
 			} else if (node instanceof LetExpressionNode) {
 				return node.letVarDecls.some(decl => decl.varName === expr.source.trim());
+			} else if (node instanceof ModuleVariableNode) {
+				return node.value.has(expr.source.trim());
 			} else if (node instanceof RequiredParamNode) {
 				return expr.name.value === node.value.paramName.value;
 			} else if (node instanceof FromClauseNode) {
@@ -450,8 +453,11 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 					return expr.name.value === bindingPattern.variableName.value;
 				}
 			}
-		}) as LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode)?.value;
+		}) as LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode | ModuleVariableNode)?.value;
 		if (paramNode) {
+			if (paramNode instanceof Map) {
+				return dmNodes.find(node => node instanceof ModuleVariableNode) as ModuleVariableNode;
+			}
 			return findNodeByValueNode(paramNode, dmNode);
 		}
 	} else if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
@@ -502,9 +508,9 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	}
 }
 
-export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode,
+export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode | ModuleVariableNode,
                                      expr: STNode): RecordFieldPortModel {
-	let typeDesc = !(node instanceof LetExpressionNode) && node.typeDef;
+	let typeDesc = !(node instanceof LetExpressionNode || node instanceof ModuleVariableNode) && node.typeDef;
 	let portIdBuffer;
 	if (node instanceof RequiredParamNode) {
 		portIdBuffer = node.value.paramName.value
@@ -517,6 +523,10 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 		});
 		typeDesc = varDecl.type;
 		portIdBuffer = varDecl && LET_EXPRESSION_SOURCE_PORT_PREFIX + "." + varDecl.varName;
+	} else if (node instanceof ModuleVariableNode) {
+		const moduleVar = node.moduleVarDecls.find(decl => decl.varName === expr.source.trim());
+		typeDesc = moduleVar.type;
+		portIdBuffer = moduleVar && MODULE_VARIABLE_SOURCE_PORT_PREFIX + "." + moduleVar.varName;
 	} else {
 		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
 		+ (node as FromClauseNode).sourceBindingPattern.variableName.value
@@ -830,18 +840,9 @@ export function isConnectedViaLink(field: STNode, moduleVariables: Map<string, S
 	const isListConstruct = STKindChecker.isListConstructor(field);
 	const isQueryExpression = STKindChecker.isQueryExpression(field);
 	const isSimpleNameRef = STKindChecker.isSimpleNameReference(field);
-	const isConstant = field.typeData?.symbol?.kind === SYMBOL_KIND_CONSTANT;
-	let isModuleVariable = false;
-	if (isSimpleNameRef) {
-		moduleVariables.forEach((node, key) => {
-			if (key === field.name.value) {
-				isModuleVariable = true;
-			}
-		})
-	}
 
 	return (!!inputNodes.length || isQueryExpression || isSimpleNameRef)
-		&& !isMappingConstruct && !isListConstruct && !isConstant && !isModuleVariable;
+		&& !isMappingConstruct && !isListConstruct;
 }
 
 export function getTypeName(field: Type): string {
