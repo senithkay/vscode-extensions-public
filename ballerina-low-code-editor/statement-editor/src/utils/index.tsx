@@ -97,6 +97,7 @@ import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view
 import { Expression, ExpressionGroup } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
+import { parentWhereSetupVisitor } from '../visitors/parent-where-setup-visitor';
 
 export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
                                  modulesToBeImported?: string[], isExpressionMode?: boolean): STModification[] {
@@ -223,6 +224,7 @@ export function enrichModelWithViewState(model: STNode): STNode {
     traversNode(model, DeleteConfigSetupVisitor);
     traversNode(model, ModelTypeSetupVisitor);
     traversNode(model, parentFunctionSetupVisitor);
+    traversNode(model, parentWhereSetupVisitor);
 
     return model;
 }

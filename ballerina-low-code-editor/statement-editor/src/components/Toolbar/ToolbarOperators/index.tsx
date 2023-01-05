@@ -175,9 +175,8 @@ export function ToolbarOperators() {
                 }
             } else if (STKindChecker.isSelectClause(currentModel.model) || STKindChecker.isLetClause(currentModel.model)) {
                 filteredGroups = [operators, parenthesis];
-            } else if (STKindChecker.isWhereClause(currentModel.model) || (STKindChecker.isIdentifierToken(currentModel.model) &&
-                currentModel.model?.parent?.parent && STKindChecker.isWhereClause(currentModel.model.parent.parent))) {
-                filteredGroups = [operators, equality];
+            } else if (currentModel?.model?.viewState?.isWithinWhereClause) {
+                filteredGroups = [relational, equality];
             } else if (isRecordFieldName(currentModel.model)) {
                 filteredGroups = [optionalRecordField]
             } else if (currentModel?.model?.viewState.modelType === ModelType.TYPE_DESCRIPTOR) {
