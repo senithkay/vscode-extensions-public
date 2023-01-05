@@ -196,6 +196,7 @@ export default function Toolbar() {
                 </>
             )}
             <ToolbarOperators />
+            <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider} />
             <StatementEditorHint content={"More expressions"} >
                 <IconButton
                     onClick={onClickExpressions}

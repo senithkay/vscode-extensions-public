@@ -208,7 +208,6 @@ export function ToolbarOperators() {
                             </StatementEditorHint>
                         ))
                     }
-                    <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorToolbarClasses.toolbarDivider} />
                 </div>
             ))}
         </div>
