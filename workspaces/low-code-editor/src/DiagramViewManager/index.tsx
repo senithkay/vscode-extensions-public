@@ -22,6 +22,7 @@ import { DiagramFocusActionTypes, useDiagramFocus } from "./hooks/diagram-focus"
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
  */
 export function DiagramViewManager(props: EditorProps) {
+    console.log('>>> view manager', props);
     // ViewManager behavior:
     //  - should be able to handle switching to lowcode whatever the mode user interacts in
     //      - user can open a lowcode element by selecting a component from the component overview
@@ -39,36 +40,16 @@ export function DiagramViewManager(props: EditorProps) {
     //  - Handle switching between views based on type of the syntax tree fetched(datamapper, graphql, service designer)
     //  - Handle switching to code from standalone code segment
     //  - Implement top bar to handle navigation
-
+    
     const {
         lastUpdatedAt,
         langClientPromise,
         experimentalEnabled,
         projectPaths,
+        diagramFocus
     } = props;
-    // const [diagramFocusState, diagramFocusSend] = useDiagramFocus(diagramFocus.filePath, diagramFocus.position);
 
-    // useEffect(() => {
-    //     diagramFocusSend({
-    //         type: DiagramFocusActionTypes.UPDATE_STATE,
-    //         payload: {
-    //             filePath,
-    //             position: openInDiagram
-    //         }
-    //     })
-    // }, [filePath, openInDiagram.startLine, openInDiagram.startColumn, openInDiagram.endLine, openInDiagram.endColumn]);
-    //
-    // useEffect(() => {
-    //     (async () => {
-    //         const langClient = await langClientPromise;
-    //         const fileST = await getSyntaxTree(diagramFocusState.filePath, langClient);
-    //         const visitedST = await getLowcodeST(fileST, diagramFocusState.filePath, langClient, experimentalEnabled);
-    //
-    //         if (diagramFocusState) {
-    //
-    //         }
-    //     })();
-    // }, [lastUpdatedAt]);
+    const [diagramFocusState, diagramFocusSend] = useDiagramFocus(diagramFocus);
 
     return (
         <div>

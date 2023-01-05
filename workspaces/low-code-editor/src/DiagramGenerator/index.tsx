@@ -53,6 +53,7 @@ import { addPerformanceData } from "./performanceUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
+import { DiagramViewManager } from "../DiagramViewManager";
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
@@ -510,6 +511,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
 export function OverviewDiagramGenerator(props: EditorProps) {
 
     return (
-        <OverviewDiagram {...props} />
+        <DiagramViewManager {...props} />
     )
 }

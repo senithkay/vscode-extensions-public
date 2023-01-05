@@ -31,6 +31,7 @@ import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
 import { openConfigEditor } from '../config-editor/configEditorPanel';
 import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { STKindChecker } from '@wso2-enterprise/syntax-tree';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -164,19 +165,17 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                     const syntaxTree = response.syntaxTree;
 
                     syntaxTree.members.forEach(member => {
-                        if (member.kind === 'FunctionDefinition') {
+                        if (STKindChecker.isFunctionDefinition(member)) {
                             const functionBody = member.functionBody;
-                            if (functionBody.kind === 'ExpressionFunctionBody') {
-                                const position = functionBody.position;
-                                const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
-                                codeLens.command = {
-                                    title: "Design",
-                                    tooltip: "Open this code block in data mapping view",
-                                    command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                    arguments: [member.position, activeEditor.fsPath]
-                                };
-                                codeLenses.push(codeLens);
-                            }
+                            const position = functionBody.position;
+                            const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
+                            codeLens.command = {
+                                title: "Design",
+                                tooltip: "Open this code block in data mapping view",
+                                command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                arguments: [member.position, activeEditor.fsPath]
+                            };
+                            codeLenses.push(codeLens);
                         }
                     });
                 }

@@ -63,7 +63,7 @@ import { PALETTE_COMMANDS } from '../project';
 
 export let hasDiagram: boolean = false;
 
-const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
+// const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
 let langClient: ExtendedLangClient;
 let diagramElement: DiagramOptions | undefined = undefined;
@@ -74,9 +74,12 @@ let experimentalEnabled: boolean;
 let openNodeInDiagram: NodePosition;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
-	isCommand: boolean = false, openInDiagram?): Promise<void> {
+	isCommand: boolean = false, openInDiagram?: NodePosition): Promise<void> {
 
-	openNodeInDiagram = openInDiagram;
+	if (openInDiagram) {
+		openNodeInDiagram = openInDiagram;
+	}
+
 	const editor = window.activeTextEditor;
 	// if (isCommand) {
 	// 	if (!editor || !editor.document.fileName.endsWith('.bal')) {
@@ -87,26 +90,36 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	// 	}
 	// }
 
-	if (isCommand) {
-		if (!editor) {
-			window.showErrorMessage(NO_DIAGRAM_VIEWS);
-			return;
-		}
+	// if (isCommand) {
+	// 	if (!editor) {
+	// 		window.showErrorMessage(NO_DIAGRAM_VIEWS);
+	// 		return;
+	// 	}
 
-		diagramElement = {
-			fileUri: editor!.document.uri,
-			startLine: editor!.selection.active.line,
-			startColumn: editor!.selection.active.character,
-			isDiagram: true
-		};
-	} else {
-		diagramElement = {
-			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
-			startLine,
-			startColumn,
-			isDiagram: true,
-		};
-	}
+	// 	diagramElement = {
+	// 		fileUri: editor!.document.uri,
+	// 		startLine: editor!.selection.active.line,
+	// 		startColumn: editor!.selection.active.character,
+	// 		isDiagram: true,
+
+	// 	};
+	// } else {
+	// 	diagramElement = {
+	// 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
+	// 		startLine,
+	// 		startColumn,
+	// 		isDiagram: true,
+	// 	};
+	// }
+
+	diagramElement = {
+		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
+		startLine,
+		startColumn,
+		isDiagram: true,
+		diagramFocus: filePath && filePath.length !== 0 && openInDiagram ?
+			{ fileUri: Uri.file(filePath), position: openInDiagram } : undefined
+	};
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 
@@ -194,8 +207,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				filePath: path,
 				startLine: 0,
 				startColumn: 0,
-				openInDiagram: position,
+				openInDiagram: position
 			}];
+			console.log('hello update diagram >>>', args);
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 		}
 	});
@@ -203,6 +217,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	const diagramRenderDisposable = commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (...args: any[]) => {
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
+		console.log('>>> showdiagram command args', args);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
 				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : undefined);
@@ -561,8 +576,15 @@ class DiagramPanel {
 		if (diagramElement && diagramElement.isDiagram) {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
-				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram, this.webviewPanel.webview);
+				this.webviewPanel.webview.html = render(
+					diagramElement!.fileUri!,
+					diagramElement!.startLine!,
+					diagramElement!.startColumn!,
+					experimentalEnabled,
+					openNodeInDiagram,
+					this.webviewPanel.webview,
+					diagramElement!.diagramFocus
+				);
 			} else {
 				callUpdateDiagramMethod();
 			}

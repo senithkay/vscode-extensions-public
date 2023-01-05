@@ -11,9 +11,10 @@
  * associated services.
  */
 
-import { Dispatch, useReducer } from "react";
+import { Dispatch, useEffect, useReducer } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { DiagramFocus } from "../../DiagramGenerator/vscode/Diagram";
 
 interface DiagramFocusState {
     filePath: string;
@@ -30,7 +31,7 @@ export enum DiagramFocusActionTypes {
 type FocusAction =
     | { type: DiagramFocusActionTypes.UPDATE_STATE, payload: DiagramFocusState }
     | { type: DiagramFocusActionTypes.UPDATE_FILE_PATH, payload: string }
-| { type: DiagramFocusActionTypes.UPDATE_POSITION, payload: NodePosition }
+    | { type: DiagramFocusActionTypes.UPDATE_POSITION, payload: NodePosition }
     | { type: DiagramFocusActionTypes.RESET_STATE, payload: string };
 
 function diagramFocusReducer(state: DiagramFocusState, action: FocusAction): DiagramFocusState {
@@ -50,13 +51,18 @@ function diagramFocusReducer(state: DiagramFocusState, action: FocusAction): Dia
         case DiagramFocusActionTypes.RESET_STATE:
             return undefined;
         default:
-            // ignored
+        // ignored
     }
 }
 
 
-export function useDiagramFocus(filePath: string, position: NodePosition) : [DiagramFocusState, Dispatch<FocusAction>]{
-    const [state, dispatch] = useReducer(diagramFocusReducer, {filePath, position});
+export function useDiagramFocus(diagramFocus: DiagramFocus): [DiagramFocusState, Dispatch<FocusAction>] {
+
+    const [state, dispatch] = useReducer(diagramFocusReducer, diagramFocus);
+
+    useEffect(() => {
+        dispatch({type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus});
+    }, [diagramFocus]);
 
     return [state, dispatch];
 }
