@@ -40,6 +40,7 @@ import { LetClauseNode } from './Node/LetClause';
 import { LetExpressionNode } from "./Node/LetExpression";
 import { LinkConnectorNode } from './Node/LinkConnector';
 import { MappingConstructorNode } from './Node/MappingConstructor';
+import { ModuleVariableNode } from "./Node/ModuleVariable";
 import { QueryExpressionNode } from './Node/QueryExpression';
 import { RequiredParamNode } from './Node/RequiredParam';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
@@ -193,9 +194,17 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
 					node.updatePosition();
 				}
-				if (node instanceof RequiredParamNode || node instanceof LetClauseNode || node instanceof LetExpressionNode) {
+				if (node instanceof RequiredParamNode
+					|| node instanceof LetClauseNode
+					|| node instanceof LetExpressionNode
+					|| node instanceof ModuleVariableNode)
+				{
 					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
-					requiredParamFields = requiredParamFields + node.numberOfFields;
+					requiredParamFields = requiredParamFields
+						+ (node instanceof LetExpressionNode || node instanceof ModuleVariableNode
+							? node.numberOfFields + 1
+							: node.numberOfFields
+						);
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
 				}
 				if (node instanceof FromClauseNode) {

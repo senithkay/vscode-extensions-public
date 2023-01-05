@@ -14,6 +14,7 @@ import {
 	keywords,
 	PrimitiveBalType,
 	STModification,
+	STSymbolInfo,
 	Type
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -54,6 +55,7 @@ import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
+import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
 
 import {
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
@@ -909,6 +911,12 @@ export function getInputNodes(node: STNode) {
 	const inputNodeFindingVisitor: InputNodeFindingVisitor = new InputNodeFindingVisitor();
 	traversNode(node, inputNodeFindingVisitor);
 	return inputNodeFindingVisitor.getFieldAccessNodes();
+}
+
+export function getModuleVariables(node: STNode, symbolInfo: STSymbolInfo) {
+	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(symbolInfo);
+	traversNode(node, moduleVarFindingVisitor);
+	return moduleVarFindingVisitor.getModuleVariables();
 }
 
 export function getFieldName(field: EditableRecordField) {

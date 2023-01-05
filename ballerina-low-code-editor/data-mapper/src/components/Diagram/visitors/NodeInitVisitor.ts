@@ -45,6 +45,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
+import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
@@ -178,9 +179,17 @@ export class NodeInitVisitor implements Visitor {
                 }
             }
         }
-        // create node for configuring local variables
         const hasExpanded = this.selection.prevST.length > 0;
         if (!hasExpanded) {
+            // create node for module variables
+            const moduleVarNode = new ModuleVariableNode(
+                this.context,
+                exprFuncBody
+            );
+            moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+            this.inputNodes.push(moduleVarNode);
+
+            // create node for configuring local variables
             const letExprNode = new LetExpressionNode(
                 this.context,
                 exprFuncBody
