@@ -92,12 +92,12 @@ import { nextNodeSetupVisitor } from "../visitors/next-node--setup-visitor";
 import { parentFunctionSetupVisitor } from "../visitors/parent-function-setup-visitor";
 import { visitor as ParentModelFindingVisitor } from "../visitors/parent-model-finding-visitor";
 import { parentSetupVisitor } from '../visitors/parent-setup-visitor';
+import { parentWhereSetupVisitor } from '../visitors/parent-where-setup-visitor';
 import { viewStateSetupVisitor as ViewStateSetupVisitor } from "../visitors/view-state-setup-visitor";
 
 import { Expression, ExpressionGroup } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
-import { parentWhereSetupVisitor } from '../visitors/parent-where-setup-visitor';
 
 export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
                                  modulesToBeImported?: string[], isExpressionMode?: boolean): STModification[] {

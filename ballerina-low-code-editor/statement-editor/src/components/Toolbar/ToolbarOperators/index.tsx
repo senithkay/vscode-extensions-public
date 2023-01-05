@@ -52,7 +52,8 @@ import {
 } from "../../../utils/expressions";
 import { ModelType } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorToolbarStyles } from "../../styles";
-import { 
+
+import {
     ARITHMETIC_OPERATORS,
     binaryBitwiseOperators,
     BINARYBITWISE_OPERATORS,
@@ -152,7 +153,7 @@ export function ToolbarOperators() {
                         filteredGroups = [plusOperator]
 
                 // filter context based toolbar operators on operator selected
-                } else if (currentModel?.model?.value ) {
+                } else if (currentModel?.model?.value) {
                     if (ARITHMETIC_OPERATORS.includes(currentModel.model.value)) {
                         filteredGroups = [operatorsEdits];
                     } else if (LOGICAL_OPERATORS.includes(currentModel.model.value)) {

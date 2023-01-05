@@ -16,10 +16,10 @@ import { ModelType } from "../../../../utils/statement-editor-viewstate";
 export const ARITHMETIC_OPERATORS = ["+", "-", "*", "/", "%"];
 export const LOGICAL_OPERATORS = ["&&", "||"];
 export const EQUALITY_OPERATORS = ["==", "!="];
-export const RELATIONAl_OPERATORS = ["<", ">", "<=", ">="];
+export const RELATIONAL_OPERATORS = ["<", ">", "<=", ">="];
 export const BINARYBITWISE_OPERATORS = ["&", "|", "^"];
 export const RANGE_OPERATORS = ["...", "..<"];
-export const CHECKING_OPERATORS = ["Check", "checkpanic"];``
+export const CHECKING_OPERATORS = ["Check", "checkpanic"];
 export const TRAP_OPERATORS = ["trap"];
 export const OPTIONALRECORDFIELD_OPERATORS = ["?"];
 
