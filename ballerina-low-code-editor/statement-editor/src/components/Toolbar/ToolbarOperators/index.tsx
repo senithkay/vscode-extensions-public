@@ -42,11 +42,8 @@ import {
     logical,
     memberAccess,
     operators,
-    operatorsEdits,
-    operatorSymbols,
     optionalRecordField,
     parenthesis,
-    plusOperator,
     range,
     relational,
     SELECTED_EXPRESSION,
@@ -55,6 +52,27 @@ import {
 } from "../../../utils/expressions";
 import { ModelType } from "../../../utils/statement-editor-viewstate";
 import { useStatementEditorToolbarStyles } from "../../styles";
+import { 
+    ARITHMETIC_OPERATORS,
+    binaryBitwiseOperators,
+    BINARYBITWISE_OPERATORS,
+    checkingOperators,
+    CHECKING_OPERATORS,
+    equalityOperators,
+    EQUALITY_OPERATORS,
+    logicalOperators,
+    LOGICAL_OPERATORS,
+    operatorsEdits,
+    optionalRecordFieldOperators,
+    OPTIONALRECORDFIELD_OPERATORS,
+    plusOperator,
+    rangeOperators,
+    RANGE_OPERATORS,
+    relationalOperators,
+    RELATIONAl_OPERATORS,
+    trapOperators,
+    TRAP_OPERATORS
+} from "./utils/operators";
 
 export function ToolbarOperators() {
     const statementEditorToolbarClasses = useStatementEditorToolbarStyles();
@@ -132,6 +150,28 @@ export function ToolbarOperators() {
                     && STKindChecker.isStringLiteral(currentModel.model.parent.lhsExpr)
                     && STKindChecker.isStringLiteral(currentModel.model.parent.rhsExpr)) {
                         filteredGroups = [plusOperator]
+
+                // filter context based toolbar operators on operator selected
+                } else if (currentModel?.model?.value ) {
+                    if (ARITHMETIC_OPERATORS.includes(currentModel.model.value)) {
+                        filteredGroups = [operatorsEdits];
+                    } else if (LOGICAL_OPERATORS.includes(currentModel.model.value)) {
+                        filteredGroups = [logicalOperators];
+                    } else if (EQUALITY_OPERATORS.includes(currentModel.model.value)) {
+                        filteredGroups = [equalityOperators];
+                    } else if (RELATIONAl_OPERATORS.includes(currentModel.model.value)) {
+                        filteredGroups = [relationalOperators];
+                    } else if (BINARYBITWISE_OPERATORS.includes(currentModel.model.value)) {
+                        filteredGroups = [binaryBitwiseOperators];
+                    } else if (RANGE_OPERATORS.includes(currentModel.model.value)) {
+                        filteredGroups = [rangeOperators];
+                    } else if (CHECKING_OPERATORS.includes(currentModel.model.value)) {
+                        filteredGroups = [checkingOperators];
+                    } else if (TRAP_OPERATORS.includes(currentModel.model.value)) {
+                        filteredGroups = [trapOperators];
+                    } else if (OPTIONALRECORDFIELD_OPERATORS.includes(currentModel.model.value)) {
+                        filteredGroups = [optionalRecordFieldOperators];
+                    }
                 }
             } else if (STKindChecker.isSelectClause(currentModel.model) || STKindChecker.isLetClause(currentModel.model)) {
                 filteredGroups = [operators, parenthesis];
