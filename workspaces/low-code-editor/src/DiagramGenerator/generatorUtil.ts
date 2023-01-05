@@ -75,9 +75,9 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
         return getFnStartPosition(functions[0]);
     } else if (modulePart.members && modulePart.members.length > 0) { // select first member in module part
         const { startColumn, startLine } = modulePart.members[0]?.position;
-        return { startColumn, startLine }
+        return { startColumn, startLine };
     } else {
-        return { startColumn: 0, startLine: 0 }
+        return { startColumn: 0, startLine: 0 };
     }
 }
 

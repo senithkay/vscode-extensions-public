@@ -10,19 +10,23 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
+import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+
+import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
 import { EditorProps } from "../DiagramGenerator/vscode/Diagram";
+import { OverviewDiagram } from "../OverviewDiagram";
 
 import { DiagramFocusActionTypes, useDiagramFocus } from "./hooks/diagram-focus";
+import { NavigationBar } from "./NavigationBar";
 
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
  */
 export function DiagramViewManager(props: EditorProps) {
-    console.log('>>> view manager', props);
     // ViewManager behavior:
     //  - should be able to handle switching to lowcode whatever the mode user interacts in
     //      - user can open a lowcode element by selecting a component from the component overview
@@ -40,7 +44,7 @@ export function DiagramViewManager(props: EditorProps) {
     //  - Handle switching between views based on type of the syntax tree fetched(datamapper, graphql, service designer)
     //  - Handle switching to code from standalone code segment
     //  - Implement top bar to handle navigation
-    
+
     const {
         lastUpdatedAt,
         langClientPromise,
@@ -49,11 +53,44 @@ export function DiagramViewManager(props: EditorProps) {
         diagramFocus
     } = props;
 
-    const [diagramFocusState, diagramFocusSend] = useDiagramFocus(diagramFocus);
+    const [diagramFocusState, diagramFocusSend] = useDiagramFocus();
+    const [selectedST, setSelectedST] = useState<STNode>();
+
+
+    useEffect(() => {
+        if (diagramFocus) {
+            const { filePath, position } = diagramFocus;
+
+            (async () => {
+                try {
+                    const langClient = await langClientPromise;
+                    const generatedST = await getSyntaxTree(filePath, langClient);
+                    const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
+
+                    const stFindingVisitor = new STFindingVisitor();
+                    stFindingVisitor.setPosition(position);
+                    traversNode(visitedST, stFindingVisitor);
+                    setSelectedST(stFindingVisitor.getSTNode());
+                } catch (err) {
+                    // tslint:disable-next-line: no-console
+                    console.error(err);
+                }
+            })();
+        }
+    }, [lastUpdatedAt, diagramFocusState]);
+
+    useEffect(() => {
+        diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
+    }, [diagramFocus])
+
+    const isOverviewDiagramVisible = !!diagramFocusState;
+    const isDiagramShown = !!diagramFocusState && !!selectedST;
 
     return (
         <div>
-            Hello world
+            <NavigationBar />
+            {isOverviewDiagramVisible && <OverviewDiagram {...props} />}
+            {isDiagramShown && <div>hello</div>}
         </div>
     )
 }

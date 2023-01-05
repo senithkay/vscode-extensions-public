@@ -14,6 +14,7 @@
 import { Dispatch, useEffect, useReducer } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
 import { DiagramFocus } from "../../DiagramGenerator/vscode/Diagram";
 
 interface DiagramFocusState {
@@ -56,13 +57,8 @@ function diagramFocusReducer(state: DiagramFocusState, action: FocusAction): Dia
 }
 
 
-export function useDiagramFocus(diagramFocus: DiagramFocus): [DiagramFocusState, Dispatch<FocusAction>] {
-
-    const [state, dispatch] = useReducer(diagramFocusReducer, diagramFocus);
-
-    useEffect(() => {
-        dispatch({type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus});
-    }, [diagramFocus]);
+export function useDiagramFocus(): [DiagramFocusState, Dispatch<FocusAction>] {
+    const [state, dispatch] = useReducer(diagramFocusReducer, undefined);
 
     return [state, dispatch];
 }

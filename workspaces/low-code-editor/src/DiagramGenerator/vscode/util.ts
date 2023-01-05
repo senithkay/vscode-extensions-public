@@ -30,7 +30,6 @@ export function renderOverviewDiagram(options: {
     target: HTMLElement,
     editorProps: EditorProps
 }) {
-    console.log('rendering props >>>', options.editorProps);
     const DiagramElement = createElement(WorkspaceOverview, options.editorProps);
     return render(DiagramElement, options.target);
 }
