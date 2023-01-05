@@ -49,7 +49,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
             const varName = node.source.trim().split('.')[0];
             const moduleVarKind = this.getModuleVarKind(varName);
             if (moduleVarKind !== undefined) {
-                this.moduleVariables.set(varName, {
+                this.moduleVariables.set(node.source.trim(), {
                     kind: moduleVarKind,
                     node
                 });
@@ -64,7 +64,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
             const varName = node.source.trim().split('.')[0];
             const moduleVarKind = this.getModuleVarKind(varName);
             if (moduleVarKind !== undefined) {
-                this.moduleVariables.set(varName, {
+                this.moduleVariables.set(node.source.trim(), {
                     kind: moduleVarKind,
                     node
                 });
