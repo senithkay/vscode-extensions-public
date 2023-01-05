@@ -70,7 +70,7 @@ import {
     rangeOperators,
     RANGE_OPERATORS,
     relationalOperators,
-    RELATIONAl_OPERATORS,
+    RELATIONAL_OPERATORS,
     trapOperators,
     TRAP_OPERATORS
 } from "./utils/operators";
@@ -160,7 +160,7 @@ export function ToolbarOperators() {
                         filteredGroups = [logicalOperators];
                     } else if (EQUALITY_OPERATORS.includes(currentModel.model.value)) {
                         filteredGroups = [equalityOperators];
-                    } else if (RELATIONAl_OPERATORS.includes(currentModel.model.value)) {
+                    } else if (RELATIONAL_OPERATORS.includes(currentModel.model.value)) {
                         filteredGroups = [relationalOperators];
                     } else if (BINARYBITWISE_OPERATORS.includes(currentModel.model.value)) {
                         filteredGroups = [binaryBitwiseOperators];
