@@ -13,17 +13,15 @@
 import { Point } from "@projectstorm/geometry";
 import { ExpressionRange, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    ExpressionFunctionBody,
     NodePosition,
-    STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../../utils/st-utils";
 import { MODULE_VARIABLE_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getModuleVariables } from "../../utils/dm-utils";
 import { getTypesForExpressions } from "../../utils/ls-utils";
+import { ModuleVariable } from "../../visitors/ModuleVariablesFindingVisitor";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const MODULE_VAR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-module-variable";
@@ -48,7 +46,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ExpressionFunctionBody) {
+        public variables: Map<string, ModuleVariable>) {
         super(
             context,
             MODULE_VAR_SOURCE_NODE_TYPE
@@ -58,12 +56,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        let exprBody: STNode = this.value;
-        if (STKindChecker.isLetExpression(this.value.expression)) {
-            exprBody = this.value.expression.expression;
-        }
-        const moduleVariables = getModuleVariables(exprBody, this.context.stSymbolInfo);
-        const exprRanges: ExpressionRange[] = [...moduleVariables].map(([, item]) => {
+        const exprRanges: ExpressionRange[] = [...this.variables].map(([, item]) => {
             const exprPosition: NodePosition = item.node.position as NodePosition;
             return {
                 startLine: {
@@ -77,7 +70,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
             };
         });
         const types = await getTypesForExpressions(this.context.filePath, this.context.langClientPromise, exprRanges);
-        this.moduleVarDecls = [...moduleVariables].map(([varName, item]) => {
+        this.moduleVarDecls = [...this.variables].map(([varName, item]) => {
             return {
                 varName,
                 kind: item.kind,

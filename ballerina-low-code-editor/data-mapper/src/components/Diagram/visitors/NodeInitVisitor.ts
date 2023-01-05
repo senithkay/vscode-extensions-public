@@ -52,9 +52,12 @@ import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "
 import {
     getExprBodyFromLetExpression,
     getInputNodes,
+    getModuleVariables,
     getTypeOfOutput,
     isComplexExpression
 } from "../utils/dm-utils";
+
+import { ModuleVariable } from "./ModuleVariablesFindingVisitor";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -182,12 +185,15 @@ export class NodeInitVisitor implements Visitor {
         const hasExpanded = this.selection.prevST.length > 0;
         if (!hasExpanded) {
             // create node for module variables
-            const moduleVarNode = new ModuleVariableNode(
-                this.context,
-                exprFuncBody
-            );
-            moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-            this.inputNodes.push(moduleVarNode);
+            const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.stSymbolInfo);
+            if (moduleVariables.size > 0) {
+                const moduleVarNode = new ModuleVariableNode(
+                    this.context,
+                    moduleVariables
+                );
+                moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                this.inputNodes.push(moduleVarNode);
+            }
 
             // create node for configuring local variables
             const letExprNode = new LetExpressionNode(
