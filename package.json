@@ -624,6 +624,7 @@
         "workspaces/swagger",
         "workspaces/variable-view",
         "workspaces/choreo-core",
+        "workspaces/choreo-client",
         "workspaces/choreo-webviews",
         "workspaces/choreo-extension"
     ],

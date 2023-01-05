@@ -25,6 +25,7 @@ export interface IChoreoExtensionAPI {
 }
 
 export class ChoreoExtensionApi {
+    // TODO move this to ext namespace
     public userName: string | undefined;
 
     private _status: ChoreoLoginStatus;
