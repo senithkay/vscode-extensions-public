@@ -13,10 +13,10 @@
 import { commands, WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
-import { GetAllOrgsRequest, GetCurrentOrgRequest,
+import { GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification  } from "@wso2-enterprise/choreo-core";
-
+import { getProjectsByOrg } from "../../../api/queries";
 import { getUserInfo } from "../../../api/user";
 import { ext } from "../../../extensionVariables";
 
@@ -38,6 +38,11 @@ export class WebViewRpc {
             if (loginSuccess) {
                  const userInfo = await getUserInfo();
                  return userInfo.organizations;
+            } 
+        });
+        this._messenger.onRequest(GetAllProjectsRequest, async () => {
+            if (ext.api.selectedOrg) {
+                return getProjectsByOrg(ext.api.selectedOrg.id);
             } 
         });
         ext.api.onStatusChanged((newStatus) => {

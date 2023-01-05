@@ -11,14 +11,18 @@
  *  associated services.
  */
 import { commands } from "vscode";
-import { createNewProjectCmdId } from "../constants";
+import { createNewComponentCmdId, createNewProjectCmdId } from "../constants";
 import { ext } from "../extensionVariables";
-import { ProjectCreationWizard } from "../views/webviews/ProjectCreationWizard";
+import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 
 export function activateWizards() {
     const createProjectCmd = commands.registerCommand(createNewProjectCmdId, () => {
-        ProjectCreationWizard.render(ext.context.extensionUri);
+        WebviewWizard.render(ext.context.extensionUri, WizardTypes.projectCreation);
+    });
+
+    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, () => {
+        WebviewWizard.render(ext.context.extensionUri, WizardTypes.componentCreation);
     });
   
-    ext.context.subscriptions.push(createProjectCmd);
+    ext.context.subscriptions.push(createProjectCmd, createComponentCmd);
   }

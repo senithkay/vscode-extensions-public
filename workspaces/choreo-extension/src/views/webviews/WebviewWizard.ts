@@ -14,33 +14,46 @@ import * as vscode from "vscode";
 import { WebViewRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
 
-export class ProjectCreationWizard {
+export enum WizardTypes {
+  projectCreation = "ProjectCreateForm",
+  componentCreation = "ComponentCreateForm"
+}
 
-  public static currentPanel: ProjectCreationWizard | undefined;
+export class WebviewWizard {
+
+  public static currentPanel: WebviewWizard | undefined;
   private readonly _panel: vscode.WebviewPanel;
   private _disposables: vscode.Disposable[] = [];
   private _rpcHandler: WebViewRpc;
 
-  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
+  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, type: WizardTypes) {
     this._panel = panel;
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
+    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, type);
     this._rpcHandler = new WebViewRpc(this._panel);
   }
 
-  public static render(extensionUri: vscode.Uri) {
-    if (ProjectCreationWizard.currentPanel) {
-      ProjectCreationWizard.currentPanel._panel.reveal(vscode.ViewColumn.One);
-    } else {
-      const panel = vscode.window.createWebviewPanel("create-new-project", "Create new Project", vscode.ViewColumn.One, {
-        enableScripts: true
-      });
-
-      ProjectCreationWizard.currentPanel = new ProjectCreationWizard(panel, extensionUri);
+  public static render(extensionUri: vscode.Uri, type: WizardTypes) {
+    if (WebviewWizard.currentPanel) {
+      if (WebviewWizard.currentPanel._panel.viewType === type) {
+        WebviewWizard.currentPanel._panel.reveal(vscode.ViewColumn.One);
+        return;
+      }
+      WebviewWizard.currentPanel._panel.dispose();
     }
+    this.createWebview(extensionUri, type);
   }
 
-  private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
+  private static createWebview(extensionUri: vscode.Uri, type: WizardTypes) {
+    const panel = vscode.window.createWebviewPanel(type,
+      `Create New ${type === WizardTypes.componentCreation ? 'Component' : 'Project'}`, vscode.ViewColumn.One,
+      { enableScripts: true }
+    );
+
+    WebviewWizard.currentPanel = new WebviewWizard(panel, extensionUri, type);
+  }
+
+  private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, wizardType: WizardTypes) {
     // The JS file from the React build output
     const scriptUri = getUri(webview, extensionUri, [
       "resources",
@@ -56,21 +69,26 @@ export class ProjectCreationWizard {
               <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
               <meta name="theme-color" content="#000000">
               <title>Choreo Project Wizard</title>
+              <script src="${scriptUri}"></script>
             </head>
             <body>
               <noscript>You need to enable JavaScript to run this app.</noscript>
               <div id="root"></div>
-              <script src="${scriptUri}"></script>
-              <script>
-                  // TODO user window.renderChoreoWebViews({ type: "ProjectCreateForm"}) to render on window.ready
-              </script>
             </body>
+            <script>
+              function render() {
+                window.renderChoreoWebViews({ type: "${wizardType.toString()}" });
+              }
+              window.onload = () => {
+                render();
+              }
+            </script>
           </html>
         `;
   }
 
   public dispose() {
-    ProjectCreationWizard.currentPanel = undefined;
+    WebviewWizard.currentPanel = undefined;
 
     this._panel.dispose();
 
