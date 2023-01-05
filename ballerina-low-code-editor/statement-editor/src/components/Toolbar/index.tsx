@@ -204,7 +204,7 @@ export default function Toolbar() {
                     data-testid="toolbar-expressions"
                 >
                     <Typography className={statementEditorClasses.toolbarMoreExpIcon}>
-                        ...
+                        More
                     </Typography>
                 </IconButton>
             </StatementEditorHint>
