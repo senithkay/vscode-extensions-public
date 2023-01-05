@@ -49,7 +49,12 @@
       },
       {
         "command": "wso2.choreo.project.create",
-        "title": "Create new Project",
+        "title": "Create New Project",
+        "category": "Choreo"
+      },
+      {
+        "command": "wso2.choreo.component.create",
+        "title": "Create New Component",
         "category": "Choreo"
       },
       {
