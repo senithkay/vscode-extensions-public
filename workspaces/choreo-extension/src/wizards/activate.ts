@@ -23,6 +23,6 @@ export function activateWizards() {
     const createComponentCmd = commands.registerCommand(createNewComponentCmdId, () => {
         WebviewWizard.render(ext.context.extensionUri, WizardTypes.componentCreation);
     });
-  
+
     ext.context.subscriptions.push(createProjectCmd, createComponentCmd);
-  }
+}
