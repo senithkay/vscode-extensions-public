@@ -10,9 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { ChoreoLoginStatus, Organization } from "@wso2-enterprise/choreo-core";
 import { useState, useEffect } from "react";
 import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ChoreoLoginStatus, Organization, WebViewRpc } from "../utilities/WebViewRpc";
+import { WebViewRpc } from "../utilities/WebViewRpc";
 
 export function usePopulateContext(): IChoreoWebViewContext {
 

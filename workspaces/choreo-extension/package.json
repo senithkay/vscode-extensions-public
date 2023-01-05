@@ -149,6 +149,7 @@
   },
   "dependencies": {
     "@vscode/webview-ui-toolkit": "^1.2.0",
+    "@wso2-enterprise/choreo-core": "^1.0.0",
     "@wso2-enterprise/choreo-vscode-webviews": "1.0.0",
     "axios": "^1.2.0",
     "gql-query-builder": "^3.8.0",

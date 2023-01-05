@@ -16,7 +16,7 @@ import { ChoreoLoginStatus } from "./auth/events";
 import { Disposable, EventEmitter } from 'vscode';
 import { ext } from "./extensionVariables";
 
-import { Organization } from "./api/types";
+import { IProjectManager, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { exchangeAuthToken } from "./auth/inbuilt-impl";
 
 export interface IChoreoExtensionAPI {
@@ -25,6 +25,7 @@ export interface IChoreoExtensionAPI {
 }
 
 export class ChoreoExtensionApi {
+    // TODO move this to ext namespace
     public userName: string | undefined;
 
     private _status: ChoreoLoginStatus;
@@ -36,6 +37,9 @@ export class ChoreoExtensionApi {
 
 	private _onOrganizationChanged = new EventEmitter<Organization | undefined>();
     public onOrganizationChanged = this._onOrganizationChanged.event;
+
+    private _onChoreoProjectChanged = new EventEmitter<Project | undefined>();
+    public onChoreoProjectChanged = this._onChoreoProjectChanged.event; // TODO implement firing
 
     constructor() {
         this._status = "Initializing";
@@ -81,5 +85,13 @@ export class ChoreoExtensionApi {
                 throw new Error(`Unexpected status '${status}'`);
         }
 	}
+
+    public isChoreoProject(): Promise<boolean> {
+        return Promise.resolve(false);
+    }
+
+    public getProjectManager(projectId: string): Promise<IProjectManager|undefined> {
+        return Promise.resolve(undefined);
+    }
 
 }
