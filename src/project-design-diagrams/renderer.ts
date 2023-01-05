@@ -55,8 +55,15 @@ export function render(webView: Webview) {
                 })
             }
 
+            function go2source(location) {
+                vscode.postMessage({
+                    command: 'go2source',
+                    location: location
+                })
+            }
+
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(fetchProjectResources, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(fetchProjectResources, go2source, document.getElementById("diagram-container"));
             }
             renderDiagrams();
         }
