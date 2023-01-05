@@ -45,11 +45,7 @@ import { useStatementEditorToolbarStyles } from "../styles";
 import StatementQualifiers from "./StatementQualifiers";
 import { ToolbarOperators } from "./ToolbarOperators";
 
-interface ToolbarProps {
-    inlineDocumentHandler: (docBtnEnabled: boolean) => void
-}
-
-export default function Toolbar(props: ToolbarProps) {
+export default function Toolbar() {
     const statementEditorClasses = useStatementEditorToolbarStyles();
     const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo, config } = useContext(StatementEditorContext);
     const {
@@ -69,8 +65,6 @@ export default function Toolbar(props: ToolbarProps) {
         activeEditorId
     } = editorCtx;
     const toolbarCtx = useContext(ToolbarContext);
-    const { inlineDocumentHandler } = props;
-    const [docEnabled, setDocEnabled] = React.useState(false);
 
     React.useEffect(() => {
         const client = KeyboardNavigationManager.getClient();
@@ -146,17 +140,9 @@ export default function Toolbar(props: ToolbarProps) {
         addConfigurable(ADD_CONFIGURABLE_LABEL, configurableInsertPosition, configurableStmt, true);
     }
 
-    const onClickOnDocumentation = () => {
-        docEnabled ? setDocEnabled(false) : setDocEnabled(true);
-    }
-
     const onClickExpressions = () => {
         toolbarCtx.onClickMoreExp(true);
     }
-
-    useEffect(() => {
-        inlineDocumentHandler(docEnabled);
-    }, [docEnabled])
 
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
@@ -200,15 +186,6 @@ export default function Toolbar(props: ToolbarProps) {
                     data-testid="toolbar-configurable"
                 >
                     <ToolbarConfigurableIcon/>
-                </IconButton>
-            </StatementEditorHint>
-            <StatementEditorHint content={"Documentation"} >
-                <IconButton
-                    onClick={onClickOnDocumentation}
-                    style={docEnabled ? ({color : '#5567d5'}) : ({color: '#40404B'})}
-                    className={statementEditorClasses.toolbarIcons}
-                >
-                    <ToolbarDocumentationIcon />
                 </IconButton>
             </StatementEditorHint>
             <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>

@@ -685,7 +685,68 @@ export const typeDesc : ExpressionGroup = {
     relatedModelType: ModelType.TYPE_DESCRIPTOR
 }
 
-const operatorSymbols : ExpressionGroup = {
+export const operatorsEdits : ExpressionGroup = {
+    name: "Operators",
+    expressions: [
+        {
+            name: "Plus",
+            template: `+`,
+            example: "+",
+            symbol: "+"
+        }, {
+            name: "Minus",
+            template: "-",
+            example: "-",
+            symbol: "-"
+        }, {
+            name: "Asterisk",
+            template: `*`,
+            example: "*",
+            symbol: "*"
+        }, {
+            name: "Slash",
+            template: `/`,
+            example: "/",
+            symbol: "/"
+        }, {
+            name: "BitwiseAnd",
+            template: `&`,
+            example: "&",
+            symbol: "&"
+        }, {
+            name: "BitwiseXor",
+            template: `|`,
+            example: "|",
+            symbol: "|"
+        }, {
+            name: "LogicalAnd",
+            template: `&&`,
+            example: "&&",
+            symbol: "&&"
+        }, {
+            name: "LogicalOr",
+            template: `||`,
+            example: "||",
+            symbol: "||"
+        },
+    ],
+    relatedModelType: ModelType.OPERATOR
+}
+
+export const plusOperator : ExpressionGroup = {
+    name: "Plus Operator",
+    expressions: [
+        {
+            name: "Plus",
+            template: `+`,
+            example: "+",
+            symbol: "+"
+        },
+    ],
+    relatedModelType: ModelType.OPERATOR
+}
+
+export const operatorSymbols : ExpressionGroup = {
     name: "Operators",
     expressions: [
         {
