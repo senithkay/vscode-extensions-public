@@ -46,10 +46,7 @@ enum TabElements {
     parameters = 'Parameters'
 }
 
-export interface HelperPaneProps{
-}
-
-export function HelperPane(props: HelperPaneProps) {
+export function HelperPane() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
