@@ -15,7 +15,7 @@ import * as os from 'os';
 import path = require('path');
 import { simpleGit } from 'simple-git';
 import { commands, ProgressLocation, TreeItem, Uri, window, workspace } from 'vscode';
-import { Repository, WorkspaceConfig } from '../api/types';
+import { Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { ChoreoComponentTreeItem } from '../views/project-tree/ComponentTreeItem';
 import { getComponentsByProject } from './../api/queries';

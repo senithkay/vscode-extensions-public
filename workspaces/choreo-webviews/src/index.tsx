@@ -20,3 +20,17 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
+
+export interface ChoreoWebViewsProps {
+    type: "ProjectOverView" | "ComponentCreateForm" | "ProjectCreateForm";
+}
+
+(window as any).renderChoreoWebViews = (props: ChoreoWebViewsProps) => {
+  ReactDOM.render(
+    <React.StrictMode>
+      {/* TODO pass type prop to app and switch view accordingly  */}
+      <App /> 
+    </React.StrictMode>,
+    document.getElementById("root")
+  );
+}

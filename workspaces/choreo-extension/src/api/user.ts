@@ -13,7 +13,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import { getChoreoClient } from ".";
-import { UserInfo } from "./types";
+import { UserInfo } from "@wso2-enterprise/choreo-core";
 
 export async function getUserInfo(): Promise<UserInfo> {
     const client = await getChoreoClient();

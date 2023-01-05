@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import { Project } from "../../api/types";
+import { Project } from "@wso2-enterprise/choreo-core";
 import { getIconPath } from "../../icons";
 
 export class ChoreoProjectTreeItem extends TreeItem {
