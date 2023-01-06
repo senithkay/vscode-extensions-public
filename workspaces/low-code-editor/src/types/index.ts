@@ -80,15 +80,15 @@ export interface LowCodeEditorAPI {
         gotoSource: (position: { startLine: number, startColumn: number }) => void;
         getFunctionDef: (lineRange: Range, defFilePath: string) => Promise<FunctionDef>;
         updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
-        isMutationInProgress: boolean;
-        isModulePullInProgress: boolean;
-        loaderText: string;
-        undo: () => Promise<void>;
+        // isMutationInProgress: boolean;
+        // isModulePullInProgress: boolean;
+        // loaderText: string;
+        // undo: () => Promise<void>;
     }
     // FIXME Doesn't make sense to take these methods below from outside
     // Move these inside and get an external API for pref persistance
     // against a unique ID (eg AppID) for rerender from prev state
-    panNZoom: {
+    panNZoom?: {
         pan: (panX: number, panY: number) => void;
         fitToScreen: () => void;
         zoomIn: () => void;

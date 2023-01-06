@@ -39,9 +39,9 @@ export function Diagram() {
             code: {
                 modifyDiagram,
                 gotoSource,
-                isMutationInProgress,
-                isModulePullInProgress,
-                loaderText,
+                // isMutationInProgress,
+                // isModulePullInProgress,
+                // loaderText,
                 getFunctionDef
             },
             webView: {
@@ -291,7 +291,8 @@ export function Diagram() {
 
     const textLoader = (
         <div className={classes.progressContainer}>
-            <TextPreLoader position="absolute" text={loaderText} />
+            {/* <TextPreLoader position="absolute" text={loaderText} /> */}
+            loading
         </div>
     );
 
@@ -335,7 +336,7 @@ export function Diagram() {
 
     return (
         <div id="canvas">
-            {(codeTriggerredUpdateInProgress || isMutationInProgress || isModulePullInProgress) && textLoader}
+            {/* {(codeTriggerredUpdateInProgress || isMutationInProgress || isModulePullInProgress) && textLoader} */}
             <div className='container'>
                 <div className={classes.DesignContainer}>
                     <LowCodeDiagram

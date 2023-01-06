@@ -104,7 +104,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
 
     const [fullSyntaxTree, setFullSyntaxTree] = React.useState(undefined);
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
-    const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
+    // const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
     const [fileContent, setFileContent] = React.useState("");
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
     const [isModulePullInProgress, setModulePullInProgress] = React.useState<boolean>(false);
@@ -243,28 +243,28 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
     //     }
     // }, [syntaxTree]);
 
-    function zoomIn() {
-        const newZoomStatus = cloneDeep(zoomStatus);
-        newZoomStatus.scale = (zoomStatus.scale + ZOOM_STEP >= MAX_ZOOM) ? MAX_ZOOM : zoomStatus.scale + ZOOM_STEP;
-        setZoomStatus(newZoomStatus);
-    }
+    // function zoomIn() {
+    //     const newZoomStatus = cloneDeep(zoomStatus);
+    //     newZoomStatus.scale = (zoomStatus.scale + ZOOM_STEP >= MAX_ZOOM) ? MAX_ZOOM : zoomStatus.scale + ZOOM_STEP;
+    //     setZoomStatus(newZoomStatus);
+    // }
 
-    function zoomOut() {
-        const newZoomStatus = cloneDeep(zoomStatus);
-        newZoomStatus.scale = (zoomStatus.scale - ZOOM_STEP <= MIN_ZOOM) ? MIN_ZOOM : zoomStatus.scale - ZOOM_STEP;
-        setZoomStatus(newZoomStatus);
-    }
+    // function zoomOut() {
+    //     const newZoomStatus = cloneDeep(zoomStatus);
+    //     newZoomStatus.scale = (zoomStatus.scale - ZOOM_STEP <= MIN_ZOOM) ? MIN_ZOOM : zoomStatus.scale - ZOOM_STEP;
+    //     setZoomStatus(newZoomStatus);
+    // }
 
-    function fitToScreen() {
-        setZoomStatus(defaultZoomStatus);
-    }
+    // function fitToScreen() {
+    //     setZoomStatus(defaultZoomStatus);
+    // }
 
-    function pan(newPanX: number, newPanY: number) {
-        const newZoomStatus = cloneDeep(zoomStatus);
-        newZoomStatus.panX = newPanX;
-        newZoomStatus.panY = newPanY;
-        setZoomStatus(newZoomStatus);
-    }
+    // function pan(newPanX: number, newPanY: number) {
+    //     const newZoomStatus = cloneDeep(zoomStatus);
+    //     newZoomStatus.panX = newPanX;
+    //     newZoomStatus.panY = newPanY;
+    //     setZoomStatus(newZoomStatus);
+    // }
 
     async function showTryitView(serviceName: string, range: LineRange) {
         runCommand(PALETTE_COMMANDS.TRY_IT, [filePath, serviceName, range]);
@@ -325,10 +325,8 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
         <DiagramGenErrorBoundary lastUpdatedAt={lastUpdatedAt} >
             <LowCodeEditor
                 {...missingProps}
-                selectedPosition={selectedPosition}
                 isReadOnly={false}
                 syntaxTree={syntaxTree}
-                zoomStatus={zoomStatus}
                 environment={lowCodeEnvInstance}
                 stSymbolInfo={getSymbolInfo()}
                 // tslint:disable-next-line: jsx-no-multiline-js
@@ -461,12 +459,12 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     // FIXME Doesn't make sense to take these methods below from outside
                     // Move these inside and get an external API for pref persistance
                     // against a unique ID (eg AppID) for rerender from prev state
-                    panNZoom: {
-                        pan,
-                        fitToScreen,
-                        zoomIn,
-                        zoomOut
-                    },
+                    // panNZoom: {
+                    //     pan,
+                    //     fitToScreen,
+                    //     zoomIn,
+                    //     zoomOut
+                    // },
                     webView: {
                         showTryitView,
                         showDocumentationView
