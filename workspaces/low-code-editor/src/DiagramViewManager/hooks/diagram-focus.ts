@@ -14,6 +14,7 @@
 import { Dispatch, useEffect, useReducer } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
 import { DiagramFocus } from "../../DiagramGenerator/vscode/Diagram";
 
 interface DiagramFocusState {

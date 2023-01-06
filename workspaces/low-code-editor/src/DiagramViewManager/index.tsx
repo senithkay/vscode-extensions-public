@@ -11,21 +11,22 @@
  * associated services.
  */
 import React, { useEffect, useState } from "react";
+
 import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
+import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
+import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
 import { EditorProps } from "../DiagramGenerator/vscode/Diagram";
 import { OverviewDiagram } from "../OverviewDiagram";
 
 import { DiagramFocusActionTypes, useDiagramFocus } from "./hooks/diagram-focus";
-import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
-import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
+import { NavigationBar } from "./NavigationBar";
 
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
  */
 export function DiagramViewManager(props: EditorProps) {
-    console.log('>>> view manager', props);
     // ViewManager behavior:
     //  - should be able to handle switching to lowcode whatever the mode user interacts in
     //      - user can open a lowcode element by selecting a component from the component overview
@@ -87,8 +88,9 @@ export function DiagramViewManager(props: EditorProps) {
 
     return (
         <div>
+            <NavigationBar />
             {isOverviewDiagramVisible && <OverviewDiagram {...props} />}
-            Hello world
+            {isDiagramShown && <div>hello</div>}
         </div>
     )
 }

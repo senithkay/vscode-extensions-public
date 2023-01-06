@@ -37,6 +37,7 @@ import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
+import { DiagramViewManager } from "../DiagramViewManager";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
@@ -53,7 +54,6 @@ import { addPerformanceData } from "./performanceUtil";
 import { useGeneratorStyles } from "./styles";
 import { theme } from "./theme";
 import { EditorProps, PALETTE_COMMANDS } from "./vscode/Diagram";
-import { DiagramViewManager } from "../DiagramViewManager";
 export interface DiagramGeneratorProps extends EditorProps {
     scale: string;
     panX: string;
@@ -509,7 +509,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
 
 
 export function OverviewDiagramGenerator(props: EditorProps) {
-
     return (
         <DiagramViewManager {...props} />
     )
