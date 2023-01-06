@@ -12,17 +12,13 @@
  */
 import React, { useEffect, useState } from "react";
 
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { BallerinaProjectComponents, ComponentInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { Diagram, EditorProps } from "../DiagramGenerator/vscode/Diagram";
+import { WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 
-import { NavigationBar } from "./components/NavigationBar";
 import * as Views from './components/ViewTypes';
-import { OverviewDiagramContextProvider } from "./context/overview-diagram";
-import { NavigationHistoryManager } from "./navigation-manager";
 import './style.scss';
-import { ComponentViewInfo, generateFileLocation } from "./util";
+import { useDiagramContext } from "../Contexts/Diagram";
 
 export const DEFAULT_MODULE_NAME = 'default';
 
@@ -32,50 +28,59 @@ enum ViewMode {
     TYPE = 'Type'
 }
 
-const navigationHistoryManager = new NavigationHistoryManager();
 
-export function OverviewDiagram(props: EditorProps) {
+export interface OverviewDiagramProps {
+    lastUpdatedAt: string;
+    notifyComponentSelection: (info: ComponentInfo) => void;
+    projectPaths: WorkspaceFolder[]
+}
+
+export function OverviewDiagram(props: OverviewDiagramProps) {
+    const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
+    const { projectPaths, notifyComponentSelection, lastUpdatedAt } = props;
     // const { langClientPromise, projectPaths, lastUpdatedAt, filePath, openInDiagram } = props;
     // const [selectedComponent, updateSelectedComponent] = useState<ComponentViewInfo>();
-    // const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
+    const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
     // const [selectedFile, setSelectedFile] = useState<string>(filePath);
     // const [focusPosition, setFocusPosition] = useState<NodePosition>();
-    // const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
+    const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
 
-    // const handleViewModeChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
-    //     switch (evt.target.value) {
-    //         case ViewMode.MODULE:
-    //             setViewMode(ViewMode.MODULE);
-    //             break;
-    //         case ViewMode.FILE:
-    //             setViewMode(ViewMode.FILE);
-    //             break;
-    //         case ViewMode.TYPE:
-    //             setViewMode(ViewMode.TYPE);
-    //             break;
-    //         default:
-    //         // ignored
-    //     }
-    // }
+    console.log('>>> overview render');
 
-    // React.useEffect(() => {
-    //     (async () => {
-    //         try {
-    //             const langClient = await langClientPromise;
-    //             const filePaths: any = projectPaths.map(path => ({ uri: path.uri.external }))
-    //             const projectCompResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
-    //                 documentIdentifiers: [...filePaths]
-    //             });
+    const handleViewModeChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
+        switch (evt.target.value) {
+            case ViewMode.MODULE:
+                setViewMode(ViewMode.MODULE);
+                break;
+            case ViewMode.FILE:
+                setViewMode(ViewMode.FILE);
+                break;
+            case ViewMode.TYPE:
+                setViewMode(ViewMode.TYPE);
+                break;
+            default:
+            // ignored
+        }
+    }
 
-    //             updateProjectComponenets(projectCompResponse);
-    //         } catch (err) {
-    //             // TODO: do the error view diagram
-    //             // tslint:disable-next-line: no-console
-    //             console.error(err)
-    //         }
+    useEffect(() => {
+        (async () => {
+            try {
+                console.log('>>> useeffect');
+                const langClient = await getDiagramEditorLangClient();
+                const filePaths: any = projectPaths.map(path => ({ uri: path.uri.external }));
+                const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
+                    documentIdentifiers: [...filePaths]
+                });
 
-    //     })();
-    // }, [lastUpdatedAt]);
+                console.log('>>>', componentResponse);
+                updateProjectComponenets(componentResponse);
+            } catch (err) {
+                // tslint:disable-next-line: no-console
+                console.error(err);
+            }
+        })();
+    }, [lastUpdatedAt]);
 
     // const handleUpdateSelection = (info: ComponentViewInfo) => {
     //     const { filePath: fileName, folderPath, moduleName, name, ...position } = info;
@@ -106,33 +111,33 @@ export function OverviewDiagram(props: EditorProps) {
     //     updateSelectedComponent(undefined);
     // }
 
-    // const renderView = () => {
-    //     const CurrentView = Views[viewMode];
-    //     if (!CurrentView) return <></>;
-    //     return (
-    //         <div className="view-container">
-    //             <CurrentView
-    //                 projectComponents={projectComponents}
-    //                 updateSelection={handleUpdateSelection}
-    //             />
-    //         </div>
-    //     )
-    // }
+    const renderView = () => {
+        const CurrentView = Views[viewMode];
+        if (!CurrentView) return <></>;
+        return (
+            <div className="view-container">
+                <CurrentView
+                    projectComponents={projectComponents}
+                    updateSelection={notifyComponentSelection}
+                />
+            </div>
+        )
+    }
 
     // const isHistoryStackEmpty = () => navigationHistoryManager.isStackEmpty();
 
-    // const viewSelector = (
-    //     <div className="overview-action-bar">
-    //         <div>
-    //             <span className="label">Group By</span>
-    //             <select onChange={handleViewModeChange} value={viewMode}>
-    //                 <option value={ViewMode.MODULE}>{ViewMode.MODULE}</option>
-    //                 <option value={ViewMode.FILE}>{ViewMode.FILE}</option>
-    //                 <option value={ViewMode.TYPE}>{ViewMode.TYPE}</option>
-    //             </select>
-    //         </div >
-    //     </div>
-    // )
+    const viewSelector = (
+        <div className="overview-action-bar">
+            <div>
+                <span className="label">Group By</span>
+                <select onChange={handleViewModeChange} value={viewMode}>
+                    <option value={ViewMode.MODULE}>{ViewMode.MODULE}</option>
+                    <option value={ViewMode.FILE}>{ViewMode.FILE}</option>
+                    <option value={ViewMode.TYPE}>{ViewMode.TYPE}</option>
+                </select>
+            </div >
+        </div>
+    )
 
     // const diagramRenderCondition: boolean = (!!openInDiagram && !!selectedFile && selectedFile.length > 0)
     //     || (!!focusPosition && !!selectedFile && selectedFile.length > 0);
@@ -157,6 +162,9 @@ export function OverviewDiagram(props: EditorProps) {
     // )
 
     return (
-        <div>Overview Diagram</div>
+        <>
+            {viewSelector}
+            {renderView()}
+        </>
     )
 }
