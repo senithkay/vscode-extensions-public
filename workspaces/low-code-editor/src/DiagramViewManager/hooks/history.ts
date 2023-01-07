@@ -10,34 +10,27 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+
+import React, { useState } from "react";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 
-import './style.scss';
 
-interface NavigationBarProps {
-    history: ComponentViewInfo[];
-    goBack: () => void;
-    goHome: () => void;
-}
+export function useComponentHistory(): [ComponentViewInfo[], (info: ComponentViewInfo) => void, () => void, () => void] {
+    const [history, updateHistory] = useState<ComponentViewInfo[]>([]);
 
+    const historyPush = (componentViewInfo: ComponentViewInfo) => {
+        updateHistory([...history, componentViewInfo]);
+    }
 
-export function NavigationBar(props: NavigationBarProps) {
-    const {history, goBack, goHome} = props;
-    const homeButton = (
-        <div onClick={goHome}>Home</div>
-    );
+    const historyPop = () => {
+        const component = history.pop();
+        updateHistory(history);
+    }
 
-    const backButton = (
-        <div onClick={goBack}>Back</div>
-    );
+    const historyClear = () => {
+        updateHistory([]);
+    }
 
-    const currentComponent = history.length > 0 ? history[history.length - 1]: undefined;
-    return (
-        <div className={'header-bar'}>
-            {currentComponent && homeButton}
-            {currentComponent && history.length > 1 && backButton}
-        </div>
-    )
+    return [history, historyPush, historyPop, historyClear];
 }
 

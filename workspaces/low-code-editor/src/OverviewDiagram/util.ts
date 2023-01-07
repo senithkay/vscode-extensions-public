@@ -39,3 +39,4 @@ export function generateFileLocation(moduleName: string, folderPath: string, fil
     const modulePath = moduleName !== DEFAULT_MODULE_NAME ? `modules/${moduleName}` : '';
     return `${folderPath}${modulePath}/${fileName}`
 }
+

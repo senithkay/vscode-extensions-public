@@ -1,0 +1,10 @@
+.header-bar {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border: 1px solid #e6e7ec;
+    background-color: #fff;
+    font-family: inherit;
+    height: 40px;
+    box-shadow: 0px 2px rgb(0 0 0 / 12%);
+}

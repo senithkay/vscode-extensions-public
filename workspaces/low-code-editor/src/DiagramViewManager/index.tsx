@@ -45,9 +45,10 @@ import {
 import { monaco } from "react-monaco-editor";
 import { getLibrariesList, getLibrariesData, getLibraryData } from "../stories/story-utils";
 import { Diagram } from "../Diagram";
-import { ComponentViewInfo } from "../OverviewDiagram/util";
+import { ComponentViewInfo, generateFileLocation } from "../OverviewDiagram/util";
 import { IntlProvider } from "react-intl";
 import messages from '../lang/en.json';
+import { useComponentHistory } from "./hooks/history";
 
 
 /**
@@ -92,6 +93,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
     const [currentFileContent, setCurrentFileContent] = useState<string>();
+    const [history, historyPush, historyPop, historyClear] = useComponentHistory();
 
 
     async function showTryitView(serviceName: string) {
@@ -164,12 +166,13 @@ export function DiagramViewManager(props: EditorProps) {
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         console.log('componentSelected >>>', componentDetails);
-        const { filePath, folderPath, startLine, startColumn, endLine, endColumn } = componentDetails;
+        const { startLine, startColumn, endLine, endColumn, filePath, moduleName, folderPath } = componentDetails;
+
 
         diagramFocusSend({
             type: DiagramFocusActionTypes.UPDATE_STATE,
             payload: {
-                filePath: `${folderPath}${filePath}`.replace('file://', ''),
+                filePath: generateFileLocation(moduleName, folderPath.replace('file://', ''), filePath),
                 position: {
                     startLine,
                     startColumn,
@@ -359,7 +362,7 @@ export function DiagramViewManager(props: EditorProps) {
                     isCodeChangeInProgress={false}
                     zoomStatus={undefined}
                 >
-                    <NavigationBar />
+                    {/*<NavigationBar />*/}
                     {
                         isOverviewDiagramVisible && (
                             <OverviewDiagram

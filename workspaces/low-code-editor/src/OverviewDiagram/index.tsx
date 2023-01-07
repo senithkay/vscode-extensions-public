@@ -84,7 +84,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
 
     // const handleUpdateSelection = (info: ComponentViewInfo) => {
     //     const { filePath: fileName, folderPath, moduleName, name, ...position } = info;
-    //     setSelectedFile(generateFileLocation(moduleName, folderPath.replace('file://', ''), fileName));
+        // setSelectedFile(generateFileLocation(moduleName, folderPath.replace('file://', ''), fileName));
     //     updateSelectedComponent(info);
     //     setFocusPosition(position);
     // }
