@@ -51,7 +51,8 @@ export function CategoryView(props: CategoryViewProps) {
                                 ...element,
                                 folderPath: packageInfo.filePath,
                                 moduleName: module.name ? module.name : DEFAULT_MODULE_NAME,
-                                projectName: packageInfo.name
+                                projectName: packageInfo.name,
+                                componentType: key
                             })
                         });
                     }

@@ -17,7 +17,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramFocus } from "../../DiagramGenerator/vscode/Diagram";
 
-interface DiagramFocusState {
+export interface DiagramFocusState {
     filePath: string;
     position: NodePosition;
 }
@@ -33,7 +33,7 @@ type FocusAction =
     | { type: DiagramFocusActionTypes.UPDATE_STATE, payload: DiagramFocusState }
     | { type: DiagramFocusActionTypes.UPDATE_FILE_PATH, payload: string }
     | { type: DiagramFocusActionTypes.UPDATE_POSITION, payload: NodePosition }
-    | { type: DiagramFocusActionTypes.RESET_STATE, payload: string };
+    | { type: DiagramFocusActionTypes.RESET_STATE };
 
 function diagramFocusReducer(state: DiagramFocusState, action: FocusAction): DiagramFocusState {
     switch (action.type) {

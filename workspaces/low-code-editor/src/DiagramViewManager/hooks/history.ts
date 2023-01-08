@@ -12,10 +12,12 @@
  */
 
 import React, { useState } from "react";
+
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 
 
-export function useComponentHistory(): [ComponentViewInfo[], (info: ComponentViewInfo) => void, () => void, () => void] {
+export function useComponentHistory():
+    [ComponentViewInfo[], (info: ComponentViewInfo) => void, () => void, () => void] {
     const [history, updateHistory] = useState<ComponentViewInfo[]>([]);
 
     const historyPush = (componentViewInfo: ComponentViewInfo) => {
@@ -23,8 +25,8 @@ export function useComponentHistory(): [ComponentViewInfo[], (info: ComponentVie
     }
 
     const historyPop = () => {
-        const component = history.pop();
-        updateHistory(history);
+        if (history.length > 0) return;
+        updateHistory(history.slice(0, history.length - 1));
     }
 
     const historyClear = () => {

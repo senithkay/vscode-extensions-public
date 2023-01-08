@@ -36,7 +36,6 @@ export function ModuleView(props: ModuleViewProps) {
     const { projectComponents, updateSelection } = props;
     const moduleMap = new Map<string, ModuleViewInfo>();
 
-
     projectComponents.packages.forEach(packageInfo => {
         packageInfo.modules.forEach(module => {
             const moduleName = module.name || DEFAULT_MODULE_NAME;
@@ -66,7 +65,8 @@ export function ModuleView(props: ModuleViewProps) {
                                 ...element,
                                 folderPath: packageInfo.filePath,
                                 moduleName: module.name ? module.name : DEFAULT_MODULE_NAME,
-                                projectName: packageInfo.name
+                                projectName: packageInfo.name,
+                                componentType: key
                             });
                         });
                     }

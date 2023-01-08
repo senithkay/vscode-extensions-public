@@ -1,10 +1,43 @@
 .header-bar {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     box-sizing: border-box;
     border: 1px solid #e6e7ec;
     background-color: #fff;
     font-family: inherit;
     height: 40px;
     box-shadow: 0px 2px rgb(0 0 0 / 12%);
+
+    .btn-container {
+        padding: 0 15px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .component-details {
+        height: 40px;
+        display: flex;
+        align-items: center;
+
+        .module-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+    }
+
+
+    .file-path-details {
+        height: 40px;
+        display: flex;
+        align-items: end;
+        padding: 0 5px;
+        .file-path {
+            font-size: 12px;
+            font-weight: 200;
+        }
+    }
 }

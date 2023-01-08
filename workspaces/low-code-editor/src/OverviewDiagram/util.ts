@@ -16,6 +16,7 @@ import { ComponentInfo } from "@wso2-enterprise/ballerina-low-code-edtior-common
 import { DEFAULT_MODULE_NAME } from ".";
 
 export interface ComponentViewInfo extends ComponentInfo {
+    componentType: string;
     folderPath: string;
     moduleName: string;
     projectName: string;

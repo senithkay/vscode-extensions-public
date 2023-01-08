@@ -11,44 +11,26 @@
  * associated services.
  */
 import React, { useEffect, useState } from "react";
+import { IntlProvider } from "react-intl";
 
-import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
+import { Diagram } from "../Diagram";
 import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
-import { getSymbolInfo } from "../Diagram/visitors/symbol-finder-visitor";
 import {
-    getFunctionSyntaxTree,
     getLowcodeST,
-    getSyntaxTree,
-    isDeleteModificationAvailable,
-    isUnresolvedModulesAvailable
+    getSyntaxTree
 } from "../DiagramGenerator/generatorUtil";
-import { EditorProps, PALETTE_COMMANDS } from "../DiagramGenerator/vscode/Diagram";
+import { EditorProps } from "../DiagramGenerator/vscode/Diagram";
+import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
-import { LowCodeEditorProps, MESSAGE_TYPE, SelectedPosition } from "../types";
+import { ComponentViewInfo, generateFileLocation } from "../OverviewDiagram/util";
 
 import { DiagramFocusActionTypes, useDiagramFocus } from "./hooks/diagram-focus";
-import { NavigationBar } from "./NavigationBar";
-import {
-    CommandResponse,
-    ComponentInfo,
-    DiagramDiagnostic,
-    DIAGRAM_MODIFIED,
-    FunctionDef,
-    getImportStatements,
-    InsertorDelete,
-    LineRange,
-    LowcodeEvent,
-    STModification
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { monaco } from "react-monaco-editor";
-import { getLibrariesList, getLibrariesData, getLibraryData } from "../stories/story-utils";
-import { Diagram } from "../Diagram";
-import { ComponentViewInfo, generateFileLocation } from "../OverviewDiagram/util";
-import { IntlProvider } from "react-intl";
-import messages from '../lang/en.json';
 import { useComponentHistory } from "./hooks/history";
+import { NavigationBar } from "./NavigationBar";
+import { getDiagramProviderProps } from "./utils";
 
 
 /**
@@ -96,21 +78,6 @@ export function DiagramViewManager(props: EditorProps) {
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
 
 
-    async function showTryitView(serviceName: string) {
-        runCommand(PALETTE_COMMANDS.TRY_IT, [diagramFocusState?.filePath, serviceName]);
-    }
-
-    async function showDocumentationView(url: string) {
-        runCommand(PALETTE_COMMANDS.DOCUMENTATION_VIEW, [url]);
-    }
-
-    async function run(args: any[]) {
-        runCommand(PALETTE_COMMANDS.RUN, args);
-    }
-
-    const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => Promise<boolean> = props.showMessage;
-    const runBackgroundTerminalCommand: (command: string) => Promise<CommandResponse> = props.runBackgroundTerminalCommand;
-    const openExternalUrl: (url: string) => Promise<boolean> = props.openExternalUrl;
 
     React.useEffect(() => {
         (async () => {
@@ -124,6 +91,29 @@ export function DiagramViewManager(props: EditorProps) {
             // }
         })();
     }, []);
+
+    useEffect(() => {
+        console.log('history >>>', history);
+        if (history.length > 0) {
+            const {
+                moduleName, folderPath, filePath, startColumn, startLine, endColumn, endLine
+            } = history[history.length - 1];
+            diagramFocusSend({
+                type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
+                    filePath: generateFileLocation(moduleName, folderPath.replace('file://', ''), filePath),
+                    position: {
+                        startLine,
+                        startColumn,
+                        endLine,
+                        endColumn
+                    }
+
+                }
+            })
+        } else {
+            diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
+        }
+    }, [history]);
 
     useEffect(() => {
         if (diagramFocusState) {
@@ -161,223 +151,62 @@ export function DiagramViewManager(props: EditorProps) {
     }, [lastUpdatedAt, diagramFocusState]);
 
     useEffect(() => {
+        console.log('diagram focus >>>', diagramFocus);
         diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
     }, [diagramFocus])
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
-        console.log('componentSelected >>>', componentDetails);
-        const { startLine, startColumn, endLine, endColumn, filePath, moduleName, folderPath } = componentDetails;
-
-
-        diagramFocusSend({
-            type: DiagramFocusActionTypes.UPDATE_STATE,
-            payload: {
-                filePath: generateFileLocation(moduleName, folderPath.replace('file://', ''), filePath),
-                position: {
-                    startLine,
-                    startColumn,
-                    endLine,
-                    endColumn
-                }
-            }
-        });
+        historyPush(componentDetails);
     }
 
-    const isOverviewDiagramVisible = !diagramFocusState;
-    const isDiagramShown = !!diagramFocusState && !!focusedST;
+    const handleNavigationBack = () => {
+        historyPop();
+    }
+
+    const handleNavigationHome = () => {
+        historyClear();
+    }
+
+    const viewComponent: React.ReactElement[] = [];
+
+    if (!diagramFocusState) {
+        viewComponent.push((
+            <OverviewDiagram
+                lastUpdatedAt={lastUpdatedAt}
+                projectPaths={projectPaths}
+                notifyComponentSelection={updateSelectedComponent}
+            />
+        ));
+    } else if (!!diagramFocusState && !!focusedST) {
+        console.log('>>> rendering component');
+        if (STKindChecker.isServiceDeclaration(focusedST)) {
+            viewComponent.push((
+                <div>service designer</div>
+            ))
+        } else if (STKindChecker.isFunctionDefinition(focusedST) && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
+            viewComponent.push((
+                <div>Data mapper</div>
+            ))
+        } else {
+            viewComponent.push(<Diagram />);
+        }
+    }
 
     return (
         <div>
 
             <IntlProvider locale='en' defaultLocale='en' messages={messages}>
                 <ViewManagerProvider
-                    isReadOnly={false}
-                    syntaxTree={focusedST}
-                    environment={lowCodeEnvInstance}
-                    stSymbolInfo={getSymbolInfo()}
-                    // tslint:disable-next-line: jsx-no-multiline-js
-                    currentFile={{
-                        content: currentFileContent,
-                        path: diagramFocusState?.filePath,
-                        size: 1,
-                    }}
-                    importStatements={getImportStatements(completeST)}
-                    experimentalEnabled={experimentalEnabled}
-                    lowCodeResourcesVersion={lowCodeResourcesVersion}
-                    ballerinaVersion={balVersion}
-                    // tslint:disable-next-line: jsx-no-multiline-js
-                    api={{
-                        ls: {
-                            getDiagramEditorLangClient: () => {
-                                return langClientPromise;
-                            },
-                            getExpressionEditorLangClient: () => {
-                                return langClientPromise as any;
-                            }
-                        },
-                        insights: {
-                            onEvent: (event: LowcodeEvent) => {
-                                props.sendTelemetryEvent(event);
-                            }
-                        },
-                        code: {
-                            modifyDiagram: async (mutations: STModification[]) => {
-                                const langClient = await langClientPromise;
-                                const uri = monaco.Uri.file(diagramFocusState?.filePath).toString();
-                                const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
-                                    astModifications: await InsertorDelete(mutations),
-                                    documentIdentifier: {
-                                        uri
-                                    }
-                                });
-                                let visitedST: STNode;
-                                if (parseSuccess) {
-                                    // undoRedo.addModification(source);
-                                    // setFileContent(source);
-                                    props.updateFileContent(diagramFocusState?.filePath, source);
-                                    visitedST = await getLowcodeST(newST, diagramFocusState?.filePath, langClient, experimentalEnabled, showMessage);
-                                    const stFindingVisitor = new STFindingVisitor();
-                                    stFindingVisitor.setPosition(diagramFocusState?.position);
-                                    traversNode(visitedST, stFindingVisitor);
-
-                                    // TODO: add performance data fetching logic here
-                                    setFocusedST(stFindingVisitor.getSTNode());
-                                    setCompleteST(visitedST);
-                                    if (isDeleteModificationAvailable(mutations)) {
-                                        showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
-                                    }
-                                    if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
-                                        const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
-                                        if (isAvailable) {
-                                            // setModulePullInProgress(true);
-                                            // setLoaderText('Pulling packages...');
-                                            const {
-                                                parseSuccess: pullSuccess,
-                                            } = await resolveMissingDependency(diagramFocusState?.filePath, source);
-                                            if (pullSuccess) {
-                                                // Rebuild the file At backend
-                                                langClient.didChange({
-                                                    textDocument: { uri, version: 1 },
-                                                    contentChanges: [
-                                                        {
-                                                            text: source
-                                                        }
-                                                    ],
-                                                });
-                                                const {
-                                                    syntaxTree: stWithoutDiagnostics
-                                                } = await langClient.getSyntaxTree({ documentIdentifier: { uri } });
-                                                visitedST = await getLowcodeST(
-                                                    stWithoutDiagnostics,
-                                                    diagramFocusState?.filePath,
-                                                    langClient,
-                                                    experimentalEnabled,
-                                                    showMessage);
-                                                setCompleteST(visitedST);
-                                            }
-                                            // setModulePullInProgress(false);
-                                        }
-                                    }
-
-                                    // let newActivePosition: SelectedPosition = { ...selectedPosition };
-                                    // for (const mutation of mutations) {
-                                    //     if (mutation.type.toLowerCase() !== "import" && mutation.type.toLowerCase() !== "delete") {
-                                    //         newActivePosition = getSelectedPosition(visitedST as ModulePart, mutation.startLine, mutation.startColumn);
-                                    //         break;
-                                    //     }
-                                    // }
-                                    // setSelectedPosition(newActivePosition.startColumn === 0 && newActivePosition.startLine === 0 && visitedST
-                                    //     ? getDefaultSelectedPosition(visitedST as ModulePart)
-                                    //     : newActivePosition);
-                                } else {
-                                    // TODO show error
-                                }
-                                // setMutationInProgress(false);
-                                if (mutations.length > 0) {
-                                    const event: LowcodeEvent = {
-                                        type: DIAGRAM_MODIFIED,
-                                        name: `${mutations[0].type}`
-                                    };
-                                    props.sendTelemetryEvent(event);
-                                }
-                                // TODO: Add perf data
-                                // await addPerfData(visitedST);
-                            },
-                            gotoSource: (position: { startLine: number; startColumn: number; }) => {
-                                props.gotoSource(diagramFocusState?.filePath, position);
-                            },
-                            getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
-                                const langClient = await langClientPromise;
-                                // setMutationInProgress(true);
-                                // setLoaderText('Fetching...');
-                                const res: FunctionDef = await getFunctionSyntaxTree(
-                                    defFilePath ? defFilePath : monaco.Uri.file(diagramFocusState?.filePath).toString(),
-                                    lineRange,
-                                    langClient
-                                );
-                                // setMutationInProgress(false);
-                                return res;
-                            },
-                            updateFileContent: (content: string, skipForceSave?: boolean) => {
-                                return props.updateFileContent(diagramFocusState?.filePath, content, skipForceSave);
-                            },
-                            // undo,
-                            // isMutationInProgress,
-                            // isModulePullInProgress,
-                            // loaderText
-                        },
-                        // FIXME Doesn't make sense to take these methods below from outside
-                        // Move these inside and get an external API for pref persistance
-                        // against a unique ID (eg AppID) for rerender from prev state
-                        // panNZoom: {
-                        //     pan,
-                        //     fitToScreen,
-                        //     zoomIn,
-                        //     zoomOut
-                        // },
-                        webView: {
-                            showTryitView,
-                            showDocumentationView
-                        },
-                        project: {
-                            run
-                        },
-                        library: {
-                            getLibrariesList,
-                            getLibrariesData,
-                            getLibraryData
-                        },
-                        runBackgroundTerminalCommand,
-                        openExternalUrl
-                    }}
-                    originalSyntaxTree={undefined}
-                    langServerURL={""}
-                    configOverlayFormStatus={undefined}
-                    configPanelStatus={undefined}
-                    isCodeEditorActive={false}
-                    isPerformanceViewOpen={false}
-                    isLoadingSuccess={false}
-                    isWaitingOnWorkspace={false}
-                    isMutationProgress={false}
-                    isCodeChangeInProgress={false}
-                    zoomStatus={undefined}
+                    {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST)}
                 >
-                    {/*<NavigationBar />*/}
-                    {
-                        isOverviewDiagramVisible && (
-                            <OverviewDiagram
-                                lastUpdatedAt={lastUpdatedAt}
-                                projectPaths={projectPaths}
-                                notifyComponentSelection={updateSelectedComponent}
-                            />
-                        )
-                    }
-                    {isDiagramShown && <Diagram />}
+                    <NavigationBar goBack={handleNavigationBack} goHome={handleNavigationHome} history={history} />
+                    {viewComponent}
                 </ViewManagerProvider>
             </IntlProvider>
         </div>
     )
 }
+
 
 // function getContextProviderProps(props: EditorProps,): LowCodeEditorProps {
 //     // const {} = props;

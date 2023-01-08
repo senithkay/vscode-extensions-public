@@ -10,8 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { ArrowLeft, Home } from "@material-ui/icons";
 import React from "react";
-import { ComponentViewInfo } from "../../OverviewDiagram/util";
+import { DEFAULT_MODULE_NAME } from "../../OverviewDiagram";
+import { ComponentViewInfo, generateFileLocation } from "../../OverviewDiagram/util";
 
 import './style.scss';
 
@@ -23,20 +25,55 @@ interface NavigationBarProps {
 
 
 export function NavigationBar(props: NavigationBarProps) {
-    const {history, goBack, goHome} = props;
+    const { history, goBack, goHome } = props;
     const homeButton = (
-        <div onClick={goHome}>Home</div>
+        <div className="btn-container" onClick={goHome}>
+            <Home />
+        </div>
     );
 
     const backButton = (
-        <div onClick={goBack}>Back</div>
+        <div className="btn-container" onClick={goBack}>
+            <ArrowLeft />
+        </div>
     );
 
-    const currentComponent = history.length > 0 ? history[history.length - 1]: undefined;
+    const currentComponent = history.length > 0 ? history[history.length - 1] : undefined;
+
+    let componentDetailsText = 'Project Overview';
+
+    if (currentComponent) {
+        const { name, moduleName } = currentComponent;
+
+        componentDetailsText = `${moduleName === DEFAULT_MODULE_NAME ? '' : `${moduleName}/`}${name}`;
+    }
+
+    const renderComponentDetails = () => {
+        if (!currentComponent) {
+            return undefined;
+        } else {
+            const { moduleName, folderPath, filePath } = currentComponent;
+
+            return (
+                <>
+                    <div className="file-path-details">
+                        <span className="file-path">
+                            {`(${generateFileLocation(moduleName, folderPath.replace('file://', ''), filePath)})`}
+                        </span>
+                    </div>
+                </>
+            )
+        }
+    }
+
     return (
         <div className={'header-bar'}>
             {currentComponent && homeButton}
             {currentComponent && history.length > 1 && backButton}
+            <div className="component-details">
+                <span className="module-text">{componentDetailsText}</span>
+            </div>
+            {currentComponent && renderComponentDetails()}
         </div>
     )
 }
