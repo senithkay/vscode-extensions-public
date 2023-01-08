@@ -30,6 +30,7 @@ function App() {
   return (
     <Main>
       <ChoreoWebViewContext.Provider value={contextVal}>
+        {/* TODO retrive props and switch rendered component */}
         <ProjectWizard />
       </ChoreoWebViewContext.Provider>
     </Main>

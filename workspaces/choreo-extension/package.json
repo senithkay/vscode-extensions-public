@@ -50,15 +50,13 @@
       {
         "command": "wso2.choreo.project.create",
         "title": "Create new Project",
-        "category": "Choreo"
+        "category": "Choreo",
+        "icon": "$(add)"
       },
       {
         "command": "wso2.choreo.projects.refresh",
         "title": "Refresh",
-        "icon": {
-          "light": "resources/icons/light/refresh.svg",
-          "dark": "resources/icons/dark/refresh.svg"
-        }
+        "icon": "$(refresh)"
       }
     ],
     "viewsContainers": {
@@ -91,6 +89,11 @@
     ],
     "menus": {
       "view/title": [
+        {
+          "command": "wso2.choreo.project.create",
+          "when": "view == choreo-projects",
+          "group": "navigation"
+        },
         {
           "command": "wso2.choreo.projects.refresh",
           "when": "view == choreo-projects",
@@ -149,6 +152,7 @@
   },
   "dependencies": {
     "@vscode/webview-ui-toolkit": "^1.2.0",
+    "@wso2-enterprise/choreo-core": "^1.0.0",
     "@wso2-enterprise/choreo-vscode-webviews": "1.0.0",
     "axios": "^1.2.0",
     "gql-query-builder": "^3.8.0",

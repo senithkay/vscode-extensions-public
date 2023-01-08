@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from "vscode";
-import { Organization } from "../../api/types";
+import { Organization } from "@wso2-enterprise/choreo-core";
 import { ext } from "../../extensionVariables";
 
 export class ChoreoOrgTreeItem extends TreeItem {
