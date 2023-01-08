@@ -149,7 +149,7 @@ export function ResourceBody(props: ResourceBodyProps) {
 
 
     getReturnTypesArray().forEach((value, i) => {
-        let code = "";
+        let code = "500";
         responseCodes.forEach(item => {
             if (value.includes(item.source)) {
                 code = item.code.toString();
@@ -158,52 +158,50 @@ export function ResourceBody(props: ResourceBodyProps) {
 
         // value = record {|*http:Ok; Foo body;|}
         let recordName = value;
+        let des = "";
         if (value.includes("body")) {
             recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
+            des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
+            const [schema, setSchema] = useState("");
             responseArgs.push(
-                <div key={i} className={classes.signature}>
-                    <Tooltip
-                        title={recordSelected?.source}
-                        placement="bottom"
-                        arrow={true}
-                        interactive={true}
-                    >
-
-                        <div onClick={() => recordEditor(recordName)}>
-                            {code} {value}
+                <tr key={i} className={classes.signature}>
+                    <td>
+                        {code}
+                    </td>
+                    <td>
+                        {des}
+                        <div>
+                            Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, setSchema)}>{recordName}</span> 
+                            {schema && <pre className={classes.schema}>{schema}</pre> }
                         </div>
-                    </Tooltip>
-                </div>
+                    </td>
+                </tr>
             )
         } else {
             responseArgs.push(
-                <div key={i} className={classes.signature}>
-                    <Tooltip
-                        title={recordSelected?.source}
-                        placement="bottom"
-                        arrow={true}
-                        interactive={true}
-                    >
-                        <div onClick={() => recordEditor(recordName)}>
-                            {code} {value}
-                        </div>
-                    </Tooltip>
-                </div>
+                <tr key={i} className={classes.signature}>
+                    <td>
+                        {code}
+                    </td>
+                    <td onClick={() => recordEditor(recordName)}>
+                        {value}
+                    </td>
+                </tr>
             )
         }
     })
 
-    const recordEditor = async (record: any) => {
+    const recordEditor = async (record: any, setSchema?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
         const recordInfo = await getRecord(record, langClient);
 
         if (recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
-            setRecordSelected(ST);
-            handleDiagramEdit(ST, ST.position, { formType: "RecordEditor", isLoading: false });
+            setSchema(ST.source)
+            // setRecordSelected(ST);
+            // handleDiagramEdit(ST, ST.position, { formType: "RecordEditor", isLoading: false });
         }
-
     }
 
     const args = (
@@ -231,7 +229,15 @@ export function ResourceBody(props: ResourceBodyProps) {
             {bodyArgs.length > 0 && bodyAr}
 
             <ConfigPanelSection title={"Responses"}>
-                {responseArgs}
+                <table className={classes.responseTable}>
+                    <thead>
+                        <td>Code</td>
+                        <td>Description</td>
+                    </thead>
+                    <tbody>
+                        {responseArgs}
+                    </tbody>
+                </table>
             </ConfigPanelSection>
 
         </div>

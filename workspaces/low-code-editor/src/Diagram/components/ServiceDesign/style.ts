@@ -121,8 +121,31 @@ export const useStyles = makeStyles(() =>
         signature: {
             padding: 8,
             fontWeight: 500,
-            background: "white",
             borderRadius: 5
+        },
+        responseTable: {
+            width: "100%",
+            "& thead td": {
+                borderBottom: "1px solid rgba(59,65,81,.2)",
+                color: "#3b4151",
+                fontWeight: 700,
+                padding: 12,
+                textAlign: "left"
+            },
+            "& tr td": {
+                color: "#3b4151",
+                padding: 12,
+                textAlign: "left"
+            },
+        },
+        schema: {
+            background: "#f3efef",
+            width: "fit-content",
+            padding: 16,
+        },
+        schemaButton: {
+            cursor: "pointer",
+            fontWeight: 900
         }
     }),
 );
