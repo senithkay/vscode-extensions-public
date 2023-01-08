@@ -31,6 +31,10 @@ import { DiagramFocusActionTypes, useDiagramFocus } from "./hooks/diagram-focus"
 import { useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { getDiagramProviderProps } from "./utils";
+import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
+import { MuiThemeProvider } from "@material-ui/core";
+import { useGeneratorStyles } from './style';
+import { theme } from "./theme";
 
 
 /**
@@ -64,10 +68,9 @@ export function DiagramViewManager(props: EditorProps) {
         getFileContent,
         getEnv,
         getBallerinaVersion,
-        resolveMissingDependency,
-        runCommand,
     } = props;
 
+    const classes = useGeneratorStyles();
     const [diagramFocusState, diagramFocusSend] = useDiagramFocus();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [completeST, setCompleteST] = useState<STNode>();
@@ -77,7 +80,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
 
-
+    console.log('>>> last updated at', lastUpdatedAt);
 
     React.useEffect(() => {
         (async () => {
@@ -115,7 +118,7 @@ export function DiagramViewManager(props: EditorProps) {
         }
     }, [history]);
 
-    useEffect(() => {
+    const fetchST = () => {
         if (diagramFocusState) {
             const { filePath, position } = diagramFocusState;
 
@@ -148,10 +151,18 @@ export function DiagramViewManager(props: EditorProps) {
                 }
             })();
         }
-    }, [lastUpdatedAt, diagramFocusState]);
+    }
+    useEffect(() => {
+        console.log('last updated at effect >>>');
+        fetchST();
+    }, [lastUpdatedAt]);
+
 
     useEffect(() => {
-        console.log('diagram focus >>>', diagramFocus);
+        fetchST();
+    }, [diagramFocusState]);
+
+    useEffect(() => {
         diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
     }, [diagramFocus])
 
@@ -185,7 +196,16 @@ export function DiagramViewManager(props: EditorProps) {
             ))
         } else if (STKindChecker.isFunctionDefinition(focusedST) && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
             viewComponent.push((
-                <div>Data mapper</div>
+                <DataMapperOverlay
+                    targetPosition={{
+                        ...focusedST.position,
+                        startColumn: 0,
+                        endColumn: 0
+                    }}
+                    model={focusedST}
+                    ballerinaVersion={balVersion}
+                    onCancel={handleNavigationHome}
+                />
             ))
         } else {
             viewComponent.push(<Diagram />);
@@ -194,29 +214,19 @@ export function DiagramViewManager(props: EditorProps) {
 
     return (
         <div>
-
-            <IntlProvider locale='en' defaultLocale='en' messages={messages}>
-                <ViewManagerProvider
-                    {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST)}
-                >
-                    <NavigationBar goBack={handleNavigationBack} goHome={handleNavigationHome} history={history} />
-                    {viewComponent}
-                </ViewManagerProvider>
-            </IntlProvider>
+            <MuiThemeProvider theme={theme}>
+                <div className={classes.lowCodeContainer}>
+                    <IntlProvider locale='en' defaultLocale='en' messages={messages}>
+                        <ViewManagerProvider
+                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST)}
+                        >
+                            <NavigationBar goBack={handleNavigationBack} goHome={handleNavigationHome} history={history} />
+                            <div id={'canvas-overlay'} className={"overlayContainer"} />
+                            {viewComponent}
+                        </ViewManagerProvider>
+                    </IntlProvider>
+                </div>
+            </MuiThemeProvider>
         </div>
     )
 }
-
-
-// function getContextProviderProps(props: EditorProps,): LowCodeEditorProps {
-//     // const {} = props;
-//     // return {
-
-//     // }
-//     const { } = props;
-//     return {
-//         isReadOnly: false,
-//     }
-//     throw new Error("Function not implemented.");
-// }
-

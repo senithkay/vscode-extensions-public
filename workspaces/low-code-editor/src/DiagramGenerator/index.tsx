@@ -30,16 +30,13 @@ import {
     SentryConfig,
     STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import cloneDeep from "lodash.clonedeep";
+import { FunctionDefinition, ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
-import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 import { DiagramViewManager } from "../DiagramViewManager";
 import messages from '../lang/en.json';
-import { OverviewDiagram } from "../OverviewDiagram";
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE, SelectedPosition } from "../types";
 import { init } from "../utils/sentry";

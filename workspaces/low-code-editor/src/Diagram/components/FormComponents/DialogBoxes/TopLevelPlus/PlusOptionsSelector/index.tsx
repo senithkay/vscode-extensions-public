@@ -135,12 +135,12 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
             {selectedOption && selectedOption.type === "DataMapper"  && (
                 <DataMapperOverlay
                     targetPosition={targetPosition}
-                    configOverlayFormStatus={{
-                        formType: selectedOption.type,
-                        formName: selectedOption.name,
-                        isLoading: false,
-                        isLastMember: isLastMember
-                    }}
+                    // configOverlayFormStatus={{
+                    //     formType: selectedOption.type,
+                    //     formName: selectedOption.name,
+                    //     isLoading: false,
+                    //     isLastMember: isLastMember
+                    // }}
                     ballerinaVersion={ballerinaVersion}
                     onCancel={handleOnClose}
                 />

@@ -39,9 +39,6 @@ export function Diagram() {
             code: {
                 modifyDiagram,
                 gotoSource,
-                // isMutationInProgress,
-                // isModulePullInProgress,
-                // loaderText,
                 getFunctionDef
             },
             webView: {
@@ -70,9 +67,6 @@ export function Diagram() {
     } = useContext(DiagramContext);
 
     const classes = useStyles();
-    // const diagramErrors = diagnostics && diagnostics.length > 0;
-    // const diagramWarnings = warnings && warnings.length > 0;
-    // const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
     const [isConnectorConfigWizardOpen, setIsConnectorConfigWizardOpen] = useState(false);
@@ -83,11 +77,6 @@ export function Diagram() {
     let isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
 
     const isServiceDesignOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "ServiceDesign";
-
-    // React.useEffect(() => {
-    //     setIsErrorStateDialogOpen(diagramErrors);
-    //     setIsErrorDetailsOpen(diagramErrors);
-    // }, [diagramErrors, diagramWarnings])
 
     React.useEffect(() => {
         // Identify low-code open event
@@ -244,11 +233,6 @@ export function Diagram() {
     };
 
     const handleRenderPlusWidget = (dialogType: string, plusWidgetProps: PlusWidgetProps, plusViewState?: PlusViewState): any => {
-        // const ChildComp = (DialogBoxes as any)[dialogType];
-        // if (!ChildComp) {
-        //     return;
-        // }
-        // return (<ChildComp {...plusWidgetProps} viewState={plusViewState} />);
         const configOverlayFormStatus: ConfigOverlayFormStatus = {
             isLoading: false,
             formType: dialogType,
@@ -296,22 +280,6 @@ export function Diagram() {
         </div>
     );
 
-    // const diagramErrorMessage = (
-    //     <div className={classes.diagramErrorStateWrapper}>
-    //         <DiagramErrorState
-    //             x={5}
-    //             y={-100}
-    //             errorCount={numberOfErrors}
-    //             warningCount={numberOfWarnings}
-    //             onClose={closeErrorDialog}
-    //             onOpen={openErrorDialog}
-    //             isErrorMsgVisible={isErrorStateDialogOpen}
-    //         />
-    //     </div>
-    // );
-
-    // const diagramStatus = (diagnosticInDiagram || warningsInDiagram) ? diagramErrorMessage : null;
-
     if (!syntaxTree) {
         if (isLoadingAST) {
             return textLoader;
@@ -323,7 +291,7 @@ export function Diagram() {
     // TODO: This flag corresponds to diagram is invalid and code is being updated.
     const codeTriggerredUpdateInProgress = syntaxTree && isLoadingAST;
 
-    // todo: need to handle this when file is empty
+    // TODO: need to handle this when file is empty
     // AST node passed in to this is can be a top level node or a compilation unit.
     // const child = getSTComponent(syntaxTree); // TODO: Handle datamapper switching logic
 

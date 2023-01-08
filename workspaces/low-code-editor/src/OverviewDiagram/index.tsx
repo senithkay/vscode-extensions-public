@@ -38,14 +38,8 @@ export interface OverviewDiagramProps {
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
     const { projectPaths, notifyComponentSelection, lastUpdatedAt } = props;
-    // const { langClientPromise, projectPaths, lastUpdatedAt, filePath, openInDiagram } = props;
-    // const [selectedComponent, updateSelectedComponent] = useState<ComponentViewInfo>();
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
-    // const [selectedFile, setSelectedFile] = useState<string>(filePath);
-    // const [focusPosition, setFocusPosition] = useState<NodePosition>();
     const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
-
-    console.log('>>> overview render');
 
     const handleViewModeChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
         switch (evt.target.value) {
@@ -66,14 +60,12 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
     useEffect(() => {
         (async () => {
             try {
-                console.log('>>> useeffect');
                 const langClient = await getDiagramEditorLangClient();
                 const filePaths: any = projectPaths.map(path => ({ uri: path.uri.external }));
                 const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [...filePaths]
                 });
 
-                console.log('>>>', componentResponse);
                 updateProjectComponenets(componentResponse);
             } catch (err) {
                 // tslint:disable-next-line: no-console
@@ -81,35 +73,6 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
             }
         })();
     }, [lastUpdatedAt]);
-
-    // const handleUpdateSelection = (info: ComponentViewInfo) => {
-    //     const { filePath: fileName, folderPath, moduleName, name, ...position } = info;
-        // setSelectedFile(generateFileLocation(moduleName, folderPath.replace('file://', ''), fileName));
-    //     updateSelectedComponent(info);
-    //     setFocusPosition(position);
-    // }
-
-    // const addToHistoryStack = (info: ComponentViewInfo) => {
-    //     navigationHistoryManager.push(info);
-    // }
-
-    // const navigateBack = () => {
-    //     const previousComponentInfo = navigationHistoryManager.pop();
-    //     if (previousComponentInfo) {
-    //         const { filePath: fileName, folderPath, moduleName, name, ...position } = previousComponentInfo;
-    //         setSelectedFile(generateFileLocation(moduleName, folderPath.replace('file://', ''), fileName));
-    //         updateSelectedComponent(previousComponentInfo);
-    //         setFocusPosition(position);
-    //     } else {
-    //         setFocusPosition(undefined);
-    //     }
-    // }
-
-    // const resetToOverviewDiagram = () => {
-    //     navigationHistoryManager.clear();
-    //     setFocusPosition(undefined);
-    //     updateSelectedComponent(undefined);
-    // }
 
     const renderView = () => {
         const CurrentView = Views[viewMode];
@@ -124,7 +87,6 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
         )
     }
 
-    // const isHistoryStackEmpty = () => navigationHistoryManager.isStackEmpty();
 
     const viewSelector = (
         <div className="overview-action-bar">
@@ -138,28 +100,6 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
             </div >
         </div>
     )
-
-    // const diagramRenderCondition: boolean = (!!openInDiagram && !!selectedFile && selectedFile.length > 0)
-    //     || (!!focusPosition && !!selectedFile && selectedFile.length > 0);
-
-    // return (
-    //     <OverviewDiagramContextProvider
-    //         currentComponent={selectedComponent}
-    //         addToHistoryStack={addToHistoryStack}
-    //         navigateBack={navigateBack}
-    //         navigateToMain={resetToOverviewDiagram}
-    //         isHistoryStackEmpty={isHistoryStackEmpty}
-    //     >
-    //         <NavigationBar
-    //             diagramHasDepth={diagramRenderCondition}
-    //             handleHomeClick={navigateBack}
-    //             selectedComponent={selectedComponent}
-    //         />
-    //         {!diagramRenderCondition && viewSelector}
-    //         {!diagramRenderCondition && renderView()}
-    //         {/* {diagramRenderCondition && <Diagram {...props} filePath={selectedFile} focusPosition={focusPosition} />} */}
-    //     </OverviewDiagramContextProvider>
-    // )
 
     return (
         <>
