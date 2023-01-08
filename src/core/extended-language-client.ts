@@ -44,7 +44,7 @@ import { showChoreoPushMessage } from "../editor-support/git-status";
 import { showChoreoSigninMessage } from "../forecaster";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
-import { DefinitionParams, Location, LocationLink } from 'vscode-languageserver-protocol';
+import { DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 import { ComponentModel } from "../project-design-diagrams/resources";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
@@ -89,7 +89,8 @@ enum EXTENDED_APIS {
     SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
     SYMBOL_TYPES_FROM_FN_SIGNATURE = 'ballerinaSymbol/getTypesFromFnDefinition',
     COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
-    DOCUMENT_ST_FUNCTION = 'ballerinaDocument/syntaxTreeByName'
+    DOCUMENT_ST_FUNCTION = 'ballerinaDocument/syntaxTreeByName',
+    DEFINITION_POSITION = 'ballerinaDocument/syntaxTreeNodeByPosition'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -594,6 +595,12 @@ export class ExtendedLangClient extends LanguageClient {
     async getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_FUNCTION);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION, params) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DEFINITION_POSITION)
+        return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DEFINITION_POSITION, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
