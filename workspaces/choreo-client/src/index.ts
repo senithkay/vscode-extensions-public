@@ -12,3 +12,7 @@
  */
 export * from "./client";
 export * from "./types";
+export * from "./manager";
+export * from "./auth-client";
+export * from "./http-client";
+export * from "./token-storage";

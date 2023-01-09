@@ -12,7 +12,41 @@ import { Component, Organization, Project, Repository } from "@wso2-enterprise/c
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export interface IChoreoClient extends IChoreoQueryClient, IChoreoMutationClient {
+export interface AccessToken {
+    accessToken : string;
+    expirationTime? : number;
+    loginTime : string;
+    refreshToken? : string;
+}
+
+export type ChoreoToken = "choreo.token";
+export type ChoreoApimToken = "choreo.apim.token";
+export type ChoreoVscodeToken = "choreo.vscode.token";
+
+export type ChoreoTokenType = ChoreoToken | ChoreoApimToken | ChoreoVscodeToken;
+
+export interface ITokenStorage {
+    getToken(tokenType: ChoreoTokenType): Promise<AccessToken|undefined>;
+    setToken(tokenType: ChoreoTokenType, token: AccessToken): Promise<void>;
+    deleteToken(tokenType: ChoreoTokenType): Promise<void>;
+}
+
+export interface AuthClientConfig {
+    loginUrl: string;
+    clientId: string;
+    apimClientId: string;
+    vscodeClientId: string;
+    redirectUrl: string;
+    tokenUrl: string;
+    apimTokenUrl: string;
+}
+
+export interface IAuthClient {
+    exchangeAuthCode(authCode: string): Promise<AccessToken>;
+    exchangeApimToken(choreoAccessToken: string, orgHandle: string): Promise<AccessToken>;
+    exchangeVSCodeToken(apiAccessToken: string): Promise<AccessToken>;
+    exchangeRefreshToken(refreshToken: string): Promise<AccessToken>;
+    getAuthURL(): string;
 }
 
 export interface IChoreoQueryClient {
@@ -44,4 +78,7 @@ export interface IChoreoMutationClient {
     createProject(params: ProjectMutationParams): Promise<Project[] | Error>;
     createComponent(params: ComponentMutationParams): Promise<Component | Error>;
     linkRepo(params: LinkRepoMutationParams): Promise<Repository | Error>;
+}
+
+export interface IChoreoClient extends IChoreoQueryClient, IChoreoMutationClient {
 }

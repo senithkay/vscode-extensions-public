@@ -17,7 +17,7 @@ import { Disposable, EventEmitter } from 'vscode';
 import { ext } from "./extensionVariables";
 
 import { IProjectManager, Organization, Project } from "@wso2-enterprise/choreo-core";
-import { exchangeAuthToken } from "./auth/inbuilt-impl";
+import { exchangeAuthToken } from "./auth/auth";
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;

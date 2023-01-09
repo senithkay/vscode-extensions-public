@@ -13,23 +13,24 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import axios from "axios";
 import { GraphQLClient } from 'graphql-request';
-import { ChoreoApimToken, ChoreoToken } from "../auth/inbuilt-impl";
-import { getChoreoToken } from "../auth/storage";
+import { getChoreoToken } from "../auth/auth";
 
 import { API_BASE_URL, PROJECTS_API_URL } from "./config";
 
 export async function getChoreoClient() {
+    const accessToken = (await getChoreoToken("choreo.token"))?.accessToken;
     return axios.create({
         baseURL: API_BASE_URL,
-        headers: {'Authorization': 'Bearer ' + (await getChoreoToken(ChoreoToken))?.accessToken},
+        headers: {'Authorization': 'Bearer ' + accessToken },
     });
       
 }
 
 export async function getProjectsApiClient() {
+    const accessToken = (await getChoreoToken("choreo.apim.token"))?.accessToken;
     return new GraphQLClient(PROJECTS_API_URL, {
         headers: {
-            Authorization: 'Bearer '  + (await getChoreoToken(ChoreoApimToken))?.accessToken,
+            Authorization: 'Bearer '  + accessToken,
         },
     });
 }

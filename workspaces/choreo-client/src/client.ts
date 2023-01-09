@@ -11,10 +11,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Component, Organization, Project, Repository } from "@wso2-enterprise/choreo-core"
+import { Component, Organization, Project, Repository } from "@wso2-enterprise/choreo-core";
 import { ComponentMutationParams, IChoreoClient, LinkRepoMutationParams, ProjectMutationParams } from "./types";
 
 export class ChoreoClient implements IChoreoClient {
+
     getOrganizations(): Promise<Error | Organization[]> {
         throw new Error("Method not implemented."); // TODO: Kavith
     }
