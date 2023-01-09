@@ -171,8 +171,8 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <td>
                         {des}
                         <div>
-                            Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, i)}>{recordName}</span> 
-                            {schema[i] && <pre className={classes.schema}>{schema[i]}</pre> }
+                            Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, i)}>{recordName}</span>
+                            {schema[i] && <pre className={classes.schema}>{schema[i]}</pre>}
                         </div>
                     </td>
                 </tr>
