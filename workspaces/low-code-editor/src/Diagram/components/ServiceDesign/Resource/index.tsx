@@ -156,13 +156,13 @@ export function ResourceBody(props: ResourceBodyProps) {
             }
         });
 
+        const [schema, setSchema] = useState("");
         // value = record {|*http:Ok; Foo body;|}
         let recordName = value;
         let des = "";
         if (value.includes("body")) {
             recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
             des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
-            const [schema, setSchema] = useState("");
             responseArgs.push(
                 <tr key={i} className={classes.signature}>
                     <td>
@@ -171,8 +171,8 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <td>
                         {des}
                         <div>
-                            Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, setSchema)}>{recordName}</span> 
-                            {schema && <pre className={classes.schema}>{schema}</pre> }
+                            Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, setSchema)}>{recordName}</span>
+                            {schema && <pre className={classes.schema}>{schema}</pre>}
                         </div>
                     </td>
                 </tr>
