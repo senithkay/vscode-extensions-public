@@ -95,7 +95,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(valExpr, stSymbolInfo.moduleVariables);
+            return isConnectedViaLink(valExpr);
         }
         return false;
     }, [field]);

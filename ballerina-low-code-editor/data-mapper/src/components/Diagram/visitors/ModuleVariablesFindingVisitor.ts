@@ -20,12 +20,7 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-import { ModuleVarKind } from "../Node/ModuleVariable";
-
-export interface ModuleVariable {
-    kind: ModuleVarKind;
-    node: STNode;
-}
+import { ModuleVariable, ModuleVarKind } from "../Node/ModuleVariable";
 
 export class ModuleVariablesFindingVisitor implements Visitor {
     private readonly moduleVariables: Map<string, ModuleVariable>;
@@ -49,7 +44,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
             const varName = node.source.trim().split('.')[0];
             const moduleVarKind = this.getModuleVarKind(varName);
             if (moduleVarKind !== undefined) {
-                this.moduleVariables.set(node.source.trim(), {
+                this.moduleVariables.set(varName, {
                     kind: moduleVarKind,
                     node
                 });
@@ -64,7 +59,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
             const varName = node.source.trim().split('.')[0];
             const moduleVarKind = this.getModuleVarKind(varName);
             if (moduleVarKind !== undefined) {
-                this.moduleVariables.set(node.source.trim(), {
+                this.moduleVariables.set(varName, {
                     kind: moduleVarKind,
                     node
                 });

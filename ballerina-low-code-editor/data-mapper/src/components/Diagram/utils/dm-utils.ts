@@ -19,7 +19,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	CaptureBindingPattern,
-	CommaToken,
+	ExpressionFunctionBody,
 	FieldAccess,
 	FromClause,
 	IdentifierToken,
@@ -52,7 +52,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode} from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
-import { ModuleVariableNode } from "../Node/ModuleVariable";
+import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
@@ -434,9 +434,10 @@ export function findNodeByValueNode(value: STNode,
 }
 
 export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
+	const dmNodes = dmNode.getModel().getNodes();
+	let paramNode: RequiredParam | FromClause | LetClause | ExpressionFunctionBody | Map<string, ModuleVariable>;
 	if (STKindChecker.isSimpleNameReference(expr)) {
-		const dmNodes = dmNode.getModel().getNodes();
-		const paramNode = (dmNodes.find((node) => {
+		paramNode = (dmNodes.find((node) => {
 			if (node instanceof LetClauseNode) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
@@ -454,12 +455,6 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				}
 			}
 		}) as LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode | ModuleVariableNode)?.value;
-		if (paramNode) {
-			if (paramNode instanceof Map) {
-				return dmNodes.find(node => node instanceof ModuleVariableNode) as ModuleVariableNode;
-			}
-			return findNodeByValueNode(paramNode, dmNode);
-		}
 	} else if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 		let valueExpr = expr.expression;
 		while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
@@ -467,15 +462,13 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			valueExpr = valueExpr.expression;
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
-			let paramNode: RequiredParam | FromClause | LetClause | LetVarDecl =
-				dmNode.context.functionST.functionSignature.parameters.find((param) =>
+			paramNode = dmNode.context.functionST.functionSignature.parameters.find((param) =>
 					STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
 				) as RequiredParam;
 
 			if (!paramNode) {
-				// Check if value expression source matches with any of the let clause variable names
-				const dmNodes = dmNode.getModel().getNodes();
+				// Check if value expression source matches with any of the let clause, let expr or module variable names
 				paramNode = (dmNodes.find((node) => {
 					if (node instanceof LetClauseNode) {
 						const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
@@ -488,8 +481,15 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 							}
 							return decl.varName === expr.source.trim()
 						});
+					} else if (node instanceof ModuleVariableNode) {
+						return node.moduleVarDecls.some(decl => {
+							if (decl.type.typeName === PrimitiveBalType.Record) {
+								return decl.varName === expr.source.trim().split(".")[0]
+							}
+							return decl.varName === expr.source.trim()
+						});
 					}
-				}) as LetClauseNode)?.value;
+				}) as LetClauseNode | LetExpressionNode | ModuleVariableNode)?.value;
 			}
 
 			const selectedST = dmNode.context.selection.selectedST.stNode;
@@ -503,12 +503,21 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 					paramNode = selectedST.functionBody.expression.queryPipeline.fromClause;
 				}
 			}
-			return findNodeByValueNode(paramNode, dmNode);
 		}
+	}
+	if (paramNode) {
+		if (paramNode instanceof Map) {
+			return dmNodes.find(node => node instanceof ModuleVariableNode) as ModuleVariableNode;
+		}
+		return findNodeByValueNode(paramNode, dmNode);
 	}
 }
 
-export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | LetClauseNode | LetExpressionNode | ModuleVariableNode,
+export function getInputPortsForExpr(node: RequiredParamNode
+										 | FromClauseNode
+										 | LetClauseNode
+										 | LetExpressionNode
+										 | ModuleVariableNode,
                                      expr: STNode): RecordFieldPortModel {
 	let typeDesc = !(node instanceof LetExpressionNode || node instanceof ModuleVariableNode) && node.typeDef;
 	let portIdBuffer;
@@ -524,7 +533,12 @@ export function getInputPortsForExpr(node: RequiredParamNode | FromClauseNode | 
 		typeDesc = varDecl.type;
 		portIdBuffer = varDecl && LET_EXPRESSION_SOURCE_PORT_PREFIX + "." + varDecl.varName;
 	} else if (node instanceof ModuleVariableNode) {
-		const moduleVar = node.moduleVarDecls.find(decl => decl.varName === expr.source.trim());
+		const moduleVar = node.moduleVarDecls.find(decl => {
+			if (decl.type.typeName === PrimitiveBalType.Record) {
+				return decl.varName === expr.source.trim().split(".")[0];
+			}
+			return decl.varName === expr.source.trim();
+		});
 		typeDesc = moduleVar.type;
 		portIdBuffer = moduleVar && MODULE_VARIABLE_SOURCE_PORT_PREFIX + "." + moduleVar.varName;
 	} else {
@@ -833,7 +847,7 @@ export function getFieldIndexes(targetPort: RecordFieldPortModel): number[] {
 	return fieldIndexes;
 }
 
-export function isConnectedViaLink(field: STNode, moduleVariables: Map<string, STNode>) {
+export function isConnectedViaLink(field: STNode) {
 	const inputNodes = getInputNodes(field);
 
 	const isMappingConstruct = STKindChecker.isMappingConstructor(field);

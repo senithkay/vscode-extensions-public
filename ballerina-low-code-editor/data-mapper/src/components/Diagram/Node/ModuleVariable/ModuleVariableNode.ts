@@ -14,6 +14,7 @@ import { Point } from "@projectstorm/geometry";
 import { ExpressionRange, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition,
+    STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
@@ -21,7 +22,6 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { isPositionsEquals } from "../../../../utils/st-utils";
 import { MODULE_VARIABLE_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { getTypesForExpressions } from "../../utils/ls-utils";
-import { ModuleVariable } from "../../visitors/ModuleVariablesFindingVisitor";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const MODULE_VAR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-module-variable";
@@ -30,6 +30,12 @@ export enum ModuleVarKind {
     Variable,
     Configurable,
     Constant
+}
+
+export interface ModuleVariable {
+    kind: ModuleVarKind;
+    node: STNode;
+    exprPosition?: NodePosition;
 }
 
 export interface DMModuleVarDecl {
@@ -57,7 +63,16 @@ export class ModuleVariableNode extends DataMapperNodeModel {
 
     async initPorts() {
         const exprRanges: ExpressionRange[] = [...this.value].map(([, item]) => {
-            const exprPosition: NodePosition = item.node.position as NodePosition;
+            let exprPosition: NodePosition = item.node.position as NodePosition;
+            if (STKindChecker.isFieldAccess(item.node) || STKindChecker.isOptionalFieldAccess(item.node)) {
+                let valueExpr = item.node.expression;
+                while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
+                    || STKindChecker.isOptionalFieldAccess(valueExpr))) {
+                    valueExpr = valueExpr.expression;
+                }
+                exprPosition = valueExpr.position;
+            }
+            item.exprPosition = exprPosition;
             return {
                 startLine: {
                     line: exprPosition.startLine,
@@ -75,7 +90,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
                 varName,
                 kind: item.kind,
                 node: item.node,
-                type: types.find(type => isPositionsEquals(item.node.position, {
+                type: types.find(type => isPositionsEquals(item.exprPosition, {
                     startLine: type.requestedRange.startLine.line,
                     startColumn: type.requestedRange.startLine.offset,
                     endLine: type.requestedRange.endLine.line,
