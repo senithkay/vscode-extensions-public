@@ -72,6 +72,7 @@ export class NodeInitVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
         const exprFuncBody = STKindChecker.isExpressionFunctionBody(node.functionBody) && node.functionBody;
+        let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.stSymbolInfo);
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
             const returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
@@ -162,6 +163,7 @@ export class NodeInitVisitor implements Visitor {
                         queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
                         this.intermediateNodes.push(queryNode);
                         queryNode.targetPorts = expandedHeaderPorts;
+                        moduleVariables = getModuleVariables(bodyExpr.selectClause.expression, this.context.stSymbolInfo);
                     } else {
                         this.outputNode = new ListConstructorNode(
                             this.context,
@@ -200,18 +202,17 @@ export class NodeInitVisitor implements Visitor {
             }
         }
         const hasExpanded = this.selection.prevST.length > 0;
-        if (!hasExpanded) {
-            // create node for module variables
-            const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.stSymbolInfo);
-            if (moduleVariables.size > 0) {
-                const moduleVarNode = new ModuleVariableNode(
-                    this.context,
-                    moduleVariables
-                );
-                moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-                this.inputNodes.push(moduleVarNode);
-            }
+        // create node for module variables
+        if (moduleVariables.size > 0) {
+            const moduleVarNode = new ModuleVariableNode(
+                this.context,
+                moduleVariables
+            );
+            moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X + (isFnBodyQueryExpr ? 80 : 0), 0);
+            this.inputNodes.push(moduleVarNode);
+        }
 
+        if (!hasExpanded) {
             // create node for configuring local variables
             const letExprNode = new LetExpressionNode(
                 this.context,
