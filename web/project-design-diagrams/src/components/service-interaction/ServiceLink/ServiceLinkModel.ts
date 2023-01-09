@@ -18,13 +18,15 @@
  */
 
 import { SharedLinkModel } from '../../common/shared-link/shared-link';
-import { Level } from '../../../resources';
+import { Level, Location } from '../../../resources';
 
 export class ServiceLinkModel extends SharedLinkModel {
 	readonly level: Level;
+	readonly location: Location;
 
-	constructor(level: Level) {
+	constructor(level: Level, location: Location) {
 		super('serviceLink');
 		this.level = level;
+		this.location = location;
 	}
 }

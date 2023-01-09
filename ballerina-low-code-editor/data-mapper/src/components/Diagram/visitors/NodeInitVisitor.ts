@@ -367,7 +367,10 @@ export class NodeInitVisitor implements Visitor {
         const expr = STKindChecker.isLetExpression(node.expression)
             ? getExprBodyFromLetExpression(node.expression)
             : node.expression;
-        if (!STKindChecker.isMappingConstructor(expr) && !STKindChecker.isListConstructor(expr)) {
+        if (!STKindChecker.isMappingConstructor(expr)
+            && !STKindChecker.isListConstructor(expr)
+            && !STKindChecker.isExplicitAnonymousFunctionExpression(parent))
+        {
             const inputNodes = getInputNodes(node.expression);
             if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
