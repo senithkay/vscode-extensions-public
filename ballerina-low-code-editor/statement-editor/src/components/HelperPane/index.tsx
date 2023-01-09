@@ -46,13 +46,7 @@ enum TabElements {
     parameters = 'Parameters'
 }
 
-export interface HelperPaneProps{
-    docExpandClicked : boolean
-    paramTabHandler : (isEnabled : boolean) => void
-}
-
-export function HelperPane(props: HelperPaneProps) {
-    const { docExpandClicked, paramTabHandler } = props;
+export function HelperPane() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
     const [selectedTab, setSelectedTab] = useState(TabElements.suggestions);
@@ -112,11 +106,7 @@ export function HelperPane(props: HelperPaneProps) {
         } else if (isConfigurableEditor(editors, activeEditorId)) {
             setSelectedTab(TabElements.suggestions);
         }
-    }, [docExpandClicked, currentModel.model]);
-
-    useEffect(() => {
-        selectedTab === TabElements.parameters ? paramTabHandler(true) : paramTabHandler(false);
-    }, [selectedTab])
+    }, [currentModel.model]);
 
     return (
         <>

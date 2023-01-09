@@ -21,7 +21,7 @@ import {
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
-import { CUSTOM_CONFIG_TYPE } from "../../../constants";
+import { CONNECTOR, CUSTOM_CONFIG_TYPE } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { KeywordComponent } from "../../Keyword";
@@ -42,7 +42,19 @@ export function ModuleVarDeclC(props: ModuleVarDeclProps) {
     } = useContext(StatementEditorContext);
 
     if (!currentModel.model) {
-        if (model.initializer) {
+        if (
+            config.type === CONNECTOR &&
+            model &&
+            model.initializer &&
+            STKindChecker.isCheckExpression(model.initializer) &&
+            STKindChecker.isImplicitNewExpression(model.initializer.expression)
+        ) {
+            if (model.initializer.expression.parenthesizedArgList.arguments?.length > 0) {
+                changeCurrentModel(model.initializer.expression.parenthesizedArgList.arguments[0]);
+            } else {
+                changeCurrentModel(model.initializer.expression.parenthesizedArgList);
+            }
+        } else if (model.initializer) {
             changeCurrentModel(model.initializer);
         } else if (config.type === CUSTOM_CONFIG_TYPE) {
             changeCurrentModel(model);

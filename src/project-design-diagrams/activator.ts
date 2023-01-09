@@ -17,7 +17,7 @@
  *
  */
 
-import { commands, ExtensionContext, ViewColumn, WebviewPanel, window, workspace } from "vscode";
+import { commands, ExtensionContext, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { join } from "path";
@@ -26,7 +26,7 @@ import { BallerinaExtension } from "../core/extension";
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { BallerinaVersion, ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
+import { BallerinaVersion, ComponentModel, DIAGNOSTICS_WARNING, Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
 import { WebViewMethod, WebViewRPCHandler } from "../utils";
 
 let extInstance: BallerinaExtension;
@@ -124,6 +124,26 @@ function setupWebviewPanel() {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
             }
         }, 500))
+
+        designDiagramWebview.webview.onDidReceiveMessage((message) => {
+            switch (message.command) {
+                case "go2source": {
+                    const location: Location = message.location;
+                    if (location && existsSync(location.filePath)) {
+                        workspace.openTextDocument(location.filePath).then((sourceFile) => {
+                            window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
+                                const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
+                                const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
+                                const range: Range = new Range(startPosition, endPosition);
+                                textEditor.revealRange(range, TextEditorRevealType.InCenter);
+                                textEditor.selection = new Selection(range.start, range.start);
+                            })
+                        })
+                    }
+                    return;
+                }
+            }
+        });
 
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;
