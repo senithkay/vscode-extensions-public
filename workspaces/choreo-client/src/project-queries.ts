@@ -15,8 +15,8 @@ import { gql } from 'graphql-request';
 export function getProjectsByOrgIdQuery(orgId: string) {
     return gql`
         query {
-            projects(orgId: "${orgId}") {
-                id, orgId, name, version, createdDate, handler, region
+            projects(orgId: ${orgId}) {
+                id, orgId, name, version, createdDate, handler, region,
             }
         }
     `;
@@ -36,7 +36,7 @@ export function getComponentsByProjectIdQuery(orgHandle: string, projectId: stri
                 version, 
                 createdAt, 
                 orgHandler,
-                repository{
+                repository {
                     nameApp,
                     nameConfig,
                     branch,
@@ -46,14 +46,14 @@ export function getComponentsByProjectIdQuery(orgHandle: string, projectId: stri
                     isUserManage,
                     appSubPath,
                     byocBuildConfig {
-                    id,
-                    isMainContainer,
-                    containerId,
-                    componentId,
-                    repositoryId,
-                    dockerContext,
-                    dockerfilePath,
-                    oasFilePath,
+                        id,
+                        isMainContainer,
+                        containerId,
+                        componentId,
+                        repositoryId,
+                        dockerContext,
+                        dockerfilePath,
+                        oasFilePath,
                     }
                 }, 
                 apiVersions { 
