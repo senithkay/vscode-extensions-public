@@ -41,6 +41,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const intl = useIntl();
 
     const [isExpanded, setIsExpanded] = useState(false);
+    const [schema, setSchema] = useState({});
     const [recordSelected, setRecordSelected] = useState<TypeDefinition>(undefined);
 
 
@@ -156,7 +157,6 @@ export function ResourceBody(props: ResourceBodyProps) {
             }
         });
 
-        const [schema, setSchema] = useState("");
         // value = record {|*http:Ok; Foo body;|}
         let recordName = value;
         let des = "";
@@ -171,8 +171,8 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <td>
                         {des}
                         <div>
-                            Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, setSchema)}>{recordName}</span>
-                            {schema && <pre className={classes.schema}>{schema}</pre>}
+                            Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, i)}>{recordName}</span> 
+                            {schema[i] && <pre className={classes.schema}>{schema[i]}</pre> }
                         </div>
                     </td>
                 </tr>
@@ -191,14 +191,14 @@ export function ResourceBody(props: ResourceBodyProps) {
         }
     })
 
-    const recordEditor = async (record: any, setSchema?: any) => {
+    const recordEditor = async (record: any, key?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
         const recordInfo = await getRecord(record, langClient);
 
         if (recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
-            setSchema(ST.source)
+            setSchema({ ...schema, [key]: [ST.source] })
             // setRecordSelected(ST);
             // handleDiagramEdit(ST, ST.position, { formType: "RecordEditor", isLoading: false });
         }
