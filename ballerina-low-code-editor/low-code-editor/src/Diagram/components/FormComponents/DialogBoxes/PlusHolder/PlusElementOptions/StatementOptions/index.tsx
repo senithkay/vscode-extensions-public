@@ -201,7 +201,7 @@ export function StatementOptions(props: StatementOptionsProps) {
             (
                 <Tooltip
                     title={plusHolderStatementTooltipMessages.worker.title}
-                    placement="left"
+                    placement="right"
                     arrow={true}
                     interactive={true}
                     disabled={!viewState.allowWorker}
@@ -388,7 +388,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.ifStatement.title}
-                placement="left"
+                placement="right"
                 arrow={true}
                 interactive={true}
             >
@@ -426,7 +426,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.whileStatement.title}
-                placement="left"
+                placement="right"
                 arrow={true}
                 interactive={true}
             >
@@ -445,7 +445,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.connectorStatement.title}
-                placement="left"
+                placement="right"
                 arrow={true}
                 interactive={true}
             >
@@ -473,7 +473,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.actionStatement.title}
-                placement="left"
+                placement="right"
                 arrow={true}
                 interactive={true}
             >
@@ -501,7 +501,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.httpConnectorStatement.title}
-                placement="left"
+                placement="right"
                 arrow={true}
                 interactive={true}
             >
@@ -525,7 +525,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.returnStatement.title}
-                placement="left"
+                placement="right"
                 arrow={true}
                 disabled={!viewState.isLast}
                 interactive={true}
@@ -574,7 +574,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.customStatement.title}
-                placement="left"
+                placement="right"
                 arrow={true}
                 interactive={true}
             >
@@ -598,7 +598,7 @@ export function StatementOptions(props: StatementOptionsProps) {
         component: (
             <Tooltip
                 title={plusHolderStatementTooltipMessages.functionCallStatement.title}
-                placement="left"
+                placement="right"
                 arrow={true}
                 interactive={true}
             >
