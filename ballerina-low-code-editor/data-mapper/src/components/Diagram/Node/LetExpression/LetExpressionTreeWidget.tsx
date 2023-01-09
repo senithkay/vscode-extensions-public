@@ -101,7 +101,6 @@ const LocalVarAddButton = styled.div`
 `;
 
 const LocalVarsHeader = styled.div`
-    padding: 5px;
     background: #f6f7fc;
     width: 100%;
     line-height: 35px;

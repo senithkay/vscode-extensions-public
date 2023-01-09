@@ -205,12 +205,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					|| node instanceof ModuleVariableNode)
 				{
 					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
+					const isLetExprNode = node instanceof LetExpressionNode;
+					const hasLetVarDecls = isLetExprNode && !!node.letVarDecls.length;
 					requiredParamFields = requiredParamFields
-						+ (node instanceof LetExpressionNode || node instanceof ModuleVariableNode
-							? node.numberOfFields + 1
-							: node.numberOfFields
-						);
+						+ (isLetExprNode && !hasLetVarDecls ? 0 : node.numberOfFields);
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+					additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
 				}
 				if (node instanceof FromClauseNode) {
 					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1) + node.initialYPosition);
