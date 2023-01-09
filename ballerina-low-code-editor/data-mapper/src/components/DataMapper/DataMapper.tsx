@@ -49,6 +49,7 @@ import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
+import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -211,6 +212,7 @@ function DataMapperC(props: DataMapperProps) {
     const [output, setOutput] = useState<DataMapperOutputParam>();
     const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [nodeSetupCounter, setNodeSetupCounter] = useState(0);
+    const [showLocalVarConfigPanel, setShowLocalVarConfigPanel] = useState(false);
     const { setFunctionST, setImports } = useDMStore();
 
     const classes = useStyles();
@@ -272,6 +274,10 @@ function DataMapperC(props: DataMapperProps) {
         setShowDMOverlay(showOverlay);
     }
 
+    const handleLocalVarConfigPanel = (showPanel: boolean) => {
+        setShowLocalVarConfigPanel(showPanel);
+    }
+
     useEffect(() => {
         if (fnST) {
             const defaultSt = { stNode: fnST, fieldPath: fnST.functionName.value };
@@ -315,7 +321,8 @@ function DataMapperC(props: DataMapperProps) {
                         fieldTobeEdited,
                         handleFieldToBeEdited,
                         handleOverlay,
-                        ballerinaVersion
+                        ballerinaVersion,
+                        handleLocalVarConfigPanel
                     );
 
                     const selectedST = selection.selectedST.stNode;
@@ -413,7 +420,7 @@ function DataMapperC(props: DataMapperProps) {
             <CurrentFileContext.Provider value={currentFile}>
                 {selection.state === DMState.INITIALIZED && (
                     <div className={classes.root}>
-                        {!!showDMOverlay &&
+                        {(!!showDMOverlay || showLocalVarConfigPanel) &&
                             <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
                         }
                         {fnST && (
@@ -448,6 +455,16 @@ function DataMapperC(props: DataMapperProps) {
                                 onCancel={cancelStatementEditor}
                                 onClose={closeStatementEditor}
                                 importStatements={importStatements}
+                            />
+                        )}
+                        {showLocalVarConfigPanel && (
+                            <LocalVarConfigPanel
+                                handleLocalVarConfigPanel={handleLocalVarConfigPanel}
+                                applyModifications={applyModifications}
+                                enableStatementEditor={enableStatementEditor}
+                                fnDef={selection.selectedST.stNode}
+                                langClientPromise={langClientPromise}
+                                filePath={filePath}
                             />
                         )}
                     </div>

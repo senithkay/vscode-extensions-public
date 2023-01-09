@@ -34,6 +34,7 @@ import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
     getDefaultValue,
+    getExprBodyFromLetExpression,
     getFieldName,
     getLinebreak,
     getTypeName,
@@ -81,10 +82,12 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         ? `${parentId}.${fieldIndex}${fieldName ? `.${fieldName}` : ''}`
         : `${parentId}${fieldName ? `.${fieldName}` : ''}`;
     const portIn = getPort(`${fieldId}.IN`);
-    const valExpr = field.hasValue()
-        && (STKindChecker.isSpecificField(field.value) ? field.value.valueExpr : field.value);
+    const body = field.hasValue() && STKindChecker.isLetExpression(field.value)
+        ? getExprBodyFromLetExpression(field.value)
+        : field.value;
+    const valExpr = body && STKindChecker.isSpecificField(body) ? body.valueExpr : body;
     const hasValue = valExpr && !!valExpr.source;
-    const isValQueryExpr = STKindChecker.isQueryExpression(valExpr);
+    const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);
     const typeName = getTypeName(field.type);
     const elements = field.elements;
 

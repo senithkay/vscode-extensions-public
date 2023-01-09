@@ -16,6 +16,7 @@ import {
     ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
+    LetExpression,
     LetVarDecl,
     ListConstructor,
     MappingConstructor,
@@ -41,12 +42,14 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { LetClauseNode } from "../Node/LetClause";
+import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
+    getExprBodyFromLetExpression,
     getInputNodes,
     getTypeOfOutput,
     isComplexExpression
@@ -67,90 +70,92 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
+        const exprFuncBody = STKindChecker.isExpressionFunctionBody(node.functionBody) && node.functionBody;
         let isFnBodyQueryExpr = false;
-        if (typeDesc) {
-            if (STKindChecker.isExpressionFunctionBody(node.functionBody)) {
-                const returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
+        if (typeDesc && exprFuncBody) {
+            const returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
 
-                if (returnType) {
-                    if (returnType.typeName === PrimitiveBalType.Record) {
-                        this.outputNode = new MappingConstructorNode(
-                            this.context,
-                            node.functionBody,
-                            typeDesc
-                        );
-                    } else if (returnType.typeName === PrimitiveBalType.Array) {
-                        if (STKindChecker.isQueryExpression(node.functionBody.expression)
-                            && this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY)
-                        {
-                            isFnBodyQueryExpr = true;
-                            const selectClause = node.functionBody.expression.selectClause;
-                            if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Record) {
-                                this.outputNode = new MappingConstructorNode(
-                                    this.context,
-                                    selectClause,
-                                    typeDesc,
-                                    node.functionBody.expression
-                                );
-                            } else if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Array) {
-                                this.outputNode = new ListConstructorNode(
-                                    this.context,
-                                    selectClause,
-                                    typeDesc,
-                                    node.functionBody.expression
-                                );
-                            } else {
-                                this.outputNode = new PrimitiveTypeNode(
-                                    this.context,
-                                    selectClause,
-                                    typeDesc,
-                                    node.functionBody.expression
-                                );
-                            }
-
-                            const fromClauseNode = new FromClauseNode(
+            if (returnType) {
+                if (returnType.typeName === PrimitiveBalType.Record) {
+                    this.outputNode = new MappingConstructorNode(
+                        this.context,
+                        exprFuncBody,
+                        typeDesc
+                    );
+                } else if (returnType.typeName === PrimitiveBalType.Array) {
+                    const bodyExpr = STKindChecker.isLetExpression(exprFuncBody.expression)
+                        ? getExprBodyFromLetExpression(exprFuncBody.expression)
+                        : exprFuncBody.expression;
+                    if (STKindChecker.isQueryExpression(bodyExpr)
+                        && this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY)
+                    {
+                        isFnBodyQueryExpr = true;
+                        const selectClause = bodyExpr.selectClause;
+                        if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Record) {
+                            this.outputNode = new MappingConstructorNode(
                                 this.context,
-                                node.functionBody.expression.queryPipeline.fromClause
+                                selectClause,
+                                typeDesc,
+                                bodyExpr
                             );
-                            fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-                            this.inputNodes.push(fromClauseNode);
-                            //
-                            // const letClauses =
-                            //     node.functionBody.expression.queryPipeline.intermediateClauses?.filter(
-                            //         (item) =>
-                            //             STKindChecker.isLetClause(item) &&
-                            //             (
-                            //                 (item.letVarDeclarations[0] as LetVarDecl)
-                            //                     ?.expression as SimpleNameReference
-                            //             )?.name?.value !== "EXPRESSION"
-                            //     );
-                            //
-                            // for (const [index, item] of letClauses.entries()) {
-                            //     const paramNode = new LetClauseNode(this.context, item as LetClause);
-                            //     paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-                            //     this.inputNodes.push(paramNode);
-                            // }
-                            //
-                            // const queryNode = new ExpandedMappingHeaderNode(this.context, node.functionBody.expression);
-                            // queryNode.setLocked(true)
-                            // queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
-                            // this.intermediateNodes.push(queryNode);
-                        } else {
+                        } else if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
                                 this.context,
-                                node.functionBody,
-                                typeDesc
+                                selectClause,
+                                typeDesc,
+                                bodyExpr
+                            );
+                        } else {
+                            this.outputNode = new PrimitiveTypeNode(
+                                this.context,
+                                selectClause,
+                                typeDesc,
+                                bodyExpr
                             );
                         }
-                    } else {
-                        this.outputNode = new PrimitiveTypeNode(
+
+                        const fromClauseNode = new FromClauseNode(
                             this.context,
-                            node.functionBody,
+                            bodyExpr.queryPipeline.fromClause
+                        );
+                        fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                        this.inputNodes.push(fromClauseNode);
+                        //
+                        // const letClauses =
+                        //     exprFuncBody.expression.queryPipeline.intermediateClauses?.filter(
+                        //         (item) =>
+                        //             STKindChecker.isLetClause(item) &&
+                        //             (
+                        //                 (item.letVarDeclarations[0] as LetVarDecl)
+                        //                     ?.expression as SimpleNameReference
+                        //             )?.name?.value !== "EXPRESSION"
+                        //     );
+                        //
+                        // for (const [index, item] of letClauses.entries()) {
+                        //     const paramNode = new LetClauseNode(this.context, item as LetClause);
+                        //     paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                        //     this.inputNodes.push(paramNode);
+                        // }
+                        //
+                        // const queryNode = new ExpandedMappingHeaderNode(this.context, exprFuncBody.expression);
+                        // queryNode.setLocked(true)
+                        // queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
+                        // this.intermediateNodes.push(queryNode);
+                    } else {
+                        this.outputNode = new ListConstructorNode(
+                            this.context,
+                            exprFuncBody,
                             typeDesc
                         );
                     }
-                    this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
+                } else {
+                    this.outputNode = new PrimitiveTypeNode(
+                        this.context,
+                        exprFuncBody,
+                        typeDesc
+                    );
                 }
+                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
             }
         }
         // create input nodes
@@ -172,6 +177,16 @@ export class NodeInitVisitor implements Visitor {
                     }
                 }
             }
+        }
+        // create node for configuring local variables
+        const hasExpanded = this.selection.prevST.length > 0;
+        if (!hasExpanded) {
+            const letExprNode = new LetExpressionNode(
+                this.context,
+                exprFuncBody
+            );
+            letExprNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+            this.inputNodes.push(letExprNode);
         }
     }
 
@@ -349,8 +364,11 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitExpressionFunctionBody(node: ExpressionFunctionBody, parent?: STNode): void {
-        if (!STKindChecker.isMappingConstructor(node.expression)
-            && !STKindChecker.isListConstructor(node.expression)
+        const expr = STKindChecker.isLetExpression(node.expression)
+            ? getExprBodyFromLetExpression(node.expression)
+            : node.expression;
+        if (!STKindChecker.isMappingConstructor(expr)
+            && !STKindChecker.isListConstructor(expr)
             && !STKindChecker.isExplicitAnonymousFunctionExpression(parent))
         {
             const inputNodes = getInputNodes(node.expression);

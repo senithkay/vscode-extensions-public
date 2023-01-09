@@ -15,6 +15,7 @@ import {
     FromClause,
     FunctionDefinition,
     LetClause,
+    LetExpression,
     LetVarDecl,
     NodePosition,
     SpecificField,
@@ -110,6 +111,24 @@ export class RecordTypeFindingVisitor implements Visitor {
             endLine: {
                 line: typePosition.endLine,
                 offset: typePosition.endColumn
+            }
+        });
+    }
+
+    public beginVisitLetExpression(node: LetExpression){
+        node.letVarDeclarations.map((decl: STNode) => {
+            if (STKindChecker.isLetVarDecl(decl)) {
+                const declPosition: NodePosition = decl.expression.position;
+                this.expressionNodeRanges.push({
+                    startLine: {
+                        line: declPosition.startLine,
+                        offset: declPosition.startColumn
+                    },
+                    endLine: {
+                        line: declPosition.endLine,
+                        offset: declPosition.endColumn
+                    }
+                });
             }
         });
     }

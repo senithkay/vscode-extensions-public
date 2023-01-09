@@ -28,13 +28,15 @@ import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, RecordFieldPortModel } from "../../Port";
 import {
     EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+    LET_EXPRESSION_SOURCE_PORT_PREFIX,
     LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
     OFFSETS
 } from "../../utils/constants";
-import { getFieldNames, getTypeFromStore } from "../../utils/dm-utils";
+import { getExprBodyFromLetExpression, getFieldNames, getTypeFromStore } from "../../utils/dm-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
+import { LetExpressionNode } from "../LetExpression";
 import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { RequiredParamNode } from "../RequiredParam";
@@ -111,6 +113,12 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 {
                     this.sourcePort = node.getPort(
                         `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
+                } else if (node instanceof LetExpressionNode) {
+                    const letDecl = node.letVarDecls.some(decl => decl.varName === paramName);
+                    if (letDecl) {
+                        this.sourcePort = node.getPort(
+                            `${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${fieldId}.OUT`) as RecordFieldPortModel;
+                    }
                 }
                 while (this.sourcePort && this.sourcePort.hidden){
                     this.sourcePort = this.sourcePort.parentModel;
@@ -150,6 +158,25 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             && port?.editableRecordField && port.editableRecordField?.value
                             && STKindChecker.isQueryExpression(port.editableRecordField.value)
                             && isPositionsEquals(port.editableRecordField.value.position, exprPosition)
+                            && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                }
+            });
+        } else if (STKindChecker.isLetExpression(this.parentNode)) {
+            const exprPosition = this.parentNode.expression.position;
+            this.getModel().getNodes().forEach((node) => {
+                if (node instanceof ListConstructorNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof RecordFieldPortModel
+                            && port?.editableRecordField && port.editableRecordField?.value
+                            && STKindChecker.isLetExpression(port.editableRecordField.value)
+                            && isPositionsEquals(getExprBodyFromLetExpression(port.editableRecordField.value).position, exprPosition)
                             && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
                             && port.portType === 'IN'
                         ) {

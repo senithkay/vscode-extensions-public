@@ -15,7 +15,6 @@ import React from "react";
 
 import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
     LetVarDecl,
     NodePosition,
