@@ -35,7 +35,7 @@ class RecordsFinderVisitor implements Visitor {
     }
 
     public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode): void {
-        if (node.typeData?.symbol.typeKind === "typeReference") {
+        if (node.typeData?.symbol?.typeKind === "typeReference") {
             recordTypeDescriptions.set(node.name.value, node);
         }
     }
