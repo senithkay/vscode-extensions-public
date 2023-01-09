@@ -1,4 +1,4 @@
-import { Component, Organization, Project, Repository } from "@wso2-enterprise/choreo-core";
+import { Component, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
 
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
@@ -49,12 +49,6 @@ export interface IAuthClient {
     getAuthURL(): string;
 }
 
-export interface IChoreoQueryClient {
-    getOrganizations(): Promise<Organization[] | Error>;
-    getProjects(org: Organization): Promise<Project[] | Error>;
-    getComponents(proj: Project): Promise<Component[] | Error>;
-}
-
 export interface ProjectMutationParams {
     orgId: string;
     name: string;
@@ -74,11 +68,19 @@ export interface LinkRepoMutationParams {
     repoPath: string;
 }
 
-export interface IChoreoMutationClient {
-    createProject(params: ProjectMutationParams): Promise<Project[] | Error>;
-    createComponent(params: ComponentMutationParams): Promise<Component | Error>;
-    linkRepo(params: LinkRepoMutationParams): Promise<Repository | Error>;
+export interface IChoreoProjectClient  {
+    // queries
+    getProjects(orgId: string): Promise<Project[]>;
+    getComponents(orgHandle: string, projId: string): Promise<Component[]>;
+
+    // mutations
+    createProject(params: ProjectMutationParams): Promise<Project[]>;
+    createComponent(params: ComponentMutationParams): Promise<Component>;
+    linkRepo(params: LinkRepoMutationParams): Promise<Repository>;
 }
 
-export interface IChoreoClient extends IChoreoQueryClient, IChoreoMutationClient {
+
+export interface IChoreoOrgClient  {
+    getOrganizations(): Promise<Organization[]>;
+    getUserInfo(): Promise<UserInfo>;
 }

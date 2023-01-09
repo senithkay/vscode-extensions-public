@@ -10,24 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-/* eslint-disable @typescript-eslint/naming-convention */
+// import { ChoreoAuthClient } from "./auth-client";
 
-import { getChoreoClient } from ".";
-import { UserInfo } from "@wso2-enterprise/choreo-core";
-
-export async function getUserInfo(): Promise<UserInfo> {
-    const client = await getChoreoClient();
-    return new Promise(async (resolve, reject) => {
-        try {
-            const resp = await client.get('/validate-user', {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            resolve(resp.data as UserInfo);
-        } catch (error) {
-            reject(error);
-        }
+describe('Test Auth Client', () => {
+    test('Test Auth Code Exchange', () => {
+        // TODO
     });
-}
-
+});

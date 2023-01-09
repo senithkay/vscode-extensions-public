@@ -11,11 +11,9 @@
  *  associated services.
  */
 import * as vscode from 'vscode';
-import { ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
+import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoAuthConfig } from "./config";
 import { ext } from '../extensionVariables';
-import { getUserInfo } from '../api/user';
-import { ChoreoAccessToken } from './types';
 
 const AUTH_FAIL = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -26,7 +24,9 @@ const SESSION_EXPIRED = "The session has expired, please login again!";
 
 export const choreoAuthConfig: ChoreoAuthConfig = new ChoreoAuthConfig();
 
-const authClient = new ChoreoAuthClient({
+export const tokenStore = new KeyChainTokenStorage();
+
+export const authClient = new ChoreoAuthClient({
     loginUrl: choreoAuthConfig.getLoginUrl(),
     redirectUrl: choreoAuthConfig.getRedirectUri(),
     apimTokenUrl: choreoAuthConfig.getApimTokenUri(),
@@ -36,7 +36,9 @@ const authClient = new ChoreoAuthClient({
     tokenUrl: choreoAuthConfig.getTokenUri(),
 });
 
-const tokenStore = new KeyChainTokenStorage();
+export const orgClient = new ChoreoOrgClient(tokenStore);
+
+export const projectClient = new ChoreoProjectClient(tokenStore);
 
 export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
@@ -45,7 +47,7 @@ export async function initiateInbuiltAuth() {
     return vscode.env.openExternal(callbackUri);
 }
 
-export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<ChoreoAccessToken | undefined> {
+export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
     
     const currentChoreoToken = await tokenStore.getToken("choreo.token");
     if (currentChoreoToken?.accessToken && currentChoreoToken.expirationTime
@@ -127,7 +129,7 @@ export async function signIn() {
     const choreoTokenInfo = await tokenStore.getToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
-        const userInfo = await getUserInfo();
+        const userInfo = await orgClient.getUserInfo();
         await exchangeApimToken(choreoTokenInfo?.accessToken, userInfo.organizations[0].handle);
         ext.api.userName = userInfo.displayName;
         ext.api.selectedOrg = userInfo.organizations[0];
