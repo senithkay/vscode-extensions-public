@@ -27,14 +27,14 @@ import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordType
 
 import {
     JoinClauseNode,
-    QUERY_EXPR_SOURCE_NODE_TYPE
+    QUERY_EXPR_JOIN_NODE_TYPE
 } from './JoinClauseNode';
 
 @injectable()
 @singleton()
 export class JoinClauseNodeFactory extends AbstractReactFactory<JoinClauseNode, DiagramEngine> implements IDataMapperNodeFactory {
     constructor() {
-        super(QUERY_EXPR_SOURCE_NODE_TYPE);
+        super(QUERY_EXPR_JOIN_NODE_TYPE);
     }
 
     generateReactWidget(event: { model: JoinClauseNode; }): JSX.Element {

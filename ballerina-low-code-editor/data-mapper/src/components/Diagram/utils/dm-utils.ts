@@ -52,7 +52,7 @@ import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperN
 import { FromClauseNode } from "../Node/FromClause";
 import { JoinClauseNode } from "../Node/JoinClause";
 import { LetClauseNode } from "../Node/LetClause";
-import { LetExpressionNode} from "../Node/LetExpression";
+import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
@@ -108,8 +108,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		|| isMappedToRootListConstructor(targetPort)
 		|| isMappedToRootMappingConstructor(targetPort)
 		|| isMappedToMappingConstructorWithinArray(targetPort)
-		|| isMappedToExprFuncBody(targetPort, targetNode.context.selection.selectedST.stNode))
-	{
+		|| isMappedToExprFuncBody(targetPort, targetNode.context.selection.selectedST.stNode)) {
 		const targetExpr = STKindChecker.isLetExpression(targetPort.editableRecordField.value)
 			? getExprBodyFromLetExpression(targetPort.editableRecordField.value)
 			: targetPort.editableRecordField.value;
@@ -417,8 +416,8 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 }
 
 export function findNodeByValueNode(value: STNode,
-                                    dmNode: DataMapperNodeModel
-									): RequiredParamNode | FromClauseNode | LetClauseNode | JoinClauseNode | LetExpressionNode {
+	dmNode: DataMapperNodeModel
+): RequiredParamNode | FromClauseNode | LetClauseNode | JoinClauseNode | LetExpressionNode {
 	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode | JoinClauseNode | LetExpressionNode;
 	if (value) {
 		dmNode.getModel().getNodes().find((node) => {
@@ -557,7 +556,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 		portIdBuffer = moduleVar && MODULE_VARIABLE_SOURCE_PORT_PREFIX + "." + moduleVar.varName;
 	} else {
 		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
-		+ (node as FromClauseNode).sourceBindingPattern.variableName.value
+			+ (node as FromClauseNode).sourceBindingPattern.variableName.value
 	}
 	if (typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {

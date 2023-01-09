@@ -28,7 +28,7 @@ import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
-export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc-join";
+export const QUERY_EXPR_JOIN_NODE_TYPE = "datamapper-node-record-type-desc-join";
 
 export class JoinClauseNode extends DataMapperNodeModel {
 
@@ -44,7 +44,7 @@ export class JoinClauseNode extends DataMapperNodeModel {
         public value: JoinClause) {
         super(
             context,
-            QUERY_EXPR_SOURCE_NODE_TYPE
+            QUERY_EXPR_JOIN_NODE_TYPE
         );
         this.numberOfFields = 1;
     }
@@ -91,7 +91,6 @@ export class JoinClauseNode extends DataMapperNodeModel {
                 exprPosition = (this.value.joinOnCondition.rhsExpression as SimpleNameReference)?.position;
             } else if (STKindChecker.isOptionalFieldAccess(this.value.joinOnCondition.rhsExpression)){
                 exprPosition = (this.value.joinOnCondition.rhsExpression as OptionalFieldAccess)?.expression?.position;
-                // exprPosition = (this.value.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.position;
             }
 
             if (exprPosition){
