@@ -138,5 +138,4 @@ export class ChoreoAuthClient implements IAuthClient {
             + `client_id=${this._config.clientId}&scope=${scope}`;
     }
     
-
 }
