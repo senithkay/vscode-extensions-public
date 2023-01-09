@@ -281,6 +281,17 @@ export class NodeInitVisitor implements Visitor {
                 queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
                 this.intermediateNodes.push(queryNode);
                 queryNode.targetPorts = expandedHeaderPorts;
+
+                // create node for module variables
+                const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(node.selectClause.expression, this.context.stSymbolInfo);
+                if (moduleVariables.size > 0) {
+                    const moduleVarNode = new ModuleVariableNode(
+                        this.context,
+                        moduleVariables
+                    );
+                    moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
+                    this.inputNodes.push(moduleVarNode);
+                }
             }
         } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY) {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
