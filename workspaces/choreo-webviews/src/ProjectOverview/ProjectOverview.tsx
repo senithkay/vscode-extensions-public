@@ -11,5 +11,5 @@
  *  associated services.
  */
 export function ProjectOverview() {
-    // TODO: Joe
+    return <h1>Project Overview</h1>;
 }

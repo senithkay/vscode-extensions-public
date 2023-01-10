@@ -50,20 +50,19 @@
       {
         "command": "wso2.choreo.project.create",
         "title": "Create New Project",
-        "category": "Choreo"
+        "category": "Choreo",
+        "icon": "$(add)"
       },
       {
         "command": "wso2.choreo.component.create",
         "title": "Create New Component",
-        "category": "Choreo"
+        "category": "Choreo",
+        "icon": "$(add)"
       },
       {
         "command": "wso2.choreo.projects.refresh",
         "title": "Refresh",
-        "icon": {
-          "light": "resources/icons/light/refresh.svg",
-          "dark": "resources/icons/dark/refresh.svg"
-        }
+        "icon": "$(refresh)"
       }
     ],
     "viewsContainers": {
@@ -96,6 +95,11 @@
     ],
     "menus": {
       "view/title": [
+        {
+          "command": "wso2.choreo.project.create",
+          "when": "view == choreo-projects",
+          "group": "navigation"
+        },
         {
           "command": "wso2.choreo.projects.refresh",
           "when": "view == choreo-projects",

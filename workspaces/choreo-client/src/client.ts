@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  * 
@@ -17,19 +18,19 @@ export class ChoreoClient implements IChoreoClient {
     getOrganizations(): Promise<Error | Organization[]> {
         throw new Error("Method not implemented."); // TODO: Kavith
     }
-    getProjects(org: Organization): Promise<Error | Project[]> {
+    getProjects(_org: Organization): Promise<Error | Project[]> {
         throw new Error("Method not implemented."); // TODO: Kavith
     }
-    getComponents(proj: Project): Promise<Error | Component[]> {
+    getComponents(_proj: Project): Promise<Error | Component[]> {
         throw new Error("Method not implemented."); // TODO: Joe
     }
-    createProject(params: ProjectMutationParams): Promise<Error | Project[]> {
+    createProject(_params: ProjectMutationParams): Promise<Error | Project[]> {
         throw new Error("Method not implemented."); // TODO: Kavith
     }
-    createComponent(params: ComponentMutationParams): Promise<Error | Component> {
+    createComponent(_params: ComponentMutationParams): Promise<Error | Component> {
         throw new Error("Method not implemented."); // TODO: Summaya
     }
-    linkRepo(params: LinkRepoMutationParams): Promise<Error | Repository> {
+    linkRepo(_params: LinkRepoMutationParams): Promise<Error | Repository> {
         throw new Error("Method not implemented."); // TODO: Kavith
     }
 }
