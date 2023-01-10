@@ -138,7 +138,7 @@ export class RecordTypeFindingVisitor implements Visitor {
             }
         });
     }
-    
+
     public beginVisitJoinClause(node: JoinClause){
         const rhsExpression = node.joinOnCondition.rhsExpression
         let typePosition: NodePosition;

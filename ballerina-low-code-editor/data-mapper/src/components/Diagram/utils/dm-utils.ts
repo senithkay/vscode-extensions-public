@@ -22,8 +22,8 @@ import {
 	ExpressionFunctionBody,
 	FieldAccess,
 	FromClause,
-	IdentifierToken,
 	FunctionDefinition,
+	IdentifierToken,
 	JoinClause,
 	LetClause,
 	LetExpression,
@@ -416,7 +416,7 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 }
 
 export function findNodeByValueNode(value: STNode,
-	dmNode: DataMapperNodeModel
+	                                   dmNode: DataMapperNodeModel
 ): RequiredParamNode | FromClauseNode | LetClauseNode | JoinClauseNode | LetExpressionNode {
 	let foundNode: RequiredParamNode | FromClauseNode | LetClauseNode | JoinClauseNode | LetExpressionNode;
 	if (value) {
