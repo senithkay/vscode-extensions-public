@@ -81,7 +81,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
                                     this.context.collapsedFields, parentPort.collapsed);
                             });
                         } else {
-                            this.addPortsForInputRecordField(type, "OUT",
+                            this.numberOfFields += this.addPortsForInputRecordField(type, "OUT",
                                 varName, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
                                 this.context.collapsedFields, parentPort.collapsed);
                         }

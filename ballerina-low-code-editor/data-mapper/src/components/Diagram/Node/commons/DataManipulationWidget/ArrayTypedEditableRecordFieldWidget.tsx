@@ -68,11 +68,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         getPort,
         engine,
         parentMappingConstruct,
-        context, fieldIndex,
+        context,
+        fieldIndex,
         treeDepth = 0,
         deleteField,
         isReturnTypeDesc
     } = props;
+    const { stSymbolInfo, applyModifications, handleCollapse } = context;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
@@ -217,13 +219,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     );
 
     const handleExpand = () => {
-        context.handleCollapse(fieldId, !expanded);
+        handleCollapse(fieldId, !expanded);
     };
 
     const handleArrayInitialization = async () => {
         setLoading(true);
         try {
-            await createSourceForUserInput(field, parentMappingConstruct, '[]', context.applyModifications);
+            await createSourceForUserInput(field, parentMappingConstruct, '[]', applyModifications);
         } finally {
             setLoading(false);
         }
@@ -257,7 +259,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 startLine: targetPosition.endLine,
                 startColumn: targetPosition.endColumn
             })];
-            await context.applyModifications(modification);
+            await applyModifications(modification);
         } finally {
             setIsAddingElement(false);
         }

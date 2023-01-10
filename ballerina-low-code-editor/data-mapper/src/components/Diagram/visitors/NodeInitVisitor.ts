@@ -16,7 +16,6 @@ import {
     ExpressionFunctionBody,
     FunctionDefinition,
     LetClause,
-    LetExpression,
     LetVarDecl,
     ListConstructor,
     MappingConstructor,
@@ -45,12 +44,14 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
+import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
     getExprBodyFromLetExpression,
     getInputNodes,
+    getModuleVariables,
     getTypeOfOutput,
     isComplexExpression
 } from "../utils/dm-utils";
@@ -71,6 +72,7 @@ export class NodeInitVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
         const exprFuncBody = STKindChecker.isExpressionFunctionBody(node.functionBody) && node.functionBody;
+        let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.stSymbolInfo);
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
             const returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
@@ -91,6 +93,8 @@ export class NodeInitVisitor implements Visitor {
                     {
                         isFnBodyQueryExpr = true;
                         const selectClause = bodyExpr.selectClause;
+                        const intermediateClausesHeight = bodyExpr.queryPipeline.intermediateClauses.length * 80;
+                        const yPosition = 50 + intermediateClausesHeight;
                         if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Record) {
                             this.outputNode = new MappingConstructorNode(
                                 this.context,
@@ -114,33 +118,52 @@ export class NodeInitVisitor implements Visitor {
                             );
                         }
 
+                        this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + 80, yPosition + OFFSETS.TARGET_NODE.Y);
+
+                        const expandedHeaderPorts: RightAnglePortModel[] = [];
                         const fromClauseNode = new FromClauseNode(
                             this.context,
                             bodyExpr.queryPipeline.fromClause
                         );
-                        fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                        fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, yPosition);
                         this.inputNodes.push(fromClauseNode);
-                        //
-                        // const letClauses =
-                        //     exprFuncBody.expression.queryPipeline.intermediateClauses?.filter(
-                        //         (item) =>
-                        //             STKindChecker.isLetClause(item) &&
-                        //             (
-                        //                 (item.letVarDeclarations[0] as LetVarDecl)
-                        //                     ?.expression as SimpleNameReference
-                        //             )?.name?.value !== "EXPRESSION"
-                        //     );
-                        //
-                        // for (const [index, item] of letClauses.entries()) {
-                        //     const paramNode = new LetClauseNode(this.context, item as LetClause);
-                        //     paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-                        //     this.inputNodes.push(paramNode);
-                        // }
-                        //
-                        // const queryNode = new ExpandedMappingHeaderNode(this.context, exprFuncBody.expression);
-                        // queryNode.setLocked(true)
-                        // queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
-                        // this.intermediateNodes.push(queryNode);
+                        fromClauseNode.initialYPosition = yPosition;
+
+                        const fromClauseNodeValueLabel = (bodyExpr.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
+                        )?.variableName?.value;
+                        const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
+                        expandedHeaderPorts.push(fromClausePort);
+                        fromClauseNode.addPort(fromClausePort);
+
+                        const letClauses = bodyExpr.queryPipeline.intermediateClauses?.filter(
+                                (item) =>
+                                    STKindChecker.isLetClause(item) &&
+                                    (
+                                        (item.letVarDeclarations[0] as LetVarDecl)
+                                            ?.expression as SimpleNameReference
+                                    )?.name?.value !== "EXPRESSION"
+                            );
+
+                        for (const [index, item] of letClauses.entries()) {
+                            const paramNode = new LetClauseNode(this.context, item as LetClause);
+                            paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
+                            this.inputNodes.push(paramNode);
+
+                            const letClauseValueLabel = (
+                                ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
+                                    ?.bindingPattern as CaptureBindingPattern
+                            )?.variableName?.value;
+                            const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
+                            expandedHeaderPorts.push(letClausePort);
+                            paramNode.addPort(letClausePort);
+                        }
+
+                        const queryNode = new ExpandedMappingHeaderNode(this.context, bodyExpr);
+                        queryNode.setLocked(true)
+                        queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
+                        this.intermediateNodes.push(queryNode);
+                        queryNode.targetPorts = expandedHeaderPorts;
+                        moduleVariables = getModuleVariables(bodyExpr.selectClause.expression, this.context.stSymbolInfo);
                     } else {
                         this.outputNode = new ListConstructorNode(
                             this.context,
@@ -178,15 +201,24 @@ export class NodeInitVisitor implements Visitor {
                 }
             }
         }
-        // create node for configuring local variables
         const hasExpanded = this.selection.prevST.length > 0;
         if (!hasExpanded) {
+            // create node for configuring local variables
             const letExprNode = new LetExpressionNode(
                 this.context,
                 exprFuncBody
             );
             letExprNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
             this.inputNodes.push(letExprNode);
+        }
+        // create node for module variables
+        if (moduleVariables.size > 0) {
+            const moduleVarNode = new ModuleVariableNode(
+                this.context,
+                moduleVariables
+            );
+            moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X + (isFnBodyQueryExpr ? 80 : 0), 0);
+            this.inputNodes.push(moduleVarNode);
         }
     }
 
@@ -269,6 +301,17 @@ export class NodeInitVisitor implements Visitor {
                 queryNode.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
                 this.intermediateNodes.push(queryNode);
                 queryNode.targetPorts = expandedHeaderPorts;
+
+                // create node for module variables
+                const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(node.selectClause.expression, this.context.stSymbolInfo);
+                if (moduleVariables.size > 0) {
+                    const moduleVarNode = new ModuleVariableNode(
+                        this.context,
+                        moduleVariables
+                    );
+                    moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
+                    this.inputNodes.push(moduleVarNode);
+                }
             }
         } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY) {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
