@@ -18,7 +18,7 @@ import { activateAuth } from './auth';
 import { exchangeOrgAccessTokens } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneAllComponentsCmd, cloneComponentCmd } from './cmds/clone';
-import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
+import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId, choreoProjectOverview } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
@@ -28,10 +28,10 @@ import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 import { activateWizards } from './wizards/activate';
 
 export function activateBallerinaExtension() {
-    const ext = extensions.getExtension("wso2.ballerina");
-    if (ext && !ext.isActive) {
-        ext.activate();
-    }
+	const ext = extensions.getExtension("wso2.ballerina");
+	if (ext && !ext.isActive) {
+		ext.activate();
+	}
 }
 
 export function activate(context: vscode.ExtensionContext) {

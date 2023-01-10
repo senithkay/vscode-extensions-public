@@ -18,8 +18,10 @@ export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { m
 export const GetCurrentOrgRequest: RequestType<string, Organization> = { method: 'getCurrentOrg' };
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
+export const GetProject: RequestType<string, Project> = { method: 'getProject' };
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
+export const SelectedProjectChangedNotification: NotificationType<Organization> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };

@@ -13,7 +13,8 @@
 import { commands, WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
-import { GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
+import {
+    GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification  } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -25,7 +26,7 @@ export class WebViewRpc {
     private _messenger = new Messenger();
 
     constructor(view: WebviewPanel) {
-        this._messenger.registerWebviewPanel(view, { broadcastMethods: [ 'loginStatusChanged', 'selectedOrgChanged' ] });
+        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged'] });
 
         this._messenger.onRequest(GetLoginStatusRequest, () => {
             return ext.api.status;
@@ -36,21 +37,24 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllOrgsRequest, async () => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
-                 const userInfo = await orgClient.getUserInfo();
-                 return userInfo.organizations;
-            } 
+                const userInfo = await orgClient.getUserInfo();
+                return userInfo.organizations;
+            }
         });
         // TODO: Remove this once the Choreo project client RPC handlers are registered
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
-                return projectClient.getProjects({ orgId: ext.api.selectedOrg.id });
-            } 
+                return projectClient.getProjects(ext.api.selectedOrg.id);
+            }
         });
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
         });
         ext.api.onOrganizationChanged((newOrg) => {
             this._messenger.sendNotification(SelectedOrgChangedNotification, BROADCAST, newOrg);
+        });
+        ext.api.onChoreoProjectChanged((newProject) => {
+            //this._messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, newProject);
         });
         this._messenger.onNotification(ExecuteCommandNotification, (args: string[]) => {
             if (args.length >= 1) {

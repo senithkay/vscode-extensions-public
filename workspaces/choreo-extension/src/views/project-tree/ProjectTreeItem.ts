@@ -11,25 +11,30 @@
  *  associated services.
  */
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
+import { choreoProjectOverview } from "../../constants";
 import { Project } from "@wso2-enterprise/choreo-core";
 import { getIconPath } from "../../icons";
 
 export class ChoreoProjectTreeItem extends TreeItem {
-    constructor(
-      public readonly project: Project,
-      public readonly collapsibleState: TreeItemCollapsibleState
-    ) {
-      super(project.name, collapsibleState);
-      this.description = project.version;
-      const { createdData, handler, region } = project;
-      this.tooltip = 
+  constructor(
+    public readonly project: Project
+  ) {
+    super(project.name, TreeItemCollapsibleState.None);
+    this.description = project.version;
+    const { createdData, handler, region } = project;
+    this.tooltip =
       `Project Handle: ${handler}\n${createdData ? `Created At: ${createdData}\n` : ''}Region: ${region}`;
-      this.contextValue = "choreo.project";
-    }
-  
-  
-    iconPath = {
-      light: getIconPath('project', "light"),
-      dark: getIconPath('project', "dark")
+    this.contextValue = "choreo.project";
+    this.command = {
+      command: choreoProjectOverview,
+      title: 'Open project Overview',
+      arguments: [ project ]
     };
+  }
+
+
+  iconPath = {
+    light: getIconPath('project', "light"),
+    dark: getIconPath('project', "dark")
+  };
 }
