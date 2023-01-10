@@ -24,7 +24,7 @@ import { ServiceLinkModel } from '../ServiceLink/ServiceLinkModel';
 import { ServiceHeadWidget } from './ServiceHead/ServiceHead';
 import { FunctionCard } from './FunctionCards/FunctionCard';
 import { ProjectDesignRPC } from '../../../utils/rpc/project-design-rpc';
-import { Level, Views } from '../../../resources';
+import { Level, ServiceTypes, Views } from '../../../resources';
 import { DiagramContext } from '../../common';
 import { ServiceNode } from './styles/styles';
 import './styles/styles.css';
@@ -74,7 +74,11 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	}
 
 	const setLinkStatus = async () => {
-		if (currentView === Views.L1_SERVICES && newLinkNodes.source && newLinkNodes.source.serviceId !== node.getID()) {
+		if (currentView === Views.L1_SERVICES &&
+			newLinkNodes.source &&
+			newLinkNodes.source.serviceId !== node.getID() &&
+			node.serviceType === ServiceTypes.HTTP	
+		) {
 			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
 
 			const rpcInstance = ProjectDesignRPC.getInstance();

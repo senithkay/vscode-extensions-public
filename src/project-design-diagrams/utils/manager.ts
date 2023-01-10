@@ -54,7 +54,7 @@ export class BallerinaProjectManager implements IProjectManager {
         return undefined;
     }
 
-    public static _createComponent(componentDetails: AddComponentDetails): Promise<string> {
+    private static _createComponent(componentDetails: AddComponentDetails): Promise<string> {
         return new Promise((resolve) => {
             const { directory: parentDirPath, package: packageName, name, version, org: orgName } = componentDetails;
             let serviceId: string = "";
