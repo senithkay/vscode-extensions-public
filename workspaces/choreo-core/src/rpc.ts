@@ -23,5 +23,5 @@ export const GetProject: RequestType<string, Project> = { method: 'getProject' }
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
-export const SelectedProjectChangedNotification: NotificationType<Organization> = { method: 'selectedProjectChanged' };
+export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };

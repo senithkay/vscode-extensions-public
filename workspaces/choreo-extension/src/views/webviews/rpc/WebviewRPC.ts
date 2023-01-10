@@ -20,6 +20,7 @@ import {
     SelectedProjectChangedNotification,
     Project
 } from "@wso2-enterprise/choreo-core";
+import { registerChoreoProjectRPCHandlers} from "@wso2-enterprise/choreo-client";
 import { ext } from "../../../extensionVariables";
 import { orgClient, projectClient } from "../../../auth/auth";
 
@@ -46,7 +47,7 @@ export class WebViewRpc {
         // TODO: Remove this once the Choreo project client RPC handlers are registered
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
-                return projectClient.getProjects(ext.api.selectedOrg.id);
+                return projectClient.getProjects({ orgId: ext.api.selectedOrg.id });
             }
         });
         ext.api.onStatusChanged((newStatus) => {
