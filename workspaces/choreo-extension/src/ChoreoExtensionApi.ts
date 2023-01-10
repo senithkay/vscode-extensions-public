@@ -17,7 +17,9 @@ import { Disposable, EventEmitter } from 'vscode';
 import { ext } from "./extensionVariables";
 
 import { IProjectManager, Organization, Project } from "@wso2-enterprise/choreo-core";
-import { exchangeAuthToken } from "./auth/inbuilt-impl";
+import { ChoreoApimToken, ChoreoToken, ChoreoVscodeToken, exchangeAuthToken } from "./auth/inbuilt-impl";
+import { ChoreoAccessToken } from "./auth/types";
+import { getChoreoToken as getToken } from "./auth/storage";
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -27,6 +29,9 @@ export interface IChoreoExtensionAPI {
 export class ChoreoExtensionApi {
     // TODO move this to ext namespace
     public userName: string | undefined;
+    public choreoTokenKey = ChoreoToken;
+    public choreoApimTokenKey = ChoreoApimToken;
+    public choreoVscodeTokenKey = ChoreoVscodeToken;
 
     private _status: ChoreoLoginStatus;
     private _selectedOrg: Organization | undefined;
@@ -35,7 +40,7 @@ export class ChoreoExtensionApi {
     public onStatusChanged = this._onStatusChanged.event;
 
 
-	private _onOrganizationChanged = new EventEmitter<Organization | undefined>();
+    private _onOrganizationChanged = new EventEmitter<Organization | undefined>();
     public onOrganizationChanged = this._onOrganizationChanged.event;
 
     private _onChoreoProjectChanged = new EventEmitter<Project | undefined>();
@@ -66,7 +71,7 @@ export class ChoreoExtensionApi {
     }
 
     public async waitForLogin(): Promise<boolean> {
-		switch (this._status) {
+        switch (this._status) {
             case 'LoggedIn':
                 return true;
             case 'LoggedOut':
@@ -84,14 +89,18 @@ export class ChoreoExtensionApi {
                 const status: never = this._status;
                 throw new Error(`Unexpected status '${status}'`);
         }
-	}
+    }
 
     public isChoreoProject(): Promise<boolean> {
         return Promise.resolve(false);
     }
 
-    public getProjectManager(projectId: string): Promise<IProjectManager|undefined> {
+    public getProjectManager(projectId: string): Promise<IProjectManager | undefined> {
         return Promise.resolve(undefined);
+    }
+
+    public getChoreoToken(tokenKey: string): Promise<ChoreoAccessToken | undefined> {
+        return getToken(tokenKey);
     }
 
 }

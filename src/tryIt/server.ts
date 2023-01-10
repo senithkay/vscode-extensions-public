@@ -17,13 +17,13 @@
  *
  */
 
-import axios, { Method } from "axios";
+import axios from "axios";
 
 interface Request {
   url: string;
-  headers: string;
-  method: Method;
-  body?: string;
+  headers: any;
+  method: any;
+  body?: any;
 }
 interface Response {
   status: number;

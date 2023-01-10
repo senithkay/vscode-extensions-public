@@ -68,7 +68,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 
                                 await createGraphqlView(langClient, `http://localhost:${port}${path}`);
                             } else {
-                                await createSwaggerView(langClient, filePath.fsPath, serviceName, codeServerContext);
+                                await createSwaggerView(langClient, filePath.fsPath, serviceName, codeServerContext, ballerinaExtInstance);
                             }
                         }
                     }

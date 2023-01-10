@@ -17,7 +17,7 @@
  *
  */
 
-import { CodeServerContext, ExtendedLangClient, OpenAPIConverterResponse, RUN_PROJECT_TO_TRYIT } from "../../core";
+import { BallerinaExtension, CodeServerContext, ExtendedLangClient, OpenAPIConverterResponse, RUN_PROJECT_TO_TRYIT } from "../../core";
 import { showSwaggerView } from "./swaggerViewPanel";
 import { MESSAGE_TYPE, showMessage } from "../../utils/showMessage";
 import { log } from "../../utils";

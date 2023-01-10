@@ -24,6 +24,12 @@ import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient, OASpec } f
 import { SwaggerServer } from "../server";
 import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../../telemetry";
 import { getPortPromise } from "portfinder";
+import { loader } from "./loader";
+import { getChoreoExtAPI } from '../../choreo-features/activate';
+
+export const CHOREO_API_TEST_DATA_GEN = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
+    `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/ai-test-assistant/1.0.0/generate-data` :
+    "https://apis.choreo.dev/ai-test-assistant/1.0.0/generate-data";
 
 let swaggerViewPanel: WebviewPanel | undefined;
 let cors_proxy = require('cors-anywhere');
@@ -71,6 +77,40 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
     const proxy = codeServerContext.codeServerEnv ? codeServerContext.manageChoreoRedirectUri : `http://localhost:${port}/`;
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
     if (swaggerViewPanel) {
+        const loaderHtml = loader(swaggerViewPanel.webview);
+        if (loaderHtml) {
+            swaggerViewPanel.webview.html = loaderHtml;
+        }
+
+        const choreoExt = await getChoreoExtAPI();
+        if (choreoExt) {
+            const choreoTokenInfo = await choreoExt.getChoreoToken(choreoExt.choreoVscodeTokenKey);
+
+            if (choreoTokenInfo?.accessToken) {
+                for (let index = 0; index < specs.length; index++) {
+                    const spec = specs[index];
+                    const data = { "openapiSpec": spec.spec };
+                    const request = {
+                        url: CHOREO_API_TEST_DATA_GEN,
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${choreoTokenInfo.accessToken}`
+                        },
+                        body: data
+                    }
+                    let testData = await swaggerServer.sendRequest(request, false);
+                    if (!testData) {
+                        continue;
+                    }
+                    if ((testData as any).status != 200) {
+                        continue;
+                    }
+                    spec.spec = JSON.parse((testData as any).body).openapiSpec;
+                }
+            }
+        }
+
         const html = render({ specs, file, serviceName, proxy }, swaggerViewPanel.webview);
         if (html) {
             swaggerViewPanel.webview.html = html;
