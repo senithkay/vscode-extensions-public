@@ -10,13 +10,18 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+
 import { IProjectManager, Project } from "@wso2-enterprise/choreo-core";
 
-export class ChoreoProjectManager implements IProjectManager{
-    createComponent(): Promise<void> {
-        throw new Error("Method not implemented.");
+export class ChoreoProjectManager implements IProjectManager {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    createComponent(_addComponentDetails: unknown): Promise<string> {
+        throw new Error("choreo createComponent method not implemented.");
     }
     getProjectDetails(): Promise<Project> {
-        throw new Error("Method not implemented.");
+        throw new Error("choreo getProjectDetails method not implemented.");
+    }
+    getProjectRoot(): Promise<string | undefined> {
+        throw new Error("choreo getProjectRoot method not implemented.");
     }
 }

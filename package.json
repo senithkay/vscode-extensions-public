@@ -620,10 +620,10 @@
         "workspaces/graphql",
         "workspaces/notebook-renderer",
         "workspaces/perf-forecast",
-        "workspaces/project-design-diagrams",
         "workspaces/swagger",
         "workspaces/variable-view",
         "workspaces/choreo-core",
+        "workspaces/project-design-diagrams",
         "workspaces/choreo-client",
         "workspaces/choreo-webviews",
         "workspaces/choreo-extension"
