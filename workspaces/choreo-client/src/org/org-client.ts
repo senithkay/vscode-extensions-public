@@ -13,7 +13,8 @@
 
 import { Organization, UserInfo } from "@wso2-enterprise/choreo-core";
 import axios from "axios";
-import { IChoreoOrgClient, ITokenStorage } from "./types";
+import { ITokenStorage } from "../auth";
+import { IChoreoOrgClient } from "./types";
 
 export const REST_API_BASE_URL = 'https://app.choreo.dev';
 

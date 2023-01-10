@@ -10,8 +10,6 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export * from "./project";
-export * from "./manager";
-export * from "./auth";
-export * from "./http-client";
-export * from "./org";
+export * from "./auth-client";
+export * from "./types";
+export * from "./token-storage";

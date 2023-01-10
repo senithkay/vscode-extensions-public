@@ -12,8 +12,10 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository } from "@wso2-enterprise/choreo-core";
-import { ComponentMutationParams, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams, ProjectMutationParams } from "./types";
+import { ComponentMutationParams, CreateProjectParams, IChoreoProjectClient, LinkRepoMutationParams } from "./types";
 import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './project-queries';
+import { getCreateProjectMutation } from './project-mutations';
+import { ITokenStorage } from '../auth';
 
 export const PROJECTS_API_URL = 'https://apis.choreo.dev/projects/1.0.0/graphql';
 
@@ -58,9 +60,15 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    createProject(_params: ProjectMutationParams): Promise<Project[]> {
-        throw new Error("Method not implemented."); // TODO: Kavith
+    async createProject(params: CreateProjectParams): Promise<Project[]> {
+        const mutation = getCreateProjectMutation(params);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            return data.createProject;
+        } catch (error) {
+            throw new Error("Error while creating project.", { cause: error });
+        }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

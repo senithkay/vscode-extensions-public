@@ -12,7 +12,7 @@
  */
 import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
-import { getHttpClient } from './http-client';
+import { getHttpClient } from '../http-client';
 import { AccessToken, AuthClientConfig, IAuthClient } from './types';
 
 const ACCESS_TOKEN_ERROR = "Error while exchanging the access token!";

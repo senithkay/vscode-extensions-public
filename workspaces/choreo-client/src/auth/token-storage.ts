@@ -10,7 +10,6 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-
 import { AccessToken, ChoreoTokenType, ITokenStorage } from "./types";
 import keytar = require("keytar");
 

@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { IProjectManager, Project } from "@wso2-enterprise/choreo-core"
+import { IProjectManager, Project } from "@wso2-enterprise/choreo-core";
 
 export class ChoreoProjectManager implements IProjectManager{
     createComponent(): Promise<void> {
