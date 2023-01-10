@@ -38,6 +38,24 @@ function activateRenameCommand() {
             // do nothing.
         }
     });
+
+    commands.registerCommand("ballerina.action.positional.rename", async (url:string, pos:Position) => {
+        try {
+            const uri: Uri = Uri.parse(url);
+            const document: TextDocument = await workspace.openTextDocument(uri);
+            if (document === null) {
+                return;
+            }
+
+            const renamePosition: Position = new Position(pos.line, pos.character);
+            await commands.executeCommand('editor.action.rename', [
+                document.uri,
+                renamePosition,
+            ]);
+        } catch (error) {
+            // do nothing.
+        }
+    });
 }
 
 export { activateRenameCommand };
