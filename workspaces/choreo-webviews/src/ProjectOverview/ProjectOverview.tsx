@@ -29,12 +29,15 @@ const ActionContainer = styled.div`
     gap: 10px;
 `;
 
+export interface ProjectOverviewProps {
+    projectId?: string;
+}
 
-export function ProjectOverview() {
+export function ProjectOverview(props: ProjectOverviewProps) {
     return (
         <>
             <WizardContainer>
-                <h1>GCP Demo</h1>
+                <h1>{props.projectId}</h1>
                 <p>Unable to find a local copy of the project. You can clone the project to your local machine and edit.</p>
                 <ActionContainer>
                     <VSCodeButton appearance="secondary">Open Local Copy</VSCodeButton>

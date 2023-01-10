@@ -23,10 +23,10 @@ export class ProjectOverview {
     private _disposables: vscode.Disposable[] = [];
     private _rpcHandler: WebViewRpc;
 
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
+    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, initialProject: string) {
         this._panel = panel;
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
+        this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, initialProject);
         this._rpcHandler = new WebViewRpc(this._panel);
     }
 
@@ -38,19 +38,17 @@ export class ProjectOverview {
                 enableScripts: true
             });
 
-            ProjectOverview.currentPanel = new ProjectOverview(panel, extensionUri);
+            ProjectOverview.currentPanel = new ProjectOverview(panel, extensionUri, project.id);
         }
     }
 
-    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
+    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, projectId: string) {
         // The JS file from the React build output
         const scriptUri = getUri(webview, extensionUri, [
             "resources",
             "jslibs",
             "choreo-vscode-webviews.js"
         ]);
-
-        const projectName = ProjectOverview.project?.name;
 
         return /*html*/ `
           <!DOCTYPE html>
@@ -59,16 +57,21 @@ export class ProjectOverview {
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
               <meta name="theme-color" content="#000000">
-              <title>${projectName}</title>
+              <title>Project Overview</title>
+              <script src="${scriptUri}"></script>
             </head>
             <body>
               <noscript>You need to enable JavaScript to run this app.</noscript>
               <div id="root"></div>
-              <script src="${scriptUri}"></script>
-              <script>
-                  // TODO user window.renderChoreoWebViews({ type: "ProjectCreateForm"}) to render on window.ready
-              </script>
             </body>
+            <script>
+              function render() {
+                window.renderChoreoWebViews({ type: "ProjectOverview", projectId: "${projectId}" });
+              }
+              window.onload = () => {
+                render();
+              }
+            </script>
           </html>
         `;
     }

@@ -16,8 +16,10 @@ import { BROADCAST } from 'vscode-messenger-common';
 import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
-    LoginStatusChangedNotification, SelectedOrgChangedNotification  } from "@wso2-enterprise/choreo-core";
-import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
+    LoginStatusChangedNotification, SelectedOrgChangedNotification,
+    SelectedProjectChangedNotification,
+    Project
+} from "@wso2-enterprise/choreo-core";
 import { ext } from "../../../extensionVariables";
 import { orgClient, projectClient } from "../../../auth/auth";
 
@@ -54,7 +56,7 @@ export class WebViewRpc {
             this._messenger.sendNotification(SelectedOrgChangedNotification, BROADCAST, newOrg);
         });
         ext.api.onChoreoProjectChanged((newProject) => {
-            //this._messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, newProject);
+            this._messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, newProject?.id);
         });
         this._messenger.onNotification(ExecuteCommandNotification, (args: string[]) => {
             if (args.length >= 1) {
