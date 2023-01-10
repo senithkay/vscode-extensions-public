@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import { Component, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
 
+=======
+>>>>>>> upstream/dev
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  * 
@@ -11,6 +14,7 @@ import { Component, Organization, Project, Repository, UserInfo } from "@wso2-en
  *  this license, please see the license as well as any agreement you’ve
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
+<<<<<<< HEAD
  */
 export interface AccessToken {
     accessToken : string;
@@ -84,3 +88,6 @@ export interface IChoreoOrgClient  {
     getOrganizations(): Promise<Organization[]>;
     getUserInfo(): Promise<UserInfo>;
 }
+=======
+ */
+>>>>>>> upstream/dev

@@ -10,6 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+<<<<<<<< HEAD:workspaces/choreo-client/src/auth-client.test.ts
 // import { ChoreoAuthClient } from "./auth-client";
 
 describe('Test Auth Client', () => {
@@ -17,3 +18,9 @@ describe('Test Auth Client', () => {
         // TODO
     });
 });
+========
+module.exports = {
+    presets: [['@babel/preset-env', {targets: {node: 'current'}}],
+    '@babel/preset-typescript'],
+};
+>>>>>>>> upstream/dev:workspaces/choreo-client/babel.config.js

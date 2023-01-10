@@ -17,7 +17,7 @@
  *
  */
 
-import { IProjectManager, Project } from "@wso2-enterprise/choreo-core"
+import { IProjectManager, Project } from "@wso2-enterprise/choreo-core";
 
 export class ChoreoProjectManager implements IProjectManager {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
