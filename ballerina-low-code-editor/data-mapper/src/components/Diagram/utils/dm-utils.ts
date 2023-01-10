@@ -509,10 +509,14 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
 					paramNode = selectedST.valueExpr.queryPipeline.fromClause
 				} else if (STKindChecker.isFunctionDefinition(selectedST)
-					&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
-					&& STKindChecker.isQueryExpression(selectedST.functionBody.expression))
+					&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody))
 				{
-					paramNode = selectedST.functionBody.expression.queryPipeline.fromClause;
+					const bodyExpr = STKindChecker.isLetExpression(selectedST.functionBody.expression)
+						? getExprBodyFromLetExpression(selectedST.functionBody.expression)
+						: selectedST.functionBody.expression;
+					if (STKindChecker.isQueryExpression(bodyExpr)) {
+						paramNode = bodyExpr.queryPipeline.fromClause;
+					}
 				}
 			}
 		}

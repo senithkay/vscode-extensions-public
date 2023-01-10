@@ -26,7 +26,7 @@ import { TreeBody, TreeHeader } from '../commons/Tree/Tree';
 
 import { useStyles } from "./style";
 
-export interface LetVarDeclItemProps {
+export interface ModuleVariableItemProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     typeDesc: Type;
     engine: DiagramEngine;
@@ -35,7 +35,7 @@ export interface LetVarDeclItemProps {
     valueLabel?: string;
 }
 
-export function ModuleVariableItemWidget(props: LetVarDeclItemProps) {
+export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
     const { engine, typeDesc, id, getPort, handleCollapse, valueLabel } = props;
     const classes = useStyles();
 
