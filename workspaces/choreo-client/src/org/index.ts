@@ -10,18 +10,5 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-<<<<<<<< HEAD:workspaces/choreo-client/src/http-client.ts
-import axios from "axios";
-
-export function getHttpClient(authToken?: string) {
-    if (authToken) {
-        return axios.create({
-            headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-    }
-    return axios.create();
-}
-========
 export * from "./org-client";
 export * from "./types";
->>>>>>>> upstream/dev:workspaces/choreo-client/src/org/index.ts

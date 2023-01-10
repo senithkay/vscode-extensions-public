@@ -10,13 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-<<<<<<<< HEAD:workspaces/choreo-client/babel.config.js
 module.exports = {
     presets: [['@babel/preset-env', {targets: {node: 'current'}}],
     '@babel/preset-typescript'],
 };
-========
-export * from "./project-client";
-export * from "./types";
-
->>>>>>>> upstream/dev:workspaces/choreo-client/src/project/index.ts
