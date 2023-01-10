@@ -16,6 +16,7 @@ import { useContext, useState } from "react";
 import { OrgSelector } from "../OrgSelector/OrgSelector";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -33,23 +34,63 @@ const ActionContainer = styled.div`
 
 export function ProjectWizard() {
 
+    const { loginStatus, loginStatusPending, selectedOrg } = useContext(ChoreoWebViewContext);
+
+    const [projectName, setProjectName] = useState("");
+    const [projectDescription, setProjectDescription] = useState("");
+    const [errorMsg, setErrorMsg] = useState("");
     const [initMonoRepo, setInitMonoRepo] = useState(false);
-    const { loginStatus, loginStatusPending } = useContext(ChoreoWebViewContext);
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
     }
 
+    const handleCreateProject = async () => {
+        const projectClient = ChoreoWebViewAPI.getInstance().getProjectClient();
+        if (selectedOrg) {
+            try {
+                const createdProject = await projectClient.createProject({
+                    name: projectName,
+                    description: projectDescription,
+                    orgId: selectedOrg.id,
+                    orgHandle: selectedOrg.handle
+                });
+                console.log(JSON.stringify(createdProject));
+            } catch (error: any) {
+                setErrorMsg("Error creating project. Cause: " + error.message);
+            }
+        }
+    }
+
     return (
         <>
+            {errorMsg !== "" && <div>{errorMsg}</div>}
             {loginStatus !== "LoggedIn" && <SignIn />}
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
                     <h2>New Choreo Project</h2>
                     <OrgSelector />
-                    <VSCodeTextField autofocus placeholder="Name">Project Name</VSCodeTextField>
-                    <VSCodeTextArea autofocus placeholder="Description">Project Description</VSCodeTextArea>
-                    <VSCodeCheckbox checked={initMonoRepo} onChange={handleInitiMonoRepoCheckChange}>Initialize a mono repo</VSCodeCheckbox>
+                    <VSCodeTextField
+                        autofocus
+                        placeholder="Name"
+                        onInput={(e: any) => setProjectName(e.target.value)}
+                        value={projectName}
+                    >
+                        Project Name
+                    </VSCodeTextField>
+                    <VSCodeTextArea
+                        placeholder="Description"
+                        onInput={(e: any) => setProjectDescription(e.target.value)}
+                        value={projectDescription}
+                    >
+                        Project Description
+                    </VSCodeTextArea>
+                    <VSCodeCheckbox
+                        checked={initMonoRepo}
+                        onChange={handleInitiMonoRepoCheckChange}
+                    >
+                        Initialize a mono repo
+                    </VSCodeCheckbox>
                     {initMonoRepo &&
                         <>
                             <VSCodeLink>Authorize with Github</VSCodeLink>
@@ -57,8 +98,17 @@ export function ProjectWizard() {
                         </>
                     }
                     <ActionContainer>
-                        <VSCodeButton appearance="secondary">Cancel</VSCodeButton>
-                        <VSCodeButton appearance="primary">Create</VSCodeButton>
+                        <VSCodeButton
+                            appearance="secondary"
+                        >
+                                Cancel
+                        </VSCodeButton>
+                        <VSCodeButton
+                            appearance="primary"
+                            onClick={handleCreateProject}
+                        >
+                                Create
+                        </VSCodeButton>
                     </ActionContainer>
                 </WizardContainer>
             )}

@@ -19,7 +19,7 @@ export interface Owner {
 }
 
 export interface Organization {
-    id: string;
+    id: number;
     uuid: string;
     handle: string;
     name: string;

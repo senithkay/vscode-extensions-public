@@ -16,6 +16,7 @@ import { BROADCAST } from 'vscode-messenger-common';
 import { GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification  } from "@wso2-enterprise/choreo-core";
+import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { ext } from "../../../extensionVariables";
 import { orgClient, projectClient } from "../../../auth/auth";
 
@@ -39,9 +40,10 @@ export class WebViewRpc {
                  return userInfo.organizations;
             } 
         });
+        // TODO: Remove this once the Choreo project client RPC handlers are registered
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
-                return projectClient.getProjects(ext.api.selectedOrg.id);
+                return projectClient.getProjects({ orgId: ext.api.selectedOrg.id });
             } 
         });
         ext.api.onStatusChanged((newStatus) => {
@@ -56,5 +58,8 @@ export class WebViewRpc {
                 commands.executeCommand(args[0], ...cmdArgs);
             }
         });
+
+        // Register RPC handlers for Choreo project client
+        registerChoreoProjectRPCHandlers(this._messenger, projectClient);
     }
 }

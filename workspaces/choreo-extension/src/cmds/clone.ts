@@ -72,7 +72,7 @@ export const cloneAllComponentsCmd = async (treeItem: TreeItem) => {
                 cancellationToken.onCancellationRequested(async () => {
                     cancelled = true;
                 });
-                const components = await projectClient.getComponents(selectedOrg.handle, id);
+                const components = await projectClient.getComponents({ orgHandle: selectedOrg.handle, projId: id });
                 const userManagedComponents = components.filter((cmp) => cmp.repository.isUserManage);
                 const repos = components.map((cmp) => cmp.repository);
 
