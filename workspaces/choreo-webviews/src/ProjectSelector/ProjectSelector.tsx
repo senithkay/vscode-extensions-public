@@ -14,13 +14,13 @@
 import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useEffect, useState } from "react";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { WebViewRpc } from "../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 export function ProjectSelector() {
     const [projects, setProjects] = useState<Project[] | undefined>(undefined);
 
     useEffect(() => {
-        const rpcInstance = WebViewRpc.getInstance();
+        const rpcInstance = ChoreoWebViewAPI.getInstance();
         rpcInstance.getAllProjects().then((fetchedProjects) => {
             setProjects(fetchedProjects);
         })

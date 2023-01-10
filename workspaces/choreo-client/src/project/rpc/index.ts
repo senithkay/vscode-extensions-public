@@ -10,6 +10,6 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export * from "./project-client";
+export * from "./project-client-rpc-vscode";
 export * from "./types";
-export * from "./rpc";
+export * from "./project-client-rpc-webview";

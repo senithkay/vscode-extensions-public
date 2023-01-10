@@ -57,7 +57,7 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     private async loadComponents(project: Project): Promise<ChoreoComponentTreeItem[]> {
         const selectedOrg = ext.api.selectedOrg;
         if (selectedOrg) {
-            return projectClient.getComponents(selectedOrg.handle, project.id)
+            return projectClient.getComponents({ orgHandle: selectedOrg.handle, projId: project.id})
                 .then((components) => components.map((cmp) => new ChoreoComponentTreeItem(cmp)));
         }
         return [];
@@ -66,7 +66,7 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     private async loadProjects(): Promise<ChoreoProjectTreeItem[]> {
         const selectedOrg = ext.api.selectedOrg;
         if (selectedOrg) {
-            return projectClient.getProjects(selectedOrg.id)
+            return projectClient.getProjects({ orgId: selectedOrg.id })
                 .then((projects) => {
                     return projects.map((proj) => new ChoreoProjectTreeItem(proj, TreeItemCollapsibleState.Collapsed));
                 });

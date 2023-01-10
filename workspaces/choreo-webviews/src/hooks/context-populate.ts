@@ -13,7 +13,7 @@
 import { ChoreoLoginStatus, Organization } from "@wso2-enterprise/choreo-core";
 import { useState, useEffect } from "react";
 import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { WebViewRpc } from "../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 export function usePopulateContext(): IChoreoWebViewContext {
 
@@ -24,7 +24,7 @@ export function usePopulateContext(): IChoreoWebViewContext {
     const [userOrgs, setUserOrgs] = useState<Organization[] | undefined>(undefined);
   
     useEffect(() => {
-      const rpcInstance = WebViewRpc.getInstance();
+      const rpcInstance = ChoreoWebViewAPI.getInstance();
       const checkLoginStatus = async () => {
         const loginStatus = await rpcInstance.getLoginStatus();
         setLoginStatus(loginStatus);
@@ -35,7 +35,7 @@ export function usePopulateContext(): IChoreoWebViewContext {
     }, []);
 
     useEffect(() => {
-        const rpcInstance = WebViewRpc.getInstance()
+        const rpcInstance = ChoreoWebViewAPI.getInstance()
         const fetchOrgInfo = async () => {
             const currOrg = await rpcInstance.getCurrentOrg();
             const allOrgs = await rpcInstance.getAllOrgs();

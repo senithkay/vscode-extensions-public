@@ -12,7 +12,7 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository } from "@wso2-enterprise/choreo-core";
-import { ComponentMutationParams, CreateProjectParams, IChoreoProjectClient, LinkRepoMutationParams } from "./types";
+import { ComponentMutationParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "./types";
 import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './project-queries';
 import { getCreateProjectMutation } from './project-mutations';
 import { ITokenStorage } from '../auth';
@@ -37,8 +37,8 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         return client;
     }
 
-    async getProjects(orgId: string): Promise<Project[]> {
-        const query = getProjectsByOrgIdQuery(orgId);
+    async getProjects(params: GetProjectsParams): Promise<Project[]> {
+        const query = getProjectsByOrgIdQuery(params.orgId);
         try {
             const client = await this._getClient();
             const data = await client.request(query);
@@ -49,7 +49,8 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
     }
 
-    async getComponents(orgHandle: string, projId: string): Promise<Component[]> {
+    async getComponents(params: GetComponentsParams): Promise<Component[]> {
+        const { orgHandle, projId } = params;
         const query = getComponentsByProjectIdQuery(orgHandle, projId);
         try {
             const client = await this._getClient();
@@ -60,7 +61,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async createProject(params: CreateProjectParams): Promise<Project[]> {
+    async createProject(params: CreateProjectParams): Promise<Project> {
         const mutation = getCreateProjectMutation(params);
         try {
             const client = await this._getClient();
