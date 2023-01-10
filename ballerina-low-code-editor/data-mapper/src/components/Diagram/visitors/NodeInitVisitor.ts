@@ -323,7 +323,9 @@ export class NodeInitVisitor implements Visitor {
             if (STKindChecker.isFunctionDefinition(selectedSTNode)
                 && STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody))
             {
-                const queryExpr = selectedSTNode.functionBody.expression;
+                const queryExpr = STKindChecker.isLetExpression(selectedSTNode.functionBody.expression)
+                    ? getExprBodyFromLetExpression(selectedSTNode.functionBody.expression)
+                    : selectedSTNode.functionBody.expression;
                 if (!isPositionsEquals(queryExpr.position, node.position) && this.isWithinQuery === 0) {
                     const queryNode = new QueryExpressionNode(this.context, node, parent);
                     this.intermediateNodes.push(queryNode);
@@ -414,7 +416,7 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isListConstructor(expr)
             && !STKindChecker.isExplicitAnonymousFunctionExpression(parent))
         {
-            const inputNodes = getInputNodes(node.expression);
+            const inputNodes = getInputNodes(expr);
             if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
