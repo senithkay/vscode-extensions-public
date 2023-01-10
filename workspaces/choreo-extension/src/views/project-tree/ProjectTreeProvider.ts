@@ -11,12 +11,12 @@
  *  associated services.
  */
 import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
-import { getComponentsByProject, getProjectsByOrg } from "../../api/queries";
 import { Project } from "@wso2-enterprise/choreo-core";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
 import { ChoreoComponentTreeItem } from "./ComponentTreeItem";
 import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
+import { projectClient } from "../../auth/auth";
 
 export type ProjectTreeItem = ChoreoProjectTreeItem | ChoreoComponentTreeItem | ChoreoSignInPendingTreeItem;
 
@@ -57,7 +57,7 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     private async loadComponents(project: Project): Promise<ChoreoComponentTreeItem[]> {
         const selectedOrg = ext.api.selectedOrg;
         if (selectedOrg) {
-            return getComponentsByProject(selectedOrg.handle, project.id)
+            return projectClient.getComponents(selectedOrg.handle, project.id)
                 .then((components) => components.map((cmp) => new ChoreoComponentTreeItem(cmp)));
         }
         return [];
@@ -66,7 +66,7 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     private async loadProjects(): Promise<ChoreoProjectTreeItem[]> {
         const selectedOrg = ext.api.selectedOrg;
         if (selectedOrg) {
-            return getProjectsByOrg(selectedOrg.id)
+            return projectClient.getProjects(selectedOrg.id)
                 .then((projects) => {
                     return projects.map((proj) => new ChoreoProjectTreeItem(proj, TreeItemCollapsibleState.Collapsed));
                 });

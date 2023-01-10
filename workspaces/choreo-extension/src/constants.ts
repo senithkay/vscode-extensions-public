@@ -17,6 +17,7 @@ export const refreshProjectsListCmdId = 'wso2.choreo.projects.refresh';
 export const cloneComponentCmdId = 'wso2.choreo.component.clone';
 export const cloneAllComponentsCmdId = 'wso2.choreo.project.clone';
 export const createNewProjectCmdId = 'wso2.choreo.project.create';
+export const createNewComponentCmdId = 'wso2.choreo.component.create';
 
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
  
