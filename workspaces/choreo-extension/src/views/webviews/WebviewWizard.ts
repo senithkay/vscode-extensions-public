@@ -20,37 +20,29 @@ export enum WizardTypes {
 }
 
 export class WebviewWizard {
-
   public static currentPanel: WebviewWizard | undefined;
-  private readonly _panel: vscode.WebviewPanel;
+  private _panel: vscode.WebviewPanel | undefined;
   private _disposables: vscode.Disposable[] = [];
   private _rpcHandler: WebViewRpc;
 
-  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, type: WizardTypes) {
-    this._panel = panel;
+  constructor(extensionUri: vscode.Uri, type: WizardTypes) {
+    this._panel = WebviewWizard.createWebview(type);
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
     this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, type);
     this._rpcHandler = new WebViewRpc(this._panel);
   }
 
-  public static render(extensionUri: vscode.Uri, type: WizardTypes) {
-    if (WebviewWizard.currentPanel) {
-      if (WebviewWizard.currentPanel._panel.viewType === type) {
-        WebviewWizard.currentPanel._panel.reveal(vscode.ViewColumn.One);
-        return;
-      }
-      WebviewWizard.currentPanel._panel.dispose();
-    }
-    this.createWebview(extensionUri, type);
-  }
-
-  private static createWebview(extensionUri: vscode.Uri, type: WizardTypes) {
+  private static createWebview(type: WizardTypes): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(type,
       `Create New ${type === WizardTypes.componentCreation ? 'Component' : 'Project'}`, vscode.ViewColumn.One,
       { enableScripts: true }
     );
 
-    WebviewWizard.currentPanel = new WebviewWizard(panel, extensionUri, type);
+    return panel;
+  }
+
+  public getWebview(): vscode.WebviewPanel | undefined {
+    return this._panel;
   }
 
   private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, wizardType: WizardTypes) {
@@ -89,8 +81,7 @@ export class WebviewWizard {
 
   public dispose() {
     WebviewWizard.currentPanel = undefined;
-
-    this._panel.dispose();
+    this._panel?.dispose();
 
     while (this._disposables.length) {
       const disposable = this._disposables.pop();
@@ -98,5 +89,7 @@ export class WebviewWizard {
         disposable.dispose();
       }
     }
+
+    this._panel = undefined;
   }
 }

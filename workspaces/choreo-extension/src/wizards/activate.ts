@@ -15,13 +15,22 @@ import { createNewComponentCmdId, createNewProjectCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 
+let projectWizard: WebviewWizard;
+let componentWizard: WebviewWizard;
+
 export function activateWizards() {
     const createProjectCmd = commands.registerCommand(createNewProjectCmdId, () => {
-        WebviewWizard.render(ext.context.extensionUri, WizardTypes.projectCreation);
+        if (!projectWizard || !projectWizard.getWebview()) {
+            projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation);
+        }
+        projectWizard.getWebview()?.reveal();
     });
 
     const createComponentCmd = commands.registerCommand(createNewComponentCmdId, () => {
-        WebviewWizard.render(ext.context.extensionUri, WizardTypes.componentCreation);
+        if (!componentWizard || !componentWizard.getWebview()) {
+            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation);
+        }
+        componentWizard.getWebview()?.reveal();
     });
 
     ext.context.subscriptions.push(createProjectCmd, createComponentCmd);

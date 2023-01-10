@@ -28,9 +28,15 @@ export function LinkingWidget(props: { service: Service }) {
 
     const { setNewLinkNodes } = useContext(DiagramContext);
 
+    const setNewLinkSource = () => {
+        if (service.serviceType?.includes('/http:')) {
+            setNewLinkNodes({source: service, target: undefined});
+        }
+    }
+
     return (
         <TurnRightIcon
-            onClick={() => { setNewLinkNodes({ source: service, target: undefined }) }}
+            onClick={setNewLinkSource}
             onMouseOver={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{

@@ -23,9 +23,10 @@ import { ServiceNodeModel } from './ServiceNodeModel';
 import { ServiceLinkModel } from '../ServiceLink/ServiceLinkModel';
 import { ServiceHeadWidget } from './ServiceHead/ServiceHead';
 import { FunctionCard } from './FunctionCards/FunctionCard';
+import { ProjectDesignRPC } from '../../../utils/rpc/project-design-rpc';
 import { Level, Views } from '../../../resources';
-import { ServiceNode } from './styles/styles';
 import { DiagramContext } from '../../common';
+import { ServiceNode } from './styles/styles';
 import './styles/styles.css';
 
 interface ServiceNodeWidgetProps {
@@ -40,8 +41,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		newComponentID,
 		setNewComponentID,
 		newLinkNodes,
-		setNewLinkNodes,
-		generateConnectors
+		setNewLinkNodes
 	} = useContext(DiagramContext);
 	const [selectedLinks, setSelectedLinks] = useState<ServiceLinkModel[]>([]);
 	const isNewNode = useRef<boolean>(newComponentID === node.getID());
@@ -76,7 +76,9 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	const setLinkStatus = async () => {
 		if (currentView === Views.L1_SERVICES && newLinkNodes.source && newLinkNodes.source.serviceId !== node.getID()) {
 			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
-			await generateConnectors(newLinkNodes.source, node.serviceObject);
+
+			const rpcInstance = ProjectDesignRPC.getInstance();
+			await rpcInstance.addLink(newLinkNodes.source, node.serviceObject);
 			setNewLinkNodes({ source: undefined, target: undefined });
 		}
 	}
