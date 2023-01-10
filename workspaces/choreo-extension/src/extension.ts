@@ -15,7 +15,7 @@ import * as vscode from 'vscode';
 import { ThemeIcon, window, extensions } from 'vscode';
 
 import { activateAuth } from './auth';
-import { exchangeOrgAccessTokens } from './auth/inbuilt-impl';
+import { exchangeOrgAccessTokens } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneAllComponentsCmd, cloneComponentCmd } from './cmds/clone';
 import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';

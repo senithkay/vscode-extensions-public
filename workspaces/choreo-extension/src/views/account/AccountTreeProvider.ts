@@ -12,13 +12,13 @@
  */
 import { reject } from "lodash";
 import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
-import { getUserInfo } from "../../api/user";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
 import { ChoreoSignInTreeItem } from "./ChoreoSignInTreeItem";
 import { ChoreoSignOutTreeItem } from "./ChoreoSignOutTreeItem";
 import { ChoreoOrgTreeItem } from "./ChoreoOrganizationTreeItem";
 import { ChoreoOrganizationsTreeItem } from "./ChoreoOrganizationsTreeItem";
+import { orgClient } from "../../auth/auth";
 
 export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | ChoreoSignInTreeItem | ChoreoSignInPendingTreeItem;
  
@@ -62,7 +62,7 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
         return new Promise(async (resolve) => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
-                 const userInfo = await getUserInfo();
+                 const userInfo = await orgClient.getUserInfo();
                  if (userInfo.organizations && userInfo.organizations.length > 0) {
                      const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.None));
                      resolve(treeItems);
