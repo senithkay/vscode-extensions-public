@@ -14,10 +14,6 @@ type SecondInput record {
     string st1;
 };
 
-type UpdatedInput record {
-    string st1;
-};
-
 type Output record {
     string st1;
     decimal d1?;
@@ -25,17 +21,20 @@ type Output record {
         string Id;
         boolean Confirmed;
     }[] Items;
+    InnerOutput[] innerOutput;
     string[] stArr;
 };
 
-type UpdatedOutput record {
+type User record {|
+    readonly string id;
+    string name;
+|};
+
+User[] users = [{id: "1234", name: "Keith"}];
+
+type InnerOutput record {
     string st1;
+    int i1;
 };
 
-function unsupportedTransform(Input[]|error? input) returns Output? => {};
-
-function incompleteTransform() => {};
-
-function transform(Input input, SecondInput secondInput) returns Output => {
-    st1: input.st1 + input.st2 + input.st3 + secondInput.st1
-};
+function transform(Input input, SecondInput secondInput) returns Output => {};

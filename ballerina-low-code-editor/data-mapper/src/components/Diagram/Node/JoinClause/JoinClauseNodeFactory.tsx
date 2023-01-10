@@ -26,47 +26,48 @@ import { PrimitiveTypeItemWidget } from '../commons/PrimitiveTypeItemWidget';
 import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordTypeTreeWidget';
 
 import {
-    LetClauseNode,
-    QUERY_EXPR_SOURCE_NODE_TYPE
-} from './LetClauseNode';
+    JoinClauseNode,
+    QUERY_EXPR_JOIN_NODE_TYPE
+} from './JoinClauseNode';
 
 @injectable()
 @singleton()
-export class LetClauseNodeFactory extends AbstractReactFactory<LetClauseNode, DiagramEngine> implements IDataMapperNodeFactory {
+export class JoinClauseNodeFactory extends AbstractReactFactory<JoinClauseNode, DiagramEngine> implements IDataMapperNodeFactory {
     constructor() {
-        super(QUERY_EXPR_SOURCE_NODE_TYPE);
+        super(QUERY_EXPR_JOIN_NODE_TYPE);
     }
 
-    generateReactWidget(event: { model: LetClauseNode; }): JSX.Element {
-        if (event.model.typeDef.typeName === PrimitiveBalType.Record || event.model.typeDef.typeName === PrimitiveBalType.Array){
+    generateReactWidget(event: { model: JoinClauseNode; }): JSX.Element {
+        const id = `${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`;
+
+        const props = {
+            id,
+            engine: this.engine,
+            typeDesc: event.model.typeDef,
+            getPort: (portId: string) => event.model.getPort(portId) as RecordFieldPortModel,
+            valueLabel: event.model.sourceBindingPattern.variableName.value,
+            nodeHeaderSuffix: event.model.value.outerKeyword ? "Outer join" : "Join"
+        }
+        if ([PrimitiveBalType.Array, PrimitiveBalType.Record, PrimitiveBalType.Union].includes(event.model.typeDef.typeName as PrimitiveBalType)) {
+            if (event.model.isOptional) {
+                props.id = `${id}?`
+            }
             return (
                 <RecordTypeTreeWidget
-                    engine={this.engine}
-                    id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`}
-                    typeDesc={event.model.typeDef}
-                    getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                    {...props}
                     handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-                    valueLabel={event.model.sourceBindingPattern.variableName.value}
-                    nodeHeaderSuffix='Let'
                 />
             );
         }
 
         return (
-            <PrimitiveTypeItemWidget
-                engine={this.engine}
-                id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`}
-                typeDesc={event.model.typeDef}
-                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                valueLabel={event.model.sourceBindingPattern.variableName.value}
-                nodeHeaderSuffix='Let'
-            />
+            <PrimitiveTypeItemWidget {...props} />
         )
     }
 
-    generateModel(): LetClauseNode {
+    generateModel(): JoinClauseNode {
         return undefined;
     }
 }
 
-container.register("NodeFactory", {useClass: LetClauseNodeFactory});
+container.register("NodeFactory", { useClass: JoinClauseNodeFactory });

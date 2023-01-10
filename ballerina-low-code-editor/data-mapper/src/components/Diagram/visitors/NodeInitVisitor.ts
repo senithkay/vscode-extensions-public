@@ -15,6 +15,7 @@ import {
     CaptureBindingPattern,
     ExpressionFunctionBody,
     FunctionDefinition,
+    JoinClause,
     LetClause,
     LetVarDecl,
     ListConstructor,
@@ -40,6 +41,7 @@ import {
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
+import { JoinClauseNode } from "../Node/JoinClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
@@ -275,25 +277,36 @@ export class NodeInitVisitor implements Visitor {
                 expandedHeaderPorts.push(fromClausePort);
                 fromClauseNode.addPort(fromClausePort);
 
-                const letClauses = node.queryPipeline.intermediateClauses?.filter(
-                    (item) =>
-                        STKindChecker.isLetClause(item) &&
-                        ((item.letVarDeclarations[0] as LetVarDecl)?.expression as SimpleNameReference)?.name?.value !==
-                        "EXPRESSION"
-                );
+                const letClauses = node.queryPipeline.intermediateClauses?.filter((item) => {
+                    return (
+                        (STKindChecker.isLetClause(item) && item.typeData?.diagnostics?.length === 0) ||
+                        (STKindChecker.isJoinClause(item) && item.typeData?.diagnostics?.length === 0)
+                    );
+                });
 
                 for (const [, item] of letClauses.entries()) {
-                    const paramNode = new LetClauseNode(this.context, item as LetClause);
-                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
-                    this.inputNodes.push(paramNode);
+                    if (STKindChecker.isLetClause(item)) {
+                        const paramNode = new LetClauseNode(this.context, item as LetClause);
+                        paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
+                        this.inputNodes.push(paramNode);
 
-                    const letClauseValueLabel = (
-                        ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
-                            ?.bindingPattern as CaptureBindingPattern
-                    )?.variableName?.value;
-                    const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
-                    expandedHeaderPorts.push(letClausePort);
-                    paramNode.addPort(letClausePort);
+                        const letClauseValueLabel = (
+                            ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
+                                ?.bindingPattern as CaptureBindingPattern
+                        )?.variableName?.value;
+                        const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
+                        expandedHeaderPorts.push(letClausePort);
+                        paramNode.addPort(letClausePort);
+                    } else if (STKindChecker.isJoinClause(item)) {
+                        const paramNode = new JoinClauseNode(this.context, item as JoinClause);
+                        paramNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
+                        this.inputNodes.push(paramNode);
+
+                        const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
+                        const joinClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
+                        expandedHeaderPorts.push(joinClausePort);
+                        paramNode.addPort(joinClausePort);
+                    }
                 }
 
                 const queryNode = new ExpandedMappingHeaderNode(this.context, node);
@@ -389,8 +402,7 @@ export class NodeInitVisitor implements Visitor {
     beginVisitSelectClause(node: SelectClause, parent?: STNode): void {
         if (this.isWithinQuery === 0
             && !STKindChecker.isMappingConstructor(node.expression)
-            && !STKindChecker.isListConstructor(node.expression))
-        {
+            && !STKindChecker.isListConstructor(node.expression)) {
             const inputNodes = getInputNodes(node.expression);
             if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(

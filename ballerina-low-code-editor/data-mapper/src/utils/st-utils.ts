@@ -1,4 +1,4 @@
-import {LetExpression, NodePosition, STKindChecker, STNode} from "@wso2-enterprise/syntax-tree";
+import { CaptureBindingPattern, LetExpression, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 export function isObject(item: unknown) {
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
@@ -13,20 +13,25 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
 
 export function genLetClauseVariableName(intermediateClauses: (STNode)[]): string {
     const baseName = 'variable';
-    let varName = baseName;
     let index = 0;
+    const allVariableNames: string[] = []
 
     for (const clause of intermediateClauses) {
         if (STKindChecker.isLetClause(clause)) {
             for (const item of clause.letVarDeclarations) {
-                if (STKindChecker.isLetVarDecl(item) && item.typedBindingPattern.bindingPattern.source.trim() === varName) {
-                    index++;
-                    varName = baseName + index.toString();
+                if (STKindChecker.isLetVarDecl(item)) {
+                    allVariableNames.push(item.typedBindingPattern.bindingPattern.source.trim())
                 }
             }
+        }else if (STKindChecker.isJoinClause(clause)){
+            allVariableNames.push((clause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value)
         }
     }
-    return varName;
+    while (allVariableNames.includes(`${baseName}${index ? index : ""}`)){
+        index++;
+    }
+
+    return `${baseName}${index ? index : ""}`;
 }
 
 export function genLetExpressionVariableName(letExpressions: LetExpression[]): string {

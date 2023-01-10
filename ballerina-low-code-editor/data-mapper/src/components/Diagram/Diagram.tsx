@@ -36,6 +36,7 @@ import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { FromClauseNode } from './Node/FromClause';
+import { JoinClauseNode } from './Node/JoinClause';
 import { LetClauseNode } from './Node/LetClause';
 import { LetExpressionNode } from "./Node/LetExpression";
 import { LinkConnectorNode } from './Node/LinkConnector';
@@ -201,6 +202,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				}
 				if (node instanceof RequiredParamNode
 					|| node instanceof LetClauseNode
+					|| node instanceof JoinClauseNode
 					|| node instanceof LetExpressionNode
 					|| node instanceof ModuleVariableNode)
 				{
