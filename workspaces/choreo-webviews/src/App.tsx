@@ -11,6 +11,8 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
+import { ChoreoWebViewsProps } from ".";
+import { ComponentWizard } from "./ComponentWizard/ComponentWizard";
 import { ChoreoWebViewContext } from "./context/choreo-web-view-ctx";
 import { usePopulateContext } from "./hooks/context-populate";
 import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
@@ -23,15 +25,17 @@ export const Main = styled.main`
   height: 100vh;
 `;
 
-function App() {
+function App(props: ChoreoWebViewsProps) {
 
   const contextVal = usePopulateContext();
 
   return (
     <Main>
       <ChoreoWebViewContext.Provider value={contextVal}>
-        {/* TODO retrive props and switch rendered component */}
-        <ProjectWizard />
+        {props.type === 'ProjectCreateForm' ? 
+          <ProjectWizard /> :
+          <ComponentWizard />
+        }
       </ChoreoWebViewContext.Provider>
     </Main>
   );
