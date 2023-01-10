@@ -16,9 +16,8 @@ import { BROADCAST } from 'vscode-messenger-common';
 import { GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification  } from "@wso2-enterprise/choreo-core";
-import { getProjectsByOrg } from "../../../api/queries";
 import { ext } from "../../../extensionVariables";
-import { orgClient } from "../../../auth/auth";
+import { orgClient, projectClient } from "../../../auth/auth";
 
 export class WebViewRpc {
 
@@ -42,7 +41,7 @@ export class WebViewRpc {
         });
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
-                return getProjectsByOrg(ext.api.selectedOrg.id);
+                return projectClient.getProjects(ext.api.selectedOrg.id);
             } 
         });
         ext.api.onStatusChanged((newStatus) => {
