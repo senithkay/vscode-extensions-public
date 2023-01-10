@@ -30,10 +30,6 @@ export interface ChoreoAccessToken {
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
     waitForLogin(): Promise<boolean>;
-    getChoreoToken(tokenKey: string): Promise<ChoreoAccessToken|undefined>;
-    choreoTokenKey: string;
-    choreoApimTokenKey: string;
-    choreoVscodeTokenKey: string;
 }
 
 export async function getChoreoExtAPI(): Promise<IChoreoExtensionAPI | undefined> {
