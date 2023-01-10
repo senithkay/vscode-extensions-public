@@ -18,6 +18,7 @@ import {
     DocumentSymbol,
     DocumentSymbolParams,
     SymbolInformation,
+    TextDocumentPositionParams,
 } from "vscode-languageserver-protocol";
 
 import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from ".";
@@ -152,6 +153,9 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     ) => Thenable<JsonToRecordResponse>;
     getSTForFunction: (
         params: BallerinaFunctionSTRequest
+    ) => Thenable<BallerinaSTModifyResponse>;
+    getDefinitionPosition: (
+        params: TextDocumentPositionParams
     ) => Thenable<BallerinaSTModifyResponse>;
     getDiagnostics: (
         params: BallerinaProjectParams

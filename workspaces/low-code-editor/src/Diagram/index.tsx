@@ -27,6 +27,7 @@ import { ConnectorWizard } from "./components/FormComponents/ConfigForms/Connect
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
+import { ServiceDesignOverlay } from "./components/ServiceDesignOverlay";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
@@ -88,6 +89,7 @@ export function Diagram() {
     const [isPlusWidgetActive, setIsPlusWidgetActive] = useState(false);
 
     let isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
+    const isServiceDesignOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "ServiceDesign";
 
     // React.useEffect(() => {
     //     setIsErrorStateDialogOpen(diagramErrors);
@@ -393,12 +395,17 @@ export function Diagram() {
                             }
                         }}
                     />
-                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && (
+                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && !isServiceDesignOpen && (
                         <FormGenerator {...formConfig} />
                     )}
                     {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
                         <DataMapperOverlay
                             {...dataMapperArgs}
+                        />
+                    )}
+                    {isFormOpen && isServiceDesignOpen && !isConnectorConfigWizardOpen && (
+                        <ServiceDesignOverlay
+                            {...formConfig}
                         />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (
