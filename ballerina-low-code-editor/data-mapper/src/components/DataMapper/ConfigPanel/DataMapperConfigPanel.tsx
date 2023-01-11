@@ -219,11 +219,6 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         }
     }, [fnST]);
 
-    useEffect(() => {
-        if (outputType.type) {
-            setShowOutputType(true);
-        }
-    }, [outputType]);
 
     useEffect(() => {
         void (async () => {
@@ -280,7 +275,6 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     // For Output Value
     const handleShowRecordEditor = () => {
         enableAddNewRecord();
-        handleShowOutputType();
         setNewRecordBy("output");
     };
 

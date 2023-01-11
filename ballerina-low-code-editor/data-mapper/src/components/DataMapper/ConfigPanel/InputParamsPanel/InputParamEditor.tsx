@@ -140,7 +140,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
                         />
                         <PrimaryButton
                             text={onUpdate ? "Update" : " Add"}
-                            disabled={!paramName || !paramType || pramError !== "" || !isValidParam}
+                            disabled={(!hideName && !paramName) || !paramType || pramError !== "" || !isValidParam}
                             fullWidth={false}
                             onClick={onUpdate ? handleOnUpdate : handleOnSave}
                         />
