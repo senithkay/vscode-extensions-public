@@ -65,7 +65,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 <ActionContainer>
                     <VSCodeButton appearance="secondary">Open Local Copy</VSCodeButton>
                     <VSCodeButton appearance="secondary">Open in Choreo Console</VSCodeButton>
-                    <VSCodeButton appearance="primary" click={rpcInstance.}>Clone Project</VSCodeButton>
+                    <VSCodeButton appearance="primary">Clone Project</VSCodeButton>
                 </ActionContainer>
                 <h2>Components</h2>
                 <VSCodeDataGrid aria-label="Components">
