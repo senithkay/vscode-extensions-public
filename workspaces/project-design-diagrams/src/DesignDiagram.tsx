@@ -1,0 +1,115 @@
+/**
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+import React, { useEffect, useRef, useState } from 'react';
+import { DiagramModel } from '@projectstorm/react-diagrams';
+import CircularProgress from '@mui/material/CircularProgress';
+import styled from '@emotion/styled';
+import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
+import { Colors, ComponentModel, Location, Views } from './resources';
+import { createRenderPackageObject, generateCompositionModel } from './utils';
+import { ProjectDesignRPC } from './utils/rpc/project-design-rpc';
+import { AddButton, EditForm } from './editing';
+
+import './resources/assets/font/fonts.css';
+
+const Container = styled.div`
+    align-items: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    font-family: GilmerRegular;
+    justify-content: center;
+    min-height: 100vh;
+    min-width: 100vw;
+`;
+
+interface DiagramProps {
+    editingEnabled?: boolean;
+    go2source: (location: Location) => void;
+}
+
+export function DesignDiagram(props: DiagramProps) {
+    const { go2source, editingEnabled = true } = props;
+
+    const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
+    const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
+    const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
+    const [showEditForm, setShowEditForm] = useState(false);
+    const defaultOrg = useRef<string>('');
+    const previousScreen = useRef<Views>(undefined);
+    const typeCompositionModel = useRef<DiagramModel>(undefined);
+
+    useEffect(() => {
+        refreshDiagramResources();
+    }, [props])
+
+    const getTypeComposition = (typeID: string) => {
+        previousScreen.current = currentView;
+        typeCompositionModel.current = generateCompositionModel(projectComponents, typeID);
+        setCurrentView(Views.TYPE_COMPOSITION);
+    }
+
+    const refreshDiagramResources = () => {
+        const rpcInstance = ProjectDesignRPC.getInstance();
+        rpcInstance.fetchComponentModels().then((response) => {
+            const components: Map<string, ComponentModel> = new Map(Object.entries(response));
+            if (components && components.size > 0) {
+                defaultOrg.current = [...components][0][1].packageId.org;
+            }
+            setProjectPkgs(createRenderPackageObject(components.keys()));
+            setProjectComponents(components);
+        })
+    }
+
+    const onComponentAddClick = () => {
+        setShowEditForm(true);
+    }
+
+    return (
+        <DesignDiagramContext {...{ getTypeComposition, currentView, go2source, editingEnabled }}>
+            <Container>
+                {currentView && projectPkgs ?
+                    <>
+                        {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
+                        {showEditForm &&
+                            <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
+                        <DiagramHeader
+                            currentView={currentView}
+                            prevView={previousScreen.current}
+                            projectPackages={projectPkgs}
+                            switchView={setCurrentView}
+                            updateProjectPkgs={setProjectPkgs}
+                            onRefresh={refreshDiagramResources}
+                        />
+                        {projectComponents &&
+                            <DiagramContainer
+                                currentView={currentView}
+                                workspacePackages={projectPkgs}
+                                workspaceComponents={projectComponents}
+                                typeCompositionModel={typeCompositionModel.current}
+                            />
+                        }
+                    </> :
+                    <CircularProgress sx={{ color: Colors.PRIMARY }} />
+                }
+            </Container>
+        </DesignDiagramContext>
+    );
+}

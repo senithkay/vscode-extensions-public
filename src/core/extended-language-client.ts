@@ -20,23 +20,24 @@
 import { ClientCapabilities, LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
 import { CodeAction, CodeActionParams, DocumentSymbol, DocumentSymbolParams, ExecuteCommandParams, RenameParams, SymbolInformation, WorkspaceEdit } from "monaco-languageclient";
 import {
-    DidOpenParams, DidCloseParams, DidChangeParams, GetSyntaxTreeParams, GetSyntaxTreeResponse,
+    GetSyntaxTreeParams, GetSyntaxTreeResponse,
     BallerinaConnectorsResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaRecordRequest,
     BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, TriggerModifyRequest,
-    PublishDiagnosticsParams,
     BallerinaProjectParams,
     CompletionParams,
     CompletionResponse,
     ExpressionTypeRequest,
     ExpressionTypeResponse,
-} from "@wso2-enterprise/ballerina-low-code-editor-distribution";
+} from "@wso2-enterprise/ballerina-languageclient";
 import {
     BallerinaConnectorsRequest,
     BallerinaTriggerRequest,
     BallerinaTriggerResponse,
     BallerinaTriggersRequest,
     BallerinaTriggersResponse,
-    FormField
+    FormField,
+    PublishDiagnosticsParams,
+    DidOpenParams, DidCloseParams, DidChangeParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
 import { showChoreoPushMessage } from "../editor-support/git-status";
@@ -86,6 +87,7 @@ enum EXTENDED_APIS {
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
     SYMBOL_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
     SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
+    SYMBOL_TYPES_FROM_FN_SIGNATURE = 'ballerinaSymbol/getTypesFromFnDefinition',
     COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
     DOCUMENT_ST_FUNCTION = 'ballerinaDocument/syntaxTreeByName'
 }
@@ -268,7 +270,7 @@ export interface Position {
 }
 
 export interface GetPackageComponentModelsRequest {
-    documentUris: string[]
+    documentUris: string[];
 }
 
 export interface GetPackageComponentModelsResponse {
@@ -381,31 +383,31 @@ export interface APITimeConsumption {
 export interface SymbolInfoRequest {
     textDocumentIdentifier: {
         uri: string;
-    },
+    };
     position: {
         line: number;
         character: number;
-    }
+    };
 }
 
 export interface ParameterInfo {
-    name: string,
-    description: string,
-    kind: string,
-    type: string
+    name: string;
+    description: string;
+    kind: string;
+    type: string;
 }
 
 export interface SymbolDocumentation {
-    description: string,
-    parameters?: ParameterInfo[],
-    returnValueDescription?: string,
-    deprecatedDocumentation?: string,
-    deprecatedParams?: ParameterInfo[]
+    description: string;
+    parameters?: ParameterInfo[];
+    returnValueDescription?: string;
+    deprecatedDocumentation?: string;
+    deprecatedParams?: ParameterInfo[];
 }
 
 export interface SymbolInfoResponse {
-    symbolKind: string,
-    documentation: SymbolDocumentation
+    symbolKind: string;
+    documentation: SymbolDocumentation;
 }
 
 export interface ExpressionRange {
@@ -437,6 +439,14 @@ export interface TypeFromSymbolRequest {
     positions: LinePosition[];
 }
 
+export interface TypesFromFnDefinitionRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+    fnPosition: LinePosition;
+    returnTypeDescPosition: LinePosition;
+}
+
 export interface ResolvedTypeForSymbol {
     type: FormField;
     requestedPosition: LinePosition;
@@ -448,7 +458,7 @@ export interface TypesFromSymbolResponse {
 
 interface NOT_SUPPORTED_TYPE {
 
-};
+}
 
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
@@ -549,7 +559,7 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
     async getConnector(params: BallerinaConnectorRequest): Promise<BallerinaConnectorResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR)
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR);
         return isSupported ? this.sendRequest<BallerinaConnectorResponse>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
@@ -576,13 +586,13 @@ export class ExtendedLangClient extends LanguageClient {
                 showChoreoSigninMessage(this.ballerinaExtInstance);
             }
         }
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY)
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
     async getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_FUNCTION)
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_FUNCTION);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
@@ -610,6 +620,13 @@ export class ExtendedLangClient extends LanguageClient {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL);
         return isSupported
             ? this.sendRequest<TypesFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPE_FROM_SYMBOL, params)
+            : Promise.resolve(null);
+    }
+
+    async getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Promise<TypesFromSymbolResponse | null> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPES_FROM_FN_SIGNATURE);
+        return isSupported
+            ? this.sendRequest<TypesFromSymbolResponse>(EXTENDED_APIS.SYMBOL_TYPES_FROM_FN_SIGNATURE, params)
             : Promise.resolve(null);
     }
 
@@ -804,7 +821,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.PACKAGE, components: true, metadata: true, configSchema: true },
                 {
                     name: EXTENDED_APIS_ORG.SYMBOL, type: true, getSymbol: true,
-                    getTypeFromExpression: true, getTypeFromSymbol: true
+                    getTypeFromExpression: true, getTypeFromSymbol: true, getTypesFromFnDefinition: true
                 },
                 {
                     name: EXTENDED_APIS_ORG.CONNECTOR, connectors: true, connector: true, record: true

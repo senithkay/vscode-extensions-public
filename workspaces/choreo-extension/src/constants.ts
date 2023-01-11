@@ -1,0 +1,27 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * 
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
+ */
+export const choreoSignInCmdId = 'wso2.choreo.sign.in';
+export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
+export const setSelectedOrgCmdId = 'wso2.choreo.org.setAsSelected';
+export const refreshProjectsListCmdId = 'wso2.choreo.projects.refresh';
+export const cloneComponentCmdId = 'wso2.choreo.component.clone';
+export const cloneAllComponentsCmdId = 'wso2.choreo.project.clone';
+export const createNewProjectCmdId = 'wso2.choreo.project.create';
+export const createNewComponentCmdId = 'wso2.choreo.component.create';
+export const choreoProjectOverview = 'wso2.choreo.project.overview';
+export const choreoSignedInCtxKey = 'isSignedInToChoreo';
+
+// views
+export const choreoProjectsTreeId = 'choreo-projects';
+export const choreoAccountTreeId = 'choreo-account';
+

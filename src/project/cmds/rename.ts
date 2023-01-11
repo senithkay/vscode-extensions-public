@@ -37,7 +37,7 @@ function activateRenameCommand() {
         } catch (error) {
             // do nothing.
         }
-    })
+    });
 }
 
 export { activateRenameCommand };

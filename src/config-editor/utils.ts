@@ -218,7 +218,7 @@ function getConfigJsonValue(element: ConfigValue) {
             valueList.forEach((entry: any) => {
                 arrayValue = arrayValue.concat(entry + ", ");
             });
-            returnValue = arrayValue.slice(0, -2).concat("]")
+            returnValue = arrayValue.slice(0, -2).concat("]");
         } else {
             returnValue = JSON.stringify(valueList);
         }

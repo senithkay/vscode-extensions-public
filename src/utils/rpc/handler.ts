@@ -353,6 +353,17 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             });
         }
     }, {
+        methodName: 'getTypesFromFnDefinition',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.onReady().then(() => {
+                return langClient.getTypesFromFnDefinition(args[0]).then(result => {
+                    consoleLog(start, 'getTypesFromFnDefinition');
+                    return Promise.resolve(result);
+                });
+            });
+        }
+    }, {
         methodName: 'rename',
         handler: (args: any[]) => {
             const start = new Date().getTime();
