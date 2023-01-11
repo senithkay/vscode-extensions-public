@@ -13,9 +13,11 @@
 
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { Project } from "@wso2-enterprise/choreo-core";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -34,15 +36,36 @@ export interface ProjectOverviewProps {
 }
 
 export function ProjectOverview(props: ProjectOverviewProps) {
+    const [project, setProject] = useState<Project | undefined>(undefined);
+    const projectId = props.projectId ? props.projectId : '';
+
+    const rpcInstance = ChoreoWebViewAPI.getInstance();
+    // Set the starting project with the project id passed by props
+    useEffect(() => {
+        rpcInstance.getAllProjects().then((fetchedProjects) => {
+            setProject(fetchedProjects.find((i) => { return i.id === projectId }));
+        });
+    }, []);
+
+    // Listen to changes in project selection
+    useEffect(() => {
+        rpcInstance.onSelectedProjectChanged((newProjectId) => {
+            rpcInstance.getAllProjects().then((fetchedProjects) => {
+                setProject(fetchedProjects.find((i) => { return i.id === newProjectId }));
+            })
+        });
+    }, []);
+
+
     return (
         <>
             <WizardContainer>
-                <h1>{props.projectId}</h1>
+                <h1>{project?.name}</h1>
                 <p>Unable to find a local copy of the project. You can clone the project to your local machine and edit.</p>
                 <ActionContainer>
                     <VSCodeButton appearance="secondary">Open Local Copy</VSCodeButton>
                     <VSCodeButton appearance="secondary">Open in Choreo Console</VSCodeButton>
-                    <VSCodeButton appearance="primary">Clone Project</VSCodeButton>
+                    <VSCodeButton appearance="primary" click={rpcInstance.}>Clone Project</VSCodeButton>
                 </ActionContainer>
                 <h2>Components</h2>
                 <VSCodeDataGrid aria-label="Components">

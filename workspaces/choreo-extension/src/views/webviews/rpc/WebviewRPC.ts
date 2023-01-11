@@ -20,7 +20,7 @@ import {
     SelectedProjectChangedNotification,
     Project
 } from "@wso2-enterprise/choreo-core";
-import { registerChoreoProjectRPCHandlers} from "@wso2-enterprise/choreo-client";
+import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { ext } from "../../../extensionVariables";
 import { orgClient, projectClient } from "../../../auth/auth";
 
@@ -29,7 +29,7 @@ export class WebViewRpc {
     private _messenger = new Messenger();
 
     constructor(view: WebviewPanel) {
-        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged'] });
+        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged'] });
 
         this._messenger.onRequest(GetLoginStatusRequest, () => {
             return ext.api.status;
@@ -56,8 +56,8 @@ export class WebViewRpc {
         ext.api.onOrganizationChanged((newOrg) => {
             this._messenger.sendNotification(SelectedOrgChangedNotification, BROADCAST, newOrg);
         });
-        ext.api.onChoreoProjectChanged((newProject) => {
-            this._messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, newProject?.id);
+        ext.api.onChoreoProjectChanged((projectId) => {
+            this._messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, projectId);
         });
         this._messenger.onNotification(ExecuteCommandNotification, (args: string[]) => {
             if (args.length >= 1) {

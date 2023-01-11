@@ -39,6 +39,7 @@ export function activateWizards() {
 
     // Register Project Overview Wizard
     const projectOverview = commands.registerCommand(choreoProjectOverview, (project: Project) => {
+        ext.api.selectedProjectId = project.id;
         ProjectOverview.render(ext.context.extensionUri, project);
     });
 

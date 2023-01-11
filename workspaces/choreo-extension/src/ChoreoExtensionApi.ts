@@ -27,7 +27,7 @@ export class ChoreoExtensionApi {
 
     private _status: ChoreoLoginStatus;
     private _selectedOrg: Organization | undefined;
-    private _selectedProject: Project | undefined;
+    private _selectedProjectId: string | undefined;
 
     private _onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
     public onStatusChanged = this._onStatusChanged.event;
@@ -36,7 +36,7 @@ export class ChoreoExtensionApi {
     private _onOrganizationChanged = new EventEmitter<Organization | undefined>();
     public onOrganizationChanged = this._onOrganizationChanged.event;
 
-    private _onChoreoProjectChanged = new EventEmitter<Project | undefined>();
+    private _onChoreoProjectChanged = new EventEmitter<string | undefined>();
     public onChoreoProjectChanged = this._onChoreoProjectChanged.event;
 
     constructor() {
@@ -60,9 +60,9 @@ export class ChoreoExtensionApi {
         this._onOrganizationChanged.fire(selectedOrg);
     }
 
-    public set selectedProject(selectedProject: Project | undefined) {
-        this._selectedProject = selectedProject;
-        this._onChoreoProjectChanged.fire(selectedProject);
+    public set selectedProjectId(selectedProjectId: string) {
+        this._selectedProjectId = selectedProjectId;
+        this._onChoreoProjectChanged.fire(selectedProjectId);
     }
 
     public async signIn(authCode: string): Promise<void> {

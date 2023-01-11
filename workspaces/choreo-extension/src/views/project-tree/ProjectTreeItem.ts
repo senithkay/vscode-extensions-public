@@ -28,7 +28,7 @@ export class ChoreoProjectTreeItem extends TreeItem {
     this.command = {
       command: choreoProjectOverview,
       title: 'Open project Overview',
-      arguments: [ project ]
+      arguments: [project]
     };
   }
 
