@@ -1,6 +1,8 @@
+import { monaco } from "react-monaco-editor";
+
 import { CommandResponse, DiagramDiagnostic, DIAGRAM_MODIFIED, FunctionDef, getImportStatements, InsertorDelete, LowcodeEvent, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import { monaco } from "react-monaco-editor";
+
 import { STFindingVisitor } from "../../Diagram/visitors/st-finder-visitor";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
 import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isUnresolvedModulesAvailable } from "../../DiagramGenerator/generatorUtil";

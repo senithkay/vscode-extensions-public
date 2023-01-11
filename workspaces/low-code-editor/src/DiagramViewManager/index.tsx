@@ -13,10 +13,12 @@
 import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 
+import { MuiThemeProvider } from "@material-ui/core";
 import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { Diagram } from "../Diagram";
+import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
 import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 import {
     getLowcodeST,
@@ -30,11 +32,9 @@ import { ComponentViewInfo, generateFileLocation } from "../OverviewDiagram/util
 import { DiagramFocusActionTypes, useDiagramFocus } from "./hooks/diagram-focus";
 import { useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
-import { getDiagramProviderProps } from "./utils";
-import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
-import { MuiThemeProvider } from "@material-ui/core";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
+import { getDiagramProviderProps } from "./utils";
 
 
 /**
@@ -80,7 +80,6 @@ export function DiagramViewManager(props: EditorProps) {
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
 
-    console.log('>>> last updated at', lastUpdatedAt);
 
     React.useEffect(() => {
         (async () => {
@@ -96,7 +95,6 @@ export function DiagramViewManager(props: EditorProps) {
     }, []);
 
     useEffect(() => {
-        console.log('history >>>', history);
         if (history.length > 0) {
             const {
                 moduleName, folderPath, filePath, startColumn, startLine, endColumn, endLine
@@ -122,7 +120,6 @@ export function DiagramViewManager(props: EditorProps) {
         if (diagramFocusState) {
             const { filePath, position } = diagramFocusState;
 
-            console.log('>>> useEffect', diagramFocusState);
 
             (async () => {
                 try {
@@ -153,7 +150,6 @@ export function DiagramViewManager(props: EditorProps) {
         }
     }
     useEffect(() => {
-        console.log('last updated at effect >>>');
         fetchST();
     }, [lastUpdatedAt]);
 
@@ -189,7 +185,6 @@ export function DiagramViewManager(props: EditorProps) {
             />
         ));
     } else if (!!diagramFocusState && !!focusedST) {
-        console.log('>>> rendering component');
         if (STKindChecker.isServiceDeclaration(focusedST)) {
             viewComponent.push((
                 <div>service designer</div>
@@ -197,11 +192,7 @@ export function DiagramViewManager(props: EditorProps) {
         } else if (STKindChecker.isFunctionDefinition(focusedST) && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
             viewComponent.push((
                 <DataMapperOverlay
-                    targetPosition={{
-                        ...focusedST.position,
-                        startColumn: 0,
-                        endColumn: 0
-                    }}
+                    targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
                     model={focusedST}
                     ballerinaVersion={balVersion}
                     onCancel={handleNavigationHome}

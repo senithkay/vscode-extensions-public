@@ -100,7 +100,6 @@ function renderDiagram(
     const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
-            console.log('window langclient >>>', window.langclient)
             function getFileContent(url) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -366,7 +365,6 @@ function renderDiagram(
                 })
             }
             webViewRPCHandler.addMethod("updateDiagram", (args) => {
-                console.log('update diagram webview rpc >>>', args);
                 drawDiagram({
                     filePath: args[0].filePath,
                     startLine: args[0].startLine,

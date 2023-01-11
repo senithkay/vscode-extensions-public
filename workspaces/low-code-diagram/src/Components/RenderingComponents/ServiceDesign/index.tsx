@@ -40,7 +40,6 @@ export function ServiceDesign(props: ServiceDesignProps) {
     const intl = useIntl();
 
     // useEffect(() => {
-    //     console.log('service model >>>', model)
     //     const cc: JSX.Element[] = [];
     //     model.members.forEach((member) => {
     //         const startPosition = member.position?.startLine + ":" + member.position?.startColumn;

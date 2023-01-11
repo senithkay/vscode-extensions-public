@@ -118,7 +118,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 		startColumn,
 		isDiagram: true,
 		diagramFocus: filePath && filePath.length !== 0 && openInDiagram ?
-			{ fileUri: Uri.file(filePath), position: openInDiagram } : undefined
+			{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined
 	};
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
@@ -201,7 +201,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path) => {
 		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
-			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, position);
+			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, position, path);
 		} else {
 			const args = [{
 				filePath: path,
@@ -209,7 +209,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				startColumn: 0,
 				openInDiagram: position
 			}];
-			console.log('hello update diagram >>>', args);
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 		}
 	});
@@ -217,10 +216,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	const diagramRenderDisposable = commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (...args: any[]) => {
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
-		console.log('>>> showdiagram command args', args);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : undefined);
+				showDiagramEditor(0, 0, args.length > 1 ? args[1] : '', true, args.length > 0 ? args[0] : undefined);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();

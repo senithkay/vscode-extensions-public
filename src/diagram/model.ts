@@ -26,7 +26,7 @@ export enum ViewMode {
 }
 
 export interface DiagramFocus {
-    fileUri: Uri;
+    fileUri: string;
     position: NodePosition;
 }
 

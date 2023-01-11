@@ -14,11 +14,11 @@ import React, { useEffect, useState } from "react";
 
 import { BallerinaProjectComponents, ComponentInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { useDiagramContext } from "../Contexts/Diagram";
 import { WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 
 import * as Views from './components/ViewTypes';
 import './style.scss';
-import { useDiagramContext } from "../Contexts/Diagram";
 
 export const DEFAULT_MODULE_NAME = 'default';
 

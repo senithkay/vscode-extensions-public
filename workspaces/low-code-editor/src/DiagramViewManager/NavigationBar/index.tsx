@@ -10,8 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ArrowLeft, Home } from "@material-ui/icons";
 import React from "react";
+
+import { ArrowLeft, Home } from "@material-ui/icons";
+
 import { DEFAULT_MODULE_NAME } from "../../OverviewDiagram";
 import { ComponentViewInfo, generateFileLocation } from "../../OverviewDiagram/util";
 
