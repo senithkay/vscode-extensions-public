@@ -63,6 +63,11 @@
         "command": "wso2.choreo.projects.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "wso2.choreo.project.overview",
+        "title": "Project Overview",
+        "category": "Choreo"
       }
     ],
     "viewsContainers": {

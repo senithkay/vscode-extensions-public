@@ -28,10 +28,10 @@ import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 import { activateWizards } from './wizards/activate';
 
 export function activateBallerinaExtension() {
-    const ext = extensions.getExtension("wso2.ballerina");
-    if (ext && !ext.isActive) {
-        ext.activate();
-    }
+	const ext = extensions.getExtension("wso2.ballerina");
+	if (ext && !ext.isActive) {
+		ext.activate();
+	}
 }
 
 export function activate(context: vscode.ExtensionContext) {

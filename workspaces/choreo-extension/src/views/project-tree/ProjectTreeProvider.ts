@@ -42,8 +42,6 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
         if (ext.api.status === "LoggedIn") {
             if (!element) {
                 return this.loadProjects();
-            } else if (element instanceof ChoreoProjectTreeItem) {
-                return this.loadComponents(element.project);
             }
         } else if (ext.api.status === "LoggingIn") {
             return [new ChoreoSignInPendingTreeItem()];
@@ -68,7 +66,7 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
         if (selectedOrg) {
             return projectClient.getProjects({ orgId: selectedOrg.id })
                 .then((projects) => {
-                    return projects.map((proj) => new ChoreoProjectTreeItem(proj, TreeItemCollapsibleState.Collapsed));
+                    return projects.map((proj) => new ChoreoProjectTreeItem(proj));
                 });
         } else {
             throw Error("Selected organization is not set.");

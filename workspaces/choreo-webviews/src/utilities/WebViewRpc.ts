@@ -17,7 +17,7 @@ import {
     GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    ChoreoLoginStatus,
+    ChoreoLoginStatus, SelectedProjectChangedNotification,
     Organization, Project
 } from "@wso2-enterprise/choreo-core";
 
@@ -59,6 +59,10 @@ export class ChoreoWebViewAPI {
 
     public onSelectedOrgChanged(callback: (newOrg: Organization) => void) {
         this._messenger.onNotification(SelectedOrgChangedNotification, callback);
+    }
+
+    public onSelectedProjectChanged(callback: (projectId: string) => void) {
+        this._messenger.onNotification(SelectedProjectChangedNotification, callback);
     }
 
     public triggerSignIn() {

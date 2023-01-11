@@ -15,13 +15,14 @@ import ReactDOM from "react-dom";
 import App from "./App";
 
 export interface ChoreoWebViewsProps {
-    type: "ProjectOverView" | "ComponentCreateForm" | "ProjectCreateForm";
+  type: "ProjectOverview" | "ComponentCreateForm" | "ProjectCreateForm";
+  projectId?: string;
 }
 
 (window as any).renderChoreoWebViews = (props: ChoreoWebViewsProps) => {
   ReactDOM.render(
     <React.StrictMode>
-      <App type={props.type} /> 
+      <App {...props} />
     </React.StrictMode>,
     document.getElementById("root")
   );
