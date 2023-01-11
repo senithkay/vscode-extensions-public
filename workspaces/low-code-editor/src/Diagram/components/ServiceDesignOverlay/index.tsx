@@ -38,7 +38,6 @@ export interface ServiceDesignProps {
   model?: STNode;
   targetPosition?: NodePosition;
   onCancel?: () => void;
-  configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function ServiceDesignOverlay(props: ServiceDesignProps) {

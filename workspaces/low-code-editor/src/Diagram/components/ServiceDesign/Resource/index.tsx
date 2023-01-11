@@ -38,7 +38,6 @@ export interface ResourceBodyProps {
 export function ResourceBody(props: ResourceBodyProps) {
     const { model, handleDiagramEdit, isExpandedAll } = props;
     const classes = useStyles();
-
     const [isExpanded, setIsExpanded] = useState(false);
     const [schema, setSchema] = useState({});
 

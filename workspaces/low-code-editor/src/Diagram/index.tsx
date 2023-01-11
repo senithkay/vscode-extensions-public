@@ -20,7 +20,6 @@ import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterpri
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
-import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { DataMapperOverlay } from "./components/DataMapperOverlay";
 import { ConnectorWizard } from "./components/FormComponents/ConfigForms/ConnectorWizard";
@@ -75,8 +74,6 @@ export function Diagram() {
     const [activeDialog, setActiveDialog] = useState(undefined);
 
     let isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
-    const isServiceDesignOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "ServiceDesign";
-
     const isServiceDesignOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "ServiceDesign";
 
     React.useEffect(() => {

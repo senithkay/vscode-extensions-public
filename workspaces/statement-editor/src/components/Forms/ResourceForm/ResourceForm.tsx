@@ -223,37 +223,8 @@ export function ResourceForm(props: FunctionProps) {
         );
     };
 
-    const handleReturnEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
-        // if (!avoidValueCommit) {
-        //     setQueryParam(value);
-        // }
-        // setCurrentComponentName("QueryParam");
-        await handleResourceParamChange(
-            model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
-            paramString,
-            model.functionSignature?.returnTypeDesc?.type?.source,
-            stModel,
-            currentValue
-        );
-    };
 
     // Return type related functions
-    const onReturnFocus = () => {
-        setCurrentComponentName("Return");
-    }
-
-    const handleReturnEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
-        await handleResourceParamChange(
-            model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
-            paramString,
-            model.functionSignature?.returnTypeDesc?.type?.source,
-            stModel,
-            currentValue
-        );
-    };
-
     const onReturnTypeChange = (value: string) => {
         // setIsEditInProgress(true);
         handleResourceParamChange(

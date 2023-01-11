@@ -166,8 +166,17 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
                     syntaxTree.members.forEach(member => {
                         if (STKindChecker.isFunctionDefinition(member)) {
-                            const functionBody = member.functionBody;
-                            const position = functionBody.position;
+                            const position = member.functionKeyword.position;
+                            const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
+                            codeLens.command = {
+                                title: "Design",
+                                tooltip: "Open this code block in data mapping view",
+                                command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                arguments: [member.position, activeEditor.fsPath]
+                            };
+                            codeLenses.push(codeLens);
+                        } else if (STKindChecker.isServiceDeclaration(member)) {
+                            const position = member.serviceKeyword.position;
                             const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
                             codeLens.command = {
                                 title: "Design",

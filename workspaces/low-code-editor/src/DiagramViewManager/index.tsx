@@ -15,10 +15,13 @@ import { IntlProvider } from "react-intl";
 
 import { MuiThemeProvider } from "@material-ui/core";
 import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { start } from "repl";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { Diagram } from "../Diagram";
 import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
+import { ServiceDesign } from "../Diagram/components/ServiceDesign";
+import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 import {
     getLowcodeST,
@@ -187,7 +190,11 @@ export function DiagramViewManager(props: EditorProps) {
     } else if (!!diagramFocusState && !!focusedST) {
         if (STKindChecker.isServiceDeclaration(focusedST)) {
             viewComponent.push((
-                <div>service designer</div>
+                <ServiceDesignOverlay
+                    model={focusedST}
+                    targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                    onCancel={handleNavigationHome}
+                />
             ))
         } else if (STKindChecker.isFunctionDefinition(focusedST) && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
             viewComponent.push((
