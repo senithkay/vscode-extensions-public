@@ -25,8 +25,6 @@ import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
 import { Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
-import { createTerminal } from "../project";
-import { getCurrenDirectoryPath } from "../utils/project-utils";
 import { ProjectDesignRPC } from "./utils";
 
 let context: ExtensionContext;
@@ -46,7 +44,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         ballerinaExtInstance.onReady()
             .then(() => {
                 if (isCompatible(ballerinaExtInstance)) {
-                    createTerminal(getCurrenDirectoryPath())
                     viewProjectDesignDiagrams();
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
