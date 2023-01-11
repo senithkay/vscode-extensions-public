@@ -16,14 +16,20 @@
  * under the License.
  *
  */
- import { commands, Uri, workspace, WorkspaceEdit, QuickPickItem, window } from "vscode";
+ import { commands, Uri, workspace, WorkspaceEdit, QuickPickItem, window, Position, TextDocument } from "vscode";
  
  const ACTION_EXTRACT_COMMAND = "ballerina.action.extract";
 
  function activateExtractCommand() {
      // register ballerina extract command
-     commands.registerCommand(ACTION_EXTRACT_COMMAND, async (command: string, url: string, textEditMap: any) => {
+     commands.registerCommand(ACTION_EXTRACT_COMMAND, async (command: string, url: string, textEditMap: any, renamePositionMap: any) => {
          try {
+            const uri: Uri = Uri.parse(url);
+            const document: TextDocument = await workspace.openTextDocument(uri);
+            if (document === null) {
+                return;
+            }
+            
              const expression = await getExpression(command, textEditMap);
              if (!expression) {
                  return;
@@ -36,6 +42,12 @@
                  edit.replace(Uri.file(url), selectedItem[textEdit].range, selectedItem[textEdit].newText);
              }
              await workspace.applyEdit(edit);
+            
+            const actionRenamePosition: Position = new Position(renamePositionMap[expression.label].line, renamePositionMap[expression.label].character);
+            await commands.executeCommand('editor.action.rename', [
+                document.uri,
+                actionRenamePosition,
+            ]);
          } catch (error) {
              // do nothing.
          }

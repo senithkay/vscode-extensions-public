@@ -39,7 +39,7 @@ function activateRenameCommand() {
         }
     });
 
-    commands.registerCommand("ballerina.action.positional.rename", async (url:string, pos:Position) => {
+    commands.registerCommand("ballerina.action.positional.rename", async (url:string, renamePosition:Position) => {
         try {
             const uri: Uri = Uri.parse(url);
             const document: TextDocument = await workspace.openTextDocument(uri);
@@ -47,10 +47,10 @@ function activateRenameCommand() {
                 return;
             }
 
-            const renamePosition: Position = new Position(pos.line, pos.character);
+            const actionRenamePosition: Position = new Position(renamePosition.line, renamePosition.character);
             await commands.executeCommand('editor.action.rename', [
                 document.uri,
-                renamePosition,
+                actionRenamePosition,
             ]);
         } catch (error) {
             // do nothing.
