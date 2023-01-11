@@ -13,17 +13,18 @@
 // tslint:disable: jsx-no-multiline-js, jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
-
+import { monaco } from "react-monaco-editor";
 
 import { Divider } from "@material-ui/core";
-import { BallerinaRecordResponse } from "@wso2-enterprise/ballerina-languageclient";
-import { BallerinaRecordRequest, ConfigOverlayFormStatus, createResource, DiagramEditorLangClientInterface, getSource, STModification, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ConfigPanelSection, SelectDropdownWithButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, RecordTypeDesc, RequiredParam, ResourceAccessorDefinition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { BallerinaSTModifyResponse, ConfigOverlayFormStatus, DiagramEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigPanelSection, Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
+import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 import { Context } from "../../../../Contexts/Diagram";
 import { removeStatement } from "../../../utils";
+import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
 import { useStyles } from "../style";
 
 import { ResourceHeader } from "./ResourceHeader";
@@ -37,9 +38,10 @@ export interface ResourceBodyProps {
 export function ResourceBody(props: ResourceBodyProps) {
     const { model, handleDiagramEdit, isExpandedAll } = props;
     const classes = useStyles();
-    const intl = useIntl();
 
     const [isExpanded, setIsExpanded] = useState(false);
+    const [schema, setSchema] = useState({});
+
 
     useEffect(() => {
         setIsExpanded(isExpandedAll)
@@ -71,11 +73,10 @@ export function ResourceBody(props: ResourceBodyProps) {
     }
 
     const {
-        props: { currentFile, stSymbolInfo, importStatements, syntaxTree: lowcodeST },
+        props: { currentFile },
         api: {
-            code: { modifyDiagram, updateFileContent },
-            ls: { getDiagramEditorLangClient, getExpressionEditorLangClient },
-            library,
+            code: { modifyDiagram },
+            ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
 
@@ -119,8 +120,11 @@ export function ResourceBody(props: ResourceBodyProps) {
         { code: 500, source: "http:InternalServerError" }
     ];
 
+    traversNode(model, RecordsFinderVisitor);
+    const records = RecordsFinderVisitor.getRecords();
 
     function getReturnTypesArray() {
+
         const returnTypes = model.functionSignature.returnTypeDesc.type.source.split(/\|(?![^\{]*[\}])/gm);
         return returnTypes;
     }
@@ -128,20 +132,19 @@ export function ResourceBody(props: ResourceBodyProps) {
     const getRecord = async (
         recordName: any,
         langClient: DiagramEditorLangClientInterface,
-    ): Promise<BallerinaRecordResponse> => {
-        const request: BallerinaRecordRequest = {
-            module: "Test",
-            name: recordName,
-            org: "anjanash",
-            version: "0.1.0"
+    ): Promise<BallerinaSTModifyResponse> => {
+        const record: STNode = records.get(recordName);
+        const request: TextDocumentPositionParams = {
+            textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
+            position: { line: record.position.startLine, character: record.position.startColumn }
         };
-        return langClient.getRecord(request);
+        return langClient.getDefinitionPosition(request);
     };
 
 
 
     getReturnTypesArray().forEach((value, i) => {
-        let code = "";
+        let code = "500";
         responseCodes.forEach(item => {
             if (value.includes(item.source)) {
                 code = item.code.toString();
@@ -149,39 +152,50 @@ export function ResourceBody(props: ResourceBodyProps) {
         });
 
         // value = record {|*http:Ok; Foo body;|}
+        let recordName = value;
+        let des = "";
         if (value.includes("body")) {
-            const recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
+            recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
+            des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
             responseArgs.push(
-                <div key={i} className={classes.signature}>
-                    <div onClick={() => recordEditor(recordName)}>
-                        {code} {value}
-                    </div>
-                </div>
+                <tr key={i} className={classes.signature}>
+                    <td>
+                        {code}
+                    </td>
+                    <td>
+                        {des}
+                        <div>
+                            Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, i)}>{recordName}</span>
+                            {schema[i] && <pre className={classes.schema}>{schema[i]}</pre>}
+                        </div>
+                    </td>
+                </tr>
             )
         } else {
             responseArgs.push(
-                <div key={i} className={classes.signature}>
-                    {code} {value}
-                </div>
+                <tr key={i} className={classes.signature}>
+                    <td>
+                        {code}
+                    </td>
+                    <td onClick={() => recordEditor(recordName)}>
+                        {value}
+                    </td>
+                </tr>
             )
         }
     })
 
-    const recordEditor = async (record: any) => {
+    const recordEditor = async (record: any, key?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
         const recordInfo = await getRecord(record, langClient);
 
-        // <RecordEditor
-        //     name={recordInfo.typeName.value}
-        //     targetPosition={recordInfo.position}
-        //     onSave={null}
-        //     model={recordInfo}
-        //     isTypeDefinition={true}
-        //     formType={""}
-        //     onCancel={null}
-        // />
-
+        if (recordInfo.parseSuccess) {
+            const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
+            setSchema({ ...schema, [key]: [ST.source] })
+            // setRecordSelected(ST);
+            // handleDiagramEdit(ST, ST.position, { formType: "RecordEditor", isLoading: false });
+        }
     }
 
     const args = (
@@ -209,7 +223,15 @@ export function ResourceBody(props: ResourceBodyProps) {
             {bodyArgs.length > 0 && bodyAr}
 
             <ConfigPanelSection title={"Responses"}>
-                {responseArgs}
+                <table className={classes.responseTable}>
+                    <thead>
+                        <td>Code</td>
+                        <td>Description</td>
+                    </thead>
+                    <tbody>
+                        {responseArgs}
+                    </tbody>
+                </table>
             </ConfigPanelSection>
 
         </div>

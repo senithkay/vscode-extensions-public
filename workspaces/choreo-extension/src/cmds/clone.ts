@@ -18,8 +18,8 @@ import { commands, ProgressLocation, TreeItem, Uri, window, workspace } from 'vs
 import { Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { ChoreoComponentTreeItem } from '../views/project-tree/ComponentTreeItem';
-import { getComponentsByProject } from './../api/queries';
 import { ChoreoProjectTreeItem } from './../views/project-tree/ProjectTreeItem';
+import { projectClient }  from "./../auth/auth";
 
 
 export const cloneAllComponentsCmd = async (treeItem: TreeItem) => {
@@ -72,7 +72,7 @@ export const cloneAllComponentsCmd = async (treeItem: TreeItem) => {
                 cancellationToken.onCancellationRequested(async () => {
                     cancelled = true;
                 });
-                const components = await getComponentsByProject(selectedOrg.handle, id);
+                const components = await projectClient.getComponents(selectedOrg.handle, id);
                 const userManagedComponents = components.filter((cmp) => cmp.repository.isUserManage);
                 const repos = components.map((cmp) => cmp.repository);
 

@@ -11,12 +11,12 @@
  * associated services.
 */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useMemo, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
-import { ConfigOverlayFormStatus, getSource, TopLevelPlusIcon, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ComponentExpandButton, LinePrimaryButton, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ComponentExpandButton, LinePrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     NodePosition,
     ResourceAccessorDefinition,
@@ -39,7 +39,7 @@ export interface ServiceDesignProps {
         path: string,
         size: number
     };
-    onClose?: () => void;
+    onClose: () => void;
     handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
 }
 
@@ -119,6 +119,7 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
                             text={"Add Resource"}
                             onClick={handlePlusClick}
                             dataTestId="add-new-btn"
+                            startIcon={<AddIcon />}
                         />
                     </div>
                 </>

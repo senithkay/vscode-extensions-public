@@ -13,17 +13,19 @@
 import { Messenger } from "vscode-messenger-webview";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 
-import { GetAllOrgsRequest, GetCurrentOrgRequest,
+import {
+    GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    ChoreoLoginStatus,  
-    Organization} from "@wso2-enterprise/choreo-core";
+    ChoreoLoginStatus,
+    Organization, Project
+} from "@wso2-enterprise/choreo-core";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
 export class WebViewRpc {
 
-    private readonly _messenger ;
+    private readonly _messenger;
     private static _instance: WebViewRpc;
 
     constructor(vscodeAPI: WebviewApi<unknown>) {
@@ -38,9 +40,13 @@ export class WebViewRpc {
     public async getCurrentOrg(): Promise<Organization> {
         return this._messenger.sendRequest(GetCurrentOrgRequest, HOST_EXTENSION, '');
     }
-    
+
     public async getAllOrgs(): Promise<Organization[]> {
         return this._messenger.sendRequest(GetAllOrgsRequest, HOST_EXTENSION, '');
+    }
+
+    public async getAllProjects(): Promise<Project[]> {
+        return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {

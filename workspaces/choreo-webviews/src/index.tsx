@@ -14,13 +14,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root")
-);
-
 export interface ChoreoWebViewsProps {
     type: "ProjectOverView" | "ComponentCreateForm" | "ProjectCreateForm";
 }
@@ -28,8 +21,7 @@ export interface ChoreoWebViewsProps {
 (window as any).renderChoreoWebViews = (props: ChoreoWebViewsProps) => {
   ReactDOM.render(
     <React.StrictMode>
-      {/* TODO pass type prop to app and switch view accordingly  */}
-      <App /> 
+      <App type={props.type} /> 
     </React.StrictMode>,
     document.getElementById("root")
   );

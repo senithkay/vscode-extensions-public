@@ -188,9 +188,8 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
         return this._clientConnection.sendRequest("ballerinaDocument/project", params);
     }
 
-    public getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
-        // TODO
-        return Promise.reject("Not implemented");
+    public getDefinitionPosition(params: TextDocumentPositionParams): Thenable<BallerinaSTModifyResponse> {
+        return this._clientConnection.sendRequest<BallerinaSTModifyResponse>("ballerinaDocument/syntaxTreeNodeByPosition", params);
     }
 
     public goToSource(params: GoToSourceParams): void {

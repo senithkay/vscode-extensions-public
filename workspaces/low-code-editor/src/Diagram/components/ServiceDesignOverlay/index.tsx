@@ -37,10 +37,12 @@ import { ServiceDesignStyles } from "./style";
 export interface ServiceDesignProps {
   model?: STNode;
   targetPosition?: NodePosition;
+  onCancel?: () => void;
+  configOverlayFormStatus: ConfigOverlayFormStatus;
 }
 
 export function ServiceDesignOverlay(props: ServiceDesignProps) {
-  const { model } = props;
+  const { onCancel: onClose, model } = props;
 
   const serviceDesignClasses = ServiceDesignStyles();
 
@@ -71,7 +73,7 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
       onCancel: () => {
         setIsFormOpen(false);
         if (onClosex) {
-          // onClose();
+          onClose();
         }
       },
       onSave: () => {
@@ -99,6 +101,7 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
               getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
             }
             currentFile={currentFile}
+            onClose={onClose}
             handleDiagramEdit={handleFormEdit}
           />
           {isFormOpen && (

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es5",                          
     "module": "commonjs",                    
-    "lib": ["es6"],                     
+    "lib": ["es2022"],                     
     "allowJs": true,
     "outDir": "./lib",                          
     "rootDir": "./src",
@@ -27,6 +27,7 @@
   "exclude": [
       "node_modules",
       "lib",
-      "**/*.d.ts"
+      "**/*.d.ts",
+      "babel.config.js"
   ]
 }

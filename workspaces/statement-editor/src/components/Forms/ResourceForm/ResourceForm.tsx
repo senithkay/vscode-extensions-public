@@ -243,6 +243,17 @@ export function ResourceForm(props: FunctionProps) {
         setCurrentComponentName("Return");
     }
 
+    const handleReturnEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            paramString,
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            stModel,
+            currentValue
+        );
+    };
+
     const onReturnTypeChange = (value: string) => {
         // setIsEditInProgress(true);
         handleResourceParamChange(
@@ -379,7 +390,6 @@ export function ResourceForm(props: FunctionProps) {
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <FieldTitle title='Responses' optional={true} />
-
                         <ResourceReturnEditor
                             returnSource={model.functionSignature?.returnTypeDesc?.source}
                             syntaxDiag={currentComponentSyntaxDiag}
