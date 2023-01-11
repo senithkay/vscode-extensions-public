@@ -70,8 +70,8 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
     };
 
     const onParamChange = (segmentId: number, responseCode: string, withType: string) => {
-        const splitResponse = responseCode.split("-");
-        const newReturn = withType ? withType : (splitResponse.length > 0 ? splitResponse[1] : "");
+        const responseData = responseCodes.find(item => item.code.toString() === responseCode);
+        const newReturn = withType ? withType : (responseData ? responseData.source : "");
         if (segmentId === -1) {
             responses.push(newReturn);
         } else {

@@ -135,7 +135,7 @@ export function ParamEditor(props: ParamProps) {
 
     return (
         <div className={classes.paramContainer}>
-            {optionList && (
+            {optionList && option !== "Payload" && (
                 <div className={classes.paramTypeWrapper}>
                     <ParamDropDown
                         dataTestId="param-type-selector"
@@ -147,6 +147,7 @@ export function ParamEditor(props: ParamProps) {
                     />
                 </div>
             )}
+            {option === "Payload" && <h4>Payload</h4>}
             <div className={classes.paramContent}>
                 {!(model.source.includes(RESOURCE_CALLER_TYPE)
                     || model.source.includes(RESOURCE_REQUEST_TYPE)
@@ -168,7 +169,7 @@ export function ParamEditor(props: ParamProps) {
                         </div>
                     )}
                 <div className={classes.paramNameWrapper}>
-                    <FieldTitle title='Param Name' optional={false} />
+                    <FieldTitle title='Name' optional={false} />
                     <LiteExpressionEditor
                         testId="param-name"
                         diagnostics={

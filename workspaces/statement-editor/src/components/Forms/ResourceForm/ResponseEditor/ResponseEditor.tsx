@@ -77,7 +77,7 @@ export function ResponseEditor(props: ParamProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
 
-    const optionsListString = optionList.map(item => `${item.code}-${item.source}`);
+    const optionsListString = optionList.map(item => `${item.code}`);
 
     // record {|*http:Created; PersonAccount body;|}
     const withType = model.includes("body;") ? model.split(";")[1] : "";
@@ -94,7 +94,7 @@ export function ResponseEditor(props: ParamProps) {
 
     // const [originalSource] = useState<string>(defaultValue ? `${defaultValue.code}-${defaultValue.source}` : "");
 
-    const [response, setResponse] = useState<string>(defaultValue ? `${defaultValue.code}-${defaultValue.source}` : optionsListString[0]);
+    const [response, setResponse] = useState<string>(defaultValue ? `${defaultValue.code}` : optionsListString[0]);
 
 
     const [typeValue, setTypeValue] = useState<string>(withTypeValue);
@@ -157,8 +157,8 @@ export function ResponseEditor(props: ParamProps) {
 
     const handleOnSave = () => {
         if (typeValue) {
-            const splitResponse = response.split("-");
-            const newResponse = `record {|*${splitResponse[1]}; ${typeValue} body;|}`;
+            const responseCode = optionList.find(item => item.code.toString() === response);
+            const newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
             onChange(segmentId, response, newResponse);
         } else {
             onChange(segmentId, response);

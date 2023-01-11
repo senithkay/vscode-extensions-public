@@ -123,9 +123,11 @@ export function ResourceBody(props: ResourceBodyProps) {
     model.functionSignature.parameters.forEach((param, i) => {
         if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
             paramArgs.push(
-                <div key={i} className={classes.signature}>
-                    {param.source}
-                </div>
+                <tr key={i} className={classes.signature}>
+                    <td>
+                        {param.source}
+                    </td>
+                </tr>
             )
         }
     });
@@ -234,9 +236,16 @@ export function ResourceBody(props: ResourceBodyProps) {
     const args = (
         <>
             <ConfigPanelSection title={"Parameters"}>
-                {paramArgs}
+                <table className={classes.responseTable}>
+                    <thead>
+                        <td>Description</td>
+                    </thead>
+                    <tbody>
+                        {paramArgs}
+                    </tbody>
+                </table>
             </ConfigPanelSection>
-            <Divider className="resource-divider" />
+            {/* <Divider className="resource-divider" /> */}
         </>
     );
 
@@ -253,7 +262,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                 </table>
             </ConfigPanelSection>
 
-            <Divider className="resource-divider" />
+            {/* <Divider className="resource-divider" /> */}
         </>
     )
     const body = (
