@@ -15,7 +15,7 @@ import {
 } from '@projectstorm/react-canvas-core';
 
 export class PathFindingLinkFactory extends DefaultLinkFactory<PathFindingLinkModel> {
-	ROUTING_SCALING_FACTOR: number = 8;
+	ROUTING_SCALING_FACTOR: number = 2;
 
 	// calculated only when smart routing is active
 	canvasMatrix: number[][] = [];

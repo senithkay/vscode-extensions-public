@@ -19,7 +19,7 @@
 
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { CanvasWidget } from '@projectstorm/react-canvas-core';
+import { Action, CanvasWidget, InputType } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
@@ -27,6 +27,7 @@ import { Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from '../../../utils';
 import { Canvas } from './styles/styles';
 import './styles/styles.css';
+import { PathFindingLinkModel } from "../../gateway/PathFindingLink/PathFindingLinkModel";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -56,6 +57,44 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const diagramRef = useRef<HTMLDivElement>(null);
 
+    const onMouseMove = (event: any) => {
+        diagramEngine?.getModel()?.getLinks()?.forEach(link => {
+            if (link instanceof PathFindingLinkModel) {
+                // diagramEngine?.getModel()?.removeLink(link);
+                if (link.getOptions().width === 0) {
+                    link.setColor("red");
+                    link.setWidth(1);
+                    autoDistribute();
+                    console.log(">>> Mouse Move Event ", event);
+                }
+            }
+        });
+    };
+    const onMouseWheel = (event: any) => {
+        diagramEngine?.getModel()?.getLinks()?.forEach(link => {
+            if (link instanceof PathFindingLinkModel) {
+                // diagramEngine?.getModel()?.removeLink(link);
+                link.setWidth(0);
+                console.log(">>> PathFindingLinkModel ");
+                autoDistribute();
+            }
+        });
+        console.log(">>> Mouse Move Wheel ", diagramEngine);
+    };
+    const onMouseDown = (event: any) => {
+        const element = diagramEngine.getActionEventBus().getModelForEvent(event);
+        if (!element) {
+            diagramEngine?.getModel()?.getLinks()?.forEach(link => {
+                if (link instanceof PathFindingLinkModel) {
+                    // diagramEngine?.getModel()?.removeLink(link);
+                    link.setWidth(0);
+                    autoDistribute();
+                }
+            });
+        }
+        console.log(">>> Mouse Down Event ", event);
+    };
+
     useEffect(() => {
         if (currentView === Views.L1_SERVICES && editingEnabled) {
             // Reset new link nodes on escape
@@ -78,7 +117,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 setDiagramModel(undefined);
             }
         }
-    }, [model])
+    }, [model]);
 
     // Initial distribution of the nodes when the screen is on display (refer note above)
     useEffect(() => {
@@ -87,7 +126,34 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             setDiagramModel(model);
             autoDistribute();
         }
-    }, [currentView])
+    }, [currentView]);
+
+    useEffect(() => {
+        diagramEngine.getStateMachine().getCurrentState().registerAction(
+            new Action({
+                type: InputType.MOUSE_DOWN,
+                fire: (event: any) => {
+                    onMouseDown(event);
+                }
+            })
+        );
+        diagramEngine.getStateMachine().getCurrentState().registerAction(
+            new Action({
+                type: InputType.MOUSE_MOVE,
+                fire: (event: any) => {
+                    onMouseMove(event);
+                }
+            })
+        );
+        diagramEngine.getStateMachine().getCurrentState().registerAction(
+            new Action({
+                type: InputType.MOUSE_WHEEL,
+                fire: (event: any) => {
+                    onMouseWheel(event);
+                }
+            })
+        );
+    }, []);
 
     const autoDistribute = () => {
         setTimeout(() => {

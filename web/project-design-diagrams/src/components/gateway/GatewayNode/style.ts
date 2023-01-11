@@ -12,7 +12,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Colors, Level } from "../../../resources";
+import { Colors } from "../../../resources";
 
 interface StyleProps {
     rotate?: string;
