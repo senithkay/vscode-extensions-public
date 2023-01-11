@@ -643,6 +643,7 @@
         "package": "vsce package --no-dependencies",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'",
+        "storybook": "npm run storybook --workspace=workspaces/low-code-editor",
         "build:bbe": "npm run build --workspace=workspaces/bbe",
         "build:graphql": "npm run build --workspace=workspaces/graphql",
         "build:notebook": "npm run build --workspace=workspaces/notebook-renderer",
