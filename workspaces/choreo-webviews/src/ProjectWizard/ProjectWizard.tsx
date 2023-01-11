@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeLink, VSCodeDropdown } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeLink, VSCodeDropdown, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { useContext, useState } from "react";
 import { OrgSelector } from "../OrgSelector/OrgSelector";
@@ -32,12 +32,17 @@ const ActionContainer = styled.div`
     gap: 10px;
 `;
 
+const ErrorMessageContainer = styled.div`
+    color: var(--vscode-errorForeground);
+`
+
 export function ProjectWizard() {
 
-    const { loginStatus, loginStatusPending, selectedOrg } = useContext(ChoreoWebViewContext);
+    const { loginStatus, loginStatusPending, selectedOrg, error } = useContext(ChoreoWebViewContext);
 
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
+    const [creationInProgress, setCreationInProgress] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [initMonoRepo, setInitMonoRepo] = useState(false);
 
@@ -46,6 +51,7 @@ export function ProjectWizard() {
     }
 
     const handleCreateProject = async () => {
+        setCreationInProgress(true);
         const projectClient = ChoreoWebViewAPI.getInstance().getProjectClient();
         if (selectedOrg) {
             try {
@@ -55,16 +61,20 @@ export function ProjectWizard() {
                     orgId: selectedOrg.id,
                     orgHandle: selectedOrg.handle
                 });
-                console.log(JSON.stringify(createdProject));
+                const webviewAPI = ChoreoWebViewAPI.getInstance();
+                webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
+                webviewAPI.triggerCmd("wso2.choreo.projects.refresh");
+                webviewAPI.closeWebView();
             } catch (error: any) {
-                setErrorMsg("Error creating project. Cause: " + error.message);
+                const cause = error.cause ? error.cause.message : "";
+                setErrorMsg(error.message + " " + cause);
             }
         }
+        setCreationInProgress(false);
     }
 
     return (
         <>
-            {errorMsg !== "" && <div>{errorMsg}</div>}
             {loginStatus !== "LoggedIn" && <SignIn />}
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
@@ -97,15 +107,25 @@ export function ProjectWizard() {
                             <VSCodeDropdown>Select Repository</VSCodeDropdown>
                         </>
                     }
+                    {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
+                    {error && (
+                        <ErrorMessageContainer>
+                            {error.message + (error.cause ? (error.cause as any).message : "")}
+                        </ErrorMessageContainer>
+                    )}
                     <ActionContainer>
+
                         <VSCodeButton
                             appearance="secondary"
+                            onClick={() => { ChoreoWebViewAPI.getInstance().closeWebView(); }}
                         >
                                 Cancel
                         </VSCodeButton>
+                        {creationInProgress && <VSCodeProgressRing />}
                         <VSCodeButton
                             appearance="primary"
                             onClick={handleCreateProject}
+                            disabled={creationInProgress}
                         >
                                 Create
                         </VSCodeButton>

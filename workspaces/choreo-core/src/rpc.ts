@@ -25,3 +25,4 @@ export const LoginStatusChangedNotification: NotificationType<string> = { method
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
 export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };
+export const CloseWebViewNotification: NotificationType<void> =  { method: 'close' };

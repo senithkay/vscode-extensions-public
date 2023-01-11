@@ -19,6 +19,7 @@ export interface IChoreoWebViewContext {
     fetchingOrgInfo: boolean;
     selectedOrg?: Organization;
     userOrgs?: Organization[];
+    error?: Error;
 }
 
 const defaultContext: IChoreoWebViewContext = {

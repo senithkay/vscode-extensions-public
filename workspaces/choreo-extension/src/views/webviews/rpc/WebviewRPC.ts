@@ -12,18 +12,16 @@
  */
 import { commands, WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
-import { BROADCAST } from 'vscode-messenger-common';
+import { BROADCAST, NotificationType } from 'vscode-messenger-common';
 import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    SelectedProjectChangedNotification,
-    Project
+    SelectedProjectChangedNotification, CloseWebViewNotification
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { ext } from "../../../extensionVariables";
 import { orgClient, projectClient } from "../../../auth/auth";
-
 export class WebViewRpc {
 
     private _messenger = new Messenger();
@@ -64,6 +62,9 @@ export class WebViewRpc {
                 const cmdArgs = args.length > 1 ? args.slice(1) : [];
                 commands.executeCommand(args[0], ...cmdArgs);
             }
+        });
+        this._messenger.onNotification(CloseWebViewNotification, () => {
+            view.dispose();
         });
 
         // Register RPC handlers for Choreo project client

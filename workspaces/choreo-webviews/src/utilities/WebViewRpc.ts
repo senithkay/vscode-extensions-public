@@ -18,7 +18,7 @@ import {
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
-    Organization, Project
+    Organization, Project, CloseWebViewNotification
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -65,12 +65,16 @@ export class ChoreoWebViewAPI {
         this._messenger.onNotification(SelectedProjectChangedNotification, callback);
     }
 
-    public triggerSignIn() {
-        this._messenger.sendNotification(ExecuteCommandNotification, HOST_EXTENSION, ["wso2.choreo.sign.in"]);
+    public triggerCmd(cmdId: string, ...args: any) {
+        this._messenger.sendNotification(ExecuteCommandNotification, HOST_EXTENSION, [cmdId, ...args]);
     }
 
     public getProjectClient(): IChoreoProjectClient {
         return this._projectClientRpc;
+    }
+
+    public closeWebView() {
+        this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
     }
 
     public static getInstance() {

@@ -35,7 +35,7 @@ export class ProjectOverview {
             ProjectOverview.currentPanel._panel.reveal(vscode.ViewColumn.One);
         } else {
             const panel = vscode.window.createWebviewPanel("project-overview", "Project Overview", vscode.ViewColumn.One, {
-                enableScripts: true
+                enableScripts: true, retainContextWhenHidden: true
             });
 
             ProjectOverview.currentPanel = new ProjectOverview(panel, extensionUri, project.id);
