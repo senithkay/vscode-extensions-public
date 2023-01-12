@@ -17,12 +17,16 @@ import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    SelectedProjectChangedNotification, CloseWebViewNotification, serializeError
+     CloseWebViewNotification, serializeError,
+    SelectedProjectChangedNotification,
+    Project, GetComponents
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { ext } from "../../../extensionVariables";
 import { orgClient, projectClient } from "../../../auth/auth";
 import { userInfo } from "os";
+import { ProjectRegistry } from "../../../registry/project-registry";
+
 export class WebViewRpc {
 
     private _messenger = new Messenger();
@@ -47,9 +51,16 @@ export class WebViewRpc {
         // TODO: Remove this once the Choreo project client RPC handlers are registered
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
-                return projectClient.getProjects({ orgId: ext.api.selectedOrg.id }).catch(serializeError);
+                return ProjectRegistry.getInstance().getProjects(ext.api.selectedOrg.id);
             }
         });
+
+        this._messenger.onRequest(GetComponents, async (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle);
+            }
+        });
+
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
         });
