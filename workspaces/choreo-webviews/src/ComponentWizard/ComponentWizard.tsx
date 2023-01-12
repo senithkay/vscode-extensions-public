@@ -17,6 +17,7 @@ import { useContext } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ProjectSelector } from "../ProjectSelector/ProjectSelector";
+import { ComponentTypeSelector } from "./ComponetTypeSelector/ComponentTypeSelector";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -42,6 +43,7 @@ export function ComponentWizard() {
                 <WizardContainer>
                     <h2>New Choreo Component</h2>
                     <ProjectSelector />
+                    <ComponentTypeSelector onChange={(e) => console.log(e)} />
                     <VSCodeTextField autofocus placeholder="Name">Component Name</VSCodeTextField>
                     <VSCodeTextArea autofocus placeholder="Description">Description</VSCodeTextArea>
 
