@@ -12,7 +12,7 @@
  */
 import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeLink, VSCodeDropdown, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { OrgSelector } from "../OrgSelector/OrgSelector";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
@@ -45,6 +45,13 @@ export function ProjectWizard() {
     const [creationInProgress, setCreationInProgress] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [initMonoRepo, setInitMonoRepo] = useState(false);
+
+    useEffect(() => {
+        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
+        ghClient.onGHAppAuthCallback((status: string) => {
+            console.log("GH App Auth Callback: " + status);
+        });
+    },[]);
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
@@ -103,7 +110,7 @@ export function ProjectWizard() {
                     {initMonoRepo &&
                         <>
                             <VSCodeLink
-                                href="https://github.com/login/oauth/authorize?redirect_uri=https://localhost:3000/ghapp&client_id=Iv1.f6cf2cd585148ee7&state=VSCODE_CHOREO_GH_APP_AUTH"
+                               onClick={() => { ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow(); }}
                             >
                                 Authorize with Github
                             </VSCodeLink>

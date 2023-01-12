@@ -15,7 +15,7 @@ import { BROADCAST } from "vscode-messenger-common";
 import { IChoreoGithubAppClient } from "../types";
 import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification } from "./types";
 
-export function registerChoreoProjectRPCHandlers(messenger: Messenger, githubAppClient: IChoreoGithubAppClient ) {
+export function registerChoreoGithubRPCHandlers(messenger: Messenger, githubAppClient: IChoreoGithubAppClient ) {
    messenger.onNotification(FireGHAppAuthCallbackRequest, (params) => githubAppClient.fireGHAppAuthCallback(params));
    messenger.onRequest(GetAuthorizedRepositoriesRequest, () => githubAppClient.getAuthorizedRepositories());
    messenger.onRequest(TriggerAuthFlowRequest, () => githubAppClient.triggerAuthFlow());

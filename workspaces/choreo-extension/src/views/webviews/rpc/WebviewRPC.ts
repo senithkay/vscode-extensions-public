@@ -12,7 +12,7 @@
  */
 import { commands, WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
-import { BROADCAST, NotificationType } from 'vscode-messenger-common';
+import { BROADCAST } from 'vscode-messenger-common';
 import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
@@ -22,9 +22,10 @@ import {
     Project, GetComponents
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
+import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
+
 import { ext } from "../../../extensionVariables";
-import { orgClient, projectClient } from "../../../auth/auth";
-import { userInfo } from "os";
+import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
 
 export class WebViewRpc {
@@ -82,5 +83,8 @@ export class WebViewRpc {
 
         // Register RPC handlers for Choreo project client
         registerChoreoProjectRPCHandlers(this._messenger, projectClient);
+
+        // Register RPC handlers for Choreo Github app client
+        registerChoreoGithubRPCHandlers(this._messenger, githubAppClient);
     }
 }

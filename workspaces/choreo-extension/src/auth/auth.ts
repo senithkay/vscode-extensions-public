@@ -12,6 +12,8 @@
  */
 import * as vscode from 'vscode';
 import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage } from "@wso2-enterprise/choreo-client";
+import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
+
 import { ChoreoAuthConfig } from "./config";
 import { ext } from '../extensionVariables';
 
@@ -45,6 +47,8 @@ export const authClient = new ChoreoAuthClient({
 export const orgClient = new ChoreoOrgClient(readonlyTokenStore);
 
 export const projectClient = new ChoreoProjectClient(readonlyTokenStore);
+
+export const githubAppClient = new ChoreoGithubAppClient(readonlyTokenStore);
 
 export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(

@@ -12,6 +12,7 @@
  */
 
 import { ProviderResult, Uri, window } from "vscode";
+import { githubAppClient } from "./auth/auth";
 import { ext } from "./extensionVariables";
 
 export function activateURIHandlers() {
@@ -29,7 +30,11 @@ export function activateURIHandlers() {
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get('code');
                 const installationId = urlParams.get('installationId');
-                console.log(`authCode: ${authCode}, installationId: ${installationId}`);
+                if (authCode) {
+                    githubAppClient.fireGHAppAuthCallback("authorized");
+                } else if (installationId) {
+                    githubAppClient.fireGHAppAuthCallback("installed");
+                }
             }
         }
     });

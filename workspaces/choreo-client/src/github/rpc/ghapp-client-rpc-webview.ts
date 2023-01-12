@@ -15,7 +15,7 @@ import { Messenger } from "vscode-messenger-webview";
 import { GHAppAuthStatus, GithubOrgnization, IChoreoGithubAppClient } from "../types";
 import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest } from "./types";
 
-export class ChoreoProjectClientRPCWebView implements IChoreoGithubAppClient {
+export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
 
     constructor(private _messenger: Messenger) {
     }
