@@ -1,6 +1,21 @@
 # Change Log
 ##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
 
+## **3.3.6**
+### Added
+- Data Mapper - Add support for inputs, output types other than records [221] (https://github.com/wso2/ballerina-plugin-vscode/issues/221)
+
+### Improved
+- Add support for intermediate query clauses at function level [347] (https://github.com/wso2/ballerina-plugin-vscode/issues/347)
+- Add support for let expressions in Data Mapper [349] (https://github.com/wso2/ballerina-plugin-vscode/issues/349)
+- Ballerina data mapper FHIR record support [356] (https://github.com/wso2/ballerina-plugin-vscode/issues/356)
+- Data Mapper - Display mappings associated with module level variables [365] (https://github.com/wso2/ballerina-plugin-vscode/issues/365)
+- Data Mapper - Add an edit option for output type in config panel [381] (https://github.com/wso2/ballerina-plugin-vscode/issues/381)
+
+### Fixed
+- Data mapper - cannot map a record to a record on the low code view [339] (https://github.com/wso2/ballerina-plugin-vscode/issues/339)
+- Data Mapper - Links with transformed values from the input nodes are not displayed [369] (https://github.com/wso2/ballerina-plugin-vscode/issues/369)
+
 ## **3.3.5**
 ### Fixed
 - Broken links in readme [335] (https://github.com/wso2/ballerina-plugin-vscode/issues/335)
