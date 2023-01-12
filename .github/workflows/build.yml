@@ -40,6 +40,8 @@ jobs:
           npm version ${{ inputs.version }} --preid beta --no-git-tag-version
           cd ballerina-low-code-editor
           npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
           
       - name: Build plugin repo
         run: npm run build
