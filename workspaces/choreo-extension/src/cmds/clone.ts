@@ -15,7 +15,7 @@ import * as os from 'os';
 import path = require('path');
 import { simpleGit } from 'simple-git';
 import { commands, ProgressLocation, TreeItem, Uri, window, workspace } from 'vscode';
-import { Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
+import { Component, Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { ChoreoProjectTreeItem } from './../views/project-tree/ProjectTreeItem';
 import { projectClient } from "./../auth/auth";
@@ -117,29 +117,28 @@ export const cloneAllComponentsCmd = async (treeItem: TreeItem) => {
     }
 };
 
-export const cloneComponentCmd = async (treeItem: TreeItem) => {
-    // if (treeItem instanceof ChoreoComponentTreeItem) {
+export const cloneComponentCmd = async (component: Component) => {
 
-    //     const { repository } = treeItem.component;
-    //     const { isUserManage, organizationApp, nameApp } = repository;
+    const { repository } = component;
+    const { isUserManage, organizationApp, nameApp } = repository;
 
-    //     if (isUserManage) {
+    if (isUserManage) {
 
-    //         await window.withProgress({
-    //             title: `Cloning ${organizationApp}/${nameApp} repo locally.`,
-    //             location: ProgressLocation.Notification,
-    //             cancellable: true
-    //         }, async (_progress, cancellationToken) => {
+        await window.withProgress({
+            title: `Cloning ${organizationApp}/${nameApp} repo locally.`,
+            location: ProgressLocation.Notification,
+            cancellable: true
+        }, async (_progress, cancellationToken) => {
 
-    //             cancellationToken.onCancellationRequested(async () => {
-    //                 // TODO: Cancel
-    //             });
+            cancellationToken.onCancellationRequested(async () => {
+                // TODO: Cancel
+            });
 
-    //             await commands.executeCommand("git.clone", `https://github.com/${organizationApp}/${nameApp}`);
-    //         });
+            await commands.executeCommand("git.clone", `https://github.com/${organizationApp}/${nameApp}`);
+        });
 
-    //     } else {
-    //         window.showErrorMessage(`Cannot clone Choreo managed repository.`);
-    //     }
-    // }
+    } else {
+        window.showErrorMessage(`Cannot clone Choreo managed repository.`);
+    }
+
 };
