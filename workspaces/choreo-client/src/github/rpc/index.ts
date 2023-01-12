@@ -10,22 +10,6 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Event } from "vscode"
-export interface IChoreoGithubAppClient {
-    triggerAuthFlow(): Promise<boolean>;
-    triggerInstallFlow(): Promise<boolean>;
-    getAuthorizedRepositories(): Promise<GithubOrgnization[]>;
-    onGHAppAuthCallback: Event<GHAppAuthStatus>;
-    fireGHAppAuthCallback(status: GHAppAuthStatus): void;
-}
-
-export type GHAppAuthStatus = 'authorized' | 'installed' | 'error';
-
-export interface GithubRepository {
-    name: string;
-}
-
-export interface GithubOrgnization {
-    name: string;
-    repositories: GithubRepository[];
-}
+export * from "./ghapp-project-client-rpc-vscode";
+export * from "./types";
+export * from "./ghapp-client-rpc-webview";

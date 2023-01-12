@@ -1,4 +1,3 @@
-
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  * 
@@ -13,10 +12,14 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { IReadOnlyTokenStorage } from "../auth";
-import { GithubOrgnization, IChoreoGithubAppClient } from "./types";
-import { PROJECTS_API_URL } from "./../project/project-client"
+import { GHAppAuthStatus, GithubOrgnization, IChoreoGithubAppClient } from "./types";
+import { PROJECTS_API_URL } from "./../project/project-client";
+import { EventEmitter, env, Uri } from 'vscode';
 
 export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
+
+    private _onGHAppAuthCallback = new EventEmitter<GHAppAuthStatus>();
+    public readonly onGHAppAuthCallback = this._onGHAppAuthCallback.event;
 
     constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string = PROJECTS_API_URL) {
     }
@@ -34,13 +37,22 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         return client;
     }
 
-    authorize(): Promise<void> {
-        throw new Error("Method not implemented.");
+    async triggerAuthFlow(): Promise<boolean> {
+        const callbackUri = await env.asExternalUri(
+            Uri.parse("https://github.com/login/oauth/authorize?redirect_uri=https://localhost:3000/ghapp&client_id=Iv1.f6cf2cd585148ee7&state=VSCODE_CHOREO_GH_APP_AUTH")
+        );
+        return env.openExternal(callbackUri);
     }
-    configureNewRepository(): Promise<void> {
+
+    async triggerInstallFlow(): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
     getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
+        this._getClient();
         throw new Error("Method not implemented.");
+    }
+    
+    fireGHAppAuthCallback(status: GHAppAuthStatus): void {
+        this._onGHAppAuthCallback.fire(status);
     }
 }

@@ -32,7 +32,7 @@ export class WebViewRpc {
     private _messenger = new Messenger();
 
     constructor(view: WebviewPanel) {
-        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged'] });
+        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
 
         this._messenger.onRequest(GetLoginStatusRequest, () => {
             return ext.api.status;

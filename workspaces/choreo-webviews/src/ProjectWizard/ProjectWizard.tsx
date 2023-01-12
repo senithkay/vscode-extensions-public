@@ -48,7 +48,7 @@ export function ProjectWizard() {
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
-    }
+    };
 
     const handleCreateProject = async () => {
         setCreationInProgress(true);
@@ -70,7 +70,7 @@ export function ProjectWizard() {
             }
         }
         setCreationInProgress(false);
-    }
+    };
 
     return (
         <>
@@ -102,7 +102,11 @@ export function ProjectWizard() {
                     </VSCodeCheckbox>
                     {initMonoRepo &&
                         <>
-                            <VSCodeLink>Authorize with Github</VSCodeLink>
+                            <VSCodeLink
+                                href="https://github.com/login/oauth/authorize?redirect_uri=https://localhost:3000/ghapp&client_id=Iv1.f6cf2cd585148ee7&state=VSCODE_CHOREO_GH_APP_AUTH"
+                            >
+                                Authorize with Github
+                            </VSCodeLink>
                             <VSCodeDropdown>Select Repository</VSCodeDropdown>
                         </>
                     }
