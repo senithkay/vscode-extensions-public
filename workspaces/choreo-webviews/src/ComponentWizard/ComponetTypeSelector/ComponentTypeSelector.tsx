@@ -12,25 +12,23 @@
  */
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
-import { useState } from "react";
 
-export function ComponentTypeSelector(props: { onChange: (type: ChoreoServiceComponentType) => void; }) {
+interface SelectorProps {
+    selectedType: ChoreoServiceComponentType;
+    onChange: (type: ChoreoServiceComponentType) => void;
+}
 
-    const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
-    
-    const onChange = (evt: any) => {
-        setSelectedType(evt.target.value);
-        props.onChange(evt.target.value);
-    };
+export function ComponentTypeSelector(props: SelectorProps) {
+    const {selectedType, onChange} = props;
 
     return (
         <>
-            <label htmlFor="org-dropdown" >Select Service Type</label>
-            <VSCodeDropdown id="org-dropdown" onChange={onChange}>
+            <label htmlFor="type-dropdown">Select Service Type</label>
+            <VSCodeDropdown id="type-dropdown" onChange={(e: any) => onChange(e.target.value)}>
                 <VSCodeOption value={ChoreoServiceComponentType.REST_API} selected={selectedType === ChoreoServiceComponentType.REST_API}>REST API</VSCodeOption>
                 <VSCodeOption value={ChoreoServiceComponentType.GQL_API} selected={selectedType === ChoreoServiceComponentType.GQL_API}>GraphQL API</VSCodeOption>
                 <VSCodeOption value={ChoreoServiceComponentType.WEBSOCKET_API} selected={selectedType === ChoreoServiceComponentType.WEBSOCKET_API}>Websockets API</VSCodeOption>
-                <VSCodeOption value={ChoreoServiceComponentType.GRPC_API} selected={selectedType === ChoreoServiceComponentType.GRPC_API}>Grpc API</VSCodeOption>
+                <VSCodeOption value={ChoreoServiceComponentType.GRPC_API} selected={selectedType === ChoreoServiceComponentType.GRPC_API}>GRPC API</VSCodeOption>
             </VSCodeDropdown>
         </>
     );

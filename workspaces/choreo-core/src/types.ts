@@ -12,6 +12,8 @@
  */
 export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
 
+export type ComponentAccessibility = 'Internal' | 'External';
+
 export interface Owner {
     id: string;
     idpId: string;
@@ -132,4 +134,12 @@ export enum ChoreoServiceComponentType {
     GQL_API = 'GQL_API',
     WEBSOCKET_API = 'WEBSOCKET_API',
     GRPC_API = 'GRPC_API',
+}
+
+export interface ComponentWizardInput {
+    name: string;
+    projectId: string;
+    description: string;
+    type: ChoreoServiceComponentType;
+    accessibility: ComponentAccessibility;
 }

@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project } from './types';
+import { Organization, ChoreoLoginStatus, Project, ComponentWizardInput } from './types';
 
 // request types 
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
@@ -19,13 +19,14 @@ export const GetCurrentOrgRequest: RequestType<string, Organization> = { method:
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
+export const CreateComponentRequest: RequestType<ComponentWizardInput, string> = { method: 'createComponent' };
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
 export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };
-export const CloseWebViewNotification: NotificationType<void> =  { method: 'close' };
+export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

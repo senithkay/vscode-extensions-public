@@ -10,22 +10,25 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel } from "vscode";
+import { commands, WebviewPanel, workspace } from "vscode";
 import { Messenger } from "vscode-messenger";
-import { BROADCAST, NotificationType } from 'vscode-messenger-common';
+import { BROADCAST } from 'vscode-messenger-common';
 import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    SelectedProjectChangedNotification, CloseWebViewNotification, serializeError
+    SelectedProjectChangedNotification,
+    ComponentWizardInput, CloseWebViewNotification, serializeError, CreateComponentRequest
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
+import { ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager';
 import { ext } from "../../../extensionVariables";
 import { orgClient, projectClient } from "../../../auth/auth";
-import { userInfo } from "os";
+
 export class WebViewRpc {
 
     private _messenger = new Messenger();
+    private _manager = new ChoreoProjectManager();
 
     constructor(view: WebviewPanel) {
         this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged'] });
@@ -48,6 +51,23 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
                 return projectClient.getProjects({ orgId: ext.api.selectedOrg.id }).catch(serializeError);
+            }
+        });
+        this._messenger.onRequest(CreateComponentRequest, async (args: ComponentWizardInput) => {
+            if (ext.api.selectedOrg) {
+                const workspaceFilePath = workspace.workspaceFile?.fsPath;
+                if (workspaceFilePath) {
+                    return this._manager.createComponent({
+                        org: ext.api.selectedOrg,
+                        projectId: args.projectId,
+                        name: args.name,
+                        displayType: args.type,
+                        accessibility: args.accessibility,
+                        workspaceFilePath: workspaceFilePath
+                    });
+                } else {
+                    throw new Error("Failed to detect the project workpsace.");
+                }
             }
         });
         ext.api.onStatusChanged((newStatus) => {

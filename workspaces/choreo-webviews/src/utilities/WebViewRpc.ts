@@ -18,7 +18,9 @@ import {
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
-    Organization, Project, CloseWebViewNotification
+    Organization, Project, CloseWebViewNotification,
+    ComponentWizardInput,
+    CreateComponentRequest
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -51,6 +53,10 @@ export class ChoreoWebViewAPI {
 
     public async getAllProjects(): Promise<Project[]> {
         return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
+    }
+
+    public async createComponent(args: ComponentWizardInput): Promise<string> {
+        return this._messenger.sendRequest(CreateComponentRequest, HOST_EXTENSION, args);
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
