@@ -15,7 +15,7 @@ import * as vscode from 'vscode';
 import { ThemeIcon, window, extensions } from 'vscode';
 
 import { activateAuth } from './auth';
-import { exchangeOrgAccessTokens } from './auth/auth';
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneAllComponentsCmd, cloneComponentCmd } from './cmds/clone';
 import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
@@ -85,7 +85,11 @@ function createAccountTreeView() {
 		if (treeItem instanceof ChoreoOrgTreeItem) {
 			treeItem.iconPath = new ThemeIcon('loading~spin');
 			accountTreeProvider.refresh(treeItem);
-			await exchangeOrgAccessTokens(treeItem.org.handle);
+			try {
+				await exchangeOrgAccessTokens(treeItem.org.handle);
+			} catch (error: any) {
+				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
+			}
 			ext.api.selectedOrg = treeItem.org;
 		}
 	});

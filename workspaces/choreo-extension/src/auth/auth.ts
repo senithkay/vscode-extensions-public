@@ -15,7 +15,7 @@ import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, C
 import { ChoreoAuthConfig } from "./config";
 import { ext } from '../extensionVariables';
 
-const AUTH_FAIL = "Choreo Login: ";
+export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
 const ACCESS_TOKEN_ERROR = "Error while retreiving the access token details!";
 const APIM_TOKEN_ERROR = "Error while retreiving the apim token details!";
@@ -48,17 +48,20 @@ export async function initiateInbuiltAuth() {
 }
 
 export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
-    
     const currentChoreoToken = await tokenStore.getToken("choreo.token");
     if (currentChoreoToken?.accessToken && currentChoreoToken.expirationTime
         && currentChoreoToken.loginTime && currentChoreoToken.refreshToken) {
 
         let tokenDuration = (new Date().getTime() - new Date(currentChoreoToken.loginTime).getTime()) / 1000;
         if (tokenDuration > currentChoreoToken.expirationTime) {
-            await exchangeRefreshToken(currentChoreoToken.refreshToken);
-            const newChoreoToken = await tokenStore.getToken("choreo.token");
-            if (newChoreoToken?.accessToken && ext.api.selectedOrg) {
-                await exchangeApimToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
+            try {
+                await exchangeRefreshToken(currentChoreoToken.refreshToken);
+                const newChoreoToken = await tokenStore.getToken("choreo.token");
+                if (newChoreoToken?.accessToken && ext.api.selectedOrg) {
+                    await exchangeApimToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
+                }
+            } catch (error: any) {
+                vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging the refresh token! " + error.message);
             }
         }
     }
@@ -67,7 +70,7 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
 
 export async function exchangeAuthToken(authCode: string) {
     if (!authCode) {
-        vscode.window.showErrorMessage(AUTH_FAIL + AUTH_CODE_ERROR);
+        vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + AUTH_CODE_ERROR);
     } else {
         // To bypass the self signed server error.
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
@@ -84,7 +87,7 @@ export async function exchangeAuthToken(authCode: string) {
 
 export async function exchangeApimToken(token: string, orgHandle: string) {
     if (!token) {
-        vscode.window.showErrorMessage(AUTH_FAIL + ACCESS_TOKEN_ERROR);
+        vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + ACCESS_TOKEN_ERROR);
         return;
     }
     try {
@@ -98,7 +101,7 @@ export async function exchangeApimToken(token: string, orgHandle: string) {
 
 export async function exchangeVSCodeToken(apimToken: string) {
     if (!apimToken) {
-        vscode.window.showErrorMessage(AUTH_FAIL + APIM_TOKEN_ERROR);
+        vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + APIM_TOKEN_ERROR);
         return;
     }
     try {
@@ -111,7 +114,7 @@ export async function exchangeVSCodeToken(apimToken: string) {
 
 export async function exchangeRefreshToken(refreshToken: string) {
     if (!refreshToken) {
-        vscode.window.showErrorMessage(AUTH_FAIL + REFRESH_TOKEN_ERROR);
+        vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + REFRESH_TOKEN_ERROR);
         signOut();
         return;
     }
@@ -119,7 +122,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
         const response = await authClient.exchangeRefreshToken(refreshToken);
         await tokenStore.setToken("choreo.token", response);
     } catch (error: any) {
-        vscode.window.showErrorMessage(AUTH_FAIL + SESSION_EXPIRED);
+        vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + SESSION_EXPIRED);
         signOut();
     }
 }
@@ -129,11 +132,16 @@ export async function signIn() {
     const choreoTokenInfo = await tokenStore.getToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
-        const userInfo = await orgClient.getUserInfo();
-        await exchangeApimToken(choreoTokenInfo?.accessToken, userInfo.organizations[0].handle);
-        ext.api.userName = userInfo.displayName;
-        ext.api.selectedOrg = userInfo.organizations[0];
-        ext.api.status = "LoggedIn";
+            try {
+                const userInfo = await orgClient.getUserInfo();
+                await exchangeApimToken(choreoTokenInfo?.accessToken, userInfo.organizations[0].handle);
+                ext.api.userName = userInfo.displayName;
+                ext.api.selectedOrg = userInfo.organizations[0];
+                ext.api.status = "LoggedIn";
+            } catch (error: any) {
+                vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
+                signOut();
+            }
     } 
 }
 
