@@ -45,7 +45,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         rpcInstance.getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
         });
-    });
+    }, []);
 
     // Listen to changes in project selection
     useEffect(() => {
@@ -54,7 +54,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
             });
         });
-    });
+    }, []);
 
 
     return (
