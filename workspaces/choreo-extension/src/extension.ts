@@ -21,6 +21,7 @@ import { cloneAllComponentsCmd, cloneComponentCmd } from './cmds/clone';
 import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
+import { ProjectRegistry } from './registry/project-registry';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
@@ -59,7 +60,9 @@ function createProjectTreeView() {
 	const choreoResourcesProvider = new ProjectsTreeProvider();
 
 	vscode.commands.registerCommand(refreshProjectsListCmdId, async () => {
-		choreoResourcesProvider.refresh();
+		ProjectRegistry.getInstance().sync().then(() => {
+			choreoResourcesProvider.refresh();
+		});
 	});
 
 	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneAllComponentsCmd);

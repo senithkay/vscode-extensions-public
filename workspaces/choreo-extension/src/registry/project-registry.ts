@@ -46,8 +46,12 @@ export class ProjectRegistry {
         throw new Error(`Method not implemented`);
     }
 
-    sync() {
-        throw new Error(`Method not implemented`);
+    async sync(): Promise<undefined> {
+        return new Promise((resolve) => {
+            this._dataProjects = new Map<number, Project[]>([]);
+            this._dataComponents = new Map<string, Component[]>([]);
+            resolve(undefined);
+        });
     }
 
     async getProject(projectId: string, orgId: number) {

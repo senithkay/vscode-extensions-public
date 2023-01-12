@@ -56,22 +56,21 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, []);
 
     // Listen to changes in project selection
-    useEffect(() => {
-        rpcInstance.onSelectedProjectChanged((newProjectId) => {
-            rpcInstance.getAllProjects().then((fetchedProjects) => {
-                setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
-            })
-            rpcInstance.getComponents(newProjectId).then((components: Component[]) => {
-                setComponents(components);
-            });
+    rpcInstance.onSelectedProjectChanged((newProjectId) => {
+        setComponents(undefined);
+        // setProject(undefined); will not remove project to fix the glitch
+        rpcInstance.getAllProjects().then((fetchedProjects) => {
+            setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
+        })
+        rpcInstance.getComponents(newProjectId).then((components: Component[]) => {
+            setComponents(components);
         });
-    }, []);
-
+    });
 
     return (
         <>
             <WizardContainer>
-                <h1>{project?.name}</h1>
+                <h1>{project?.name}&nbsp;</h1>
                 <p>Unable to find a local copy of the project. You can clone the project to your local machine and edit.</p>
                 <ActionContainer>
                     <VSCodeButton appearance="secondary">Open Local Copy</VSCodeButton>
@@ -79,20 +78,22 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     <VSCodeButton appearance="primary">Clone Project</VSCodeButton>
                 </ActionContainer>
                 <h2>Components</h2>
-                <VSCodeDataGrid aria-label="Components">
-                    <VSCodeDataGridRow rowType="header">
-                        <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>
-                        <VSCodeDataGridCell cellType={"columnheader"} gridColumn="2">Version</VSCodeDataGridCell>
-                    </VSCodeDataGridRow>
-                    {
-                        components?.map((component) => {
-                            return <VSCodeDataGridRow>
-                                <VSCodeDataGridCell gridColumn="1">{component.name}</VSCodeDataGridCell>
-                                <VSCodeDataGridCell gridColumn="2">{component.version}</VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                        })
-                    }
-                </VSCodeDataGrid>
+                {(components !== undefined) ?
+                    <VSCodeDataGrid aria-label="Components">
+                        <VSCodeDataGridRow rowType="header">
+                            <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>
+                            <VSCodeDataGridCell cellType={"columnheader"} gridColumn="2">Version</VSCodeDataGridCell>
+                        </VSCodeDataGridRow>
+                        {
+                            components.map((component) => {
+                                return <VSCodeDataGridRow>
+                                    <VSCodeDataGridCell gridColumn="1">{component.name}</VSCodeDataGridCell>
+                                    <VSCodeDataGridCell gridColumn="2">{component.version}</VSCodeDataGridCell>
+                                </VSCodeDataGridRow>
+                            })
+                        }
+                    </VSCodeDataGrid>
+                    : <p>Loading...</p>}
             </WizardContainer>
         </>
     );

@@ -14,12 +14,11 @@ import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemColla
 import { Project } from "@wso2-enterprise/choreo-core";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
-import { ChoreoComponentTreeItem } from "./ComponentTreeItem";
 import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
 import { projectClient } from "../../auth/auth";
 import { ProjectRegistry } from "../../registry/project-registry";
 
-export type ProjectTreeItem = ChoreoProjectTreeItem | ChoreoComponentTreeItem | ChoreoSignInPendingTreeItem;
+export type ProjectTreeItem = ChoreoProjectTreeItem | ChoreoSignInPendingTreeItem;
 
 export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
 
