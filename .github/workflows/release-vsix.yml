@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       isRelease: true
+      version: ${{ github.event.inputs.version }}
     secrets: inherit  
 
   Release:
@@ -55,7 +56,6 @@ jobs:
       - name: Publish low code diagram
         run: |
           cd ballerina-low-code-editor
-          npm version ${{ github.event.inputs.version }} --preid beta --no-git-tag-version
           npm publish --tag latest --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
@@ -88,7 +88,6 @@ jobs:
       
       - name: Commit version
         run: |
-          npm version ${{ github.event.inputs.version }} --preid beta --no-git-tag-version
           git config --global user.name 'GithubAction'
           git config --global user.email 'action@github.com'
           git commit -am "Update version"
