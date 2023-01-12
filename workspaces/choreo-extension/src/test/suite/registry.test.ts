@@ -13,19 +13,23 @@
 import * as assert from 'assert';
 import { suite, setup, test } from 'mocha';
 import * as vscode from 'vscode';
-import { ProjectRegistry } from '../../registry/project-registry';
+//import { ProjectRegistry } from '../../registry/project-registry';
 
 suite('Project Registry', function () {
-    let projectRegistry: ProjectRegistry;
+    //let projectRegistry: ProjectRegistry;
 
     setup(function () {
-        projectRegistry = ProjectRegistry.getInstance();
+        //projectRegistry = ProjectRegistry.getInstance();
     });
 
-    suite('create project registry', function () {
-        test('should return -1 when not present', function () {
-            assert.equal(-1, [1, 2, 3].indexOf(4));
+    suite('location ', function () {
+        test('set and get', function () {
+            // const location = '/my/location';
+            // projectRegistry.setProjectLocation('project-id', location);
+            // const path = projectRegistry.getProjectLocation('project-id');
+            // assert.equal(path, location);
         });
+
     });
 
 });

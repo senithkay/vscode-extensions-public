@@ -17,9 +17,9 @@ import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-     CloseWebViewNotification, serializeError,
+    CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
-    Project, GetComponents
+    Project, GetComponents, GetProjectLocation
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -60,6 +60,10 @@ export class WebViewRpc {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle);
             }
+        });
+
+        this._messenger.onRequest(GetProjectLocation, async (projectId: string) => {
+            return ProjectRegistry.getInstance().getProjectLocation(projectId);
         });
 
         ext.api.onStatusChanged((newStatus) => {

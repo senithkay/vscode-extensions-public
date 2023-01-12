@@ -20,13 +20,14 @@ export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
+export const GetProjectLocation: RequestType<string, string | undefined> = { method: 'getProjectLocation' };
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
 export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };
-export const CloseWebViewNotification: NotificationType<void> =  { method: 'close' };
+export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

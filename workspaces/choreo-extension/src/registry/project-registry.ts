@@ -13,13 +13,17 @@
 
 import { Component, Project, serializeError } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
+import { ext } from "../extensionVariables";
+
+// Key to store the project locations in the global state
+const PROJECT_LOCATIONS = "project-locations";
 
 export class ProjectRegistry {
-
 
     static _registry: ProjectRegistry | undefined;
     private _dataProjects: Map<number, Project[]> = new Map<number, Project[]>([]);
     private _dataComponents: Map<string, Component[]> = new Map<string, Component[]>([]);
+    private _dataProjectLocation: Map<string, string> = new Map<string, string>([]);
 
     constructor() {
 
@@ -96,8 +100,22 @@ export class ProjectRegistry {
         }
     }
 
-    setProjectLocation(projectId: string, dirpath: string) {
-        throw new Error(`Method not implemented`);
+    setProjectLocation(projectId: string, location: string) {
+        // Project locations are stored in global state
+        let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);
+        // If the locations are not set before create the location map
+        if (projectLocations === undefined) {
+            projectLocations = {};
+        }
+        projectLocations[projectId] = location;
+        ext.context.globalState.update(PROJECT_LOCATIONS, projectLocations);
+    }
+
+    getProjectLocation(projectId: string): string | undefined {
+        let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);
+        // TODO: check if the location exists 
+        // If not, remove the location from the state
+        return (projectLocations) ? projectLocations[projectId] : undefined;
     }
 
 }

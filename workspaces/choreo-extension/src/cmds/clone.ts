@@ -19,6 +19,7 @@ import { Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { ChoreoProjectTreeItem } from './../views/project-tree/ProjectTreeItem';
 import { projectClient } from "./../auth/auth";
+import { ProjectRegistry } from '../registry/project-registry';
 
 
 export const cloneAllComponentsCmd = async (treeItem: TreeItem) => {
@@ -100,7 +101,10 @@ export const cloneAllComponentsCmd = async (treeItem: TreeItem) => {
                     currentCloneIndex = currentCloneIndex + 1;
                 }
 
-                await commands.executeCommand("openFolder", Uri.file(workspaceFilePath));
+                // Register the project location in registry
+                ProjectRegistry.getInstance().setProjectLocation(id, workspaceFilePath);
+
+                await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
                 await commands.executeCommand("workbench.explorer.fileView.focus");
 
                 if (choreoManagedRepos.length > 0) {
