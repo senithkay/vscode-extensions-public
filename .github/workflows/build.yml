@@ -6,6 +6,7 @@ on:
       isRelease:
         required: true
         type: boolean
+      version:
 
 env:
   ballerina_version: 2201.2.3
@@ -31,6 +32,13 @@ jobs:
           wget ${{ env.ballerina_deb_url }}
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
+      - name: Update version
+        if: ${{ inputs.isRelease == 'true' }}
+        run: |
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
+          cd ballerina-low-code-editor
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
+          
       - name: Build plugin repo
         run: npm run build
         env:
