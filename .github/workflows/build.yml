@@ -7,6 +7,7 @@ on:
         required: true
         type: boolean
       version:
+        type: string
         required: false
 
 env:
