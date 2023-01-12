@@ -56,7 +56,7 @@ jobs:
       - name: Publish low code diagram
         run: |
           cd ballerina-low-code-editor
-          npm publish --tag latest --workspaces
+          # npm publish --tag latest --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
