@@ -48,11 +48,16 @@ export function CategoryView(props: CategoryViewProps) {
                     if (key !== 'name') {
                         module[key].forEach((element: any) => {
                             currentComponents[key].push({
-                                ...element,
-                                folderPath: packageInfo.filePath,
-                                moduleName: module.name ? module.name : DEFAULT_MODULE_NAME,
-                                projectName: packageInfo.name,
-                                componentType: key
+                                filePath: `${packageInfo.filePath}${module.name ? module.name : ''}/${element.filePath}`,
+                                position: {
+                                    startLine: element.startLine,
+                                    startColumn: element.startColumn,
+                                    endLine: element.endLine,
+                                    endColumn: element.endColumn
+                                },
+                                fileName: element.filePath,
+                                moduleName: module.name ? module.name : '',
+                                name: element.name
                             })
                         });
                     }
@@ -71,6 +76,8 @@ export function CategoryView(props: CategoryViewProps) {
     //         </div>
     //     </div>
     // );
+
+    console.log('category view >>>', currentComponents);
     const categories: React.ReactElement[] = [];
 
     Object.keys(currentComponents).filter(key => currentComponents[key].length).forEach(key => {

@@ -11,15 +11,16 @@
  * associated services.
  */
 
-import { ComponentInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_MODULE_NAME } from ".";
 
-export interface ComponentViewInfo extends ComponentInfo {
-    componentType: string;
-    folderPath: string;
-    moduleName: string;
-    projectName: string;
+export interface ComponentViewInfo {
+    filePath: string;
+    position: NodePosition;
+    fileName?: string,
+    moduleName?: string,
+    name?: string
 }
 
 export interface ComponentCollection {

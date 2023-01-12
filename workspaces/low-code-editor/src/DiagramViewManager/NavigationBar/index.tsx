@@ -54,14 +54,12 @@ export function NavigationBar(props: NavigationBarProps) {
         if (!currentComponent) {
             return undefined;
         } else {
-            const { moduleName, folderPath, filePath } = currentComponent;
+            const { moduleName, filePath } = currentComponent;
 
             return (
                 <>
                     <div className="file-path-details">
-                        <span className="file-path">
-                            {`(${generateFileLocation(moduleName, folderPath.replace('file://', ''), filePath)})`}
-                        </span>
+                        file path
                     </div>
                 </>
             )
@@ -69,9 +67,9 @@ export function NavigationBar(props: NavigationBarProps) {
     }
 
     return (
-        <div className={'header-bar'}>
+        <div id="nav-bar-main" className={'header-bar'}>
             {currentComponent && homeButton}
-            {currentComponent && history.length > 1 && backButton}
+            {currentComponent && backButton}
             <div className="component-details">
                 <span className="module-text">{componentDetailsText}</span>
             </div>

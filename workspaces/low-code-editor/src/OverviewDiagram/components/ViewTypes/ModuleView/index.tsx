@@ -62,11 +62,16 @@ export function ModuleView(props: ModuleViewProps) {
                                 });
                             }
                             (moduleMap.get(moduleName) as ModuleViewInfo).components[key].push({
-                                ...element,
-                                folderPath: packageInfo.filePath,
-                                moduleName: module.name ? module.name : DEFAULT_MODULE_NAME,
-                                projectName: packageInfo.name,
-                                componentType: key
+                                filePath: `${packageInfo.filePath}${module.name ? module.name : ''}/${element.filePath}`,
+                                position: {
+                                    startLine: element.startLine,
+                                    startColumn: element.startColumn,
+                                    endLine: element.endLine,
+                                    endColumn: element.endColumn
+                                },
+                                fileName: element.filePath,
+                                moduleName: module.name ? module.name : undefined,
+                                name: element.name
                             });
                         });
                     }

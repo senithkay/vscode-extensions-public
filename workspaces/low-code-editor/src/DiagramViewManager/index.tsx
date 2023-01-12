@@ -100,18 +100,12 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (history.length > 0) {
             const {
-                moduleName, folderPath, filePath, startColumn, startLine, endColumn, endLine
+                filePath, position
             } = history[history.length - 1];
             diagramFocusSend({
                 type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
-                    filePath: generateFileLocation(moduleName, folderPath.replace('file://', ''), filePath),
-                    position: {
-                        startLine,
-                        startColumn,
-                        endLine,
-                        endColumn
-                    }
-
+                    filePath,
+                    position
                 }
             })
         } else {

@@ -38,7 +38,7 @@ export function ComponentView(props: ComponentViewProps) {
         <div className="component" onClick={handleComponentClick}>
             <div className="title label">{info.name.length ? info.name : '/'}</div>
             <div className="break" />
-            <div className="file label">{info.filePath}</div>
+            <div className="file label">{info.fileName}</div>
         </div>
     )
 }

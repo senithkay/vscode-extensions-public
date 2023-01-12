@@ -19,6 +19,7 @@ import { WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 
 import * as Views from './components/ViewTypes';
 import './style.scss';
+import { ComponentViewInfo } from "./util";
 
 export const DEFAULT_MODULE_NAME = 'default';
 
@@ -31,8 +32,8 @@ enum ViewMode {
 
 export interface OverviewDiagramProps {
     lastUpdatedAt: string;
-    notifyComponentSelection: (info: ComponentInfo) => void;
     projectPaths: WorkspaceFolder[]
+    notifyComponentSelection: (info: ComponentViewInfo) => void;
 }
 
 export function OverviewDiagram(props: OverviewDiagramProps) {
@@ -66,6 +67,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                     documentIdentifiers: [...filePaths]
                 });
 
+                console.log('project components', componentResponse);
                 updateProjectComponenets(componentResponse);
             } catch (err) {
                 // tslint:disable-next-line: no-console
