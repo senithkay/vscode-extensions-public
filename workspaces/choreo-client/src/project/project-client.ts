@@ -44,7 +44,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             const data = await client.request(query);
             return data.projects;
         } catch (error) {
-            throw new Error("Error while fetching projects.", { cause: error });
+            throw new Error("Error while fetching projects. " , { cause: error });
         }
 
     }

@@ -66,8 +66,7 @@ export function ProjectWizard() {
                 webviewAPI.triggerCmd("wso2.choreo.projects.refresh");
                 webviewAPI.closeWebView();
             } catch (error: any) {
-                const cause = error.cause ? error.cause.message : "";
-                setErrorMsg(error.message + " " + cause);
+                setErrorMsg(error.message + " " + error.cause);
             }
         }
         setCreationInProgress(false);
@@ -110,7 +109,7 @@ export function ProjectWizard() {
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
                         <ErrorMessageContainer>
-                            {error.message + (error.cause ? (error.cause as any).message : "")}
+                            {error.message + error.cause}
                         </ErrorMessageContainer>
                     )}
                     <ActionContainer>

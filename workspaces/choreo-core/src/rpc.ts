@@ -26,3 +26,12 @@ export const SelectedOrgChangedNotification: NotificationType<Organization> = { 
 export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };
 export const CloseWebViewNotification: NotificationType<void> =  { method: 'close' };
+
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function serializeError(err: any) {
+   return {
+      message: err.message,
+      cause: err.cause ? err.cause.message : ""
+   };
+}
