@@ -50,7 +50,7 @@ export class WebviewWizard {
     const scriptUri = getUri(webview, extensionUri, [
       "resources",
       "jslibs",
-      "choreo-vscode-webviews.js"
+      "main.js"
     ]);
 
     return /*html*/ `

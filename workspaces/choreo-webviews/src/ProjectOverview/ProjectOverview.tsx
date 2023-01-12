@@ -43,18 +43,18 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     // Set the starting project with the project id passed by props
     useEffect(() => {
         rpcInstance.getAllProjects().then((fetchedProjects) => {
-            setProject(fetchedProjects.find((i) => { return i.id === projectId }));
+            setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
         });
-    }, []);
+    });
 
     // Listen to changes in project selection
     useEffect(() => {
         rpcInstance.onSelectedProjectChanged((newProjectId) => {
             rpcInstance.getAllProjects().then((fetchedProjects) => {
-                setProject(fetchedProjects.find((i) => { return i.id === newProjectId }));
-            })
+                setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
+            });
         });
-    }, []);
+    });
 
 
     return (
