@@ -811,5 +811,6 @@ export const expressions: ExpressionGroup[] = [
     queryIntermediateClauses,
     remoteMethodCall,
     orderKey,
-    orderDirectionKeywords
+    orderDirectionKeywords,
+    parenthesis
 ];
