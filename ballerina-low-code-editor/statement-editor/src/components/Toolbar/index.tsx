@@ -196,6 +196,7 @@ export default function Toolbar() {
                 </>
             )}
             <ToolbarOperators />
+            <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider} />
             <StatementEditorHint content={"More expressions"} >
                 <IconButton
                     onClick={onClickExpressions}
@@ -203,7 +204,7 @@ export default function Toolbar() {
                     data-testid="toolbar-expressions"
                 >
                     <Typography className={statementEditorClasses.toolbarMoreExpIcon}>
-                        ...
+                        More
                     </Typography>
                 </IconButton>
             </StatementEditorHint>
