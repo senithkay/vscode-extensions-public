@@ -18,9 +18,9 @@ export const cloneComponentCmdId = 'wso2.choreo.component.clone';
 export const cloneAllComponentsCmdId = 'wso2.choreo.project.clone';
 export const createNewProjectCmdId = 'wso2.choreo.project.create';
 export const createNewComponentCmdId = 'wso2.choreo.component.create';
-
+export const choreoProjectOverview = 'wso2.choreo.project.overview';
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
- 
+
 // views
 export const choreoProjectsTreeId = 'choreo-projects';
 export const choreoAccountTreeId = 'choreo-account';

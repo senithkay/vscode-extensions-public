@@ -17,20 +17,24 @@ import {
     GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    ChoreoLoginStatus,
-    Organization, Project
+    ChoreoLoginStatus, SelectedProjectChangedNotification,
+    Organization, Project, CloseWebViewNotification
 } from "@wso2-enterprise/choreo-core";
+
+import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
-export class WebViewRpc {
+export class ChoreoWebViewAPI {
 
     private readonly _messenger;
-    private static _instance: WebViewRpc;
+    private static _instance: ChoreoWebViewAPI;
+    private _projectClientRpc: ChoreoProjectClientRPCWebView;
 
     constructor(vscodeAPI: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscodeAPI);
         this._messenger.start();
+        this._projectClientRpc = new ChoreoProjectClientRPCWebView(this._messenger);
     }
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
@@ -57,13 +61,25 @@ export class WebViewRpc {
         this._messenger.onNotification(SelectedOrgChangedNotification, callback);
     }
 
-    public triggerSignIn() {
-        this._messenger.sendNotification(ExecuteCommandNotification, HOST_EXTENSION, ["wso2.choreo.sign.in"]);
+    public onSelectedProjectChanged(callback: (projectId: string) => void) {
+        this._messenger.onNotification(SelectedProjectChangedNotification, callback);
+    }
+
+    public triggerCmd(cmdId: string, ...args: any) {
+        this._messenger.sendNotification(ExecuteCommandNotification, HOST_EXTENSION, [cmdId, ...args]);
+    }
+
+    public getProjectClient(): IChoreoProjectClient {
+        return this._projectClientRpc;
+    }
+
+    public closeWebView() {
+        this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
     }
 
     public static getInstance() {
         if (!this._instance) {
-            this._instance = new WebViewRpc(vscode);
+            this._instance = new ChoreoWebViewAPI(vscode);
         }
         return this._instance;
     }

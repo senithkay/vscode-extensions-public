@@ -12,4 +12,4 @@
  */
 export * from "./project-client";
 export * from "./types";
-
+export * from "./rpc";

@@ -18,8 +18,20 @@ export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { m
 export const GetCurrentOrgRequest: RequestType<string, Organization> = { method: 'getCurrentOrg' };
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
+export const GetProject: RequestType<string, Project> = { method: 'getProject' };
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
+export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };
+export const CloseWebViewNotification: NotificationType<void> =  { method: 'close' };
+
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function serializeError(err: any) {
+   return {
+      message: err.message,
+      cause: err.cause ? err.cause.message : ""
+   };
+}

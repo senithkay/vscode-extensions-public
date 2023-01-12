@@ -10,6 +10,75 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export function ProjectOverview() {
-    return <h1>Project Overview</h1>;
+
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import styled from "@emotion/styled";
+import { useContext, useState, useEffect } from "react";
+import { SignIn } from "../SignIn/SignIn";
+import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { Project } from "@wso2-enterprise/choreo-core";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+
+const WizardContainer = styled.div`
+    width: 100%;
+    display  : flex;
+    flex-direction: column;
+`;
+
+const ActionContainer = styled.div`
+    display  : flex;
+    flex-direction: row;
+    gap: 10px;
+`;
+
+export interface ProjectOverviewProps {
+    projectId?: string;
+}
+
+export function ProjectOverview(props: ProjectOverviewProps) {
+    const [project, setProject] = useState<Project | undefined>(undefined);
+    const projectId = props.projectId ? props.projectId : '';
+
+    const rpcInstance = ChoreoWebViewAPI.getInstance();
+    // Set the starting project with the project id passed by props
+    useEffect(() => {
+        rpcInstance.getAllProjects().then((fetchedProjects) => {
+            setProject(fetchedProjects.find((i) => { return i.id === projectId }));
+        });
+    }, []);
+
+    // Listen to changes in project selection
+    useEffect(() => {
+        rpcInstance.onSelectedProjectChanged((newProjectId) => {
+            rpcInstance.getAllProjects().then((fetchedProjects) => {
+                setProject(fetchedProjects.find((i) => { return i.id === newProjectId }));
+            })
+        });
+    }, []);
+
+
+    return (
+        <>
+            <WizardContainer>
+                <h1>{project?.name}</h1>
+                <p>Unable to find a local copy of the project. You can clone the project to your local machine and edit.</p>
+                <ActionContainer>
+                    <VSCodeButton appearance="secondary">Open Local Copy</VSCodeButton>
+                    <VSCodeButton appearance="secondary">Open in Choreo Console</VSCodeButton>
+                    <VSCodeButton appearance="primary">Clone Project</VSCodeButton>
+                </ActionContainer>
+                <h2>Components</h2>
+                <VSCodeDataGrid aria-label="Components">
+                    <VSCodeDataGridRow rowType="header">
+                        <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>
+                        <VSCodeDataGridCell cellType={"columnheader"} gridColumn="2">Version</VSCodeDataGridCell>
+                    </VSCodeDataGridRow>
+                    <VSCodeDataGridRow>
+                        <VSCodeDataGridCell gridColumn="1">Component 1</VSCodeDataGridCell>
+                        <VSCodeDataGridCell gridColumn="2">1.2.3</VSCodeDataGridCell>
+                    </VSCodeDataGridRow>
+                </VSCodeDataGrid>
+            </WizardContainer>
+        </>
+    );
 }

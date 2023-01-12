@@ -12,19 +12,23 @@
  */
 import { commands, WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
-import { BROADCAST } from 'vscode-messenger-common';
-import { GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
+import { BROADCAST, NotificationType } from 'vscode-messenger-common';
+import {
+    GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
-    LoginStatusChangedNotification, SelectedOrgChangedNotification  } from "@wso2-enterprise/choreo-core";
+    LoginStatusChangedNotification, SelectedOrgChangedNotification,
+    SelectedProjectChangedNotification, CloseWebViewNotification, serializeError
+} from "@wso2-enterprise/choreo-core";
+import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { ext } from "../../../extensionVariables";
 import { orgClient, projectClient } from "../../../auth/auth";
-
+import { userInfo } from "os";
 export class WebViewRpc {
 
     private _messenger = new Messenger();
 
     constructor(view: WebviewPanel) {
-        this._messenger.registerWebviewPanel(view, { broadcastMethods: [ 'loginStatusChanged', 'selectedOrgChanged' ] });
+        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged'] });
 
         this._messenger.onRequest(GetLoginStatusRequest, () => {
             return ext.api.status;
@@ -35,14 +39,16 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllOrgsRequest, async () => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
-                 const userInfo = await orgClient.getUserInfo();
-                 return userInfo.organizations;
-            } 
+                return orgClient.getUserInfo()
+                    .then((userInfo) => userInfo.organizations)
+                    .catch(serializeError);
+            }
         });
+        // TODO: Remove this once the Choreo project client RPC handlers are registered
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
-                return projectClient.getProjects(ext.api.selectedOrg.id);
-            } 
+                return projectClient.getProjects({ orgId: ext.api.selectedOrg.id }).catch(serializeError);
+            }
         });
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
@@ -50,11 +56,20 @@ export class WebViewRpc {
         ext.api.onOrganizationChanged((newOrg) => {
             this._messenger.sendNotification(SelectedOrgChangedNotification, BROADCAST, newOrg);
         });
+        ext.api.onChoreoProjectChanged((projectId) => {
+            this._messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, projectId);
+        });
         this._messenger.onNotification(ExecuteCommandNotification, (args: string[]) => {
             if (args.length >= 1) {
                 const cmdArgs = args.length > 1 ? args.slice(1) : [];
                 commands.executeCommand(args[0], ...cmdArgs);
             }
         });
+        this._messenger.onNotification(CloseWebViewNotification, () => {
+            view.dispose();
+        });
+
+        // Register RPC handlers for Choreo project client
+        registerChoreoProjectRPCHandlers(this._messenger, projectClient);
     }
 }

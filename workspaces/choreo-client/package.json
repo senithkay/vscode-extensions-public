@@ -24,7 +24,10 @@
     "axios": "^1.2.2",
     "form-data": "^4.0.0",
     "keytar": "^7.9.0",
-    "pkce-challenge": "^3.0.0"
+    "pkce-challenge": "^3.0.0",
+    "vscode-messenger": "^0.4.4",
+    "vscode-messenger-common": "^0.4.3",
+    "vscode-messenger-webview": "^0.4.3"
   },
   "jest": {
     "transformIgnorePatterns": [

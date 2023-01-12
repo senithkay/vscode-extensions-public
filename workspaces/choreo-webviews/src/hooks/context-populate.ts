@@ -13,7 +13,7 @@
 import { ChoreoLoginStatus, Organization } from "@wso2-enterprise/choreo-core";
 import { useState, useEffect } from "react";
 import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { WebViewRpc } from "../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 export function usePopulateContext(): IChoreoWebViewContext {
 
@@ -22,12 +22,17 @@ export function usePopulateContext(): IChoreoWebViewContext {
     const [fetchingOrgInfo, setFetchingOrgInfo] = useState(true);
     const [selectedOrg, setSelectedOrg] = useState<Organization | undefined>(undefined);
     const [userOrgs, setUserOrgs] = useState<Organization[] | undefined>(undefined);
+    const [error, setError] = useState<Error | undefined>(undefined);
   
     useEffect(() => {
-      const rpcInstance = WebViewRpc.getInstance();
+      const rpcInstance = ChoreoWebViewAPI.getInstance();
       const checkLoginStatus = async () => {
-        const loginStatus = await rpcInstance.getLoginStatus();
-        setLoginStatus(loginStatus);
+        try {
+          const loginStatus = await rpcInstance.getLoginStatus();
+          setLoginStatus(loginStatus);
+        } catch (err: any) {
+          setError(err);
+        }
         setLoginStatusPending(false);
       }
       checkLoginStatus();
@@ -35,12 +40,16 @@ export function usePopulateContext(): IChoreoWebViewContext {
     }, []);
 
     useEffect(() => {
-        const rpcInstance = WebViewRpc.getInstance()
+        const rpcInstance = ChoreoWebViewAPI.getInstance()
         const fetchOrgInfo = async () => {
-            const currOrg = await rpcInstance.getCurrentOrg();
-            const allOrgs = await rpcInstance.getAllOrgs();
-            setSelectedOrg(currOrg);
-            setUserOrgs(allOrgs);
+            try {
+              const currOrg = await rpcInstance.getCurrentOrg();
+              const allOrgs = await rpcInstance.getAllOrgs();
+              setSelectedOrg(currOrg);
+              setUserOrgs(allOrgs);
+            } catch (err: any) {
+              setError(err)
+            }
             setFetchingOrgInfo(false);
         }
         fetchOrgInfo();
@@ -52,6 +61,7 @@ export function usePopulateContext(): IChoreoWebViewContext {
         loginStatus,
         fetchingOrgInfo,
         selectedOrg,
-        userOrgs
+        userOrgs,
+        error
     }
 }

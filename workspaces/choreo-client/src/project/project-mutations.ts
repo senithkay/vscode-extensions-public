@@ -14,12 +14,12 @@ import { gql } from 'graphql-request';
 import { CreateProjectParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
-    const { name, description, orgId, orgHandler, version = "1.0.0", region = "US" } = params;
+    const { name, description, orgId, orgHandle, version = "1.0.0", region = "US" } = params;
     return gql`
         mutation{ 
             createProject(project: {
                 name: "${name}", description: "${description}",
-                orgId: ${orgId}, orgHandler: "${orgHandler}",
+                orgId: ${orgId}, orgHandler: "${orgHandle}",
                 version: "${version}", region: "${region}",
             }){ 
                 id, orgId, name, version, createdDate, handler, region, description,
