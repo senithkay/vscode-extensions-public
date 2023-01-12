@@ -22,6 +22,7 @@ import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, clo
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
 import { ProjectRegistry } from './registry/project-registry';
+import { activateURIHandlers } from './uri-handlers';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
@@ -46,6 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = false;
 	activateBallerinaExtension();
 	activateWizards();
+	activateURIHandlers();
 	return ext.api;
 }
 
