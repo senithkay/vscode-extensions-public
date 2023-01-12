@@ -15,13 +15,13 @@ import { Component, Project, Repository } from "@wso2-enterprise/choreo-core";
 import { ComponentMutationParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "./types";
 import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './project-queries';
 import { getCreateProjectMutation } from './project-mutations';
-import { ITokenStorage } from '../auth';
+import { IReadOnlyTokenStorage } from '../auth';
 
 export const PROJECTS_API_URL = 'https://apis.choreo.dev/projects/1.0.0/graphql';
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
-    constructor(private _tokenStore: ITokenStorage, private _baseURL: string = PROJECTS_API_URL) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string = PROJECTS_API_URL) {
     }
 
     private async _getClient() {

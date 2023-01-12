@@ -11,7 +11,7 @@
  *  associated services.
  */
 import * as vscode from 'vscode';
-import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient } from "@wso2-enterprise/choreo-client";
+import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage } from "@wso2-enterprise/choreo-client";
 import { ChoreoAuthConfig } from "./config";
 import { ext } from '../extensionVariables';
 
@@ -26,6 +26,12 @@ export const choreoAuthConfig: ChoreoAuthConfig = new ChoreoAuthConfig();
 
 export const tokenStore = new KeyChainTokenStorage();
 
+export const readonlyTokenStore: IReadOnlyTokenStorage = {
+    getToken: async (key: ChoreoTokenType) => {
+        return await getChoreoToken(key);
+    }
+};
+
 export const authClient = new ChoreoAuthClient({
     loginUrl: choreoAuthConfig.getLoginUrl(),
     redirectUrl: choreoAuthConfig.getRedirectUri(),
@@ -36,9 +42,9 @@ export const authClient = new ChoreoAuthClient({
     tokenUrl: choreoAuthConfig.getTokenUri(),
 });
 
-export const orgClient = new ChoreoOrgClient(tokenStore);
+export const orgClient = new ChoreoOrgClient(readonlyTokenStore);
 
-export const projectClient = new ChoreoProjectClient(tokenStore);
+export const projectClient = new ChoreoProjectClient(readonlyTokenStore);
 
 export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
