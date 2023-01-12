@@ -16,7 +16,7 @@ import styled from "@emotion/styled";
 import { useContext, useState, useEffect } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { Project } from "@wso2-enterprise/choreo-core";
+import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const WizardContainer = styled.div`
@@ -37,6 +37,7 @@ export interface ProjectOverviewProps {
 
 export function ProjectOverview(props: ProjectOverviewProps) {
     const [project, setProject] = useState<Project | undefined>(undefined);
+    const [components, setComponents] = useState<Component[] | undefined>(undefined);
     const projectId = props.projectId ? props.projectId : '';
 
     const rpcInstance = ChoreoWebViewAPI.getInstance();
@@ -47,11 +48,21 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
     }, []);
 
+    // Set the components of the project
+    useEffect(() => {
+        rpcInstance.getComponents(projectId).then((components: Component[]) => {
+            setComponents(components);
+        });
+    }, []);
+
     // Listen to changes in project selection
     useEffect(() => {
         rpcInstance.onSelectedProjectChanged((newProjectId) => {
             rpcInstance.getAllProjects().then((fetchedProjects) => {
                 setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
+            })
+            rpcInstance.getComponents(newProjectId).then((components: Component[]) => {
+                setComponents(components);
             });
         });
     }, []);
@@ -73,10 +84,14 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>
                         <VSCodeDataGridCell cellType={"columnheader"} gridColumn="2">Version</VSCodeDataGridCell>
                     </VSCodeDataGridRow>
-                    <VSCodeDataGridRow>
-                        <VSCodeDataGridCell gridColumn="1">Component 1</VSCodeDataGridCell>
-                        <VSCodeDataGridCell gridColumn="2">1.2.3</VSCodeDataGridCell>
-                    </VSCodeDataGridRow>
+                    {
+                        components?.map((component) => {
+                            return <VSCodeDataGridRow>
+                                <VSCodeDataGridCell gridColumn="1">{component.name}</VSCodeDataGridCell>
+                                <VSCodeDataGridCell gridColumn="2">{component.version}</VSCodeDataGridCell>
+                            </VSCodeDataGridRow>
+                        })
+                    }
                 </VSCodeDataGrid>
             </WizardContainer>
         </>

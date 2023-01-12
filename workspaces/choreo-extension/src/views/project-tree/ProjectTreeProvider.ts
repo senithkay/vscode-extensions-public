@@ -17,6 +17,7 @@ import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
 import { ChoreoComponentTreeItem } from "./ComponentTreeItem";
 import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
 import { projectClient } from "../../auth/auth";
+import { ProjectRegistry } from "../../registry/project-registry";
 
 export type ProjectTreeItem = ChoreoProjectTreeItem | ChoreoComponentTreeItem | ChoreoSignInPendingTreeItem;
 
@@ -52,25 +53,15 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
         this._onDidChangeTreeData.fire(item);
     }
 
-    private async loadComponents(project: Project): Promise<ChoreoComponentTreeItem[]> {
-        const selectedOrg = ext.api.selectedOrg;
-        if (selectedOrg) {
-            return projectClient.getComponents({ orgHandle: selectedOrg.handle, projId: project.id})
-                .then((components) => components.map((cmp) => new ChoreoComponentTreeItem(cmp)));
-        }
-        return [];
-    }
-
     private async loadProjects(): Promise<ChoreoProjectTreeItem[]> {
         const selectedOrg = ext.api.selectedOrg;
         if (selectedOrg) {
-            return projectClient.getProjects({ orgId: selectedOrg.id })
+            return ProjectRegistry.getInstance().getProjects(selectedOrg.id)
                 .then((projects) => {
                     return projects.map((proj) => new ChoreoProjectTreeItem(proj));
                 });
         } else {
             throw Error("Selected organization is not set.");
         }
-
     }
 }
