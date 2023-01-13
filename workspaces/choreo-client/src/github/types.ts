@@ -41,6 +41,6 @@ export interface GithubRepository {
 }
 
 export interface GithubOrgnization {
-    name: string;
+    orgName: string;
     repositories: GithubRepository[];
 }
