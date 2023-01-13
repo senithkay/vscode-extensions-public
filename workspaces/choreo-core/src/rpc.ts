@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component } from './types';
 
 // request types 
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
@@ -19,6 +19,7 @@ export const GetCurrentOrgRequest: RequestType<string, Organization> = { method:
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
+export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };

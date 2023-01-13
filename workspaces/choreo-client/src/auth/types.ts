@@ -23,8 +23,10 @@ export type ChoreoVscodeToken = "choreo.vscode.token";
 
 export type ChoreoTokenType = ChoreoToken | ChoreoApimToken | ChoreoVscodeToken;
 
-export interface ITokenStorage {
+export interface IReadOnlyTokenStorage {
     getToken(tokenType: ChoreoTokenType): Promise<AccessToken|undefined>;
+}
+export interface ITokenStorage extends IReadOnlyTokenStorage {
     setToken(tokenType: ChoreoTokenType, token: AccessToken): Promise<void>;
     deleteToken(tokenType: ChoreoTokenType): Promise<void>;
 }
