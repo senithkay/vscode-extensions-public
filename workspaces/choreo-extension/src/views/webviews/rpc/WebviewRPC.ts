@@ -10,16 +10,16 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel } from "vscode";
+import { commands, Uri, WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-     CloseWebViewNotification, serializeError,
+    CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
-    Project, GetComponents
+    Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -27,6 +27,8 @@ import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/
 import { ext } from "../../../extensionVariables";
 import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
+import * as vscode from 'vscode';
+import { cloneProject } from "../../../cmds/clone";
 
 export class WebViewRpc {
 
@@ -59,6 +61,33 @@ export class WebViewRpc {
         this._messenger.onRequest(GetComponents, async (projectId: string) => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle);
+            }
+        });
+
+        this._messenger.onRequest(GetProjectLocation, async (projectId: string) => {
+            return ProjectRegistry.getInstance().getProjectLocation(projectId);
+        });
+
+        this._messenger.onRequest(OpenExternal, (url: string) => {
+            vscode.env.openExternal(vscode.Uri.parse(url));
+        });
+
+        this._messenger.onRequest(OpenChoreoProject, async (projectId: string) => {
+            const workspaceFilePath = ProjectRegistry.getInstance().getProjectLocation(projectId);
+            if (workspaceFilePath !== undefined) {
+                await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
+                await commands.executeCommand("workbench.explorer.fileView.focus");
+            }
+        });
+
+        this._messenger.onRequest(CloneChoreoProject, (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                ProjectRegistry.getInstance().getProject(projectId, ext.api.selectedOrg?.id)
+                    .then((project: Project | undefined) => {
+                        if (project) {
+                            cloneProject(project);
+                        }
+                    });
             }
         });
 

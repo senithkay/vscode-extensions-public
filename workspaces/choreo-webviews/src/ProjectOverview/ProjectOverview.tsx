@@ -33,12 +33,15 @@ const ActionContainer = styled.div`
 
 export interface ProjectOverviewProps {
     projectId?: string;
+    orgName?: string;
 }
 
 export function ProjectOverview(props: ProjectOverviewProps) {
     const [project, setProject] = useState<Project | undefined>(undefined);
     const [components, setComponents] = useState<Component[] | undefined>(undefined);
+    const [location, setLocation] = useState<string | undefined>(undefined);
     const projectId = props.projectId ? props.projectId : '';
+    const orgName = props.orgName ? props.orgName : '';
 
     const rpcInstance = ChoreoWebViewAPI.getInstance();
     // Set the starting project with the project id passed by props
@@ -50,9 +53,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     // Set the components of the project
     useEffect(() => {
-        rpcInstance.getComponents(projectId).then((components: Component[]) => {
-            setComponents(components);
-        });
+        rpcInstance.getComponents(projectId).then(setComponents);
+    }, []);
+
+    // Get project location
+    useEffect(() => {
+        rpcInstance.getProjectLocation(projectId).then(setLocation);
     }, []);
 
     // Listen to changes in project selection
@@ -62,23 +68,45 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         rpcInstance.getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
         })
-        rpcInstance.getComponents(newProjectId).then((components: Component[]) => {
-            setComponents(components);
-        });
+        rpcInstance.getComponents(newProjectId).then(setComponents);
+        rpcInstance.getProjectLocation(newProjectId).then(setLocation);
     });
+
+    const handleCloneProjectClick = (e: any) => {
+        rpcInstance.cloneChoreoProject(project ? project.id : '');
+    }
+
+    const handleOpenProjectClick = (e: any) => {
+        rpcInstance.openChoreoProject(project ? project.id : '');
+    }
+
+    const handleOpenInConsoleClick = (e: any) => {
+        rpcInstance.openExternal(`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`);
+    }
 
     return (
         <>
             <WizardContainer>
                 <h1>{project?.name}&nbsp;</h1>
-                <p>Unable to find a local copy of the project. You can clone the project to your local machine and edit.</p>
-                <ActionContainer>
-                    <VSCodeButton appearance="secondary">Open Local Copy</VSCodeButton>
-                    <VSCodeButton appearance="secondary">Open in Choreo Console</VSCodeButton>
-                    <VSCodeButton appearance="primary">Clone Project</VSCodeButton>
-                </ActionContainer>
+                {location === undefined ?
+                    <>
+                        <p>To edit the project clone in to your local machine</p>
+                        <ActionContainer>
+                            <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}>Clone Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" onClick={handleOpenInConsoleClick}>Open in Choreo Console</VSCodeButton>
+                        </ActionContainer>
+                    </>
+                    :
+                    <>
+                        <p>Found a local copy of the project at `{location}`. </p>
+                        <ActionContainer>
+                            <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" onClick={handleOpenInConsoleClick}>Open in Choreo Console</VSCodeButton>
+                        </ActionContainer>
+                    </>}
+
                 <h2>Components</h2>
-                {(components !== undefined) ?
+                {(components !== undefined) ? // TODO: if components are empty print message
                     <VSCodeDataGrid aria-label="Components">
                         <VSCodeDataGridRow rowType="header">
                             <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>
