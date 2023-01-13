@@ -66,7 +66,7 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
     },
     apis: {
         projectAPI: "https://apis.choreo.dev/projects/1.0.0/graphql",
-        base: "'https://app.choreo.dev"
+        base: "https://app.choreo.dev"
     }
 };
 
