@@ -24,9 +24,6 @@ export interface IChoreoExtensionAPI {
 export class ChoreoExtensionApi {
     // TODO move this to ext namespace
     public userName: string | undefined;
-    public choreoTokenKey = ChoreoToken;
-    public choreoApimTokenKey = ChoreoApimToken;
-    public choreoVscodeTokenKey = ChoreoVscodeToken;
 
     private _status: ChoreoLoginStatus;
     private _selectedOrg: Organization | undefined;
@@ -99,10 +96,6 @@ export class ChoreoExtensionApi {
 
     public getProjectManager(projectId: string): Promise<IProjectManager | undefined> {
         return Promise.resolve(undefined);
-    }
-
-    public getChoreoToken(tokenKey: string): Promise<ChoreoAccessToken | undefined> {
-        return getToken(tokenKey);
     }
 
 }

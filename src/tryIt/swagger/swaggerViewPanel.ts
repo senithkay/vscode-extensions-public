@@ -26,6 +26,7 @@ import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../../
 import { getPortPromise } from "portfinder";
 import { loader } from "./loader";
 import { getChoreoExtAPI } from '../../choreo-features/activate';
+import { KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
 
 export const CHOREO_API_TEST_DATA_GEN = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
     `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/ai-test-assistant/1.0.0/generate-data` :
@@ -84,7 +85,8 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
 
         const choreoExt = await getChoreoExtAPI();
         if (choreoExt) {
-            const choreoTokenInfo = await choreoExt.getChoreoToken(choreoExt.choreoVscodeTokenKey);
+            const tokenStorage = new KeyChainTokenStorage();
+            const choreoTokenInfo = await tokenStorage.getToken("choreo.vscode.token");
 
             if (choreoTokenInfo?.accessToken) {
                 for (let index = 0; index < specs.length; index++) {
