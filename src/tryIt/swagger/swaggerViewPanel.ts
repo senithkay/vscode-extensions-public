@@ -17,7 +17,7 @@
  *
  */
 
-import { ViewColumn, window, WebviewPanel } from "vscode";
+import { ViewColumn, window, WebviewPanel, commands } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../../utils';
 import { render } from './render';
 import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient, OASpec } from "../../core";
@@ -110,6 +110,14 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
                     }
                     spec.spec = JSON.parse((testData as any).body).openapiSpec;
                 }
+            } else {
+                const action = 'Sign in to Choreo';
+                window.showInformationMessage("Please sign in to Choreo to use AI generated sample data.",
+                    action).then((selection) => {
+                        if (action === selection) {
+                            commands.executeCommand('choreo-account.focus');
+                        }
+                    });
             }
         }
 
