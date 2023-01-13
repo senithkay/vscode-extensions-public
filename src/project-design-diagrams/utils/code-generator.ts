@@ -20,13 +20,16 @@
 import { writeFileSync } from "fs";
 import { ExtendedLangClient } from "src/core";
 import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
+import { BallerinaConnectorInfo, Connector, GetSyntaxTreeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
 import { STResponse } from "../activator";
 import { Service } from "../resources";
+import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "./connector-code-gen-utils";
 
 const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
 let clientName: string;
 
-export async function addConnector(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
+export async function linkServices(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
     : Promise<boolean> {
     const filePath: string = sourceService.elementLocation.filePath;
     clientName = transformLabel(targetService.annotation.label) || transformLabel(targetService.annotation.id);
@@ -93,6 +96,89 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
     return false;
 }
 
+export async function addConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {
+    const filePath: string = targetService.elementLocation.filePath;
+
+    const stResponse = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString(),
+        },
+    });
+    if (!(stResponse as GetSyntaxTreeResponse)?.parseSuccess) {
+        return false;
+    }
+
+    const members: any[] = (stResponse as GetSyntaxTreeResponse).syntaxTree.members;
+    const serviceDecl = members.find(
+        (member) =>
+            member.kind === "ServiceDeclaration" &&
+            targetService.elementLocation.startPosition.line === member.position.startLine &&
+            targetService.elementLocation.endPosition.line === member.position.endLine &&
+            targetService.elementLocation.startPosition.offset === member.position.startColumn &&
+            targetService.elementLocation.endPosition.offset === member.position.endColumn
+    );
+
+    const connectorInfo = await fetchConnectorInfo(langClient, connector);
+    if (!(connectorInfo && connectorInfo.moduleName)) {
+        return false;
+    }
+
+    const imports = getConnectorImports((stResponse as GetSyntaxTreeResponse).syntaxTree, connectorInfo.package.organization, connectorInfo.moduleName);
+
+    const initMember = getInitFunction(serviceDecl);
+    if (initMember) {
+        const updatedSTRes = await updateSyntaxTree(langClient, filePath, serviceDecl, generateConnectorClientDecl(connectorInfo), imports);
+        let updatedST = updatedSTRes as STResponse;
+        if (updatedST?.parseSuccess) {
+            await updateSourceFile(langClient, filePath, updatedST.source);
+            const newLines = imports.size || 0;
+            const serviceDecl = updatedST.syntaxTree.members.find(
+                (member) =>
+                    member.kind === "ServiceDeclaration" &&
+                    targetService.elementLocation.startPosition.line + newLines === member.position.startLine &&
+                    targetService.elementLocation.startPosition.offset === member.position.startColumn
+            );          
+
+            const updatedInitMember = getInitFunction(serviceDecl);
+            if (updatedInitMember) {
+                const modifiedST = (await updateSyntaxTree(
+                    langClient,
+                    filePath,
+                    updatedInitMember.functionBody,
+                    generateConnectorClientInit(connectorInfo),
+                    getMissingImports(updatedST.source, imports)
+                )) as STResponse;
+                if (modifiedST && modifiedST.parseSuccess) {
+                    return await updateSourceFile(langClient, filePath, modifiedST.source);
+                }
+            }
+        }
+    } else {
+        const template = `
+            ${generateConnectorClientDecl(connectorInfo)}
+            ${generateServiceInit(targetService, connectorInfo)}
+        `;
+        const modifiedST = (await updateSyntaxTree(langClient, filePath, serviceDecl, template, imports)) as STResponse;
+        if (modifiedST && modifiedST.parseSuccess) {
+            return await updateSourceFile(langClient, filePath, modifiedST.source);
+        }
+    }
+
+    return false;
+}
+
+async function fetchConnectorInfo(langClient: ExtendedLangClient, connector: Connector): Promise<BallerinaConnectorInfo | undefined> {
+    const connectorRes = await langClient.getConnector({
+        name: connector.name,
+        package: connector.package,
+        id: connector.id,
+    });
+    if ((connectorRes as BallerinaConnectorInfo)?.functions?.length > 0) {
+        return connectorRes as BallerinaConnectorInfo;
+    }
+    return undefined;
+}
+
 
 function getInitFunction(serviceDeclaration: any): any {
     const serviceNodeMembers: any[] = serviceDeclaration.members;
@@ -102,24 +188,47 @@ function getInitFunction(serviceDeclaration: any): any {
     return initMember;
 }
 
-async function updateSyntaxTree(langClient: ExtendedLangClient, filePath: string, stObject: any, generatedCode: string)
-    : Promise<STResponse | {}> {
-    let stModification = {
+async function updateSyntaxTree(
+    langClient: ExtendedLangClient,
+    filePath: string,
+    stObject: any,
+    generatedCode: string,
+    imports?: Set<string>
+): Promise<STResponse | {}> {
+    const modifications: STModification[] = [];
+
+    if (imports && imports?.size > 0) {
+        imports.forEach(function (stmt) {
+            modifications.push({
+                startLine: 0,
+                startColumn: 0,
+                endLine: 0,
+                endColumn: 0,
+                type: "INSERT",
+                config: {
+                    STATEMENT: `import ${stmt};`,
+                },
+                isImport: true,
+            });
+        });
+    }
+
+    modifications.push({
         startLine: stObject.openBraceToken.position.endLine,
         startColumn: stObject.openBraceToken.position.endColumn,
         endLine: stObject.openBraceToken.position.endLine,
         endColumn: stObject.openBraceToken.position.endColumn,
         type: "INSERT",
         config: {
-            "STATEMENT": generatedCode
-        }
-    };
+            STATEMENT: generatedCode,
+        },
+    });
 
     return langClient.stModify({
-        astModifications: [stModification],
+        astModifications: modifications,
         documentIdentifier: {
-            uri: Uri.file(filePath).toString()
-        }
+            uri: Uri.file(filePath).toString(),
+        },
     });
 }
 
@@ -161,15 +270,66 @@ function generateClientDecl(targetService: Service): string {
     return clientDeclaration;
 }
 
-function generateServiceInit(targetService: Service): string {
+function generateServiceInit(targetService: Service, connectorInfo?: BallerinaConnectorInfo): string {
     let serviceInit: string = `function init() returns error? {
-                                ${generateClientInit(targetService)}
-                            }`;
+        ${connectorInfo ? generateConnectorClientInit(connectorInfo) : generateClientInit(targetService)}
+    }`;
     return serviceInit;
 }
 
 function generateClientInit(targetService: Service): string {
     return `self.${clientName} = check new ("");`;
+}
+
+function generateConnectorClientDecl(connector: BallerinaConnectorInfo): string {
+    if (!connector?.moduleName) {
+        return "";
+    }
+    const moduleName = getFormattedModuleName(connector.moduleName);
+    const epName = genVarName(moduleName);
+    let clientDeclaration: string = `
+        @display {
+            label: "${connector.displayName || moduleName}",
+            id: "${moduleName}-${connector.id}"
+        }
+        ${moduleName}:${connector.name} ${epName};
+    `;
+
+    return clientDeclaration;
+}
+
+function generateConnectorClientInit(connector: BallerinaConnectorInfo): string {
+    if (!connector?.moduleName) {
+        return "";
+    }
+    const moduleName = getFormattedModuleName(connector.moduleName);
+    const epName = genVarName(moduleName);
+
+    const initFunction = connector.functions?.find((func) => func.name === "init");
+    if (!initFunction?.returnType) {
+        return "";
+    }
+
+    const defaultParameters = getDefaultParams(initFunction.parameters);
+    const returnType = getFormFieldReturnType(initFunction.returnType);
+
+    return `self.${epName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
+}
+
+function getMissingImports(source: string, imports: Set<string>) {
+    const missingImports = new Set<string>();
+    if (imports && imports?.size > 0) {
+        imports.forEach(function (stmt) {
+            if (!source.includes(`import ${stmt};`)) {
+                missingImports.add(stmt);
+            }
+        });
+    }
+    return missingImports;
+}
+
+function genVarName(label: string) {
+    return `${label}Ep`; //TODO: validate name generation with duplications
 }
 
 function transformLabel(label: string): string {
