@@ -15,7 +15,7 @@ import { ChoreoServiceComponentType, ComponentAccessibility, IProjectManager, Or
 import { log } from "console";
 import { randomUUID } from "crypto";
 import child_process from "child_process";
-import { readFile, writeFile } from "fs";
+import { readFile, writeFile, unlink } from "fs";
 import path, { join } from "path";
 
 export interface ComponentCreationParams {
@@ -35,11 +35,23 @@ interface WorkspaceFileContent {
 interface Folder {
     path: string;
     name?: string;
-    metadata?: object;
+    metadata?: ComponentMetadata;
+}
+
+interface ComponentMetadata {
+    org: {
+        id: number;
+        handle: string;
+    };
+    displayName: string;
+    displayType: ChoreoServiceComponentType;
+    description: string;
+    projectId: string;
+    accessibility: ComponentAccessibility;
 }
 
 export class ChoreoProjectManager implements IProjectManager {
-    async createComponent(_addComponentDetails: unknown): Promise<string> {
+    createComponent(_addComponentDetails: unknown): Promise<string> {
         return ChoreoProjectManager._createComponent(_addComponentDetails as ComponentCreationParams);
     }
     getProjectDetails(): Promise<Project> {
@@ -49,46 +61,60 @@ export class ChoreoProjectManager implements IProjectManager {
         throw new Error("choreo getProjectRoot method not implemented.");
     }
     private static _createComponent(args: ComponentCreationParams): Promise<string> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const { workspaceFilePath, displayType } = args;
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
 
             // TODO: Sanitize for URL-safety. Current implementation just checks for Ballerina package name req.
-            const packageName = args.name.split(/[^a-zA-Z0-9_.]/g).reduce((composedName: string, subname: string) =>
+            const pkgName = args.name.split(/[^a-zA-Z0-9_.]/g).reduce((composedName: string, subname: string) =>
                 composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
             const balOrgName = args.org.name.split(/[^a-zA-Z0-9_]/g).reduce((composedName: string, subname: string) =>
                 composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
 
             ChoreoProjectManager._runCommand('pwd', projectRoot).then(() => {
-                ChoreoProjectManager._runCommand(`bal new ${packageName} -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(displayType)}:1.1.0`,
+                ChoreoProjectManager._runCommand(`bal new ${pkgName} -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(displayType)}:1.1.0`,
                     projectRoot).then(() => {
-                        const newPkgRootPath = join(join(projectRoot, packageName), 'Ballerina.toml');
-                        const serviceId = `${packageName}-${randomUUID()}`;
+                        const pkgRoot = join(projectRoot, pkgName);
+                        const serviceId = `${pkgName}-${randomUUID()}`;
 
-                        readFile(newPkgRootPath, 'utf-8', function (err, contents) {
+                        unlink(join(pkgRoot, 'Dependencies.toml'), (err) => {
                             if (err) {
-                                throw new Error("Could not read toml.");
+                                log("Error: Could not delete Dependencies.toml.");
+                            }
+                        });
+
+                        const balTomlPath = join(pkgRoot, 'Ballerina.toml');
+                        readFile(balTomlPath, 'utf-8', function (err, contents) {
+                            if (err) {
+                                log("Error: Could not read toml.");
+                                return;
                             }
                             let replaced = contents.replace(/org = "[a-z,A-Z,0-9,_]+"/, `org = "${balOrgName}"`);
                             replaced = replaced.replace(/version = "[0-9].[0-9].[0-9]"/, `version = "1.0.0"`);
-                            writeFile(newPkgRootPath, replaced, 'utf-8', function () {
-                                log("Configured toml successfully.");
+                            writeFile(balTomlPath, replaced, 'utf-8', () => {
+                                log("Successfully configured Ballerina toml.");
                             });
                         });
-                        const newServicePath = join(join(projectRoot, packageName), 'service.bal');
 
-                        readFile(newServicePath, 'utf-8', (err, contents) => {
+                        const serviceFilePath = join(pkgRoot, 'service.bal');
+                        readFile(serviceFilePath, 'utf-8', (err, contents) => {
                             if (err) {
-                                throw new Error("Could not read service file.");
+                                log("Error: Could not read service.bal file.");
+                                return;
                             }
-                            const replaced = ChoreoProjectManager._getAnnotatedContent(contents, packageName, serviceId, args.displayType);
-                            writeFile(newServicePath, replaced, 'utf-8', function () {
-                                log("Added service annotation successfully.");
+                            const replaced = ChoreoProjectManager._getAnnotatedContent(contents, pkgName, serviceId, args.displayType);
+                            writeFile(serviceFilePath, replaced, 'utf-8', function () {
+                                log("Successfully added service annotations.");
                             });
                         });
-                        ChoreoProjectManager._addToWorkspace(packageName, workspaceFilePath, args);
+
+                        ChoreoProjectManager._addToWorkspace(pkgName, workspaceFilePath, args);
                         return resolve(serviceId);
-                    })
+                    }).catch((error) => {
+                        reject(error);
+                    });
+            }).catch((error) => {
+                reject(error);
             });
         });
     }
@@ -122,7 +148,7 @@ export class ChoreoProjectManager implements IProjectManager {
     private static _addToWorkspace(packageName: string, workspaceFilePath: string, args: ComponentCreationParams) {
         readFile(workspaceFilePath, 'utf-8', function (err, contents) {
             if (err) {
-                log("Could not read workspace file");
+                log("Error: Could not read workspace file");
                 return;
             }
             const content: WorkspaceFileContent = JSON.parse(contents);
@@ -142,7 +168,7 @@ export class ChoreoProjectManager implements IProjectManager {
             });
 
             writeFile(workspaceFilePath, JSON.stringify(content, null, 4), 'utf-8', function () {
-                log("Component was created successfully.");
+                log(`Successfully created component ${packageName}.`);
             });
         });
     }

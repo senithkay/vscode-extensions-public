@@ -20,7 +20,8 @@ import {
     ChoreoLoginStatus, SelectedProjectChangedNotification,
     Organization, Project, CloseWebViewNotification,
     ComponentWizardInput,
-    CreateComponentRequest
+    CreateComponentRequest,
+    ShowErrorMessage
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -77,6 +78,10 @@ export class ChoreoWebViewAPI {
 
     public getProjectClient(): IChoreoProjectClient {
         return this._projectClientRpc;
+    }
+
+    public showErrorMsg(error: string) {
+        this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
     }
 
     public closeWebView() {

@@ -55,8 +55,8 @@ export function ComponentWizard() {
                 description: description
             }).then(() => {
                 rpcInstance.closeWebView();
-            }).catch((err) => {
-                console.log(err);
+            }).catch((err: Error) => {
+                rpcInstance.showErrorMsg(err.message);
             })
         }
     }

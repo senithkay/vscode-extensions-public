@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel, workspace } from "vscode";
+import { commands, WebviewPanel, window, workspace } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
@@ -18,7 +18,7 @@ import {
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     SelectedProjectChangedNotification,
-    ComponentWizardInput, CloseWebViewNotification, serializeError, CreateComponentRequest
+    ComponentWizardInput, CloseWebViewNotification, serializeError, CreateComponentRequest, ShowErrorMessage
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager';
@@ -84,6 +84,9 @@ export class WebViewRpc {
                 const cmdArgs = args.length > 1 ? args.slice(1) : [];
                 commands.executeCommand(args[0], ...cmdArgs);
             }
+        });
+        this._messenger.onNotification(ShowErrorMessage, (error: string) => {
+            window.showErrorMessage(error);
         });
         this._messenger.onNotification(CloseWebViewNotification, () => {
             view.dispose();

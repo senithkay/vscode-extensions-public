@@ -27,6 +27,7 @@ export const SelectedOrgChangedNotification: NotificationType<Organization> = { 
 export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };
 export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
+export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
