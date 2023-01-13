@@ -11,14 +11,28 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component } from './types';
 
 // request types 
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
 export const GetCurrentOrgRequest: RequestType<string, Organization> = { method: 'getCurrentOrg' };
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
+export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
+export const GetProject: RequestType<string, Project> = { method: 'getProject' };
+export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
+export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };
+export const CloseWebViewNotification: NotificationType<void> =  { method: 'close' };
+
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function serializeError(err: any) {
+   return {
+      message: err.message,
+      cause: err.cause ? err.cause.message : ""
+   };
+}

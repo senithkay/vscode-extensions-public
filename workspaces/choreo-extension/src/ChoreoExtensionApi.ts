@@ -10,16 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-
-import { ChoreoLoginStatus } from "./auth/events";
-
 import { Disposable, EventEmitter } from 'vscode';
 import { ext } from "./extensionVariables";
 
-import { IProjectManager, Organization, Project } from "@wso2-enterprise/choreo-core";
-import { ChoreoApimToken, ChoreoToken, ChoreoVscodeToken, exchangeAuthToken } from "./auth/inbuilt-impl";
-import { ChoreoAccessToken } from "./auth/types";
-import { getChoreoToken as getToken } from "./auth/storage";
+import { IProjectManager, Organization, Project, ChoreoLoginStatus } from "@wso2-enterprise/choreo-core";
+import { exchangeAuthToken } from "./auth/auth";
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -35,6 +30,7 @@ export class ChoreoExtensionApi {
 
     private _status: ChoreoLoginStatus;
     private _selectedOrg: Organization | undefined;
+    private _selectedProjectId: string | undefined;
 
     private _onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
     public onStatusChanged = this._onStatusChanged.event;
@@ -43,8 +39,8 @@ export class ChoreoExtensionApi {
     private _onOrganizationChanged = new EventEmitter<Organization | undefined>();
     public onOrganizationChanged = this._onOrganizationChanged.event;
 
-    private _onChoreoProjectChanged = new EventEmitter<Project | undefined>();
-    public onChoreoProjectChanged = this._onChoreoProjectChanged.event; // TODO implement firing
+    private _onChoreoProjectChanged = new EventEmitter<string | undefined>();
+    public onChoreoProjectChanged = this._onChoreoProjectChanged.event;
 
     constructor() {
         this._status = "Initializing";
@@ -61,9 +57,15 @@ export class ChoreoExtensionApi {
     public get selectedOrg(): Organization | undefined {
         return this._selectedOrg;
     }
+
     public set selectedOrg(selectedOrg: Organization | undefined) {
         this._selectedOrg = selectedOrg;
         this._onOrganizationChanged.fire(selectedOrg);
+    }
+
+    public set selectedProjectId(selectedProjectId: string) {
+        this._selectedProjectId = selectedProjectId;
+        this._onChoreoProjectChanged.fire(selectedProjectId);
     }
 
     public async signIn(authCode: string): Promise<void> {

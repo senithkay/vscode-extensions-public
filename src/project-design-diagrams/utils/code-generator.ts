@@ -20,8 +20,8 @@
 import { writeFileSync } from "fs";
 import { ExtendedLangClient } from "src/core";
 import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
-import { STResponse } from "./activator";
-import { Service } from "./resources";
+import { STResponse } from "../activator";
+import { Service } from "../resources";
 
 const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
 let clientName: string;

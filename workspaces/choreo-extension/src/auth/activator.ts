@@ -12,21 +12,16 @@
  */
 import * as vscode from 'vscode';
 import { commands, window } from "vscode";
-import { ChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./inbuilt-impl";
-import { ChoreoAuthConfig, ChoreoFidp } from "./config";
+import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./auth";
 import { ext } from '../extensionVariables';
 import { choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
-import { getChoreoToken } from './storage';
 
-export let choreoAuthConfig: ChoreoAuthConfig;
 export async function activateAuth() {
-    choreoAuthConfig = new ChoreoAuthConfig();
     await initFromExistingChoreoSession();
 
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {
             ext.api.status = "LoggingIn";
-            choreoAuthConfig.setFidp(ChoreoFidp.google);
             const openSuccess = await openAuthURL();
             if (openSuccess) {
                 await window.withProgress({
@@ -63,7 +58,7 @@ export async function activateAuth() {
 }
 
 async function initFromExistingChoreoSession() {
-    const choreoTokenInfo = await getChoreoToken(ChoreoToken);
+    const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
         await signIn();

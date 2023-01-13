@@ -15,12 +15,14 @@ import * as vscode from 'vscode';
 import { ThemeIcon, window, extensions } from 'vscode';
 
 import { activateAuth } from './auth';
-import { exchangeOrgAccessTokens } from './auth/inbuilt-impl';
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneAllComponentsCmd, cloneComponentCmd } from './cmds/clone';
 import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
+import { ProjectRegistry } from './registry/project-registry';
+import { activateURIHandlers } from './uri-handlers';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
@@ -28,10 +30,10 @@ import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 import { activateWizards } from './wizards/activate';
 
 export function activateBallerinaExtension() {
-    const ext = extensions.getExtension("wso2.ballerina");
-    if (ext && !ext.isActive) {
-        ext.activate();
-    }
+	const ext = extensions.getExtension("wso2.ballerina");
+	if (ext && !ext.isActive) {
+		ext.activate();
+	}
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -45,6 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = false;
 	activateBallerinaExtension();
 	activateWizards();
+	activateURIHandlers();
 	return ext.api;
 }
 
@@ -59,7 +62,9 @@ function createProjectTreeView() {
 	const choreoResourcesProvider = new ProjectsTreeProvider();
 
 	vscode.commands.registerCommand(refreshProjectsListCmdId, async () => {
-		choreoResourcesProvider.refresh();
+		ProjectRegistry.getInstance().sync().then(() => {
+			choreoResourcesProvider.refresh();
+		});
 	});
 
 	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneAllComponentsCmd);
@@ -85,7 +90,11 @@ function createAccountTreeView() {
 		if (treeItem instanceof ChoreoOrgTreeItem) {
 			treeItem.iconPath = new ThemeIcon('loading~spin');
 			accountTreeProvider.refresh(treeItem);
-			await exchangeOrgAccessTokens(treeItem.org.handle);
+			try {
+				await exchangeOrgAccessTokens(treeItem.org.handle);
+			} catch (error: any) {
+				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
+			}
 			ext.api.selectedOrg = treeItem.org;
 		}
 	});

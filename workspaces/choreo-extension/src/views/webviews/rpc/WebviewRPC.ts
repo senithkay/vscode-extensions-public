@@ -13,19 +13,27 @@
 import { commands, WebviewPanel } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
-import { GetAllOrgsRequest, GetCurrentOrgRequest,
+import {
+    GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
-    LoginStatusChangedNotification, SelectedOrgChangedNotification  } from "@wso2-enterprise/choreo-core";
+    LoginStatusChangedNotification, SelectedOrgChangedNotification,
+     CloseWebViewNotification, serializeError,
+    SelectedProjectChangedNotification,
+    Project, GetComponents
+} from "@wso2-enterprise/choreo-core";
+import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
+import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 
-import { getUserInfo } from "../../../api/user";
 import { ext } from "../../../extensionVariables";
+import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
+import { ProjectRegistry } from "../../../registry/project-registry";
 
 export class WebViewRpc {
 
     private _messenger = new Messenger();
 
     constructor(view: WebviewPanel) {
-        this._messenger.registerWebviewPanel(view, { broadcastMethods: [ 'loginStatusChanged', 'selectedOrgChanged' ] });
+        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
 
         this._messenger.onRequest(GetLoginStatusRequest, () => {
             return ext.api.status;
@@ -36,15 +44,32 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllOrgsRequest, async () => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
-                 const userInfo = await getUserInfo();
-                 return userInfo.organizations;
-            } 
+                return orgClient.getUserInfo()
+                    .then((userInfo) => userInfo.organizations)
+                    .catch(serializeError);
+            }
         });
+        // TODO: Remove this once the Choreo project client RPC handlers are registered
+        this._messenger.onRequest(GetAllProjectsRequest, async () => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().getProjects(ext.api.selectedOrg.id);
+            }
+        });
+
+        this._messenger.onRequest(GetComponents, async (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle);
+            }
+        });
+
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
         });
         ext.api.onOrganizationChanged((newOrg) => {
             this._messenger.sendNotification(SelectedOrgChangedNotification, BROADCAST, newOrg);
+        });
+        ext.api.onChoreoProjectChanged((projectId) => {
+            this._messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, projectId);
         });
         this._messenger.onNotification(ExecuteCommandNotification, (args: string[]) => {
             if (args.length >= 1) {
@@ -52,5 +77,14 @@ export class WebViewRpc {
                 commands.executeCommand(args[0], ...cmdArgs);
             }
         });
+        this._messenger.onNotification(CloseWebViewNotification, () => {
+            view.dispose();
+        });
+
+        // Register RPC handlers for Choreo project client
+        registerChoreoProjectRPCHandlers(this._messenger, projectClient);
+
+        // Register RPC handlers for Choreo Github app client
+        registerChoreoGithubRPCHandlers(this._messenger, githubAppClient);
     }
 }

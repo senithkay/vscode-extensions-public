@@ -22,8 +22,9 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { AddComponentDetails, Colors, ComponentModel, Location, Service, Views } from './resources';
+import { Colors, ComponentModel, Location, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
+import { ProjectDesignRPC } from './utils/rpc/project-design-rpc';
 import { AddButton, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
@@ -40,17 +41,12 @@ const Container = styled.div`
 `;
 
 interface DiagramProps {
-    fetchProjectResources: () => Promise<Map<string, ComponentModel>>;
-    createService: (componentDetails: AddComponentDetails) => Promise<string>;
-    pickDirectory: () => Promise<string>;
-    getProjectRoot: () => Promise<string>;
     editingEnabled?: boolean;
     go2source: (location: Location) => void;
-    generateConnectors: (sourceService: Service, targetService: Service) => Promise<boolean>;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { fetchProjectResources, createService, pickDirectory, getProjectRoot, go2source, generateConnectors, editingEnabled = true } = props;
+    const { go2source, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
@@ -71,7 +67,8 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     const refreshDiagramResources = () => {
-        fetchProjectResources().then((response) => {
+        const rpcInstance = ProjectDesignRPC.getInstance();
+        rpcInstance.fetchComponentModels().then((response) => {
             const components: Map<string, ComponentModel> = new Map(Object.entries(response));
             if (components && components.size > 0) {
                 defaultOrg.current = [...components][0][1].packageId.org;
@@ -85,19 +82,8 @@ export function DesignDiagram(props: DiagramProps) {
         setShowEditForm(true);
     }
 
-    const Ctx = {
-        getTypeComposition,
-        currentView,
-        pickDirectory,
-        getProjectRoot,
-        createService,
-        go2source,
-        editingEnabled,
-        generateConnectors
-    };
-
     return (
-        <DesignDiagramContext {...Ctx}>
+        <DesignDiagramContext {...{ getTypeComposition, currentView, go2source, editingEnabled }}>
             <Container>
                 {currentView && projectPkgs ?
                     <>

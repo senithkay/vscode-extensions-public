@@ -10,6 +10,5 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export const API_BASE_URL = 'https://app.choreo.dev';
-
-export const PROJECTS_API_URL = 'https://apis.choreo.dev/projects/1.0.0/graphql';
+export * from './github-app-client';
+export * from './types';
