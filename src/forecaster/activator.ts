@@ -276,7 +276,7 @@ export function showChoreoSigninMessage(extension: BallerinaExtension) {
     window.showInformationMessage("Please sign in to Choreo to view performance predictions.",
         action).then((selection) => {
             if (action === selection) {
-                commands.executeCommand('sessionExplorer.focus');
+                commands.executeCommand('choreo-account.focus');
             }
         });
     extension.getPerformanceForecastContext().infoMessageStatus.signinChoreo = false;
