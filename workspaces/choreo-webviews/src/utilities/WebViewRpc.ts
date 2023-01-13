@@ -15,13 +15,13 @@ import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
     GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
-    GetLoginStatusRequest, ExecuteCommandNotification,
+    GetLoginStatusRequest, ExecuteCommandNotification, GetComponents,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
     Organization, Project, CloseWebViewNotification,
     ComponentWizardInput,
     CreateComponentRequest,
-    ShowErrorMessage
+    ShowErrorMessage, Component
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -58,6 +58,10 @@ export class ChoreoWebViewAPI {
 
     public async createComponent(args: ComponentWizardInput): Promise<string> {
         return this._messenger.sendRequest(CreateComponentRequest, HOST_EXTENSION, args);
+    }
+
+    public async getComponents(projectId: string): Promise<Component[]> {
+        return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {

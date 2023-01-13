@@ -11,9 +11,22 @@
  *  associated services.
  */
 import * as assert from 'assert';
-import { suite } from 'mocha';
+import { suite, setup, test } from 'mocha';
 import * as vscode from 'vscode';
+import { ProjectRegistry } from '../../registry/project-registry';
 
-suite('Extension Test Suite', () => {
+suite('Project Registry', function () {
+    let projectRegistry: ProjectRegistry;
+
+    setup(function () {
+        projectRegistry = ProjectRegistry.getInstance();
+    });
+
+    suite('create project registry', function () {
+        test('should return -1 when not present', function () {
+            assert.equal(-1, [1, 2, 3].indexOf(4));
+        });
+    });
 
 });
+

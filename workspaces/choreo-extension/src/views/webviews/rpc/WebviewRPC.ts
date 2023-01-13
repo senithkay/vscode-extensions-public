@@ -18,12 +18,14 @@ import {
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     SelectedProjectChangedNotification,
-    ComponentWizardInput, CloseWebViewNotification, serializeError, CreateComponentRequest, ShowErrorMessage
+    ComponentWizardInput, CloseWebViewNotification, serializeError, CreateComponentRequest, ShowErrorMessage,
+    Project, GetComponents
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager';
 import { ext } from "../../../extensionVariables";
 import { orgClient, projectClient } from "../../../auth/auth";
+import { ProjectRegistry } from "../../../registry/project-registry";
 
 export class WebViewRpc {
 
@@ -50,7 +52,7 @@ export class WebViewRpc {
         // TODO: Remove this once the Choreo project client RPC handlers are registered
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
-                return projectClient.getProjects({ orgId: ext.api.selectedOrg.id }).catch(serializeError);
+                return ProjectRegistry.getInstance().getProjects(ext.api.selectedOrg.id);
             }
         });
         this._messenger.onRequest(CreateComponentRequest, async (args: ComponentWizardInput) => {
@@ -68,6 +70,12 @@ export class WebViewRpc {
                 } else {
                     throw new Error("Failed to detect the project workpsace.");
                 }
+            }
+        });
+
+        this._messenger.onRequest(GetComponents, async (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle);
             }
         });
         ext.api.onStatusChanged((newStatus) => {
