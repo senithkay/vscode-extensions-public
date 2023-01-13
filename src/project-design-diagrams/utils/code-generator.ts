@@ -21,7 +21,7 @@ import { writeFileSync } from "fs";
 import { ExtendedLangClient } from "src/core";
 import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
 import { STResponse } from "../activator";
-import { Service } from "../resources";
+import { Service, ServiceTypes } from "../resources";
 
 const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
 let clientName: string;
@@ -36,54 +36,52 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
             uri: Uri.file(filePath).toString()
         }
     }).then((response: any) => {
-        const stResponse = response as STResponse;
+        let stResponse = response as STResponse;
         if (stResponse && stResponse.parseSuccess) {
-            const members: any[] = stResponse.syntaxTree.members;
-            const serviceDecl = members.find((member) => (
-                member.kind === "ServiceDeclaration" &&
-                sourceService.elementLocation.startPosition.line === member.position.startLine &&
-                sourceService.elementLocation.endPosition.line === member.position.endLine &&
-                sourceService.elementLocation.startPosition.offset === member.position.startColumn &&
-                sourceService.elementLocation.endPosition.offset === member.position.endColumn
-            ));
+            const targetType: ServiceTypes = getServiceType(targetService.serviceType);
+            const addImport: boolean = !isImportPresent(stResponse.syntaxTree.imports, targetType);
 
+            const members: any[] = stResponse.syntaxTree.members;
+            const serviceDecl = getServiceDeclaration(members, sourceService, true);
             const initMember = getInitFunction(serviceDecl);
+            let modifiedST: STResponse;
 
             if (initMember) {
-                updateSyntaxTree(langClient, filePath, serviceDecl, generateClientDecl(targetService))
+                updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, generateClientDecl(targetService, targetType))
                     .then((response) => {
-                        let modifiedST = response as STResponse;
+                        modifiedST = response as STResponse;
                         if (modifiedST && modifiedST.parseSuccess) {
-                            updateSourceFile(langClient, filePath, modifiedST.source).then(() => {
-                                const members: any[] = modifiedST.syntaxTree.members;
-                                const serviceDecl = members.find((member) => (
-                                    member.kind === "ServiceDeclaration" &&
-                                    sourceService.elementLocation.startPosition.line === member.position.startLine &&
-                                    sourceService.elementLocation.startPosition.offset === member.position.startColumn
-                                ));
-
-                                const updatedInitMember = getInitFunction(serviceDecl);
-                                if (updatedInitMember) {
-                                    updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody,
-                                        generateClientInit(targetService)).then((response) => {
-                                            modifiedST = response as STResponse;
-                                            if (modifiedST && modifiedST.parseSuccess) {
+                            const members: any[] = modifiedST.syntaxTree.members;
+                            const serviceDecl = getServiceDeclaration(members, sourceService, false);
+                            const updatedInitMember = getInitFunction(serviceDecl);
+                            if (updatedInitMember) {
+                                updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken,
+                                    generateClientInit()).then((response) => {
+                                        modifiedST = response as STResponse;
+                                        if (modifiedST && modifiedST.parseSuccess) {
+                                            if (!addImport) {
                                                 return updateSourceFile(langClient, filePath, modifiedST.source);
+                                            } else {
+                                                return addImportDeclaration(langClient, modifiedST, filePath, targetType);
                                             }
-                                        })
-                                }
-                            })
+                                        }
+                                    })
+                            }
                         }
                     })
             } else {
                 let genCode = `
-                        ${generateClientDecl(targetService)}
-                        ${generateServiceInit(targetService)}
+                        ${generateClientDecl(targetService, targetType)}
+                        ${generateServiceInit()}
                     `;
-                updateSyntaxTree(langClient, filePath, serviceDecl, genCode).then((response) => {
-                    const modifiedST = response as STResponse;
+                updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode).then((response) => {
+                    modifiedST = response as STResponse;
                     if (modifiedST && modifiedST.parseSuccess) {
-                        return updateSourceFile(langClient, filePath, modifiedST.source);
+                        if (!addImport) {
+                            return updateSourceFile(langClient, filePath, modifiedST.source);
+                        } else {
+                            return addImportDeclaration(langClient, modifiedST, filePath, targetType);
+                        }
                     }
                 })
             }
@@ -93,22 +91,63 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
     return false;
 }
 
+function getServiceType(serviceType: string): ServiceTypes {
+    if (serviceType.includes('ballerina/grpc:')) {
+        return ServiceTypes.GRPC;
+    } else if (serviceType.includes('ballerina/graphql:')) {
+        return ServiceTypes.GRAPHQL;
+    } else if (serviceType.includes('ballerina/http:')) {
+        return ServiceTypes.HTTP;
+    } else if (serviceType.includes('ballerina/websocket:')) {
+        return ServiceTypes.WEBSOCKET;
+    } else {
+        throw new Error('Could not process target service type.');
+    }
+}
+
+function isImportPresent(members: any[], targetType: ServiceTypes) {
+    return members.some((member) => (
+        member.orgName?.source === "ballerina/" &&
+        member.moduleName[0]?.value === targetType
+    ));
+}
+
+async function addImportDeclaration(langClient: ExtendedLangClient, modifiedST: STResponse, filePath: string, targetType: ServiceTypes): Promise<boolean> {
+    const imports: any[] = modifiedST.syntaxTree.imports;
+    updateSyntaxTree(langClient, filePath, imports[imports.length - 1], generateImport(targetType)).then((response) => {
+        const stResponse: STResponse = response as STResponse;
+        if (stResponse && stResponse.parseSuccess) {
+            return updateSourceFile(langClient, filePath, stResponse.source);
+        }
+    })
+    return false;
+}
+
+function getServiceDeclaration(members: any[], sourceService: Service, checkEnd: boolean): any {
+    return members.find((member) => (
+        member.kind === "ServiceDeclaration" &&
+        sourceService.elementLocation.startPosition.line === member.position.startLine &&
+        sourceService.elementLocation.startPosition.offset === member.position.startColumn && (
+            checkEnd ? sourceService.elementLocation.endPosition.line === member.position.endLine &&
+                sourceService.elementLocation.endPosition.offset === member.position.endColumn : true
+        )
+    ));
+}
 
 function getInitFunction(serviceDeclaration: any): any {
     const serviceNodeMembers: any[] = serviceDeclaration.members;
-    const initMember = serviceNodeMembers.find((member) =>
+    return serviceNodeMembers.find((member) =>
         (member.kind === "ObjectMethodDefinition" && member.functionName.value === "init")
     );
-    return initMember;
 }
 
-async function updateSyntaxTree(langClient: ExtendedLangClient, filePath: string, stObject: any, generatedCode: string)
+function updateSyntaxTree(langClient: ExtendedLangClient, filePath: string, stObject: any, generatedCode: string)
     : Promise<STResponse | {}> {
     let stModification = {
-        startLine: stObject.openBraceToken.position.endLine,
-        startColumn: stObject.openBraceToken.position.endColumn,
-        endLine: stObject.openBraceToken.position.endLine,
-        endColumn: stObject.openBraceToken.position.endColumn,
+        startLine: stObject.position.endLine,
+        startColumn: stObject.position.endColumn,
+        endLine: stObject.position.endLine,
+        endColumn: stObject.position.endColumn,
         type: "INSERT",
         config: {
             "STATEMENT": generatedCode
@@ -149,27 +188,31 @@ async function updateSourceFile(langClient: ExtendedLangClient, filePath: string
     return false;
 }
 
-function generateClientDecl(targetService: Service): string {
+function generateClientDecl(targetService: Service, targetType: ServiceTypes): string {
     let clientDeclaration: string = `
         @display {
             label: "${targetService.annotation.label}",
             id: "${targetService.annotation.id}"
         }
-        http:Client ${clientName};
+        ${targetType}:Client ${clientName};
     `;
 
     return clientDeclaration;
 }
 
-function generateServiceInit(targetService: Service): string {
+function generateServiceInit(): string {
     let serviceInit: string = `function init() returns error? {
-                                ${generateClientInit(targetService)}
+                                ${generateClientInit()}
                             }`;
     return serviceInit;
 }
 
-function generateClientInit(targetService: Service): string {
+function generateClientInit(): string {
     return `self.${clientName} = check new ("");`;
+}
+
+function generateImport(targetServiceType: ServiceTypes): string {
+    return `import ballerina/${targetServiceType};`;
 }
 
 function transformLabel(label: string): string {
