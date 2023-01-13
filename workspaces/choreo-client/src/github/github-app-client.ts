@@ -37,6 +37,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     }
 
     async triggerAuthFlow(): Promise<boolean> {
+        this._onGHAppAuthCallback.fire({ status: 'auth-inprogress'});
         const { authUrl, clientId, redirectUrl }  = this._appConfig;
         const callbackUri = await env.asExternalUri(
             Uri.parse(`${authUrl}?redirect_uri=${redirectUrl}&client_id=${clientId}&state=VSCODE_CHOREO_GH_APP_AUTH`)
@@ -57,9 +58,14 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             const client = await this._getClient();
             const data = await client.request(mutation);
             if(!data.obtainUserToken?.success) {
+                this._onGHAppAuthCallback.fire({ status: 'error', error: data.obtainUserToken?.message});
                 throw new Error(data.obtainUserToken?.message);
+            } else {
+                this._onGHAppAuthCallback.fire({ status: 'authorized'});
             }
-        } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            this._onGHAppAuthCallback.fire({ status: 'error', error: error?.message});
             throw new Error("Error while obtaining access token. " , { cause: error });
         }
         
@@ -85,6 +91,8 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             const data = await client.request(query);
             return data.userRepos;
         } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            this._onGHAppAuthCallback.fire({ status: 'error', error: (error as any).message});
             throw new Error("Error while fetching authorized repositories. " , { cause: error });
         }
     }

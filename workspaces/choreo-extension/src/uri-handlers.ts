@@ -32,15 +32,7 @@ export function activateURIHandlers() {
                 const installationId = urlParams.get('installationId');
                 if (authCode) {
                     githubAppClient.obatainAccessToken(authCode)
-                        .then(() => {
-                            githubAppClient.fireGHAppAuthCallback({
-                                status: 'authorized',
-                                authCode
-                            });
-                        }).catch((err) => {
-                            githubAppClient.fireGHAppAuthCallback({
-                                status: 'error'
-                            });
+                        .catch((err) => {
                             window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
                         });
                 } else if (installationId) {

@@ -10,13 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeLink, VSCodeDropdown, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeLink, VSCodeDropdown, VSCodeProgressRing, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { useContext, useEffect, useState } from "react";
 import { OrgSelector } from "../OrgSelector/OrgSelector";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { GHAppAuthStatus, GithubOrgnization } from "@wso2-enterprise/choreo-client/lib/github/types";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -45,13 +46,33 @@ export function ProjectWizard() {
     const [creationInProgress, setCreationInProgress] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [initMonoRepo, setInitMonoRepo] = useState(false);
+    const [authorizedOrgs, setAuthorizedOrgs] = useState<GithubOrgnization[]>([]);
+    const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
+
+
+    async function getRepoList() {
+        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
+        try {
+            const repos = await ghClient.getAuthorizedRepositories();
+            setAuthorizedOrgs(repos);
+        } catch (error) {
+            setAuthorizedOrgs([]);
+            console.log("Error while fetching authorized repositories: " + error);
+        }
+    }
 
     useEffect(() => {
         const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
         ghClient.onGHAppAuthCallback((status) => {
-            console.log("GH App Auth Callback: " + status);
+            setGHStatus(status);
         });
-    },[]);
+    }, []);
+
+    useEffect(() => {
+        if (initMonoRepo && ghStatus.status === "authorized") {
+            getRepoList();
+        }
+    },[initMonoRepo, ghStatus]);
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
@@ -78,6 +99,10 @@ export function ProjectWizard() {
         }
         setCreationInProgress(false);
     };
+
+    const handleAuthorizeWithGithub = () => { 
+        ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow(); 
+    }
 
     return (
         <>
@@ -109,12 +134,22 @@ export function ProjectWizard() {
                     </VSCodeCheckbox>
                     {initMonoRepo &&
                         <>
+                            {ghStatus.status === "auth-inprogress" && <VSCodeProgressRing />}
                             <VSCodeLink
-                               onClick={() => { ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow(); }}
+                               onClick={handleAuthorizeWithGithub}
                             >
                                 Authorize with Github
                             </VSCodeLink>
-                            <VSCodeDropdown>Select Repository</VSCodeDropdown>
+                            <VSCodeDropdown>
+                                {authorizedOrgs.map((org) => org.repositories.map((repo) => (
+                                    <VSCodeOption
+                                        key={repo.name}
+                                        value={repo.name}
+                                    >
+                                        {org.name}/{repo.name}
+                                    </VSCodeOption> 
+                                )))}
+                            </VSCodeDropdown>
                         </>
                     }
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
