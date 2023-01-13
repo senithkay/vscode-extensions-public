@@ -28,57 +28,36 @@ let clientName: string;
 let filePath: string;
 let extendedLangClient: ExtendedLangClient;
 
+// TODO: Handle errors from the FE
 export async function addConnector(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
     : Promise<boolean> {
     extendedLangClient = langClient;
     filePath = sourceService.elementLocation.filePath;
     clientName = transformLabel(targetService.annotation.label) || transformLabel(targetService.annotation.id);
 
-    extendedLangClient.getSyntaxTree({
+    const stResponse: STResponse = await extendedLangClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(filePath).toString()
         }
-    }).then((response: any) => {
-        let stResponse = response as STResponse;
-        if (stResponse && stResponse.parseSuccess) {
-            const targetType: ServiceTypes = getServiceType(targetService.serviceType);
-            const addImport: boolean = !isImportPresent(stResponse.syntaxTree.imports, targetType);
+    }) as STResponse;
 
-            const members: any[] = stResponse.syntaxTree.members;
-            const serviceDecl = getServiceDeclaration(members, sourceService, true);
-            const initMember = getInitFunction(serviceDecl);
-            let modifiedST: STResponse;
+    if (stResponse && stResponse.parseSuccess) {
+        const targetType: ServiceTypes = getServiceType(targetService.serviceType);
+        const addImport: boolean = !isImportPresent(stResponse.syntaxTree.imports, targetType);
 
-            if (initMember) {
-                updateSyntaxTree(serviceDecl.openBraceToken, generateClientDecl(targetService, targetType))
-                    .then((response) => {
-                        modifiedST = response as STResponse;
-                        if (modifiedST && modifiedST.parseSuccess) {
-                            const members: any[] = modifiedST.syntaxTree.members;
-                            const serviceDecl = getServiceDeclaration(members, sourceService, false);
-                            const updatedInitMember = getInitFunction(serviceDecl);
-                            if (updatedInitMember) {
-                                updateSyntaxTree(updatedInitMember.functionBody.openBraceToken, generateClientInit())
-                                .then((response) => {
-                                        modifiedST = response as STResponse;
-                                        if (modifiedST && modifiedST.parseSuccess) {
-                                            if (!addImport) {
-                                                return updateSourceFile(modifiedST.source);
-                                            } else {
-                                                return addImportDeclaration(modifiedST, targetType);
-                                            }
-                                        }
-                                    })
-                            }
-                        }
-                    })
-            } else {
-                let genCode = `
-                        ${generateClientDecl(targetService, targetType)}
-                        ${generateServiceInit()}
-                    `;
-                updateSyntaxTree(serviceDecl.openBraceToken, genCode).then((response) => {
-                    modifiedST = response as STResponse;
+        const members: any[] = stResponse.syntaxTree.members;
+        const serviceDecl = getServiceDeclaration(members, sourceService, true);
+        const initMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
+        let modifiedST: STResponse;
+
+        if (initMember) {
+            modifiedST = await updateSyntaxTree(serviceDecl.openBraceToken, generateClientDecl(targetService, targetType)) as STResponse;
+            if (modifiedST && modifiedST.parseSuccess) {
+                const members: any[] = modifiedST.syntaxTree.members;
+                const serviceDecl = getServiceDeclaration(members, sourceService, false);
+                const updatedInitMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
+                if (updatedInitMember) {
+                    modifiedST = await updateSyntaxTree(updatedInitMember.functionBody.openBraceToken, generateClientInit()) as STResponse;
                     if (modifiedST && modifiedST.parseSuccess) {
                         if (!addImport) {
                             return updateSourceFile(modifiedST.source);
@@ -86,10 +65,23 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
                             return addImportDeclaration(modifiedST, targetType);
                         }
                     }
-                })
+                }
+            }
+        } else {
+            let genCode = `
+                    ${generateClientDecl(targetService, targetType)}
+                    ${generateServiceInit()}
+                `;
+            modifiedST = await updateSyntaxTree(serviceDecl.openBraceToken, genCode) as STResponse;
+            if (modifiedST && modifiedST.parseSuccess) {
+                if (!addImport) {
+                    return updateSourceFile(modifiedST.source);
+                } else {
+                    return addImportDeclaration(modifiedST, targetType);
+                }
             }
         }
-    });
+    }
 
     return false;
 }
@@ -117,12 +109,10 @@ function isImportPresent(members: any[], targetType: ServiceTypes) {
 
 async function addImportDeclaration(modifiedST: STResponse, targetType: ServiceTypes): Promise<boolean> {
     const imports: any[] = modifiedST.syntaxTree.imports;
-    updateSyntaxTree(imports[imports.length - 1], generateImport(targetType)).then((response) => {
-        const stResponse: STResponse = response as STResponse;
-        if (stResponse && stResponse.parseSuccess) {
-            return updateSourceFile(stResponse.source);
-        }
-    })
+    const stResponse: STResponse = await updateSyntaxTree(imports[imports.length - 1], generateImport(targetType)) as STResponse;
+    if (stResponse && stResponse.parseSuccess) {
+        return updateSourceFile(stResponse.source);
+    }
     return false;
 }
 
@@ -144,8 +134,7 @@ function getInitFunction(serviceDeclaration: any): any {
     );
 }
 
-function updateSyntaxTree(stObject: any, generatedCode: string)
-    : Promise<STResponse | {}> {
+function updateSyntaxTree(stObject: any, generatedCode: string): Promise<STResponse | {}> {
     let stModification = {
         startLine: stObject.position.endLine,
         startColumn: stObject.position.endColumn,
