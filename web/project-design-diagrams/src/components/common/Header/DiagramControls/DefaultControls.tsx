@@ -20,25 +20,28 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import ArrowDropdownIcon from '@mui/icons-material/ArrowDropDown';
 import CachedIcon from '@mui/icons-material/Cached';
 import MenuIcon from '@mui/icons-material/Menu';
-import JoinInnerIcon from '@mui/icons-material/JoinInner';
+import SchemaIcon from '@mui/icons-material/Schema';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { PackagesPopup } from '../PackagesPopup/PackagesPopup';
 import { MenuPanel } from '../../MenuPanel/MenuPanel';
-import { Views } from '../../../../resources';
+import { DagreLayout, Views } from '../../../../resources';
 import '../styles/styles.css';
 
 interface DefaultControlProps {
     projectPackages: Map<string, boolean>;
+    layout: DagreLayout;
+    changeLayout: () => void;
     switchView: (viewType: Views) => void;
     updateProjectPkgs: (packages: Map<string, boolean>) => void;
     onRefresh: () => void;
 }
 
 export function DefaultControls(props: DefaultControlProps) {
-    const { projectPackages, switchView, updateProjectPkgs, onRefresh } = props;
+    const { projectPackages, layout, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
 
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
     const [anchorElement, setAnchorElement] = useState<HTMLButtonElement>(null);
@@ -78,10 +81,12 @@ export function DefaultControls(props: DefaultControlProps) {
                     variant='outlined'
                     size='small'
                     className={'button'}
-                    startIcon={<JoinInnerIcon fontSize='medium' />}
-                    endIcon={<ArrowDropdownIcon fontSize='medium' />}
+                    startIcon={layout === DagreLayout.GRAPH ?
+                        <AccountTreeIcon fontSize='medium' /> : <SchemaIcon fontSize='medium' />
+                    }
+                    onClick={() => changeLayout()}
                 >
-                    Group By
+                    {layout === DagreLayout.GRAPH ? 'Tree' : 'Graph'} View
                 </Button>
                 <IconButton
                     className={'iconButton'}

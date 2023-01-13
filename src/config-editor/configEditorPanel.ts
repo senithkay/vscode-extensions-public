@@ -53,6 +53,11 @@ export async function openConfigEditor(ballerinaExtInstance: BallerinaExtension,
             return;
         }
 
+        if (currentProject.kind == "SINGLE_FILE_PROJECT") {
+            isDebug ? commands.executeCommand(INTERNAL_DEBUG_COMMAND) : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
+            return;
+        }
+
         filePath = `${currentProject.path}/${BAL_TOML}`;
 
         packageName = currentProject.packageName!;

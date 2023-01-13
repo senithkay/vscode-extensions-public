@@ -17,7 +17,7 @@
  *
  */
 
-export { Colors, Level, ServiceTypes, Views } from './model';
+export { Colors, DagreLayout, Level, ServiceTypes, Views } from './model';
 
 export type {
     Attribute,
@@ -26,6 +26,7 @@ export type {
     ConnectorProps,
     Entity,
     Interaction,
+    Location,
     RemoteFunction,
     ResourceFunction,
     ResourceId,

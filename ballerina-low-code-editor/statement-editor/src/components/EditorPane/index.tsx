@@ -16,7 +16,6 @@ import React, { useContext } from "react";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import Breadcrumb from "../Breadcrumb";
 import { Diagnostics } from "../Diagnostics";
-import { InlineDocumentation } from "../Documentation/InlineDocumentation";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";
 import { useStatementEditorStyles } from "../styles";
@@ -24,9 +23,7 @@ import Toolbar from "../Toolbar";
 
 export function EditorPane() {
     const statementEditorClasses = useStatementEditorStyles();
-    const [docEnabled, setDocEnabled] = React.useState(false);
     const [docExpandClicked, setDocExpand] = React.useState(false);
-    const [isParameterTabEnabled, setParameterTabEnabled] = React.useState(false);
 
     const stmtCtx = useContext(StatementEditorContext);
 
@@ -36,37 +33,21 @@ export function EditorPane() {
         },
     } = stmtCtx;
 
-    const documentationHandler = () => {
-        // tslint:disable-next-line:no-shadowed-variable
-        setDocExpand((docExpandClicked) => !docExpandClicked);
-    }
-
-    const inlineDocumentHandler = (docBtnEnabled: boolean) => {
-        setDocEnabled(docBtnEnabled);
-    }
-
-    const paramTabHandler = (isEnabled: boolean) => {
-        setParameterTabEnabled(isEnabled);
-    }
-
     return (
         <>
             <div className={statementEditorClasses.stmtEditorContentWrapper} data-testid="statement-contentWrapper">
-                <Toolbar inlineDocumentHandler={inlineDocumentHandler}/>
+                <Toolbar />
                 <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                     <div className={statementEditorClasses.statementExpressionContent}  data-testid="statement-renderer">
                         <StatementRenderer
                             model={statementModel}
                         />
                     </div>
-                    {docEnabled && !isParameterTabEnabled && (
-                        <InlineDocumentation documentationHandler={documentationHandler}/>
-                    )}
                     <Diagnostics/>
                 </div>
             </div>
             <div className={statementEditorClasses.suggestionsSection} data-testid="suggestions-section">
-                <HelperPane docExpandClicked={docExpandClicked} paramTabHandler={paramTabHandler}/>
+                <HelperPane />
             </div>
         </>
     );

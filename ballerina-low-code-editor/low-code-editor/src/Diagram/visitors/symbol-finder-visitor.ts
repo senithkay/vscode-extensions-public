@@ -18,6 +18,7 @@ import {
     CallStatement,
     CaptureBindingPattern,
     CheckAction,
+    ConstDeclaration,
     EnumDeclaration,
     ForeachStatement,
     FunctionDefinition,
@@ -47,6 +48,7 @@ const variableNameReferences: Map<string, STNode[]> = new Map();
 const recordTypeDescriptions: Map<string, STNode> = new Map();
 const listeners: Map<string, STNode> = new Map();
 const moduleVariables: Map<string, STNode> = new Map();
+const constants: Map<string, STNode> = new Map();
 const enums: Map<string, STNode> = new Map();
 
 class SymbolFindingVisitor implements Visitor {
@@ -171,6 +173,11 @@ class SymbolFindingVisitor implements Visitor {
         }
     }
 
+    public beginVisitConstDeclaration(node: ConstDeclaration) {
+        const varName = node.variableName.value;
+        constants.set(varName, node);
+    }
+
     public beginVisitActionStatement(node: ActionStatement) {
         const actionName = ((node.expression as CheckAction)?.expression as RemoteMethodCallAction)?.methodName?.name?.value;
         if (actionName) {
@@ -277,6 +284,7 @@ export function getSymbolInfo(): STSymbolInfo {
         recordTypeDescriptions,
         listeners,
         moduleVariables,
+        constants,
         enums
     }
 }

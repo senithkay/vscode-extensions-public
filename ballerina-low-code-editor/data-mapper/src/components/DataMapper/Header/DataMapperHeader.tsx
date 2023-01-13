@@ -18,7 +18,7 @@ import { withStyles } from "@material-ui/core/styles";
 import TooltipBase from "@material-ui/core/Tooltip";
 import HomeIcon from '@material-ui/icons/Home';
 
-import EditIcon from "../../../assets/icons/EditIcon";
+import RoundEditIcon from "../../../assets/icons/RoundEditIcon";
 import { SelectionState, ViewOption } from "../DataMapper";
 
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
@@ -67,7 +67,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     <ConfigurationButton
                         onClick={onConfigOpen}
                     >
-                        <EditIcon/>
+                        <RoundEditIcon/>
                         <ConfBtnText>Configure</ConfBtnText>
                     </ConfigurationButton>
                 </TooltipComponent>

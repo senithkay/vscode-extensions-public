@@ -26,8 +26,8 @@ const ANON_RECORD_HOVER: string = '#0289e3';
 const PRIMARY_HOVER: string = '#2c09ed';
 
 interface StyleProps {
-    isSelected: boolean;
     isAnonymous: boolean;
+    isSelected?: boolean;
     shouldShade?: boolean;
     isClickable?: boolean;
 }
@@ -59,6 +59,9 @@ export const EntityHead = styled.div`
     min-width: calc(100% - 16px);
     padding-inline: 8px;
     text-align: center;
+`;
+
+export const EntityName = styled.span`
     &:hover {
         color: ${(props: StyleProps) => props.isClickable ? (props.isAnonymous ? ANON_RECORD_HOVER : PRIMARY_HOVER) : ``};
         cursor: ${(props: StyleProps) => props.isClickable ? `grabbing` : ``};

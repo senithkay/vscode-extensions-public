@@ -23,7 +23,7 @@ export interface ComponentModel {
     packageId: PackageID;
     services: Map<string, Service>;
     entities: Map<string, Entity>;
-    hasDiagnosticErrors: boolean;
+    hasCompilationErrors: boolean;
 }
 
 interface PackageID {
@@ -39,6 +39,7 @@ export interface Service {
     resources: ResourceFunction[];
     remoteFunctions: RemoteFunction[];
     serviceType: string;
+    elementLocation: Location;
 }
 
 interface ServiceAnnotation {
@@ -52,6 +53,7 @@ export interface ResourceFunction {
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
+    elementLocation: Location;
 }
 
 export interface RemoteFunction {
@@ -59,11 +61,13 @@ export interface RemoteFunction {
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
+    elementLocation: Location;
 }
 
 export interface Interaction {
     resourceId: ResourceId;
     connectorType: string;
+    elementLocation: Location;
 }
 
 export interface Parameter {
@@ -82,6 +86,7 @@ export interface ResourceId {
 export interface Entity {
     attributes: Attribute[];
     inclusions: string[];
+    elementLocation: Location;
     isAnonymous: boolean;
 }
 
@@ -92,6 +97,7 @@ export interface Attribute {
     required: boolean;
     nillable: boolean;
     associations: Association[];
+    elementLocation: Location;
 }
 
 interface Association {
@@ -116,6 +122,17 @@ export interface ServiceModels {
     levelTwo: DiagramModel;
 }
 
+export interface Location {
+    filePath: string;
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
+interface LinePosition {
+    line: number;
+    offset: number;
+}
+
 export enum Views {
     TYPE = 'T',
     TYPE_COMPOSITION = 'TC',
@@ -126,6 +143,11 @@ export enum Views {
 export enum Level {
     ONE = 1,
     TWO = 2
+}
+
+export enum DagreLayout {
+    TREE = 'tight-tree',
+    GRAPH = 'longest-path'
 }
 
 export enum ServiceTypes {
@@ -139,6 +161,6 @@ export enum Colors {
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
-    SECONDARY_SELECTED = '#f7f1e9',
-    SHADED_SELECTED = '#f7e4cb'
+    SECONDARY_SELECTED = '#fffaf2',
+    SHADED_SELECTED = '#faead2'
 }

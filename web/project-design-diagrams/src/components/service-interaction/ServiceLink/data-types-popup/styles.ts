@@ -21,10 +21,18 @@ import { CSSProperties } from 'react';
 import styled from '@emotion/styled';
 
 export const Container = styled.div`
+    display: flex;
+    flex-direction: row;
     font-family: GilmerRegular;
     font-size: 13px;
     letter-spacing: 0.8px;
     padding: 15px;
+`;
+
+export const MenuButton = styled.div`
+    position: absolute;
+    right: 8px;
+    top: 15px;
 `;
 
 export const clickableType: CSSProperties = {

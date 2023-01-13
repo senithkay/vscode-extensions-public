@@ -8,7 +8,7 @@ export interface ComponentModel {
     };
     services: Map<string, Service>;
     entities: Map<string, Entity>;
-    hasDiagnosticErrors: boolean;
+    hasCompilationErrors: boolean;
 }
 
 export interface Service {
@@ -18,17 +18,30 @@ export interface Service {
     resources: any[];
     remoteFunctions: any[];
     serviceType: string;
+    elementLocation: Location;
 }
 
 export interface Entity {
     attributes: any[];
     inclusions: string[];
     isAnonymous: boolean;
+    elementLocation: Location;
 }
 
 export interface BallerinaVersion {
     majorVersion: decimal;
     patchVersion: number;
+}
+
+export interface Location {
+    filePath: string;
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
+interface LinePosition {
+    line: number;
+    offset: number;
 }
 
 export const ERROR_MESSAGE = "Project Design Diagrams: Failed to generate view.";

@@ -73,6 +73,11 @@ const useStyles = makeStyles((theme: Theme) =>
             bottom: 0,
             display: 'flex',
             alignItems: 'center'
+        },
+        nodeType: {
+            float: 'right',
+            marginRight: 5,
+            color: theme.palette.grey[300],
         }
     }),
 );
@@ -84,10 +89,11 @@ export interface RecordTypeTreeWidgetProps {
     getPort: (portId: string) => RecordFieldPortModel;
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
     valueLabel?: string;
+    nodeHeaderSuffix?: string;
 }
 
 export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
-    const { engine, typeDesc, id, getPort, handleCollapse, valueLabel } = props;
+    const { engine, typeDesc, id, getPort, handleCollapse, valueLabel, nodeHeaderSuffix } = props;
     const classes = useStyles();
 
     const typeName = getTypeName(typeDesc);
@@ -143,6 +149,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                         {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                     </IconButton>
                     {label}
+                    <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
