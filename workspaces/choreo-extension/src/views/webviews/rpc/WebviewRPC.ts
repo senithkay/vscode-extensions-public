@@ -60,6 +60,8 @@ export class WebViewRpc {
                 return ProjectRegistry.getInstance().getProjects(ext.api.selectedOrg.id);
             }
         });
+
+        // TODO: Refactor structure
         this._messenger.onRequest(CreateComponentRequest, async (args: ComponentWizardInput) => {
             if (ext.api.selectedOrg) {
                 const workspaceFilePath = workspace.workspaceFile?.fsPath;
