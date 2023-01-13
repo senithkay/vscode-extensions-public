@@ -48,7 +48,7 @@ export function ProjectWizard() {
 
     useEffect(() => {
         const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
-        ghClient.onGHAppAuthCallback((status: string) => {
+        ghClient.onGHAppAuthCallback((status) => {
             console.log("GH App Auth Callback: " + status);
         });
     },[]);

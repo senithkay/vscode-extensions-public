@@ -653,7 +653,7 @@
         "build:variableView": "npm run build --workspace=workspaces/variable-view",
         "build:lce": "npm run build --workspace=workspaces/low-code-editor",
         "build": "npm run build --workspaces",
-        "build:choreo-dep": "npm run build --workspace=workspaces/choreo-core && npm run build --workspace=workspaces/choreo-client",
+        "build:choreo-dep": "npm run build --workspace=workspaces/choreo-core && npm run build --workspace=workspaces/choreo-client && npm run build --workspace=workspaces/choreo-webviews",
         "postbuild": "npm run package"
     },
     "dependencies": {
