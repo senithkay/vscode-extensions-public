@@ -24,15 +24,15 @@ import { ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortMod
 import { GatewayNodeModel } from "../../components/gateway/GatewayNode/GatewayNodeModel";
 import { GatewayType } from "../../components/gateway/types";
 import { GatewayPortModel } from "../../components/gateway/GatewayPort/GatewayPortModel";
-import { PathFindingLinkModel } from "../../components/gateway/PathFindingLink/PathFindingLinkModel";
+import { GatewayLinkModel } from "../../components/gateway/GatewayLink/GatewayLinkModel";
 
 let gwNodes: Map<string, GatewayNodeModel>;
 let l1Nodes: Map<string, ServiceNodeModel>;
 let l2Nodes: Map<string, ServiceNodeModel>;
 let l1ExtNodes: Map<string, ExtServiceNodeModel>;
 let l2ExtNodes: Map<string, ExtServiceNodeModel>;
-let l1Links: Map<string, ServiceLinkModel | PathFindingLinkModel>;
-let l2Links: (ServiceLinkModel | PathFindingLinkModel)[];
+let l1Links: Map<string, ServiceLinkModel | GatewayLinkModel>;
+let l2Links: (ServiceLinkModel | GatewayLinkModel)[];
 
 export function serviceModeller(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>): ServiceModels {
     // convert gateway to nodes
@@ -46,7 +46,7 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     // convert interactions to links and detect external services
     l1ExtNodes = new Map<string, ExtServiceNodeModel>();
     l2ExtNodes = new Map<string, ExtServiceNodeModel>();
-    l1Links = new Map<string, ServiceLinkModel | PathFindingLinkModel>();
+    l1Links = new Map<string, ServiceLinkModel | GatewayLinkModel>();
     l2Links = []
     generateLinks(projectComponents, projectPackages);
 
@@ -69,9 +69,9 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
 function addGWNodes() {
     // Add gateway nodes
     const northGW = new GatewayNodeModel('NORTH', 'Internet');
-    const eastGW = new GatewayNodeModel('EAST', 'Intranet');
+    const westGW = new GatewayNodeModel('WEST', 'Intranet');
     gwNodes.set('NORTH', northGW);
-    gwNodes.set('EAST', eastGW);
+    gwNodes.set('WEST', westGW);
 }
 
 function generateNodes(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>) {
@@ -101,8 +101,8 @@ function extractGateways(service: Service): GatewayType[] {
         gatewayTypes.push("NORTH");
     }
     if (service?.deploymentMetadata?.gateways?.intranet?.isExposed) {
-        // Intranet type to East
-        gatewayTypes.push("EAST");;
+        // Intranet type to West
+        gatewayTypes.push("WEST");;
     }
     return gatewayTypes;
 }
@@ -143,20 +143,20 @@ function mapGWInteractions(l1SourceNode: ServiceNodeModel, l2SourceNode: Service
 function mapL1GWInteraction(serviceModel: ServiceNodeModel, gwType: GatewayType) {
     const linkID: string = `${serviceModel.getID()}-${gwType}-in`;
     if ((serviceModel?.targetGateways.length > 0) && !l1Links.has(linkID)) {
-        const link: PathFindingLinkModel = new PathFindingLinkModel();
-        const sourcePort: ServicePortModel = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
-        const targetGW: GatewayNodeModel = gwNodes.get(gwType);
-        const targetPort: GatewayPortModel = targetGW.getPortFromID(`${gwType}-in`);
+        const link: GatewayLinkModel = new GatewayLinkModel(serviceModel.level);
+        const sourceGW: GatewayNodeModel = gwNodes.get(gwType);
+        const sourcePort: GatewayPortModel = sourceGW.getPortFromID(`${gwType}-in`);
+        const targetPort: ServicePortModel = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
         l1Links.set(linkID, createLinks(sourcePort, targetPort, link));
     }
 }
 
 function mapL2GWInteraction(serviceModel: ServiceNodeModel, gwType: GatewayType) {
     if ((serviceModel?.targetGateways.length > 0)) {
-        const link: PathFindingLinkModel = new PathFindingLinkModel();
-        const sourcePort: ServicePortModel = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
-        const targetGW: GatewayNodeModel = gwNodes.get(gwType);
-        const targetPort: GatewayPortModel = targetGW.getPortFromID(`${gwType}-in`);
+        const link: GatewayLinkModel = new GatewayLinkModel(serviceModel.level);
+        const sourceGW: GatewayNodeModel = gwNodes.get(gwType);
+        const sourcePort: GatewayPortModel = sourceGW.getPortFromID(`${gwType}-in`);
+        const targetPort: ServicePortModel = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
         l2Links.push(createLinks(sourcePort, targetPort, link));
     }
 }
@@ -225,7 +225,7 @@ function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 }
 
 function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel, location: Location, interaction?: Interaction,
-    sourceFunction?: RemoteFunction | ResourceFunction): ServiceLinkModel | PathFindingLinkModel {
+    sourceFunction?: RemoteFunction | ResourceFunction): ServiceLinkModel | GatewayLinkModel {
     let sourcePort: ServicePortModel = undefined;
     let targetPort: ServicePortModel = undefined;
 
@@ -293,7 +293,7 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
 }
 
 function mapExtLinks(sourceNode: ServiceNodeModel, target: ExtServiceNodeModel, location: Location, sourcePortID?: string)
-    : ServiceLinkModel | PathFindingLinkModel {
+    : ServiceLinkModel | GatewayLinkModel {
     let sourcePort: ServicePortModel;
     let targetPort: ServicePortModel = target.getPortFromID(`left-${target.getID()}`);
 
@@ -310,7 +310,7 @@ function mapExtLinks(sourceNode: ServiceNodeModel, target: ExtServiceNodeModel, 
     }
 }
 
-function createLinks(sourcePort: ServicePortModel, targetPort: ServicePortModel | GatewayPortModel, link: ServiceLinkModel | PathFindingLinkModel): ServiceLinkModel | PathFindingLinkModel {
+function createLinks(sourcePort: ServicePortModel, targetPort: ServicePortModel | GatewayPortModel, link: ServiceLinkModel | GatewayLinkModel): ServiceLinkModel | GatewayLinkModel {
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);

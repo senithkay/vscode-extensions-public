@@ -23,7 +23,7 @@ import { ExtServiceNodeFactory, ServiceLinkFactory, ServiceNodeFactory, ServiceP
 import { GatewayNodeFactory } from "../components/gateway/GatewayNode/GatewayNodeFactory";
 import { GatewayPortFactory } from "../components/gateway/GatewayPort/GatewayPortFactory";
 import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeModel";
-import { PathFindingLinkFactory } from "../components/gateway/PathFindingLink/PathFindingLinkFactory";
+import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLinkFactory";
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();
@@ -39,9 +39,9 @@ export function createRenderPackageObject(projectPackages: IterableIterator<stri
 export function createServicesEngine(): DiagramEngine {
     const diagramEngine: DiagramEngine = createEngine({registerDefaultPanAndZoomCanvasAction: true,
         registerDefaultZoomCanvasAction: false});
-    diagramEngine.getNodeFactories().registerFactory(new GatewayNodeFactory());
+    diagramEngine.getLinkFactories().registerFactory(new GatewayLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new GatewayPortFactory());
-    diagramEngine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
+    diagramEngine.getNodeFactories().registerFactory(new GatewayNodeFactory());
     diagramEngine.getLinkFactories().registerFactory(new ServiceLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new ServicePortFactory());
     diagramEngine.getNodeFactories().registerFactory(new ServiceNodeFactory());
@@ -64,24 +64,23 @@ export function positionGatewayNodes(engine: DiagramEngine) {
         (model?.getNodes()?.filter((node) => node instanceof GatewayNodeModel));
     const canvas = engine.getCanvas();
     if (canvas) {
-        const midX = canvas.clientWidth / 2;
-        const midY = canvas.clientHeight / 2;
-        console.log(">> midx:", midX, ">>> width:", canvas.clientWidth);
-        console.log(">> midy", midY, ">>> height:", canvas.clientHeight);
+        const canvasTopMidX = (canvas.clientWidth * 0.02) - model.getOffsetX();
+        const canvasTopMidY = (canvas.clientHeight * 0.25) - model.getOffsetY();
+        const canvasRightMidX = (canvas.clientWidth * 0.265) - model.getOffsetX();
+        const canvasRightMidY = (canvas.clientHeight * 0.15) - model.getOffsetY();
+        const canvasBottomMidX = (-(canvas.clientWidth * 0.254) - model.getOffsetX());
+        const canvasBottomMidY = (canvas.clientWidth * 0.4) - model.getOffsetY();
+        const canvasLeftMidX = (canvas.clientWidth * 0.008) - model.getOffsetX();
+        const canvasLeftMidY = (canvas.clientHeight * 0.38) - model.getOffsetY();
         gatewayNodes.forEach((node) => {
             if (node.type === 'NORTH') {
-                node.setPosition((canvas.clientWidth * 0.085) - model.getOffsetX(), (canvas.clientHeight * 0.2) - model.getOffsetY());
-                node.setLocked(true);
-                // console.log(">> gw N", model.getOffsetY());
-                // node.setPosition(model.getOffsetX() + 75, model.getOffsetY() + 400);
+                node.setPosition(canvasTopMidX, canvasTopMidY);
             } else if (node.type === 'SOUTH') {
-                node.setPosition(midX - 650, midY);
+                node.setPosition(canvasBottomMidX, canvasBottomMidY);
             } else if (node.type === 'EAST') {
-                console.log(">> gw E", model.getOffsetY());
-                node.setPosition((canvas.clientWidth * 0.265) - model.getOffsetX(), (canvas.clientHeight * 0.15) - model.getOffsetY());
-                node.setLocked(true);
+                node.setPosition(canvasRightMidX, canvasRightMidY);
             } else if (node.type === 'WEST') {
-                node.setPosition(midX - 1200, midY - 275);
+                node.setPosition(canvasLeftMidX, canvasLeftMidY);
             }
         });
     }
