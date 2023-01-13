@@ -62,13 +62,13 @@ export class ChoreoProjectManager implements IProjectManager {
     }
     private static _createComponent(args: ComponentCreationParams): Promise<string> {
         return new Promise((resolve, reject) => {
-            const { workspaceFilePath, displayType } = args;
+            const { displayType, name, org, workspaceFilePath } = args;
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
 
             // TODO: Sanitize for URL-safety. Current implementation just checks for Ballerina package name req.
-            const pkgName = args.name.split(/[^a-zA-Z0-9_.]/g).reduce((composedName: string, subname: string) =>
+            const pkgName = name.split(/[^a-zA-Z0-9_.]/g).reduce((composedName: string, subname: string) =>
                 composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
-            const balOrgName = args.org.name.split(/[^a-zA-Z0-9_]/g).reduce((composedName: string, subname: string) =>
+            const balOrgName = org.name.split(/[^a-zA-Z0-9_]/g).reduce((composedName: string, subname: string) =>
                 composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
 
             ChoreoProjectManager._runCommand('pwd', projectRoot).then(() => {
@@ -102,7 +102,7 @@ export class ChoreoProjectManager implements IProjectManager {
                                 log("Error: Could not read service.bal file.");
                                 return;
                             }
-                            const replaced = ChoreoProjectManager._getAnnotatedContent(contents, pkgName, serviceId, args.displayType);
+                            const replaced = ChoreoProjectManager._getAnnotatedContent(contents, pkgName, serviceId, displayType);
                             writeFile(serviceFilePath, replaced, 'utf-8', function () {
                                 log("Successfully added service annotations.");
                             });
