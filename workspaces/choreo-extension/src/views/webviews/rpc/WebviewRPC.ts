@@ -10,22 +10,27 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel, window, workspace } from "vscode";
+import { commands, WebviewPanel, window, workspace, Uri } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
+    CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
-    ComponentWizardInput, CloseWebViewNotification, serializeError, CreateComponentRequest, ShowErrorMessage,
-    Project, GetComponents
+    Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
+    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
+import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager';
+
 import { ext } from "../../../extensionVariables";
-import { orgClient, projectClient } from "../../../auth/auth";
+import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
+import * as vscode from 'vscode';
+import { cloneProject } from "../../../cmds/clone";
 
 export class WebViewRpc {
 
@@ -33,7 +38,7 @@ export class WebViewRpc {
     private _manager = new ChoreoProjectManager();
 
     constructor(view: WebviewPanel) {
-        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged'] });
+        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
 
         this._messenger.onRequest(GetLoginStatusRequest, () => {
             return ext.api.status;
@@ -78,6 +83,34 @@ export class WebViewRpc {
                 return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle);
             }
         });
+
+        this._messenger.onRequest(GetProjectLocation, async (projectId: string) => {
+            return ProjectRegistry.getInstance().getProjectLocation(projectId);
+        });
+
+        this._messenger.onRequest(OpenExternal, (url: string) => {
+            vscode.env.openExternal(vscode.Uri.parse(url));
+        });
+
+        this._messenger.onRequest(OpenChoreoProject, async (projectId: string) => {
+            const workspaceFilePath = ProjectRegistry.getInstance().getProjectLocation(projectId);
+            if (workspaceFilePath !== undefined) {
+                await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
+                await commands.executeCommand("workbench.explorer.fileView.focus");
+            }
+        });
+
+        this._messenger.onRequest(CloneChoreoProject, (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                ProjectRegistry.getInstance().getProject(projectId, ext.api.selectedOrg?.id)
+                    .then((project: Project | undefined) => {
+                        if (project) {
+                            cloneProject(project);
+                        }
+                    });
+            }
+        });
+
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
         });
@@ -102,5 +135,8 @@ export class WebViewRpc {
 
         // Register RPC handlers for Choreo project client
         registerChoreoProjectRPCHandlers(this._messenger, projectClient);
+
+        // Register RPC handlers for Choreo Github app client
+        registerChoreoGithubRPCHandlers(this._messenger, githubAppClient);
     }
 }

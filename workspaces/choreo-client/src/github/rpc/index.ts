@@ -10,21 +10,6 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
-
-export interface ChoreoWebViewsProps {
-  type: "ProjectOverview" | "ComponentCreateForm" | "ProjectCreateForm";
-  projectId?: string;
-  orgName?: string;
-}
-
-(window as any).renderChoreoWebViews = (props: ChoreoWebViewsProps) => {
-  ReactDOM.render(
-    <React.StrictMode>
-      <App {...props} />
-    </React.StrictMode>,
-    document.getElementById("root")
-  );
-}
+export * from "./ghapp-project-client-rpc-vscode";
+export * from "./types";
+export * from "./ghapp-client-rpc-webview";

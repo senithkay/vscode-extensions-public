@@ -21,10 +21,12 @@ import {
     Organization, Project, CloseWebViewNotification,
     ComponentWizardInput,
     CreateComponentRequest,
-    ShowErrorMessage, Component
+    ShowErrorMessage, Component,
+    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
+import { ChoreoGithubAppClientRPCWebView  } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
@@ -33,11 +35,13 @@ export class ChoreoWebViewAPI {
     private readonly _messenger;
     private static _instance: ChoreoWebViewAPI;
     private _projectClientRpc: ChoreoProjectClientRPCWebView;
+    private _githubAppClient: ChoreoGithubAppClientRPCWebView;
 
     constructor(vscodeAPI: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscodeAPI);
         this._messenger.start();
         this._projectClientRpc = new ChoreoProjectClientRPCWebView(this._messenger);
+        this._githubAppClient = new ChoreoGithubAppClientRPCWebView(this._messenger);
     }
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
@@ -64,6 +68,22 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
     }
 
+    public async getProjectLocation(projectId: string): Promise<string | undefined> {
+        return this._messenger.sendRequest(GetProjectLocation, HOST_EXTENSION, projectId);
+    }
+
+    public async openExternal(url: string): Promise<void> {
+        this._messenger.sendRequest(OpenExternal, HOST_EXTENSION, url);
+    }
+
+    public async openChoreoProject(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(OpenChoreoProject, HOST_EXTENSION, projectId);
+    }
+
+    public async cloneChoreoProject(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
+    }
+
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
         this._messenger.onNotification(LoginStatusChangedNotification, callback);
     }
@@ -86,6 +106,10 @@ export class ChoreoWebViewAPI {
 
     public showErrorMsg(error: string) {
         this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
+    }
+
+    public getChoreoGithubAppClient(): ChoreoGithubAppClientRPCWebView {
+        return this._githubAppClient;
     }
 
     public closeWebView() {

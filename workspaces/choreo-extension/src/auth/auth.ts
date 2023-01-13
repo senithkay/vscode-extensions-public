@@ -12,6 +12,8 @@
  */
 import * as vscode from 'vscode';
 import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage } from "@wso2-enterprise/choreo-client";
+import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
+
 import { ChoreoAuthConfig } from "./config";
 import { ext } from '../extensionVariables';
 
@@ -42,9 +44,11 @@ export const authClient = new ChoreoAuthClient({
     tokenUrl: choreoAuthConfig.getTokenUri(),
 });
 
-export const orgClient = new ChoreoOrgClient(readonlyTokenStore);
+export const orgClient = new ChoreoOrgClient(readonlyTokenStore, choreoAuthConfig.getAPIBaseURL());
 
-export const projectClient = new ChoreoProjectClient(readonlyTokenStore);
+export const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI());
+
+export const githubAppClient = new ChoreoGithubAppClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(), choreoAuthConfig.getGHAppConfig());
 
 export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
@@ -87,6 +91,7 @@ export async function exchangeAuthToken(authCode: string) {
             vscode.window.showInformationMessage(`Successfully signed into Choreo!`);
         } catch (error: any) {
             vscode.window.showErrorMessage(error.message);
+            signOut();
         }
     }
 }
@@ -102,6 +107,7 @@ export async function exchangeApimToken(token: string, orgHandle: string) {
         await exchangeVSCodeToken(response.accessToken);
     } catch (error: any) {
         vscode.window.showErrorMessage(error.message);
+        signOut();
     }
 }
 

@@ -135,7 +135,7 @@ export class ChoreoAuthClient implements IAuthClient {
         return `${this._config.loginUrl}?response_mode=query&prompt=login&response_type=code`
             + `&code_challenge_method=S256&code_challenge=${this._challenge.code_challenge}`
             + `&fidp=${this._fidp}&redirect_uri=${this._config.redirectUrl}&`
-            + `client_id=${this._config.clientId}&scope=${scope}`;
+            + `client_id=${this._config.clientId}&scope=${scope}&state=VSCODE_CHOREO_AUTH`;
     }
     
 }
