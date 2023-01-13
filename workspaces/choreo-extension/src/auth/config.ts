@@ -98,7 +98,7 @@ export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
 
 // Choreo V2 environment
 export class ChoreoAuthConfig {
-    constructor(private _config: ChoreoAuthConfigParams = CHOREO_AUTH_CONFIG_DEV) {
+    constructor(private _config: ChoreoAuthConfigParams = DEFAULT_CHOREO_AUTH_CONFIG) {
     }
 
     public getApimClientId(): string {
