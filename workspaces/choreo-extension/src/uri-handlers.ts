@@ -31,9 +31,28 @@ export function activateURIHandlers() {
                 const authCode = urlParams.get('code');
                 const installationId = urlParams.get('installationId');
                 if (authCode) {
-                    githubAppClient.fireGHAppAuthCallback("authorized");
+                    githubAppClient.obatainAccessToken(authCode)
+                        .then(() => {
+                            githubAppClient.fireGHAppAuthCallback({
+                                status: 'authorized',
+                                authCode
+                            });
+                        }).catch((err) => {
+                            githubAppClient.fireGHAppAuthCallback({
+                                status: 'error'
+                            });
+                            window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
+                        });
                 } else if (installationId) {
-                    githubAppClient.fireGHAppAuthCallback("installed");
+                    githubAppClient.fireGHAppAuthCallback({
+                        status: 'installed',
+                        installationId
+                    });
+                } else {
+                    githubAppClient.fireGHAppAuthCallback({
+                        status: 'error'
+                    });
+                    window.showErrorMessage(`Choreo Github Auth Failed`);
                 }
             }
         }

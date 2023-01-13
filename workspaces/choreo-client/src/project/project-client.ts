@@ -17,11 +17,9 @@ import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './projec
 import { getCreateProjectMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 
-export const PROJECTS_API_URL = 'https://apis.choreo.dev/projects/1.0.0/graphql';
-
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string = PROJECTS_API_URL) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {
     }
 
     private async _getClient() {

@@ -13,7 +13,7 @@
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 import { GHAppAuthStatus, GithubOrgnization, IChoreoGithubAppClient } from "../types";
-import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest } from "./types";
+import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest } from "./types";
 
 export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
 
@@ -21,6 +21,10 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
     }
     triggerAuthFlow(): Promise<boolean> {
         return this._messenger.sendRequest(TriggerAuthFlowRequest, HOST_EXTENSION, undefined);
+    }
+    
+    obatainAccessToken(authCode: string): Promise<void> {
+        return this._messenger.sendRequest(ObtainAccessTokenRequest, HOST_EXTENSION, authCode);
     }
     triggerInstallFlow(): Promise<boolean> {
         return this._messenger.sendRequest(TriggerInstallFlowRequest, HOST_EXTENSION, undefined);
@@ -30,7 +34,7 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onGHAppAuthCallback(callback: (status: GHAppAuthStatus) => void): any {
-        this._messenger.onNotification(FireGHAppAuthCallbackRequest, callback);
+        this._messenger.onNotification(OnGithubAppAuthCallbackNotification, callback);
         return {};
     }
 

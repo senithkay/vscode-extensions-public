@@ -10,10 +10,9 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { GraphQLClient } from 'graphql-request';
+import { GraphQLClient, gql } from 'graphql-request';
 import { IReadOnlyTokenStorage } from "../auth";
-import { GHAppAuthStatus, GithubOrgnization, IChoreoGithubAppClient } from "./types";
-import { PROJECTS_API_URL } from "./../project/project-client";
+import { GHAppAuthStatus, GHAppConfig, GithubOrgnization, IChoreoGithubAppClient } from "./types";
 import { EventEmitter, env, Uri } from 'vscode';
 
 export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
@@ -21,15 +20,15 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     private _onGHAppAuthCallback = new EventEmitter<GHAppAuthStatus>();
     public readonly onGHAppAuthCallback = this._onGHAppAuthCallback.event;
 
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string = PROJECTS_API_URL) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _projectsApiUrl: string, private _appConfig: GHAppConfig) {
     }
-
+    
     private async _getClient() {
         const token = await this._tokenStore.getToken("choreo.apim.token");
         if (!token) {
             throw new Error('User is not logged in');
         }
-        const client = new GraphQLClient(this._baseURL, {
+        const client = new GraphQLClient(this._projectsApiUrl, {
             headers: {
                 Authorization: 'Bearer ' + token.accessToken,
             },
@@ -38,18 +37,56 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     }
 
     async triggerAuthFlow(): Promise<boolean> {
+        const { authUrl, clientId, redirectUrl }  = this._appConfig;
         const callbackUri = await env.asExternalUri(
-            Uri.parse("https://github.com/login/oauth/authorize?redirect_uri=https://localhost:3000/ghapp&client_id=Iv1.f6cf2cd585148ee7&state=VSCODE_CHOREO_GH_APP_AUTH")
+            Uri.parse(`${authUrl}?redirect_uri=${redirectUrl}&client_id=${clientId}&state=VSCODE_CHOREO_GH_APP_AUTH`)
         );
         return env.openExternal(callbackUri);
+    }
+
+    async obatainAccessToken(authCode: string): Promise<void> {
+        const mutation = gql`
+            mutation {
+                obtainUserToken(authorizationCode:"${authCode}") {
+                    success
+                    message
+                }
+            }
+        `;
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            if(!data.obtainUserToken?.success) {
+                throw new Error(data.obtainUserToken?.message);
+            }
+        } catch (error) {
+            throw new Error("Error while obtaining access token. " , { cause: error });
+        }
+        
     }
 
     async triggerInstallFlow(): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
-    getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
-        this._getClient();
-        throw new Error("Method not implemented.");
+
+    async getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
+        const query = gql`
+            query {
+                userRepos {
+                    orgName
+                    repositories {
+                        name
+                    }
+                }
+            }
+        `;
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.userRepos;
+        } catch (error) {
+            throw new Error("Error while fetching authorized repositories. " , { cause: error });
+        }
     }
     
     fireGHAppAuthCallback(status: GHAppAuthStatus): void {
