@@ -29,7 +29,7 @@ export function SignIn() {
     const { loginStatus, loginStatusPending } = useContext(ChoreoWebViewContext);
 
     const onSignIn = () => {
-        ChoreoWebViewAPI.getInstance().triggerSignIn();
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.sign.in");
     };
     return (
         <Container>

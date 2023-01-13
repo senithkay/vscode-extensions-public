@@ -10,47 +10,47 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Project } from "@wso2-enterprise/choreo-core";
+import { Organization, Project } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
 import { WebViewRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
 
 export class ProjectOverview {
 
-    public static currentPanel: ProjectOverview | undefined;
-    public static project: Project | undefined;
-    private readonly _panel: vscode.WebviewPanel;
-    private _disposables: vscode.Disposable[] = [];
-    private _rpcHandler: WebViewRpc;
+  public static currentPanel: ProjectOverview | undefined;
+  public static project: Project | undefined;
+  private readonly _panel: vscode.WebviewPanel;
+  private _disposables: vscode.Disposable[] = [];
+  private _rpcHandler: WebViewRpc;
 
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, initialProject: string) {
-        this._panel = panel;
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, initialProject);
-        this._rpcHandler = new WebViewRpc(this._panel);
+  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, initialProject: string, orgName: string) {
+    this._panel = panel;
+    this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, initialProject, orgName);
+    this._rpcHandler = new WebViewRpc(this._panel);
+  }
+
+  public static render(extensionUri: vscode.Uri, project: Project, org: Organization) {
+    if (ProjectOverview.currentPanel) {
+      ProjectOverview.currentPanel._panel.reveal(vscode.ViewColumn.One);
+    } else {
+      const panel = vscode.window.createWebviewPanel("project-overview", "Project Overview", vscode.ViewColumn.One, {
+        enableScripts: true, retainContextWhenHidden: true
+      });
+
+      ProjectOverview.currentPanel = new ProjectOverview(panel, extensionUri, project.id, org.handle);
     }
+  }
 
-    public static render(extensionUri: vscode.Uri, project: Project) {
-        if (ProjectOverview.currentPanel) {
-            ProjectOverview.currentPanel._panel.reveal(vscode.ViewColumn.One);
-        } else {
-            const panel = vscode.window.createWebviewPanel("project-overview", "Project Overview", vscode.ViewColumn.One, {
-                enableScripts: true
-            });
+  private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, projectId: string, orgName: string) {
+    // The JS file from the React build output
+    const scriptUri = getUri(webview, extensionUri, [
+      "resources",
+      "jslibs",
+      "main.js"
+    ]);
 
-            ProjectOverview.currentPanel = new ProjectOverview(panel, extensionUri, project.id);
-        }
-    }
-
-    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, projectId: string) {
-        // The JS file from the React build output
-        const scriptUri = getUri(webview, extensionUri, [
-            "resources",
-            "jslibs",
-            "choreo-vscode-webviews.js"
-        ]);
-
-        return /*html*/ `
+    return /*html*/ `
           <!DOCTYPE html>
           <html lang="en">
             <head>
@@ -66,7 +66,7 @@ export class ProjectOverview {
             </body>
             <script>
               function render() {
-                window.renderChoreoWebViews({ type: "ProjectOverview", projectId: "${projectId}" });
+                window.renderChoreoWebViews({ type: "ProjectOverview", projectId: "${projectId}", orgName: "${orgName}" });
               }
               window.onload = () => {
                 render();
@@ -74,18 +74,18 @@ export class ProjectOverview {
             </script>
           </html>
         `;
+  }
+
+  public dispose() {
+    ProjectOverview.currentPanel = undefined;
+
+    this._panel.dispose();
+
+    while (this._disposables.length) {
+      const disposable = this._disposables.pop();
+      if (disposable) {
+        disposable.dispose();
+      }
     }
-
-    public dispose() {
-        ProjectOverview.currentPanel = undefined;
-
-        this._panel.dispose();
-
-        while (this._disposables.length) {
-            const disposable = this._disposables.pop();
-            if (disposable) {
-                disposable.dispose();
-            }
-        }
-    }
+  }
 }

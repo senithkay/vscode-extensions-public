@@ -15,7 +15,7 @@ import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview }
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { ProjectOverview } from "../views/webviews/ProjectOverview";
-import { Project } from "@wso2-enterprise/choreo-core";
+import { Organization, Project } from "@wso2-enterprise/choreo-core";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
@@ -40,7 +40,10 @@ export function activateWizards() {
     // Register Project Overview Wizard
     const projectOverview = commands.registerCommand(choreoProjectOverview, (project: Project) => {
         ext.api.selectedProjectId = project.id;
-        ProjectOverview.render(ext.context.extensionUri, project);
+        const org: Organization | undefined = ext.api.selectedOrg;
+        if (org !== undefined) {
+            ProjectOverview.render(ext.context.extensionUri, project, org);
+        }
     });
 
     ext.context.subscriptions.push(projectOverview);

@@ -126,3 +126,10 @@ export interface WorkspaceItem {
 export interface WorkspaceConfig {
     folders: WorkspaceItem[];
 }
+
+export enum ChoreoServiceComponentType {
+    REST_API = 'REST_API',
+    GQL_API = 'GQL_API',
+    WEBSOCKET_API = 'WEBSOCKET_API',
+    GRPC_API = 'GRPC_API',
+}

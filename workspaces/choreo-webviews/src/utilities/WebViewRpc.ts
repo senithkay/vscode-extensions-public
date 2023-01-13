@@ -15,13 +15,15 @@ import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
     GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
-    GetLoginStatusRequest, ExecuteCommandNotification,
+    GetLoginStatusRequest, ExecuteCommandNotification, GetComponents,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
-    Organization, Project
+    Organization, Project, Component, CloseWebViewNotification,
+    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
+import { ChoreoGithubAppClientRPCWebView  } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
@@ -30,11 +32,13 @@ export class ChoreoWebViewAPI {
     private readonly _messenger;
     private static _instance: ChoreoWebViewAPI;
     private _projectClientRpc: ChoreoProjectClientRPCWebView;
+    private _githubAppClient: ChoreoGithubAppClientRPCWebView;
 
     constructor(vscodeAPI: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscodeAPI);
         this._messenger.start();
         this._projectClientRpc = new ChoreoProjectClientRPCWebView(this._messenger);
+        this._githubAppClient = new ChoreoGithubAppClientRPCWebView(this._messenger);
     }
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
@@ -53,6 +57,26 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
     }
 
+    public async getComponents(projectId: string): Promise<Component[]> {
+        return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
+    }
+
+    public async getProjectLocation(projectId: string): Promise<string | undefined> {
+        return this._messenger.sendRequest(GetProjectLocation, HOST_EXTENSION, projectId);
+    }
+
+    public async openExternal(url: string): Promise<void> {
+        this._messenger.sendRequest(OpenExternal, HOST_EXTENSION, url);
+    }
+
+    public async openChoreoProject(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(OpenChoreoProject, HOST_EXTENSION, projectId);
+    }
+
+    public async cloneChoreoProject(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
+    }
+
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
         this._messenger.onNotification(LoginStatusChangedNotification, callback);
     }
@@ -65,12 +89,20 @@ export class ChoreoWebViewAPI {
         this._messenger.onNotification(SelectedProjectChangedNotification, callback);
     }
 
-    public triggerSignIn() {
-        this._messenger.sendNotification(ExecuteCommandNotification, HOST_EXTENSION, ["wso2.choreo.sign.in"]);
+    public triggerCmd(cmdId: string, ...args: any) {
+        this._messenger.sendNotification(ExecuteCommandNotification, HOST_EXTENSION, [cmdId, ...args]);
     }
 
     public getProjectClient(): IChoreoProjectClient {
         return this._projectClientRpc;
+    }
+
+    public getChoreoGithubAppClient(): ChoreoGithubAppClientRPCWebView {
+        return this._githubAppClient;
+    }
+
+    public closeWebView() {
+        this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
     }
 
     public static getInstance() {

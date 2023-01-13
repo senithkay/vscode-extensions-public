@@ -35,7 +35,7 @@ export class WebviewWizard {
   private static createWebview(type: WizardTypes): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(type,
       `Create New ${type === WizardTypes.componentCreation ? 'Component' : 'Project'}`, vscode.ViewColumn.One,
-      { enableScripts: true }
+      { enableScripts: true, retainContextWhenHidden: true }
     );
 
     return panel;
@@ -50,7 +50,7 @@ export class WebviewWizard {
     const scriptUri = getUri(webview, extensionUri, [
       "resources",
       "jslibs",
-      "choreo-vscode-webviews.js"
+      "main.js"
     ]);
 
     return /*html*/ `
