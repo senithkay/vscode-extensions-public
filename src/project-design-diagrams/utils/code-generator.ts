@@ -25,13 +25,16 @@ import { Service, ServiceTypes } from "../resources";
 
 const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
 let clientName: string;
+let filePath: string;
+let extendedLangClient: ExtendedLangClient;
 
 export async function addConnector(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
     : Promise<boolean> {
-    const filePath: string = sourceService.elementLocation.filePath;
+    extendedLangClient = langClient;
+    filePath = sourceService.elementLocation.filePath;
     clientName = transformLabel(targetService.annotation.label) || transformLabel(targetService.annotation.id);
 
-    langClient.getSyntaxTree({
+    extendedLangClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(filePath).toString()
         }
@@ -47,7 +50,7 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
             let modifiedST: STResponse;
 
             if (initMember) {
-                updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, generateClientDecl(targetService, targetType))
+                updateSyntaxTree(serviceDecl.openBraceToken, generateClientDecl(targetService, targetType))
                     .then((response) => {
                         modifiedST = response as STResponse;
                         if (modifiedST && modifiedST.parseSuccess) {
@@ -55,14 +58,14 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
                             const serviceDecl = getServiceDeclaration(members, sourceService, false);
                             const updatedInitMember = getInitFunction(serviceDecl);
                             if (updatedInitMember) {
-                                updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken,
-                                    generateClientInit()).then((response) => {
+                                updateSyntaxTree(updatedInitMember.functionBody.openBraceToken, generateClientInit())
+                                .then((response) => {
                                         modifiedST = response as STResponse;
                                         if (modifiedST && modifiedST.parseSuccess) {
                                             if (!addImport) {
-                                                return updateSourceFile(langClient, filePath, modifiedST.source);
+                                                return updateSourceFile(modifiedST.source);
                                             } else {
-                                                return addImportDeclaration(langClient, modifiedST, filePath, targetType);
+                                                return addImportDeclaration(modifiedST, targetType);
                                             }
                                         }
                                     })
@@ -74,13 +77,13 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
                         ${generateClientDecl(targetService, targetType)}
                         ${generateServiceInit()}
                     `;
-                updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode).then((response) => {
+                updateSyntaxTree(serviceDecl.openBraceToken, genCode).then((response) => {
                     modifiedST = response as STResponse;
                     if (modifiedST && modifiedST.parseSuccess) {
                         if (!addImport) {
-                            return updateSourceFile(langClient, filePath, modifiedST.source);
+                            return updateSourceFile(modifiedST.source);
                         } else {
-                            return addImportDeclaration(langClient, modifiedST, filePath, targetType);
+                            return addImportDeclaration(modifiedST, targetType);
                         }
                     }
                 })
@@ -112,12 +115,12 @@ function isImportPresent(members: any[], targetType: ServiceTypes) {
     ));
 }
 
-async function addImportDeclaration(langClient: ExtendedLangClient, modifiedST: STResponse, filePath: string, targetType: ServiceTypes): Promise<boolean> {
+async function addImportDeclaration(modifiedST: STResponse, targetType: ServiceTypes): Promise<boolean> {
     const imports: any[] = modifiedST.syntaxTree.imports;
-    updateSyntaxTree(langClient, filePath, imports[imports.length - 1], generateImport(targetType)).then((response) => {
+    updateSyntaxTree(imports[imports.length - 1], generateImport(targetType)).then((response) => {
         const stResponse: STResponse = response as STResponse;
         if (stResponse && stResponse.parseSuccess) {
-            return updateSourceFile(langClient, filePath, stResponse.source);
+            return updateSourceFile(stResponse.source);
         }
     })
     return false;
@@ -141,7 +144,7 @@ function getInitFunction(serviceDeclaration: any): any {
     );
 }
 
-function updateSyntaxTree(langClient: ExtendedLangClient, filePath: string, stObject: any, generatedCode: string)
+function updateSyntaxTree(stObject: any, generatedCode: string)
     : Promise<STResponse | {}> {
     let stModification = {
         startLine: stObject.position.endLine,
@@ -154,7 +157,7 @@ function updateSyntaxTree(langClient: ExtendedLangClient, filePath: string, stOb
         }
     };
 
-    return langClient.stModify({
+    return extendedLangClient.stModify({
         astModifications: [stModification],
         documentIdentifier: {
             uri: Uri.file(filePath).toString()
@@ -162,16 +165,16 @@ function updateSyntaxTree(langClient: ExtendedLangClient, filePath: string, stOb
     });
 }
 
-async function updateSourceFile(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
+async function updateSourceFile(fileContent: string): Promise<boolean> {
     const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
     if (doc) {
         const edit = new WorkspaceEdit();
         edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
         await workspace.applyEdit(edit);
-        langClient.updateStatusBar();
+        extendedLangClient.updateStatusBar();
         return doc.save();
     } else {
-        langClient.didChange({
+        extendedLangClient.didChange({
             contentChanges: [
                 {
                     text: fileContent
@@ -183,7 +186,7 @@ async function updateSourceFile(langClient: ExtendedLangClient, filePath: string
             }
         });
         writeFileSync(filePath, fileContent);
-        langClient.updateStatusBar();
+        extendedLangClient.updateStatusBar();
     }
     return false;
 }
