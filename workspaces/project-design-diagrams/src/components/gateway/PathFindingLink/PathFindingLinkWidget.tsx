@@ -30,7 +30,7 @@ export class PathFindingLinkWidget extends React.Component<PathFindingLinkWidget
 		this.state = {
 			selected: false
 		};
-		this.pathFinding = new PathFinding(this.props.factory);
+		this.pathFinding = new PathFinding(this.props.factory, this.props.diagramEngine);
 		this.diagramEngine = this.props.diagramEngine;
 	}
 
@@ -80,24 +80,51 @@ export class PathFindingLinkWidget extends React.Component<PathFindingLinkWidget
 		let points = this.props.link.getPoints();
 		let paths = [];
 
-		// first step: calculate a direct path between the points being linked
-		const directPathCoords = this.pathFinding.calculateDirectPath(_.first(points), _.last(points));
-
-		const routingMatrix = this.props.factory.getRoutingMatrix();
-		// now we need to extract, from the routing matrix, the very first walkable points
-		// so they can be used as origin and destination of the link to be created
-		const smartLink = this.pathFinding.calculateLinkStartEndCoords(routingMatrix, directPathCoords);
-		if (smartLink) {
-			const { start, end, pathToStart, pathToEnd } = smartLink;
-
-			// second step: calculate a path avoiding hitting other elements
-			const simplifiedPath = this.pathFinding.calculateDynamicPath(routingMatrix, start, end, pathToStart, pathToEnd);
-
-			paths.push(
-				//smooth: boolean, extraProps: any, id: string | number, firstPoint: PointModel, lastPoint: PointModel
-				this.generateLink(this.props.factory.generateDynamicPath(simplifiedPath), '0')
-			);
+		let isPointsValid = true;
+		for (let i = 0; i < points.length; i++) {
+			const x = points[i].getPosition().x;
+			const y = points[i].getPosition().y;
+			const canvas = this.diagramEngine.getCanvas();
+			const model = this.diagramEngine.getModel();
+			const canvasLeftBoundary = 0 - model.getOffsetX();
+			const canvasTopBoundary = 0 - model.getOffsetY();
+			const canvasRightBoundary = canvas.clientWidth - model.getOffsetX();
+			const canvasBottomBoundary = canvas.clientHeight - model.getOffsetY();
+			console.log(">>> Canvas Off w:", canvas.offsetWidth, " h: ", canvas.offsetHeight);
+			if (
+				!((canvasLeftBoundary <= x) && (canvasRightBoundary >= x) &&
+					(canvasTopBoundary <= y) && (canvasBottomBoundary >= y))
+				// (canvasTopBoundary >= fromY)  && (canvasTopBoundary >= toY) &&
+				// (canvasBottomBoundary <= fromY) && (canvasBottomBoundary <= toY)
+			) {
+				isPointsValid = false;
+				console.log(">>>>>> In valid X: ", x, " Y: ", y, " LeftB: ", canvasLeftBoundary, " RightB: ", canvasRightBoundary, " TopB: ", canvasTopBoundary, " BottomB: ", canvasBottomBoundary, " ");
+				break;
+			}
 		}
+
+
+		if (isPointsValid) {
+			// first step: calculate a direct path between the points being linked
+			const directPathCoords = this.pathFinding.calculateDirectPath(_.first(points), _.last(points));
+
+			const routingMatrix = this.props.factory.getRoutingMatrix();
+			// now we need to extract, from the routing matrix, the very first walkable points
+			// so they can be used as origin and destination of the link to be created
+			const smartLink = this.pathFinding.calculateLinkStartEndCoords(routingMatrix, directPathCoords);
+			if (smartLink) {
+				const { start, end, pathToStart, pathToEnd } = smartLink;
+
+				// second step: calculate a path avoiding hitting other elements
+				const simplifiedPath = this.pathFinding.calculateDynamicPath(routingMatrix, start, end, pathToStart, pathToEnd);
+
+				paths.push(
+					//smooth: boolean, extraProps: any, id: string | number, firstPoint: PointModel, lastPoint: PointModel
+					this.generateLink(this.props.factory.generateDynamicPath(simplifiedPath), '0')
+				);
+			}
+		}
+
 		return <>{paths}</>;
 	}
 }

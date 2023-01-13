@@ -27,7 +27,7 @@ export const Canvas = styled.div`
 `;
 
 export const ControlPanel = styled.div`
-    bottom: 15px;
+    bottom: 65px;
     display: flex;
     flex-direction: column;
     height: 150px;

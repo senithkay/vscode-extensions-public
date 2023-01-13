@@ -17,9 +17,9 @@
  *
  */
 import React, {useEffect} from 'react';
-import { GatewayLinkModel } from './GatewayLinkModel';
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { Colors } from "../../../resources";
+import { GatewayLinkModel } from "./GatewayLinkModel";
 
 interface WidgetProps {
     engine: DiagramEngine;

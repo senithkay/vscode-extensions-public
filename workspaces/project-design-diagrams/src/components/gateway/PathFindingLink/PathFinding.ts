@@ -1,6 +1,6 @@
 import * as PF from 'pathfinding';
 import { PathFindingLinkFactory } from './PathFindingLinkFactory';
-import { PointModel } from '@projectstorm/react-diagrams-core';
+import {DiagramEngine, PointModel} from '@projectstorm/react-diagrams-core';
 
 /*
 it can be very expensive to calculate routes when every single pixel on the canvas
@@ -16,10 +16,12 @@ const pathFinderInstance = PF.JumpPointFinder({
 export class PathFinding {
 	instance: any;
 	factory: PathFindingLinkFactory;
+	diagramEngine: DiagramEngine;
 
-	constructor(factory: PathFindingLinkFactory) {
+	constructor(factory: PathFindingLinkFactory, diagramEngine: DiagramEngine) {
 		this.instance = pathFinderInstance;
 		this.factory = factory;
+		this.diagramEngine = diagramEngine;
 	}
 
 	/**

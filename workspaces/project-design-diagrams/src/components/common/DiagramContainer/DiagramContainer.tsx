@@ -23,6 +23,9 @@ import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
 import { ComponentModel, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
+import { CanvasContainer, Diagram, GatewayContainer } from "./style";
+import {WestGatewayIcon} from "./WestGatewayIcon";
+import {NorthGatewayIcon} from "./NorthGatewayIcon";
 
 interface DiagramContainerProps {
     currentView: Views;
@@ -80,21 +83,51 @@ export function DiagramContainer(props: DiagramContainerProps) {
                 <>
                     {serviceModels &&
                         <>
-                            <div style={{ display: currentView === Views.L1_SERVICES ? 'block' : 'none' }}>
-                                <DiagramCanvasWidget
-                                    type={Views.L1_SERVICES}
-                                    currentView={currentView}
-                                    model={serviceModels.levelOne}
-                                />
-                            </div>
+                            {currentView === Views.L1_SERVICES && (
+                                <div style={{display:"flex", flexDirection:"row", marginTop:-50}}>
+                                    {/*West Gateway*/}
+                                    <GatewayContainer marginLeft={0} marginTop={400}>
+                                        <WestGatewayIcon/>
+                                    </GatewayContainer>
+                                    <Diagram display='flex'>
+                                        {/*North Gateway*/}
+                                        <GatewayContainer marginLeft={470} marginTop={50}>
+                                            <NorthGatewayIcon/>
+                                        </GatewayContainer>
+                                        <CanvasContainer>
+                                            <DiagramCanvasWidget
+                                                type={Views.L1_SERVICES}
+                                                currentView={currentView}
+                                                model={serviceModels.levelOne}
+                                            />
+                                        </CanvasContainer>
+                                    </Diagram>
+                                </div>
+                            )}
 
-                            <div style={{ display: currentView === Views.L2_SERVICES ? 'block' : 'none' }}>
-                                <DiagramCanvasWidget
-                                    type={Views.L2_SERVICES}
-                                    currentView={currentView}
-                                    model={serviceModels.levelTwo}
-                                />
-                            </div>
+                            {currentView === Views.L2_SERVICES && (
+                                <Diagram display='flex'>
+                                    <GatewayContainer marginLeft={500} marginTop={0} />
+                                    <CanvasContainer>
+                                        {/*<DiagramCanvasWidget*/}
+                                        {/*    type={Views.L2_SERVICES}*/}
+                                        {/*    currentView={currentView}*/}
+                                        {/*    model={serviceModels.levelTwo}*/}
+                                        {/*/>*/}
+                                    </CanvasContainer>
+                                </Diagram>
+                            )}
+
+
+                            <Diagram display={currentView === Views.L2_SERVICES ? 'flex' : 'none'}>
+                                <CanvasContainer>
+                                    {/*<DiagramCanvasWidget*/}
+                                    {/*    type={Views.L2_SERVICES}*/}
+                                    {/*    currentView={currentView}*/}
+                                    {/*    model={serviceModels.levelTwo}*/}
+                                    {/*/>*/}
+                                </CanvasContainer>
+                            </Diagram>
                         </>
                     }
                     {typeModel &&

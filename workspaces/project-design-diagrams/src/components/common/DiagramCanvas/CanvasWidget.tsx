@@ -27,7 +27,8 @@ import { Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from '../../../utils';
 import { Canvas } from './styles/styles';
 import './styles/styles.css';
-import { PathFindingLinkModel } from "../../gateway/PathFindingLink/PathFindingLinkModel";
+import debounce from "lodash.debounce";
+import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -59,24 +60,19 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const onMouseMove = (event: any) => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
-            if (link instanceof PathFindingLinkModel) {
-                // diagramEngine?.getModel()?.removeLink(link);
-                if (link.getOptions().width === 0) {
-                    link.setColor("red");
-                    link.setWidth(1);
-                    autoDistribute();
-                    console.log(">>> Mouse Move Event ", event);
+            if (link instanceof GatewayLinkModel) {
+                if (!link.getLinkVisibility()) {
+                    link.setLinkVisibility(true);
+                    debouncedDiagramRedraw();
                 }
             }
         });
     };
     const onMouseWheel = (event: any) => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
-            if (link instanceof PathFindingLinkModel) {
-                // diagramEngine?.getModel()?.removeLink(link);
-                link.setWidth(0);
-                console.log(">>> PathFindingLinkModel ");
-                autoDistribute();
+            if (link instanceof GatewayLinkModel) {
+                link.setLinkVisibility(false);
+                debouncedDiagramRedraw();
             }
         });
         console.log(">>> Mouse Move Wheel ", diagramEngine);
@@ -85,10 +81,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         const element = diagramEngine.getActionEventBus().getModelForEvent(event);
         if (!element) {
             diagramEngine?.getModel()?.getLinks()?.forEach(link => {
-                if (link instanceof PathFindingLinkModel) {
-                    // diagramEngine?.getModel()?.removeLink(link);
-                    link.setWidth(0);
-                    autoDistribute();
+                if (link instanceof GatewayLinkModel) {
+                    link.setLinkVisibility(false);
+                    debouncedDiagramRedraw();
                 }
             });
         }
@@ -105,30 +100,6 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             }
             document.addEventListener('keydown', handleEscapePress);
         }
-    }, [])
-
-    // Reset the model and redistribute if the model changes
-    useEffect(() => {
-        if (diagramEngine.getModel()) {
-            if (currentView === type) {
-                diagramEngine.setModel(model);
-                autoDistribute();
-            } else {
-                setDiagramModel(undefined);
-            }
-        }
-    }, [model]);
-
-    // Initial distribution of the nodes when the screen is on display (refer note above)
-    useEffect(() => {
-        if (!diagramModel && currentView === type) {
-            diagramEngine.setModel(model);
-            setDiagramModel(model);
-            autoDistribute();
-        }
-    }, [currentView]);
-
-    useEffect(() => {
         diagramEngine.getStateMachine().getCurrentState().registerAction(
             new Action({
                 type: InputType.MOUSE_DOWN,
@@ -155,6 +126,27 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         );
     }, []);
 
+    // Reset the model and redistribute if the model changes
+    useEffect(() => {
+        if (diagramEngine.getModel()) {
+            if (currentView === type) {
+                diagramEngine.setModel(model);
+                autoDistribute();
+            } else {
+                setDiagramModel(undefined);
+            }
+        }
+    }, [model]);
+
+    // Initial distribution of the nodes when the screen is on display (refer note above)
+    useEffect(() => {
+        if (!diagramModel && currentView === type) {
+            diagramEngine.setModel(model);
+            setDiagramModel(model);
+            autoDistribute();
+        }
+    }, [currentView]);
+
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
@@ -162,6 +154,13 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             diagramEngine.repaintCanvas();
         }, 30);
     };
+
+    const redrawDiagram = () => {
+        dagreEngine.redistribute(diagramEngine.getModel());
+        positionGatewayNodes(diagramEngine);
+        diagramEngine.repaintCanvas();
+    };
+    const debouncedDiagramRedraw = debounce(redrawDiagram, 30);
 
     const onZoom = (zoomIn: boolean) => {
         let delta: number = zoomIn ? +5 : -5;
