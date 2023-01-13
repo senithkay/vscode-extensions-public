@@ -90,8 +90,10 @@ jobs:
         run: |
           git config --global user.name 'GithubAction'
           git config --global user.email 'action@github.com'
-          git commit -am "Update version"
-          git push
+          git add *.json
+          git commit -m "Update version to v${{ steps.vsix.outputs.version }}"
+          git remote set-url origin https://x-access-token:${{secrets.GITHUB_TOKEN}}@github.com/$GITHUB_REPOSITORY.git
+          git push origin
 
       - name: "Release Notification"
         run: |
