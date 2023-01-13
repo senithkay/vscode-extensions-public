@@ -168,19 +168,28 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
 
 function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, connectorType: string,
     callingFunction: ResourceFunction | RemoteFunction) {
-    // create L1 external service nodes and links
-    let l1ExtService: ExtServiceNodeModel = new ExtServiceNodeModel(connectorType);
-    l1ExtNodes.set(connectorType, l1ExtService);
+    let l1ExtService: ExtServiceNodeModel;
+    let l2ExtService: ExtServiceNodeModel;
 
+    // retrieve external service node if existing, else create new node
+    if (l1ExtNodes.has(connectorType) && l2ExtNodes.has(connectorType)) {
+        l1ExtService = l1ExtNodes.get(connectorType);
+        l2ExtService = l2ExtNodes.get(connectorType);
+    } else {
+        l1ExtService = new ExtServiceNodeModel(connectorType);
+        l1ExtNodes.set(connectorType, l1ExtService);
+
+        l2ExtService = new ExtServiceNodeModel(connectorType);
+        l2ExtNodes.set(connectorType, l2ExtService);
+    }
+
+    // create L1 links for the external interactions
     let l1Link: ServiceLinkModel = mapExtLinks(l1Source, l1ExtService, undefined);
     if (l1Link) {
         l1Links.set(`${l1Source.getID()}${connectorType}`, l1Link);
     }
 
-    // create L2 external service nodes and links
-    let l2ExtService: ExtServiceNodeModel = new ExtServiceNodeModel(connectorType);
-    l2ExtNodes.set(connectorType, l2ExtService);
-
+    // create L2 links for the external interactions
     let sourcePortID: string = isResource(callingFunction) ?
         `right-${callingFunction.resourceId.action}/${callingFunction.identifier}` : `right-${callingFunction.name}`;
     let l2Link: ServiceLinkModel = mapExtLinks(l2Source, l2ExtService, sourcePortID);
@@ -189,15 +198,15 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
     }
 }
 
-function mapExtLinks(sourceNode: ServiceNodeModel, target: ExtServiceNodeModel, sourcePortID?: string): ServiceLinkModel {
+function mapExtLinks(source: ServiceNodeModel, target: ExtServiceNodeModel, sourcePortID?: string): ServiceLinkModel {
     let sourcePort: ServicePortModel;
     let targetPort: ServicePortModel = target.getPortFromID(`left-${target.getID()}`);
 
     if (sourcePortID) {
-        sourcePort = sourceNode.getPortFromID(sourcePortID);
+        sourcePort = source.getPortFromID(sourcePortID);
     }
     if (!sourcePort) {
-        sourcePort = sourceNode.getPortFromID(`right-${sourceNode.serviceObject.serviceId}`);
+        sourcePort = source.getPortFromID(`right-${source.serviceObject.serviceId}`);
     }
 
     if (sourcePort && targetPort) {
