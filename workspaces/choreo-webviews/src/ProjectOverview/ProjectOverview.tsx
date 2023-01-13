@@ -33,6 +33,7 @@ const ActionContainer = styled.div`
 
 export interface ProjectOverviewProps {
     projectId?: string;
+    orgName?: string;
 }
 
 export function ProjectOverview(props: ProjectOverviewProps) {
@@ -40,6 +41,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const [components, setComponents] = useState<Component[] | undefined>(undefined);
     const [location, setLocation] = useState<string | undefined>(undefined);
     const projectId = props.projectId ? props.projectId : '';
+    const orgName = props.orgName ? props.orgName : '';
 
     const rpcInstance = ChoreoWebViewAPI.getInstance();
     // Set the starting project with the project id passed by props
@@ -70,6 +72,18 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         rpcInstance.getProjectLocation(newProjectId).then(setLocation);
     });
 
+    const handleCloneProjectClick = (e: any) => {
+        rpcInstance.cloneChoreoProject(project ? project.id : '');
+    }
+
+    const handleOpenProjectClick = (e: any) => {
+        rpcInstance.openChoreoProject(project ? project.id : '');
+    }
+
+    const handleOpenInConsoleClick = (e: any) => {
+        rpcInstance.openExternal(`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`);
+    }
+
     return (
         <>
             <WizardContainer>
@@ -78,21 +92,21 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     <>
                         <p>To edit the project clone in to your local machine</p>
                         <ActionContainer>
-                            <VSCodeButton appearance="primary">Clone Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary">Open in Choreo Console</VSCodeButton>
+                            <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}>Clone Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" onClick={handleOpenInConsoleClick}>Open in Choreo Console</VSCodeButton>
                         </ActionContainer>
                     </>
                     :
                     <>
                         <p>Found a local copy of the project at `{location}`. </p>
                         <ActionContainer>
-                            <VSCodeButton appearance="primary">Open Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary">Open in Choreo Console</VSCodeButton>
+                            <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" onClick={handleOpenInConsoleClick}>Open in Choreo Console</VSCodeButton>
                         </ActionContainer>
                     </>}
 
                 <h2>Components</h2>
-                {(components !== undefined) ?
+                {(components !== undefined) ? // TODO: if components are empty print message
                     <VSCodeDataGrid aria-label="Components">
                         <VSCodeDataGridRow rowType="header">
                             <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>

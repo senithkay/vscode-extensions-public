@@ -14,6 +14,7 @@
 import { Component, Project, serializeError } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
+import { existsSync, PathLike } from 'fs';
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -58,9 +59,9 @@ export class ProjectRegistry {
         });
     }
 
-    async getProject(projectId: string, orgId: number) {
-        this.getProjects(orgId).then((projects: Project[]) => {
-            return projects.find((project) => { project.id === projectId; });
+    async getProject(projectId: string, orgId: number): Promise<Project | undefined> {
+        return this.getProjects(orgId).then((projects: Project[]) => {
+            return projects.find((project) => { return project.id === projectId; });
         });
     }
 
@@ -113,9 +114,27 @@ export class ProjectRegistry {
 
     getProjectLocation(projectId: string): string | undefined {
         let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);
+        const filePath: string | undefined = (projectLocations) ? projectLocations[projectId] : undefined;
         // TODO: check if the location exists 
+        if (filePath !== undefined) {
+            if (existsSync(filePath)) {
+                return filePath;
+            } else {
+                this._removeLocation(projectId);
+            }
+        }
         // If not, remove the location from the state
-        return (projectLocations) ? projectLocations[projectId] : undefined;
+        return undefined;
+    }
+
+    private _removeLocation(projectId: string) {
+        let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);
+        // If the locations are not set before create the location map
+        if (projectLocations === undefined) {
+            projectLocations = {};
+        }
+        delete projectLocations[projectId];
+        ext.context.globalState.update(PROJECT_LOCATIONS, projectLocations);
     }
 
 }

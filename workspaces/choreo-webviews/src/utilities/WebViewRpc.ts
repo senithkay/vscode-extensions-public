@@ -19,7 +19,7 @@ import {
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
     Organization, Project, Component, CloseWebViewNotification,
-    GetProjectLocation
+    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -63,6 +63,18 @@ export class ChoreoWebViewAPI {
 
     public async getProjectLocation(projectId: string): Promise<string | undefined> {
         return this._messenger.sendRequest(GetProjectLocation, HOST_EXTENSION, projectId);
+    }
+
+    public async openExternal(url: string): Promise<void> {
+        this._messenger.sendRequest(OpenExternal, HOST_EXTENSION, url);
+    }
+
+    public async openChoreoProject(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(OpenChoreoProject, HOST_EXTENSION, projectId);
+    }
+
+    public async cloneChoreoProject(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {

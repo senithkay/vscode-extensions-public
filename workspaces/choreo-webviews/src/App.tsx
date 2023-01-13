@@ -34,7 +34,7 @@ function switchViews(props: ChoreoWebViewsProps) {
     case 'ComponentCreateForm':
       return <ComponentWizard />;
     case 'ProjectOverview':
-      return <ProjectOverview projectId={props.projectId} />;
+      return <ProjectOverview projectId={props.projectId} orgName={props.orgName} />;
   }
 }
 

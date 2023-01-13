@@ -17,7 +17,7 @@ import { ThemeIcon, window, extensions } from 'vscode';
 import { activateAuth } from './auth';
 import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { cloneAllComponentsCmd, cloneComponentCmd } from './cmds/clone';
+import { cloneProject, cloneComponentCmd } from './cmds/clone';
 import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
@@ -67,9 +67,7 @@ function createProjectTreeView() {
 		});
 	});
 
-	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneAllComponentsCmd);
-
-	vscode.commands.registerCommand(cloneComponentCmdId, cloneComponentCmd);
+	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
 
 	const treeView = window.createTreeView(choreoProjectsTreeId, {
 		treeDataProvider: choreoResourcesProvider, showCollapseAll: true

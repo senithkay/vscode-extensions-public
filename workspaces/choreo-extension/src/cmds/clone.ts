@@ -15,105 +15,99 @@ import * as os from 'os';
 import path = require('path');
 import { simpleGit } from 'simple-git';
 import { commands, ProgressLocation, TreeItem, Uri, window, workspace } from 'vscode';
-import { Component, Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
+import { Component, Project, Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { ChoreoProjectTreeItem } from './../views/project-tree/ProjectTreeItem';
 import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
 
+export const cloneProject = async (project: Project) => {
+    const workspaceName = workspace.name;
+    const workspaceFolders = workspace.workspaceFolders;
+    const isWorkspaceExist = workspaceName || workspaceFolders;
 
-export const cloneAllComponentsCmd = async (treeItem: TreeItem) => {
-    if (treeItem instanceof ChoreoProjectTreeItem) {
+    const { id, name: projectName } = project;
+    const selectedOrg = ext.api.selectedOrg;
 
-        const workspaceName = workspace.name;
-        const workspaceFolders = workspace.workspaceFolders;
-        const isWorkspaceExist = workspaceName || workspaceFolders;
+    if (selectedOrg) {
+        const parentDirs = await window.showOpenDialog({
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            defaultUri: Uri.file(os.homedir()),
+            title: "Select a folder to create the Workspace"
+        });
 
-        const { id, name: projectName } = treeItem.project;
-        const selectedOrg = ext.api.selectedOrg;
-
-        if (selectedOrg) {
-            const parentDirs = await window.showOpenDialog({
-                canSelectFiles: false,
-                canSelectFolders: true,
-                canSelectMany: false,
-                defaultUri: Uri.file(os.homedir()),
-                title: "Select a folder to create the Workspace"
-            });
-
-            if (!parentDirs || parentDirs.length === 0) {
-                window.showErrorMessage('A folder must be selected to start cloning');
-                return;
-            }
-
-            const parentPath = parentDirs[0].fsPath;
-            const workspacePath = path.join(parentPath, projectName);
-            if (existsSync(workspacePath)) {
-                // TODO: Optimize the UX. eg: prompt again to change selected path or generate
-                // a suffix for the project name
-                window.showErrorMessage('A folder already exists at ' + workspacePath);
-                return;
-            }
-
-            mkdirSync(workspacePath);
-
-            const workspaceFile: WorkspaceConfig = {
-                folders: []
-            };
-
-            await window.withProgress({
-                title: `Cloning ${projectName} components to workspace.`,
-                location: ProgressLocation.Notification,
-                cancellable: true
-            }, async (_progress, cancellationToken) => {
-                let cancelled: boolean = false;
-                let currentCloneIndex = 0;
-
-                cancellationToken.onCancellationRequested(async () => {
-                    cancelled = true;
-                });
-                const components = await projectClient.getComponents({ orgHandle: selectedOrg.handle, projId: id });
-                const userManagedComponents = components.filter((cmp) => cmp.repository.isUserManage);
-                const repos = components.map((cmp) => cmp.repository);
-
-                const choreoManagedRepos = repos.filter((repo) => !repo.isUserManage);
-                const userManagedRepos = userManagedComponents.map((cmp) => cmp.repository);
-                const userManagedReposWithoutDuplicates: Repository[] = [];
-
-                userManagedRepos.forEach(repo => {
-                    if (!userManagedReposWithoutDuplicates.find((tarRepo) => tarRepo.organizationApp === repo.organizationApp && tarRepo.nameApp === repo.nameApp)) {
-                        userManagedReposWithoutDuplicates.push(repo);
-                    }
-                });
-
-                workspaceFile.folders = userManagedComponents.map(({ name, repository: { appSubPath, nameApp } }) => ({
-                    name: name,
-                    path: appSubPath ? path.join(nameApp, appSubPath) : nameApp
-                }));
-                const workspaceFileName = `${projectName}.code-workspace`;
-                const workspaceFilePath = path.join(workspacePath, workspaceFileName);
-
-                writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
-
-                while (!cancelled && currentCloneIndex < userManagedReposWithoutDuplicates.length) {
-                    const { organizationApp, nameApp, branchApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
-                    const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(workspacePath, nameApp), ["--recursive", "--branch", branchApp]);
-                    currentCloneIndex = currentCloneIndex + 1;
-                }
-
-                // Register the project location in registry
-                ProjectRegistry.getInstance().setProjectLocation(id, workspaceFilePath);
-
-                await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
-                await commands.executeCommand("workbench.explorer.fileView.focus");
-
-                if (choreoManagedRepos.length > 0) {
-                    console.log(`Could not clone ${choreoManagedRepos.length} Choreo managed repos.\n`);
-                }
-
-            });
-
+        if (!parentDirs || parentDirs.length === 0) {
+            window.showErrorMessage('A folder must be selected to start cloning');
+            return;
         }
+
+        const parentPath = parentDirs[0].fsPath;
+        const workspacePath = path.join(parentPath, projectName);
+        if (existsSync(workspacePath)) {
+            // TODO: Optimize the UX. eg: prompt again to change selected path or generate
+            // a suffix for the project name
+            window.showErrorMessage('A folder already exists at ' + workspacePath);
+            return;
+        }
+
+        mkdirSync(workspacePath);
+
+        const workspaceFile: WorkspaceConfig = {
+            folders: []
+        };
+
+        await window.withProgress({
+            title: `Cloning ${projectName} components to workspace.`,
+            location: ProgressLocation.Notification,
+            cancellable: true
+        }, async (_progress, cancellationToken) => {
+            let cancelled: boolean = false;
+            let currentCloneIndex = 0;
+
+            cancellationToken.onCancellationRequested(async () => {
+                cancelled = true;
+            });
+            const components = await projectClient.getComponents({ orgHandle: selectedOrg.handle, projId: id });
+            const userManagedComponents = components.filter((cmp) => cmp.repository.isUserManage);
+            const repos = components.map((cmp) => cmp.repository);
+
+            const choreoManagedRepos = repos.filter((repo) => !repo.isUserManage);
+            const userManagedRepos = userManagedComponents.map((cmp) => cmp.repository);
+            const userManagedReposWithoutDuplicates: Repository[] = [];
+
+            userManagedRepos.forEach(repo => {
+                if (!userManagedReposWithoutDuplicates.find((tarRepo) => tarRepo.organizationApp === repo.organizationApp && tarRepo.nameApp === repo.nameApp)) {
+                    userManagedReposWithoutDuplicates.push(repo);
+                }
+            });
+
+            workspaceFile.folders = userManagedComponents.map(({ name, repository: { appSubPath, nameApp } }) => ({
+                name: name,
+                path: appSubPath ? path.join(nameApp, appSubPath) : nameApp
+            }));
+            const workspaceFileName = `${projectName}.code-workspace`;
+            const workspaceFilePath = path.join(workspacePath, workspaceFileName);
+
+            writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
+
+            while (!cancelled && currentCloneIndex < userManagedReposWithoutDuplicates.length) {
+                const { organizationApp, nameApp, branchApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
+                const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(workspacePath, nameApp), ["--recursive", "--branch", branchApp]);
+                currentCloneIndex = currentCloneIndex + 1;
+            }
+
+            // Register the project location in registry
+            ProjectRegistry.getInstance().setProjectLocation(id, workspaceFilePath);
+
+            await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
+            await commands.executeCommand("workbench.explorer.fileView.focus");
+
+            if (choreoManagedRepos.length > 0) {
+                console.log(`Could not clone ${choreoManagedRepos.length} Choreo managed repos.\n`);
+            }
+        });
     }
 };
 
