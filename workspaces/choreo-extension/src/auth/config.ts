@@ -70,6 +70,32 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
     }
 };
 
+export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
+    loginUrl: "https://stage.api.asgardeo.io/t/a/oauth2/authorize",
+    tokenUrl: "https://stage.api.asgardeo.io/t/a/oauth2/token",
+    redirectUrl: "https://console.st.choreo.dev/vscode-auth",
+    clientId: "NoOBydRztff7iENCq0LM2uuRs2ca",
+
+    apimClientId: "lxa0Z3jtHtNxE9fqev4HUryUTLUa",
+    vscodeClientId: "GWj5MzWNrOB28jX_wu5ZGu7I1VIa",
+    apimTokenUrl: "https://sts.st.choreo.dev:443/oauth2/token",
+    userRegistrationUrl: "https://app.choreo.dev/register-user",
+
+    scope: "openid+email+profile",
+    fidp: ChoreoFidp.google,
+    ghApp: {
+        appUrl: "https://github.com/apps/choreo-apps-stage",
+        installUrl: "https://github.com/apps/choreo-apps-stage/installations/new",
+        authUrl: "https://github.com/login/oauth/authorize",
+        clientId: "Iv1.20fd2645fc8a5aab",
+        redirectUrl: "https://console.st.choreo.dev/ghapp"
+    },
+    apis: {
+        projectAPI: "https://apis.st.choreo.dev/projects/1.0.0/graphql",
+        base: "https://app.st.choreo.dev"
+    }
+};
+
 export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
     loginUrl: "https://dev.api.asgardeo.io/t/a/oauth2/authorize",
     tokenUrl: "https://dev.api.asgardeo.io/t/a/oauth2/token",
