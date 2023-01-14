@@ -42,6 +42,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const [project, setProject] = useState<Project | undefined>(undefined);
     const [components, setComponents] = useState<Component[] | undefined>(undefined);
     const [location, setLocation] = useState<string | undefined>(undefined);
+    const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
     const projectId = props.projectId ? props.projectId : '';
     const orgName = props.orgName ? props.orgName : '';
 
@@ -58,9 +59,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         rpcInstance.getComponents(projectId).then(setComponents);
     }, []);
 
-    // Get project location
+    // Get project location & repo
     useEffect(() => {
         rpcInstance.getProjectLocation(projectId).then(setLocation);
+        rpcInstance.getProjectRepository(projectId).then(setProjectRepo);
     }, []);
 
     // Listen to changes in project selection
@@ -69,18 +71,18 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         // setProject(undefined); will not remove project to fix the glitch
         rpcInstance.getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
-        })
+        });
         rpcInstance.getComponents(newProjectId).then(setComponents);
         rpcInstance.getProjectLocation(newProjectId).then(setLocation);
     });
 
     const handleCloneProjectClick = (e: any) => {
         rpcInstance.cloneChoreoProject(project ? project.id : '');
-    }
+    };
 
     const handleOpenProjectClick = (e: any) => {
         rpcInstance.openChoreoProject(project ? project.id : '');
-    }
+    };
 
     return (
         <>
@@ -103,6 +105,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
                         </ActionContainer>
                     </>}
+                {projectRepo !== undefined && <p>Project repository: {projectRepo}</p>}
+
                 <h2>Components</h2>
                 <ComponentList components={components} />
             </WizardContainer>

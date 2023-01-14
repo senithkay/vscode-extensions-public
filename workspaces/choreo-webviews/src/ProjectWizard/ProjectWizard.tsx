@@ -54,7 +54,8 @@ export function ProjectWizard() {
 
     const handleCreateProject = async () => {
         setCreationInProgress(true);
-        const projectClient = ChoreoWebViewAPI.getInstance().getProjectClient();
+        const webviewAPI = ChoreoWebViewAPI.getInstance();
+        const projectClient = webviewAPI.getProjectClient();
         if (selectedOrg) {
             try {
                 const createdProject = await projectClient.createProject({
@@ -63,7 +64,7 @@ export function ProjectWizard() {
                     orgId: selectedOrg.id,
                     orgHandle: selectedOrg.handle
                 });
-                const webviewAPI = ChoreoWebViewAPI.getInstance();
+                webviewAPI.setProjectRepository(createdProject.id, githubRepo);
                 webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
                 webviewAPI.triggerCmd("wso2.choreo.projects.refresh");
                 webviewAPI.closeWebView();
@@ -126,7 +127,7 @@ export function ProjectWizard() {
                         readOnly={true}
                         value={githubRepo}
                     >
-                        Github Repository
+                        Selected Repository
                     </VSCodeTextField>
                     <ActionContainer>
 

@@ -19,6 +19,7 @@ import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
+const PROJECT_REPOSITORIES = "project-repositories";
 
 export class ProjectRegistry {
 
@@ -126,6 +127,20 @@ export class ProjectRegistry {
         }
         // If not, remove the location from the state
         return undefined;
+    }
+
+    setProjectRepository(projectId: string, repository: string) {
+        let projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
+        if (projectRepositories === undefined) {
+            projectRepositories = {};
+        }   
+        projectRepositories[projectId] = repository;
+        ext.context.globalState.update(PROJECT_REPOSITORIES, projectRepositories);
+    }
+
+    getProjectRepository(projectId: string): string | undefined {
+        const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
+        return projectRepositories ? projectRepositories[projectId] : undefined;
     }
 
     private _removeLocation(projectId: string) {
