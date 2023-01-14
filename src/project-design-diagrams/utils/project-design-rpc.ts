@@ -17,7 +17,7 @@
  *
  */
 
-import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client";
+import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { Messenger } from "vscode-messenger";
 import { BallerinaProjectManager } from "./manager";
 import { OpenDialogOptions, WebviewPanel, window } from "vscode";

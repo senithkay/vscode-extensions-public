@@ -11,7 +11,6 @@
  *  associated services.
  */
 export * from "./project";
-export * from "./manager";
 export * from "./auth";
 export * from "./http-client";
 export * from "./org";

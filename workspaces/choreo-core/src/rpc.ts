@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project, Component } from './types';
+import { Organization, ChoreoLoginStatus, Project, ComponentWizardInput, Component } from './types';
 
 // request types 
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
@@ -19,15 +19,20 @@ export const GetCurrentOrgRequest: RequestType<string, Organization> = { method:
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
+export const CreateComponentRequest: RequestType<ComponentWizardInput, string> = { method: 'createComponent' };
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
+export const GetProjectLocation: RequestType<string, string | undefined> = { method: 'getProjectLocation' };
+export const OpenExternal: RequestType<string, void> = { method: 'openExternal' };
+export const OpenChoreoProject: RequestType<string, void> = { method: 'openChoreoProject' };
+export const CloneChoreoProject: RequestType<string, void> = { method: 'cloneChoreoProject' };
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
 export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };
-export const CloseWebViewNotification: NotificationType<void> =  { method: 'close' };
-
+export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
+export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeError(err: any) {

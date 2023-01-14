@@ -16,7 +16,7 @@
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "watch:test": "jest --watch",
     "storybook": "npx start-storybook -p 9001 -c .storybook",
-    "postbuild": "copyfiles -f build/*.js build/themes/*.css build/themes/*.map ../../resources/jslibs"
+    "postbuild": "copyfiles -f build/*.js ../../resources/jslibs && copyfiles -f build/themes/*.min.css ../../resources/jslibs/themes"
   },
   "dependencies": {
     "classnames": "^2.2.6",

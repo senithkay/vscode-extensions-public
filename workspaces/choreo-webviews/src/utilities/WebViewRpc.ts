@@ -18,7 +18,11 @@ import {
     GetLoginStatusRequest, ExecuteCommandNotification, GetComponents,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
-    Organization, Project, Component, CloseWebViewNotification
+    Organization, Project, CloseWebViewNotification,
+    ComponentWizardInput,
+    CreateComponentRequest,
+    ShowErrorMessage, Component,
+    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -56,8 +60,28 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
     }
 
+    public async createComponent(args: ComponentWizardInput): Promise<string> {
+        return this._messenger.sendRequest(CreateComponentRequest, HOST_EXTENSION, args);
+    }
+
     public async getComponents(projectId: string): Promise<Component[]> {
         return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
+    }
+
+    public async getProjectLocation(projectId: string): Promise<string | undefined> {
+        return this._messenger.sendRequest(GetProjectLocation, HOST_EXTENSION, projectId);
+    }
+
+    public async openExternal(url: string): Promise<void> {
+        this._messenger.sendRequest(OpenExternal, HOST_EXTENSION, url);
+    }
+
+    public async openChoreoProject(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(OpenChoreoProject, HOST_EXTENSION, projectId);
+    }
+
+    public async cloneChoreoProject(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
@@ -78,6 +102,10 @@ export class ChoreoWebViewAPI {
 
     public getProjectClient(): IChoreoProjectClient {
         return this._projectClientRpc;
+    }
+
+    public showErrorMsg(error: string) {
+        this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
     }
 
     public getChoreoGithubAppClient(): ChoreoGithubAppClientRPCWebView {
