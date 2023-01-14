@@ -17,6 +17,6 @@ export interface CodiconProps {
 
 export function Codicon(props: CodiconProps) {
     return (
-        <i className={`codicon codicon-${props.name}`}></i>
+        <div className="icon"><i className={`codicon codicon-${props.name}`}></i></div>
     );
 }

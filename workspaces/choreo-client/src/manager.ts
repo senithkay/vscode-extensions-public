@@ -11,11 +11,11 @@
  *  associated services.
  */
 
-import { ChoreoServiceComponentType, ComponentAccessibility, IProjectManager, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { ChoreoServiceComponentType, ComponentAccessibility, IProjectManager, Organization, Project, Component } from "@wso2-enterprise/choreo-core";
 import { log } from "console";
 import { randomUUID } from "crypto";
 import child_process from "child_process";
-import { readFile, writeFile, unlink } from "fs";
+import { readFile, writeFile, unlink, readFileSync } from "fs";
 import path, { join } from "path";
 
 export interface ComponentCreationParams {
@@ -171,6 +171,33 @@ export class ChoreoProjectManager implements IProjectManager {
                 log(`Successfully created component ${packageName}.`);
             });
         });
+    }
+
+    public static getLocalComponents(workspaceFilePath: string): Component[] {
+        const contents = readFileSync(workspaceFilePath);
+        const content: WorkspaceFileContent = JSON.parse(contents.toString());
+        const components: Component[] = [];
+        content.folders.forEach((folder) => {
+            if (folder.metadata !== undefined) {
+                components.push({
+                    name: folder.metadata.displayName,
+                    description: folder.metadata.description,
+                    displayType: folder.metadata.displayType,
+                    orgHandler: folder.metadata.org.handle,
+                    projectId: folder.metadata.projectId,
+                    accessibility: folder.metadata.accessibility,
+                    local: true,
+                    id: "",
+                    handler: folder.metadata.displayName,
+                    displayName: folder.metadata.displayName,
+                    version: "1.0.0",// TODO: get version from main form
+                    createdAt: undefined,
+                    repository: undefined,
+                    apiVersions: []
+                });
+            }
+        });
+        return components;
     }
 
     private static _getAnnotatedContent(content: string, packageName: string, serviceId: string, type: ChoreoServiceComponentType)
