@@ -18,6 +18,7 @@ import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ComponentList } from "./ComponentList";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -35,6 +36,7 @@ export interface ProjectOverviewProps {
     projectId?: string;
     orgName?: string;
 }
+
 
 export function ProjectOverview(props: ProjectOverviewProps) {
     const [project, setProject] = useState<Project | undefined>(undefined);
@@ -104,24 +106,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" onClick={handleOpenInConsoleClick}>Open in Choreo Console</VSCodeButton>
                         </ActionContainer>
                     </>}
-
                 <h2>Components</h2>
-                {(components !== undefined) ? // TODO: if components are empty print message
-                    <VSCodeDataGrid aria-label="Components">
-                        <VSCodeDataGridRow rowType="header">
-                            <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>
-                            <VSCodeDataGridCell cellType={"columnheader"} gridColumn="2">Version</VSCodeDataGridCell>
-                        </VSCodeDataGridRow>
-                        {
-                            components.map((component) => {
-                                return <VSCodeDataGridRow>
-                                    <VSCodeDataGridCell gridColumn="1">{component.name}</VSCodeDataGridCell>
-                                    <VSCodeDataGridCell gridColumn="2">{component.version}</VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            })
-                        }
-                    </VSCodeDataGrid>
-                    : <p>Loading...</p>}
+                <ComponentList components={components} />
             </WizardContainer>
         </>
     );
