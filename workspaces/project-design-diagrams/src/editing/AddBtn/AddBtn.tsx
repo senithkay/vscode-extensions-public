@@ -36,15 +36,18 @@ export function AddButton(props: { onClick: () => void }) {
         <Container onClick={onClick}>
             <Fab
                 aria-label='add'
+                variant='extended'
                 sx={{
                     backgroundColor: Colors.PRIMARY,
+                    borderRadius: '2px',
                     color: 'white',
                     '&:hover': {
                         backgroundColor: '#4958ba'
                     }
                 }}
             >
-                <AddIcon />
+                <AddIcon sx={{ marginRight: '5px' }} />
+                Component
             </Fab>
         </Container>
     )

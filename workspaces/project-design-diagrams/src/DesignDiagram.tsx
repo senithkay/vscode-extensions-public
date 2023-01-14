@@ -96,7 +96,7 @@ export function DesignDiagram(props: DiagramProps) {
                         {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
                         {showEditForm &&
                             <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
-                        {targetService &&
+                        {editingEnabled && targetService &&
                             <ConnectorWizard service={targetService} onClose={onConnectorWizardClose} />}
                         <DiagramHeader
                             currentView={currentView}
