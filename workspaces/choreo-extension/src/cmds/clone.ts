@@ -58,10 +58,14 @@ export const cloneProject = async (project: Project) => {
         const monoRepo = ProjectRegistry.getInstance().getProjectRepository(project.id);
 
         const workspaceFile: WorkspaceConfig = {
-            folders: [],
+            folders: [{
+                name: "choreo-project-root",
+                path: "."
+            }],
             metadata: {
                 choreo: {
                     projectID: id,
+                    orgId: selectedOrg.id,
                     monoRepo: monoRepo
                 }
             }
@@ -93,7 +97,7 @@ export const cloneProject = async (project: Project) => {
                 }
             });
 
-            workspaceFile.folders = userManagedComponents.map(({ name, repository }) => {
+            const folders = userManagedComponents.map(({ name, repository }) => {
                 if (repository) {
                     const { organizationApp, nameApp, appSubPath } = repository;
                     return {
@@ -108,6 +112,9 @@ export const cloneProject = async (project: Project) => {
                     };
                 }
             });
+            workspaceFile.folders.push(...folders);
+
+
             const workspaceFileName = `${projectName}.code-workspace`;
             const workspaceFilePath = path.join(workspacePath, workspaceFileName);
 

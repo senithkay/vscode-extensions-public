@@ -12,10 +12,10 @@
  */
 
 import * as vscode from 'vscode';
-import { ThemeIcon, window, extensions } from 'vscode';
+import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
 
 import { activateAuth } from './auth';
-import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens } from './auth/auth';
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, signIn } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneProject, cloneComponentCmd } from './cmds/clone';
 import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
@@ -48,7 +48,43 @@ export function activate(context: vscode.ExtensionContext) {
 	activateBallerinaExtension();
 	activateWizards();
 	activateURIHandlers();
+	showChoreoProjectOverview();
 	return ext.api;
+}
+
+export async function showChoreoProjectOverview() {
+	const isChoreoProject = await ext.api.isChoreoProject();
+	if (isChoreoProject) {
+		await window.withProgress({
+            title: `Opening Choreo Project Workspace.`,
+            location: ProgressLocation.Notification,
+            cancellable: true
+        }, async (_progress, cancellationToken) => {
+            let cancelled: boolean = false;
+
+            cancellationToken.onCancellationRequested(async () => {
+                cancelled = true;
+            });
+			// execute choreo project overview cmd
+			try {
+				// first sign in to Choreo
+				await signIn();
+				if (cancelled) {
+					return;
+				}
+				const project = await ext.api.getChoreoProject();
+				if (cancelled) {
+					return;
+				}
+				if (project) {
+					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
+				}
+			} catch (error: any) {
+				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
+			}
+		});
+		
+	}
 }
 
 

@@ -133,6 +133,7 @@ export interface WorkspaceConfig {
     metadata?: {
         choreo? : {
             projectID: string;
+            orgId: number;
             monoRepo?: string;
         }
     }
