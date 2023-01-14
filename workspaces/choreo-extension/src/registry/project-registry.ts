@@ -156,7 +156,7 @@ export class ProjectRegistry {
     private _addLocalComponents(projectId: string, components: Component[]): Component[] {
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
         if (projectLocation !== undefined) {
-            const localcomponents = ChoreoProjectManager.getLocalComponents(projectLocation);
+            const localcomponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
             components = components.concat(localcomponents);
         }
         return components;

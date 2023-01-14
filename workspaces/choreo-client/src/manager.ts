@@ -173,7 +173,7 @@ export class ChoreoProjectManager implements IProjectManager {
         });
     }
 
-    public static getLocalComponents(workspaceFilePath: string): Component[] {
+    public getLocalComponents(workspaceFilePath: string): Component[] {
         const contents = readFileSync(workspaceFilePath);
         const content: WorkspaceFileContent = JSON.parse(contents.toString());
         const components: Component[] = [];
