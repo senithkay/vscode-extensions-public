@@ -69,10 +69,13 @@ export interface Component {
     displayName: string;
     displayType: string;
     version: string;
-    createdAt: Date;
+    createdAt?: Date;
     orgHandler: string;
-    repository: Repository;
+    repository?: Repository;
     apiVersions: ApiVersion[];
+    // To store the accessibility of the component which are not created using Choreo
+    accessibility?: string;
+    local?: boolean;
 }
 
 export interface Repository {
