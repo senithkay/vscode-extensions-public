@@ -109,6 +109,10 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
     };
 
+    const handleConfigureNewRepo = () => {
+        ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerInstallFlow();
+    };
+
     const handleGhOrgChange = (e: any) => {
         setSelectedGHOrg(authorizedOrgs.find(org => org.orgName === e.target.value));
     };
@@ -117,17 +121,24 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         setSelectedGHRepo(selectedGHOrg?.repositories.find(repo => repo.name === e.target.value));
     };
 
+    const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
+    const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
+    const showAuthorizeButton = ghStatus.status === "not-authorized";
+    const showConfigureButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
+    let loaderMessage = "Loading repositories...";
+    if (ghStatus.status === "auth-inprogress") {
+        loaderMessage = "Authorizing with Github...";
+    } else if (ghStatus.status === "install-inprogress") {
+        loaderMessage = "Installing Github App...";
+    }
     return (
         <>
             <GhRepoSelectorActions>
-                {(ghStatus.status === "auth-inprogress" || isFetchingRepos) && <VSCodeProgressRing />}
-                <VSCodeLink
-                    onClick={ghStatus.status === "authorized" ? getRepoList : handleAuthorizeWithGithub}
-                >
-                    {ghStatus.status === "authorized" ? "Refresh Repositories" : "Authorize with Github"}
-                </VSCodeLink>
-                {ghStatus.status === "authorized" && <>|</>}
-                {ghStatus.status === "authorized" && <VSCodeLink>Configure New Repo</VSCodeLink>}
+                {showAuthorizeButton && <VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink>}
+                {showRefreshButton && <VSCodeLink onClick={getRepoList}>Refresh Repositories</VSCodeLink>}
+                {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
+                {showLoader && loaderMessage}
+                {showLoader && <VSCodeProgressRing />}
             </GhRepoSelectorActions>
             {selectedGHOrg && (
                 <GhRepoSelectorContainer>

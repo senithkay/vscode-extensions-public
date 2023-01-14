@@ -30,7 +30,7 @@ export interface IChoreoGithubAppClient {
 }
 
 export type GHAppAuthStatus = {
-    status: 'auth-inprogress' | 'authorized' | 'installed' | 'not-authorized' | 'error';
+    status: 'auth-inprogress' | 'install-inprogress' | 'authorized' | 'installed' | 'not-authorized' | 'error';
     authCode?: string;
     installationId?: string;
     error?: string;

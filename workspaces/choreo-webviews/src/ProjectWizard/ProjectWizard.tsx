@@ -117,7 +117,6 @@ export function ProjectWizard() {
                         >
                                 Cancel
                         </VSCodeButton>
-                        {creationInProgress && <VSCodeProgressRing />}
                         <VSCodeButton
                             appearance="primary"
                             onClick={handleCreateProject}
@@ -125,6 +124,7 @@ export function ProjectWizard() {
                         >
                                 Create
                         </VSCodeButton>
+                        {creationInProgress && <VSCodeProgressRing />}
                     </ActionContainer>
                 </WizardContainer>
             )}
