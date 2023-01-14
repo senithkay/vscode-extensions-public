@@ -77,7 +77,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		if (currentView === Views.L1_SERVICES &&
 			newLinkNodes.source &&
 			newLinkNodes.source.serviceId !== node.getID() &&
-			node.serviceType === ServiceTypes.HTTP	
+			node.serviceType !== ServiceTypes.OTHER
 		) {
 			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
 

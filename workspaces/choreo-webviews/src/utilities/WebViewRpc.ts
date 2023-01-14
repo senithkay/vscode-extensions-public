@@ -18,7 +18,10 @@ import {
     GetLoginStatusRequest, ExecuteCommandNotification, GetComponents,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
-    Organization, Project, Component, CloseWebViewNotification,
+    Organization, Project, CloseWebViewNotification,
+    ComponentWizardInput,
+    CreateComponentRequest,
+    ShowErrorMessage, Component,
     GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject
 } from "@wso2-enterprise/choreo-core";
 
@@ -55,6 +58,10 @@ export class ChoreoWebViewAPI {
 
     public async getAllProjects(): Promise<Project[]> {
         return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
+    }
+
+    public async createComponent(args: ComponentWizardInput): Promise<string> {
+        return this._messenger.sendRequest(CreateComponentRequest, HOST_EXTENSION, args);
     }
 
     public async getComponents(projectId: string): Promise<Component[]> {
@@ -95,6 +102,10 @@ export class ChoreoWebViewAPI {
 
     public getProjectClient(): IChoreoProjectClient {
         return this._projectClientRpc;
+    }
+
+    public showErrorMsg(error: string) {
+        this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
     }
 
     public getChoreoGithubAppClient(): ChoreoGithubAppClientRPCWebView {
