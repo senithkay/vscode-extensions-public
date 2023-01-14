@@ -17,5 +17,5 @@
  *
  */
 
-export { addConnector } from './code-generator';
+export { linkServices as addConnector } from './code-generator';
 export { ProjectDesignRPC } from './project-design-rpc';

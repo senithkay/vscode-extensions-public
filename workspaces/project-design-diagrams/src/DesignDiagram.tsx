@@ -22,7 +22,8 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import { Colors, ComponentModel, Location, Views } from './resources';
+import {ConnectorWizard} from './components/connector/ConnectorWizard';
+import { Colors, ComponentModel, Location, Service, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { ProjectDesignRPC } from './utils/rpc/project-design-rpc';
 import { AddButton, EditForm } from './editing';
@@ -52,6 +53,7 @@ export function DesignDiagram(props: DiagramProps) {
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
+    const [targetService, setTargetService] = useState<Service>(undefined);
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
@@ -82,14 +84,20 @@ export function DesignDiagram(props: DiagramProps) {
         setShowEditForm(true);
     }
 
+    const onConnectorWizardClose = () => {
+        setTargetService(undefined);
+    }
+
     return (
-        <DesignDiagramContext {...{ getTypeComposition, currentView, go2source, editingEnabled }}>
+        <DesignDiagramContext {...{ getTypeComposition, currentView, go2source, editingEnabled, setTargetService }}>
             <Container>
                 {currentView && projectPkgs ?
                     <>
                         {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
                         {showEditForm &&
                             <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
+                        {targetService &&
+                            <ConnectorWizard service={targetService} onClose={onConnectorWizardClose} />}
                         <DiagramHeader
                             currentView={currentView}
                             prevView={previousScreen.current}
