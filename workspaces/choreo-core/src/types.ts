@@ -71,7 +71,7 @@ export interface Component {
     version: string;
     createdAt?: Date;
     orgHandler: string;
-    repository?: Repository;
+    repository: Repository;
     apiVersions: ApiVersion[];
     // To store the accessibility of the component which are not created using Choreo
     accessibility?: string;
