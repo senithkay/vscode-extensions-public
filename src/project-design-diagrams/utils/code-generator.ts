@@ -25,6 +25,7 @@ import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edti
 import { STResponse } from "../activator";
 import { Service } from "../resources";
 import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "./connector-code-gen-utils";
+import { runBackgroundTerminalCommand } from "../../utils/runCommand";
 
 const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
 let clientName: string;
@@ -94,6 +95,38 @@ export async function linkServices(langClient: ExtendedLangClient, sourceService
     });
 
     return false;
+}
+
+export async function pullConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {
+    const filePath: string = targetService.elementLocation.filePath;
+    const stResponse = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString(),
+        },
+    });
+    if (!(stResponse as GetSyntaxTreeResponse)?.parseSuccess) {
+        return false;
+    }
+    if(!connector.moduleName){
+        return false;
+    }
+    const imports = getConnectorImports((stResponse as GetSyntaxTreeResponse).syntaxTree, connector.package.organization, connector.moduleName);
+    if (imports && imports?.size > 0) {
+        let pullCommand = "";
+        imports.forEach(function (impt) {
+            if (pullCommand !== "") {
+                pullCommand += ` && `;
+            }
+            pullCommand += `bal pull ${impt.replace(" as _", "")}`;
+        });
+        console.log('running terminal command:', pullCommand);
+        const cmdRes = await runBackgroundTerminalCommand(pullCommand);
+        console.log('terminal command message:', cmdRes);
+        if(cmdRes.error && cmdRes.message.indexOf("package already exists") < 0){
+            return false;
+        }
+    }
+    return true;
 }
 
 export async function addConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {

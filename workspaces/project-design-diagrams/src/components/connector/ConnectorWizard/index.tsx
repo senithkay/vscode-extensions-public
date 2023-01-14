@@ -17,26 +17,23 @@
  *
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Card, CardContent } from "@mui/material";
 import { Service, Colors } from "../../../resources";
-import { ControlsContainer, Header, Container, TitleText } from "../../../editing/EditForm/resources/styles";
+import { Header, Container, TitleText } from "../../../editing/EditForm/resources/styles";
 import {
-    BallerinaConnectorInfo,
-    BallerinaConnectorsRequest,
-    BallerinaConnectorsResponse,
     BallerinaConstruct,
     BallerinaModuleResponse,
     Connector,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CreateButton } from "../../../editing/EditForm/components";
 import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";
 import { ProjectDesignRPC } from "../../../utils/rpc/project-design-rpc";
+import ConnectorForm from "../ConnectorForm";
 
 interface ConnectorWizardProps {
     service: Service;
@@ -46,38 +43,32 @@ interface ConnectorWizardProps {
 export function ConnectorWizard(props: ConnectorWizardProps) {
     const { service, onClose } = props;
 
-    const [showLoader, setShowLoader] = useState(false);
+    // const [showLoader, setShowLoader] = useState(false);
     const [showDrawer, setShowDrawer] = useState(true);
     const [selectedCon, setSelectedCon] = useState<Connector>();
 
     const rpcInstance = ProjectDesignRPC.getInstance();
-
-    const onSubmit = () => {
-        if(!selectedCon){
-            return; // No active connector
-        }
-        setShowLoader(true);       
-        rpcInstance.addConnector(selectedCon, service)
-            .then((res) => {
-                // TODO: Handle error flow
-            })
-            .finally(() => {
-                setShowLoader(false);
-                closeForm();
-            });
-    };
-
-    const onConnectorSelect = (balModule: BallerinaConstruct) => {
-        setSelectedCon(balModule);
-    };
 
     const fetchConnectorsList = async (queryParams: SearchQueryParams): Promise<BallerinaModuleResponse> => {
         const connectorRes = await rpcInstance.getConnectors(queryParams);
         return Promise.resolve(connectorRes as BallerinaModuleResponse);
     };
 
-    const closeForm = () => {
+    const handleConnectorSelect = (balModule: BallerinaConstruct) => {
+        setSelectedCon(balModule);
+    };
+
+    const handleFormBack = () => {
+        setSelectedCon(undefined);
+    };
+
+    const handleConnectorSave = () => {
+        handleCloseForm();
+    };
+
+    const handleCloseForm = () => {
         setShowDrawer(false);
+        setSelectedCon(undefined);
         onClose();
     };
 
@@ -86,44 +77,47 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
             anchor="right"
             open={showDrawer}
             onClose={() => {
-                closeForm();
+                handleCloseForm();
             }}
         >
-            <Container isLoading={showLoader}>
+            <Container>
                 <Header>
-                    <TitleText>Add Connector</TitleText>
+                    <div>
+                        {selectedCon && (
+                            <IconButton
+                                size="small"
+                                onClick={() => {
+                                    handleFormBack();
+                                }}
+                            >
+                                <ArrowBackIcon />
+                            </IconButton>
+                        )}
+                        <TitleText>Add Connector</TitleText>
+                    </div>
                     <IconButton
                         size="small"
                         onClick={() => {
-                            closeForm();
+                            handleCloseForm();
                         }}
                     >
                         <CloseIcon />
                     </IconButton>
                 </Header>
 
-               <Marketplace
-                    balModuleType={BallerinaModuleType.Connector}
-                    onSelect={onConnectorSelect}
-                    onCancel={closeForm}
-                    fetchModulesList={fetchConnectorsList}
-                    title={"External connectors"}
-                    shortName="connectors"
-                />
+                {!selectedCon && (
+                    <Marketplace
+                        balModuleType={BallerinaModuleType.Connector}
+                        onSelect={handleConnectorSelect}
+                        onCancel={handleCloseForm}
+                        fetchModulesList={fetchConnectorsList}
+                        title={"External connectors"}
+                        shortName="connectors"
+                    />
+                )}
 
-                 <ControlsContainer>
-                    {selectedCon && (
-                        <CreateButton
-                            label={`Add ${selectedCon.displayAnnotation?.label || selectedCon.moduleName} Connector`}
-                            onClick={onSubmit}
-                            color={Colors.PRIMARY}
-                            disabled={!selectedCon}
-                        />
-                    )}
-                </ControlsContainer> 
+                {selectedCon && <ConnectorForm connector={selectedCon} onSave={handleConnectorSave} service={service}/>}
             </Container>
-
-            {showLoader && <CircularProgress sx={{ top: "45%", left: "45%", position: "absolute", color: Colors.PRIMARY }} />}
         </Drawer>,
         document.body
     );

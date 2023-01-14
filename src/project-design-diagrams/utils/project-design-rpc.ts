@@ -23,7 +23,7 @@ import { BallerinaProjectManager } from "./manager";
 import { OpenDialogOptions, WebviewPanel, window } from "vscode";
 import { AddComponentDetails, ComponentModel, Service } from "../resources";
 import { ExtendedLangClient } from "src/core";
-import { addConnector, linkServices } from "./code-generator";
+import { addConnector, linkServices, pullConnector } from "./code-generator";
 import { getProjectResources } from "./utils";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "workspaces/low-code-editor-commons/lib";
 
@@ -72,6 +72,10 @@ export class ProjectDesignRPC {
 
         this._messenger.onRequest({ method: 'addConnector' }, (args: any[]): Promise<boolean> => {
             return addConnector(langClient, args[0], args[1]);
+        });
+
+        this._messenger.onRequest({ method: 'pullConnector' }, (args: any[]): Promise<boolean> => {
+            return pullConnector(langClient, args[0], args[1]);
         });
 
         this._messenger.onRequest({ method: 'addLinks' }, (args: Service[]): Promise<boolean> => {
