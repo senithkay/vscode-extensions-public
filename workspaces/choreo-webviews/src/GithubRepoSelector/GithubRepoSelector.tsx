@@ -48,7 +48,7 @@ export interface GithubRepoSelectorProps {
         org: string;
         repo: string;
     };
-    onRepoSelect: (org: string, repo: string) => void;
+    onRepoSelect: (org?: string, repo?: string) => void;
 }
 
 export function GithubRepoSelector(props: GithubRepoSelectorProps) {
@@ -58,40 +58,43 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     const [authorizedOrgs, setAuthorizedOrgs] = useState<GithubOrgnization[]>([]);
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
     const [isFetchingRepos, setIsFetchingRepos] = useState(false);
-    const [selectedGHOrg, setSelectedGHOrg] = useState<GithubOrgnization | undefined>(undefined);
-    const [selectedGHRepo, setSelectedGHRepo] = useState<GithubRepository | undefined>(undefined);
+    const [selectedRepository, setSelectedRepo] = useState<[GithubOrgnization,GithubRepository] | undefined>(undefined);
 
     useEffect(() => {
         if (selectedRepo?.org) {
             const org = authorizedOrgs.find(org => org.orgName === selectedRepo.org);
-            setSelectedGHOrg(org);
             if (org) {
                 const repo = org.repositories.find(repo => repo.name === selectedRepo.repo);
-                setSelectedGHRepo(repo);
+                if (repo) {
+                    setSelectedRepo([org, repo]);
+                }
             }
         }
     }, [authorizedOrgs, selectedRepo?.org, selectedRepo?.repo]);
 
     useEffect(() => {
-        if (selectedGHOrg && selectedGHRepo) {
-            onRepoSelect(selectedGHOrg.orgName, selectedGHRepo.name);
+        if (selectedRepository) {
+            onRepoSelect(selectedRepository[0].orgName, selectedRepository[1].name);
+        } else {
+            onRepoSelect(undefined, undefined);
         }
-    }, [onRepoSelect, selectedGHOrg, selectedGHRepo]);
+    }, [onRepoSelect, selectedRepository]);
 
-    const clearRepoSelection = () => {
-        setSelectedGHOrg(undefined);
-        setSelectedGHRepo(undefined);
-    };
+    useEffect(() => {
+        if (authorizedOrgs.length > 0) {
+            setSelectedRepo([authorizedOrgs[0], authorizedOrgs[0].repositories[0]]);
+        } else {
+            setSelectedRepo(undefined);
+        }
+    }, [authorizedOrgs]);
 
     const getRepoList = useCallback(async () => {
         setIsFetchingRepos(true);
         setAuthorizedOrgs([]);
-        clearRepoSelection();
         const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
         try {
             const repos = await ghClient.getAuthorizedRepositories();
             setAuthorizedOrgs(repos);
-            setSelectedGHOrg(repos.length > 0 ? repos[0] : undefined);
         } catch (error) {
             setAuthorizedOrgs([]);
             console.log("Error while fetching authorized repositories: " + error);
@@ -121,11 +124,16 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     };
 
     const handleGhOrgChange = (e: any) => {
-        setSelectedGHOrg(authorizedOrgs.find(org => org.orgName === e.target.value));
+        const org = authorizedOrgs.find(org => org.orgName === e.target.value);
+        if (org) {
+            setSelectedRepo([org, org.repositories[0]]);
+        }
     };
 
     const handleGhRepoChange = (e: any) => {
-        setSelectedGHRepo(selectedGHOrg?.repositories.find(repo => repo.name === e.target.value));
+        if (selectedRepository) {
+            setSelectedRepo([selectedRepository[0], selectedRepository[0].repositories.find(repo => repo.name === e.target.value)!]);
+        }
     };
 
     const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
@@ -147,6 +155,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                 {showLoader && loaderMessage}
                 {showLoader && <VSCodeProgressRing />}
             </GhRepoSelectorActions>
+            {showAuthorizeButton && <>Please authorize to get list of repositories.</>}
             {authorizedOrgs && authorizedOrgs.length > 0 && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
@@ -156,6 +165,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                                 <VSCodeOption
                                     key={org.orgName}
                                     value={org.orgName}
+                                    selected={selectedRepository && selectedRepository[0]?.orgName === org.orgName}
                                 >
                                     {org.orgName}
                                 </VSCodeOption>
@@ -165,10 +175,11 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                     <GhRepoSelectorRepoContainer>
                         <label htmlFor="repo-drop-down">Repository</label>
                         <VSCodeDropdown id="repo-drop-down" onChange={handleGhRepoChange}>
-                            {selectedGHOrg && selectedGHOrg.repositories.map((repo) => (
+                            {selectedRepository && selectedRepository[0].repositories.map((repo) => (
                                 <VSCodeOption
                                     key={repo.name}
                                     value={repo.name}
+                                    selected={selectedRepository[1]?.name === repo.name}
                                 >
                                     {repo.name}
                                 </VSCodeOption>

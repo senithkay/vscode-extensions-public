@@ -45,7 +45,7 @@ export function ProjectWizard() {
     const [projectDescription, setProjectDescription] = useState("");
     const [creationInProgress, setCreationInProgress] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
-    const [initMonoRepo, setInitMonoRepo] = useState(false);
+    const [initMonoRepo, setInitMonoRepo] = useState(true);
     const [githubRepo, setGithubRepo] = useState("");
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
@@ -74,6 +74,16 @@ export function ProjectWizard() {
         setCreationInProgress(false);
     };
 
+    const handleRepoSelect = (org?: string, repo?: string) => { 
+        if (org && repo) {
+            setGithubRepo(`${org}/${repo}`);
+        } else {
+            setGithubRepo("");
+        }
+    };
+
+    const isValid: boolean = projectName.length > 0;
+
     return (
         <>
             {loginStatus !== "LoggedIn" && <SignIn />}
@@ -83,6 +93,8 @@ export function ProjectWizard() {
                     <OrgSelector />
                     <VSCodeTextField
                         autofocus
+                        validate={projectName.length > 0}
+                        validationMessage="Project name is required"
                         placeholder="Name"
                         onInput={(e: any) => setProjectName(e.target.value)}
                         value={projectName}
@@ -102,13 +114,20 @@ export function ProjectWizard() {
                     >
                         Initialize a mono repo
                     </VSCodeCheckbox>
-                    {initMonoRepo && <GithubRepoSelector onRepoSelect={(org, repo) => { setGithubRepo(`${org}/${repo}`); }} />}
+                    {initMonoRepo && <GithubRepoSelector onRepoSelect={handleRepoSelect} />}
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
                         <ErrorMessageContainer>
                             {error.message + error.cause}
                         </ErrorMessageContainer>
                     )}
+                    <VSCodeTextField
+                        autofocus
+                        readOnly={true}
+                        value={githubRepo}
+                    >
+                        Github Repository
+                    </VSCodeTextField>
                     <ActionContainer>
 
                         <VSCodeButton
@@ -120,7 +139,7 @@ export function ProjectWizard() {
                         <VSCodeButton
                             appearance="primary"
                             onClick={handleCreateProject}
-                            disabled={creationInProgress}
+                            disabled={creationInProgress || !isValid}
                         >
                                 Create
                         </VSCodeButton>
