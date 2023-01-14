@@ -27,7 +27,7 @@ export function ComponentTypeSelector(props: SelectorProps) {
             <VSCodeDropdown id="type-dropdown" onChange={(e: any) => onChange(e.target.value)}>
                 <VSCodeOption value={ChoreoServiceComponentType.REST_API} selected={selectedType === ChoreoServiceComponentType.REST_API}>REST API</VSCodeOption>
                 <VSCodeOption value={ChoreoServiceComponentType.GQL_API} selected={selectedType === ChoreoServiceComponentType.GQL_API}>GraphQL API</VSCodeOption>
-                <VSCodeOption value={ChoreoServiceComponentType.WEBSOCKET_API} selected={selectedType === ChoreoServiceComponentType.WEBSOCKET_API}>Websockets API</VSCodeOption>
+                <VSCodeOption value={ChoreoServiceComponentType.WEBSOCKET_API} selected={selectedType === ChoreoServiceComponentType.WEBSOCKET_API}>WebSocket API</VSCodeOption>
                 <VSCodeOption value={ChoreoServiceComponentType.GRPC_API} selected={selectedType === ChoreoServiceComponentType.GRPC_API}>GRPC API</VSCodeOption>
             </VSCodeDropdown>
         </>

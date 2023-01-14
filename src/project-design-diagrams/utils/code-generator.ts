@@ -20,7 +20,9 @@
 import { writeFileSync } from "fs";
 import { ExtendedLangClient } from "src/core";
 import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
-import { BallerinaConnectorInfo, Connector, GetSyntaxTreeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    BallerinaConnectorInfo, Connector, GetSyntaxTreeResponse, STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
 import { STResponse } from "../activator";
 import { Service, ServiceTypes } from "../resources";
@@ -51,13 +53,18 @@ export async function linkServices(langClient: ExtendedLangClient, sourceService
         let modifiedST: STResponse;
 
         if (initMember) {
-            modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, generateClientDecl(targetService, targetType)) as STResponse;
+            modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken,
+                generateClientDecl(targetService, targetType)) as STResponse;
             if (modifiedST && modifiedST.parseSuccess) {
                 const members: any[] = modifiedST.syntaxTree.members;
                 const serviceDecl = getServiceDeclaration(members, sourceService, false);
                 const updatedInitMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
                 if (updatedInitMember) {
-                    modifiedST = await updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken, generateClientInit(), getMissingImports(modifiedST.source, imports)) as STResponse;
+                    modifiedST = await updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken,
+                        generateClientInit(), getMissingImports(modifiedST.source, imports)) as STResponse;
+                    if (modifiedST && modifiedST.parseSuccess) {
+                        return updateSourceFile(langClient, filePath, modifiedST.source);
+                    }
                 }
             }
         } else {
@@ -65,11 +72,11 @@ export async function linkServices(langClient: ExtendedLangClient, sourceService
                     ${generateClientDecl(targetService, targetType)}
                     ${generateServiceInit()}
                 `;
-            modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode, getMissingImports(stResponse.source, imports)) as STResponse;
-        }
-
-        if (modifiedST && modifiedST.parseSuccess) {
-            return updateSourceFile(langClient, filePath, modifiedST.source);
+            modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode,
+                getMissingImports(stResponse.source, imports)) as STResponse;
+            if (modifiedST && modifiedST.parseSuccess) {
+                return updateSourceFile(langClient, filePath, modifiedST.source);
+            }
         }
     }
     return false;
@@ -95,11 +102,13 @@ export async function addConnector(langClient: ExtendedLangClient, connector: Co
         return false;
     }
 
-    const imports = getConnectorImports((stResponse as GetSyntaxTreeResponse).syntaxTree, connectorInfo.package.organization, connectorInfo.moduleName);
+    const imports = getConnectorImports((stResponse as GetSyntaxTreeResponse).syntaxTree,
+        connectorInfo.package.organization, connectorInfo.moduleName);
 
     const initMember = getInitFunction(serviceDecl);
     if (initMember) {
-        const updatedSTRes = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, generateConnectorClientDecl(connectorInfo), imports);
+        const updatedSTRes = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken,
+            generateConnectorClientDecl(connectorInfo), imports);
         let updatedST = updatedSTRes as STResponse;
         if (updatedST?.parseSuccess) {
             await updateSourceFile(langClient, filePath, updatedST.source);
@@ -109,7 +118,7 @@ export async function addConnector(langClient: ExtendedLangClient, connector: Co
                     member.kind === "ServiceDeclaration" &&
                     targetService.elementLocation.startPosition.line + newLines === member.position.startLine &&
                     targetService.elementLocation.startPosition.offset === member.position.startColumn
-            );          
+            );
 
             const updatedInitMember = getInitFunction(serviceDecl);
             if (updatedInitMember) {
@@ -165,13 +174,13 @@ function getServiceType(serviceType: string): ServiceTypes {
     }
 }
 
-function getServiceDeclaration(members: any[], sourceService: Service, checkEnd: boolean): any {
+function getServiceDeclaration(members: any[], service: Service, checkEnd: boolean): any {
     return members.find((member) => (
         member.kind === "ServiceDeclaration" &&
-        sourceService.elementLocation.startPosition.line === member.position.startLine &&
-        sourceService.elementLocation.startPosition.offset === member.position.startColumn && (
-            checkEnd ? sourceService.elementLocation.endPosition.line === member.position.endLine &&
-                sourceService.elementLocation.endPosition.offset === member.position.endColumn : true
+        service.elementLocation.startPosition.line === member.position.startLine &&
+        service.elementLocation.startPosition.offset === member.position.startColumn && (
+            checkEnd ? service.elementLocation.endPosition.line === member.position.endLine &&
+                service.elementLocation.endPosition.offset === member.position.endColumn : true
         )
     ));
 }
