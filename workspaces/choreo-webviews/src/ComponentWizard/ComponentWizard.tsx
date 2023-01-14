@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { useContext, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
@@ -39,24 +39,26 @@ export function ComponentWizard() {
     const { loginStatus, loginStatusPending } = useContext(ChoreoWebViewContext);
 
     const [name, setName] = useState<string | undefined>('');
+    const [inProgress, setProgressStatus] = useState<boolean>(false);
     const [projectId, setProjectId] = useState<string | undefined>(undefined);
     const [description, setDescription] = useState<string | undefined>('');
     const [accessibility, setAccessibility] = useState<ComponentAccessibility>('External');
     const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
 
     const handleComponentCreation = async () => {
-        const rpcInstance = ChoreoWebViewAPI.getInstance();
         if (name && projectId && description && selectedType) {
-            await rpcInstance.createComponent({
+            setProgressStatus(true);
+            await ChoreoWebViewAPI.getInstance().createComponent({
                 name: name,
                 projectId: projectId,
                 type: selectedType,
                 accessibility: accessibility,
                 description: description
             }).then(() => {
-                rpcInstance.closeWebView();
+                setProgressStatus(false);
+                closeWebView();
             }).catch((err: Error) => {
-                rpcInstance.showErrorMsg(err.message);
+                ChoreoWebViewAPI.getInstance().showErrorMsg(err.message);
             })
         }
     }
@@ -66,6 +68,10 @@ export function ComponentWizard() {
             return true;
         }
         return false;
+    }
+
+    const closeWebView = () => {
+        ChoreoWebViewAPI.getInstance().closeWebView();
     }
 
     return (
@@ -100,7 +106,13 @@ export function ComponentWizard() {
                     </VSCodeDropdown>
 
                     <ActionContainer>
-                        <VSCodeButton appearance="secondary">Cancel</VSCodeButton>
+                        <VSCodeButton
+                            appearance="secondary"
+                            onClick={closeWebView}
+                        >
+                            Cancel
+                        </VSCodeButton>
+                        {inProgress && <VSCodeProgressRing />}
                         <VSCodeButton
                             appearance="primary"
                             disabled={!canCreateComponent()}
