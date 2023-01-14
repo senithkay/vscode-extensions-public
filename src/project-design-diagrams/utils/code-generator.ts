@@ -20,22 +20,22 @@
 import { writeFileSync } from "fs";
 import { ExtendedLangClient } from "src/core";
 import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
+import { BallerinaConnectorInfo, Connector, GetSyntaxTreeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
 import { STResponse } from "../activator";
 import { Service, ServiceTypes } from "../resources";
+import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "./connector-code-gen-utils";
 
 const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
 let clientName: string;
-let filePath: string;
-let extendedLangClient: ExtendedLangClient;
 
 // TODO: Handle errors from the FE
-export async function addConnector(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
+export async function linkServices(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
     : Promise<boolean> {
-    extendedLangClient = langClient;
-    filePath = sourceService.elementLocation.filePath;
     clientName = transformLabel(targetService.annotation.label) || transformLabel(targetService.annotation.id);
+    const filePath: string = sourceService.elementLocation.filePath;
 
-    const stResponse: STResponse = await extendedLangClient.getSyntaxTree({
+    const stResponse: STResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(filePath).toString()
         }
@@ -43,7 +43,7 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
 
     if (stResponse && stResponse.parseSuccess) {
         const targetType: ServiceTypes = getServiceType(targetService.serviceType);
-        const addImport: boolean = !isImportPresent(stResponse.syntaxTree.imports, targetType);
+        const imports = new Set<string>([`ballerina/${targetType}`]);
 
         const members: any[] = stResponse.syntaxTree.members;
         const serviceDecl = getServiceDeclaration(members, sourceService, true);
@@ -51,20 +51,13 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
         let modifiedST: STResponse;
 
         if (initMember) {
-            modifiedST = await updateSyntaxTree(serviceDecl.openBraceToken, generateClientDecl(targetService, targetType)) as STResponse;
+            modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, generateClientDecl(targetService, targetType)) as STResponse;
             if (modifiedST && modifiedST.parseSuccess) {
                 const members: any[] = modifiedST.syntaxTree.members;
                 const serviceDecl = getServiceDeclaration(members, sourceService, false);
                 const updatedInitMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
                 if (updatedInitMember) {
-                    modifiedST = await updateSyntaxTree(updatedInitMember.functionBody.openBraceToken, generateClientInit()) as STResponse;
-                    if (modifiedST && modifiedST.parseSuccess) {
-                        if (!addImport) {
-                            return updateSourceFile(modifiedST.source);
-                        } else {
-                            return addImportDeclaration(modifiedST, targetType);
-                        }
-                    }
+                    modifiedST = await updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken, generateClientInit(), getMissingImports(modifiedST.source, imports)) as STResponse;
                 }
             }
         } else {
@@ -72,18 +65,90 @@ export async function addConnector(langClient: ExtendedLangClient, sourceService
                     ${generateClientDecl(targetService, targetType)}
                     ${generateServiceInit()}
                 `;
-            modifiedST = await updateSyntaxTree(serviceDecl.openBraceToken, genCode) as STResponse;
-            if (modifiedST && modifiedST.parseSuccess) {
-                if (!addImport) {
-                    return updateSourceFile(modifiedST.source);
-                } else {
-                    return addImportDeclaration(modifiedST, targetType);
+            modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode, getMissingImports(stResponse.source, imports)) as STResponse;
+        }
+
+        if (modifiedST && modifiedST.parseSuccess) {
+            return updateSourceFile(langClient, filePath, modifiedST.source);
+        }
+    }
+    return false;
+}
+
+export async function addConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {
+    const filePath: string = targetService.elementLocation.filePath;
+
+    const stResponse = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString(),
+        },
+    });
+    if (!(stResponse as GetSyntaxTreeResponse)?.parseSuccess) {
+        return false;
+    }
+
+    const members: any[] = (stResponse as GetSyntaxTreeResponse).syntaxTree.members;
+    const serviceDecl = getServiceDeclaration(members, targetService, true);
+
+    const connectorInfo = await fetchConnectorInfo(langClient, connector);
+    if (!(connectorInfo && connectorInfo.moduleName)) {
+        return false;
+    }
+
+    const imports = getConnectorImports((stResponse as GetSyntaxTreeResponse).syntaxTree, connectorInfo.package.organization, connectorInfo.moduleName);
+
+    const initMember = getInitFunction(serviceDecl);
+    if (initMember) {
+        const updatedSTRes = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, generateConnectorClientDecl(connectorInfo), imports);
+        let updatedST = updatedSTRes as STResponse;
+        if (updatedST?.parseSuccess) {
+            await updateSourceFile(langClient, filePath, updatedST.source);
+            const newLines = imports.size || 0;
+            const serviceDecl = updatedST.syntaxTree.members.find(
+                (member) =>
+                    member.kind === "ServiceDeclaration" &&
+                    targetService.elementLocation.startPosition.line + newLines === member.position.startLine &&
+                    targetService.elementLocation.startPosition.offset === member.position.startColumn
+            );          
+
+            const updatedInitMember = getInitFunction(serviceDecl);
+            if (updatedInitMember) {
+                const modifiedST = (await updateSyntaxTree(
+                    langClient,
+                    filePath,
+                    updatedInitMember.functionBody.openBraceToken,
+                    generateConnectorClientInit(connectorInfo),
+                    getMissingImports(updatedST.source, imports)
+                )) as STResponse;
+                if (modifiedST && modifiedST.parseSuccess) {
+                    return await updateSourceFile(langClient, filePath, modifiedST.source);
                 }
             }
+        }
+    } else {
+        const template = `
+            ${generateConnectorClientDecl(connectorInfo)}
+            ${generateServiceInit(connectorInfo)}
+        `;
+        const modifiedST = (await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, template, imports)) as STResponse;
+        if (modifiedST && modifiedST.parseSuccess) {
+            return await updateSourceFile(langClient, filePath, modifiedST.source);
         }
     }
 
     return false;
+}
+
+async function fetchConnectorInfo(langClient: ExtendedLangClient, connector: Connector): Promise<BallerinaConnectorInfo | undefined> {
+    const connectorRes = await langClient.getConnector({
+        name: connector.name,
+        package: connector.package,
+        id: connector.id,
+    });
+    if ((connectorRes as BallerinaConnectorInfo)?.functions?.length > 0) {
+        return connectorRes as BallerinaConnectorInfo;
+    }
+    return undefined;
 }
 
 function getServiceType(serviceType: string): ServiceTypes {
@@ -98,22 +163,6 @@ function getServiceType(serviceType: string): ServiceTypes {
     } else {
         throw new Error('Could not process target service type.');
     }
-}
-
-function isImportPresent(members: any[], targetType: ServiceTypes) {
-    return members.some((member) => (
-        member.orgName?.source === "ballerina/" &&
-        member.moduleName[0]?.value === targetType
-    ));
-}
-
-async function addImportDeclaration(modifiedST: STResponse, targetType: ServiceTypes): Promise<boolean> {
-    const imports: any[] = modifiedST.syntaxTree.imports;
-    const stResponse: STResponse = await updateSyntaxTree(imports[imports.length - 1], generateImport(targetType)) as STResponse;
-    if (stResponse && stResponse.parseSuccess) {
-        return updateSourceFile(stResponse.source);
-    }
-    return false;
 }
 
 function getServiceDeclaration(members: any[], sourceService: Service, checkEnd: boolean): any {
@@ -134,36 +183,60 @@ function getInitFunction(serviceDeclaration: any): any {
     );
 }
 
-function updateSyntaxTree(stObject: any, generatedCode: string): Promise<STResponse | {}> {
-    let stModification = {
+async function updateSyntaxTree(
+    langClient: ExtendedLangClient,
+    filePath: string,
+    stObject: any,
+    generatedCode: string,
+    imports?: Set<string>
+): Promise<STResponse | {}> {
+    const modifications: STModification[] = [];
+
+    if (imports && imports?.size > 0) {
+        imports.forEach(function (stmt) {
+            modifications.push({
+                startLine: 0,
+                startColumn: 0,
+                endLine: 0,
+                endColumn: 0,
+                type: "INSERT",
+                config: {
+                    STATEMENT: `import ${stmt};`,
+                },
+                isImport: true,
+            });
+        });
+    }
+
+    modifications.push({
         startLine: stObject.position.endLine,
         startColumn: stObject.position.endColumn,
         endLine: stObject.position.endLine,
         endColumn: stObject.position.endColumn,
         type: "INSERT",
         config: {
-            "STATEMENT": generatedCode
+            STATEMENT: generatedCode,
         }
-    };
+    });
 
-    return extendedLangClient.stModify({
-        astModifications: [stModification],
+    return langClient.stModify({
+        astModifications: modifications,
         documentIdentifier: {
-            uri: Uri.file(filePath).toString()
+            uri: Uri.file(filePath).toString(),
         }
     });
 }
 
-async function updateSourceFile(fileContent: string): Promise<boolean> {
+async function updateSourceFile(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
     const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
     if (doc) {
         const edit = new WorkspaceEdit();
         edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
         await workspace.applyEdit(edit);
-        extendedLangClient.updateStatusBar();
+        langClient.updateStatusBar();
         return doc.save();
     } else {
-        extendedLangClient.didChange({
+        langClient.didChange({
             contentChanges: [
                 {
                     text: fileContent
@@ -175,7 +248,7 @@ async function updateSourceFile(fileContent: string): Promise<boolean> {
             }
         });
         writeFileSync(filePath, fileContent);
-        extendedLangClient.updateStatusBar();
+        langClient.updateStatusBar();
     }
     return false;
 }
@@ -192,10 +265,10 @@ function generateClientDecl(targetService: Service, targetType: ServiceTypes): s
     return clientDeclaration;
 }
 
-function generateServiceInit(): string {
+function generateServiceInit(connectorInfo?: BallerinaConnectorInfo): string {
     let serviceInit: string = `function init() returns error? {
-                                ${generateClientInit()}
-                            }`;
+        ${connectorInfo ? generateConnectorClientInit(connectorInfo) : generateClientInit()}
+    }`;
     return serviceInit;
 }
 
@@ -203,8 +276,55 @@ function generateClientInit(): string {
     return `self.${clientName} = check new ("");`;
 }
 
-function generateImport(targetServiceType: ServiceTypes): string {
-    return `import ballerina/${targetServiceType};`;
+function generateConnectorClientDecl(connector: BallerinaConnectorInfo): string {
+    if (!connector?.moduleName) {
+        return "";
+    }
+    const moduleName = getFormattedModuleName(connector.moduleName);
+    const epName = genVarName(moduleName);
+    let clientDeclaration: string = `
+        @display {
+            label: "${connector.displayName || moduleName}",
+            id: "${moduleName}-${connector.id}"
+        }
+        ${moduleName}:${connector.name} ${epName};
+    `;
+
+    return clientDeclaration;
+}
+
+function generateConnectorClientInit(connector: BallerinaConnectorInfo): string {
+    if (!connector?.moduleName) {
+        return "";
+    }
+    const moduleName = getFormattedModuleName(connector.moduleName);
+    const epName = genVarName(moduleName);
+
+    const initFunction = connector.functions?.find((func) => func.name === "init");
+    if (!initFunction?.returnType) {
+        return "";
+    }
+
+    const defaultParameters = getDefaultParams(initFunction.parameters);
+    const returnType = getFormFieldReturnType(initFunction.returnType);
+
+    return `self.${epName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
+}
+
+function getMissingImports(source: string, imports: Set<string>) {
+    const missingImports = new Set<string>();
+    if (imports && imports?.size > 0) {
+        imports.forEach(function (stmt) {
+            if (!source.includes(`import ${stmt};`)) {
+                missingImports.add(stmt);
+            }
+        });
+    }
+    return missingImports;
+}
+
+function genVarName(label: string) {
+    return `${label}Ep`; //TODO: validate name generation with duplications
 }
 
 function transformLabel(label: string): string {
