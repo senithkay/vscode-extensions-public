@@ -90,7 +90,6 @@ export class PathFindingLinkWidget extends React.Component<PathFindingLinkWidget
 			const canvasTopBoundary = 0 - model.getOffsetY();
 			const canvasRightBoundary = canvas.clientWidth - model.getOffsetX();
 			const canvasBottomBoundary = canvas.clientHeight - model.getOffsetY();
-			console.log(">>> Canvas Off w:", canvas.offsetWidth, " h: ", canvas.offsetHeight);
 			if (
 				!((canvasLeftBoundary <= x) && (canvasRightBoundary >= x) &&
 					(canvasTopBoundary <= y) && (canvasBottomBoundary >= y))
@@ -98,7 +97,6 @@ export class PathFindingLinkWidget extends React.Component<PathFindingLinkWidget
 				// (canvasBottomBoundary <= fromY) && (canvasBottomBoundary <= toY)
 			) {
 				isPointsValid = false;
-				console.log(">>>>>> In valid X: ", x, " Y: ", y, " LeftB: ", canvasLeftBoundary, " RightB: ", canvasRightBoundary, " TopB: ", canvasTopBoundary, " BottomB: ", canvasBottomBoundary, " ");
 				break;
 			}
 		}

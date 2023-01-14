@@ -19,7 +19,7 @@
 
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { Action, CanvasWidget, InputType } from '@projectstorm/react-canvas-core';
+import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
@@ -58,7 +58,16 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const diagramRef = useRef<HTMLDivElement>(null);
 
-    const onMouseMove = (event: any) => {
+    const onDiagramMoveStarted = () => {
+        diagramEngine?.getModel()?.getLinks()?.forEach(link => {
+            if (link instanceof GatewayLinkModel) {
+                link.setLinkVisibility(false);
+                debouncedDiagramRedraw();
+            }
+        });
+    };
+
+    const onDiagramMoveFinished = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
             if (link instanceof GatewayLinkModel) {
                 if (!link.getLinkVisibility()) {
@@ -67,27 +76,6 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 }
             }
         });
-    };
-    const onMouseWheel = (event: any) => {
-        diagramEngine?.getModel()?.getLinks()?.forEach(link => {
-            if (link instanceof GatewayLinkModel) {
-                link.setLinkVisibility(false);
-                debouncedDiagramRedraw();
-            }
-        });
-        console.log(">>> Mouse Move Wheel ", diagramEngine);
-    };
-    const onMouseDown = (event: any) => {
-        const element = diagramEngine.getActionEventBus().getModelForEvent(event);
-        if (!element) {
-            diagramEngine?.getModel()?.getLinks()?.forEach(link => {
-                if (link instanceof GatewayLinkModel) {
-                    link.setLinkVisibility(false);
-                    debouncedDiagramRedraw();
-                }
-            });
-        }
-        console.log(">>> Mouse Down Event ", event);
     };
 
     useEffect(() => {
@@ -100,30 +88,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             }
             document.addEventListener('keydown', handleEscapePress);
         }
-        diagramEngine.getStateMachine().getCurrentState().registerAction(
-            new Action({
-                type: InputType.MOUSE_DOWN,
-                fire: (event: any) => {
-                    onMouseDown(event);
-                }
-            })
-        );
-        diagramEngine.getStateMachine().getCurrentState().registerAction(
-            new Action({
-                type: InputType.MOUSE_MOVE,
-                fire: (event: any) => {
-                    onMouseMove(event);
-                }
-            })
-        );
-        diagramEngine.getStateMachine().getCurrentState().registerAction(
-            new Action({
-                type: InputType.MOUSE_WHEEL,
-                fire: (event: any) => {
-                    onMouseWheel(event);
-                }
-            })
-        );
+        document.addEventListener('scroll', onDiagramMoveStarted);
     }, []);
 
     // Reset the model and redistribute if the model changes
@@ -160,13 +125,13 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         positionGatewayNodes(diagramEngine);
         diagramEngine.repaintCanvas();
     };
-    const debouncedDiagramRedraw = debounce(redrawDiagram, 30);
+    const debouncedDiagramRedraw = debounce(redrawDiagram, 50);
 
     const onZoom = (zoomIn: boolean) => {
         let delta: number = zoomIn ? +5 : -5;
         diagramEngine.getModel().setZoomLevel(diagramEngine.getModel().getZoomLevel() + delta);
-        diagramEngine.repaintCanvas();
-    }
+        redrawDiagram();
+    };
 
     const zoomToFit = () => { diagramEngine.zoomToFitNodes({}) }
 
@@ -184,14 +149,14 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             })
             .catch((err) => {
                 console.log(err);
-            })
-    }, [diagramRef.current])
+            });
+    }, [diagramRef.current]);
 
     return (
         <>
             {diagramEngine && diagramEngine.getModel() &&
-                <Canvas ref={diagramRef}>
-                    <CanvasWidget engine={diagramEngine} className={'diagram-container'} />
+                <Canvas ref={diagramRef} onMouseDown={onDiagramMoveStarted} onMouseMove={onDiagramMoveFinished} onMouseUp={onDiagramMoveFinished}>
+                    <CanvasWidget engine={diagramEngine} className={'diagram-container'}  />
                 </Canvas>
             }
 
