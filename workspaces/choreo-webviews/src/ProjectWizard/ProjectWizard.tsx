@@ -10,14 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeLink, VSCodeDropdown, VSCodeProgressRing, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { OrgSelector } from "../OrgSelector/OrgSelector";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { GHAppAuthStatus, GithubOrgnization, GithubRepository } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -33,36 +33,9 @@ const ActionContainer = styled.div`
     gap: 10px;
 `;
 
-const GhRepoSelectorContainer = styled.div`
-    display  : flex;
-    flex-direction: row;
-    gap: 30px;
-    width: "100%";
-`;
-
-const GhRepoSelectorOrgContainer = styled.div`
-    display  : flex;
-    flex-direction: column;
-    gap: 5px;
-    width: 200px;
-`;
-
-const GhRepoSelectorRepoContainer = styled.div`
-    display  : flex;
-    flex-direction: column;
-    gap: 5px;
-    width: 300px;
-`;
-
-const GhRepoSelectorActions = styled.div`
-    display  : flex;
-    flex-direction: row;
-    gap: 10px;
-`;
-
 const ErrorMessageContainer = styled.div`
     color: var(--vscode-errorForeground);
-`
+`;
 
 export function ProjectWizard() {
 
@@ -73,39 +46,7 @@ export function ProjectWizard() {
     const [creationInProgress, setCreationInProgress] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [initMonoRepo, setInitMonoRepo] = useState(false);
-    const [authorizedOrgs, setAuthorizedOrgs] = useState<GithubOrgnization[]>([]);
-    const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
-    const [isFetchingRepos, setIsFetchingRepos] = useState(false);
-    const [selectedGHOrg, setSelectedGHOrg ] = useState<GithubOrgnization | undefined>(undefined);
-    const [selectedGHRepo, setSelectedGHRepo ] = useState<GithubRepository | undefined>(undefined);
-
-
-    async function getRepoList() {
-        setIsFetchingRepos(true);
-        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
-        try {
-            const repos = await ghClient.getAuthorizedRepositories();
-            setAuthorizedOrgs(repos);
-            setSelectedGHOrg(repos.length > 0 ? repos[0] : undefined)
-        } catch (error) {
-            setAuthorizedOrgs([]);
-            console.log("Error while fetching authorized repositories: " + error);
-        }
-        setIsFetchingRepos(false);
-    }
-
-    useEffect(() => {
-        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
-        ghClient.onGHAppAuthCallback((status) => {
-            setGHStatus(status);
-        });
-    }, []);
-
-    useEffect(() => {
-        if (initMonoRepo && ghStatus.status === "authorized") {
-            getRepoList();
-        }
-    },[initMonoRepo, ghStatus]);
+    const [githubRepo, setGithubRepo] = useState("");
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
@@ -131,18 +72,6 @@ export function ProjectWizard() {
             }
         }
         setCreationInProgress(false);
-    };
-
-    const handleAuthorizeWithGithub = () => { 
-        ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow(); 
-    }
-
-    const handleGhOrgChange = (e: any) => {
-        setSelectedGHOrg(authorizedOrgs.find(org => org.orgName === e.target.value));
-    };
-
-    const handleGhRepoChange = (e: any) => {
-        setSelectedGHRepo(selectedGHOrg?.repositories.find(repo => repo.name === e.target.value));
     };
 
     return (
@@ -173,50 +102,7 @@ export function ProjectWizard() {
                     >
                         Initialize a mono repo
                     </VSCodeCheckbox>
-                    {initMonoRepo &&
-                        <>
-                            <GhRepoSelectorActions>
-                                {(ghStatus.status === "auth-inprogress" || isFetchingRepos) && <VSCodeProgressRing />}
-                                <VSCodeLink
-                                onClick={ghStatus.status === "authorized" ? getRepoList : handleAuthorizeWithGithub}
-                                >
-                                    {ghStatus.status === "authorized" ? "Refresh Repositories" : "Authorize with Github"}
-                                </VSCodeLink>
-                                {ghStatus.status === "authorized" && <>|</>}
-                                {ghStatus.status === "authorized" && <VSCodeLink>Configure New Repo</VSCodeLink>}
-                            </GhRepoSelectorActions>
-                            {selectedGHOrg && (
-                                <GhRepoSelectorContainer>
-                                <GhRepoSelectorOrgContainer>
-                                    <label htmlFor="org-drop-down">Organization</label>
-                                    <VSCodeDropdown id="org-drop-down" onChange={handleGhOrgChange}>
-                                        {authorizedOrgs.map((org) => (
-                                            <VSCodeOption
-                                                key={org.orgName}
-                                                value={org.orgName}
-                                            >
-                                                {org.orgName}
-                                            </VSCodeOption> 
-                                        ))}
-                                    </VSCodeDropdown>
-                                </GhRepoSelectorOrgContainer>
-                                <GhRepoSelectorRepoContainer>
-                                    <label htmlFor="repo-drop-down">Repository</label>
-                                    <VSCodeDropdown id="repo-drop-down" onChange={handleGhRepoChange}>
-                                        {selectedGHOrg && selectedGHOrg.repositories.map((repo) => (
-                                            <VSCodeOption
-                                                key={repo.name}
-                                                value={repo.name}
-                                            >
-                                                {repo.name}
-                                            </VSCodeOption> 
-                                        ))}
-                                    </VSCodeDropdown>
-                                </GhRepoSelectorRepoContainer>
-                            </GhRepoSelectorContainer>
-                            )}
-                        </>
-                    }
+                    {initMonoRepo && <GithubRepoSelector onRepoSelect={(org, repo) => { setGithubRepo(`${org}/${repo}`); }} />}
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
                         <ErrorMessageContainer>
