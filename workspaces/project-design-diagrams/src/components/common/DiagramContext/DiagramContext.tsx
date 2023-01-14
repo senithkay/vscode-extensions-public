@@ -26,6 +26,7 @@ interface DiagramContextProps {
     go2source: (location: Location) => void;
     currentView: Views;
     editingEnabled: boolean;
+    setTargetService: (service: Service) => void;
 }
 
 interface IDiagramContext {
@@ -37,6 +38,7 @@ interface IDiagramContext {
     editingEnabled: boolean;
     newLinkNodes: LinkedNodes;
     setNewLinkNodes: (nodes: LinkedNodes) => void;
+    setTargetService: (service: Service) => void;
 }
 
 interface LinkedNodes {
@@ -51,7 +53,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
-    const { getTypeComposition, currentView, go2source, editingEnabled, children } = props;
+    const { getTypeComposition, currentView, go2source, editingEnabled, children, setTargetService } = props;
 
     const Ctx = {
         getTypeComposition,
@@ -61,7 +63,8 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         newComponentID,
         editingEnabled,
         newLinkNodes,
-        setNewLinkNodes
+        setNewLinkNodes,
+        setTargetService
     }
 
     return (

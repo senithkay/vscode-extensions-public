@@ -17,14 +17,15 @@
  *
  */
 
-import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client";
+import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { Messenger } from "vscode-messenger";
 import { BallerinaProjectManager } from "./manager";
 import { OpenDialogOptions, WebviewPanel, window } from "vscode";
 import { AddComponentDetails, ComponentModel, Service } from "../resources";
 import { ExtendedLangClient } from "src/core";
-import { addConnector } from "./code-generator";
+import { addConnector, linkServices } from "./code-generator";
 import { getProjectResources } from "./utils";
+import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "workspaces/low-code-editor-commons/lib";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -60,8 +61,21 @@ export class ProjectDesignRPC {
             return this.projectManager.getProjectRoot();
         });
 
-        this._messenger.onRequest({ method: 'addLinks' }, (args: Service[]): Promise<boolean> => {
+        this._messenger.onRequest({ method: 'getConnectors' }, (args: BallerinaConnectorsRequest[]): Promise<BallerinaConnectorsResponse> => {
+            return langClient.getConnectors(args[0]).then(result => {
+                if((result as BallerinaConnectorsResponse).central){
+                    return Promise.resolve(result as BallerinaConnectorsResponse);
+                }
+                return Promise.resolve({central:[], error: "Not found"} as BallerinaConnectorsResponse);
+            });
+        });
+
+        this._messenger.onRequest({ method: 'addConnector' }, (args: any[]): Promise<boolean> => {
             return addConnector(langClient, args[0], args[1]);
+        });
+
+        this._messenger.onRequest({ method: 'addLinks' }, (args: Service[]): Promise<boolean> => {
+            return linkServices(langClient, args[0], args[1]);
         });
 
         this._messenger.onRequest({ method: 'pickDirectory' }, async (): Promise<string | undefined> => {

@@ -11,13 +11,15 @@
  *  associated services.
  */
 
-import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ProjectSelector } from "../ProjectSelector/ProjectSelector";
 import { ComponentTypeSelector } from "./ComponetTypeSelector/ComponentTypeSelector";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ChoreoServiceComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -36,27 +38,88 @@ const ActionContainer = styled.div`
 export function ComponentWizard() {
     const { loginStatus, loginStatusPending } = useContext(ChoreoWebViewContext);
 
+    const [name, setName] = useState<string | undefined>('');
+    const [inProgress, setProgressStatus] = useState<boolean>(false);
+    const [projectId, setProjectId] = useState<string | undefined>(undefined);
+    const [description, setDescription] = useState<string | undefined>('');
+    const [accessibility, setAccessibility] = useState<ComponentAccessibility>('External');
+    const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
+
+    const handleComponentCreation = async () => {
+        if (name && projectId && description && selectedType) {
+            setProgressStatus(true);
+            await ChoreoWebViewAPI.getInstance().createComponent({
+                name: name,
+                projectId: projectId,
+                type: selectedType,
+                accessibility: accessibility,
+                description: description
+            }).then(() => {
+                setProgressStatus(false);
+                closeWebView();
+            }).catch((err: Error) => {
+                ChoreoWebViewAPI.getInstance().showErrorMsg(err.message);
+            })
+        }
+    }
+
+    const canCreateComponent = (): boolean => {
+        if (name && projectId && accessibility && selectedType) {
+            return true;
+        }
+        return false;
+    }
+
+    const closeWebView = () => {
+        ChoreoWebViewAPI.getInstance().closeWebView();
+    }
+
     return (
         <>
             {loginStatus !== "LoggedIn" && <SignIn />}
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
                     <h2>New Choreo Component</h2>
-                    <ProjectSelector />
-                    <ComponentTypeSelector onChange={(e) => console.log(e)} />
-                    <VSCodeTextField autofocus placeholder="Name">Component Name</VSCodeTextField>
-                    <VSCodeTextArea autofocus placeholder="Description">Description</VSCodeTextArea>
+                    <ProjectSelector currentProject={projectId} setProject={setProjectId} />
+                    <ComponentTypeSelector selectedType={selectedType} onChange={setSelectedType} />
+                    <VSCodeTextField
+                        autofocus
+                        placeholder="Name"
+                        onInput={(e: any) => setName(e.target.value)}
+                        value={name}
+                    >
+                        Component Name
+                    </VSCodeTextField>
+                    <VSCodeTextArea
+                        autofocus
+                        placeholder="Description"
+                        onInput={(e: any) => setDescription(e.target.value)}
+                        value={description}
+                    >
+                        Description
+                    </VSCodeTextArea>
 
                     <label htmlFor="access-mode">Access Mode</label>
-                    <VSCodeDropdown id="access-mode">
-                        <VSCodeOption><b>External:</b> API is publicly accessible</VSCodeOption>
-                        <VSCodeOption><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
+                    <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
+                        <VSCodeOption value={'External'}><b>External:</b> API is publicly accessible</VSCodeOption>
+                        <VSCodeOption value={'Internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
                     </VSCodeDropdown>
 
-
                     <ActionContainer>
-                        <VSCodeButton appearance="secondary">Cancel</VSCodeButton>
-                        <VSCodeButton appearance="primary">Create</VSCodeButton>
+                        <VSCodeButton
+                            appearance="secondary"
+                            onClick={closeWebView}
+                        >
+                            Cancel
+                        </VSCodeButton>
+                        {inProgress && <VSCodeProgressRing />}
+                        <VSCodeButton
+                            appearance="primary"
+                            disabled={!canCreateComponent()}
+                            onClick={handleComponentCreation}
+                        >
+                            Create
+                        </VSCodeButton>
                     </ActionContainer>
                 </WizardContainer>
             )}

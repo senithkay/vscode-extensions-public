@@ -29,6 +29,15 @@ export const PrimaryContainer = styled.div`
     width: 370px;
 `;
 
+export const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    font-family: GilmerRegular;
+    font-size: 15px;
+    height: 100vh;
+    opacity: ${(props: { isLoading: boolean }) => (props.isLoading ? 0.3 : 1)};
+`;
+
 export const Header = styled.div`
     align-items: center;
     align-self: stretch;

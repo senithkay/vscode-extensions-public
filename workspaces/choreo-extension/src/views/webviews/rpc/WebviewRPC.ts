@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, Uri, WebviewPanel } from "vscode";
+import { commands, WebviewPanel, window, workspace, Uri } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
@@ -19,10 +19,12 @@ import {
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
-    Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject
+    Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
+    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
+import { ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager';
 
 import { ext } from "../../../extensionVariables";
 import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
@@ -33,6 +35,7 @@ import { cloneProject } from "../../../cmds/clone";
 export class WebViewRpc {
 
     private _messenger = new Messenger();
+    private _manager = new ChoreoProjectManager();
 
     constructor(view: WebviewPanel) {
         this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
@@ -55,6 +58,25 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getProjects(ext.api.selectedOrg.id);
+            }
+        });
+
+        // TODO: Refactor structure
+        this._messenger.onRequest(CreateComponentRequest, async (args: ComponentWizardInput) => {
+            if (ext.api.selectedOrg) {
+                const workspaceFilePath = workspace.workspaceFile?.fsPath;
+                if (workspaceFilePath) {
+                    return this._manager.createComponent({
+                        org: ext.api.selectedOrg,
+                        projectId: args.projectId,
+                        name: args.name,
+                        displayType: args.type,
+                        accessibility: args.accessibility,
+                        workspaceFilePath: workspaceFilePath
+                    });
+                } else {
+                    throw new Error("Failed to detect the project workpsace.");
+                }
             }
         });
 
@@ -105,6 +127,9 @@ export class WebViewRpc {
                 const cmdArgs = args.length > 1 ? args.slice(1) : [];
                 commands.executeCommand(args[0], ...cmdArgs);
             }
+        });
+        this._messenger.onNotification(ShowErrorMessage, (error: string) => {
+            window.showErrorMessage(error);
         });
         this._messenger.onNotification(CloseWebViewNotification, () => {
             view.dispose();

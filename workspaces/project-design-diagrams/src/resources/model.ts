@@ -173,6 +173,7 @@ export enum Level {
 export enum ServiceTypes {
     HTTP = "HTTP",
     GRPC = "GRPC",
+    WEBSOCKET = "Websocket",
     GRAPHQL = "GraphQL",
     OTHER = "other"
 }
