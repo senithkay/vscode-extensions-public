@@ -102,6 +102,17 @@ export class WebViewRpc {
             }
         });
 
+        this._messenger.onRequest(CloneChoreoProject, (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                ProjectRegistry.getInstance().getProject(projectId, ext.api.selectedOrg?.id)
+                    .then((project: Project | undefined) => {
+                        if (project) {
+                            cloneProject(project);
+                        }
+                    });
+            }
+        });
+
         this._messenger.onRequest(setProjectRepository, async (params) => {
             ProjectRegistry.getInstance().setProjectRepository(params.projId, params.repo);
         });
