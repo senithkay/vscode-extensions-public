@@ -10,16 +10,19 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
-import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
+import { StatusBarAlignment, window} from "vscode";
+import { choreoProjectOverview } from "./constants";
+import { ext } from "./extensionVariables";
 
-export namespace ext {
-    export let context: ExtensionContext;
-    export let isPluginStartup: boolean;
-    export let api: ChoreoExtensionApi;
-    export let statusBarItem: StatusBarItem; 
-
-    // views
-    export let projectsTreeView: TreeView<TreeItem>;
-    export let accountTreeView: TreeView<TreeItem>;
+export async function activateStatusBarItem() {
+    ext.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
+	ext.statusBarItem.command = choreoProjectOverview;
+	ext.context.subscriptions.push(ext.statusBarItem);
+    if (await ext.api.isChoreoProject()) {
+        const project = await ext.api.getChoreoProject();
+        if (project) {
+            ext.statusBarItem.text = `Choreo: ${project.name}`;
+            ext.statusBarItem.show();
+        }
+    }
 }

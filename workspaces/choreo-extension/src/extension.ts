@@ -22,6 +22,7 @@ import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, clo
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
 import { ProjectRegistry } from './registry/project-registry';
+import { activateStatusBarItem } from './status-bar';
 import { activateURIHandlers } from './uri-handlers';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
@@ -49,6 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
 	activateWizards();
 	activateURIHandlers();
 	showChoreoProjectOverview();
+	activateStatusBarItem();
 	return ext.api;
 }
 
