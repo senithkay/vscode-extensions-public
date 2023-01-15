@@ -17,7 +17,7 @@
  *
  */
 
-import { IProjectManager, Project } from "@wso2-enterprise/choreo-core";
+import { Component, IProjectManager, Project } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import { readFile, writeFile } from "fs";
@@ -33,6 +33,10 @@ export class BallerinaProjectManager implements IProjectManager {
 
     getProjectDetails(): Promise<Project> {
         throw new Error("ballerina getProjectDetails not implemented.");
+    }
+
+    getLocalComponents(_workspaceFilePath: string): Component[] {
+        throw new Error("Method not implemented.");
     }
 
     async getProjectRoot(): Promise<string|undefined> {
