@@ -24,9 +24,10 @@ import Fab from '@mui/material/Fab';
 import styled from '@emotion/styled';
 import { Colors } from '../../resources';
 import { SxProps } from '@mui/material';
+import { ProjectDesignRPC } from '../../utils/rpc/project-design-rpc';
 
 const Container = styled.div`
-    position: ${(props: {letFloat: boolean}) => props.letFloat ? 'relative' : 'absolute'};
+    position: ${(props: { letFloat: boolean }) => props.letFloat ? 'relative' : 'absolute'};
     bottom: 15px;
     left: 15px;
 `;
@@ -51,6 +52,13 @@ interface ControlsProps {
 export function ControlsLayer(props: ControlsProps) {
     const { onComponentAddClick, isChoreoProject, float } = props;
 
+    const onClickOverview = () => {
+        const rpcInstance = ProjectDesignRPC.getInstance();
+        rpcInstance.showChoreoProjectOverview().catch((error: Error) => {
+            rpcInstance.showErrorMessage(error.message);
+        });
+    }
+
     return (
         <Container letFloat={float}>
             <Fab
@@ -69,6 +77,7 @@ export function ControlsLayer(props: ControlsProps) {
                     aria-label='overview'
                     variant='extended'
                     size='small'
+                    onClick={onClickOverview}
                     sx={ButtonStyles}
                 >
                     <AccountTreeIcon sx={{ marginRight: '5px' }} />

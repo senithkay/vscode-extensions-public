@@ -18,6 +18,7 @@
  */
 
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
+import { Project } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { BallerinaProjectManager } from "./manager";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
@@ -26,6 +27,7 @@ import { ExtendedLangClient } from "src/core";
 import { addConnector, linkServices, pullConnector } from "./code-generator";
 import { getProjectResources } from "./utils";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "workspaces/low-code-editor-commons/lib";
+import { getChoreoExtAPI, IChoreoExtensionAPI } from "../../choreo-features/activate";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -37,29 +39,37 @@ const directoryPickOptions: OpenDialogOptions = {
 export class ProjectDesignRPC {
     private _messenger: Messenger = new Messenger();
     private _isChoreoProject: boolean;
-    private projectManager: ChoreoProjectManager | BallerinaProjectManager;
+    private _projectManager: ChoreoProjectManager | BallerinaProjectManager;
+    private _choreoExtApi: IChoreoExtensionAPI | undefined;
 
     constructor(webview: WebviewPanel, langClient: ExtendedLangClient) {
         this._messenger.registerWebviewPanel(webview);
 
-        // TODO: Determine correct project status
-        this._isChoreoProject = true;
+        getChoreoExtAPI().then(async (extApi) => {
+            if (extApi) {
+                this._choreoExtApi = extApi;
+                this._isChoreoProject = await extApi.isChoreoProject();
+            } else {
+                this._isChoreoProject = false;
+            }
+        });
+
         if (this._isChoreoProject) {
-            this.projectManager = new ChoreoProjectManager();
+            this._projectManager = new ChoreoProjectManager();
         } else {
-            this.projectManager = new BallerinaProjectManager();
+            this._projectManager = new BallerinaProjectManager();
         }
 
         this._messenger.onRequest({ method: 'createComponent' }, (addComponentDetails: AddComponentDetails): Promise<string> => {
-            return this.projectManager.createComponent(addComponentDetails);
+            return this._projectManager.createComponent(addComponentDetails);
         });
 
         this._messenger.onRequest({ method: 'getProjectDetails' }, (): Promise<unknown> => {
-            return this.projectManager.getProjectDetails();
+            return this._projectManager.getProjectDetails();
         });
 
         this._messenger.onRequest({ method: 'getProjectRoot' }, (): Promise<string | undefined> => {
-            return this.projectManager.getProjectRoot();
+            return this._projectManager.getProjectRoot();
         });
 
         this._messenger.onRequest({ method: 'getConnectors' }, (args: BallerinaConnectorsRequest[]): Promise<BallerinaConnectorsResponse> => {
@@ -102,9 +112,20 @@ export class ProjectDesignRPC {
             return commands.executeCommand(cmd);
         });
 
+        this._messenger.onRequest({method: 'showChoreoProjectOverview'}, async (): Promise<boolean> => {
+            if (this._choreoExtApi) {
+                const currentProject: Project = await this._choreoExtApi.getChoreoProject();
+                if (currentProject) {
+                    return commands.executeCommand('wso2.choreo.project.overview', currentProject);
+                }
+            }
+            window.showErrorMessage('Error while loading Choreo project overview.');
+            return false;
+        });
+
         this._messenger.onNotification({ method: 'showErrorMsg' }, (msg: string) => {
             window.showErrorMessage(msg);
-        })
+        });
     }
 
     static create(webview: WebviewPanel, langClient: ExtendedLangClient) {

@@ -84,7 +84,11 @@ export class ProjectDesignRPC {
         return this._messenger.sendRequest({ method: 'executeCommand' }, HOST_EXTENSION, cmd);
     }
 
+    public async showChoreoProjectOverview(): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'showChoreoProjectOverview' }, HOST_EXTENSION, '');
+    }
+
     public showErrorMessage(msg: string) {
-        this._messenger.sendNotification({method: 'showErrorMsg'}, HOST_EXTENSION, msg);
+        this._messenger.sendNotification({ method: 'showErrorMsg' }, HOST_EXTENSION, msg);
     }
 }

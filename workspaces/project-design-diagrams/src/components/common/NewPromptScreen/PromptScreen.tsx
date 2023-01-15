@@ -47,7 +47,10 @@ export function PromptScreen(props: { onComponentAdd: () => void }) {
     return (
         <Container>
             <MessageBox>{NO_COMPONENTS_MSG}</MessageBox>
-            <ControlsLayer onComponentAddClick={props.onComponentAdd} float={true} />
+            <ControlsLayer
+                onComponentAddClick={props.onComponentAdd}
+                float={true}
+            />
         </Container>
     );
 }
