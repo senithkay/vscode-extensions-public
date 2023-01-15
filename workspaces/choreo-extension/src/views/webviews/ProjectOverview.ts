@@ -50,11 +50,7 @@ export class ProjectOverview {
       "main.js"
     ]);
 
-    const codiconUri = getUri(webview, extensionUri, [
-      "resources",
-      "codicons",
-      "codicon.css"
-    ]);
+    const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "resources", "codicons", "codicon.css"));
 
     return /*html*/ `
           <!DOCTYPE html>

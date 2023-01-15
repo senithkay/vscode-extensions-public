@@ -22,11 +22,12 @@ import {
     ComponentWizardInput,
     CreateComponentRequest,
     ShowErrorMessage, Component,
-    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject
+    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    PushLocalComponentsToChoreo
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
-import { ChoreoGithubAppClientRPCWebView  } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
+import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
@@ -98,6 +99,10 @@ export class ChoreoWebViewAPI {
 
     public async getChoreoProject(): Promise<Project | undefined> {
         return this._messenger.sendRequest(getChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async pushLocalComponentsToChoreo(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, projectId);
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {

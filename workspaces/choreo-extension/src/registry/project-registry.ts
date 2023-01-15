@@ -22,7 +22,6 @@ const PROJECT_LOCATIONS = "project-locations";
 const PROJECT_REPOSITORIES = "project-repositories";
 
 export class ProjectRegistry {
-
     static _registry: ProjectRegistry | undefined;
     private _dataProjects: Map<number, Project[]> = new Map<number, Project[]>([]);
     private _dataComponents: Map<string, Component[]> = new Map<string, Component[]>([]);
@@ -133,7 +132,7 @@ export class ProjectRegistry {
         let projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
         if (projectRepositories === undefined) {
             projectRepositories = {};
-        }   
+        }
         projectRepositories[projectId] = repository;
         ext.context.globalState.update(PROJECT_REPOSITORIES, projectRepositories);
     }
@@ -141,6 +140,16 @@ export class ProjectRegistry {
     getProjectRepository(projectId: string): string | undefined {
         const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
         return projectRepositories ? projectRepositories[projectId] : undefined;
+    }
+
+    pushLocalComponentsToChoreo(projectId: string, orgHandle: string): Promise<void> {
+        // Get local components
+        return this.getComponents(projectId, orgHandle).then((allComponents) => {
+            // convert to Component request
+            const localComponents = allComponents.filter((component) => { return component.local; });
+            //return projectClient.createComponents({ projId: projectId, components: localComponents });
+        })
+            .then(() => { return; });
     }
 
     private _removeLocation(projectId: string) {

@@ -27,7 +27,7 @@ export function ComponentList(props: ComponentListProps) {
     }
 
     if (props.components.length === 0) {
-        return <><p><Codicon name="info" /> No components found. Open the project to create components.</p></>;
+        return <><p><Codicon name="info" /> No components found. Clone & Open the project to create components.</p></>;
     }
 
     return (

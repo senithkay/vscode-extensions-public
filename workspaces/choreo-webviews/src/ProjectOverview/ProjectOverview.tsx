@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
+import { Codicon } from "../Codicon/Codicon";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -86,15 +87,22 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         rpcInstance.openChoreoProject(project ? project.id : '');
     };
 
+    const handlePushToChoreoClick = (e: any) => {
+        rpcInstance.pushLocalComponentsToChoreo(project ? project.id : '');
+    };
+
     return (
         <>
             <WizardContainer>
                 <h1>{project?.name}&nbsp;</h1>
                 {location === undefined ?
                     <>
-                        <p>To open the project clone in to your local machine</p>
+                        <p><Codicon name="info" /> To open the project clone in to your local machine</p>
                         <ActionContainer>
-                            <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}>Clone Project</VSCodeButton>
+                            <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}>
+                                <Codicon name="cloud-download" />&nbsp;
+                                Clone Project
+                            </VSCodeButton>
                             <LinkButton>
                                 <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
                                     Open in Choreo Console
@@ -104,7 +112,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     </>
                     :
                     <>
-                        <p>Found a local copy of the project at `{location}`. </p>
+                        <p><Codicon name="info" /> Found a local copy of the project at `{location}`. </p>
                         <ActionContainer>
                             <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
                             <LinkButton>
@@ -114,10 +122,22 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             </LinkButton>
                         </ActionContainer>
                     </>}
-                {projectRepo !== undefined && <p>Project repository: {projectRepo}</p>}
-
                 <h2>Components</h2>
                 <ComponentList components={components} />
+                <p><Codicon name="lightbulb" /> There are few components in local machine which are not created in Choreo. Please commit your changes to github repo and click `Push to Choreo`</p>
+                <ActionContainer>
+                    <VSCodeButton appearance="secondary" onClick={handlePushToChoreoClick}>
+                        <Codicon name="cloud-upload" />&nbsp;
+                        Push to Choreo
+                    </VSCodeButton>
+                </ActionContainer>
+                <h2>Repositories</h2>
+                {projectRepo !== undefined &&
+                    <>
+                        This project has a configure mono repository.
+                        <p>Mono Repo: {projectRepo}</p>
+                    </>
+                }
             </WizardContainer>
         </>
     );
