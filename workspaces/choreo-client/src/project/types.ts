@@ -21,6 +21,23 @@ export interface CreateProjectParams {
     region?: string;
 }
 
+export interface CreateComponentParams {
+    name: string;
+    displayName: string;
+    displayType: string;
+    description: string;
+    orgId: number;
+    orgHandle: string;
+    projectId: string;
+    ballerinaVersion: string;
+    accessibility: string;
+    version: string;
+    srcGitRepoUrl: string;
+    repositorySubPath: string;
+    repositoryType: string;
+    repositoryBranch: string;
+}
+
 export interface ComponentMutationParams {
     projectId: string;
     name: string;
@@ -43,7 +60,7 @@ export interface GetComponentsParams {
     projId: string;
 }
 
-export interface IChoreoProjectClient  {
+export interface IChoreoProjectClient {
     // queries
     getProjects(params: GetProjectsParams): Promise<Project[]>;
     getComponents(params: GetComponentsParams): Promise<Component[]>;

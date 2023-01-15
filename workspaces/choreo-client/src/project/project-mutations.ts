@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { gql } from 'graphql-request';
-import { CreateProjectParams } from './types';
+import { CreateProjectParams, CreateComponentParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
     const { name, description, orgId, orgHandle, version = "1.0.0", region = "US" } = params;
@@ -27,3 +27,77 @@ export function getCreateProjectMutation(params: CreateProjectParams) {
         }
     `;
 }
+
+export function getCreateComponentMutation(params: CreateComponentParams) {
+    const { name, orgId, orgHandle, displayName, displayType, projectId, accessibility, description, srcGitRepoUrl, repositorySubPath, repositoryBranch } = params;
+    return gql`
+        mutation { 
+            createComponent( 
+                component: {
+                    name: "${name}",
+                    orgId: ${orgId},
+                    orgHandler: "${orgHandle}", 
+                    displayName: "${displayName}", 
+                    displayType: "${displayType}", 
+                    projectId: "${projectId}", 
+                    labels: "", 
+                    version: "1.0.0", 
+                    description: "${description}", 
+                    apiId: "", 
+                    ballerinaVersion: "swan-lake-alpha5", 
+                    triggerChannels: "", 
+                    triggerID: null, 
+                    httpBase: true,
+                    sampleTemplate: "", 
+                    accessibility: ${accessibility}, 
+                    srcGitRepoUrl: ${srcGitRepoUrl}, 
+                    repositorySubPath: ${repositorySubPath}, 
+                    repositoryType: "UserManagedNonEmpty", 
+                    repositoryBranch: "${repositoryBranch}",
+                }){ 
+                projectId,
+                id,
+                description,
+                name,
+                handler,
+                displayName,
+                displayType,
+                version,
+                createdAt,
+                orgHandler,
+                repository {
+                    nameApp,
+                    nameConfig,
+                    branch,
+                    branchApp,
+                    organizationApp,
+                    organizationConfig,
+                    isUserManage,
+                    appSubPath,
+                    byocBuildConfig {
+                        id,
+                        isMainContainer,
+                        containerId,
+                        componentId,
+                        repositoryId,
+                        dockerContext,
+                        dockerfilePath,
+                        oasFilePath,
+                    }
+                }, 
+                apiVersions {
+                    apiVersion,
+                    proxyName,
+                    proxyUrl,
+                    proxyId,
+                    id,
+                    state,
+                    latest,
+                    branch,
+                    accessibility
+                }
+            }
+        }
+    `;
+}
+

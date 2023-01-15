@@ -11,11 +11,12 @@
  *  associated services.
  */
 
-import { Component, Project, serializeError } from "@wso2-enterprise/choreo-core";
+import { Component, Organization, Project, serializeError } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, PathLike } from 'fs';
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
+import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -142,12 +143,29 @@ export class ProjectRegistry {
         return projectRepositories ? projectRepositories[projectId] : undefined;
     }
 
-    pushLocalComponentsToChoreo(projectId: string, orgHandle: string): Promise<void> {
+    pushLocalComponentsToChoreo(projectId: string, org: Organization): Promise<void> {
         // Get local components
-        return this.getComponents(projectId, orgHandle).then((allComponents) => {
+        return this.getComponents(projectId, org.handle).then((allComponents) => {
             // convert to Component request
             const localComponents = allComponents.filter((component) => { return component.local; });
-            //return projectClient.createComponents({ projId: projectId, components: localComponents });
+            localComponents.forEach(async (component) => {
+                const componentRequest: CreateComponentParams = {
+                    name: component.name,
+                    displayName: component.displayName,
+                    displayType: component.displayType,
+                    description: component.description,
+                    orgId: org.id,
+                    orgHandle: org.handle,
+                    projectId: projectId,
+                    accessibility: (component.accessibility === "external") ? "external" : "internal",
+                    srcGitRepoUrl: "string",
+                    repositorySubPath: "component.repositorySubPath",
+                    repositoryType: "string",
+                    repositoryBranch: "string"
+                };
+                await projectClient.createComponent(componentRequest);
+            });
+            return;
         })
             .then(() => { return; });
     }

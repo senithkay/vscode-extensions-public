@@ -12,9 +12,9 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository } from "@wso2-enterprise/choreo-core";
-import { ComponentMutationParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "./types";
 import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './project-queries';
-import { getCreateProjectMutation } from './project-mutations';
+import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
@@ -42,7 +42,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             const data = await client.request(query);
             return data.projects;
         } catch (error) {
-            throw new Error("Error while fetching projects. " , { cause: error });
+            throw new Error("Error while fetching projects. ", { cause: error });
         }
 
     }
@@ -71,8 +71,15 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    createComponent(_params: ComponentMutationParams): Promise<Component> {
-        throw new Error("Method not implemented."); // TODO: Summaya
+    async createComponent(params: CreateComponentParams): Promise<Component> {
+        const mutation = getCreateComponentMutation(params);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            return data.createProject;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
