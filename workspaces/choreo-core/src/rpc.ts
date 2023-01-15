@@ -27,6 +27,8 @@ export const OpenChoreoProject: RequestType<string, void> = { method: 'openChore
 export const CloneChoreoProject: RequestType<string, void> = { method: 'cloneChoreoProject' };
 export const setProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setProjectRepository' };
 export const getProjectRepository: RequestType<string, string> = { method: 'getProjectRepository' };
+export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
+export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 
 
 // notification types

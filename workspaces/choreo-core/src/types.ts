@@ -152,4 +152,10 @@ export interface ComponentWizardInput {
     description: string;
     type: ChoreoServiceComponentType;
     accessibility: ComponentAccessibility;
+    repositoryInfo : {
+        org: string;
+        repo: string;
+        branch: string;
+        subPath: string;
+    }
 }

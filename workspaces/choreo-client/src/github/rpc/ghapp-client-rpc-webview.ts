@@ -13,7 +13,7 @@
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 import { GHAppAuthStatus, GithubOrgnization, IChoreoGithubAppClient } from "../types";
-import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest } from "./types";
+import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest, GetRepoBranchesRequest } from "./types";
 
 export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
 
@@ -32,6 +32,11 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
     getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
         return this._messenger.sendRequest(GetAuthorizedRepositoriesRequest, HOST_EXTENSION, undefined);
     }
+
+    getRepoBranches(orgName: string, repoName: string): Promise<string[]> {
+        return this._messenger.sendRequest(GetRepoBranchesRequest, HOST_EXTENSION, {orgName, repoName});
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onGHAppAuthCallback(callback: (status: GHAppAuthStatus) => void): any {
         this._messenger.onNotification(OnGithubAppAuthCallbackNotification, callback);

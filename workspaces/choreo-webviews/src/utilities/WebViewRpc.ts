@@ -22,7 +22,7 @@ import {
     ComponentWizardInput,
     CreateComponentRequest,
     ShowErrorMessage, Component,
-    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository
+    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -90,6 +90,14 @@ export class ChoreoWebViewAPI {
 
     public async getProjectRepository(projId: string): Promise<string> {
         return this._messenger.sendRequest(getProjectRepository, HOST_EXTENSION, projId);
+    }
+
+    public async isChoreoProject(): Promise<boolean> {
+        return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async getChoreoProject(): Promise<Project | undefined> {
+        return this._messenger.sendRequest(getChoreoProject, HOST_EXTENSION, undefined);
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {

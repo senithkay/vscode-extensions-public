@@ -26,6 +26,12 @@ export interface ComponentCreationParams {
     description: string;
     accessibility: ComponentAccessibility;
     workspaceFilePath: string;
+    repositoryInfo : {
+        org: string;
+        repo: string;
+        branch: string;
+        subPath: string;
+    };
 }
 
 interface WorkspaceFileContent {
@@ -48,6 +54,12 @@ interface ComponentMetadata {
     description: string;
     projectId: string;
     accessibility: ComponentAccessibility;
+    repository : {
+        orgApp: string;
+        nameApp: string;
+        branchApp: string;
+        appSubPath: string;
+    };
 }
 
 export class ChoreoProjectManager implements IProjectManager {
@@ -163,7 +175,13 @@ export class ChoreoProjectManager implements IProjectManager {
                     displayType: args.displayType,
                     description: args.description,
                     projectId: args.projectId,
-                    accessibility: args.accessibility
+                    accessibility: args.accessibility,
+                    repository: {
+                        appSubPath: args.repositoryInfo.subPath,
+                        orgApp: args.repositoryInfo.org,
+                        nameApp: args.repositoryInfo.repo,
+                        branchApp: args.repositoryInfo.branch
+                    }
                 }
             });
 

@@ -20,7 +20,7 @@ import {
     CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
-    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage, setProjectRepository, getProjectRepository
+    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -72,7 +72,8 @@ export class WebViewRpc {
                         name: args.name,
                         displayType: args.type,
                         accessibility: args.accessibility,
-                        workspaceFilePath: workspaceFilePath
+                        workspaceFilePath: workspaceFilePath,
+                        repositoryInfo: args.repositoryInfo
                     });
                 } else {
                     throw new Error("Failed to detect the project workpsace.");
@@ -119,6 +120,14 @@ export class WebViewRpc {
 
         this._messenger.onRequest(getProjectRepository, (projectId: string) => {
             return ProjectRegistry.getInstance().getProjectRepository(projectId);
+        });
+
+        this._messenger.onRequest(isChoreoProject, () => {
+            return ext.api.isChoreoProject();
+        });
+
+        this._messenger.onRequest(getChoreoProject, () => {
+            return ext.api.getChoreoProject();
         });
 
         ext.api.onStatusChanged((newStatus) => {
