@@ -80,8 +80,8 @@ function setupWebviewPanel() {
         designDiagramWebview.reveal();
     } else {
         designDiagramWebview = window.createWebviewPanel(
-            "ballerinaProjectDesign",
-            "Ballerina Project Design",
+            "architectureView",
+            "Architecture View",
             { viewColumn: ViewColumn.One, preserveFocus: false },
             getCommonWebViewOptions()
         );
