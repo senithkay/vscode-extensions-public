@@ -19,12 +19,10 @@
 
 import React from 'react';
 import AddIcon from '@mui/icons-material/Add';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import Fab from '@mui/material/Fab';
 import styled from '@emotion/styled';
 import { Colors } from '../../resources';
 import { SxProps } from '@mui/material';
-import { ProjectDesignRPC } from '../../utils/rpc/project-design-rpc';
 
 const Container = styled.div`
     position: ${(props: { letFloat: boolean }) => props.letFloat ? 'relative' : 'absolute'};
@@ -45,19 +43,11 @@ const ButtonStyles: SxProps = {
 
 interface ControlsProps {
     onComponentAddClick: () => void;
-    isChoreoProject?: boolean;
     float?: boolean;
 }
 
 export function ControlsLayer(props: ControlsProps) {
-    const { onComponentAddClick, isChoreoProject, float } = props;
-
-    const onClickOverview = () => {
-        const rpcInstance = ProjectDesignRPC.getInstance();
-        rpcInstance.showChoreoProjectOverview().catch((error: Error) => {
-            rpcInstance.showErrorMessage(error.message);
-        });
-    }
+    const { onComponentAddClick, float } = props;
 
     return (
         <Container letFloat={float}>
@@ -71,19 +61,6 @@ export function ControlsLayer(props: ControlsProps) {
                 <AddIcon sx={{ marginRight: '5px' }} />
                 Component
             </Fab>
-
-            {isChoreoProject &&
-                <Fab
-                    aria-label='overview'
-                    variant='extended'
-                    size='small'
-                    onClick={onClickOverview}
-                    sx={ButtonStyles}
-                >
-                    <AccountTreeIcon sx={{ marginRight: '5px' }} />
-                    Overview
-                </Fab>
-            }
         </Container>
     )
 }
