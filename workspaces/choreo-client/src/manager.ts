@@ -15,7 +15,7 @@ import { ChoreoServiceComponentType, ComponentAccessibility, IProjectManager, Or
 import { log } from "console";
 import { randomUUID } from "crypto";
 import child_process from "child_process";
-import { readFile, writeFile, unlink, readFileSync } from "fs";
+import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync } from "fs";
 import path, { join } from "path";
 
 export interface ComponentCreationParams {
@@ -74,28 +74,30 @@ export class ChoreoProjectManager implements IProjectManager {
     }
     private static _createComponent(args: ComponentCreationParams): Promise<string> {
         return new Promise((resolve, reject) => {
-            const { displayType, name, org, workspaceFilePath } = args;
+            const { displayType, org, workspaceFilePath, repositoryInfo } = args;
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
 
-            // TODO: Sanitize for URL-safety. Current implementation just checks for Ballerina package name req.
-            const pkgName = name.split(/[^a-zA-Z0-9_.]/g).reduce((composedName: string, subname: string) =>
-                composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
             const balOrgName = org.name.split(/[^a-zA-Z0-9_]/g).reduce((composedName: string, subname: string) =>
                 composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
+            const pkgRoot = join(join(join(projectRoot, 'repos'), repositoryInfo.org), repositoryInfo.repo);
 
-            ChoreoProjectManager._runCommand('pwd', projectRoot).then(() => {
-                ChoreoProjectManager._runCommand(`bal new ${pkgName} -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(displayType)}:1.1.0`,
-                    projectRoot).then(() => {
-                        const pkgRoot = join(projectRoot, pkgName);
-                        const serviceId = `${pkgName}-${randomUUID()}`;
+            if (!existsSync(pkgRoot)) {
+                mkdirSync(pkgRoot);
+            }
 
-                        unlink(join(pkgRoot, 'Dependencies.toml'), (err) => {
+            ChoreoProjectManager._runCommand('pwd', pkgRoot).then(() => {
+                ChoreoProjectManager._runCommand(`bal new ${repositoryInfo.subPath} -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(displayType)}:1.1.0`,
+                    pkgRoot).then(() => {
+                        const pkgPath = join(pkgRoot, repositoryInfo.subPath);
+                        const serviceId = `${repositoryInfo.subPath}-${randomUUID()}`;
+
+                        unlink(join(pkgPath, 'Dependencies.toml'), (err) => {
                             if (err) {
                                 log("Error: Could not delete Dependencies.toml.");
                             }
                         });
 
-                        const balTomlPath = join(pkgRoot, 'Ballerina.toml');
+                        const balTomlPath = join(pkgPath, 'Ballerina.toml');
                         readFile(balTomlPath, 'utf-8', function (err, contents) {
                             if (err) {
                                 log("Error: Could not read toml.");
@@ -108,19 +110,19 @@ export class ChoreoProjectManager implements IProjectManager {
                             });
                         });
 
-                        const serviceFilePath = join(pkgRoot, 'service.bal');
+                        const serviceFilePath = join(pkgPath, 'service.bal');
                         readFile(serviceFilePath, 'utf-8', (err, contents) => {
                             if (err) {
                                 log("Error: Could not read service.bal file.");
                                 return;
                             }
-                            const replaced = ChoreoProjectManager._getAnnotatedContent(contents, pkgName, serviceId, displayType);
+                            const replaced = ChoreoProjectManager._getAnnotatedContent(contents, repositoryInfo.subPath, serviceId, displayType);
                             writeFile(serviceFilePath, replaced, 'utf-8', function () {
                                 log("Successfully added service annotations.");
                             });
                         });
 
-                        ChoreoProjectManager._addToWorkspace(pkgName, workspaceFilePath, args);
+                        ChoreoProjectManager._addToWorkspace(workspaceFilePath, args);
                         return resolve(serviceId);
                     }).catch((error) => {
                         reject(error);
@@ -157,7 +159,9 @@ export class ChoreoProjectManager implements IProjectManager {
         });
     }
 
-    private static _addToWorkspace(packageName: string, workspaceFilePath: string, args: ComponentCreationParams) {
+    private static _addToWorkspace(workspaceFilePath: string, args: ComponentCreationParams) {
+        const {org, repositoryInfo, name, displayType, description, projectId, accessibility} = args; 
+
         readFile(workspaceFilePath, 'utf-8', function (err, contents) {
             if (err) {
                 log("Error: Could not read workspace file");
@@ -165,28 +169,28 @@ export class ChoreoProjectManager implements IProjectManager {
             }
             const content: WorkspaceFileContent = JSON.parse(contents);
             content.folders.push({
-                path: packageName,
+                path: join(join(join('repos', repositoryInfo.org), repositoryInfo.repo), repositoryInfo.subPath),
                 metadata: {
                     org: {
-                        id: args.org.id,
-                        handle: args.org.handle
+                        id: org.id,
+                        handle: org.handle
                     },
-                    displayName: args.name,
-                    displayType: args.displayType,
-                    description: args.description,
-                    projectId: args.projectId,
-                    accessibility: args.accessibility,
+                    displayName: name,
+                    displayType: displayType,
+                    description: description,
+                    projectId: projectId,
+                    accessibility: accessibility,
                     repository: {
-                        appSubPath: args.repositoryInfo.subPath,
-                        orgApp: args.repositoryInfo.org,
-                        nameApp: args.repositoryInfo.repo,
-                        branchApp: args.repositoryInfo.branch
+                        appSubPath: repositoryInfo.subPath,
+                        orgApp: repositoryInfo.org,
+                        nameApp: repositoryInfo.repo,
+                        branchApp: repositoryInfo.branch
                     }
                 }
             });
 
             writeFile(workspaceFilePath, JSON.stringify(content, null, 4), 'utf-8', function () {
-                log(`Successfully created component ${packageName}.`);
+                log(`Successfully created component ${repositoryInfo.subPath}.`);
             });
         });
     }
