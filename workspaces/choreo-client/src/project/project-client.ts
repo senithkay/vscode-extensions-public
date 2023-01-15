@@ -73,10 +73,12 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async createComponent(params: CreateComponentParams): Promise<Component> {
         const mutation = getCreateComponentMutation(params);
+        console.log(mutation);
         try {
             const client = await this._getClient();
             const data = await client.request(mutation);
-            return data.createProject;
+            console.log(data);
+            return data.createComponent;
         } catch (error) {
             throw new Error("Error while creating component.", { cause: error });
         }

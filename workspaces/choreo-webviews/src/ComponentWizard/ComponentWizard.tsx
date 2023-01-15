@@ -51,7 +51,7 @@ export function ComponentWizard() {
     const [inProgress, setProgressStatus] = useState<boolean>(false);
     const [projectId, setProjectId] = useState<string | undefined>(choreoProject?.id);
     const [description, setDescription] = useState<string | undefined>('');
-    const [accessibility, setAccessibility] = useState<ComponentAccessibility>('External');
+    const [accessibility, setAccessibility] = useState<ComponentAccessibility>('external');
     const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
     const [repository, setRepository] = useState<string>('');
     const [showRepoSelector, setShowRepoSelector] = useState<boolean>(false);
@@ -144,8 +144,8 @@ export function ComponentWizard() {
 
                     <label htmlFor="access-mode">Access Mode</label>
                     <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
-                        <VSCodeOption value={'External'}><b>External:</b> API is publicly accessible</VSCodeOption>
-                        <VSCodeOption value={'Internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
+                        <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
+                        <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
                     </VSCodeDropdown>
 
                     <VSCodePanels>

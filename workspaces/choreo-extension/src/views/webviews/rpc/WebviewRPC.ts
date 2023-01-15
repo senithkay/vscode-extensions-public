@@ -133,7 +133,7 @@ export class WebViewRpc {
 
         this._messenger.onRequest(PushLocalComponentsToChoreo, (projectId: string) => {
             if (ext.api.selectedOrg) {
-                return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg?.handle);
+                return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
             }
             else {
                 return Promise.reject();

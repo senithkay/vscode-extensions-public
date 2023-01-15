@@ -29,9 +29,7 @@ export interface CreateComponentParams {
     orgId: number;
     orgHandle: string;
     projectId: string;
-    ballerinaVersion: string;
     accessibility: string;
-    version: string;
     srcGitRepoUrl: string;
     repositorySubPath: string;
     repositoryType: string;
