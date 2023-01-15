@@ -20,7 +20,7 @@
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { Messenger } from "vscode-messenger";
 import { BallerinaProjectManager } from "./manager";
-import { OpenDialogOptions, WebviewPanel, window } from "vscode";
+import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
 import { AddComponentDetails, ComponentModel, Service } from "../resources";
 import { ExtendedLangClient } from "src/core";
 import { addConnector, linkServices } from "./code-generator";
@@ -42,7 +42,8 @@ export class ProjectDesignRPC {
     constructor(webview: WebviewPanel, langClient: ExtendedLangClient) {
         this._messenger.registerWebviewPanel(webview);
 
-        this._isChoreoProject = false;
+        // TODO: Determine correct project status
+        this._isChoreoProject = true;
         if (this._isChoreoProject) {
             this.projectManager = new ChoreoProjectManager();
         } else {
@@ -63,10 +64,10 @@ export class ProjectDesignRPC {
 
         this._messenger.onRequest({ method: 'getConnectors' }, (args: BallerinaConnectorsRequest[]): Promise<BallerinaConnectorsResponse> => {
             return langClient.getConnectors(args[0]).then(result => {
-                if((result as BallerinaConnectorsResponse).central){
+                if ((result as BallerinaConnectorsResponse).central) {
                     return Promise.resolve(result as BallerinaConnectorsResponse);
                 }
-                return Promise.resolve({central:[], error: "Not found"} as BallerinaConnectorsResponse);
+                return Promise.resolve({ central: [], error: "Not found" } as BallerinaConnectorsResponse);
             });
         });
 
@@ -88,6 +89,18 @@ export class ProjectDesignRPC {
         this._messenger.onRequest({ method: 'getProjectResources' }, async (): Promise<Map<string, ComponentModel>> => {
             return getProjectResources(langClient);
         });
+
+        this._messenger.onRequest({ method: 'isChoreoProject' }, async (): Promise<boolean> => {
+            return this._isChoreoProject;
+        });
+
+        this._messenger.onRequest({ method: 'executeCommand' }, async (cmd: string): Promise<boolean> => {
+            return commands.executeCommand(cmd);
+        });
+
+        this._messenger.onNotification({ method: 'showErrorMsg' }, (msg: string) => {
+            window.showErrorMessage(msg);
+        })
     }
 
     static create(webview: WebviewPanel, langClient: ExtendedLangClient) {
