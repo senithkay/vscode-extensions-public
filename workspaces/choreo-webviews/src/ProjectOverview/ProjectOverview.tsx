@@ -11,11 +11,9 @@
  *  associated services.
  */
 
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext, useState, useEffect } from "react";
-import { SignIn } from "../SignIn/SignIn";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useState, useEffect } from "react";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
@@ -30,6 +28,10 @@ const ActionContainer = styled.div`
     display  : flex;
     flex-direction: row;
     gap: 10px;
+`;
+
+const LinkButton = styled.div`
+    padding-top  : 5px;
 `;
 
 export interface ProjectOverviewProps {
@@ -88,14 +90,16 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         <>
             <WizardContainer>
                 <h1>{project?.name}&nbsp;</h1>
-                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
-                    Open in Choreo Console
-                </VSCodeLink>
                 {location === undefined ?
                     <>
                         <p>To open the project clone in to your local machine</p>
                         <ActionContainer>
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}>Clone Project</VSCodeButton>
+                            <LinkButton>
+                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
+                                    Open in Choreo Console
+                                </VSCodeLink>
+                            </LinkButton>
                         </ActionContainer>
                     </>
                     :
@@ -103,6 +107,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <p>Found a local copy of the project at `{location}`. </p>
                         <ActionContainer>
                             <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
+                            <LinkButton>
+                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
+                                    Open in Choreo Console
+                                </VSCodeLink>
+                            </LinkButton>
                         </ActionContainer>
                     </>}
                 {projectRepo !== undefined && <p>Project repository: {projectRepo}</p>}
