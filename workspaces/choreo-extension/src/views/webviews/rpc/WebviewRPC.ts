@@ -20,7 +20,8 @@ import {
     CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
-    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject
+    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    PushLocalComponentsToChoreo
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -128,6 +129,15 @@ export class WebViewRpc {
 
         this._messenger.onRequest(getChoreoProject, () => {
             return ext.api.getChoreoProject();
+        });
+
+        this._messenger.onRequest(PushLocalComponentsToChoreo, (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
+            }
+            else {
+                return Promise.reject();
+            }
         });
 
         ext.api.onStatusChanged((newStatus) => {

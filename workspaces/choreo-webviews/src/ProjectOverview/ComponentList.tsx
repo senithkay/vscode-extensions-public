@@ -14,10 +14,16 @@
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { Component } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
+import styled from "@emotion/styled";
 
 export interface ComponentListProps {
     components: Component[] | undefined;
 }
+
+const InlineIcon = styled.span`
+    vertical-align: sub;
+    padding-left: 5px;
+`;
 
 // react component
 export function ComponentList(props: ComponentListProps) {
@@ -27,7 +33,7 @@ export function ComponentList(props: ComponentListProps) {
     }
 
     if (props.components.length === 0) {
-        return <><p><Codicon name="info" /> No components found. Open the project to create components.</p></>;
+        return <><p><InlineIcon><Codicon name="info" /></InlineIcon> No components found. Clone & Open the project to create components.</p></>;
     }
 
     return (

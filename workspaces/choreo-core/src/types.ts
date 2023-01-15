@@ -12,7 +12,7 @@
  */
 export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
 
-export type ComponentAccessibility = 'Internal' | 'External';
+export type ComponentAccessibility = 'internal' | 'external';
 
 export interface Owner {
     id: string;
@@ -131,7 +131,7 @@ export interface WorkspaceItem {
 export interface WorkspaceConfig {
     folders: WorkspaceItem[];
     metadata?: {
-        choreo? : {
+        choreo?: {
             projectID: string;
             orgId: number;
             monoRepo?: string;
@@ -152,7 +152,7 @@ export interface ComponentWizardInput {
     description: string;
     type: ChoreoServiceComponentType;
     accessibility: ComponentAccessibility;
-    repositoryInfo : {
+    repositoryInfo: {
         org: string;
         repo: string;
         branch: string;

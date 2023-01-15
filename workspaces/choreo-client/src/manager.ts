@@ -15,7 +15,7 @@ import { ChoreoServiceComponentType, ComponentAccessibility, IProjectManager, Or
 import { log } from "console";
 import { randomUUID } from "crypto";
 import child_process from "child_process";
-import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync } from "fs";
+import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync, writeFileSync } from "fs";
 import path, { join } from "path";
 
 export interface ComponentCreationParams {
@@ -26,7 +26,7 @@ export interface ComponentCreationParams {
     description: string;
     accessibility: ComponentAccessibility;
     workspaceFilePath: string;
-    repositoryInfo : {
+    repositoryInfo: {
         org: string;
         repo: string;
         branch: string;
@@ -44,7 +44,7 @@ interface Folder {
     metadata?: ComponentMetadata;
 }
 
-interface ComponentMetadata {
+export interface ComponentMetadata {
     org: {
         id: number;
         handle: string;
@@ -54,7 +54,7 @@ interface ComponentMetadata {
     description: string;
     projectId: string;
     accessibility: ComponentAccessibility;
-    repository : {
+    repository: {
         orgApp: string;
         nameApp: string;
         branchApp: string;
@@ -160,7 +160,7 @@ export class ChoreoProjectManager implements IProjectManager {
     }
 
     private static _addToWorkspace(workspaceFilePath: string, args: ComponentCreationParams) {
-        const {org, repositoryInfo, name, displayType, description, projectId, accessibility} = args; 
+        const { org, repositoryInfo, name, displayType, description, projectId, accessibility } = args;
 
         readFile(workspaceFilePath, 'utf-8', function (err, contents) {
             if (err) {
@@ -193,6 +193,18 @@ export class ChoreoProjectManager implements IProjectManager {
                 log(`Successfully created component ${repositoryInfo.subPath}.`);
             });
         });
+    }
+
+    public getComponentMetadata(workspaceFilePath: string): ComponentMetadata[] {
+        const contents = readFileSync(workspaceFilePath);
+        const content: WorkspaceFileContent = JSON.parse(contents.toString());
+        const componentMetadata: ComponentMetadata[] = [];
+        content.folders.forEach(folder => {
+            if (folder.metadata !== undefined) {
+                componentMetadata.push(folder.metadata);
+            }
+        });
+        return componentMetadata;
     }
 
     public getLocalComponents(workspaceFilePath: string): Component[] {
@@ -233,5 +245,15 @@ export class ChoreoProjectManager implements IProjectManager {
 
         const processedText = `@display {\n\tlabel: "${packageName}",\n\tid: "${serviceId}"\n}\n${preText}`;
         return content.replace(preText, processedText);
+    }
+
+    removeLocalComponent(workspaceFilePath: string, component: ComponentMetadata): void {
+        const contents = readFileSync(workspaceFilePath);
+        const content: WorkspaceFileContent = JSON.parse(contents.toString());
+        const index = content.folders.findIndex(folder => folder.metadata?.displayName === component.displayName);
+        if (index > -1) {
+            content.folders.splice(index, 1);
+            writeFileSync(workspaceFilePath, JSON.stringify(content, null, 4));
+        }
     }
 }
