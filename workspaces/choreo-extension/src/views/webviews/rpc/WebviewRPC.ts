@@ -136,18 +136,17 @@ export class WebViewRpc {
             commands.executeCommand("ballerina.view.architectureView");
         });
 
-        this._messenger.onRequest(PushLocalComponentsToChoreo, async (projectId: string) => {
-            await window.withProgress({
+        this._messenger.onRequest(PushLocalComponentsToChoreo, async (projectId: string): Promise<void> => {
+            return window.withProgress({
                 title: `Pushing local components to Choreo.`,
                 location: ProgressLocation.Notification,
                 cancellable: true
             }, async (_progress, cancellationToken) => {
                 // TODO Make the cancellation token work
                 if (ext.api.selectedOrg) {
-                    ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
+                    await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
                 }
             });
-            return Promise.resolve();
         });
 
 

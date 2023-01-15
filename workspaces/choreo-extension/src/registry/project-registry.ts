@@ -143,35 +143,37 @@ export class ProjectRegistry {
     }
 
     pushLocalComponentsToChoreo(projectId: string, org: Organization): Promise<void> {
-        const projectLocation: string | undefined = this.getProjectLocation(projectId);
-        if (projectLocation !== undefined) {
-            // Get local components
-            const choreoPM = new ChoreoProjectManager();
-            const localComponentMeta: ComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
-            localComponentMeta.forEach(componentMetadata => {
-                const { appSubPath, branchApp, nameApp ,orgApp} = componentMetadata.repository;
-                const componentRequest: CreateComponentParams = {
-                    name: componentMetadata.displayName,
-                    displayName: componentMetadata.displayName,
-                    displayType: componentMetadata.displayType,
-                    description: componentMetadata.description,
-                    orgId: componentMetadata.org.id,
-                    orgHandle: componentMetadata.org.handle,
-                    projectId: projectId,
-                    accessibility: componentMetadata.accessibility,
-                    srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
-                    repositorySubPath: appSubPath,
-                    repositoryType: "UserManagedNonEmpty",
-                    repositoryBranch: branchApp
-                };
-                projectClient.createComponent(componentRequest).then((component) => {
-                    choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+        return new Promise(async (resolve) => {
+            const projectLocation: string | undefined = this.getProjectLocation(projectId);
+            if (projectLocation !== undefined) {
+                // Get local components
+                const choreoPM = new ChoreoProjectManager();
+                const localComponentMeta: ComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
+                await localComponentMeta.forEach(async componentMetadata => {
+                    const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+                    const componentRequest: CreateComponentParams = {
+                        name: componentMetadata.displayName,
+                        displayName: componentMetadata.displayName,
+                        displayType: componentMetadata.displayType,
+                        description: componentMetadata.description,
+                        orgId: componentMetadata.org.id,
+                        orgHandle: componentMetadata.org.handle,
+                        projectId: projectId,
+                        accessibility: componentMetadata.accessibility,
+                        srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+                        repositorySubPath: appSubPath,
+                        repositoryType: "UserManagedNonEmpty",
+                        repositoryBranch: branchApp
+                    };
+                    await projectClient.createComponent(componentRequest).then((component) => {
+                        choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+                    });
                 });
-            });
-            // Delete the components so they resolve from choreo
-            this._dataComponents.delete(projectId);
-        }
-        return Promise.resolve();
+                // Delete the components so they resolve from choreo
+                this._dataComponents.delete(projectId);
+            }
+            resolve();
+        });
     }
 
     private _removeLocation(projectId: string) {
