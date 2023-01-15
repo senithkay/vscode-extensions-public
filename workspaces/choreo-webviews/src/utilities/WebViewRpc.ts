@@ -23,7 +23,7 @@ import {
     CreateComponentRequest,
     ShowErrorMessage, Component,
     GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
-    PushLocalComponentsToChoreo
+    PushLocalComponentsToChoreo, OpenArchitectureView
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -103,6 +103,10 @@ export class ChoreoWebViewAPI {
 
     public async pushLocalComponentsToChoreo(projectId: string): Promise<void> {
         return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, projectId);
+    }
+
+    public async openArchitectureView(): Promise<void> {
+        return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
