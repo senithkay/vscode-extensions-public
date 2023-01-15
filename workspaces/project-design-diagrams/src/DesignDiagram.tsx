@@ -55,14 +55,14 @@ export function DesignDiagram(props: DiagramProps) {
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
     const [targetService, setTargetService] = useState<Service>(undefined);
+    const [isChoreoProject, setIsChoreoProject] = useState<boolean>(false);
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
-    const isChoreoProject = useRef<boolean>(false);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     useEffect(() => {
         rpcInstance.isChoreoProject().then((response) => {
-            isChoreoProject.current = response;
+            setIsChoreoProject(response);
         });
 
         refreshDiagramResources();
@@ -86,7 +86,7 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     const onComponentAddClick = async () => {
-        if (isChoreoProject.current) {
+        if (isChoreoProject) {
             rpcInstance.executeCommand('wso2.choreo.component.create').catch((error: Error) => {
                 rpcInstance.showErrorMessage(error.message);
             })
@@ -99,8 +99,17 @@ export function DesignDiagram(props: DiagramProps) {
         setTargetService(undefined);
     }
 
+    const ctx = {
+        getTypeComposition,
+        currentView,
+        go2source,
+        editingEnabled,
+        setTargetService,
+        isChoreoProject
+    }
+
     return (
-        <DesignDiagramContext {...{ getTypeComposition, currentView, go2source, editingEnabled, setTargetService }}>
+        <DesignDiagramContext {...ctx}>
             <Container>
                 {showEditForm &&
                     <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
@@ -109,10 +118,7 @@ export function DesignDiagram(props: DiagramProps) {
                     projectComponents ?
                         <>
                             {currentView === Views.L1_SERVICES && editingEnabled &&
-                                <ControlsLayer
-                                    onComponentAddClick={onComponentAddClick}
-                                    isChoreoProject={isChoreoProject.current}
-                                />
+                                <ControlsLayer onComponentAddClick={onComponentAddClick} />
                             }
                             {editingEnabled && targetService &&
                                 <ConnectorWizard service={targetService} onClose={onConnectorWizardClose} />}
